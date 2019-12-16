@@ -23,7 +23,7 @@ import uk.co.ogauthority.pipelines.service.UserSessionService;
 @Component
 public class FoxSessionFilter extends GenericFilterBean {
 
-  public static final String SESSION_COOKIE_NAME = "FOX_SESSION_ID";
+  public static final String SESSION_COOKIE_NAME = "p_dti_session_id";
 
   private final UserSessionService userSessionService;
 
