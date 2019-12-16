@@ -1,0 +1,57 @@
+plugins {
+  id 'org.springframework.boot' version '2.1.6.RELEASE'
+  id 'java'
+  id 'jacoco'
+  id 'checkstyle'
+}
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'war'
+
+group = 'uk.co.fivium'
+version = System.getenv("DRONE_BRANCH") ? System.getenv("DRONE_BRANCH").replaceAll("[/\\-]", "_") : "LOCAL-SNAPSHOT"
+sourceCompatibility = '11'
+
+repositories {
+  mavenCentral()
+  maven {
+    url("http://nexus.fivium.local:8081/repository/maven-releases/")
+  }
+}
+
+dependencies {
+
+  providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+  implementation 'org.springframework.boot:spring-boot-starter'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-freemarker'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'io.micrometer:micrometer-registry-statsd:1.0.6'
+
+  compile 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
+  compile 'com.oracle:ojdbc7:12.1.0.2'
+  compile 'org.springframework.session:spring-session-jdbc'
+
+  compile 'com.google.guava:guava:27.1-jre'
+  compile 'org.apache.commons:commons-lang3:3.9'
+
+  compile 'com.openhtmltopdf:openhtmltopdf-core:1.0.0'
+  compile 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.0'
+
+  compile 'fi.solita.clamav:clamav-client:1.0.1'
+
+  compile 'org.jsoup:jsoup:1.12.1'
+
+  testCompile 'com.h2database:h2:1.4.197'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.security:spring-security-test'
+}
+
+checkstyle {
+  config = rootProject.resources.text.fromFile('ide/checkstyle.xml')
+  toolVersion '8.14'
+}

@@ -1,0 +1,41 @@
+@import '../../public/assets/govuk-frontend/core/links';
+@import '../../public/assets/govuk-frontend/core/_lists.scss';
+@import '../../public/assets/govuk-frontend/core/_typography.scss';
+
+a {
+  @extend %govuk-link;
+}
+
+ul {
+  @extend %govuk-list;
+  @extend %govuk-list--bullet;
+}
+
+ol {
+  @extend %govuk-list;
+  @extend %govuk-list--number;
+}
+
+p {
+  @extend %govuk-body-m
+}
+
+.govuk-hint {
+  ul, ol, p {
+    color: $govuk-secondary-text-colour;
+  }
+}
+
+$offset: 2;
+.govuk-link {
+  &--button {
+    @include govuk-font($size: 19, $line-height: 19px);
+
+    padding: (govuk-spacing(2) - $govuk-border-width-form-element - ($govuk-border-width-form-element / 2)) govuk-spacing(2);
+    display: inline-block;
+    border: 2px solid transparent;
+
+    padding-top: (govuk-spacing(2) - $govuk-border-width-form-element - ($govuk-border-width-form-element / 2) + $offset);
+    padding-bottom: (govuk-spacing(2) - $govuk-border-width-form-element - ($govuk-border-width-form-element / 2) - $offset + 1);
+  }
+}

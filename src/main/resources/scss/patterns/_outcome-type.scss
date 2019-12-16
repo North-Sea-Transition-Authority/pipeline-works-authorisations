@@ -1,0 +1,31 @@
+// Custom pattern for outcomes
+.outcome-type {
+
+  &__form {
+
+    @include govuk-media-query($from: tablet) {
+      display: inline-block;
+    }
+
+    &:first-child {
+      .govuk-button {
+        @include govuk-media-query($until: tablet) {
+          @include govuk-responsive-margin(3, "bottom");
+        }
+      }
+    }
+
+  }
+
+  @include govuk-media-query($from: tablet) {
+
+    .govuk-button {
+
+      &--outcome {
+        width: 100%;
+      }
+
+    }
+
+  }
+}

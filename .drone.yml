@@ -1,0 +1,32 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: build-frontend
+    image: node:10
+    commands:
+      - npm install
+      - npx gulp buildAll
+
+  - name: build-java
+    image: openjdk:11-jdk-slim
+    commands:
+      - chmod +x gradlew
+      - ./gradlew test checkstyleMain bootWar
+
+  - name: sync-reports
+    image: alpine
+    commands:
+      - mkdir -p /var/webfiles/${DRONE_BUILD_NUMBER}
+      - cp -r build/reports /var/webfiles/${DRONE_BUILD_NUMBER}
+    volumes:
+      - name: webfiles
+        path: /var/webfiles
+    when:
+      status: [ success, failure ]
+
+volumes:
+  - name: webfiles
+    host:
+      path: /home/fivium/www/pipelines
