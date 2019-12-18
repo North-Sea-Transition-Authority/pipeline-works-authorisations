@@ -53,5 +53,5 @@ dependencies {
 
 checkstyle {
   config = rootProject.resources.text.fromFile('ide/checkstyle.xml')
-  toolVersion '8.14'
+  toolVersion '8.25'
 }
