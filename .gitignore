@@ -33,7 +33,9 @@ HELP.md
 ### Node ###
 logs
 node_modules
-src/main/resources/public/assets/govuk-frontend/*
 
-### Static files ###
+### FDS ###
 static
+/src/main/resources/public/assets/govuk-frontend/
+/src/main/resources/public/assets/html5shiv/
+/src/main/resources/templates/fds/

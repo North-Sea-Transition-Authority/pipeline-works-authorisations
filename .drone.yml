@@ -3,9 +3,17 @@ type: docker
 name: default
 
 steps:
+  - name: fetch-fds-submodule
+    image: alpine/git
+    commands:
+      # Drone cannot auth to a ssh based repo, so override to https to make use of .netrc
+      - git config submodule.fivium-design-system-core.url https://bitbucket.org/fiviumuk/fivium-design-system-core.git
+      - git submodule update --init --recursive --remote
+
   - name: build-frontend
     image: node:10
     commands:
+      - cd fivium-design-system-core && npm install && cd ..
       - npm install
       - npx gulp buildAll
 

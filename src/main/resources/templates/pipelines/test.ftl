@@ -1,6 +1,6 @@
 <#include 'layout.ftl'>
 
-<@defaultPage title="Session integration test" pageHeading="Session integration test" twoThirdsColumn=false>
+<@defaultPage htmlTitle="Session integration test" pageHeading="Session integration test" twoThirdsColumn=false>
 
   <#if user?has_content>
 

@@ -15,7 +15,7 @@ const jsBabelOptions = {
   presets: ["@babel/preset-env"]
 };
 
-const jsBabelGlobPattern = 'src/main/resources/public/assets/javascript/self-service/*.js';
+const jsBabelGlobPattern = 'src/main/resources/public/assets/javascript/pipelines/*.js';
 
 function compileBabel() {
   let babelTask = babel(jsBabelOptions);
@@ -23,11 +23,11 @@ function compileBabel() {
   return gulp.src(jsBabelGlobPattern, {base: "."})
     .pipe(babelTask)
     .pipe(rename(path => {
-      path.dirname = path.dirname.replace(/javascript([\/\\])self-service/, '$1static$1js$1self-service');
+      path.dirname = path.dirname.replace(/javascript([\/\\])pipelines/, '$1static$1js$1pipelines');
     }))
     .pipe(gulp.dest('./'))
         .pipe(rename(path => {
-          path.dirname = path.dirname.replace(/([\/\\])?src([\/\\])main[\/\\]resources[\/\\]public[\/\\]assets[\/\\]javascript[\/\\]self-service/, '$2out$2production$2resources$2public$2assets$2static$2js$2self-service$2');
+          path.dirname = path.dirname.replace(/([\/\\])?src([\/\\])main[\/\\]resources[\/\\]public[\/\\]assets[\/\\]javascript[\/\\]pipelines/, '$2out$2production$2resources$2public$2assets$2static$2js$2pipelines$2');
     }))
     .pipe(gulp.dest('./'));
 }
@@ -64,24 +64,34 @@ function compileSass(exitOnError) {
 .pipe(gulp.dest('./'));
 }
 
+
+gulp.task('copyFdsResources', () => {
+  return gulp.src(['fivium-design-system-core/fds/**/*'])
+    .pipe(gulp.dest('src/main/resources/templates/fds'));
+});
+
 gulp.task('copyGovukResources', () => {
-  return gulp.src(['node_modules/govuk-frontend/**/*']).pipe(gulp.dest('src/main/resources/public/assets/govuk-frontend'))
+  return gulp.src(['fivium-design-system-core/node_modules/govuk-frontend/**/*'])
+    .pipe(gulp.dest('src/main/resources/public/assets/govuk-frontend'));
 });
 
 gulp.task('copyHtml5Shiv', () => {
-  gulp.src(['node_modules/html5shiv/**/*']).pipe(gulp.dest('src/main/resources/public/assets/html5shiv'))
+  return gulp.src(['fivium-design-system-core/node_modules/html5shiv/dist/html5shiv.min.js'])
+    .pipe(gulp.dest('src/main/resources/public/assets/html5shiv'))
 });
+
+gulp.task('initFds', gulp.series(['copyFdsResources', 'copyGovukResources', 'copyHtml5Shiv']));
+
+gulp.task('sass', gulp.series(['initFds'], () => {
+  return compileSass(false);
+}));
+
+gulp.task('sassCi', gulp.series(['initFds'], () => {
+  return compileSass(true);
+}));
 
 gulp.task('babel', () => {
   return compileBabel();
 });
 
-gulp.task('sass', gulp.series(['copyGovukResources'], () => {
-  return compileSass(false);
-}));
-
-gulp.task('sassCi', gulp.series(['copyGovukResources'], () => {
-  return compileSass(true);
-}));
-
-gulp.task('buildAll',  gulp.series(['sassCi', 'babel']));
+gulp.task('buildAll', gulp.series(['sassCi', 'babel']));
