@@ -1,5 +1,5 @@
 plugins {
-  id 'org.springframework.boot' version '2.1.6.RELEASE'
+  id 'org.springframework.boot' version '2.2.2.RELEASE'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
@@ -36,15 +36,8 @@ dependencies {
   compile 'com.oracle:ojdbc7:12.1.0.2'
   compile 'org.springframework.session:spring-session-jdbc'
 
-  compile 'com.google.guava:guava:27.1-jre'
+  compile 'com.google.guava:guava:28.1-jre'
   compile 'org.apache.commons:commons-lang3:3.9'
-
-  compile 'com.openhtmltopdf:openhtmltopdf-core:1.0.0'
-  compile 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.0'
-
-  compile 'fi.solita.clamav:clamav-client:1.0.1'
-
-  compile 'org.jsoup:jsoup:1.12.1'
 
   testCompile 'com.h2database:h2:1.4.197'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
