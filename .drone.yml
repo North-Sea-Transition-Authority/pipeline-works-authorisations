@@ -31,7 +31,7 @@ steps:
       sonar_token:
         from_secret: sonar_token
       sources: src
-      exclusions: src/test/**, src/main/resources/public/assets/**
+      exclusions: src/test/**, src/main/resources/public/assets/**, src/main/resources/templates/fds/**, fivium-design-system-core/**
     when:
       status: success
       branch: develop
