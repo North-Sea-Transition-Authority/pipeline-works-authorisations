@@ -1,12 +1,22 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'org.owasp:dependency-check-gradle:5.2.4'
+  }
+}
+
 plugins {
   id 'org.springframework.boot' version '2.2.2.RELEASE'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
+  id 'war'
 }
 
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'war'
+apply plugin: 'org.owasp.dependencycheck'
 
 group = 'uk.co.fivium'
 version = System.getenv("DRONE_BRANCH") ? System.getenv("DRONE_BRANCH").replaceAll("[/\\-]", "_") : "LOCAL-SNAPSHOT"
@@ -30,7 +40,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-freemarker'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
-  implementation 'io.micrometer:micrometer-registry-statsd:1.0.6'
+  implementation 'io.micrometer:micrometer-registry-statsd:1.3.2'
 
   compile 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
   compile 'com.oracle:ojdbc7:12.1.0.2'
@@ -47,4 +57,12 @@ dependencies {
 checkstyle {
   config = rootProject.resources.text.fromFile('ide/checkstyle.xml')
   toolVersion '8.25'
+}
+
+dependencyCheck {
+  data {
+    // Point to a persisted volume in drone, to avoid having to re-download the whole CVE database each run.
+    // Comment this out to run locally
+    directory='/var/nvd-db'
+  }
 }

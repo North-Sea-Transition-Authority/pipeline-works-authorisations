@@ -23,6 +23,53 @@ steps:
       - chmod +x gradlew
       - ./gradlew test checkstyleMain bootWar
 
+  - name: code-analysis
+    image: aosapps/drone-sonar-plugin
+    settings:
+      sonar_host:
+        from_secret: sonar_host
+      sonar_token:
+        from_secret: sonar_token
+      sources: src
+      exclusions: src/test/**, src/main/resources/public/assets/**
+    when:
+      status: success
+      branch: develop
+
+  - name: publish-build-s3
+    image: plugins/s3
+    settings:
+      bucket: fivium-oga-pipelines-resources
+      region: eu-west-2
+      access_key:
+        from_secret: drone_oga_s3_access_key
+      secret_key:
+        from_secret: drone_oga_s3_secret_key
+      source: build/libs/*
+      target: /builds/oga
+      strip_prefix: build/libs/
+    when:
+      status: success
+      branch: [ develop, release/*, master ]
+
+  - name: vulnerability-scan-java
+    image: openjdk:11-jdk-slim
+    commands:
+      - chmod +x gradlew
+      - ./gradlew dependencyCheckAnalyze
+    volumes:
+      - name: nvd-db
+        path: /var/nvd-db
+    when:
+      branch: develop
+
+  - name: vulnerability-scan-npm
+    image: node:10.12.0
+    commands:
+      - npm audit > build/reports/npm-audit-report.txt || true # dont fail build if non 0 exit code
+    when:
+      branch: develop
+
   - name: sync-reports
     image: alpine
     commands:
@@ -34,7 +81,20 @@ steps:
     when:
       status: [ success, failure ]
 
+  - name: slack
+    image: plugins/slack
+    settings:
+      webhook: https://hooks.slack.com/services/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
+      channel: oga-pipelines
+      template: "*{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>\nReports published to: http://drone-assets.fivium.local:9090/pipelines/{{build.number}}/"
+    when:
+      status: [ success, failure ]
+
 volumes:
   - name: webfiles
     host:
       path: /home/fivium/www/pipelines
+
+  - name: nvd-db
+    host:
+      path: /home/fivium/nvd-db
