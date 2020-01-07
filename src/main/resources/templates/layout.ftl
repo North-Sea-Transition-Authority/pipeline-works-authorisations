@@ -1,8 +1,8 @@
 <#import '/spring.ftl' as spring/>
 
 <#--Layout-->
-<#include '../fds/objects/layouts/generic.ftl'>
-<#import '../fds/objects/grid/grid.ftl' as grid>
+<#include 'fds/objects/layouts/generic.ftl'>
+<#import 'fds/objects/grid/grid.ftl' as grid>
 <#import 'header.ftl' as pipelinesHeader>
 
 <#function springUrl url>

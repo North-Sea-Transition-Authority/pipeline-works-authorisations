@@ -10,7 +10,7 @@ public class TestController {
 
   @GetMapping("/test")
   public ModelAndView test(UserAccount userAccount) {
-    return new ModelAndView("pipelines/test", "user", userAccount);
+    return new ModelAndView("test", "user", userAccount);
   }
 
 }
