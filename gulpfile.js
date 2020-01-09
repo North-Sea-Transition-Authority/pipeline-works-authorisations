@@ -75,12 +75,22 @@ gulp.task('copyGovukResources', () => {
     .pipe(gulp.dest('src/main/resources/public/assets/govuk-frontend'));
 });
 
+gulp.task('copyFdsJs', () => {
+  return gulp.src(['src/main/resources/templates/fds/static/js/**/*'])
+    .pipe(gulp.dest('src/main/resources/public/assets/static/fds/js'));
+});
+
+gulp.task('copyFdsVendorJs', () => {
+  return gulp.src(['src/main/resources/templates/fds/vendor/**/*'])
+    .pipe(gulp.dest('src/main/resources/public/assets/static/js/vendor'))
+});
+
 gulp.task('copyHtml5Shiv', () => {
   return gulp.src(['fivium-design-system-core/node_modules/html5shiv/dist/html5shiv.min.js'])
     .pipe(gulp.dest('src/main/resources/public/assets/html5shiv'))
 });
 
-gulp.task('initFds', gulp.series(['copyFdsResources', 'copyGovukResources', 'copyHtml5Shiv']));
+gulp.task('initFds', gulp.series(['copyFdsResources', 'copyGovukResources', 'copyHtml5Shiv', 'copyFdsJs', 'copyFdsVendorJs']));
 
 gulp.task('sass', gulp.series(['initFds'], () => {
   return compileSass(false);

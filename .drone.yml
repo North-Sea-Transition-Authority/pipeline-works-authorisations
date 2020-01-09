@@ -13,7 +13,7 @@ steps:
   - name: build-frontend
     image: node:10
     commands:
-      - cd fivium-design-system-core && npm install && cd ..
+      - cd fivium-design-system-core && npm install && npx gulp build && cd ..
       - npm install
       - npx gulp buildAll
 
