@@ -10,10 +10,17 @@ steps:
       - git config submodule.fivium-design-system-core.url https://bitbucket.org/fiviumuk/fivium-design-system-core.git
       - git submodule update --init --recursive --remote
 
+  - name: build-fds
+    image: node:10
+    commands:
+      - cd fivium-design-system-core
+      - npm install
+      - npx gulp build
+      - cd ..
+
   - name: build-frontend
     image: node:10
     commands:
-      - cd fivium-design-system-core && npm install && npx gulp build && cd ..
       - npm install
       - npx gulp buildAll
 
