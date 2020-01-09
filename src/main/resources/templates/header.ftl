@@ -1,5 +1,12 @@
 <#-- TODO generify FDS header and use that instead -->
 
+<#function springUrl url>
+  <#local springUrl>
+      <@spring.url url/>
+  </#local>
+  <#return springUrl>
+</#function>
+
 <#-- Header Component https://design-system.service.gov.uk/components/header/ -->
 <#macro header
 homePageUrl="/"
@@ -46,10 +53,14 @@ headerIcon=true>
             <button type="button" data-module="govuk-button" role="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation" aria-label="Show or hide Top Level Navigation" id="expand-contract-menu-button">Menu</button>
               <nav>
                 <ul id="navigation" class="govuk-header__navigation" aria-label="Top Level Navigation">
-                  <#--  TODO username and sign out link  -->
-    <#--              &lt;#&ndash;Use a list if the number of navigation items is unknown&ndash;&gt;-->
-    <#--              <li class="govuk-header__navigation-item govuk-header__navigation-item--active">Navigation item 1</li>-->
-    <#--              <li class="govuk-header__navigation-item">Navigation item 2</li>-->
+                  <#if currentUserView?has_content && currentUserView.isAuthenticated()>
+                    <li class="govuk-header__navigation-item">
+                      ${currentUserView.getFullName()}
+                    </li>
+                    <li class="govuk-header__navigation-item">
+                      <@fdsAction.link linkText="Sign out" linkUrl=foxLogoutUrl linkClass="govuk-header__link"/>
+                    </li>
+                  </#if>
                 </ul>
               </nav>
           </div>

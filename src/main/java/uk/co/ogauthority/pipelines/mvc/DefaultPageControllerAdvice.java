@@ -1,0 +1,44 @@
+package uk.co.ogauthority.pipelines.mvc;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import uk.co.ogauthority.pipelines.auth.CurrentUserView;
+import uk.co.ogauthority.pipelines.model.entity.UserAccount;
+import uk.co.ogauthority.pipelines.service.FoxUrlService;
+
+@ControllerAdvice
+public class DefaultPageControllerAdvice {
+
+  private final FoxUrlService foxUrlService;
+
+  @Autowired
+  public DefaultPageControllerAdvice(FoxUrlService foxUrlService) {
+    this.foxUrlService = foxUrlService;
+  }
+
+  @ModelAttribute
+  public void addCommonModelAttributes(Model model) {
+    addCurrentUserView(model);
+    addLogoutUrl(model);
+  }
+
+  private void addCurrentUserView(Model model) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication != null && authentication.getPrincipal() instanceof UserAccount) {
+      UserAccount user = (UserAccount) authentication.getPrincipal();
+      model.addAttribute("currentUserView", CurrentUserView.authenticated(user));
+    } else {
+      model.addAttribute("currentUserView", CurrentUserView.unauthenticated());
+    }
+  }
+
+  private void addLogoutUrl(Model model) {
+    model.addAttribute("foxLogoutUrl", foxUrlService.getFoxLogoutUrl());
+  }
+
+}

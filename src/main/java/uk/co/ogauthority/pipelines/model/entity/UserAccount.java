@@ -71,4 +71,8 @@ public class UserAccount implements Serializable {
   public String getEmailAddress() {
     return emailAddress;
   }
+
+  public String getFullName() {
+    return forename + " " + surname;
+  }
 }
