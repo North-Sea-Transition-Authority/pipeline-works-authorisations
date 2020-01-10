@@ -1,4 +1,4 @@
-CREATE USER ${datasource.user} IDENTIFIED BY ${datasource.password}
+CREATE USER ${datasource.user} IDENTIFIED BY "${datasource.password}"
 DEFAULT TABLESPACE tbsdata
 TEMPORARY TABLESPACE TEMP
 PROFILE mgr_user
