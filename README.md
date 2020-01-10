@@ -1,29 +1,36 @@
 # Pipelines
 
 ## Project setup
-####Prerequisites
+
+### Prerequisites
 * Java 11
 * Node LTS + NPM
 * IntelliJ Ultimate
 
-####Initialise the Fivium Design System
+### Steps
+
+#### Initialise the Fivium Design System
 * `git submodule update --init --recursive`    
 * `cd fivium-design-system-core && npm install && npx gulp build && cd ..`
 
-####Build frontend components
+#### Build frontend components
 * `npm install`
 * `npx gulp buildAll`
 
-####Configure the following environment variables
+#### Configure the following environment variables
 
-    | Environment Variable | Description |
-    | -------------------- |-------------|
-    | DB_SCHEMA_NAME | Database schema to connect as. E.g. `PIPELINES_XX` This schema will be created for you by Flyway|
-    | CONTEXT_SUFFIX | A unique per developer suffix string to apply to the application context path. E.g. your initials |
 
-####Create the Flyway user
+| Environment Variable | Description |
+| -------------------- |-------------|
+| DB_SCHEMA_NAME | Database schema to connect as. E.g. `PIPELINES_XX` This schema will be created for you by Flyway|
+| CONTEXT_SUFFIX | A unique per developer suffix string to apply to the application context path. E.g. your initials |
+
+
+#### Create the Flyway user
 
 This must be your DB_SCHEMA_NAME with '_flyway' appended to the end.
+
+
 ```oraclesqlplus
 CREATE USER pipelines_xx_flyway IDENTIFIED BY "<password>"
 /
@@ -53,10 +60,10 @@ TO pipelines_xx_flyway WITH ADMIN OPTION
 ```
 This user must be created before the app runs for the first time on a new DB. All migrations will be run by this flyway user.
 
-####Set the active profile
+#### Set the active profile
 Set the profile to `development` in your run configuration
 
-####Setup Checkstyle
+#### Setup Checkstyle
 * Install the Checkstyle-IDEA plugin (from third-party repositories)
 * Go to Settings > Checkstyle
 * Add a "Configuration File"
