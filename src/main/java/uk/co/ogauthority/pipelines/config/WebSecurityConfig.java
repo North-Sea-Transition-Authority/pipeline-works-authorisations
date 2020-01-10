@@ -42,7 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     try {
       // Redirect to FOX for login if the request is unauthenticated.
-      // Note auto-redirect is not currently set up. Would require small changes to the MMO login screen.
+      // TODO PWA-285 - redirect to original resource after fox auth
       http.exceptionHandling()
           .authenticationEntryPoint((request, response, authException) -> {
             LOGGER.warn("Unauthenticated user attempted to access authenticated resource. Redirecting to login screen...", authException);
