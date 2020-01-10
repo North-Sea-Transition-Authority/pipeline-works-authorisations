@@ -96,7 +96,6 @@ steps:
       template: |
         *{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>
         Reports published to: http://drone-assets.fivium.local:9090/pipelines/{{build.number}}/
-        ${DRONE_COMMIT_MESSAGE}
     when:
       status: [ success, failure ]
 
