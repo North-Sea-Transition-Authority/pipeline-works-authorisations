@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pipelines.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pipelines.auth.CurrentUserView;
 import uk.co.ogauthority.pipelines.model.entity.UserAccount;
@@ -18,6 +21,12 @@ public class DefaultPageControllerAdvice {
   @Autowired
   public DefaultPageControllerAdvice(FoxUrlService foxUrlService) {
     this.foxUrlService = foxUrlService;
+  }
+
+  @InitBinder
+  public void initBinder(WebDataBinder binder) {
+    // Trim whitespace from form fields
+    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
   }
 
   @ModelAttribute
