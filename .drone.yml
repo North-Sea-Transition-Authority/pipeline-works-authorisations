@@ -88,6 +88,39 @@ steps:
     when:
       status: [ success, failure ]
 
+  - name: deploy-dev
+    image: appleboy/drone-ssh
+    settings:
+      host: lemms1.fivium.local
+      username: root
+      port: 22
+      command_timeout: 300s # 5 mins
+      script:
+        - /srv/salt/decc.local/files/pwa/scripts/dev/pwa-autodeploy.py
+    environment:
+      SSH_KEY:
+        from_secret: dev_ssh_key
+    when:
+      status: success
+      branch: develop
+
+  - name: deploy-st
+    image: appleboy/drone-ssh
+    settings:
+      host: lemms1.fivium.local
+      username: root
+      port: 22
+      command_timeout: 300s # 5 mins
+      script:
+        - /srv/salt/decc.local/files/pwa/scripts/st/pwa-autodeploy.py
+    environment:
+      SSH_KEY:
+        from_secret: dev_ssh_key
+    when:
+      status: success
+      branch: develop
+
+
   - name: slack
     image: plugins/slack
     settings:
