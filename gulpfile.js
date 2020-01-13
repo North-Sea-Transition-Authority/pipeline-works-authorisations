@@ -15,7 +15,7 @@ const jsBabelOptions = {
   presets: ["@babel/preset-env"]
 };
 
-const jsBabelGlobPattern = 'src/main/resources/public/assets/javascript/pipelines/*.js';
+const jsBabelGlobPattern = 'src/main/resources/public/assets/javascript/pwa/*.js';
 
 function compileBabel() {
   let babelTask = babel(jsBabelOptions);
@@ -23,11 +23,11 @@ function compileBabel() {
   return gulp.src(jsBabelGlobPattern, {base: "."})
     .pipe(babelTask)
     .pipe(rename(path => {
-      path.dirname = path.dirname.replace(/javascript([\/\\])pipelines/, '$1static$1js$1pipelines');
+      path.dirname = path.dirname.replace(/javascript([\/\\])pwa/, '$1static$1js$1pwa');
     }))
     .pipe(gulp.dest('./'))
         .pipe(rename(path => {
-          path.dirname = path.dirname.replace(/([\/\\])?src([\/\\])main[\/\\]resources[\/\\]public[\/\\]assets[\/\\]javascript[\/\\]pipelines/, '$2out$2production$2resources$2public$2assets$2static$2js$2pipelines$2');
+          path.dirname = path.dirname.replace(/([\/\\])?src([\/\\])main[\/\\]resources[\/\\]public[\/\\]assets[\/\\]javascript[\/\\]pwa/, '$2out$2production$2resources$2public$2assets$2static$2js$2pwa$2');
     }))
     .pipe(gulp.dest('./'));
 }

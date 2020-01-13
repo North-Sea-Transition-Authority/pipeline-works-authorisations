@@ -1,4 +1,4 @@
-# Pipelines
+# Pipeline Works Authorisations
 
 ## Project setup
 
@@ -22,7 +22,7 @@
 
 | Environment Variable | Description |
 | -------------------- |-------------|
-| DB_SCHEMA_NAME | Database schema to connect as. E.g. `PIPELINES_XX` This schema will be created for you by Flyway|
+| DB_SCHEMA_NAME | Database schema to connect as. E.g. `PWA_XX` This schema will be created for you by Flyway|
 | CONTEXT_SUFFIX | A unique per developer suffix string to apply to the application context path. E.g. your initials |
 
 
@@ -32,10 +32,10 @@ This must be your DB_SCHEMA_NAME with '_flyway' appended to the end.
 
 
 ```oraclesqlplus
-CREATE USER pipelines_xx_flyway IDENTIFIED BY "<password>"
+CREATE USER pwa_xx_flyway IDENTIFIED BY "dev1"
 /
 
-GRANT UNLIMITED TABLESPACE TO pipelines_xx_flyway WITH ADMIN OPTION
+GRANT UNLIMITED TABLESPACE TO pwa_xx_flyway WITH ADMIN OPTION
 /
 
 GRANT
@@ -55,7 +55,7 @@ GRANT
   SELECT ANY SEQUENCE,
   CREATE ANY PROCEDURE,
   GRANT ANY OBJECT PRIVILEGE
-TO pipelines_xx_flyway WITH ADMIN OPTION
+TO pwa_xx_flyway WITH ADMIN OPTION
 / 
 ```
 This user must be created before the app runs for the first time on a new DB. All migrations will be run by this flyway user.
@@ -71,6 +71,7 @@ Set the profile to `development` in your run configuration
 * Select `ide/checkstyle.xml`
 * Check box for "Store relative to project location" 
 * Check the "Active" box next to the new profile
+* On the Git commit dialog tick the 'Scan with Checkstyle' box in the 'Before Commit' section
   
   Note that Checkstyle rules are checked during the build process and any broken rules will fail the build.
     

@@ -3,4 +3,4 @@ pluginManagement {
     gradlePluginPortal()
   }
 }
-rootProject.name = 'pipelines'
+rootProject.name = 'pipeline-works-authorisations'

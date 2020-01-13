@@ -1,5 +1,5 @@
 {
-  "name": "oga-pipelines",
+  "name": "pipeline-works-authorisations",
   "version": "1.0.0",
   "description": "This README would normally document whatever steps are necessary to get your application up and running.",
   "main": "gulpfile.js",
@@ -8,7 +8,7 @@
   },
   "author": "",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/fiviumuk/pipelines#readme",
+  "homepage": "https://bitbucket.org/fiviumuk/pipeline-works-authorisations#readme",
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
