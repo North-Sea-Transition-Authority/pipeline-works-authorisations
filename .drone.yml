@@ -95,14 +95,14 @@ steps:
       channel: oga-pipelines
       template: |
         *{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>
-        Reports published to: http://drone-assets.fivium.local:9090/pipelines/{{build.number}}/
+        Reports published to: http://drone-assets.fivium.local:9090/pwa/{{build.number}}/
     when:
       status: [ success, failure ]
 
 volumes:
   - name: webfiles
     host:
-      path: /home/fivium/www/pipelines
+      path: /home/fivium/www/pwa
 
   - name: nvd-db
     host:
