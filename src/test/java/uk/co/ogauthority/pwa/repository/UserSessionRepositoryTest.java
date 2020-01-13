@@ -41,7 +41,7 @@ public class UserSessionRepositoryTest {
   public void setup() {
     if (!functionCreated) {
       jdbcTemplate.execute(
-          "CREATE ALIAS USER_SYSTEM_PRIVILEGES FOR \"uk.co.ogauthority.pipelines.repository.UserSessionRepositoryTest.testPrivilegeFunction\"");
+          "CREATE ALIAS USER_SYSTEM_PRIVILEGES FOR \"uk.co.ogauthority.pwa.repository.UserSessionRepositoryTest.testPrivilegeFunction\"");
       functionCreated = true;
     }
 
