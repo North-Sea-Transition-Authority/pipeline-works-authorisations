@@ -4,6 +4,7 @@ import java.time.Clock;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
 
 @Configuration
@@ -27,6 +28,14 @@ public class BeanConfig {
     // part of Spring Session filters but before Spring Security. This causes the FoxSessionFilter to be included in
     // requests that have disabled Spring Security (e.g. /assets/**) which can cause performance issues.
     FilterRegistrationBean<FoxSessionFilter> registration = new FilterRegistrationBean<>(foxSessionFilter);
+    registration.setEnabled(false);
+    return registration;
+  }
+
+  @Bean
+  public FilterRegistrationBean<FoxLoginCallbackFilter> foxLoginCallbackFilterRegistration(FoxLoginCallbackFilter foxLoginCallbackFilter) {
+    //Disable automatic registration of the security filter - this will be manually registered in security config
+    FilterRegistrationBean<FoxLoginCallbackFilter> registration = new FilterRegistrationBean<>(foxLoginCallbackFilter);
     registration.setEnabled(false);
     return registration;
   }

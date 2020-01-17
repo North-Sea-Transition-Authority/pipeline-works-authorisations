@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 
@@ -20,11 +21,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   private final FoxSessionFilter foxSessionFilter;
   private final FoxUrlService foxUrlService;
+  private final FoxLoginCallbackFilter foxLoginCallbackFilter;
 
   @Autowired
-  public WebSecurityConfig(FoxSessionFilter foxSessionFilter, FoxUrlService foxUrlService) {
+  public WebSecurityConfig(FoxSessionFilter foxSessionFilter, FoxUrlService foxUrlService,
+                           FoxLoginCallbackFilter foxLoginCallbackFilter) {
     this.foxSessionFilter = foxSessionFilter;
     this.foxUrlService = foxUrlService;
+    this.foxLoginCallbackFilter = foxLoginCallbackFilter;
   }
 
   @Override
@@ -42,14 +46,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     try {
       // Redirect to FOX for login if the request is unauthenticated.
-      // TODO PWA-285 - redirect to original resource after fox auth
       http.exceptionHandling()
           .authenticationEntryPoint((request, response, authException) -> {
-            LOGGER.warn("Unauthenticated user attempted to access authenticated resource. Redirecting to login screen...", authException);
+            LOGGER.warn("Unauthenticated user attempted to access authenticated resource: '{}' Redirecting to login screen...",
+                request.getRequestURI());
             response.sendRedirect(foxUrlService.getFoxLoginUrl());
           });
 
       http.addFilterBefore(foxSessionFilter, RequestCacheAwareFilter.class);
+
+      // The FoxLoginCallbackFilter must be hit before the FoxSessionFilter, otherwise the saved request is wiped
+      // when the session is cleared
+      http.addFilterBefore(foxLoginCallbackFilter, FoxSessionFilter.class);
+
     } catch (Exception e) {
       throw new RuntimeException("Failed to configure HttpSecurity", e);
     }
