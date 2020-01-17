@@ -92,7 +92,7 @@ Run `puppet agent -t` on  edu-dev-app3 to apply your change. You can then access
 
 #### Run the app
 IntelliJ should auto detect the Spring application and create a run configuration.
-Run the project and navigate to `localhost:8081/engedudev1/CONTEXT_SUFFIX/session-info` or `edu-dev-app6.decc.local/engedudev1/CONTEXT_SUFFIX/session-info` if you have set up the proxy
+Run the project and navigate to `localhost:8081/engedudev1/CONTEXT_SUFFIX/session-info` or `edu-dev-app3.decc.local/engedudev1/CONTEXT_SUFFIX/session-info` if you have set up the proxy
 There are some debug endpoints to test your session integration:
 
 * `/session-info` - Shows the current session authentication status, and user account info.
