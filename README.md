@@ -75,7 +75,7 @@ Set the profile to `development` in your run configuration
   
   Note that Checkstyle rules are checked during the build process and any broken rules will fail the build.
     
-#### Proxy routes to enable session sharing (optional, skip to 7 if you don't care about this)
+#### Proxy routes to enable session sharing (Skip to 7 if you don't need to access authenticated pages)
 
 To enable Spring to access the fox session, you must access your local instance under the same hostname and application context (edu-app3.decc.local/engedudev1/).
 
@@ -88,9 +88,12 @@ Edit the puppet yaml at `//Infrastructure/Puppet/fiv-lemms1/environments/develop
 This rule MUST be placed before the Fox proxypass `ProxyPass /engedudev1/ ajp://localhost:8041/engedudev1/`  because the Fox route has a higher scope which
 would capture your local route request.
 
-Run `puppet agent -t` on  edu-dev-app3 to apply your change. You can then access your local instance at `http://edu-app3.decc.local/engedudev1/CONTEXT_SUFFIX/test`
+Run `puppet agent -t` on  edu-dev-app3 to apply your change. You can then access your local instance at `http://edu-app3.decc.local/engedudev1/CONTEXT_SUFFIX/session-info`
 
 #### Run the app
 IntelliJ should auto detect the Spring application and create a run configuration.
-Run the project and navigate to `localhost:8081/engedudev1/CONTEXT_SUFFIX/test` or `edu-dev-app6.decc.local/engedudev1/CONTEXT_SUFFIX/` if you have set up the proxy
-    
+Run the project and navigate to `localhost:8081/engedudev1/CONTEXT_SUFFIX/session-info` or `edu-dev-app6.decc.local/engedudev1/CONTEXT_SUFFIX/session-info` if you have set up the proxy
+There are some debug endpoints to test your session integration:
+
+* `/session-info` - Shows the current session authentication status, and user account info.
+* `/requires-auth` - Same as `session-info` but requires authentication. Use this to test the Fox login/callback redirection process. 

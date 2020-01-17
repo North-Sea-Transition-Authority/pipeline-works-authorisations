@@ -37,7 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     http
       .authorizeRequests()
 
-        .antMatchers("/test")
+        .antMatchers("/session-info")
           .permitAll()
 
         .anyRequest()
