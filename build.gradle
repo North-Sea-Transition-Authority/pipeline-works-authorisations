@@ -57,6 +57,8 @@ dependencies {
 checkstyle {
   config = rootProject.resources.text.fromFile('ide/checkstyle.xml')
   toolVersion '8.28'
+  ignoreFailures = false
+  maxWarnings = 0
 }
 
 dependencyCheck {
