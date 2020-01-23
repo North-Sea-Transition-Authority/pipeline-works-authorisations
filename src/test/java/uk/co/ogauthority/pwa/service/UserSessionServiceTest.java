@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.UserAccount;
+import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.repository.UserSessionRepository;
 
@@ -90,8 +90,8 @@ public class UserSessionServiceTest {
 
   private UserSession createUserSession(String sessionId, Instant lastAccessTimestamp) {
     UserSession userSession = new UserSession(sessionId);
-    UserAccount userAccount = new UserAccount("1");
-    userSession.setUserAccount(userAccount);
+    AuthenticatedUserAccount userAccount = new AuthenticatedUserAccount("1");
+    userSession.setAuthenticatedUserAccount(userAccount);
     userSession.setLastAccessTimestamp(lastAccessTimestamp);
     return userSession;
   }

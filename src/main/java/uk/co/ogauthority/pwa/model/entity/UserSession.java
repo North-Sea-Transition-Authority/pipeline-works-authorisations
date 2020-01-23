@@ -12,19 +12,19 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "user_sessions")
-@NamedEntityGraph(name = UserSession.USER_ACCOUNT_ENTITY_GRAPH, attributeNodes = @NamedAttributeNode("userAccount"))
+@NamedEntityGraph(name = UserSession.USER_ACCOUNT_ENTITY_GRAPH, attributeNodes = @NamedAttributeNode("authenticatedUserAccount"))
 public class UserSession {
 
-  public static final String USER_ACCOUNT_ENTITY_GRAPH = "UserSession.userAccount";
+  public static final String USER_ACCOUNT_ENTITY_GRAPH = "UserSession.authenticatedUserAccount";
 
   @Id
   private String id;
 
-  // Don't load UserAccount unless requested (via the named entity graph)
+  // Don't load AuthenticatedUserAccount unless requested (via the named entity graph)
   // loading their privs is expensive and not needed for simple session validation.
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", referencedColumnName = "id")
-  private UserAccount userAccount;
+  private AuthenticatedUserAccount authenticatedUserAccount;
 
   private Instant loginTimestamp;
 
@@ -43,12 +43,12 @@ public class UserSession {
     return id;
   }
 
-  public UserAccount getUserAccount() {
-    return userAccount;
+  public AuthenticatedUserAccount getAuthenticatedUserAccount() {
+    return authenticatedUserAccount;
   }
 
-  public void setUserAccount(UserAccount userAccount) {
-    this.userAccount = userAccount;
+  public void setAuthenticatedUserAccount(AuthenticatedUserAccount authenticatedUserAccount) {
+    this.authenticatedUserAccount = authenticatedUserAccount;
   }
 
 

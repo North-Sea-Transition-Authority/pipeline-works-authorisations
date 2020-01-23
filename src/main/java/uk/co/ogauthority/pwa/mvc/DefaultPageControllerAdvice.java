@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
-import uk.co.ogauthority.pwa.model.entity.UserAccount;
+import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 
 @ControllerAdvice
@@ -38,8 +38,8 @@ public class DefaultPageControllerAdvice {
   private void addCurrentUserView(Model model) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    if (authentication != null && authentication.getPrincipal() instanceof UserAccount) {
-      UserAccount user = (UserAccount) authentication.getPrincipal();
+    if (authentication != null && authentication.getPrincipal() instanceof AuthenticatedUserAccount) {
+      AuthenticatedUserAccount user = (AuthenticatedUserAccount) authentication.getPrincipal();
       model.addAttribute("currentUserView", CurrentUserView.authenticated(user));
     } else {
       model.addAttribute("currentUserView", CurrentUserView.unauthenticated());

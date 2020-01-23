@@ -7,17 +7,17 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
-import uk.co.ogauthority.pwa.model.entity.UserAccount;
+import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
 
 public class TestUserProvider implements RequestPostProcessor {
 
-  private final UserAccount authenticatedUser;
+  private final AuthenticatedUserAccount authenticatedUser;
 
-  public static TestUserProvider authenticatedUserAndSession(UserAccount authenticatedUser) {
+  public static TestUserProvider authenticatedUserAndSession(AuthenticatedUserAccount authenticatedUser) {
     return new TestUserProvider(authenticatedUser);
   }
 
-  private TestUserProvider(UserAccount authenticatedUser) {
+  private TestUserProvider(AuthenticatedUserAccount authenticatedUser) {
     this.authenticatedUser = authenticatedUser;
   }
 

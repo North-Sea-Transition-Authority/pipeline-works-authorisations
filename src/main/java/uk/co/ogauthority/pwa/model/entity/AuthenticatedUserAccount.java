@@ -14,7 +14,7 @@ import org.hibernate.annotations.Formula;
 
 @Entity
 @Table(name = "user_accounts")
-public class UserAccount implements Serializable {
+public class AuthenticatedUserAccount implements Serializable {
 
   private static final long serialVersionUID = 1;
 
@@ -40,11 +40,11 @@ public class UserAccount implements Serializable {
         .splitToList(StringUtils.defaultString(systemPrivilegesCsv));
   }
 
-  public UserAccount() {
+  public AuthenticatedUserAccount() {
 
   }
 
-  public UserAccount(String id) {
+  public AuthenticatedUserAccount(String id) {
     this.id = id;
   }
 

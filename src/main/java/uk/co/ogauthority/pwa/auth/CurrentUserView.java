@@ -1,14 +1,14 @@
 package uk.co.ogauthority.pwa.auth;
 
-import uk.co.ogauthority.pwa.model.entity.UserAccount;
+import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
 
 public class CurrentUserView {
 
   private final boolean isAuthenticated;
   private final String fullName;
 
-  public static CurrentUserView authenticated(UserAccount user) {
-    return new CurrentUserView(true, user.getFullName());
+  public static CurrentUserView authenticated(AuthenticatedUserAccount authenticatedUserAccount) {
+    return new CurrentUserView(true, authenticatedUserAccount.getFullName());
   }
 
   public static CurrentUserView unauthenticated() {

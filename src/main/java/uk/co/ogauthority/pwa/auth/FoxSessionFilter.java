@@ -65,7 +65,7 @@ public class FoxSessionFilter extends GenericFilterBean {
 
     if (optionalUserSession.isPresent() && authenticationChanged) {
       AuthenticatedUserToken authenticatedUserToken = optionalUserSession
-          .map(session -> AuthenticatedUserToken.create(session.getId(), session.getUserAccount()))
+          .map(session -> AuthenticatedUserToken.create(session.getId(), session.getAuthenticatedUserAccount()))
           .get();
 
       SecurityContextHolder.getContext().setAuthentication(authenticatedUserToken);

@@ -6,14 +6,14 @@ import java.util.Set;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import uk.co.ogauthority.pwa.model.entity.UserAccount;
+import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
 
 public class AuthenticatedUserToken extends AbstractAuthenticationToken {
 
   private final String sessionId;
-  private final UserAccount principal;
+  private final AuthenticatedUserAccount principal;
 
-  public static AuthenticatedUserToken create(String sessionId, UserAccount principal) {
+  public static AuthenticatedUserToken create(String sessionId, AuthenticatedUserAccount principal) {
     Set<GrantedAuthority> grantedAuthorities = principal.getSystemPrivileges().stream()
         .map(SimpleGrantedAuthority::new)
         .collect(toSet());
@@ -21,7 +21,7 @@ public class AuthenticatedUserToken extends AbstractAuthenticationToken {
     return new AuthenticatedUserToken(sessionId, principal, grantedAuthorities);
   }
 
-  private AuthenticatedUserToken(String sessionId, UserAccount principal,
+  private AuthenticatedUserToken(String sessionId, AuthenticatedUserAccount principal,
                                  Set<GrantedAuthority> grantedAuthorities) {
     super(grantedAuthorities);
     this.sessionId = sessionId;

@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContextHolder;
-import uk.co.ogauthority.pwa.model.entity.UserAccount;
+import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 
@@ -130,16 +130,16 @@ public class FoxSessionFilterTest {
   }
 
   private UserSession validSession() {
-    UserSession userSession = new UserSession(VALID_SESSION_ID);
-    userSession.setUserAccount(new UserAccount());
+    var userSession = new UserSession(VALID_SESSION_ID);
+    userSession.setAuthenticatedUserAccount(new AuthenticatedUserAccount());
     return userSession;
   }
 
   private AuthenticatedUserToken validUserToken() {
-    return AuthenticatedUserToken.create(VALID_SESSION_ID,  new UserAccount());
+    return AuthenticatedUserToken.create(VALID_SESSION_ID,  new AuthenticatedUserAccount());
   }
 
   private AuthenticatedUserToken expiredUserToken() {
-    return AuthenticatedUserToken.create("EXPIRED_CACHED_SESSION",  new UserAccount());
+    return AuthenticatedUserToken.create("EXPIRED_CACHED_SESSION",  new AuthenticatedUserAccount());
   }
 }
