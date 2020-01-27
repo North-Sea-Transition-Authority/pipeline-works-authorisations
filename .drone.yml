@@ -124,7 +124,7 @@ steps:
   - name: slack-all
     image: plugins/slack
     settings:
-      webhook: https://hooks.slack.com/services/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
+      webhook: https://hooks.slack.com/services/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
       channel: oga-pipelines-builds
       template: |
         *{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>
