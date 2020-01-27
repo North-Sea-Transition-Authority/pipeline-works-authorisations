@@ -121,16 +121,27 @@ steps:
       branch: develop
 
 
-  - name: slack
+  - name: slack-all
     image: plugins/slack
     settings:
-      webhook: https://hooks.slack.com/services/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
-      channel: oga-pipelines
+      webhook: https://hooks.slack.com/services/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
+      channel: oga-pipelines-builds
       template: |
         *{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>
         Reports published to: http://drone-assets.fivium.local:9090/pwa/{{build.number}}/
     when:
       status: [ success, failure ]
+
+  - name: slack-failure
+    image: plugins/slack
+    settings:
+      webhook: https://hooks.slack.com/services/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
+      channel: oga-pipelines
+      template: |
+        *{{build.status}}* <{{build.link}}|Commit {{truncate build.commit 7}} on {{build.branch}} by ${DRONE_COMMIT_AUTHOR_NAME}>
+        Reports published to: http://drone-assets.fivium.local:9090/pwa/{{build.number}}/
+    when:
+      status: failure
 
 volumes:
   - name: webfiles
