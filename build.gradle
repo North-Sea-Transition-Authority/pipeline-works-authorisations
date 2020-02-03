@@ -45,6 +45,7 @@ dependencies {
   compile 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
   compile 'com.oracle:ojdbc7:12.1.0.2'
   compile 'org.springframework.session:spring-session-jdbc'
+  compile 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
 
   compile 'com.google.guava:guava:28.1-jre'
   compile 'org.apache.commons:commons-lang3:3.9'

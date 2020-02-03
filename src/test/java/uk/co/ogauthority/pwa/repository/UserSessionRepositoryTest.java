@@ -82,4 +82,5 @@ public class UserSessionRepositoryTest {
     assertThat(persistenceUnitUtil.isLoaded(repoSession.get().getAuthenticatedUserAccount())).isTrue();
     assertThat(repoSession.get().getAuthenticatedUserAccount().getSystemPrivileges()).containsExactlyInAnyOrder("ROLE1", "ROLE2");
   }
+
 }
