@@ -8,13 +8,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContextHolder;
-import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 
@@ -131,15 +132,15 @@ public class FoxSessionFilterTest {
 
   private UserSession validSession() {
     var userSession = new UserSession(VALID_SESSION_ID);
-    userSession.setAuthenticatedUserAccount(new AuthenticatedUserAccount());
+    userSession.setAuthenticatedUserAccount(new AuthenticatedUserAccount(new WebUserAccount(1), List.of()));
     return userSession;
   }
 
   private AuthenticatedUserToken validUserToken() {
-    return AuthenticatedUserToken.create(VALID_SESSION_ID,  new AuthenticatedUserAccount());
+    return AuthenticatedUserToken.create(VALID_SESSION_ID,  new AuthenticatedUserAccount(new WebUserAccount(1), List.of()));
   }
 
   private AuthenticatedUserToken expiredUserToken() {
-    return AuthenticatedUserToken.create("EXPIRED_CACHED_SESSION",  new AuthenticatedUserAccount());
+    return AuthenticatedUserToken.create("EXPIRED_CACHED_SESSION",  new AuthenticatedUserAccount(new WebUserAccount(1), List.of()));
   }
 }

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller;
 
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -17,12 +19,18 @@ public abstract class AbstractControllerTest {
   @Autowired
   protected WebApplicationContext context;
 
+  @MockBean
+  private FoxUrlService foxUrlService;
+
   @Before
   public void abstractControllerTestSetup() {
     mockMvc = MockMvcBuilders
         .webAppContextSetup(context)
         .apply(SecurityMockMvcConfigurers.springSecurity())
         .build();
+
+    when(foxUrlService.getFoxLoginUrl()).thenReturn("testLoginUrl");
+    when(foxUrlService.getFoxLogoutUrl()).thenReturn("testLogoutUrl");
   }
 
   @TestConfiguration

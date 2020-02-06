@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 
 @Configuration
@@ -36,6 +37,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     http
       .authorizeRequests()
+
+        .antMatchers("/portal-team-management")
+          .hasAnyAuthority(
+              PwaUserPrivilege.PWA_REGULATOR_ADMIN.name(),
+              PwaUserPrivilege.PWA_REG_ORG_MANAGE.name(),
+              PwaUserPrivilege.PWA_ORG_ADMIN.name())
 
         .antMatchers("/session-info")
           .permitAll()

@@ -2,38 +2,27 @@ package uk.co.ogauthority.pwa.model.entity;
 
 import java.time.Instant;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 
 @Entity
 @Table(name = "user_sessions")
-@NamedEntityGraph(name = UserSession.USER_ACCOUNT_ENTITY_GRAPH, attributeNodes = @NamedAttributeNode("authenticatedUserAccount"))
 public class UserSession {
-
-  public static final String USER_ACCOUNT_ENTITY_GRAPH = "UserSession.authenticatedUserAccount";
 
   @Id
   private String id;
-
-  // Don't load AuthenticatedUserAccount unless requested (via the named entity graph)
-  // loading their privs is expensive and not needed for simple session validation.
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", referencedColumnName = "id")
-  private AuthenticatedUserAccount authenticatedUserAccount;
-
+  private int wuaId;
   private Instant loginTimestamp;
-
   private Instant lastAccessTimestamp;
-
   private Instant logoutTimestamp;
 
-  public UserSession() {
-  }
+  @Transient
+  // Fetch manually when needed
+  private AuthenticatedUserAccount authenticatedUserAccount;
+
+  public UserSession() { }
 
   public UserSession(String id) {
     this.id = id;
@@ -43,14 +32,9 @@ public class UserSession {
     return id;
   }
 
-  public AuthenticatedUserAccount getAuthenticatedUserAccount() {
-    return authenticatedUserAccount;
+  public int getWuaId() {
+    return wuaId;
   }
-
-  public void setAuthenticatedUserAccount(AuthenticatedUserAccount authenticatedUserAccount) {
-    this.authenticatedUserAccount = authenticatedUserAccount;
-  }
-
 
   public Instant getLoginTimestamp() {
     return loginTimestamp;
@@ -74,6 +58,14 @@ public class UserSession {
 
   public void setLogoutTimestamp(Instant logoutTimestamp) {
     this.logoutTimestamp = logoutTimestamp;
+  }
+
+  public AuthenticatedUserAccount getAuthenticatedUserAccount() {
+    return authenticatedUserAccount;
+  }
+
+  public void setAuthenticatedUserAccount(AuthenticatedUserAccount authenticatedUserAccount) {
+    this.authenticatedUserAccount = authenticatedUserAccount;
   }
 }
 

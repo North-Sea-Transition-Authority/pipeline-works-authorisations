@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
@@ -43,7 +45,7 @@ public class WebDataBinderTest {
         .apply(SecurityMockMvcConfigurers.springSecurity())
         .build();
 
-    var testUser = new AuthenticatedUserAccount("1");
+    var testUser = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
 
     mockMvc.perform(post("/data-binder-test")
         .with(authenticatedUserAndSession(testUser))

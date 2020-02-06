@@ -9,8 +9,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
-import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 
 @ControllerAdvice

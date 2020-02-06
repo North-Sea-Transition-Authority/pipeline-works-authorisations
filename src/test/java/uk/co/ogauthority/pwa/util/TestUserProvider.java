@@ -7,7 +7,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
-import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 
 public class TestUserProvider implements RequestPostProcessor {
 
@@ -24,7 +24,7 @@ public class TestUserProvider implements RequestPostProcessor {
   @Override
   public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 
-    var sessionId = "session_" + authenticatedUser.getId();
+    var sessionId = "session_" + authenticatedUser.getWuaId();
     AuthenticatedUserToken authenticatedUserToken = AuthenticatedUserToken.create(sessionId, authenticatedUser);
 
     // Set the authentication token on the SecurityContext

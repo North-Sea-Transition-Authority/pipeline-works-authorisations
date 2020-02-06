@@ -6,7 +6,7 @@
 
       <ul class="govuk-list govuk-list--bullet">
 
-        <li>wuaId: ${user.id}</li>
+        <li>wuaId: ${user.wuaId}</li>
 
         <li>fname: ${user.forename}</li>
 
@@ -17,8 +17,8 @@
         <li>privs:
 
           <ul class="govuk-list govuk-list--bullet">
-            <#list user.systemPrivileges as priv>
-              <li>${priv}</li>
+            <#list user.userPrivileges as priv>
+              <li>${priv.name()}</li>
             </#list>
           </ul>
 

@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.auth;
 
-import uk.co.ogauthority.pwa.model.entity.AuthenticatedUserAccount;
-
 public class CurrentUserView {
 
   private final boolean isAuthenticated;

@@ -57,6 +57,9 @@ GRANT
   GRANT ANY OBJECT PRIVILEGE
 TO pwa_xx_flyway WITH ADMIN OPTION
 / 
+
+GRANT EXECUTE ON decmgr.contact TO pwa_xx_flyway
+/
 ```
 This user must be created before the app runs for the first time on a new DB. All migrations will be run by this flyway user.
 
