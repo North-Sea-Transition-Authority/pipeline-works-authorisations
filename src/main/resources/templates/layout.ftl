@@ -39,7 +39,7 @@
   <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines">
 
     <#--Header-->
-    <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipelines"  topNavigation=topNavigation wrapperWidth=wrapperWidth headerIcon=headerIcon/>
+    <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth headerIcon=headerIcon/>
 
     <#--Phase banner-->
     <#if phaseBanner>
