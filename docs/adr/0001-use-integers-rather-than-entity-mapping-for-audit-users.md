@@ -1,6 +1,6 @@
 # Store wuaId integers for audit purposes rather than fully mapped WebUserAccount entities
 
-* Deciders: cwood, jbarnett
+* Deciders: cwood, jbarnett, mheyes
 * Date: 03-02-2020
 
 ## Context and Problem Statement

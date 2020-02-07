@@ -1,6 +1,6 @@
 # Avoid lazy loading child entities
 
-* Deciders: jbarnett, cwood
+* Deciders: jbarnett, cwood, mheyes
 * Date: 07-02-2020
 
 ## Context and Problem Statement
