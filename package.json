@@ -10,6 +10,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/fiviumuk/pipeline-works-authorisations#readme",
   "devDependencies": {
+    "adr-log": "^2.1.3",
     "@babel/core": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "autoprefixer": "^9.4.2",
