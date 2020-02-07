@@ -1,16 +1,20 @@
 package uk.co.ogauthority.pwa.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
+import uk.co.ogauthority.pwa.service.UserSessionService;
 
 public abstract class AbstractControllerTest {
 
@@ -20,7 +24,10 @@ public abstract class AbstractControllerTest {
   protected WebApplicationContext context;
 
   @MockBean
-  private FoxUrlService foxUrlService;
+  protected FoxUrlService foxUrlService;
+
+  @MockBean
+  protected UserSessionService userSessionService;
 
   @Before
   public void abstractControllerTestSetup() {
@@ -31,13 +38,8 @@ public abstract class AbstractControllerTest {
 
     when(foxUrlService.getFoxLoginUrl()).thenReturn("testLoginUrl");
     when(foxUrlService.getFoxLogoutUrl()).thenReturn("testLogoutUrl");
-  }
 
-  @TestConfiguration
-  public static class TestConfig {
-
-    @MockBean
-    protected FoxUrlService foxUrlService;
+    when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 
   }
 

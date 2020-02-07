@@ -99,4 +99,8 @@ Run the project and navigate to `localhost:8081/engedudev1/CONTEXT_SUFFIX/sessio
 There are some debug endpoints to test your session integration:
 
 * `/session-info` - Shows the current session authentication status, and user account info.
-* `/requires-auth` - Same as `session-info` but requires authentication. Use this to test the Fox login/callback redirection process. 
+* `/requires-auth` - Same as `session-info` but requires authentication. Use this to test the Fox login/callback redirection process.
+
+## Documentation
+
+The [Architectural Decision Records](https://adr.github.io/) pattern should be used to document important technical decisions and the reasoning behind them. This project uses the [MADR](https://adr.github.io/madr/) format. Records can be found in the `docs/adr` folder.   

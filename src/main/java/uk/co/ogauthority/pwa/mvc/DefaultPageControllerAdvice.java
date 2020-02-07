@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,7 +14,10 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 
-@ControllerAdvice
+/**
+ * Provides common model objects for the default page view.
+ */
+@ControllerAdvice(annotations = Controller.class)
 public class DefaultPageControllerAdvice {
 
   private final FoxUrlService foxUrlService;

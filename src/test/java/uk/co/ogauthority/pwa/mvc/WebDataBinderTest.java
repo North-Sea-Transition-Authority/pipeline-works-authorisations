@@ -12,18 +12,12 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -31,19 +25,10 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
-@Import({AbstractControllerTest.TestConfig.class})
-public class WebDataBinderTest {
-
-  @Autowired
-  protected WebApplicationContext context;
+public class WebDataBinderTest extends AbstractControllerTest {
 
   @Test
   public void testStringTrimmer() throws Exception {
-
-    MockMvc mockMvc = MockMvcBuilders
-        .webAppContextSetup(context)
-        .apply(SecurityMockMvcConfigurers.springSecurity())
-        .build();
 
     var testUser = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
 

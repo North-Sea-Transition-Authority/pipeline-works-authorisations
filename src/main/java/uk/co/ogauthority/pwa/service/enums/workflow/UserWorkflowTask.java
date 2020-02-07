@@ -13,7 +13,8 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
  */
 public enum UserWorkflowTask {
 
-  PREPARE_APPLICATION(WorkflowType.PWA_APPLICATION, "prepareApplication", List.of(UserType.INDUSTRY));
+  PREPARE_APPLICATION(WorkflowType.PWA_APPLICATION, "prepareApplication", List.of(UserType.INDUSTRY)),
+  APPLICATION_REVIEW(WorkflowType.PWA_APPLICATION, "applicationReview", List.of(UserType.OGA));
 
   private final WorkflowType workflowType;
   private final String taskKey;

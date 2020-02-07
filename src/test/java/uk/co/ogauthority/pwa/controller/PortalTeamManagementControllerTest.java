@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -33,13 +32,11 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.mvc.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -51,9 +48,6 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
 
   private static final int UNKNOWN_PERSON_ID = 123456789;
   private static final int UNKNOWN_RES_ID = 99999;
-
-  @MockBean
-  private UserSessionService userSessionService;
 
   @MockBean
   private TeamManagementService teamManagementService;
@@ -73,8 +67,6 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
 
   @Before
   public void teamManagementTestSetup() {
-
-    when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 
     regulatorTeamAdmin = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
     organisationTeamAdmin = new AuthenticatedUserAccount(new WebUserAccount(2), List.of(PwaUserPrivilege.PWA_ORG_ADMIN));
