@@ -12,14 +12,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.ogauthority.pwa.mvc.ResponseBufferSizeHandlerInterceptor;
-import uk.co.ogauthority.pwa.mvc.UserAccountArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.AuthenticatedUserAccountArgumentResolver;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-    resolvers.add(new UserAccountArgumentResolver());
+    resolvers.add(new AuthenticatedUserAccountArgumentResolver());
   }
 
   @Override
