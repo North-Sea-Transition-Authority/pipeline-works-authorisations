@@ -20,6 +20,9 @@ import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Import(AbstractControllerTest.AbstractControllerTestConfiguration.class)
 public abstract class AbstractControllerTest {
@@ -36,6 +39,15 @@ public abstract class AbstractControllerTest {
   protected UserSessionService userSessionService;
 
   @MockBean
+  protected PwaApplicationDetailService pwaApplicationDetailService;
+
+  @MockBean
+  protected PwaApplicationRedirectService pwaApplicationRedirectService;
+
+  @MockBean
+  protected TeamService teamService;
+
+  @MockBean
   private TopMenuService topMenuService;
 
   @Before
@@ -49,6 +61,9 @@ public abstract class AbstractControllerTest {
     when(foxUrlService.getFoxLogoutUrl()).thenReturn("testLogoutUrl");
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
+
+    when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
+
   }
 
 

@@ -18,7 +18,7 @@
             fieldsetHeadingClass="govuk-fieldset__legend--l"
             fieldsetHeadingSize="h1"/>
 
-        <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(workAreaUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workAreaUrl)/>
 
     </@fdsForm.htmlForm>
 

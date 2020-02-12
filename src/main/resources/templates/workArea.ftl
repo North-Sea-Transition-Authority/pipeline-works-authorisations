@@ -4,6 +4,6 @@
 
 <@defaultPage htmlTitle="Work area" pageHeading="Work area" topNavigation=true>
 
-    <@fdsAction.link linkText="Start new PWA" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button"/>
+    <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button"/>
 
 </@defaultPage>

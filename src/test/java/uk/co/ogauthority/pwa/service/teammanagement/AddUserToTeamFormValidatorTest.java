@@ -16,9 +16,9 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.form.teammanagement.AddUserToTeamForm;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
-import uk.co.ogauthority.pwa.mvc.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.util.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
