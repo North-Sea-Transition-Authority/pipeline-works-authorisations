@@ -41,7 +41,7 @@ public class DefaultPageControllerAdvice {
   public void addCommonModelAttributes(Model model) {
     addCurrentUserView(model);
     addLogoutUrl(model);
-    addTomMenuItems(model, request);
+    addTopMenuItems(model, request);
   }
 
   private void addCurrentUserView(Model model) {
@@ -53,17 +53,11 @@ public class DefaultPageControllerAdvice {
     model.addAttribute("foxLogoutUrl", foxUrlService.getFoxLogoutUrl());
   }
 
-  private void addTomMenuItems(Model model, HttpServletRequest request) {
+  private void addTopMenuItems(Model model, HttpServletRequest request) {
     SecurityUtils.getAuthenticatedUserFromSecurityContext()
         .ifPresent(user -> {
           model.addAttribute("navigationItems", topMenuService.getTopMenuItems(user));
-
-          // needed
-          var requestUri = request.getRequestURI();
-          if (!requestUri.endsWith("/")) {
-            requestUri += "/";
-          }
-          model.addAttribute("currentEndPoint", requestUri);
+          model.addAttribute("currentEndPoint", request.getRequestURI());
         });
   }
 
