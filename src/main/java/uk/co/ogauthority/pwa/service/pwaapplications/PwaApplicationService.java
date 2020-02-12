@@ -43,7 +43,7 @@ public class PwaApplicationService {
   }
 
   @Transactional
-  public void createInitialPwaApplication(WebUserAccount createdByUser) {
+  public PwaApplication createInitialPwaApplication(WebUserAccount createdByUser) {
 
     var creationInstant = Instant.now(clock);
 
@@ -57,6 +57,8 @@ public class PwaApplicationService {
     pwaApplicationDetailRepository.save(detail);
 
     camundaWorkflowService.startWorkflow(WorkflowType.PWA_APPLICATION, application.getId());
+
+    return application;
 
   }
 

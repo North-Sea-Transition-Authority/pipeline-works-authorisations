@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
@@ -32,7 +33,6 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
-import uk.co.ogauthority.pwa.mvc.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.util.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
