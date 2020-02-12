@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 
 @Configuration
@@ -23,13 +23,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   private final FoxSessionFilter foxSessionFilter;
   private final FoxUrlService foxUrlService;
   private final FoxLoginCallbackFilter foxLoginCallbackFilter;
+  private final SystemAreaAccessService systemAreaAccessService;
 
   @Autowired
   public WebSecurityConfig(FoxSessionFilter foxSessionFilter, FoxUrlService foxUrlService,
-                           FoxLoginCallbackFilter foxLoginCallbackFilter) {
+                           FoxLoginCallbackFilter foxLoginCallbackFilter,
+                           SystemAreaAccessService systemAreaAccessService) {
     this.foxSessionFilter = foxSessionFilter;
     this.foxUrlService = foxUrlService;
     this.foxLoginCallbackFilter = foxLoginCallbackFilter;
+    this.systemAreaAccessService = systemAreaAccessService;
   }
 
   @Override
@@ -38,11 +41,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     http
       .authorizeRequests()
 
-        .antMatchers("/portal-team-management")
-          .hasAnyAuthority(
-              PwaUserPrivilege.PWA_REGULATOR_ADMIN.name(),
-              PwaUserPrivilege.PWA_REG_ORG_MANAGE.name(),
-              PwaUserPrivilege.PWA_ORG_ADMIN.name())
+        .antMatchers("/work-area")
+          .hasAnyAuthority(systemAreaAccessService.getValidWorkAreaGrantedAuthorities())
+
+        .antMatchers("/portal-team-management", "/portal-team-management/**")
+          .hasAnyAuthority(systemAreaAccessService.getValidTeamManagementGrantedAuthorities())
 
         .antMatchers("/session-info")
           .permitAll()

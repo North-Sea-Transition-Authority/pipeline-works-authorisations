@@ -29,7 +29,7 @@
   backLinkUrl=""
   backLinkText="Back"
   breadcrumbs=false
-  phaseBanner=true
+  phaseBanner=false
   phaseBannerLink="#"
   topNavigation=false
   wrapperWidth=false

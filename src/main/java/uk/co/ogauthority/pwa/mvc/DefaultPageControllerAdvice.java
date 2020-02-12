@@ -1,18 +1,18 @@
 package uk.co.ogauthority.pwa.mvc;
 
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
+import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
+import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 /**
  * Provides common model objects for the default page view.
@@ -21,10 +21,14 @@ import uk.co.ogauthority.pwa.service.FoxUrlService;
 public class DefaultPageControllerAdvice {
 
   private final FoxUrlService foxUrlService;
+  private final TopMenuService topMenuService;
+  private final HttpServletRequest request;
 
   @Autowired
-  public DefaultPageControllerAdvice(FoxUrlService foxUrlService) {
+  public DefaultPageControllerAdvice(FoxUrlService foxUrlService, TopMenuService topMenuService, HttpServletRequest request) {
     this.foxUrlService = foxUrlService;
+    this.topMenuService = topMenuService;
+    this.request = request;
   }
 
   @InitBinder
@@ -37,21 +41,24 @@ public class DefaultPageControllerAdvice {
   public void addCommonModelAttributes(Model model) {
     addCurrentUserView(model);
     addLogoutUrl(model);
+    addTopMenuItems(model, request);
   }
 
   private void addCurrentUserView(Model model) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-    if (authentication != null && authentication.getPrincipal() instanceof AuthenticatedUserAccount) {
-      AuthenticatedUserAccount user = (AuthenticatedUserAccount) authentication.getPrincipal();
-      model.addAttribute("currentUserView", CurrentUserView.authenticated(user));
-    } else {
-      model.addAttribute("currentUserView", CurrentUserView.unauthenticated());
-    }
+    SecurityUtils.getAuthenticatedUserFromSecurityContext()
+        .ifPresent(user -> model.addAttribute("currentUserView", CurrentUserView.authenticated(user)));
   }
 
   private void addLogoutUrl(Model model) {
     model.addAttribute("foxLogoutUrl", foxUrlService.getFoxLogoutUrl());
+  }
+
+  private void addTopMenuItems(Model model, HttpServletRequest request) {
+    SecurityUtils.getAuthenticatedUserFromSecurityContext()
+        .ifPresent(user -> {
+          model.addAttribute("navigationItems", topMenuService.getTopMenuItems(user));
+          model.addAttribute("currentEndPoint", request.getRequestURI());
+        });
   }
 
 }

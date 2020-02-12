@@ -1,0 +1,44 @@
+package uk.co.ogauthority.pwa.energyportal.service;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
+import uk.co.ogauthority.pwa.model.TopMenuItem;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+
+@Service
+public class TopMenuService {
+
+  public static final String WORK_AREA_TITLE = "Work area";
+  public static final String TEAM_MANAGEMENT_TITLE = "Manage teams";
+
+  private final SystemAreaAccessService systemAreaAccessService;
+
+  @Autowired
+  public TopMenuService(SystemAreaAccessService systemAreaAccessService) {
+    this.systemAreaAccessService = systemAreaAccessService;
+  }
+
+  public List<TopMenuItem> getTopMenuItems(AuthenticatedUserAccount user) {
+    List<TopMenuItem> menuItems = new ArrayList<>();
+
+    if (systemAreaAccessService.canAccessWorkArea(user)) {
+      menuItems.add(new TopMenuItem(WORK_AREA_TITLE, ReverseRouter.route(on(WorkAreaController.class).renderWorkArea())));
+    }
+
+    if (systemAreaAccessService.canAccessTeamManagement(user)) {
+      menuItems.add(new TopMenuItem(TEAM_MANAGEMENT_TITLE, ReverseRouter.route(on(PortalTeamManagementController.class)
+          .renderManageableTeams(null)))
+      );
+    }
+
+    return menuItems;
+  }
+
+}
