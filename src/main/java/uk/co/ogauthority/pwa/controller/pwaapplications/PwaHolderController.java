@@ -122,7 +122,7 @@ public class PwaHolderController {
   private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
 
     List<PortalOrganisationGroup> userOrgGroups = teamService.getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(),
-        List.of(PwaOrganisationRole.APPLICATION_DRAFTER, PwaOrganisationRole.APPLICATION_SUBMITTER)).stream()
+        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
         .map(PwaOrganisationTeam::getPortalOrganisationGroup)
         .collect(Collectors.toList());
 
