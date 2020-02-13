@@ -4,6 +4,7 @@
 <@defaultPage htmlTitle="Administrative Details" pageHeading="Administrative Details" twoThirdsColumn=false>
 
     <@fdsForm.htmlForm actionUrl="" useMethod="">
+        <@fdsFieldset.fieldset legendHeading="Project information" legendHeadingClass="govuk-fieldset__legend--l" legendHeadingSize="h2"/>
         <@fdsTextArea.textarea path="form.projectDescription" labelText="Project description" hintText="Please provide a detailed overview of your application"/>
         <@fdsFieldset.fieldset legendHeading="Project diagram" legendHeadingClass="govuk-label" legendHeadingSize="h3"/>
         <@fdsFileUpload.fileUpload id="upload" allowedExtensions="txt" deleteUrl="" downloadUrl="" maxAllowedSize="200" uploadUrl=""/>
@@ -25,7 +26,7 @@
             <@fdsRadio.radioYes path="form.whollyOffshore"/>
             <@fdsRadio.radioNo path="form.whollyOffshore">
                 <@fdsSelect.select path="form.methodOfTransportation" options=transportationMethods labelText="Method of transportation to shore"/>
-                <@fdsTextArea.textarea path="form.landfallDetails" labelText="Details of nearest landfall"/>
+                <@fdsTextArea.textarea path="form.landfallDetails" labelText="Landfall details"/>
             </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
         <@fdsTextInput.textInput path="form.locationFromShore" labelText="Approx. location from shore"/>
