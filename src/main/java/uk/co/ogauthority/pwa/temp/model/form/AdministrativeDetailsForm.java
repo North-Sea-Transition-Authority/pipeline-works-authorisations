@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
-import uk.co.ogauthority.pwa.temp.model.TransportationMethod;
-
 public class AdministrativeDetailsForm {
 
   private String projectDescription;
@@ -10,7 +8,7 @@ public class AdministrativeDetailsForm {
   private String locationFromShore;
   private String withinSafetyZone;
   private String structureName;
-  private TransportationMethod methodOfTransportation;
+  private String methodOfTransportation;
   private String landfallDetails;
   private Boolean acceptFundsLiability;
   private Boolean acceptOpolLiability;
@@ -64,11 +62,11 @@ public class AdministrativeDetailsForm {
     this.structureName = structureName;
   }
 
-  public TransportationMethod getMethodOfTransportation() {
+  public String getMethodOfTransportation() {
     return methodOfTransportation;
   }
 
-  public void setMethodOfTransportation(TransportationMethod methodOfTransportation) {
+  public void setMethodOfTransportation(String methodOfTransportation) {
     this.methodOfTransportation = methodOfTransportation;
   }
 

@@ -4,9 +4,10 @@
 <@defaultPage htmlTitle="Administrative Details" pageHeading="Administrative details" twoThirdsColumn=true>
 
     <@fdsForm.htmlForm>
-        <@fdsFieldset.fieldset legendHeading="Project information" legendHeadingClass="govuk-fieldset__legend--l" legendHeadingSize="h2"/>
-        <@fdsTextArea.textarea path="form.projectDescription" labelText="Project description" hintText="Please provide a detailed overview of your application"/>
-        <@fdsFieldset.fieldset legendHeading="Project diagram" legendHeadingClass="govuk-label" legendHeadingSize="h3"/>
+        <@fdsFieldset.fieldset legendHeading="Project overview" legendHeadingClass="govuk-fieldset__legend--l" legendHeadingSize="h2"/>
+        <@fdsTextArea.textarea path="form.projectDescription" labelText="Project description" hintText="A brief description of the project, and why it is needed"/>
+        <@fdsFieldset.fieldset legendHeading="Project diagram" legendHeadingClass="govuk-label" legendHeadingSize="h3"
+            hintText="Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)"/>
         <@dummyFileUpload.fileUpload id="upload" allowedExtensions="txt" deleteUrl="" downloadUrl="" maxAllowedSize="200" uploadUrl=""/>
         <hr class="govuk-section-break govuk-section-break--m">
 
@@ -25,7 +26,7 @@
         <@fdsRadio.radioGroup path="form.whollyOffshore" labelText="Are all facilities wholly offshore and subsea?" hiddenContent=true fieldsetHeadingSize="h3">
             <@fdsRadio.radioYes path="form.whollyOffshore"/>
             <@fdsRadio.radioNo path="form.whollyOffshore">
-                <@fdsSelect.select path="form.methodOfTransportation" options=transportationMethods labelText="Method of transportation to shore"/>
+                <@fdsTextArea.textarea path="form.methodOfTransportation" labelText="Method of transportation to shore"/>
                 <@fdsTextArea.textarea path="form.landfallDetails" labelText="Landfall details"/>
             </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
