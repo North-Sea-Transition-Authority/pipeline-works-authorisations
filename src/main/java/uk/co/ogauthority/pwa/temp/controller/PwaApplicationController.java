@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.temp.model.TransportationMethod;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
+import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -20,6 +21,11 @@ public class PwaApplicationController {
         .addObject("transportationMethods", Arrays.stream(TransportationMethod.values())
           .collect(StreamUtils.toLinkedHashMap(TransportationMethod::name, TransportationMethod::toString)))
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+  }
+
+  @GetMapping("/1/project-information")
+  public ModelAndView viewProjectInformation(@ModelAttribute("form")ProjectInformationForm projectInformationForm) {
+    return new ModelAndView("pwaApplication/temporary/projectInformation");
   }
 
 }
