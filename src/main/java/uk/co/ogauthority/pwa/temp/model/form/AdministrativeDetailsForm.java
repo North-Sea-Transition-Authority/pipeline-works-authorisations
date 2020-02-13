@@ -1,17 +1,20 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
+import uk.co.ogauthority.pwa.temp.model.TransportationMethod;
+
 public class AdministrativeDetailsForm {
 
   private String projectDescription;
   private Object projectDiagram;
   private Boolean agreesToFdp;
   private String locationFromShore;
-  private Boolean withinSafetyZone;
+  private String withinSafetyZone;
   private String structureName;
-  private String methodOfTransportation;
+  private TransportationMethod methodOfTransportation;
   private String landfallDetails;
   private Boolean acceptFundsLiability;
   private Boolean acceptOpolLiability;
+  private Boolean whollyOffshore;
 
   public String getProjectDescription() {
     return projectDescription;
@@ -45,11 +48,11 @@ public class AdministrativeDetailsForm {
     this.locationFromShore = locationFromShore;
   }
 
-  public Boolean getWithinSafetyZone() {
+  public String getWithinSafetyZone() {
     return withinSafetyZone;
   }
 
-  public void setWithinSafetyZone(Boolean withinSafetyZone) {
+  public void setWithinSafetyZone(String withinSafetyZone) {
     this.withinSafetyZone = withinSafetyZone;
   }
 
@@ -61,11 +64,11 @@ public class AdministrativeDetailsForm {
     this.structureName = structureName;
   }
 
-  public String getMethodOfTransportation() {
+  public TransportationMethod getMethodOfTransportation() {
     return methodOfTransportation;
   }
 
-  public void setMethodOfTransportation(String methodOfTransportation) {
+  public void setMethodOfTransportation(TransportationMethod methodOfTransportation) {
     this.methodOfTransportation = methodOfTransportation;
   }
 
@@ -91,5 +94,13 @@ public class AdministrativeDetailsForm {
 
   public void setAcceptOpolLiability(Boolean acceptOpolLiability) {
     this.acceptOpolLiability = acceptOpolLiability;
+  }
+
+  public Boolean getWhollyOffshore() {
+    return whollyOffshore;
+  }
+
+  public void setWhollyOffshore(Boolean whollyOffshore) {
+    this.whollyOffshore = whollyOffshore;
   }
 }
