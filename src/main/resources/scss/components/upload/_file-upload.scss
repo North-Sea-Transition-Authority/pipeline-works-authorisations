@@ -1,6 +1,6 @@
 .fileupload-dropzone {
-  border: 2px dashed govuk-colour("grey-2");
-  background: govuk-colour("grey-4");
+  border: 2px dashed govuk-colour("mid-grey");
+  background: govuk-colour("light-grey");
   padding: 2em;
   text-align: center;
   font-size: 1.2em;
@@ -13,7 +13,7 @@
   }
 
   &--hover {
-    background: govuk-colour("grey-3")
+    background: govuk-colour("light-grey")
   }
 
   &__text {
@@ -42,7 +42,7 @@
     }
 
     @at-root .fileupload-dropzone__hidden-input--has-focus + & {
-      @include govuk-focusable;
+      //@include govuk-focusable;
     }
 
   }
@@ -52,7 +52,7 @@
   display: flex;
   flex-flow: column;
   @include govuk-responsive-margin(3, "bottom");
-  border: 5px solid govuk-colour("grey-3");
+  border: 5px solid govuk-colour("light-grey");
   padding: 1em;
   @include govuk-font($size: 19, $line-height: 19px);
 
