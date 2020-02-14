@@ -23,7 +23,7 @@
   fullWidthColumn=false
   oneHalfColumn=false
   oneThirdColumn=false
-  twoThirdsColumn=false
+  twoThirdsColumn=true
   oneQuarterColumn=false
   backLink=false
   backLinkUrl=""
@@ -73,30 +73,39 @@
     <main class="${mainClasses}" id="main-content" role="main">
       <#--Grid-->
       <#if fullWidthColumn>
-        <@grid.fullColumn>
-          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-          <#nested>
-        </@grid.fullColumn>
+        <@grid.gridRow>
+          <@grid.fullColumn>
+            <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+            <#nested>
+          </@grid.fullColumn>
+        </@grid.gridRow>
       <#elseif oneHalfColumn>
-        <@grid.oneHalfColumn>
-          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-          <#nested>
-        </@grid.oneHalfColumn>
+        <@grid.gridRow>
+          <@grid.oneHalfColumn>
+            <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+            <#nested>
+          </@grid.oneHalfColumn>
+        </@grid.gridRow>
       <#elseif oneThirdColumn>
-        <@grid.oneThirdColumn>
-          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-          <#nested>
-        </@grid.oneThirdColumn>
+        <@grid.gridRow>
+          <@grid.oneThirdColumn>
+            <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+            <#nested>
+          </@grid.oneThirdColumn>
+        </@grid.gridRow>
       <#elseif twoThirdsColumn>
-        <@grid.twoThirdsColumn>
+        <@grid.gridRow><@grid.twoThirdsColumn>
           <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
           <#nested>
         </@grid.twoThirdsColumn>
+        </@grid.gridRow>
       <#elseif oneQuarterColumn>
-        <@grid.oneQuarterColumn>
-          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-          <#nested>
-        </@grid.oneQuarterColumn>
+        <@grid.gridRow>
+          <@grid.oneQuarterColumn>
+            <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+            <#nested>
+          </@grid.oneQuarterColumn>
+        </@grid.gridRow>
       <#else>
         <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
         <#nested>

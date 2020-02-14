@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="applicationTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 
-<@defaultPage htmlTitle="Start PWA application" pageHeading="">
+<@defaultPage htmlTitle="Start PWA application">
 
     <@fdsError.errorSummary errorItems=errorList/>
 

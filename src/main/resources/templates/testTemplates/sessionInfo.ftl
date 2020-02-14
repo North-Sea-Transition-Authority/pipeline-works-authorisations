@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Session integration test" pageHeading="Session integration test" twoThirdsColumn=false>
+<@defaultPage htmlTitle="Session integration test" pageHeading="Session integration test">
   <@fdsCard.card>
     <#if user?has_content>
 
