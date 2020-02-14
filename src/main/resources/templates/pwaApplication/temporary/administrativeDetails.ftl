@@ -5,7 +5,7 @@
 
     <@fdsForm.htmlForm>
         <@fdsFieldset.fieldset legendHeading="Project overview" legendHeadingClass="govuk-fieldset__legend--l" legendHeadingSize="h2"/>
-        <@fdsTextArea.textarea path="form.projectDescription" labelText="Project description" hintText="A brief description of the project, and why it is needed"/>
+        <@fdsTextarea.textarea path="form.projectDescription" labelText="Project description" hintText="A brief description of the project, and why it is needed"/>
         <h3 class="govuk-heading-m">
             Project diagram
             <span class="govuk-hint">Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)</span>
@@ -28,8 +28,8 @@
         <@fdsRadio.radioGroup path="form.whollyOffshore" labelText="Are all facilities wholly offshore and subsea?" hiddenContent=true fieldsetHeadingSize="h3">
             <@fdsRadio.radioYes path="form.whollyOffshore"/>
             <@fdsRadio.radioNo path="form.whollyOffshore">
-                <@fdsTextArea.textarea path="form.methodOfTransportation" labelText="Method of transportation to shore"/>
-                <@fdsTextArea.textarea path="form.landfallDetails" labelText="Landfall details"/>
+                <@fdsTextarea.textarea path="form.methodOfTransportation" labelText="Method of transportation to shore"/>
+                <@fdsTextarea.textarea path="form.landfallDetails" labelText="Landfall details"/>
             </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
         <@fdsTextInput.textInput path="form.locationFromShore" labelText="Approximate location from shore"/>
