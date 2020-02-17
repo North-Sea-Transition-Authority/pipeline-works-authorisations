@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.mvc;
+package uk.co.ogauthority.pwa.exception;
 
 import javax.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;

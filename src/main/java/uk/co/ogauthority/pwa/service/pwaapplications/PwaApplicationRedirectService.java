@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaController;
+import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -33,11 +34,11 @@ public class PwaApplicationRedirectService {
   }
 
   /**
-   * Return a redirect to the right task list for the passed-in application type.
+   * Return a redirect to the right task list for the passed-in application.
    */
-  public ModelAndView getTaskListRedirect(PwaApplicationType applicationType) {
+  public ModelAndView getTaskListRedirect(PwaApplication pwaApplication) {
 
-    switch (applicationType) {
+    switch (pwaApplication.getApplicationType()) {
       case INITIAL:
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:

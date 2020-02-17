@@ -3,7 +3,7 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Remove User" pageHeading="Are you sure you want to remove this user from the ${team.name} team?" backLink=true>
+<@defaultPage htmlTitle="Remove User" pageHeading="Are you sure you want to remove this user from the ${team.name} team?" backLink=true topNavigation=true>
 
     <#if error?has_content>
         <@fdsError.singleErrorSummary errorMessage=error/>

@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Select Team" pageHeading="Select a team">
+<@defaultPage htmlTitle="Select Team" pageHeading="Select a team" topNavigation=true>
   <table class="govuk-table">
     <thead class="govuk-table__head">
     <tr class="govuk-table__row">
