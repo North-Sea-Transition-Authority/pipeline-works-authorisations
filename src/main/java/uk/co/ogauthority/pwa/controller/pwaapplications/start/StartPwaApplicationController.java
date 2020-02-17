@@ -18,8 +18,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.start.StartPwaApplicatio
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
-import uk.co.ogauthority.pwa.util.ModelAndViewUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -58,14 +58,9 @@ public class StartPwaApplicationController {
   public ModelAndView startApplication(@Valid @ModelAttribute("form") StartPwaApplicationForm form,
                                        BindingResult bindingResult) {
 
-    if (bindingResult.hasErrors()) {
-      ModelAndView modelAndView = getStartAppModelAndView();
-      ModelAndViewUtils.addFieldValidationErrors(modelAndView, bindingResult);
-      return modelAndView;
-    }
-
-    return pwaApplicationRedirectService.getStartApplicationRedirect(
-        EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType()));
+    return ControllerUtils.validateAndRedirect(bindingResult, getStartAppModelAndView(), () ->
+        pwaApplicationRedirectService.getStartApplicationRedirect(
+            EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType())));
 
   }
 

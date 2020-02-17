@@ -63,7 +63,7 @@ public class PwaApplicationServiceTest {
 
     WebUserAccount user = new WebUserAccount(123);
 
-    pwaApplicationService.createInitialPwaApplication(user);
+    PwaApplication createdApplication = pwaApplicationService.createInitialPwaApplication(user);
 
     ArgumentCaptor<MasterPwa> pwaArgumentCaptor = ArgumentCaptor.forClass(MasterPwa.class);
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
@@ -90,6 +90,8 @@ public class PwaApplicationServiceTest {
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
     assertThat(application.getDecisionTimestamp()).isEmpty();
+
+    assertThat(createdApplication).isEqualTo(application);
 
     // check detail set up correctly
     assertThat(detail.getPwaApplication()).isEqualTo(application);

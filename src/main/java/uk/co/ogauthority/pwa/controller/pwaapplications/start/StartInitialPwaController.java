@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.pwaapplications.PwaHolderController;
+import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @Controller
@@ -19,15 +19,15 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 public class StartInitialPwaController {
 
   private final PwaApplicationService pwaApplicationService;
-  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
-  public StartInitialPwaController(PwaApplicationService pwaApplicationService,
-                                   PwaApplicationRedirectService pwaApplicationRedirectService) {
+  public StartInitialPwaController(PwaApplicationService pwaApplicationService) {
     this.pwaApplicationService = pwaApplicationService;
-    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
+  /**
+   * Render of start page for initial PWA application.
+   */
   @GetMapping("/new")
   public ModelAndView renderStartPage() {
     ModelAndView modelAndView = new ModelAndView("pwaApplication/startPages/initial");
@@ -35,10 +35,13 @@ public class StartInitialPwaController {
     return modelAndView;
   }
 
+  /**
+   * Create initial PWA application and redirect to first task.
+   */
   @PostMapping("/new")
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user) {
-    pwaApplicationService.createInitialPwaApplication(user);
-    return pwaApplicationRedirectService.getTaskListRedirect(PwaApplicationType.INITIAL);
+    PwaApplication pwaApplication = pwaApplicationService.createInitialPwaApplication(user);
+    return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(pwaApplication.getId(), null, null));
   }
 
 }

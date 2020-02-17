@@ -2,8 +2,7 @@ package uk.co.ogauthority.pwa.model.teams;
 
 public enum PwaOrganisationRole {
   TEAM_ADMINISTRATOR("RESOURCE_COORDINATOR"),
-  APPLICATION_SUBMITTER("APPLICATION_SUBMITTER"),
-  APPLICATION_DRAFTER("APPLICATION_DRAFTER");
+  APPLICATION_CREATOR("APPLICATION_CREATE");
 
   private String portalTeamRoleName;
 

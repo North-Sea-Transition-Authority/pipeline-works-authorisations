@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,20 +25,20 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
-import uk.co.ogauthority.pwa.mvc.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.TeamTestingUtils;
 
 @RunWith(SpringRunner.class)
@@ -418,11 +417,8 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
 
   @Test
   public void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsInvalid() throws Exception {
-    doAnswer(invocation -> {
-      BindingResult result = invocation.getArgument(1);
-      result.rejectValue("userIdentifier", "userIdentifier.required", "Could not find user mock error");
-      return result;
-    }).when(addUserToTeamFormValidator).validate(any(), any());
+
+    ControllerTestUtils.mockValidatorErrors(addUserToTeamFormValidator, List.of("userIdentifier"));
 
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
