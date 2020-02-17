@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="applicationTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 
-<@defaultPage htmlTitle="Start PWA application" pageHeading="">
+<@defaultPage htmlTitle="Start PWA application">
 
     <@fdsError.errorSummary errorItems=errorList/>
 
@@ -18,7 +18,7 @@
             fieldsetHeadingClass="govuk-fieldset__legend--l"
             fieldsetHeadingSize="h1"/>
 
-        <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(workAreaUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workAreaUrl)/>
 
     </@fdsForm.htmlForm>
 

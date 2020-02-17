@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="This page requires auth" pageHeading="This page requires auth" twoThirdsColumn=false>
+<@defaultPage htmlTitle="This page requires auth" pageHeading="This page requires auth">
   <@fdsCard.card>
     <#if user?has_content>
 

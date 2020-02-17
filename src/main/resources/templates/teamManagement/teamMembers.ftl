@@ -4,7 +4,7 @@
 
 <#include "../layout.ftl">
 
-<@defaultPage htmlTitle=team.getName() pageHeading=team.getName() backLink=true>
+<@defaultPage htmlTitle=team.getName() pageHeading=team.getName() backLink=true topNavigation=true>
 
     <#list teamMemberViews>
       <table class="govuk-table">

@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
@@ -20,7 +21,6 @@ import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
-import uk.co.ogauthority.pwa.mvc.PwaEntityNotFoundException;
 
 @Service
 public class TeamService {
@@ -107,7 +107,7 @@ public class TeamService {
   }
 
   /**
-   * Wrap portalTeams API so calling code has easy of of determining person involvement across all Organisation teams.
+   * Wrap portalTeams API so calling code has easy way of determining person involvement across all Organisation teams.
    * Returns the Organisation Teams where the person is a member and has any of the provided roles
    */
   public List<PwaOrganisationTeam> getOrganisationTeamListIfPersonInRole(Person person, Collection<PwaOrganisationRole> roles) {

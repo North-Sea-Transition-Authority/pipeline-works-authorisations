@@ -23,13 +23,13 @@
   fullWidthColumn=false
   oneHalfColumn=false
   oneThirdColumn=false
-  twoThirdsColumn=false
+  twoThirdsColumn=true
   oneQuarterColumn=false
   backLink=false
   backLinkUrl=""
   backLinkText="Back"
   breadcrumbs=false
-  phaseBanner=true
+  phaseBanner=false
   phaseBannerLink="#"
   topNavigation=false
   wrapperWidth=false
@@ -51,76 +51,73 @@
       </div>
     </#if>
 
-  <#--Navigation goes below me-->
-      <#if topNavigation>
-          <@fdsNavigation.navigation navigationItems=navigationItems currentEndPoint=currentEndPoint wrapperWidth=wrapperWidth />
-      </#if>
+    <#--Navigation-->
+    <#if topNavigation>
+      <@fdsNavigation.navigation navigationItems=navigationItems currentEndPoint=currentEndPoint wrapperWidth=wrapperWidth />
+    </#if>
 
-      <#if !masthead>
-        <div class="<#if wrapperWidth>govuk-width-container-wide<#else> govuk-width-container </#if>${wrapperClasses}">
-      </#if>
+    <#if !masthead>
+      <div class="<#if wrapperWidth>govuk-width-container-wide<#else> govuk-width-container </#if>${wrapperClasses}">
+    </#if>
 
-  <#--Breadcrumbs goes below me-->
-      <#if breadcrumbs && !backLink>
-          <@fdsBreadcrumbs.breadcrumbs crumbsList="" currentPage=currentEndPoint/>
-      </#if>
+    <#--Breadcrumbs-->
+    <#if breadcrumbs && !backLink>
+      <@fdsBreadcrumbs.breadcrumbs crumbsList="" currentPage=currentEndPoint/>
+    </#if>
 
-  <#--Back link goes below me-->
-      <#if backLink && !breadcrumbs>
-          <@fdsBackLink.backLink backLinkUrl=backLinkUrl backLinkText=backLinkText/>
-      </#if>
+    <#--Back link-->
+    <#if backLink && !breadcrumbs>
+      <@fdsBackLink.backLink backLinkUrl=backLinkUrl backLinkText=backLinkText/>
+    </#if>
 
     <main class="${mainClasses}" id="main-content" role="main">
-        <#--Grid goes below me-->
-        <#if fullWidthColumn>
-            <@grid.gridRow>
-                <@grid.fullColumn>
-                    <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-                    <#nested>
-                </@grid.fullColumn>
-            </@grid.gridRow>
-        <#elseif oneHalfColumn>
-            <@grid.gridRow>
-                <@grid.oneHalfColumn>
-                    <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-                    <#nested>
-                </@grid.oneHalfColumn>
-            </@grid.gridRow>
-        <#elseif oneThirdColumn>
-            <@grid.gridRow>
-                <@grid.oneThirdColumn>
-                    <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-                    <#nested>
-                </@grid.oneThirdColumn>
-            </@grid.gridRow>
-        <#elseif twoThirdsColumn>
-            <@grid.gridRow>
-                <@grid.twoThirdsColumn>
-                    <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-                    <#nested>
-                </@grid.twoThirdsColumn>
-            </@grid.gridRow>
-        <#elseif oneQuarterColumn>
-            <@grid.gridRow>
-                <@grid.oneQuarterColumn>
-                    <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
-                    <#nested>
-                </@grid.oneQuarterColumn>
-            </@grid.gridRow>
-        <#else>
+      <#--Grid-->
+      <#if fullWidthColumn>
+        <@grid.gridRow>
+          <@grid.fullColumn>
             <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
             <#nested>
-        </#if>
+          </@grid.fullColumn>
+        </@grid.gridRow>
+      <#elseif oneHalfColumn>
+        <@grid.gridRow>
+          <@grid.oneHalfColumn>
+            <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+            <#nested>
+          </@grid.oneHalfColumn>
+        </@grid.gridRow>
+      <#elseif oneThirdColumn>
+        <@grid.gridRow>
+          <@grid.oneThirdColumn>
+            <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+            <#nested>
+          </@grid.oneThirdColumn>
+        </@grid.gridRow>
+      <#elseif twoThirdsColumn>
+        <@grid.gridRow><@grid.twoThirdsColumn>
+          <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+          <#nested>
+        </@grid.twoThirdsColumn>
+        </@grid.gridRow>
+      <#elseif oneQuarterColumn>
+        <@grid.gridRow>
+          <@grid.oneQuarterColumn>
+            <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+            <#nested>
+          </@grid.oneQuarterColumn>
+        </@grid.gridRow>
+      <#else>
+        <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
+        <#nested>
+      </#if>
     </main>
 
-      <#if !masthead>
-        </div>
-      </#if>
+    <#if !masthead>
+      </div>
+    </#if>
 
-  <#--Footer goes below me-->
-      <@fdsFooter.footer wrapperWidth=wrapperWidth/>
-
-  <#--Custom scripts go here-->
+    <#--Footer-->
+    <@fdsFooter.footer wrapperWidth=wrapperWidth/>
 
   </@genericLayout>
 </#macro>
