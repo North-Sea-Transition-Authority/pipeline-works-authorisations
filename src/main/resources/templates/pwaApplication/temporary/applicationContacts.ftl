@@ -1,0 +1,47 @@
+<#include '../../layout.ftl'>
+
+<#-- @ftlvariable name="contacts" type="uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView[]" -->
+<#-- @ftlvariable name="linkToTaskList" type="java.lang.String" -->
+
+<@defaultPage htmlTitle="Application contacts" pageHeading="Application contacts" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(linkToTaskList)>
+  <@fdsAction.button buttonText="Add contact"/>
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">Name</th>
+        <th class="govuk-table__header" scope="col">Email</th>
+        <th class="govuk-table__header" scope="col">Roles</th>
+        <th class="govuk-table__header" scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+    <#list contacts as contact>
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">
+            ${contact.forename} ${contact.surname}
+        </td>
+        <td class="govuk-table__cell">
+          ${contact.emailAddress}
+        </td>
+        <td class="govuk-table__cell">
+            <#list contact.roleViews?sort_by("displaySequence") as roleView>
+                ${roleView.title}
+              <br>
+            </#list>
+        </td>
+        <td class="govuk-table__cell">
+          <ul class="govuk-list">
+            <li>
+                <@fdsAction.link linkText="Edit" linkUrl=springUrl(contact.editRoute) linkClass="govuk-link"/>
+            </li>
+            <li>
+                <@fdsAction.link linkText="Remove" linkUrl=springUrl(contact.removeRoute) linkClass="govuk-link"/>
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </#list>
+    </tbody>
+  </table>
+
+</@defaultPage>
