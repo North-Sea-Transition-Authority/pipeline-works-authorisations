@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -30,6 +31,11 @@ public class PwaApplicationController {
   public ModelAndView viewAdministrativeDetails(@ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
     return new ModelAndView("pwaApplication/temporary/administrativeDetails")
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+  }
+
+  @PostMapping("/1/admin-details")
+  public ModelAndView postAdminDetails() {
+    return viewTaskList();
   }
 
 }
