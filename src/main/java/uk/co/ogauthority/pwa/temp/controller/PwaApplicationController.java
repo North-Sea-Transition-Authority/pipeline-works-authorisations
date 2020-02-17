@@ -35,7 +35,7 @@ public class PwaApplicationController {
 
   @PostMapping("/1/admin-details")
   public ModelAndView postAdminDetails() {
-    return viewTaskList();
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
   }
 
 }
