@@ -8,3 +8,6 @@ $govuk-assets-path: "../../govuk-frontend/govuk/assets/";
 
 /// FDS master stylesheet
 @import "../templates/fds/all";
+
+// PWA Components
+@import "components/all-components";
