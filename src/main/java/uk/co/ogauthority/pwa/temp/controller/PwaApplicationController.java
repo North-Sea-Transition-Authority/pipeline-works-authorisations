@@ -31,15 +31,15 @@ public class PwaApplicationController {
         Set.of("User"));
 
     var uooB = new UserOwnerOperatorView(
-        365478, "Another company", "Fivium Ltd\n15 Adam St\nCharing Cross\nLondon WC2N 6AH\n",
+        365478, "Another company", "Fivium Ltd\n15 Adam St\nLondon WC2N 6AH",
         Set.of("Operator"));
 
     var uooC = new UserOwnerOperatorView(
-        83625, "Third company", "Fivium Ltd\n15 Adam St\nCharing Cross\nLondon WC2N 6AH\n",
+        83625, "Third company", "15 Adam St\nCharing Cross\nLondon WC2N 6AH\n",
         Set.of("Owner"));
 
     var uooD = new UserOwnerOperatorView(
-        114234, "Final company", "Fivium Ltd\n15 Adam St\nCharing Cross\nLondon WC2N 6AH\n",
+        114234, "Final company", "15 Adam St\nLondon\nWC2N 6AH\n",
         Set.of("User", "Owner"));
     return new UserOwnerOperatorView[]{uooA, uooB, uooC, uooD};
   }
