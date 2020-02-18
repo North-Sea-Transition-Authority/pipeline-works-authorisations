@@ -1,0 +1,92 @@
+<#include '../../../layout.ftl'>
+<#import '../../../dummyFileUpload.ftl' as dummyFileUpload/>
+
+<#-- @ftlvariable name="blockCrossings" type="uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing[] -->
+<#-- @ftlvariable name="telecommunicationCrossings" type="uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCrossing[] -->
+<#-- @ftlvariable name="pipelineCrossings" type="uk.co.ogauthority.pwa.temp.model.entity.PipelineCrossing[] -->
+
+<@defaultPage htmlTitle="Crossings" pageHeading="Crossing agreements">
+
+    <@fdsAction.link linkText="Add crossing agreement" linkUrl=springUrl(addCrossingLink) linkClass="govuk-button"/>
+
+      <h2 class="govuk-heading-l">Block Crossings</h2>
+      <#if blockCrossings?has_content>
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="col">UK block number</th>
+            <th class="govuk-table__header" scope="col">License number</th>
+            <th class="govuk-table__header" scope="col">Operator agreement confirmation</th>
+          </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+          <#list blockCrossings as crossing>
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">${crossing.blockNumber}</td>
+              <td class="govuk-table__cell">${crossing.licenseNumber}</td>
+              <td class="govuk-table__cell">${crossing.operatorAgreement}</td>
+            </tr>
+          </#list>
+          </tbody>
+        </table>
+          <h3 class="govuk-heading-m">Upload agreement confirmation documents</h3>
+          <@fdsSelect.select path="form.uploadingFor" labelText="Select an operator" options={"HESS":"HESS LIMITED"}/>
+          <@dummyFileUpload.fileUpload id="1" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
+          <hr class="govuk-section-break govuk-section-break--m">
+      <#else>
+          <p class="govuk-body">No block crossing agreements</p>
+      </#if>
+
+      <h2 class="govuk-heading-l">Telecommunication Crossings</h2>
+      <#if telecommunicationCrossings?has_content>
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="col">Cable name/location</th>
+            <th class="govuk-table__header" scope="col">Holder of cable</th>
+          </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+          <#list telecommunicationCrossings as crossing>
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">${crossing.cableNameOrLocation}</td>
+              <td class="govuk-table__cell">${crossing.holderOfCable}</td>
+            </tr>
+          </#list>
+          </tbody>
+        </table>
+        <h3 class="govuk-heading-m">Upload telecommunication crossing documents</h3>
+        <@fdsSelect.select path="form.uploadingFor" labelText="Select an operator" options={"HESS":"HESS LIMITED"}/>
+        <@dummyFileUpload.fileUpload id="2" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
+        <hr class="govuk-section-break govuk-section-break--m">
+      <#else>
+        <p class="govuk-body">No telecommunication crossing agreements</p>
+      </#if>
+
+      <h2 class="govuk-heading-l">Pipeline Crossings</h2>
+      <#if pipelineCrossings?has_content>
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="col">Pipeline number</th>
+            <th class="govuk-table__header" scope="col">Owner of pipeline (PWA holder)</th>
+          </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+          <#list pipelineCrossings as crossing>
+            <tr class="govuk-table__row">
+              <td class="govuk-table__cell">${crossing.pipelineNumber}</td>
+              <td class="govuk-table__cell">${crossing.ownerOfPipeline}</td>
+            </tr>
+          </#list>
+          </tbody>
+        </table>
+        <h3 class="govuk-heading-m">Upload pipeline crossing documents</h3>
+        <@fdsSelect.select path="form.uploadingFor" labelText="Select an operator" options={"HESS":"HESS LIMITED"}/>
+        <@dummyFileUpload.fileUpload id="3" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
+        <hr class="govuk-section-break govuk-section-break--m">
+      <#else>
+        <p class="govuk-body">No telecommunication crossing agreements</p>
+      </#if>
+
+</@defaultPage>
