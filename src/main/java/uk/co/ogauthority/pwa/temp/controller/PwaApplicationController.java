@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
+import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 
 @Controller
 @RequestMapping("/application")
@@ -21,7 +22,7 @@ public class PwaApplicationController {
     return new ModelAndView("pwaApplication/temporary/taskList")
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
-            "Project information", "/",
+            "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
             "Application contacts", "/",
             "Users, operators and owners", "/"
         ));
@@ -36,6 +37,11 @@ public class PwaApplicationController {
   @PostMapping("/1/admin-details")
   public ModelAndView postAdminDetails() {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  }
+
+  @GetMapping("/1/project-information")
+  public ModelAndView viewProjectInformation(@ModelAttribute("form") ProjectInformationForm projectInformationForm) {
+    return new ModelAndView("pwaApplication/temporary/projectInformation");
   }
 
 }
