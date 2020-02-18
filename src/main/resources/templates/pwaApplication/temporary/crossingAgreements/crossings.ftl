@@ -1,9 +1,9 @@
 <#include '../../../layout.ftl'>
 <#import '../../../dummyFileUpload.ftl' as dummyFileUpload/>
 
-<#-- @ftlvariable name="blockCrossings" type="uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing[] -->
-<#-- @ftlvariable name="telecommunicationCrossings" type="uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCrossing[] -->
-<#-- @ftlvariable name="pipelineCrossings" type="uk.co.ogauthority.pwa.temp.model.entity.PipelineCrossing[] -->
+<#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing>" -->
+<#-- @ftlvariable name="telecommunicationCrossings" type="java.util.List<uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCrossing>" -->
+<#-- @ftlvariable name="pipelineCrossings" type="java.util.List<uk.co.ogauthority.pwa.temp.model.entity.PipelineCrossing>" -->
 
 <@defaultPage htmlTitle="Crossings" pageHeading="Crossing agreements">
 

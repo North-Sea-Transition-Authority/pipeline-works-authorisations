@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.temp.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
-import uk.co.ogauthority.pwa.temp.model.entity.PipelineCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCrossing;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
@@ -70,7 +71,7 @@ public class PwaApplicationController {
         .addObject("addCrossingLink", ReverseRouter.route(on(PwaApplicationController.class).viewAddCrossing(null)))
         .addObject("blockCrossings", makeBlockCrossings())
         .addObject("telecommunicationCrossings", makeTelecommunicationCrossings())
-        .addObject("pipelineCrossings", new PipelineCrossing[]{});
+        .addObject("pipelineCrossings", Collections.emptyList());
   }
 
   @GetMapping("/1/crossings/new")
@@ -86,14 +87,14 @@ public class PwaApplicationController {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
   }
 
-  private BlockCrossing[] makeBlockCrossings() {
+  private List<BlockCrossing> makeBlockCrossings() {
     var crossingA = new BlockCrossing("2/1a", 4, "HESS LIMITED");
-    return new BlockCrossing[]{crossingA};
+    return List.of(crossingA);
   }
 
-  private TelecommunicationCrossing[] makeTelecommunicationCrossings() {
+  private List<TelecommunicationCrossing> makeTelecommunicationCrossings() {
     var crossingA = new TelecommunicationCrossing("XXXX to XXXX Submarine Communications Cable", "HESS LIMITED");
-    return new TelecommunicationCrossing[]{crossingA};
+    return List.of(crossingA);
   }
 
 }
