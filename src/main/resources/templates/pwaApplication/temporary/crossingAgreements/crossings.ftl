@@ -29,9 +29,21 @@
           </#list>
           </tbody>
         </table>
-          <h3 class="govuk-heading-m">Upload agreement confirmation documents</h3>
-          <@fdsSelect.select path="form.uploadingFor" labelText="Select an operator" options={"HESS":"HESS LIMITED"}/>
+          <h3 class="govuk-heading-m">Upload documents</h3>
           <@dummyFileUpload.fileUpload id="1" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
+          <div class="uploaded-file">
+            <div class="uploaded-file__info">
+              <div class="uploaded-file__file-info-wrapper">
+                <@fdsAction.link linkText="BLOCK_CROSSING_AGREEMENT_HL.pdf" linkUrl="/" linkClass="uploaded-file__filename"/>
+                <span class="uploaded-file__extra-info"> - 1 kB</span>
+                <@fdsAction.link linkText="Delete" linkUrl="/" linkClass="govuk-link uploaded-file__delete-link"/>
+              </div>
+              <div class="govuk-form-group govuk-form-group--file-upload">
+                <label class="govuk-label" for="file-upload-description">Operators in agreement document</label>
+                <textarea class="govuk-textarea govuk-textarea--file-upload" id="file-upload-description" name="area" rows="2">HESS LIMITED</textarea>
+              </div>
+            </div>
+          </div>
           <hr class="govuk-section-break govuk-section-break--m">
       <#else>
           <p class="govuk-body">No block crossing agreements</p>
@@ -55,8 +67,7 @@
           </#list>
           </tbody>
         </table>
-        <h3 class="govuk-heading-m">Upload telecommunication crossing documents</h3>
-        <@fdsSelect.select path="form.uploadingFor" labelText="Select an operator" options={"HESS":"HESS LIMITED"}/>
+        <h3 class="govuk-heading-m">Upload documents</h3>
         <@dummyFileUpload.fileUpload id="2" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
         <hr class="govuk-section-break govuk-section-break--m">
       <#else>
@@ -81,8 +92,7 @@
           </#list>
           </tbody>
         </table>
-        <h3 class="govuk-heading-m">Upload pipeline crossing documents</h3>
-        <@fdsSelect.select path="form.uploadingFor" labelText="Select an operator" options={"HESS":"HESS LIMITED"}/>
+        <h3 class="govuk-heading-m">Upload documents</h3>
         <@dummyFileUpload.fileUpload id="3" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
         <hr class="govuk-section-break govuk-section-break--m">
       <#else>
