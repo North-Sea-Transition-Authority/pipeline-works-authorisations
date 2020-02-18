@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
+import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 
 @Controller
 @RequestMapping("/application")
@@ -26,7 +27,7 @@ public class PwaApplicationController {
     return new ModelAndView("pwaApplication/temporary/taskList")
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
-            "Project information", "/",
+            "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
             "Application contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()),
             "Users, operators and owners", "/"
         ));
@@ -38,6 +39,11 @@ public class PwaApplicationController {
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
   }
 
+  @PostMapping("/1/admin-details")
+  public ModelAndView postAdminDetails() {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  }
+
   @GetMapping("/1/application-contacts")
   public ModelAndView viewApplicationContacts() {
     return new ModelAndView("pwaApplication/temporary/applicationContacts")
@@ -45,9 +51,9 @@ public class PwaApplicationController {
         .addObject("linkToTaskList", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
   }
 
-  @PostMapping("/1/admin-details")
-  public ModelAndView postAdminDetails() {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  @GetMapping("/1/project-information")
+  public ModelAndView viewProjectInformation(@ModelAttribute("form") ProjectInformationForm projectInformationForm) {
+    return new ModelAndView("pwaApplication/temporary/projectInformation");
   }
 
   private List<TeamMemberView> makeContacts() {
