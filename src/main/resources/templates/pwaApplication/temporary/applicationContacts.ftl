@@ -1,6 +1,6 @@
 <#include '../../layout.ftl'>
 
-<#-- @ftlvariable name="contacts" type="uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView[]" -->
+<#-- @ftlvariable name="contacts" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
 <#-- @ftlvariable name="linkToTaskList" type="java.lang.String" -->
 
 <@defaultPage htmlTitle="Application contacts" pageHeading="Application contacts" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(linkToTaskList)>

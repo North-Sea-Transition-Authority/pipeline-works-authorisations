@@ -2,10 +2,9 @@ package uk.co.ogauthority.pwa.temp.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Set;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,7 +14,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
 
@@ -29,7 +27,7 @@ public class PwaApplicationController {
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
             "Project information", "/",
-            "Application contacts", "/",
+            "Application contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()),
             "Users, operators and owners", "/"
         ));
   }
@@ -52,7 +50,7 @@ public class PwaApplicationController {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
   }
 
-  private TeamMemberView[] makeContacts() {
+  private List<TeamMemberView> makeContacts() {
 
     var contactA = new TeamMemberView(
         new Person(1, "John", "Smith", "john.smith@test.co.uk"),
@@ -69,7 +67,7 @@ public class PwaApplicationController {
             new TeamRoleView("Submitter", "Submitter", "Can submit applications", 2)
         ));
 
-    return new TeamMemberView[]{contactA, contactB};
+    return List.of(contactA, contactB);
   }
 
 }
