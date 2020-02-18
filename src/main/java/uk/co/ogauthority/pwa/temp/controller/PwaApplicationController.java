@@ -2,10 +2,8 @@ package uk.co.ogauthority.pwa.temp.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Map;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.Arrays;
+import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,15 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.PipelineCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCrossing;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
-import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
+import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 import uk.co.ogauthority.pwa.temp.model.locations.CrossingType;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -37,7 +34,9 @@ public class PwaApplicationController {
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
             "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
             "Application contacts", "/",
-            "Users, operators and owners", "/"
+            "Users, operators and owners", "/",
+            "Locations", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
+            "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null))
         ));
   }
 
