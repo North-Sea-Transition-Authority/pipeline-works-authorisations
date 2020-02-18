@@ -22,7 +22,7 @@ public class PwaApplicationController {
     return new ModelAndView("pwaApplication/temporary/taskList")
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
-            "Project information", "/",
+            "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
             "Application contacts", "/",
             "Users, operators and owners", "/"
         ));
