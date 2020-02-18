@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.temp.controller;
 
+import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,23 +26,24 @@ public class PwaApplicationController {
         .addObject("uooList", makeUserOwnerOperatorViews());
   }
 
-  private UserOwnerOperatorView[] makeUserOwnerOperatorViews() {
+  private List<UserOwnerOperatorView> makeUserOwnerOperatorViews() {
     var uooA = new UserOwnerOperatorView(
-        135432, "Demo Company", "Fivium Ltd\n15 Adam St\nCharing Cross\nLondon WC2N 6AH\n",
+        135432, "Royal Dutch Shell PLC", "Shell Centre\nBishop's, London\nSE1 7NA",
         Set.of("User"));
 
     var uooB = new UserOwnerOperatorView(
-        365478, "Another company", "Fivium Ltd\n15 Adam St\nLondon WC2N 6AH",
+        365478, "BP PLC", "1 St James's Square\nSt. James's\nLondon SW1Y 4PD",
         Set.of("Operator"));
 
     var uooC = new UserOwnerOperatorView(
-        83625, "Third company", "15 Adam St\nCharing Cross\nLondon WC2N 6AH\n",
+        83625, "Perenco", "8 Hanover Square\nMayfair\nLondon\nW1S 1HQ",
         Set.of("Owner"));
 
     var uooD = new UserOwnerOperatorView(
-        114234, "Final company", "15 Adam St\nLondon\nWC2N 6AH\n",
+        114234, "ConocoPhillips", "925 N Eldridge Pkwy\nHouston\nTX 77079\nUnited States",
         Set.of("User", "Owner"));
-    return new UserOwnerOperatorView[]{uooA, uooB, uooC, uooD};
+
+    return List.of(uooA, uooB, uooC, uooD);
   }
 
 }

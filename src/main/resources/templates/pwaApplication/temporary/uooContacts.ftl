@@ -1,19 +1,10 @@
 <#include '../../layout.ftl'>
 
-<#-- @ftlvariable name="uooList" type="uk.co.ogauthority.pwa.temp.model.contacts.UserOwnerOperatorView[]" -->
-
-<#macro disabledCheckbox checked>
-  <div class="govuk-checkboxes">
-    <div class="govuk-checkboxes__item">
-      <input class="govuk-checkboxes__input" type="checkbox" <#if checked>checked</#if> disabled>
-      <label class="govuk-label govuk-checkboxes__label"></label>
-    </div>
-  </div>
-</#macro>
+<#-- @ftlvariable name="uooList" type="java.util.List<uk.co.ogauthority.pwa.temp.model.contacts.UserOwnerOperatorView>" -->
 
 <@defaultPage htmlTitle="UOO contacts" pageHeading="Users, owners, and operator" twoThirdsColumn=false backLink=true>
 
-    <@fdsAction.button buttonText="Add new"/>
+    <@fdsAction.button buttonText="Add new company"/>
 
     <@fdsWarning.warning>
       You may only have one company fulfilling the "operator" role.
@@ -31,8 +22,8 @@
     <tbody class="govuk-table__body">
       <#list uooList as uoo>
         <tr class="govuk-table__row">
-<#--          ?c treats it as a string rather than a number, preventing formatting-->
-          <td class="govuk-table__cell">${uoo.companyHouseNumber?c}</td>
+          <#-- ?c treats it as a string rather than a number, preventing formatting -->
+          <td class="govuk-table__cell">${uoo.companiesHouseNumber?c}</td>
           <td class="govuk-table__cell">${uoo.companyName}</td>
           <td class="govuk-table__cell"><pre class="govuk-body">${uoo.companyAddress}</pre></td>
           <td class="govuk-table__cell">
@@ -43,6 +34,9 @@
           </td>
           <td class="govuk-table__cell">
             <ul class="govuk-list">
+              <li>
+                  <@fdsAction.link linkText="Edit" linkUrl=springUrl("/") linkClass="govuk-link"></@fdsAction.link>
+              </li>
               <li>
                   <@fdsAction.link linkText="Remove" linkUrl=springUrl("/") linkClass="govuk-link"></@fdsAction.link>
               </li>
