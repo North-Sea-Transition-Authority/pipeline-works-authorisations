@@ -3,8 +3,7 @@ package uk.co.ogauthority.pwa.temp.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,6 +14,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
 import uk.co.ogauthority.pwa.temp.model.form.FastTrackForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
+import uk.co.ogauthority.pwa.util.DateUtil;
 
 @Controller
 @RequestMapping("/application")
@@ -24,12 +24,14 @@ public class PwaApplicationController {
 
   @GetMapping("/1/tasks")
   public ModelAndView viewTaskList() {
-    var availableTasks = new HashMap<>(Map.of(
-        "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
-        "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
-        "Application contacts", "/",
-        "Users, operators and owners", "/"
-    ));
+    var availableTasks = new LinkedHashMap<String, String>() {
+      {
+        put("Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
+        put("Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
+        put("Application contacts", "/");
+        put("Users, operators and owners", "/");
+      }
+    };
     availableTasks.compute("Fast track", (String key, String oldValue) ->
         startDate.isBefore(LocalDate.now().plusMonths(3))
             ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(null))
@@ -72,7 +74,9 @@ public class PwaApplicationController {
   @GetMapping("/1/fast-track")
   public ModelAndView viewFastTrackInformation(@ModelAttribute("form") FastTrackForm fastTrackForm) {
     return new ModelAndView("pwaApplication/temporary/fastTrack")
-        .addObject("projectInformationUrl", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
+        .addObject("projectInformationUrl", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)))
+        .addObject("startDate", DateUtil.formatDate(startDate))
+        .addObject("minNotFastTrackStartDate", DateUtil.formatDate(LocalDate.now().plusMonths(3)));
   }
 
   @PostMapping("/1/fast-track")
