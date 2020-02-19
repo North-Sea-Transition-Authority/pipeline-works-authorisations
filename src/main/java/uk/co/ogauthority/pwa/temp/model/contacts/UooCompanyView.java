@@ -2,15 +2,15 @@ package uk.co.ogauthority.pwa.temp.model.contacts;
 
 import java.util.Set;
 
-public class UserOwnerOperatorView {
+public class UooCompanyView {
 
   private Integer companiesHouseNumber;
   private String companyName;
   private String companyAddress;
   private Set<String> roles;
 
-  public UserOwnerOperatorView(Integer companiesHouseNumber, String companyName, String companyAddress,
-                               Set<String> roles) {
+  public UooCompanyView(Integer companiesHouseNumber, String companyName, String companyAddress,
+                        Set<String> roles) {
     this.companiesHouseNumber = companiesHouseNumber;
     this.companyName = companyName;
     this.companyAddress = companyAddress;
