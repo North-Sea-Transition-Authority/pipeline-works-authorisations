@@ -11,6 +11,7 @@ public class TeamMemberView {
   private final String forename;
   private final String surname;
   private final String emailAddress;
+  private final String telephoneNo;
 
   private final String editRoute;
   private final String removeRoute;
@@ -20,6 +21,7 @@ public class TeamMemberView {
     this.forename = person.getForename();
     this.surname = person.getSurname();
     this.emailAddress = person.getEmailAddress();
+    this.telephoneNo = person.getTelephoneNo();
     this.roleViews = teamRoleViews;
     this.editRoute = editRoute;
     this.removeRoute = removeRoute;
@@ -47,6 +49,10 @@ public class TeamMemberView {
 
   public String getEmailAddress() {
     return emailAddress;
+  }
+
+  public String getTelephoneNo() {
+    return telephoneNo;
   }
 
   public Set<TeamRoleView> getRoleViews() {

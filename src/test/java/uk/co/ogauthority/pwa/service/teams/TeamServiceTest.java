@@ -62,8 +62,8 @@ public class TeamServiceTest {
 
   @Before
   public void setup() {
-    regulatorPerson = new Person(1, "reg", "person", "reg@person.com");
-    organisationPerson = new Person(2, "org", "person", "org@person.com");
+    regulatorPerson = new Person(1, "reg", "person", "reg@person.com", "0");
+    organisationPerson = new Person(2, "org", "person", "org@person.com", "0");
 
     teamService = new TeamService(portalTeamAccessor, pwaTeamsDtoFactory);
 

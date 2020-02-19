@@ -28,6 +28,14 @@
           </td>
         </tr>
         <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="row">Telephone number</th>
+          <td class="govuk-table__cell">
+              <#if teamMember.telephoneNo?has_content>
+                  ${teamMember.telephoneNo}
+              </#if>
+          </td>
+        </tr>
+        <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="row">Roles</th>
           <td class="govuk-table__cell">
               <#list teamMember.roleViews?sort_by("displaySequence") as role>

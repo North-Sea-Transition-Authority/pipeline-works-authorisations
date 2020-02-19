@@ -28,7 +28,7 @@ public class PwaApplicationController {
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
             "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
-            "Application contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()),
+            "PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()),
             "Users, operators and owners", "/"
         ));
   }
@@ -59,18 +59,17 @@ public class PwaApplicationController {
   private List<TeamMemberView> makeContacts() {
 
     var contactA = new TeamMemberView(
-        new Person(1, "John", "Smith", "john.smith@test.co.uk"),
+        new Person(1, "John", "Smith", "john.smith@test.co.uk", "0800 368 9345"),
         "/", "/",
         Set.of(
-            new TeamRoleView("Drafter", "Drafter", "Can draft applications", 1)
+            new TeamRoleView("Drafter", "Contractor", "Can draft applications", 1)
         ));
 
     var contactB = new TeamMemberView(
-        new Person(2, "Jane", "Doe", "jane.doe@test.co.uk"),
+        new Person(2, "Jane", "Doe", "jane.doe@test.co.uk", "+44 3000 201 010"),
         "/", "/",
         Set.of(
-            new TeamRoleView("Drafter", "Drafter", "Can draft applications", 1),
-            new TeamRoleView("Submitter", "Submitter", "Can submit applications", 2)
+            new TeamRoleView("Submitter", "Submitter", "Can submit applications", 1)
         ));
 
     return List.of(contactA, contactB);
