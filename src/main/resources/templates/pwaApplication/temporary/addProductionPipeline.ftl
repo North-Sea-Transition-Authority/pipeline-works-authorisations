@@ -1,4 +1,5 @@
 <#include '../../layout.ftl'>
+<#import '../../pwaApplication/temporary/widgets/locationInput.ftl' as tempLocationInput>
 
 <#-- @ftlvariable name="pipelineTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm" -->
@@ -13,8 +14,8 @@
 
             <@fdsTextInput.textInput path="form.from" labelText="Structure" />
 
-            <@fdsNumberInput.locationInput degreesLocationPath="form.fromLatitudeDegrees" minutesLocationPath="form.fromLatitudeMinutes" secondsLocationPath="form.fromLatitudeSeconds" />
-            <@fdsNumberInput.locationInput degreesLocationPath="form.fromLongitudeDegrees" minutesLocationPath="form.fromLongitudeMinutes" secondsLocationPath="form.fromLongitudeSeconds" direction="EW" />
+            <@tempLocationInput.locationInput degreesLocationPath="form.fromLatitudeDegrees" minutesLocationPath="form.fromLatitudeMinutes" secondsLocationPath="form.fromLatitudeSeconds" />
+            <@tempLocationInput.locationInput degreesLocationPath="form.fromLongitudeDegrees" minutesLocationPath="form.fromLongitudeMinutes" secondsLocationPath="form.fromLongitudeSeconds" direction="EW" />
 
         </@fdsFieldset.fieldset>
 
@@ -22,8 +23,8 @@
 
             <@fdsTextInput.textInput path="form.to" labelText="Structure" />
 
-            <@fdsNumberInput.locationInput degreesLocationPath="form.toLatitudeDegrees" minutesLocationPath="form.toLatitudeMinutes" secondsLocationPath="form.toLatitudeSeconds" />
-            <@fdsNumberInput.locationInput degreesLocationPath="form.toLongitudeDegrees" minutesLocationPath="form.toLongitudeMinutes" secondsLocationPath="form.toLongitudeSeconds" direction="EW" />
+            <@tempLocationInput.locationInput degreesLocationPath="form.toLatitudeDegrees" minutesLocationPath="form.toLatitudeMinutes" secondsLocationPath="form.toLatitudeSeconds" />
+            <@tempLocationInput.locationInput degreesLocationPath="form.toLongitudeDegrees" minutesLocationPath="form.toLongitudeMinutes" secondsLocationPath="form.toLongitudeSeconds" direction="EW" />
 
         </@fdsFieldset.fieldset>
 
