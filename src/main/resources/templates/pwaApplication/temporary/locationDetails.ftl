@@ -11,9 +11,12 @@
             <#list medianLineSelections as name, value>
                 <@fdsRadio.radioItem path="form.medianLineSelection" itemMap={name: value}>
                     <#if name != "NOT_CROSSED">
+                        <@fdsTextInput.textInput path="form.negotiatorName" labelText="Name of negotiator"/>
+                        <@fdsTextInput.textInput path="form.negotiatorEmail" labelText="Negotiator's email address"/>
                         <@fdsTextarea.textarea path="form.medianLineAgreement" labelText="Median line agreement" hintText="Please provide the status of your median line agreement"/>
                     </#if>
-                    <#if name == "AGREED">
+                    <#if name == "NEGOTIATIONS_COMPLETE">
+                        <h3 class="govuk-heading-m">Agreement documents</h3>
                         <@dummyFileUpload.fileUpload id="1" uploadUrl="/" maxAllowedSize="500" downloadUrl="/" deleteUrl="/" allowedExtensions="txt"/>
                     </#if>
                 </@fdsRadio.radioItem>
@@ -36,6 +39,8 @@
           <@fdsCheckbox.checkbox path="form.acceptEolRemoval" labelText="I accept that any mattresses or grout bags which have been installed to protect pipelines during their operational life should be removed for disposal onshore."/>
           <@fdsCheckbox.checkbox path="form.acceptRemovalProposal" labelText="I accept that if the condition of the mattresses or grout bags is such that they cannot be removed safely or efficiently then any proposal to leave them in place must be supported by an appropriate comparative assessment of the options."/>
         </@fdsFieldset.fieldset>
+
+        <@fdsAction.submitButtons errorMessage="" linkSecondaryAction=true primaryButtonText="Complete" secondaryLinkText="Save and continue later"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

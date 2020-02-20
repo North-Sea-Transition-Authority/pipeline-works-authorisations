@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.temp.model.locations;
 public enum MedianLineSelection {
 
   NOT_CROSSED("Not crossed"),
-  IN_DISCUSSION("In discussion"),
-  AGREED("Requirements agreed");
+  NEGOTIATIONS_ONGOING("Negotiations ongoing"),
+  NEGOTIATIONS_COMPLETE("Negotiations complete");
 
   private String displayText;
 

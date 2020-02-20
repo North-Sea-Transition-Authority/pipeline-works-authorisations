@@ -1,14 +1,9 @@
-package uk.co.ogauthority.pwa.temp.model.entity;
+package uk.co.ogauthority.pwa.temp.model.form.crossings;
 
-public class TelecommunicationCrossing {
+public class TelecommunicationCableCrossingForm {
 
   private String cableNameOrLocation;
   private String holderOfCable;
-
-  public TelecommunicationCrossing(String cableNameOrLocation, String holderOfCable) {
-    this.cableNameOrLocation = cableNameOrLocation;
-    this.holderOfCable = holderOfCable;
-  }
 
   public String getCableNameOrLocation() {
     return cableNameOrLocation;

@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.temp.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
@@ -14,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
-import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCrossing;
+import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCableCrossing;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
-import uk.co.ogauthority.pwa.temp.model.form.CrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
-import uk.co.ogauthority.pwa.temp.model.locations.CrossingType;
+import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
+import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -36,7 +35,7 @@ public class PwaApplicationController {
             "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
             "Application contacts", "/",
             "Users, operators and owners", "/",
-            "Locations", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
+            "Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
             "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null))
         ));
   }
@@ -68,22 +67,53 @@ public class PwaApplicationController {
   @GetMapping("/1/crossings")
   public ModelAndView viewCrossings(@ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
     return new ModelAndView("pwaApplication/temporary/crossingAgreements/crossings")
-        .addObject("addCrossingLink", ReverseRouter.route(on(PwaApplicationController.class).viewAddCrossing(null)))
+        .addObject("addBlockCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class).viewAddBlockCrossing(null)))
+        .addObject("addTelecommuncationCableCrossingUrl",
+            ReverseRouter.route(on(PwaApplicationController.class).viewAddTelecommunicationCableCrossing(null)))
+        .addObject("addTelecommuncationCableCrossingUrl",
+            ReverseRouter.route(on(PwaApplicationController.class).viewAddTelecommunicationCableCrossing(null)))
+        .addObject("addPipelineCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class).viewAddPipelineCrossing(null)))
         .addObject("blockCrossings", makeBlockCrossings())
-        .addObject("telecommunicationCrossings", makeTelecommunicationCrossings())
-        .addObject("pipelineCrossings", Collections.emptyList());
+        .addObject("telecommunicationCableCrossings", makeTelecommunicationCableCrossings())
+        .addObject("pipelineCrossings", List.of());
   }
 
-  @GetMapping("/1/crossings/new")
-  public ModelAndView viewAddCrossing(@ModelAttribute("form") CrossingForm crossingForm) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/addCrossing")
-        .addObject("crossingTypes", Arrays.stream(CrossingType.values())
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
-        );
+  @PostMapping("/1/crossings")
+  public ModelAndView postCrossings(@ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
   }
 
-  @PostMapping("/1/crossings/new")
-  public ModelAndView postAddCrossing(@ModelAttribute("form") CrossingForm crossingForm) {
+  @GetMapping("/1/crossings/block-crossing/new")
+  public ModelAndView viewAddBlockCrossing(@ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
+    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newBlockCrossing");
+  }
+
+  @PostMapping("/1/crossings/block-crossing/new")
+  public ModelAndView postAddBlockCrossing(@ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
+  }
+
+  @GetMapping("/1/crossings/telecommunication-cable-crossing/new")
+  public ModelAndView viewAddTelecommunicationCableCrossing(
+      @ModelAttribute("form") TelecommunicationCableCrossing telecommunicationCableCrossing) {
+
+    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newTelecommunicationCableCrossing");
+  }
+
+  @PostMapping("/1/crossings/telecommunication-cable-crossing/new")
+  public ModelAndView postAddTelecommunicationCableCrossing(
+      @ModelAttribute("form") TelecommunicationCableCrossing telecommunicationCableCrossing) {
+
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
+  }
+
+  @GetMapping("/1/crossings/pipeline-crossing/new")
+  public ModelAndView viewAddPipelineCrossing(@ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
+    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newPipelineCrossing");
+  }
+
+  @PostMapping("/1/crossings/pipeline-crossing/new")
+  public ModelAndView postAddPipelineCrossing(@ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
   }
 
@@ -92,8 +122,8 @@ public class PwaApplicationController {
     return List.of(crossingA);
   }
 
-  private List<TelecommunicationCrossing> makeTelecommunicationCrossings() {
-    var crossingA = new TelecommunicationCrossing("XXXX to XXXX Submarine Communications Cable", "HESS LIMITED");
+  private List<TelecommunicationCableCrossing> makeTelecommunicationCableCrossings() {
+    var crossingA = new TelecommunicationCableCrossing("XXXX to XXXX Submarine Communications Cable", "HESS LIMITED");
     return List.of(crossingA);
   }
 

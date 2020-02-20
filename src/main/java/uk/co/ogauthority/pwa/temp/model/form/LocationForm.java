@@ -15,6 +15,8 @@ public class LocationForm {
   private boolean acceptEolRemoval;
   private boolean acceptRemovalProposal;
   private String decommissioningPlans;
+  private String negotiatorName;
+  private String negotiatorEmail;
 
   public MedianLineSelection getMedianLineSelection() {
     return medianLineSelection;
@@ -102,5 +104,21 @@ public class LocationForm {
 
   public void setDecommissioningPlans(String decommissioningPlans) {
     this.decommissioningPlans = decommissioningPlans;
+  }
+
+  public String getNegotiatorName() {
+    return negotiatorName;
+  }
+
+  public void setNegotiatorName(String negotiatorName) {
+    this.negotiatorName = negotiatorName;
+  }
+
+  public String getNegotiatorEmail() {
+    return negotiatorEmail;
+  }
+
+  public void setNegotiatorEmail(String negotiatorEmail) {
+    this.negotiatorEmail = negotiatorEmail;
   }
 }
