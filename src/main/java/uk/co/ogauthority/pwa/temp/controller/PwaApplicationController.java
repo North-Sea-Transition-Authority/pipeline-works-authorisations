@@ -56,12 +56,17 @@ public class PwaApplicationController {
     return new ModelAndView("pwaApplication/temporary/projectInformation");
   }
 
-  @GetMapping("/1/locations")
+  @GetMapping("/1/location-details")
   public ModelAndView viewLocationDetails(@ModelAttribute("form") LocationForm locationForm) {
     return new ModelAndView("pwaApplication/temporary/locationDetails")
         .addObject("medianLineSelections", Arrays.stream(MedianLineSelection.values())
           .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
         ).addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+  }
+
+  @PostMapping("/1/location-details")
+  public ModelAndView postLocationDetails(@ModelAttribute("form") LocationForm locationForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
   }
 
   @GetMapping("/1/crossings")
