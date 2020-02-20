@@ -9,21 +9,33 @@
 
         <@fdsRadio.radio path="form.pipelineType" labelText="Pipeline type" radioItems=pipelineTypes />
 
-        <@fdsTextInput.textInput path="form.from" labelText="From" />
+        <@fdsFieldset.fieldset legendHeading="Where is the pipeline starting from?" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
 
-        <@fdsNumberInput.locationInput degreesLocationPath="form.fromLatitudeDegrees" minutesLocationPath="form.fromLatitudeMinutes" secondsLocationPath="form.fromLatitudeSeconds" />
-        <@fdsNumberInput.locationInput degreesLocationPath="form.fromLongitudeDegrees" minutesLocationPath="form.fromLongitudeMinutes" secondsLocationPath="form.fromLongitudeSeconds" />
+            <@fdsTextInput.textInput path="form.from" labelText="Structure" />
 
-        <@fdsTextInput.textInput path="form.to" labelText="To" />
+            <@fdsNumberInput.locationInput degreesLocationPath="form.fromLatitudeDegrees" minutesLocationPath="form.fromLatitudeMinutes" secondsLocationPath="form.fromLatitudeSeconds" />
+            <@fdsNumberInput.locationInput degreesLocationPath="form.fromLongitudeDegrees" minutesLocationPath="form.fromLongitudeMinutes" secondsLocationPath="form.fromLongitudeSeconds" direction="EW" />
 
-        <@fdsNumberInput.locationInput degreesLocationPath="form.toLatitudeDegrees" minutesLocationPath="form.toLatitudeMinutes" secondsLocationPath="form.toLatitudeSeconds" />
-        <@fdsNumberInput.locationInput degreesLocationPath="form.toLongitudeDegrees" minutesLocationPath="form.toLongitudeMinutes" secondsLocationPath="form.toLongitudeSeconds" />
+        </@fdsFieldset.fieldset>
 
-        <@fdsTextInput.textInput path="form.componentParts" labelText="Description of component parts of the pipeline" />
+        <@fdsFieldset.fieldset legendHeading="Where is the pipeline finishing?" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
 
-        <@fdsNumberInput.numberInputItem path="form.length" labelText="Length (m)" />
+            <@fdsTextInput.textInput path="form.to" labelText="Structure" />
 
-        <@fdsTextInput.textInput path="form.productsToBeConveyed" labelText="Products to be conveyed" />
+            <@fdsNumberInput.locationInput degreesLocationPath="form.toLatitudeDegrees" minutesLocationPath="form.toLatitudeMinutes" secondsLocationPath="form.toLatitudeSeconds" />
+            <@fdsNumberInput.locationInput degreesLocationPath="form.toLongitudeDegrees" minutesLocationPath="form.toLongitudeMinutes" secondsLocationPath="form.toLongitudeSeconds" direction="EW" />
+
+        </@fdsFieldset.fieldset>
+
+        <@fdsFieldset.fieldset legendHeading="Pipeline information" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
+
+            <@fdsTextInput.textInput path="form.componentParts" labelText="Description of component parts of the pipeline" />
+
+            <@fdsNumberInput.numberInputItem path="form.length" labelText="Length (m)" />
+
+            <@fdsTextInput.textInput path="form.productsToBeConveyed" labelText="Products to be conveyed" />
+
+        </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Add pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
