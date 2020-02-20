@@ -22,9 +22,7 @@
                       <@fdsTextInput.textInput path="form.companyName" labelText="Company name"/>
                       <@fdsTextarea.textarea path="form.companyAddress" labelText="Company address"/>
 
-                      <@fdsFieldset.fieldset legendHeading="Roles" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
-                          <@fdsCheckbox.checkboxes path="form.roles" checkboxes=uooRoles/>
-                      </@fdsFieldset.fieldset>
+                      <@fdsCheckbox.checkboxes path="form.roles" checkboxes=uooRoles fieldsetHeadingText="Roles" fieldsetHeadingSize="h3"/>
                   </#if>
                 </@fdsRadio.radioItem>
             </#list>
