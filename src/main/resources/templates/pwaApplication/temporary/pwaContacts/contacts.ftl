@@ -1,21 +1,21 @@
-<#include '../../layout.ftl'>
+<#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="contacts" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
-<#-- @ftlvariable name="linkToTaskList" type="java.lang.String" -->
+<#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="PWA contacts" pageHeading="PWA contacts" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(linkToTaskList)>
+<@defaultPage htmlTitle="PWA contacts" pageHeading="PWA contacts" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(taskListUrl)>
     <@fdsInsetText.insetText>
       PWA contacts are people who are authorised to make changes to any applications related to this PWA.
     </@fdsInsetText.insetText>
-  <@fdsAction.button buttonText="Add contact"/>
+    <@fdsAction.link linkText="Add contact" linkUrl=springUrl(addContactUrl) linkClass="govuk-button"/>
   <table class="govuk-table">
     <thead class="govuk-table__head">
-      <tr class="govuk-table__row">
-        <th class="govuk-table__header" scope="col">Name</th>
-        <th class="govuk-table__header" scope="col">Contact details</th>
-        <th class="govuk-table__header" scope="col">Roles</th>
-        <th class="govuk-table__header" scope="col">Actions</th>
-      </tr>
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header" scope="col">Name</th>
+      <th class="govuk-table__header" scope="col">Contact details</th>
+      <th class="govuk-table__header" scope="col">Roles</th>
+      <th class="govuk-table__header" scope="col">Actions</th>
+    </tr>
     </thead>
     <tbody class="govuk-table__body">
     <#list contacts as contact>

@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.temp.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.List;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +22,11 @@ import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
+import uk.co.ogauthority.pwa.temp.model.form.PwaContactForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
+import uk.co.ogauthority.pwa.temp.model.pwacontacts.ContactRole;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -38,7 +39,6 @@ public class PwaApplicationController {
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
             "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
-            "Application contacts", "/",
             "Users, operators and owners", "/",
             "Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
             "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)),
@@ -59,9 +59,22 @@ public class PwaApplicationController {
 
   @GetMapping("/1/application-contacts")
   public ModelAndView viewApplicationContacts() {
-    return new ModelAndView("pwaApplication/temporary/applicationContacts")
+    return new ModelAndView("pwaApplication/temporary/pwaContacts/contacts")
         .addObject("contacts", makeContacts())
-        .addObject("linkToTaskList", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
+        .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()))
+        .addObject("addContactUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewApplicationContact(null)));
+  }
+
+  @GetMapping("/1/application-contacts/new")
+  public ModelAndView viewNewApplicationContact(@ModelAttribute("form") PwaContactForm pwaContactForm) {
+    return new ModelAndView("pwaApplication/temporary/pwaContacts/new")
+        .addObject("roles", Arrays.stream(ContactRole.values())
+          .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
+  }
+
+  @PostMapping("/1/application-contacts/new")
+  public ModelAndView postAddApplicationContact(@ModelAttribute("form") PwaContactForm pwaContactForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewApplicationContacts());
   }
 
   @GetMapping("/1/project-information")
