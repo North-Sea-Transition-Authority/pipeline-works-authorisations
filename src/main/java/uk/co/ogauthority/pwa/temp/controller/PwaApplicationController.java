@@ -3,10 +3,9 @@ package uk.co.ogauthority.pwa.temp.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,14 +16,14 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCableCrossing;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
-import uk.co.ogauthority.pwa.temp.model.form.FastTrackForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
+import uk.co.ogauthority.pwa.temp.model.form.FastTrackForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
-import uk.co.ogauthority.pwa.util.DateUtil;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
+import uk.co.ogauthority.pwa.util.DateUtil;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
