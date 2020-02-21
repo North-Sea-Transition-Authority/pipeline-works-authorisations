@@ -4,33 +4,15 @@ import uk.co.ogauthority.pwa.temp.model.pwacontacts.ContactRole;
 
 public class PwaContactForm {
 
-  private String name;
-  private String emailAddress;
-  private String telephoneNo;
+  private String userIdentifier;
   private ContactRole role;
 
-  public String getName() {
-    return name;
+  public String getUserIdentifier() {
+    return userIdentifier;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getEmailAddress() {
-    return emailAddress;
-  }
-
-  public void setEmailAddress(String emailAddress) {
-    this.emailAddress = emailAddress;
-  }
-
-  public String getTelephoneNo() {
-    return telephoneNo;
-  }
-
-  public void setTelephoneNo(String telephoneNo) {
-    this.telephoneNo = telephoneNo;
+  public void setUserIdentifier(String userIdentifier) {
+    this.userIdentifier = userIdentifier;
   }
 
   public ContactRole getRole() {

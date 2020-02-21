@@ -3,13 +3,9 @@
 <@defaultPage htmlTitle="Add PWA contact" pageHeading="Add a new PWA contact" backLink=true>
 
     <@fdsForm.htmlForm>
-        <@fdsFieldset.fieldset legendHeading="Contact details">
-            <@fdsTextInput.textInput path="form.name" labelText="Name"/>
-            <@fdsTextInput.textInput path="form.emailAddress" labelText="Email address"/>
-            <@fdsTextInput.textInput path="form.telephoneNo" labelText="Telephone number"/>
-        </@fdsFieldset.fieldset>
+        <@fdsTextInput.textInput path="form.userIdentifier" labelText="Contact" hintText="Enter person's email address or login ID" pageHeading=true/>
 
-        <@fdsRadio.radioGroup path="form.role" labelText="Contact role">
+        <@fdsRadio.radioGroup path="form.role" labelText="Role" fieldsetHeadingClass="govuk-fieldset__legend--l">
           <#list roles as name, value>
             <@fdsRadio.radioItem path="form.role" itemMap={name: value}/>
           </#list>
