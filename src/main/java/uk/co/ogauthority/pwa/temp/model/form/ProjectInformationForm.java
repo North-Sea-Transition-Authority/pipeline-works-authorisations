@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
-public class ProjectInformationForm {
+import java.io.Serializable;
+
+public class ProjectInformationForm implements Serializable {
 
   private String workStartDay;
   private String workStartMonth;

@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
+import java.io.Serializable;
 import uk.co.ogauthority.pwa.temp.model.admindetails.WithinSafetyZone;
 
-public class AdministrativeDetailsForm {
+public class AdministrativeDetailsForm implements Serializable {
 
   private String projectDescription;
   private Object projectDiagram;
