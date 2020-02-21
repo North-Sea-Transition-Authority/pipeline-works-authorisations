@@ -5,12 +5,14 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.energyportal.service.BreadcrumbService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCableCrossing;
@@ -27,9 +29,16 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @RequestMapping("/application")
 public class PwaApplicationController {
 
+  private final BreadcrumbService breadcrumbService;
+
+  @Autowired
+  public PwaApplicationController(BreadcrumbService breadcrumbService) {
+    this.breadcrumbService = breadcrumbService;
+  }
+
   @GetMapping("/1/tasks")
   public ModelAndView viewTaskList() {
-    return new ModelAndView("pwaApplication/temporary/taskList")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/taskList")
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
             "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
@@ -38,12 +47,16 @@ public class PwaApplicationController {
             "Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
             "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null))
         ));
+    breadcrumbService.fromWorkArea(modelAndView, "Task list");
+    return modelAndView;
   }
 
   @GetMapping("/1/admin-details")
   public ModelAndView viewAdministrativeDetails(@ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
-    return new ModelAndView("pwaApplication/temporary/administrativeDetails")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/administrativeDetails")
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+    breadcrumbService.fromTaskList(modelAndView, "Administrative details");
+    return modelAndView;
   }
 
   @PostMapping("/1/admin-details")
@@ -53,15 +66,20 @@ public class PwaApplicationController {
 
   @GetMapping("/1/project-information")
   public ModelAndView viewProjectInformation(@ModelAttribute("form") ProjectInformationForm projectInformationForm) {
-    return new ModelAndView("pwaApplication/temporary/projectInformation");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/projectInformation");
+    breadcrumbService.fromTaskList(modelAndView, "Project information");
+    return modelAndView;
   }
 
   @GetMapping("/1/location-details")
   public ModelAndView viewLocationDetails(@ModelAttribute("form") LocationForm locationForm) {
-    return new ModelAndView("pwaApplication/temporary/locationDetails")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/locationDetails")
         .addObject("medianLineSelections", Arrays.stream(MedianLineSelection.values())
           .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
         ).addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+
+    breadcrumbService.fromTaskList(modelAndView, "Location details");
+    return modelAndView;
   }
 
   @PostMapping("/1/location-details")
@@ -71,7 +89,7 @@ public class PwaApplicationController {
 
   @GetMapping("/1/crossings")
   public ModelAndView viewCrossings(@ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/crossings")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/crossings")
         .addObject("addBlockCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class).viewAddBlockCrossing(null)))
         .addObject("addTelecommuncationCableCrossingUrl",
             ReverseRouter.route(on(PwaApplicationController.class).viewAddTelecommunicationCableCrossing(null)))
@@ -81,6 +99,9 @@ public class PwaApplicationController {
         .addObject("blockCrossings", makeBlockCrossings())
         .addObject("telecommunicationCableCrossings", makeTelecommunicationCableCrossings())
         .addObject("pipelineCrossings", List.of());
+
+    breadcrumbService.fromTaskList(modelAndView, "Crossing agreements");
+    return modelAndView;
   }
 
   @PostMapping("/1/crossings")
@@ -90,7 +111,10 @@ public class PwaApplicationController {
 
   @GetMapping("/1/crossings/block-crossing/new")
   public ModelAndView viewAddBlockCrossing(@ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newBlockCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newBlockCrossing");
+
+    breadcrumbService.fromCrossingAgreements(modelAndView, "Block crossing");
+    return modelAndView;
   }
 
   @PostMapping("/1/crossings/block-crossing/new")
@@ -102,7 +126,10 @@ public class PwaApplicationController {
   public ModelAndView viewAddTelecommunicationCableCrossing(
       @ModelAttribute("form") TelecommunicationCableCrossing telecommunicationCableCrossing) {
 
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newTelecommunicationCableCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newTelecommunicationCableCrossing");
+
+    breadcrumbService.fromCrossingAgreements(modelAndView, "Telecommunication cable crossing");
+    return modelAndView;
   }
 
   @PostMapping("/1/crossings/telecommunication-cable-crossing/new")
@@ -114,7 +141,10 @@ public class PwaApplicationController {
 
   @GetMapping("/1/crossings/pipeline-crossing/new")
   public ModelAndView viewAddPipelineCrossing(@ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newPipelineCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newPipelineCrossing");
+
+    breadcrumbService.fromCrossingAgreements(modelAndView, "Pipeline crossing");
+    return modelAndView;
   }
 
   @PostMapping("/1/crossings/pipeline-crossing/new")
