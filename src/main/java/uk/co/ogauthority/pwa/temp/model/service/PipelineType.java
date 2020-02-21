@@ -12,7 +12,11 @@ public enum PipelineType {
   WATER_INJECTION_JUMPER("Water Injection Jumper", false),
 
   METHANOL_PIPELINE("Methanol Pipeline", false),
-  SERVICES_UMBILICAL("Services Umbilical", false);
+  SERVICES_UMBILICAL("Services Umbilical", false),
+
+  HYDRAULIC_JUMPER("Hydraulic Jumper", false),
+  CHEMICAL_JUMPER("Chemical Jumper", false),
+  CONTROL_JUMPER("Control Jumper", false);
 
   private String displayName;
   private boolean rootPipelineType;
