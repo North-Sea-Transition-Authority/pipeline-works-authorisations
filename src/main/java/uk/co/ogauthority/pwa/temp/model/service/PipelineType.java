@@ -8,6 +8,9 @@ public enum PipelineType {
   GAS_LIFT_PIPELINE("Gas Lift Pipeline", true),
   GAS_LIFT_JUMPER("Gas Lift Jumper", false),
 
+  WATER_INJECTION_PIPELINE("Water Injection Pipeline", true),
+  WATER_INJECTION_JUMPER("Water Injection Jumper", false),
+
   METHANOL_PIPELINE("Methanol Pipeline", false),
   SERVICES_UMBILICAL("Services Umbilical", false);
 
