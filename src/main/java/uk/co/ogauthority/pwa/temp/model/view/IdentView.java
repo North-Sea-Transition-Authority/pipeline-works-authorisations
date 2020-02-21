@@ -1,15 +1,11 @@
 package uk.co.ogauthority.pwa.temp.model.view;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Objects;
-import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
+import java.math.BigDecimal;
 
-public class PipelineView implements Serializable {
+public class IdentView implements Serializable {
 
-  private String pipelineNumber;
-
-  private PipelineType pipelineType;
+  private Integer identNo;
 
   private String from;
 
@@ -33,39 +29,27 @@ public class PipelineView implements Serializable {
 
   private String componentParts;
 
-  private Integer length;
+  private BigDecimal length;
+
+  private BigDecimal externalDiameter;
+  private BigDecimal internalDiameter;
+  private BigDecimal wallThickness;
+
+  private String typeOfInsulationOrCoating;
+
+  private BigDecimal maop;
 
   private String productsToBeConveyed;
 
-  private List<SubPipelineView> subPipelines;
-
-  private List<IdentView> idents;
-
-  public PipelineView() {
+  public IdentView() {
   }
 
-  public PipelineView(String pipelineNumber,
-                      PipelineType pipelineType,
-                      List<SubPipelineView> subPipelines) {
-    this.pipelineNumber = pipelineNumber;
-    this.pipelineType = pipelineType;
-    this.subPipelines = subPipelines;
+  public Integer getIdentNo() {
+    return identNo;
   }
 
-  public String getPipelineNumber() {
-    return pipelineNumber;
-  }
-
-  public void setPipelineNumber(String pipelineNumber) {
-    this.pipelineNumber = pipelineNumber;
-  }
-
-  public PipelineType getPipelineType() {
-    return pipelineType;
-  }
-
-  public void setPipelineType(PipelineType pipelineType) {
-    this.pipelineType = pipelineType;
+  public void setIdentNo(Integer identNo) {
+    this.identNo = identNo;
   }
 
   public String getFrom() {
@@ -122,23 +106,6 @@ public class PipelineView implements Serializable {
 
   public void setFromLongitudeSeconds(String fromLongitudeSeconds) {
     this.fromLongitudeSeconds = fromLongitudeSeconds;
-  }
-
-  public String getFromLatString() {
-    return "<br/> " + this.fromLatitudeDegrees + "&deg; " + this.fromLatitudeMinutes + "' " + this.fromLatitudeSeconds + "\" N";
-  }
-
-  public String getFromLongString() {
-    return "<br/> " + this.fromLongitudeDegrees + "&deg; " + this.fromLongitudeMinutes + "' " + this.fromLongitudeSeconds + "\" E";
-  }
-
-  public String getToLatString() {
-    return "<br/> " + this.toLatitudeDegrees + "&deg; " + this.toLatitudeMinutes + "' " + this.toLatitudeSeconds + "\" N";
-  }
-
-  public String getToLongString() {
-    return "<br/> " + this.toLongitudeDegrees + "&deg; " + this.toLongitudeMinutes + "' " + this.toLongitudeSeconds + "\" E";
-
   }
 
   public String getTo() {
@@ -205,12 +172,52 @@ public class PipelineView implements Serializable {
     this.componentParts = componentParts;
   }
 
-  public Integer getLength() {
+  public BigDecimal getLength() {
     return length;
   }
 
-  public void setLength(Integer length) {
+  public void setLength(BigDecimal length) {
     this.length = length;
+  }
+
+  public BigDecimal getExternalDiameter() {
+    return externalDiameter;
+  }
+
+  public void setExternalDiameter(BigDecimal externalDiameter) {
+    this.externalDiameter = externalDiameter;
+  }
+
+  public BigDecimal getInternalDiameter() {
+    return internalDiameter;
+  }
+
+  public void setInternalDiameter(BigDecimal internalDiameter) {
+    this.internalDiameter = internalDiameter;
+  }
+
+  public BigDecimal getWallThickness() {
+    return wallThickness;
+  }
+
+  public void setWallThickness(BigDecimal wallThickness) {
+    this.wallThickness = wallThickness;
+  }
+
+  public String getTypeOfInsulationOrCoating() {
+    return typeOfInsulationOrCoating;
+  }
+
+  public void setTypeOfInsulationOrCoating(String typeOfInsulationOrCoating) {
+    this.typeOfInsulationOrCoating = typeOfInsulationOrCoating;
+  }
+
+  public BigDecimal getMaop() {
+    return maop;
+  }
+
+  public void setMaop(BigDecimal maop) {
+    this.maop = maop;
   }
 
   public String getProductsToBeConveyed() {
@@ -219,46 +226,5 @@ public class PipelineView implements Serializable {
 
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
-  }
-
-  public List<SubPipelineView> getSubPipelines() {
-    return subPipelines;
-  }
-
-  public void setSubPipelines(List<SubPipelineView> subPipelines) {
-    this.subPipelines = subPipelines;
-  }
-
-  public List<IdentView> getIdents() {
-    return idents;
-  }
-
-  public void setIdents(List<IdentView> idents) {
-    this.idents = idents;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    PipelineView that = (PipelineView) o;
-    return Objects.equals(pipelineNumber, that.pipelineNumber)
-        && pipelineType == that.pipelineType
-        && Objects.equals(from, that.from)
-        && Objects.equals(to, that.to)
-        && Objects.equals(componentParts, that.componentParts)
-        && Objects.equals(length, that.length)
-        && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
-        && Objects.equals(subPipelines, that.subPipelines);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(pipelineNumber, pipelineType, from, to, componentParts, length, productsToBeConveyed,
-        subPipelines);
   }
 }
