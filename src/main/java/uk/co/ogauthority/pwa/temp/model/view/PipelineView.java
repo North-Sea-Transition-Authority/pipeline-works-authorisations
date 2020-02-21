@@ -37,8 +37,6 @@ public class PipelineView implements Serializable {
 
   private String productsToBeConveyed;
 
-  private List<SubPipelineView> subPipelines;
-
   private List<IdentView> idents;
 
   public PipelineView() {
@@ -49,7 +47,6 @@ public class PipelineView implements Serializable {
                       List<SubPipelineView> subPipelines) {
     this.pipelineNumber = pipelineNumber;
     this.pipelineType = pipelineType;
-    this.subPipelines = subPipelines;
   }
 
   public String getPipelineNumber() {
@@ -221,14 +218,6 @@ public class PipelineView implements Serializable {
     this.productsToBeConveyed = productsToBeConveyed;
   }
 
-  public List<SubPipelineView> getSubPipelines() {
-    return subPipelines;
-  }
-
-  public void setSubPipelines(List<SubPipelineView> subPipelines) {
-    this.subPipelines = subPipelines;
-  }
-
   public List<IdentView> getIdents() {
     return idents;
   }
@@ -252,13 +241,11 @@ public class PipelineView implements Serializable {
         && Objects.equals(to, that.to)
         && Objects.equals(componentParts, that.componentParts)
         && Objects.equals(length, that.length)
-        && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
-        && Objects.equals(subPipelines, that.subPipelines);
+        && Objects.equals(productsToBeConveyed, that.productsToBeConveyed);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineNumber, pipelineType, from, to, componentParts, length, productsToBeConveyed,
-        subPipelines);
+    return Objects.hash(pipelineNumber, pipelineType, from, to, componentParts, length, productsToBeConveyed);
   }
 }

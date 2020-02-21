@@ -7,7 +7,7 @@
 
 <@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines">
 
-    <@fdsAction.link linkText="Add production pipeline" linkUrl=springUrl(addProductionPipelineUrl) linkClass="govuk-button govuk-button--secondary" />
+    <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addProductionPipelineUrl) linkClass="govuk-button govuk-button--secondary" />
 
     <#list pipelineViews as pipeline>
 
@@ -16,17 +16,6 @@
             <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineType.displayName} - ${pipeline.pipelineNumber}">
                 <@fdsCard.cardAction cardLinkText="View or edit this pipeline" cardLinkUrl=springUrl(viewEditPipelineUrl + pipeline.pipelineNumber) />
             </@fdsCard.cardHeader>
-
-            <#if pipeline.subPipelines?size gt 0>
-
-
-
-            <#else>
-
-                <hr class="govuk-section-break govuk-section-break--m">
-                <p class="govuk-body">There are no pipelines linked to this one.</p>
-
-            </#if>
 
         </@fdsCard.card>
 

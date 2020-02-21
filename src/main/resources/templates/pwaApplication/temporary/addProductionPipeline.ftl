@@ -5,10 +5,10 @@
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 
-<@defaultPage htmlTitle="Add production pipeline" pageHeading="Add production pipeline">
+<@defaultPage htmlTitle="Add pipeline" pageHeading="Add  pipeline">
     <@fdsForm.htmlForm>
 
-        <@fdsRadio.radio path="form.pipelineType" labelText="Pipeline type" radioItems=pipelineTypes />
+        <@fdsSelect.select path="form.pipelineType" labelText="Pipeline type" options=pipelineTypes />
 
         <@fdsFieldset.fieldset legendHeading="Where is the pipeline starting from?" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
 

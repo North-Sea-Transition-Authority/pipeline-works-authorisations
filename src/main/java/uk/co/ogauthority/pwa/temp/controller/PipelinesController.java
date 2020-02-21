@@ -4,8 +4,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -39,7 +40,7 @@ public class PipelinesController {
   public PipelinesController(PipelineGodObject pipelineGodObject) {
     this.pipelineGodObject = pipelineGodObject;
     if (pipelineGodObject.getPipelineViewList() == null || pipelineGodObject.getPipelineViewList().isEmpty()) {
-      PipelineView firstPipeline = new PipelineView("PL123", PipelineType.PRODUCTION_FLOWLINE, List.of());
+      PipelineView firstPipeline = new PipelineView("PL1", PipelineType.PRODUCTION_FLOWLINE, List.of());
       firstPipeline.setLength(99);
       firstPipeline.setFrom("Schiehallion FPSO");
       firstPipeline.setFromLatitudeDegrees("1");
@@ -57,7 +58,6 @@ public class PipelinesController {
       firstPipeline.setTo("Sullom Voe Terminal");
       firstPipeline.setProductsToBeConveyed("Oil");
       firstPipeline.setComponentParts("Sullom Voe Terminal");
-      firstPipeline.setSubPipelines(List.of());
       firstPipeline.setIdents(List.of());
       pipelineGodObject.setPipelineViewList(List.of(firstPipeline));
     }
@@ -67,7 +67,9 @@ public class PipelinesController {
   public ModelAndView pipelines(@PathVariable Integer applicationId) {
 
     return new ModelAndView("pwaApplication/temporary/pipelines")
-        .addObject("pipelineViews", pipelineGodObject.getPipelineViewList())
+        .addObject("pipelineViews", pipelineGodObject.getPipelineViewList().stream()
+          .sorted(Comparator.comparingInt(p -> p.getPipelineType().getDisplayOrder()))
+          .collect(Collectors.toList()))
         .addObject("addProductionPipelineUrl",
             ReverseRouter.route(on(PipelinesController.class).addProductionPipelineRender(applicationId, null)))
         .addObject("viewEditPipelineUrl",
@@ -89,7 +91,6 @@ public class PipelinesController {
   private ModelAndView getAddProductionPipelineMav(Integer applicationId, AddProductionPipelineForm form) {
     return new ModelAndView("pwaApplication/temporary/addProductionPipeline")
         .addObject("pipelineTypes", Arrays.stream(PipelineType.values())
-            .filter(PipelineType::isRootPipelineType)
             .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
         .addObject("form", form)
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
@@ -122,10 +123,9 @@ public class PipelinesController {
       pipelineView.setProductsToBeConveyed(form.getProductsToBeConveyed());
       pipelineView.setLength(form.getLength());
 
-      pipelineView.setSubPipelines(List.of());
       pipelineView.setIdents(List.of());
 
-      String newPipelineNumber = "PL" + new Random().ints(1, 1, 10000).findFirst().getAsInt();
+      String newPipelineNumber = "PL" + pipelineGodObject.getPipelineViewList().size() + 1;
       pipelineView.setPipelineNumber(newPipelineNumber);
 
       List<PipelineView> views = new ArrayList<>(pipelineGodObject.getPipelineViewList());

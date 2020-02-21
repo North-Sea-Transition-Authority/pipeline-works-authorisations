@@ -2,35 +2,37 @@ package uk.co.ogauthority.pwa.temp.model.service;
 
 public enum PipelineType {
 
-  PRODUCTION_FLOWLINE("Production Flowline", true),
-  PRODUCTION_JUMPER("Production Jumper", false),
+  PRODUCTION_FLOWLINE("Production Flowline", 1),
+  PRODUCTION_JUMPER("Production Jumper", 2),
 
-  GAS_LIFT_PIPELINE("Gas Lift Pipeline", true),
-  GAS_LIFT_JUMPER("Gas Lift Jumper", false),
+  GAS_LIFT_PIPELINE("Gas Lift Pipeline", 3),
+  GAS_LIFT_JUMPER("Gas Lift Jumper", 4),
 
-  WATER_INJECTION_PIPELINE("Water Injection Pipeline", true),
-  WATER_INJECTION_JUMPER("Water Injection Jumper", false),
+  WATER_INJECTION_PIPELINE("Water Injection Pipeline", 5),
+  WATER_INJECTION_JUMPER("Water Injection Jumper", 6),
 
-  METHANOL_PIPELINE("Methanol Pipeline", false),
-  SERVICES_UMBILICAL("Services Umbilical", false),
+  METHANOL_PIPELINE("Methanol Pipeline", 7),
+  SERVICES_UMBILICAL("Services Umbilical", 8),
 
-  HYDRAULIC_JUMPER("Hydraulic Jumper", false),
-  CHEMICAL_JUMPER("Chemical Jumper", false),
-  CONTROL_JUMPER("Control Jumper", false);
+  HYDRAULIC_JUMPER("Hydraulic Jumper", 9),
+  CHEMICAL_JUMPER("Chemical Jumper", 10),
+  CONTROL_JUMPER("Control Jumper", 11),
+
+  BUNDLE("System Bundle", 12);
 
   private String displayName;
-  private boolean rootPipelineType;
+  private int displayOrder;
 
-  PipelineType(String displayName, boolean rootPipelineType) {
+  PipelineType(String displayName, int displayOrder) {
     this.displayName = displayName;
-    this.rootPipelineType = rootPipelineType;
+    this.displayOrder = displayOrder;
   }
 
   public String getDisplayName() {
     return displayName;
   }
 
-  public boolean isRootPipelineType() {
-    return rootPipelineType;
+  public int getDisplayOrder() {
+    return displayOrder;
   }
 }

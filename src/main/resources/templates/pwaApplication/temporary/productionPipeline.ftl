@@ -27,7 +27,7 @@
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Ident no.</th>
                     <#list pipelineView.idents as ident>
-                        <th class="govuk-table__header govuk-table__header--numeric">${ident.identNo}</th>
+                        <th class="govuk-table__header govuk-table__header">${ident.identNo}</th>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
@@ -63,31 +63,31 @@
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Length (m)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell--numeric">${ident.length}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.length}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">External diameter (mm)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell--numeric">${ident.externalDiameter}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.externalDiameter}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Internal diameter (mm)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell--numeric">${ident.internalDiameter}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.internalDiameter}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Wall thickness (mm)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell--numeric">${ident.wallThickness}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.wallThickness}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">MAOP (Barg)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell--numeric">${ident.maop}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.maop}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
