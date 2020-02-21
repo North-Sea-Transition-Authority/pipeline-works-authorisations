@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreement;
+import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreementView;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooCompanyView;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooRole;
-import uk.co.ogauthority.pwa.temp.model.contacts.UooTreatyView;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooType;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCableCrossing;
@@ -25,7 +25,6 @@ import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 import uk.co.ogauthority.pwa.temp.model.form.UserOwnerOperatorForm;
-import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
@@ -42,9 +41,8 @@ public class PwaApplicationController {
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
             "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
             "Application contacts", "/",
-            "Users, operators and owners", "/",
             "Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
-            "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null))
+            "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)),
             "Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts())
         ));
   }
@@ -187,8 +185,8 @@ public class PwaApplicationController {
     return List.of(uooA, uooB, uooC, uooD);
   }
 
-  private List<UooTreatyView> makeUooTreatyViews() {
-    var uooA = new UooTreatyView(UooAgreement.NCS_EXPORT_GAS.toString(), Set.of("User"));
+  private List<UooAgreementView> makeUooTreatyViews() {
+    var uooA = new UooAgreementView(UooAgreement.NCS_EXPORT_GAS.toString(), Set.of("User"));
     return List.of(uooA);
   }
 

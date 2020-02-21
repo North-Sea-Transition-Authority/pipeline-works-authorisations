@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.temp.model.contacts;
 
 public enum UooType {
 
-  TREATY("Treaty"),
+  AGREEMENT("Agreement"),
   COMPANY("Company");
 
   private String displayText;

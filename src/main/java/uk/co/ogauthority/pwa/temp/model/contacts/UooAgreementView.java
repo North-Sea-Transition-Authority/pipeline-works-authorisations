@@ -2,12 +2,12 @@ package uk.co.ogauthority.pwa.temp.model.contacts;
 
 import java.util.Set;
 
-public class UooTreatyView {
+public class UooAgreementView {
 
   private String agreementText;
   private Set<String> roles;
 
-  public UooTreatyView(String agreementText, Set<String> roles) {
+  public UooAgreementView(String agreementText, Set<String> roles) {
     this.agreementText = agreementText;
     this.roles = roles;
   }

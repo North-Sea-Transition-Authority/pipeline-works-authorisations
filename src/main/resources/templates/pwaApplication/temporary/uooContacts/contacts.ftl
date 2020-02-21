@@ -1,13 +1,13 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="uooCompanyList" type="java.util.List<uk.co.ogauthority.pwa.temp.model.contacts.UooCompanyView>" -->
-<#-- @ftlvariable name="uooTreatyList" type="java.util.List<uk.co.ogauthority.pwa.temp.model.contacts.UooTreatyView>" -->
+<#-- @ftlvariable name="uooTreatyList" type="java.util.List<uk.co.ogauthority.pwa.temp.model.contacts.UooAgreementView>" -->
 <#-- @ftlvariable name="newUooUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="UOO contacts" pageHeading="Users, owners, and operator" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(taskListUrl)>
+<@defaultPage htmlTitle="Users, operator, and owners" pageHeading="Users, operator, and owners" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(taskListUrl)>
 
-    <@fdsAction.link linkText="Add new UOO" linkUrl=springUrl(newUooUrl) linkClass="govuk-button"/>
+    <@fdsAction.link linkText="Add new user, operator, or owner" linkUrl=springUrl(newUooUrl) linkClass="govuk-button"/>
 
     <@fdsInsetText.insetText>
       You may only have one company fulfilling the "operator" role.

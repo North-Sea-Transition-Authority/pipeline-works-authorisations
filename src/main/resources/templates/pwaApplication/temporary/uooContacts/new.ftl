@@ -4,14 +4,14 @@
 <#-- @ftlvariable name="uooAgreements" type="java.util.List<uk.co.ogauthority.pwa.temp.model.contacts.UooAgreement>" -->
 <#-- @ftlvariable name="uooRoles" type="java.util.List<uk.co.ogauthority.pwa.temp.model.contacts.UooRole>" -->
 
-<@defaultPage htmlTitle="New UOO contact" pageHeading="New UOO contact" backLink=true>
+<@defaultPage htmlTitle="New user, operator, or owner contact" pageHeading="New user, operator, or owner contact" backLink=true>
 
     <@fdsForm.htmlForm>
 
         <@fdsRadio.radioGroup path="form.type" labelText="What are you adding to the application?" hiddenContent=true fieldsetHeadingClass="govuk-fieldset__legend--l">
             <#list uooTypes as typeName,typeValue>
                 <@fdsRadio.radioItem path="form.type" itemMap={typeName: typeValue}>
-                  <#if typeName == "TREATY">
+                  <#if typeName == "AGREEMENT">
                       <@fdsRadio.radioGroup path="form.uooAgreement" labelText="Which agreement is to be used?" fieldsetHeadingSize="h3">
                         <#list uooAgreements as agreementName, agreementValue>
                             <@fdsRadio.radioItem path="form.uooAgreement" itemMap={agreementName: agreementValue}/>
@@ -28,7 +28,7 @@
             </#list>
         </@fdsRadio.radioGroup>
 
-        <@fdsAction.button buttonText="Add UOO"/>
+        <@fdsAction.button buttonText="Add user, operator, or owner"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>
