@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
+import java.io.Serializable;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
 
-public class LocationForm {
+public class LocationForm implements Serializable {
 
   private MedianLineSelection medianLineSelection;
   private String medianLineAgreement;

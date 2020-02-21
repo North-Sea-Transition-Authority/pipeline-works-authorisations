@@ -5,27 +5,30 @@ import java.lang.reflect.Field;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
+import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 
 @Component
 @Scope("session")
-public class PwaApplicationScope implements Serializable {
+public class FormState implements Serializable {
 
-  private AdministrativeDetailsForm administrativeDetailsForm;
-  private ProjectInformationForm projectInformationForm;
+  private final AdministrativeDetailsForm administrativeDetailsForm;
+  private final ProjectInformationForm projectInformationForm;
+  private final LocationForm locationForm;
 
-  public PwaApplicationScope() {
+  public FormState() {
     administrativeDetailsForm = new AdministrativeDetailsForm();
     projectInformationForm = new ProjectInformationForm();
+    locationForm = new LocationForm();
   }
 
-  private void save(Object form, Class reflectClass) {
+  private void saveForm(Object form) {
     try {
       for (Field scopeField : this.getClass().getDeclaredFields()) {
-        if (scopeField.getType().equals(reflectClass)) {
+        if (scopeField.getType().equals(form.getClass())) {
           scopeField.setAccessible(true);
           var scopedFieldForm = scopeField.get(this);
-          for (Field formField : reflectClass.getDeclaredFields()) {
+          for (Field formField : form.getClass().getDeclaredFields()) {
             formField.setAccessible(true);
             var formFieldSetValue = formField.get(form);
             formField.set(scopedFieldForm, formFieldSetValue);
@@ -38,20 +41,24 @@ public class PwaApplicationScope implements Serializable {
   }
 
   public void save(AdministrativeDetailsForm administrativeDetailsForm) {
-    save(administrativeDetailsForm, AdministrativeDetailsForm.class);
+    saveForm(administrativeDetailsForm);
   }
 
   public void save(ProjectInformationForm projectInformationForm) {
-    save(projectInformationForm, ProjectInformationForm.class);
+    saveForm(projectInformationForm);
   }
 
-  private void apply(Object form, Class reflectClass) {
+  public void save(LocationForm locationForm) {
+    saveForm(locationForm);
+  }
+
+  private void applyToForm(Object form) {
     try {
       for (Field scopeField : this.getClass().getDeclaredFields()) {
-        if (scopeField.getType().equals(reflectClass)) {
+        if (scopeField.getType().equals(form.getClass())) {
           scopeField.setAccessible(true);
           var scopedFieldForm = scopeField.get(this);
-          for (Field formField : reflectClass.getDeclaredFields()) {
+          for (Field formField : form.getClass().getDeclaredFields()) {
             formField.setAccessible(true);
             var scopedFieldSetValue = formField.get(scopedFieldForm);
             formField.set(form, scopedFieldSetValue);
@@ -64,11 +71,15 @@ public class PwaApplicationScope implements Serializable {
   }
 
   public void apply(AdministrativeDetailsForm administrativeDetailsForm) {
-    apply(administrativeDetailsForm, AdministrativeDetailsForm.class);
+    applyToForm(administrativeDetailsForm);
   }
 
   public void apply(ProjectInformationForm projectInformationForm) {
-    apply(projectInformationForm, ProjectInformationForm.class);
+    applyToForm(projectInformationForm);
+  }
+
+  public void apply(LocationForm locationForm) {
+    applyToForm(locationForm);
   }
 
 }
