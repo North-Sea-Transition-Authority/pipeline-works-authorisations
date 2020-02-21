@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
-import java.time.LocalDate;
-
 public class ProjectInformationForm {
 
   private String workStartDay;

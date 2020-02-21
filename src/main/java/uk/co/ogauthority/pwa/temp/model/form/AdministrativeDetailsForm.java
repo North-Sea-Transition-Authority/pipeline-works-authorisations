@@ -1,13 +1,16 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
+import uk.co.ogauthority.pwa.temp.model.admindetails.WithinSafetyZone;
+
 public class AdministrativeDetailsForm {
 
   private String projectDescription;
   private Object projectDiagram;
   private Boolean agreesToFdp;
   private String locationFromShore;
-  private String withinSafetyZone;
-  private String structureName;
+  private WithinSafetyZone withinSafetyZone;
+  private String structureNameIfYes;
+  private String structureNameIfPartially;
   private String methodOfTransportation;
   private String landfallDetails;
   private Boolean acceptFundsLiability;
@@ -46,20 +49,28 @@ public class AdministrativeDetailsForm {
     this.locationFromShore = locationFromShore;
   }
 
-  public String getWithinSafetyZone() {
+  public WithinSafetyZone getWithinSafetyZone() {
     return withinSafetyZone;
   }
 
-  public void setWithinSafetyZone(String withinSafetyZone) {
+  public void setWithinSafetyZone(WithinSafetyZone withinSafetyZone) {
     this.withinSafetyZone = withinSafetyZone;
   }
 
-  public String getStructureName() {
-    return structureName;
+  public String getStructureNameIfYes() {
+    return structureNameIfYes;
   }
 
-  public void setStructureName(String structureName) {
-    this.structureName = structureName;
+  public void setStructureNameIfYes(String structureNameIfYes) {
+    this.structureNameIfYes = structureNameIfYes;
+  }
+
+  public String getStructureNameIfPartially() {
+    return structureNameIfPartially;
+  }
+
+  public void setStructureNameIfPartially(String structureNameIfPartially) {
+    this.structureNameIfPartially = structureNameIfPartially;
   }
 
   public String getMethodOfTransportation() {
