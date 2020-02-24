@@ -6,12 +6,17 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
+import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCableCrossing;
@@ -20,9 +25,11 @@ import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
 import uk.co.ogauthority.pwa.temp.model.form.FastTrackForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
+import uk.co.ogauthority.pwa.temp.model.form.PwaContactForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
+import uk.co.ogauthority.pwa.temp.model.pwacontacts.ContactRole;
 import uk.co.ogauthority.pwa.util.DateUtil;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -38,8 +45,10 @@ public class PwaApplicationController {
       {
         put("Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
         put("Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
-        put("Application contacts", "/");
         put("Users, operators and owners", "/");
+        put("PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()));
+        put("Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)));
+        put("Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)));
       }
     };
     availableTasks.compute("Fast track", (String key, String oldValue) ->
@@ -58,8 +67,28 @@ public class PwaApplicationController {
   }
 
   @PostMapping("/1/admin-details")
-  public ModelAndView postAdminDetails() {
+  public ModelAndView postAdministrativeDetails() {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  }
+
+  @GetMapping("/1/application-contacts")
+  public ModelAndView viewApplicationContacts() {
+    return new ModelAndView("pwaApplication/temporary/pwaContacts/contacts")
+        .addObject("contacts", makeContacts())
+        .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()))
+        .addObject("addContactUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewApplicationContact(null)));
+  }
+
+  @GetMapping("/1/application-contacts/new")
+  public ModelAndView viewNewApplicationContact(@ModelAttribute("form") PwaContactForm pwaContactForm) {
+    return new ModelAndView("pwaApplication/temporary/pwaContacts/new")
+        .addObject("roles", Arrays.stream(ContactRole.values())
+          .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
+  }
+
+  @PostMapping("/1/application-contacts/new")
+  public ModelAndView postAddApplicationContact(@ModelAttribute("form") PwaContactForm pwaContactForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewApplicationContacts());
   }
 
   @GetMapping("/1/project-information")
@@ -168,6 +197,25 @@ public class PwaApplicationController {
   private List<TelecommunicationCableCrossing> makeTelecommunicationCableCrossings() {
     var crossingA = new TelecommunicationCableCrossing("XXXX to XXXX Submarine Communications Cable", "HESS LIMITED");
     return List.of(crossingA);
+  }
+
+  private List<TeamMemberView> makeContacts() {
+
+    var contactA = new TeamMemberView(
+        new Person(1, "John", "Smith", "john.smith@test.co.uk", "0800 368 9345"),
+        "/", "/",
+        Set.of(
+            new TeamRoleView("Drafter", "Contractor", "Can draft applications", 1)
+        ));
+
+    var contactB = new TeamMemberView(
+        new Person(2, "Jane", "Doe", "jane.doe@test.co.uk", "+44 3000 201 010"),
+        "/", "/",
+        Set.of(
+            new TeamRoleView("Submitter", "Submitter", "Can submit applications", 1)
+        ));
+
+    return List.of(contactA, contactB);
   }
 
 }
