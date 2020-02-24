@@ -17,6 +17,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreement;
+import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreementView;
+import uk.co.ogauthority.pwa.temp.model.contacts.UooCompanyView;
+import uk.co.ogauthority.pwa.temp.model.contacts.UooRole;
+import uk.co.ogauthority.pwa.temp.model.contacts.UooType;
 import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCableCrossing;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
@@ -25,6 +30,7 @@ import uk.co.ogauthority.pwa.temp.model.form.FastTrackForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 import uk.co.ogauthority.pwa.temp.model.form.PwaContactForm;
+import uk.co.ogauthority.pwa.temp.model.form.UserOwnerOperatorForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
@@ -46,7 +52,7 @@ public class PwaApplicationController {
             ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
         put("Project information",
             ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
-        put("Users, operators and owners", "/");
+        put("Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()));
         put("PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()));
         put("Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)));
         put("Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)));
@@ -194,6 +200,31 @@ public class PwaApplicationController {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
   }
 
+  @GetMapping("/1/uoo-contacts")
+  public ModelAndView viewUserOwnerOperatorContacts() {
+    return new ModelAndView("pwaApplication/temporary/uooContacts/contacts")
+        .addObject("uooCompanyList", makeUooCompanyViews())
+        .addObject("uooTreatyList", makeUooTreatyViews())
+        .addObject("newUooUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewUooContact(null)))
+        .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()));
+  }
+
+  @GetMapping("/1/uoo-contacts/new")
+  public ModelAndView viewNewUooContact(@ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
+    return new ModelAndView("pwaApplication/temporary/uooContacts/new")
+        .addObject("uooTypes", Arrays.stream(UooType.values())
+            .collect(StreamUtils.toLinkedHashMap(UooType::name, UooType::toString)))
+        .addObject("uooRoles", Arrays.stream(UooRole.values())
+            .collect(StreamUtils.toLinkedHashMap(UooRole::name, UooRole::toString)))
+        .addObject("uooAgreements", Arrays.stream(UooAgreement.values())
+            .collect(StreamUtils.toLinkedHashMap(UooAgreement::name, UooAgreement::toString)));
+  }
+
+  @PostMapping("/1/uoo-contacts/new")
+  public ModelAndView postNewUooContact(@ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewUserOwnerOperatorContacts());
+  }
+
   private List<BlockCrossing> makeBlockCrossings() {
     var crossingA = new BlockCrossing("2/1a", 4, "HESS LIMITED");
     return List.of(crossingA);
@@ -221,6 +252,32 @@ public class PwaApplicationController {
         ));
 
     return List.of(contactA, contactB);
+  }
+
+
+  private List<UooCompanyView> makeUooCompanyViews() {
+    var uooA = new UooCompanyView(
+        135432, "Royal Dutch Shell PLC", "Shell Centre\nBishop's, London\nSE1 7NA",
+        Set.of("User"));
+
+    var uooB = new UooCompanyView(
+        365478, "BP PLC", "1 St James's Square\nSt. James's\nLondon SW1Y 4PD",
+        Set.of("Operator"));
+
+    var uooC = new UooCompanyView(
+        83625, "Perenco", "8 Hanover Square\nMayfair\nLondon\nW1S 1HQ",
+        Set.of("Owner"));
+
+    var uooD = new UooCompanyView(
+        114234, "ConocoPhillips", "925 N Eldridge Pkwy\nHouston\nTX 77079\nUnited States",
+        Set.of("User", "Owner"));
+
+    return List.of(uooA, uooB, uooC, uooD);
+  }
+
+  private List<UooAgreementView> makeUooTreatyViews() {
+    var uooA = new UooAgreementView(UooAgreement.NCS_EXPORT_GAS.toString(), Set.of("User"));
+    return List.of(uooA);
   }
 
 }
