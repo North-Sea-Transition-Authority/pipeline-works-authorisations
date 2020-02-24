@@ -48,12 +48,10 @@ public class PwaApplicationController {
   public PwaApplicationController() {
     taskList = new LinkedHashMap<>() {
       {
-        put("Administrative details",
-            ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
-        put("Project information",
-            ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
-        put("Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()));
         put("PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()));
+        put("Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
+        put("Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()));
+        put("Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
         put("Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)));
         put("Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)));
       }
