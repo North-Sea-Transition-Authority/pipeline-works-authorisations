@@ -43,29 +43,36 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @RequestMapping("/application/{applicationId}")
 public class PwaApplicationController {
 
-  @GetMapping("/tasks")
-  public ModelAndView viewTaskList(@PathVariable Integer applicationId) {
   private static LocalDate startDate = LocalDate.now().plusMonths(4);
-  private LinkedHashMap<String, String> taskList;
 
-  public PwaApplicationController() {
-    taskList = new LinkedHashMap<>() {
+  private LinkedHashMap<String, String> getTaskList(Integer applicationId) {
+    return new LinkedHashMap<>() {
       {
-        put("PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()));
-        put("Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
-        put("Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()));
-        put("Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
-        put("Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)));
-        put("Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)));
+        put("PWA contacts",
+            ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts(applicationId)));
+        put("Project information",
+            ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(applicationId, null)));
+        put("Users, operators and owners",
+            ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts(applicationId)));
+        put("Administrative details",
+            ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(applicationId, null)));
+        put("Pipelines",
+            ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
+        put("Crossings",
+            ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(applicationId, null)));
+        put("Location details",
+            ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(applicationId, null)));
       }
     };
   }
 
-  @GetMapping("/1/tasks")
-  public ModelAndView viewTaskList() {
+
+  @GetMapping("/tasks")
+  public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId) {
+    var taskList = getTaskList(applicationId);
     taskList.compute("Fast track", (String key, String oldValue) ->
         startDate.isBefore(LocalDate.now().plusMonths(3))
-            ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(null))
+            ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(applicationId, null))
             : null
     );
     return new ModelAndView("pwaApplication/temporary/taskList")
@@ -73,45 +80,48 @@ public class PwaApplicationController {
   }
 
   @GetMapping("/admin-details")
-  public ModelAndView viewAdministrativeDetails(@PathVariable Integer applicationId,
+  public ModelAndView viewAdministrativeDetails(@PathVariable("applicationId") Integer applicationId,
                                                 @ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
     return new ModelAndView("pwaApplication/temporary/administrativeDetails")
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
   }
 
   @PostMapping("/admin-details")
-  public ModelAndView postAdminDetails(@PathVariable Integer applicationId) {
+  public ModelAndView postAdminDetails(@PathVariable("applicationId") Integer applicationId) {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
-  @GetMapping("/1/application-contacts")
-  public ModelAndView viewApplicationContacts() {
+  @GetMapping("/application-contacts")
+  public ModelAndView viewApplicationContacts(@PathVariable("applicationId") Integer applicationId) {
     return new ModelAndView("pwaApplication/temporary/pwaContacts/contacts")
         .addObject("contacts", makeContacts())
-        .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()))
-        .addObject("addContactUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewApplicationContact(null)));
+        .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)))
+        .addObject("addContactUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewApplicationContact(applicationId, null)));
   }
 
-  @GetMapping("/1/application-contacts/new")
-  public ModelAndView viewNewApplicationContact(@ModelAttribute("form") PwaContactForm pwaContactForm) {
+  @GetMapping("/application-contacts/new")
+  public ModelAndView viewNewApplicationContact(@PathVariable("applicationId") Integer applicationId,
+                                                @ModelAttribute("form") PwaContactForm pwaContactForm) {
     return new ModelAndView("pwaApplication/temporary/pwaContacts/new")
         .addObject("roles", Arrays.stream(ContactRole.values())
-          .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
   }
 
-  @PostMapping("/1/application-contacts/new")
-  public ModelAndView postAddApplicationContact(@ModelAttribute("form") PwaContactForm pwaContactForm) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewApplicationContacts());
+  @PostMapping("/application-contacts/new")
+  public ModelAndView postAddApplicationContact(@PathVariable("applicationId") Integer applicationId,
+                                                @ModelAttribute("form") PwaContactForm pwaContactForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewApplicationContacts(applicationId));
   }
 
-    @GetMapping("/project-information")
-    public ModelAndView viewProjectInformation(@PathVariable Integer applicationId,
-        @ModelAttribute("form") ProjectInformationForm projectInformationForm) {
+  @GetMapping("/project-information")
+  public ModelAndView viewProjectInformation(@PathVariable("applicationId") Integer applicationId,
+                                             @ModelAttribute("form") ProjectInformationForm projectInformationForm) {
     return new ModelAndView("pwaApplication/temporary/projectInformation");
   }
 
-  @PostMapping("/1/project-information")
-  public ModelAndView postProjectInformation(@ModelAttribute("form") ProjectInformationForm projectInformationForm) {
+  @PostMapping("/project-information")
+  public ModelAndView postProjectInformation(@PathVariable("applicationId") Integer applicationId,
+                                             @ModelAttribute("form") ProjectInformationForm projectInformationForm) {
     try {
       startDate = LocalDate.of(
           projectInformationForm.getWorkStartYear(),
@@ -121,99 +131,116 @@ public class PwaApplicationController {
     } catch (Exception exception) {
       startDate = LocalDate.now().plusMonths(4);
     }
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
-  @GetMapping("/1/fast-track")
-  public ModelAndView viewFastTrackInformation(@ModelAttribute("form") FastTrackForm fastTrackForm) {
+  @GetMapping("/fast-track")
+  public ModelAndView viewFastTrackInformation(@PathVariable("applicationId") Integer applicationId,
+                                               @ModelAttribute("form") FastTrackForm fastTrackForm) {
     return new ModelAndView("pwaApplication/temporary/fastTrack")
-        .addObject("projectInformationUrl", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)))
+        .addObject("projectInformationUrl",
+            ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(applicationId, null)))
         .addObject("startDate", DateUtil.formatDate(startDate))
         .addObject("minNotFastTrackStartDate", DateUtil.formatDate(LocalDate.now().plusMonths(3)));
   }
 
-  @PostMapping("/1/fast-track")
-  public ModelAndView postFastTrackInformation(@ModelAttribute("form") FastTrackForm fastTrackForm) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  @PostMapping("/fast-track")
+  public ModelAndView postFastTrackInformation(@PathVariable("applicationId") Integer applicationId,
+                                               @ModelAttribute("form") FastTrackForm fastTrackForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
-  @GetMapping("/1/location-details")
-  public ModelAndView viewLocationDetails(@ModelAttribute("form") LocationForm locationForm) {
+  @GetMapping("/location-details")
+  public ModelAndView viewLocationDetails(@PathVariable("applicationId") Integer applicationId,
+                                          @ModelAttribute("form") LocationForm locationForm) {
     return new ModelAndView("pwaApplication/temporary/locationDetails")
         .addObject("medianLineSelections", Arrays.stream(MedianLineSelection.values())
-          .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
         ).addObject("holderCompanyName", "ROYAL DUTCH SHELL");
   }
 
-  @PostMapping("/1/location-details")
-  public ModelAndView postLocationDetails(@ModelAttribute("form") LocationForm locationForm) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  @PostMapping("/location-details")
+  public ModelAndView postLocationDetails(@PathVariable("applicationId") Integer applicationId,
+                                          @ModelAttribute("form") LocationForm locationForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
-  @GetMapping("/1/crossings")
-  public ModelAndView viewCrossings(@ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
+  @GetMapping("/crossings")
+  public ModelAndView viewCrossings(@PathVariable("applicationId") Integer applicationId,
+                                    @ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
     return new ModelAndView("pwaApplication/temporary/crossingAgreements/crossings")
-        .addObject("addBlockCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class).viewAddBlockCrossing(null)))
-        .addObject("addTelecommuncationCableCrossingUrl",
-            ReverseRouter.route(on(PwaApplicationController.class).viewAddTelecommunicationCableCrossing(null)))
-        .addObject("addTelecommuncationCableCrossingUrl",
-            ReverseRouter.route(on(PwaApplicationController.class).viewAddTelecommunicationCableCrossing(null)))
-        .addObject("addPipelineCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class).viewAddPipelineCrossing(null)))
+        .addObject("addBlockCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class)
+            .viewAddBlockCrossing(applicationId, null)))
+        .addObject("addTelecommuncationCableCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class)
+                .viewAddTelecommunicationCableCrossing(applicationId, null))
+        )
+        .addObject("addTelecommuncationCableCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class)
+            .viewAddTelecommunicationCableCrossing(applicationId, null))
+        )
+        .addObject("addPipelineCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class)
+            .viewAddPipelineCrossing(applicationId, null))
+        )
         .addObject("blockCrossings", makeBlockCrossings())
         .addObject("telecommunicationCableCrossings", makeTelecommunicationCableCrossings())
         .addObject("pipelineCrossings", List.of());
   }
 
-  @PostMapping("/1/crossings")
-  public ModelAndView postCrossings(@ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  @PostMapping("/crossings")
+  public ModelAndView postCrossings(@PathVariable("applicationId") Integer applicationId,
+                                    @ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
-  @GetMapping("/1/crossings/block-crossing/new")
-  public ModelAndView viewAddBlockCrossing(@ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
+  @GetMapping("/crossings/block-crossing/new")
+  public ModelAndView viewAddBlockCrossing(@PathVariable("applicationId") Integer applicationId,
+                                           @ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
     return new ModelAndView("pwaApplication/temporary/crossingAgreements/newBlockCrossing");
   }
 
-  @PostMapping("/1/crossings/block-crossing/new")
-  public ModelAndView postAddBlockCrossing(@ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
+  @PostMapping("/crossings/block-crossing/new")
+  public ModelAndView postAddBlockCrossing(@PathVariable("applicationId") Integer applicationId,
+                                           @ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(applicationId, null));
   }
 
-  @GetMapping("/1/crossings/telecommunication-cable-crossing/new")
+  @GetMapping("/crossings/telecommunication-cable-crossing/new")
   public ModelAndView viewAddTelecommunicationCableCrossing(
+      @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") TelecommunicationCableCrossing telecommunicationCableCrossing) {
-
     return new ModelAndView("pwaApplication/temporary/crossingAgreements/newTelecommunicationCableCrossing");
   }
 
-  @PostMapping("/1/crossings/telecommunication-cable-crossing/new")
+  @PostMapping("/crossings/telecommunication-cable-crossing/new")
   public ModelAndView postAddTelecommunicationCableCrossing(
+      @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") TelecommunicationCableCrossing telecommunicationCableCrossing) {
-
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(applicationId, null));
   }
 
-  @GetMapping("/1/crossings/pipeline-crossing/new")
-  public ModelAndView viewAddPipelineCrossing(@ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
+  @GetMapping("/crossings/pipeline-crossing/new")
+  public ModelAndView viewAddPipelineCrossing(@PathVariable("applicationId") Integer applicationId,
+                                              @ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
     return new ModelAndView("pwaApplication/temporary/crossingAgreements/newPipelineCrossing");
   }
 
-  @PostMapping("/1/crossings/pipeline-crossing/new")
-  public ModelAndView postAddPipelineCrossing(@ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(null));
+  @PostMapping("/crossings/pipeline-crossing/new")
+  public ModelAndView postAddPipelineCrossing(@PathVariable("applicationId") Integer applicationId,
+                                              @ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewCrossings(applicationId, null));
   }
 
-  @GetMapping("/1/uoo-contacts")
-  public ModelAndView viewUserOwnerOperatorContacts() {
+  @GetMapping("/uoo-contacts")
+  public ModelAndView viewUserOwnerOperatorContacts(@PathVariable("applicationId") Integer applicationId) {
     return new ModelAndView("pwaApplication/temporary/uooContacts/contacts")
         .addObject("uooCompanyList", makeUooCompanyViews())
         .addObject("uooTreatyList", makeUooTreatyViews())
-        .addObject("newUooUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewUooContact(null)))
-        .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()));
+        .addObject("newUooUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewUooContact(applicationId, null)))
+        .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)));
   }
 
-  @GetMapping("/1/uoo-contacts/new")
-  public ModelAndView viewNewUooContact(@ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
+  @GetMapping("/uoo-contacts/new")
+  public ModelAndView viewNewUooContact(@PathVariable("applicationId") Integer applicationId,
+                                        @ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
     return new ModelAndView("pwaApplication/temporary/uooContacts/new")
         .addObject("uooTypes", Arrays.stream(UooType.values())
             .collect(StreamUtils.toLinkedHashMap(UooType::name, UooType::toString)))
@@ -223,9 +250,10 @@ public class PwaApplicationController {
             .collect(StreamUtils.toLinkedHashMap(UooAgreement::name, UooAgreement::toString)));
   }
 
-  @PostMapping("/1/uoo-contacts/new")
-  public ModelAndView postNewUooContact(@ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewUserOwnerOperatorContacts());
+  @PostMapping("/uoo-contacts/new")
+  public ModelAndView postNewUooContact(@PathVariable("applicationId") Integer applicationId,
+                                        @ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewUserOwnerOperatorContacts(applicationId));
   }
 
   private List<BlockCrossing> makeBlockCrossings() {
