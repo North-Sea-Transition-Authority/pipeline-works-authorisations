@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,26 +37,32 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 public class PwaApplicationController {
 
   private static LocalDate startDate = LocalDate.now().plusMonths(4);
+  private LinkedHashMap<String, String> taskList;
 
-  @GetMapping("/1/tasks")
-  public ModelAndView viewTaskList() {
-    var availableTasks = new LinkedHashMap<String, String>() {
+  public PwaApplicationController() {
+    taskList = new LinkedHashMap<>() {
       {
-        put("Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
-        put("Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
+        put("Administrative details",
+            ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
+        put("Project information",
+            ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
         put("Users, operators and owners", "/");
         put("PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()));
         put("Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)));
         put("Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)));
       }
     };
-    availableTasks.compute("Fast track", (String key, String oldValue) ->
+  }
+
+  @GetMapping("/1/tasks")
+  public ModelAndView viewTaskList() {
+    taskList.compute("Fast track", (String key, String oldValue) ->
         startDate.isBefore(LocalDate.now().plusMonths(3))
             ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(null))
             : null
     );
     return new ModelAndView("pwaApplication/temporary/taskList")
-        .addObject("availableTasks", availableTasks);
+        .addObject("availableTasks", taskList);
   }
 
   @GetMapping("/1/admin-details")
