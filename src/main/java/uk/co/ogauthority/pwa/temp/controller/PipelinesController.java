@@ -143,9 +143,14 @@ public class PipelinesController {
           .filter(v -> v.getPipelineNumber().equals(pipelineNumber))
           .findFirst()
           .orElseThrow())
-        .addObject("addIdentUrl", ReverseRouter.route(on(PipelinesController.class).addIdentRender(applicationId, pipelineNumber)))
-        .addObject("backToPipelinesUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
+        .addObject("addIdentUrl", ReverseRouter.route(on(PipelinesController.class).addIdentRender(applicationId, pipelineNumber)));
+  }
 
+  @PostMapping("/production/{pipelineNumber}")
+  public ModelAndView postProductionPipeline(@PathVariable Integer applicationId,
+                                             @PathVariable String pipelineNumber) {
+
+    return pipelines(applicationId);
   }
 
   @GetMapping("/production/{pipelineNumber}/ident/new")

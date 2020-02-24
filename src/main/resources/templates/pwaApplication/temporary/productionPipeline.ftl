@@ -26,9 +26,10 @@
 
     <hr class="govuk-section-break govuk-section-break--l"/>
 
-    <h2 class="govuk-heading-l">Technical Drawing</h2>
-    <@dummyFileUpload.fileUpload id="pipelineDrawing" uploadUrl="/" deleteUrl="/" downloadUrl="/" maxAllowedSize=500 allowedExtensions="txt"/>
-
-    <@fdsAction.link linkText="Back to pipelines" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(backToPipelinesUrl) />
+    <@fdsForm.htmlForm>
+        <h2 class="govuk-heading-l">Technical Drawing</h2>
+        <@dummyFileUpload.fileUpload id="pipelineDrawing" uploadUrl="/" deleteUrl="/" downloadUrl="/" maxAllowedSize=500 allowedExtensions="txt"/>
+        <@fdsAction.button buttonText="Back to pipelines" buttonClass="govuk-button"/>
+    </@fdsForm.htmlForm>
 
 </@defaultPage>
