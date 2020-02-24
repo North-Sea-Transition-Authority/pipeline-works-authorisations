@@ -96,7 +96,7 @@ public class PipelinesController {
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
   }
 
-  @PostMapping("add-production-pipeline")
+  @PostMapping("/add-production-pipeline")
   public ModelAndView addProductionPipeline(@PathVariable Integer applicationId,
                                             @Valid @ModelAttribute("form") AddProductionPipelineForm form,
                                             BindingResult bindingResult) {
