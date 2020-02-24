@@ -1,41 +1,64 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 
 public class AddIdentForm {
 
+  @NotNull
   private String from;
 
+  @NotNull
   private String fromLatitudeDegrees;
+  @NotNull
   private String fromLatitudeMinutes;
+  @NotNull
   private String fromLatitudeSeconds;
 
+  @NotNull
   private String fromLongitudeDegrees;
+  @NotNull
   private String fromLongitudeMinutes;
+  @NotNull
   private String fromLongitudeSeconds;
 
+  @NotNull
   private String to;
 
+  @NotNull
   private String toLatitudeDegrees;
+  @NotNull
   private String toLatitudeMinutes;
+  @NotNull
   private String toLatitudeSeconds;
 
+  @NotNull
   private String toLongitudeDegrees;
+  @NotNull
   private String toLongitudeMinutes;
+  @NotNull
   private String toLongitudeSeconds;
 
+  @NotNull
   private String componentParts;
 
+  @NotNull
   private BigDecimal length;
 
+  @NotNull
   private BigDecimal externalDiameter;
+  @NotNull
   private BigDecimal internalDiameter;
+  @NotNull
   private BigDecimal wallThickness;
 
+  @NotNull
   private String typeOfInsulationOrCoating;
 
+  @NotNull
   private BigDecimal maop;
 
+  @NotNull
   private String productsToBeConveyed;
 
   public AddIdentForm() {
