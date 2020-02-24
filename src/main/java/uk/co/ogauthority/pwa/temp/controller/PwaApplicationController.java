@@ -2,9 +2,10 @@ package uk.co.ogauthority.pwa.temp.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.temp.model.entity.BlockCrossing;
 import uk.co.ogauthority.pwa.temp.model.entity.TelecommunicationCableCrossing;
 import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
+import uk.co.ogauthority.pwa.temp.model.form.FastTrackForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 import uk.co.ogauthority.pwa.temp.model.form.PwaContactForm;
@@ -33,23 +35,38 @@ import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
 import uk.co.ogauthority.pwa.temp.model.pwacontacts.ContactRole;
+import uk.co.ogauthority.pwa.util.DateUtil;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @RequestMapping("/application")
 public class PwaApplicationController {
 
+  private static LocalDate startDate = LocalDate.now().plusMonths(4);
+  private LinkedHashMap<String, String> taskList;
+
+  public PwaApplicationController() {
+    taskList = new LinkedHashMap<>() {
+      {
+        put("PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()));
+        put("Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)));
+        put("Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()));
+        put("Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)));
+        put("Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)));
+        put("Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)));
+      }
+    };
+  }
+
   @GetMapping("/1/tasks")
   public ModelAndView viewTaskList() {
+    taskList.compute("Fast track", (String key, String oldValue) ->
+        startDate.isBefore(LocalDate.now().plusMonths(3))
+            ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(null))
+            : null
+    );
     return new ModelAndView("pwaApplication/temporary/taskList")
-        .addObject("availableTasks", Map.of(
-            "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
-            "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
-            "Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
-            "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)),
-            "Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()),
-            "PWA contacts", ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts())
-        ));
+        .addObject("availableTasks", taskList);
   }
 
   @GetMapping("/1/admin-details")
@@ -86,6 +103,33 @@ public class PwaApplicationController {
   @GetMapping("/1/project-information")
   public ModelAndView viewProjectInformation(@ModelAttribute("form") ProjectInformationForm projectInformationForm) {
     return new ModelAndView("pwaApplication/temporary/projectInformation");
+  }
+
+  @PostMapping("/1/project-information")
+  public ModelAndView postProjectInformation(@ModelAttribute("form") ProjectInformationForm projectInformationForm) {
+    try {
+      startDate = LocalDate.of(
+          projectInformationForm.getWorkStartYear(),
+          projectInformationForm.getWorkStartMonth(),
+          projectInformationForm.getWorkStartDay()
+      );
+    } catch (Exception exception) {
+      startDate = LocalDate.now().plusMonths(4);
+    }
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+  }
+
+  @GetMapping("/1/fast-track")
+  public ModelAndView viewFastTrackInformation(@ModelAttribute("form") FastTrackForm fastTrackForm) {
+    return new ModelAndView("pwaApplication/temporary/fastTrack")
+        .addObject("projectInformationUrl", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)))
+        .addObject("startDate", DateUtil.formatDate(startDate))
+        .addObject("minNotFastTrackStartDate", DateUtil.formatDate(LocalDate.now().plusMonths(3)));
+  }
+
+  @PostMapping("/1/fast-track")
+  public ModelAndView postFastTrackInformation(@ModelAttribute("form") FastTrackForm fastTrackForm) {
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
   }
 
   @GetMapping("/1/location-details")
