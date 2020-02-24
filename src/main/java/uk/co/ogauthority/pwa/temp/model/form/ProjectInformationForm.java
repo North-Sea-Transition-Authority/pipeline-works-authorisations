@@ -4,90 +4,90 @@ import java.io.Serializable;
 
 public class ProjectInformationForm implements Serializable {
 
-  private String workStartDay;
-  private String workStartMonth;
-  private String workStartYear;
+  private Integer workStartDay;
+  private Integer workStartMonth;
+  private Integer workStartYear;
 
-  private String earliestCompletionDay;
-  private String earliestCompletionMonth;
-  private String earliestCompletionYear;
+  private Integer earliestCompletionDay;
+  private Integer earliestCompletionMonth;
+  private Integer earliestCompletionYear;
 
-  private String latestCompletionDay;
-  private String latestCompletionMonth;
-  private String latestCompletionYear;
+  private Integer latestCompletionDay;
+  private Integer latestCompletionMonth;
+  private Integer latestCompletionYear;
 
   private String field;
   private String description;
 
-  public String getWorkStartDay() {
+  public Integer getWorkStartDay() {
     return workStartDay;
   }
 
-  public void setWorkStartDay(String workStartDay) {
+  public void setWorkStartDay(Integer workStartDay) {
     this.workStartDay = workStartDay;
   }
 
-  public String getWorkStartMonth() {
+  public Integer getWorkStartMonth() {
     return workStartMonth;
   }
 
-  public void setWorkStartMonth(String workStartMonth) {
+  public void setWorkStartMonth(Integer workStartMonth) {
     this.workStartMonth = workStartMonth;
   }
 
-  public String getWorkStartYear() {
+  public Integer getWorkStartYear() {
     return workStartYear;
   }
 
-  public void setWorkStartYear(String workStartYear) {
+  public void setWorkStartYear(Integer workStartYear) {
     this.workStartYear = workStartYear;
   }
 
-  public String getEarliestCompletionDay() {
+  public Integer getEarliestCompletionDay() {
     return earliestCompletionDay;
   }
 
-  public void setEarliestCompletionDay(String earliestCompletionDay) {
+  public void setEarliestCompletionDay(Integer earliestCompletionDay) {
     this.earliestCompletionDay = earliestCompletionDay;
   }
 
-  public String getEarliestCompletionMonth() {
+  public Integer getEarliestCompletionMonth() {
     return earliestCompletionMonth;
   }
 
-  public void setEarliestCompletionMonth(String earliestCompletionMonth) {
+  public void setEarliestCompletionMonth(Integer earliestCompletionMonth) {
     this.earliestCompletionMonth = earliestCompletionMonth;
   }
 
-  public String getEarliestCompletionYear() {
+  public Integer getEarliestCompletionYear() {
     return earliestCompletionYear;
   }
 
-  public void setEarliestCompletionYear(String earliestCompletionYear) {
+  public void setEarliestCompletionYear(Integer earliestCompletionYear) {
     this.earliestCompletionYear = earliestCompletionYear;
   }
 
-  public String getLatestCompletionDay() {
+  public Integer getLatestCompletionDay() {
     return latestCompletionDay;
   }
 
-  public void setLatestCompletionDay(String latestCompletionDay) {
+  public void setLatestCompletionDay(Integer latestCompletionDay) {
     this.latestCompletionDay = latestCompletionDay;
   }
 
-  public String getLatestCompletionMonth() {
+  public Integer getLatestCompletionMonth() {
     return latestCompletionMonth;
   }
 
-  public void setLatestCompletionMonth(String latestCompletionMonth) {
+  public void setLatestCompletionMonth(Integer latestCompletionMonth) {
     this.latestCompletionMonth = latestCompletionMonth;
   }
 
-  public String getLatestCompletionYear() {
+  public Integer getLatestCompletionYear() {
     return latestCompletionYear;
   }
 
-  public void setLatestCompletionYear(String latestCompletionYear) {
+  public void setLatestCompletionYear(Integer latestCompletionYear) {
     this.latestCompletionYear = latestCompletionYear;
   }
 
