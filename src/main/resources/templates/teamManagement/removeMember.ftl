@@ -3,7 +3,7 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Remove User" pageHeading="Are you sure you want to remove this user from the ${team.name} team?" backLink=true topNavigation=true>
+<@defaultPage htmlTitle="Remove User" pageHeading="Are you sure you want to remove this user from the ${team.name} team?" backLink=true topNavigation=true twoThirdsColumn=false>
 
     <#if error?has_content>
         <@fdsError.singleErrorSummary errorMessage=error/>
@@ -24,6 +24,14 @@
           <td class="govuk-table__cell">
               <#if teamMember.emailAddress?has_content>
                   ${teamMember.emailAddress}
+              </#if>
+          </td>
+        </tr>
+        <tr class="govuk-table__row">
+          <th class="govuk-table__header" scope="row">Telephone number</th>
+          <td class="govuk-table__cell">
+              <#if teamMember.telephoneNo?has_content>
+                  ${teamMember.telephoneNo}
               </#if>
           </td>
         </tr>

@@ -13,10 +13,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.repository.teams.PortalTeamRepository;
-import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.repository.teams.PortalTeamRepository;
+import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
 
 /**
  * Majority of service tests should be in the integration test {@link uk.co.ogauthority.pwa.integration.energyportal.teams.PortalTeamAccessorIntegrationTest}
@@ -42,7 +42,7 @@ public class PortalTeamAccessorTest {
   public void setup() {
     portalTeamAccessor = new PortalTeamAccessor(portalTeamRepository, entityManager);
 
-    targetPerson = new Person(1, "fname", "sname", "email");
+    targetPerson = new Person(1, "fname", "sname", "email", "0");
     actionPerformedBy = new WebUserAccount(9);
   }
 

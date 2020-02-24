@@ -4,14 +4,14 @@
 
 <#include "../layout.ftl">
 
-<@defaultPage htmlTitle=team.getName() pageHeading=team.getName() backLink=true topNavigation=true>
+<@defaultPage htmlTitle=team.getName() pageHeading=team.getName() backLink=true topNavigation=true twoThirdsColumn=false>
 
     <#list teamMemberViews>
       <table class="govuk-table">
         <thead class="govuk-table__head">
         <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="col">Name</th>
-          <th class="govuk-table__header" scope="col">Email</th>
+          <th class="govuk-table__header" scope="col">Contact details</th>
           <th class="govuk-table__header" scope="col">Roles</th>
           <th class="govuk-table__header" scope="col">Action</th>
         </tr>
@@ -21,7 +21,12 @@
             <td class="govuk-table__cell">
                 ${teamMemberView.fullName}
             </td>
-            <td class="govuk-table__cell">${teamMemberView.emailAddress}</td>
+            <td class="govuk-table__cell">
+              <ul class="govuk-list">
+                <li>${teamMemberView.emailAddress}</li>
+                <li>${teamMemberView.telephoneNo}</li>
+              </ul>
+            </td>
             <td class="govuk-table__cell">
                 <#list teamMemberView.roleViews?sort_by("displaySequence") as roleView>
                     ${roleView.title}
