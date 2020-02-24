@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.temp.model.form.AdministrativeDetailsForm;
 import uk.co.ogauthority.pwa.temp.model.form.CrossingAgreementsForm;
 import uk.co.ogauthority.pwa.temp.model.form.LocationForm;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
-import uk.co.ogauthority.pwa.temp.model.form.UserOwnerOperatorForm;
 import uk.co.ogauthority.pwa.temp.model.form.PwaContactForm;
+import uk.co.ogauthority.pwa.temp.model.form.UserOwnerOperatorForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
@@ -45,7 +45,6 @@ public class PwaApplicationController {
         .addObject("availableTasks", Map.of(
             "Administrative details", ReverseRouter.route(on(PwaApplicationController.class).viewAdministrativeDetails(null)),
             "Project information", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)),
-            "Users, operators and owners", "/",
             "Location details", ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(null)),
             "Crossings", ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)),
             "Users, operators and owners", ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()),
