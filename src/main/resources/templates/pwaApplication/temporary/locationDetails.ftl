@@ -33,12 +33,12 @@
             <@fdsRadio.radioNo path="form.likelySignificantImpact"/>
         </@fdsRadio.radioGroup>
 
-        <@fdsFieldset.fieldset legendHeading="Environmental">
-          <@fdsDateInput.dateInput formId="1" dayPath="form.emtSubmitByDay" monthPath="form.emtSubmitByMonth" yearPath="form.emtSubmitByYear" labelText="What is the latest you will submit relevant environmental permits to BEIS EMT?"/>
+        <@fdsFieldset.fieldset legendHeading="Environmental" legendHeadingSize="h2">
+          <@fdsDateInput.dateInput formId="1" dayPath="form.emtSubmitByDay" monthPath="form.emtSubmitByMonth" yearPath="form.emtSubmitByYear" labelText="What is the latest you will submit relevant environmental permits to BEIS EMT?" fieldsetHeadingSize="h3"/>
           <@fdsTextarea.textarea path="form.emtStatement" labelText="Actions to be taken to satisfy relevant environmental regulations" hintText="For example, Environmental Statement (ES), Direction and Exemptions"/>
         </@fdsFieldset.fieldset>
 
-        <@fdsFieldset.fieldset legendHeading="Decommissioning">
+        <@fdsFieldset.fieldset legendHeading="Decommissioning" legendHeadingSize="h2">
           <@fdsTextarea.textarea path="form.decommissioningPlans" labelText="What are your decommissioning plans?"/>
           <@fdsCheckbox.checkbox path="form.acceptEolRegulations" labelText="I accept that options for the decommissioning of the pipeline(s) will be considered at the end of the field life and should adhere to Government policies and regulations in force at the time."/>
           <@fdsCheckbox.checkbox path="form.acceptEolRemoval" labelText="I accept that any mattresses or grout bags which have been installed to protect pipelines during their operational life should be removed for disposal onshore."/>
