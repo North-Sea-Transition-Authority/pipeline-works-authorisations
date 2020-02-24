@@ -70,8 +70,8 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
     regulatorTeamAdmin = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
     organisationTeamAdmin = new AuthenticatedUserAccount(new WebUserAccount(2), List.of(PwaUserPrivilege.PWA_ORG_ADMIN));
 
-    regulatorTeamAdminPerson = new Person(1, "Regulator", "Admin", "reg@admin.org");
-    organisationTeamAdminPerson = new Person(2, "Organisation", "Admin", "org@admin.org");
+    regulatorTeamAdminPerson = new Person(1, "Regulator", "Admin", "reg@admin.org", "0");
+    organisationTeamAdminPerson = new Person(2, "Organisation", "Admin", "org@admin.org", "0");
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
     organisationTeam = TeamTestingUtils.getOrganisationTeam(TeamTestingUtils.createOrgUnit().getPortalOrganisationGroup());

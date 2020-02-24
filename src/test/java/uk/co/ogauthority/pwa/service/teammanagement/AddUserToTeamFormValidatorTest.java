@@ -37,7 +37,7 @@ public class AddUserToTeamFormValidatorTest {
     addUserToTeamFormValidator = new AddUserToTeamFormValidator(teamManagementService);
     addUserToTeamForm = new AddUserToTeamForm();
     team = TeamTestingUtils.getRegulatorTeam();
-    foundPerson = new Person(1, "Found", "Person", "found@person.com");
+    foundPerson = new Person(1, "Found", "Person", "found@person.com", "0");
   }
 
   @Test

@@ -86,30 +86,30 @@ public class TeamManagementServiceTest {
     regTeamAdminRole = TeamTestingUtils.getTeamAdminRole();
     regTeamSomeOtherRole = TeamTestingUtils.generatePwaRole("SOME_ROLE", 999);
 
-    regulatorTeamAdminPerson = new Person(1, "reg", "person", "reg@person.com");
+    regulatorTeamAdminPerson = new Person(1, "reg", "person", "reg@person.com", "0");
     regulatorPersonRegulatorTeamMember = new PwaTeamMember(regulatorTeam, regulatorTeamAdminPerson, Set.of(regTeamAdminRole));
 
-    otherRegulatorPerson = new Person(2, "other reg", "person", "otherreg@person.com");
+    otherRegulatorPerson = new Person(2, "other reg", "person", "otherreg@person.com", "0");
 
-    organisationPerson = new Person(3, "org", "person", "org@person.com");
+    organisationPerson = new Person(3, "org", "person", "org@person.com", "0");
     organisationUser = new AuthenticatedUserAccount(new WebUserAccount(3, organisationPerson), List.of());
 
-    var manageAnyOrgRegulatorPerson = new Person(4, "regOrg", "manage", "regOrg@manage.com");
+    var manageAnyOrgRegulatorPerson = new Person(4, "regOrg", "manage", "regOrg@manage.com", "0");
     manageAnyOrgRegulatorUser = new AuthenticatedUserAccount(new WebUserAccount(4, manageAnyOrgRegulatorPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(manageAnyOrgRegulatorPerson))
         .thenReturn(List.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
 
-    var manageRegTeamRegulatorPerson = new Person(5, "regTeam", "manage", "regTeam@manage.com");
+    var manageRegTeamRegulatorPerson = new Person(5, "regTeam", "manage", "regTeam@manage.com", "0");
     manageRegTeamRegulatorUser = new AuthenticatedUserAccount(new WebUserAccount(5, manageRegTeamRegulatorPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(manageRegTeamRegulatorPerson))
         .thenReturn(List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
-    var manageAllTeamsPerson = new Person(6, "all", "manage", "all@manage.com");
+    var manageAllTeamsPerson = new Person(6, "all", "manage", "all@manage.com", "0");
     mangeAllTeamsUser = new AuthenticatedUserAccount(new WebUserAccount(6, manageAllTeamsPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(manageAllTeamsPerson))
         .thenReturn(List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN, PwaUserPrivilege.PWA_REG_ORG_MANAGE));
 
-    var workareaOnlyPerson = new Person(7, "workarea", "only", "workarea@only.com");
+    var workareaOnlyPerson = new Person(7, "workarea", "only", "workarea@only.com", "0");
     workareaOnlyUser = new AuthenticatedUserAccount(new WebUserAccount(7, workareaOnlyPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(workareaOnlyPerson))
         .thenReturn(List.of(PwaUserPrivilege.PWA_WORKAREA));
