@@ -6,10 +6,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import java.util.Set;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -136,6 +135,7 @@ public class PwaApplicationController {
 
   @GetMapping("/1/fast-track")
   public ModelAndView viewFastTrackInformation(@ModelAttribute("form") FastTrackForm fastTrackForm) {
+    formState.apply(fastTrackForm);
     return new ModelAndView("pwaApplication/temporary/fastTrack")
         .addObject("projectInformationUrl", ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(null)))
         .addObject("startDate", DateUtil.formatDate(startDate))
@@ -144,6 +144,7 @@ public class PwaApplicationController {
 
   @PostMapping("/1/fast-track")
   public ModelAndView postFastTrackInformation(@ModelAttribute("form") FastTrackForm fastTrackForm) {
+    formState.save(fastTrackForm);
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
   }
 

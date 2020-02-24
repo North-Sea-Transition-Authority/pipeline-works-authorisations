@@ -17,9 +17,9 @@ public class LocationForm implements Serializable {
   private Integer emtSubmitByMonth;
   private Integer emtSubmitByYear;
   private String emtStatement;
-  private boolean acceptEolRegulations;
-  private boolean acceptEolRemoval;
-  private boolean acceptRemovalProposal;
+  private Boolean acceptEolRegulations;
+  private Boolean acceptEolRemoval;
+  private Boolean acceptRemovalProposal;
   private String decommissioningPlans;
 
   public MedianLineSelection getMedianLineSelection() {
@@ -118,27 +118,27 @@ public class LocationForm implements Serializable {
     this.emtStatement = emtStatement;
   }
 
-  public boolean isAcceptEolRegulations() {
+  public Boolean getAcceptEolRegulations() {
     return acceptEolRegulations;
   }
 
-  public void setAcceptEolRegulations(boolean acceptEolRegulations) {
+  public void setAcceptEolRegulations(Boolean acceptEolRegulations) {
     this.acceptEolRegulations = acceptEolRegulations;
   }
 
-  public boolean isAcceptEolRemoval() {
+  public Boolean getAcceptEolRemoval() {
     return acceptEolRemoval;
   }
 
-  public void setAcceptEolRemoval(boolean acceptEolRemoval) {
+  public void setAcceptEolRemoval(Boolean acceptEolRemoval) {
     this.acceptEolRemoval = acceptEolRemoval;
   }
 
-  public boolean isAcceptRemovalProposal() {
+  public Boolean getAcceptRemovalProposal() {
     return acceptRemovalProposal;
   }
 
-  public void setAcceptRemovalProposal(boolean acceptRemovalProposal) {
+  public void setAcceptRemovalProposal(Boolean acceptRemovalProposal) {
     this.acceptRemovalProposal = acceptRemovalProposal;
   }
 

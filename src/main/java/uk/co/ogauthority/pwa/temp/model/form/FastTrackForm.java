@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
-public class FastTrackForm {
+import java.io.Serializable;
+
+public class FastTrackForm implements Serializable {
 
   private String justification;
 
