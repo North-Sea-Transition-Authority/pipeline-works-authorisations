@@ -25,14 +25,16 @@ public class Person implements Serializable {
   private String forename;
   private String surname;
   private String emailAddress;
+  private String telephoneNo;
 
   public Person() {}
 
   @VisibleForTesting
-  public Person(Integer id, String forename, String surname, String emailAddress) {
+  public Person(Integer id, String forename, String surname, String emailAddress, String telephoneNo) {
     this.id = id;
     this.forename = forename;
     this.surname = surname;
+    this.telephoneNo = telephoneNo;
     this.emailAddress = emailAddress;
   }
 
@@ -54,6 +56,10 @@ public class Person implements Serializable {
 
   public String getEmailAddress() {
     return emailAddress;
+  }
+
+  public String getTelephoneNo() {
+    return telephoneNo;
   }
 
   @Override

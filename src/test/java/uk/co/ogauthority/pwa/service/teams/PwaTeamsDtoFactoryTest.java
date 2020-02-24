@@ -62,8 +62,8 @@ public class PwaTeamsDtoFactoryTest {
     setupPortalTeamDtos();
     organisationTeam1 = TeamTestingUtils.getOrganisationTeam(portalOrganisationGroup1);
 
-    orgMember1 = new Person(1, "Person", "One", "person@onw.com");
-    orgMember2 = new Person(2, "Person", "Two", "person@two.com");
+    orgMember1 = new Person(1, "Person", "One", "person@onw.com", "0");
+    orgMember2 = new Person(2, "Person", "Two", "person@two.com", "0");
 
     setupOrgTeamMember();
 
