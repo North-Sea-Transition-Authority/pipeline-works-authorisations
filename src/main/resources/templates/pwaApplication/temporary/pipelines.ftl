@@ -10,12 +10,16 @@
     <@fdsAction.link linkText="Add production pipeline" linkUrl=springUrl(addProductionPipelineUrl) linkClass="govuk-button govuk-button--secondary" />
 
     <#list pipelineViews as pipeline>
-
         <@fdsCard.card>
-
             <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineType.displayName} - ${pipeline.pipelineNumber}">
                 <@fdsCard.cardAction cardLinkText="View or edit this pipeline" cardLinkUrl=springUrl(viewEditPipelineUrl + pipeline.pipelineNumber) />
             </@fdsCard.cardHeader>
+
+            <@fdsDataItems.dataItem>
+                <@fdsDataItems.dataValues key="From" value="${pipeline.from} ${pipeline.getFromLatString()?no_esc} ${pipeline.getFromLongString()?no_esc}" />
+                <@fdsDataItems.dataValues key="To" value="${pipeline.to} ${pipeline.getToLatString()?no_esc} ${pipeline.getToLongString()?no_esc}" />
+                <@fdsDataItems.dataValues key="Products to be conveyed" value=pipeline.productsToBeConveyed />
+            </@fdsDataItems.dataItem>
 
             <#if pipeline.subPipelines?size gt 0>
 
