@@ -64,6 +64,7 @@ SELECT
   , xrph.forename
   , xrph.surname
   , xrph.portal_email_address email_address
+  , xrph.telephone_hash_code telephone_no
 FROM decmgr.xview_resource_people_history xrph
 WHERE xrph.status_control = 'C'
 
