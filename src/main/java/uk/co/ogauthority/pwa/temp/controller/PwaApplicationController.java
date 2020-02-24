@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.energyportal.service.BreadcrumbService;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -46,10 +46,10 @@ public class PwaApplicationController {
 
   private static LocalDate startDate = LocalDate.now().plusMonths(4);
   private LinkedHashMap<String, String> taskList;
-  private final BreadcrumbService breadcrumbService;
+  private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public PwaApplicationController(BreadcrumbService breadcrumbService) {
+  public PwaApplicationController(ApplicationBreadcrumbService breadcrumbService) {
     this.breadcrumbService = breadcrumbService;
     taskList = new LinkedHashMap<>() {
       {
@@ -92,17 +92,23 @@ public class PwaApplicationController {
 
   @GetMapping("/1/application-contacts")
   public ModelAndView viewApplicationContacts() {
-    return new ModelAndView("pwaApplication/temporary/pwaContacts/contacts")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/pwaContacts/contacts")
         .addObject("contacts", makeContacts())
         .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()))
         .addObject("addContactUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewApplicationContact(null)));
+
+    breadcrumbService.fromTaskList(modelAndView, "PWA contacts");
+    return modelAndView;
   }
 
   @GetMapping("/1/application-contacts/new")
   public ModelAndView viewNewApplicationContact(@ModelAttribute("form") PwaContactForm pwaContactForm) {
-    return new ModelAndView("pwaApplication/temporary/pwaContacts/new")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/pwaContacts/new")
         .addObject("roles", Arrays.stream(ContactRole.values())
           .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
+
+    breadcrumbService.fromPwaContacts(modelAndView, "Add contact");
+    return modelAndView;
   }
 
   @PostMapping("/1/application-contacts/new")
@@ -227,22 +233,28 @@ public class PwaApplicationController {
 
   @GetMapping("/1/uoo-contacts")
   public ModelAndView viewUserOwnerOperatorContacts() {
-    return new ModelAndView("pwaApplication/temporary/uooContacts/contacts")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/uooContacts/contacts")
         .addObject("uooCompanyList", makeUooCompanyViews())
         .addObject("uooTreatyList", makeUooTreatyViews())
         .addObject("newUooUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewUooContact(null)))
         .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()));
+
+    breadcrumbService.fromTaskList(modelAndView, "Users, operator, owners");
+    return modelAndView;
   }
 
   @GetMapping("/1/uoo-contacts/new")
   public ModelAndView viewNewUooContact(@ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
-    return new ModelAndView("pwaApplication/temporary/uooContacts/new")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/uooContacts/new")
         .addObject("uooTypes", Arrays.stream(UooType.values())
             .collect(StreamUtils.toLinkedHashMap(UooType::name, UooType::toString)))
         .addObject("uooRoles", Arrays.stream(UooRole.values())
             .collect(StreamUtils.toLinkedHashMap(UooRole::name, UooRole::toString)))
         .addObject("uooAgreements", Arrays.stream(UooAgreement.values())
             .collect(StreamUtils.toLinkedHashMap(UooAgreement::name, UooAgreement::toString)));
+
+    breadcrumbService.fromUoo(modelAndView, "Add user, operator or owner");
+    return modelAndView;
   }
 
   @PostMapping("/1/uoo-contacts/new")

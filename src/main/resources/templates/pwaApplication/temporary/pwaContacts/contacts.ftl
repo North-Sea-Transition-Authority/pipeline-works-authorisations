@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="contacts" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
 <#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="PWA contacts" pageHeading="PWA contacts" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(taskListUrl)>
+<@defaultPage htmlTitle="PWA contacts" pageHeading="PWA contacts" twoThirdsColumn=false breadcrumbs=true backLinkUrl=springUrl(taskListUrl)>
     <@fdsInsetText.insetText>
       PWA contacts are people who are authorised to make changes to any applications related to this PWA.
     </@fdsInsetText.insetText>
