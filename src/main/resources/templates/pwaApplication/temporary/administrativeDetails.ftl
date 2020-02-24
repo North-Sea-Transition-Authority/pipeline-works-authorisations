@@ -18,7 +18,7 @@
             <#list withinSafetyZone as name,value>
               <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name: value}>
                 <#if name != "NO">
-                    <@fdsTextInput.textInput path="form.structureNameIf${value}" labelText="What is the name of the structure that you will be within 500m of?"/>
+                    <@fdsTextInput.textInput path="form.structureNameIf${value}" labelText="What is the name of the structure that you will be within 500m of?" nestingPath="form.withinSafetyZone"/>
                 </#if>
               </@fdsRadio.radioItem>
             </#list>

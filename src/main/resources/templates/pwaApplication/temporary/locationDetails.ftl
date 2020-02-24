@@ -11,9 +11,14 @@
             <#list medianLineSelections as name, value>
                 <@fdsRadio.radioItem path="form.medianLineSelection" itemMap={name: value}>
                     <#if name != "NOT_CROSSED">
-                        <@fdsTextInput.textInput path="form.negotiatorName" labelText="Name of negotiator"/>
-                        <@fdsTextInput.textInput path="form.negotiatorEmail" labelText="Negotiator's email address"/>
-                        <@fdsTextarea.textarea path="form.medianLineAgreement" labelText="Median line agreement" hintText="Please provide the status of your median line agreement"/>
+                        <#if name=="NEGOTIATIONS_ONGOING">
+                            <#assign completeOrOngoing = "Ongoing"/>
+                        <#else>
+                            <#assign completeOrOngoing = "Complete"/>
+                        </#if>
+                        <@fdsTextInput.textInput path="form.negotiatorName${completeOrOngoing}" labelText="Name of negotiator" nestingPath="form.medianLineSelection"/>
+                        <@fdsTextInput.textInput path="form.negotiatorEmail${completeOrOngoing}" labelText="Negotiator's email address" nestingPath="form.medianLineSelection"/>
+                        <@fdsTextarea.textarea path="form.medianLineAgreement${completeOrOngoing}" labelText="Median line agreement" hintText="Please provide the status of your median line agreement" nestingPath="form.medianLineSelection"/>
                     </#if>
                     <#if name == "NEGOTIATIONS_COMPLETE">
                         <h3 class="govuk-heading-m">Agreement documents</h3>

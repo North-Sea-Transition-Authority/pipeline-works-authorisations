@@ -6,7 +6,12 @@ import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
 public class LocationForm implements Serializable {
 
   private MedianLineSelection medianLineSelection;
-  private String medianLineAgreement;
+  private String medianLineAgreementOngoing;
+  private String negotiatorNameOngoing;
+  private String negotiatorEmailOngoing;
+  private String medianLineAgreementComplete;
+  private String negotiatorNameComplete;
+  private String negotiatorEmailComplete;
   private Boolean likelySignificantImpact;
   private Integer emtSubmitByDay;
   private Integer emtSubmitByMonth;
@@ -16,8 +21,6 @@ public class LocationForm implements Serializable {
   private boolean acceptEolRemoval;
   private boolean acceptRemovalProposal;
   private String decommissioningPlans;
-  private String negotiatorName;
-  private String negotiatorEmail;
 
   public MedianLineSelection getMedianLineSelection() {
     return medianLineSelection;
@@ -27,12 +30,52 @@ public class LocationForm implements Serializable {
     this.medianLineSelection = medianLineSelection;
   }
 
-  public String getMedianLineAgreement() {
-    return medianLineAgreement;
+  public String getMedianLineAgreementOngoing() {
+    return medianLineAgreementOngoing;
   }
 
-  public void setMedianLineAgreement(String medianLineAgreement) {
-    this.medianLineAgreement = medianLineAgreement;
+  public void setMedianLineAgreementOngoing(String medianLineAgreementOngoing) {
+    this.medianLineAgreementOngoing = medianLineAgreementOngoing;
+  }
+
+  public String getNegotiatorNameOngoing() {
+    return negotiatorNameOngoing;
+  }
+
+  public void setNegotiatorNameOngoing(String negotiatorNameOngoing) {
+    this.negotiatorNameOngoing = negotiatorNameOngoing;
+  }
+
+  public String getNegotiatorEmailOngoing() {
+    return negotiatorEmailOngoing;
+  }
+
+  public void setNegotiatorEmailOngoing(String negotiatorEmailOngoing) {
+    this.negotiatorEmailOngoing = negotiatorEmailOngoing;
+  }
+
+  public String getMedianLineAgreementComplete() {
+    return medianLineAgreementComplete;
+  }
+
+  public void setMedianLineAgreementComplete(String medianLineAgreementComplete) {
+    this.medianLineAgreementComplete = medianLineAgreementComplete;
+  }
+
+  public String getNegotiatorNameComplete() {
+    return negotiatorNameComplete;
+  }
+
+  public void setNegotiatorNameComplete(String negotiatorNameComplete) {
+    this.negotiatorNameComplete = negotiatorNameComplete;
+  }
+
+  public String getNegotiatorEmailComplete() {
+    return negotiatorEmailComplete;
+  }
+
+  public void setNegotiatorEmailComplete(String negotiatorEmailComplete) {
+    this.negotiatorEmailComplete = negotiatorEmailComplete;
   }
 
   public Boolean getLikelySignificantImpact() {
@@ -105,21 +148,5 @@ public class LocationForm implements Serializable {
 
   public void setDecommissioningPlans(String decommissioningPlans) {
     this.decommissioningPlans = decommissioningPlans;
-  }
-
-  public String getNegotiatorName() {
-    return negotiatorName;
-  }
-
-  public void setNegotiatorName(String negotiatorName) {
-    this.negotiatorName = negotiatorName;
-  }
-
-  public String getNegotiatorEmail() {
-    return negotiatorEmail;
-  }
-
-  public void setNegotiatorEmail(String negotiatorEmail) {
-    this.negotiatorEmail = negotiatorEmail;
   }
 }
