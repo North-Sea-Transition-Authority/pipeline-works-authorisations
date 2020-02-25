@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="medianLineSelections" type="java.util.HashMap<String, String>" -->
 <#-- @ftlvariable name="holderCompanyName" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Location details" pageHeading="Location details">
+<@defaultPage htmlTitle="Location details" pageHeading="Location details" breadcrumbs=true>
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup labelText="Will the proposed works cross the median line?" path="form.medianLineSelection" hiddenContent=true fieldsetHeadingClass="govuk-fieldset__legend--l">

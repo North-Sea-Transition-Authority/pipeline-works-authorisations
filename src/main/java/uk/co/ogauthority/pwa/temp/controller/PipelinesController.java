@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.components.PipelineGodObject;
 import uk.co.ogauthority.pwa.temp.model.form.AddIdentForm;
 import uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm;
@@ -35,10 +36,13 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 public class PipelinesController {
 
   private PipelineGodObject pipelineGodObject;
+  private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public PipelinesController(PipelineGodObject pipelineGodObject) {
+  public PipelinesController(PipelineGodObject pipelineGodObject,
+                             ApplicationBreadcrumbService breadcrumbService) {
     this.pipelineGodObject = pipelineGodObject;
+    this.breadcrumbService = breadcrumbService;
     if (pipelineGodObject.getPipelineViewList() == null || pipelineGodObject.getPipelineViewList().isEmpty()) {
       PipelineView firstPipeline = new PipelineView("PL1", PipelineType.PRODUCTION_FLOWLINE, List.of());
       firstPipeline.setLength(99);
@@ -66,7 +70,7 @@ public class PipelinesController {
   @GetMapping
   public ModelAndView pipelines(@PathVariable Integer applicationId) {
 
-    return new ModelAndView("pwaApplication/temporary/pipelines")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/pipelines")
         .addObject("pipelineViews", pipelineGodObject.getPipelineViewList().stream()
           .sorted(Comparator.comparingInt(p -> p.getPipelineType().getDisplayOrder()))
           .collect(Collectors.toList()))
@@ -75,6 +79,9 @@ public class PipelinesController {
         .addObject("viewEditPipelineUrl",
             ReverseRouter.route(on(PipelinesController.class).editProductionPipelineRender(applicationId, null)))
         .addObject("saveCompleteLaterUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)));
+
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Pipelines");
+    return modelAndView;
   }
 
   @PostMapping
@@ -89,11 +96,13 @@ public class PipelinesController {
   }
 
   private ModelAndView getAddProductionPipelineMav(Integer applicationId, AddProductionPipelineForm form) {
-    return new ModelAndView("pwaApplication/temporary/addProductionPipeline")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/addProductionPipeline")
         .addObject("pipelineTypes", Arrays.stream(PipelineType.values())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
         .addObject("form", form)
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
+    breadcrumbService.fromPipelines(applicationId, modelAndView, "Add pipeline");
+    return modelAndView;
   }
 
   @PostMapping("/add-production-pipeline")
@@ -142,11 +151,13 @@ public class PipelinesController {
   public ModelAndView editProductionPipelineRender(@PathVariable Integer applicationId,
                                                    @PathVariable String pipelineNumber) {
 
-    return new ModelAndView("pwaApplication/temporary/productionPipeline")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/productionPipeline")
         .addObject("pipelineView", getPipelineOrThrow(pipelineNumber))
         .addObject("addIdentUrl", ReverseRouter.route(on(PipelinesController.class).addIdentRender(applicationId, pipelineNumber, null)))
         .addObject("backToPipelinesUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
 
+    breadcrumbService.fromPipelines(applicationId, modelAndView, pipelineNumber);
+    return modelAndView;
   }
 
   @GetMapping("/production/{pipelineNumber}/ident/new")
@@ -157,10 +168,13 @@ public class PipelinesController {
   }
 
   private ModelAndView getAddIdentMav(Integer applicationId, String pipelineNumber) {
-    return new ModelAndView("pwaApplication/temporary/addIdent")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/addIdent")
         .addObject("identNo", getPipelineOrThrow(pipelineNumber).getIdents().size() + 1)
         .addObject("cancelUrl",
             ReverseRouter.route(on(PipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber)));
+
+    breadcrumbService.fromPipeline(applicationId, pipelineNumber, modelAndView, "Add ident");
+    return modelAndView;
   }
 
   @PostMapping("/production/{pipelineNumber}/ident/new")

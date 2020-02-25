@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Add PWA contact" pageHeading="Add a new PWA contact" backLink=true>
+<@defaultPage htmlTitle="Add PWA contact" pageHeading="Add a new PWA contact" breadcrumbs=true>
 
     <@fdsForm.htmlForm>
         <h2 class="govuk-heading-l">Information</h2>

@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 <#import '../../dummyFileUpload.ftl' as dummyFileUpload/>
 
-<@defaultPage htmlTitle="Administrative details" pageHeading="Administrative details">
+<@defaultPage htmlTitle="Administrative details" pageHeading="Administrative details" breadcrumbs=true>
 
     <@fdsForm.htmlForm>
         <@fdsFieldset.fieldset legendHeading="Project overview" legendHeadingClass="govuk-fieldset__legend--l" legendHeadingSize="h2"/>

@@ -42,8 +42,7 @@
     <#list validationErrors as validationError>
       <div class="error-message">${validationError}</div>
     </#list>
-  <script src="<@spring.url '/assets/static/js/irs/modal.js'/>"></script>
-  <script src="<@spring.url '/assets/static/js/irs/fileUpload.js'/>"></script>
+
 </#macro>
 
 <#--
