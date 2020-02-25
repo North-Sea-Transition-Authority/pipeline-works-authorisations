@@ -1,11 +1,9 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
+import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
 
-public class AddProductionPipelineForm {
-
-  @NotNull
-  private String pipelineType;
+public class AddIdentForm {
 
   @NotNull
   private String from;
@@ -45,20 +43,25 @@ public class AddProductionPipelineForm {
   private String componentParts;
 
   @NotNull
-  private Integer length;
+  private BigDecimal length;
+
+  @NotNull
+  private BigDecimal externalDiameter;
+  @NotNull
+  private BigDecimal internalDiameter;
+  @NotNull
+  private BigDecimal wallThickness;
+
+  @NotNull
+  private String typeOfInsulationOrCoating;
+
+  @NotNull
+  private BigDecimal maop;
 
   @NotNull
   private String productsToBeConveyed;
 
-  public AddProductionPipelineForm() {
-  }
-
-  public String getPipelineType() {
-    return pipelineType;
-  }
-
-  public void setPipelineType(String pipelineType) {
-    this.pipelineType = pipelineType;
+  public AddIdentForm() {
   }
 
   public String getFrom() {
@@ -181,12 +184,52 @@ public class AddProductionPipelineForm {
     this.componentParts = componentParts;
   }
 
-  public Integer getLength() {
+  public BigDecimal getLength() {
     return length;
   }
 
-  public void setLength(Integer length) {
+  public void setLength(BigDecimal length) {
     this.length = length;
+  }
+
+  public BigDecimal getExternalDiameter() {
+    return externalDiameter;
+  }
+
+  public void setExternalDiameter(BigDecimal externalDiameter) {
+    this.externalDiameter = externalDiameter;
+  }
+
+  public BigDecimal getInternalDiameter() {
+    return internalDiameter;
+  }
+
+  public void setInternalDiameter(BigDecimal internalDiameter) {
+    this.internalDiameter = internalDiameter;
+  }
+
+  public BigDecimal getWallThickness() {
+    return wallThickness;
+  }
+
+  public void setWallThickness(BigDecimal wallThickness) {
+    this.wallThickness = wallThickness;
+  }
+
+  public String getTypeOfInsulationOrCoating() {
+    return typeOfInsulationOrCoating;
+  }
+
+  public void setTypeOfInsulationOrCoating(String typeOfInsulationOrCoating) {
+    this.typeOfInsulationOrCoating = typeOfInsulationOrCoating;
+  }
+
+  public BigDecimal getMaop() {
+    return maop;
+  }
+
+  public void setMaop(BigDecimal maop) {
+    this.maop = maop;
   }
 
   public String getProductsToBeConveyed() {

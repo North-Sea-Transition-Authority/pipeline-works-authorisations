@@ -37,7 +37,7 @@ public class PipelineView implements Serializable {
 
   private String productsToBeConveyed;
 
-  private List<SubPipelineView> subPipelines;
+  private List<IdentView> idents;
 
   public PipelineView() {
   }
@@ -47,7 +47,6 @@ public class PipelineView implements Serializable {
                       List<SubPipelineView> subPipelines) {
     this.pipelineNumber = pipelineNumber;
     this.pipelineType = pipelineType;
-    this.subPipelines = subPipelines;
   }
 
   public String getPipelineNumber() {
@@ -219,12 +218,12 @@ public class PipelineView implements Serializable {
     this.productsToBeConveyed = productsToBeConveyed;
   }
 
-  public List<SubPipelineView> getSubPipelines() {
-    return subPipelines;
+  public List<IdentView> getIdents() {
+    return idents;
   }
 
-  public void setSubPipelines(List<SubPipelineView> subPipelines) {
-    this.subPipelines = subPipelines;
+  public void setIdents(List<IdentView> idents) {
+    this.idents = idents;
   }
 
   @Override
@@ -239,16 +238,31 @@ public class PipelineView implements Serializable {
     return Objects.equals(pipelineNumber, that.pipelineNumber)
         && pipelineType == that.pipelineType
         && Objects.equals(from, that.from)
+        && Objects.equals(fromLatitudeDegrees, that.fromLatitudeDegrees)
+        && Objects.equals(fromLatitudeMinutes, that.fromLatitudeMinutes)
+        && Objects.equals(fromLatitudeSeconds, that.fromLatitudeSeconds)
+        && Objects.equals(fromLongitudeDegrees, that.fromLongitudeDegrees)
+        && Objects.equals(fromLongitudeMinutes, that.fromLongitudeMinutes)
+        && Objects.equals(fromLongitudeSeconds, that.fromLongitudeSeconds)
         && Objects.equals(to, that.to)
+        && Objects.equals(toLatitudeDegrees, that.toLatitudeDegrees)
+        && Objects.equals(toLatitudeMinutes, that.toLatitudeMinutes)
+        && Objects.equals(toLatitudeSeconds, that.toLatitudeSeconds)
+        && Objects.equals(toLongitudeDegrees, that.toLongitudeDegrees)
+        && Objects.equals(toLongitudeMinutes, that.toLongitudeMinutes)
+        && Objects.equals(toLongitudeSeconds, that.toLongitudeSeconds)
         && Objects.equals(componentParts, that.componentParts)
         && Objects.equals(length, that.length)
         && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
-        && Objects.equals(subPipelines, that.subPipelines);
+        && Objects.equals(idents, that.idents);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineNumber, pipelineType, from, to, componentParts, length, productsToBeConveyed,
-        subPipelines);
+    return Objects.hash(pipelineNumber, pipelineType, from, fromLatitudeDegrees, fromLatitudeMinutes,
+        fromLatitudeSeconds,
+        fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, to, toLatitudeDegrees, toLatitudeMinutes,
+        toLatitudeSeconds, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, componentParts, length,
+        productsToBeConveyed, idents);
   }
 }
