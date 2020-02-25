@@ -238,14 +238,31 @@ public class PipelineView implements Serializable {
     return Objects.equals(pipelineNumber, that.pipelineNumber)
         && pipelineType == that.pipelineType
         && Objects.equals(from, that.from)
+        && Objects.equals(fromLatitudeDegrees, that.fromLatitudeDegrees)
+        && Objects.equals(fromLatitudeMinutes, that.fromLatitudeMinutes)
+        && Objects.equals(fromLatitudeSeconds, that.fromLatitudeSeconds)
+        && Objects.equals(fromLongitudeDegrees, that.fromLongitudeDegrees)
+        && Objects.equals(fromLongitudeMinutes, that.fromLongitudeMinutes)
+        && Objects.equals(fromLongitudeSeconds, that.fromLongitudeSeconds)
         && Objects.equals(to, that.to)
+        && Objects.equals(toLatitudeDegrees, that.toLatitudeDegrees)
+        && Objects.equals(toLatitudeMinutes, that.toLatitudeMinutes)
+        && Objects.equals(toLatitudeSeconds, that.toLatitudeSeconds)
+        && Objects.equals(toLongitudeDegrees, that.toLongitudeDegrees)
+        && Objects.equals(toLongitudeMinutes, that.toLongitudeMinutes)
+        && Objects.equals(toLongitudeSeconds, that.toLongitudeSeconds)
         && Objects.equals(componentParts, that.componentParts)
         && Objects.equals(length, that.length)
-        && Objects.equals(productsToBeConveyed, that.productsToBeConveyed);
+        && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
+        && Objects.equals(idents, that.idents);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineNumber, pipelineType, from, to, componentParts, length, productsToBeConveyed);
+    return Objects.hash(pipelineNumber, pipelineType, from, fromLatitudeDegrees, fromLatitudeMinutes,
+        fromLatitudeSeconds,
+        fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, to, toLatitudeDegrees, toLatitudeMinutes,
+        toLatitudeSeconds, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, componentParts, length,
+        productsToBeConveyed, idents);
   }
 }

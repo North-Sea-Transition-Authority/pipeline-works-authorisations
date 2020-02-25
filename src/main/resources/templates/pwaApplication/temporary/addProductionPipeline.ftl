@@ -5,12 +5,12 @@
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 
-<@defaultPage htmlTitle="Add pipeline" pageHeading="Add  pipeline">
+<@defaultPage htmlTitle="Add pipeline" pageHeading="Add pipeline">
     <@fdsForm.htmlForm>
 
         <@fdsSelect.select path="form.pipelineType" labelText="Pipeline type" options=pipelineTypes />
 
-        <@fdsFieldset.fieldset legendHeading="Where is the pipeline starting from?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
+        <@fdsFieldset.fieldset legendHeading="Where does the pipeline start?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
 
             <@fdsTextInput.textInput path="form.from" labelText="Structure" />
 
@@ -19,7 +19,7 @@
 
         </@fdsFieldset.fieldset>
 
-        <@fdsFieldset.fieldset legendHeading="Where is the pipeline finishing?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
+        <@fdsFieldset.fieldset legendHeading="Where does the pipeline finish?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
 
             <@fdsTextInput.textInput path="form.to" labelText="Structure" />
 

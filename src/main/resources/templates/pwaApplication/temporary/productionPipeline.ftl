@@ -12,8 +12,8 @@
         <@fdsDataItems.dataValuesNumber key="Length" value="${pipelineView.length}m" valueId="${pipelineView.pipelineNumber}-length" />
         <@fdsDataItems.dataValues key="From" value="${pipelineView.from} ${pipelineView.getFromLatString()?no_esc} ${pipelineView.getFromLongString()?no_esc}" />
         <@fdsDataItems.dataValues key="To" value="${pipelineView.to} ${pipelineView.getToLatString()?no_esc} ${pipelineView.getToLongString()?no_esc}" />
-        <@fdsDataItems.dataValues key="Component parts" value=pipelineView.componentParts />
-        <@fdsDataItems.dataValues key="Products to be conveyed" value=pipelineView.productsToBeConveyed />
+        <@fdsDataItems.dataValues key="Component parts" value=pipelineView.componentParts!"" />
+        <@fdsDataItems.dataValues key="Products to be conveyed" value=pipelineView.productsToBeConveyed!"" />
     </@fdsDataItems.dataItem>
 
     <#if pipelineView.idents?size gt 0>
@@ -27,67 +27,67 @@
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Ident no.</th>
                     <#list pipelineView.idents as ident>
-                        <th class="govuk-table__header govuk-table__header">${ident.identNo}</th>
+                        <th class="govuk-table__header govuk-table__header">${ident.identNo!""}</th>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">From</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell">${ident.from}</td>
+                        <td class="govuk-table__cell">${ident.from!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">To</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell">${ident.to}</td>
+                        <td class="govuk-table__cell">${ident.to!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Component parts</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell">${ident.componentParts}</td>
+                        <td class="govuk-table__cell">${ident.componentParts!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Type of insulation/coating</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell">${ident.typeOfInsulationOrCoating}</td>
+                        <td class="govuk-table__cell">${ident.typeOfInsulationOrCoating!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Products to be conveyed</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell">${ident.productsToBeConveyed}</td>
+                        <td class="govuk-table__cell">${ident.productsToBeConveyed!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Length (m)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell">${ident.length}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.length!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">External diameter (mm)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell">${ident.externalDiameter}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.externalDiameter!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Internal diameter (mm)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell">${ident.internalDiameter}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.internalDiameter!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">Wall thickness (mm)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell">${ident.wallThickness}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.wallThickness!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
                     <th class="govuk-table__header" scope="row">MAOP (Barg)</th>
                     <#list pipelineView.idents as ident>
-                        <td class="govuk-table__cell govuk-table__cell">${ident.maop}</td>
+                        <td class="govuk-table__cell govuk-table__cell">${ident.maop!""}</td>
                     </#list>
                 </tr>
                 <tr class="govuk-table__row">
