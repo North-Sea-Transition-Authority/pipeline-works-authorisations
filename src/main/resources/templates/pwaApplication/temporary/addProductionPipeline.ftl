@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 
-<@defaultPage htmlTitle="Add pipeline" pageHeading="Add  pipeline">
+<@defaultPage htmlTitle="Add pipeline" pageHeading="Add pipeline">
     <@fdsForm.htmlForm>
 
         <@fdsSelect.select path="form.pipelineType" labelText="Pipeline type" options=pipelineTypes />

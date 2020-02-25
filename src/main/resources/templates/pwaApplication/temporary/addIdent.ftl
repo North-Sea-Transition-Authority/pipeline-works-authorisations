@@ -8,7 +8,7 @@
 <@defaultPage htmlTitle="Add ident" pageHeading="Add ident">
     <@fdsForm.htmlForm>
 
-        <@fdsFieldset.fieldset legendHeading="Where is does this ident start?" legendHeadingSize="h2">
+        <@fdsFieldset.fieldset legendHeading="Where does this ident start?" legendHeadingSize="h2">
 
             <@fdsTextInput.textInput path="form.from" labelText="Structure" />
 
