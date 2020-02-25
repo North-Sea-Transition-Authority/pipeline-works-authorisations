@@ -62,6 +62,8 @@ public class PwaApplicationController {
             ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(applicationId, null)));
         put("Location details",
             ReverseRouter.route(on(PwaApplicationController.class).viewLocationDetails(applicationId, null)));
+        put("Technical drawings",
+            ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)));
       }
     };
   }

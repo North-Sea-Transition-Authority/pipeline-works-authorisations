@@ -11,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class TechnicalDrawingsController {
 
   @GetMapping
-  public ModelAndView viewTechnicalDrawings(@PathVariable String applicationId) {
+  public ModelAndView viewTechnicalDrawings(@PathVariable Integer applicationId) {
     return new ModelAndView("pwaApplication/temporary/technicalDrawings/drawings");
   }
 
