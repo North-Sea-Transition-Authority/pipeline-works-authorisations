@@ -85,7 +85,7 @@ public class PwaApplicationController {
   @GetMapping("/tasks")
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId) {
     var taskList = getTaskList(applicationId);
-    taskList.compute("Fast track", (String key, String oldValue) ->
+    taskList.compute("Fast-track", (String key, String oldValue) ->
         startDate.isBefore(LocalDate.now().plusMonths(3))
             ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(applicationId, null))
             : null
@@ -173,11 +173,13 @@ public class PwaApplicationController {
   public ModelAndView viewFastTrackInformation(@PathVariable("applicationId") Integer applicationId,
                                                @ModelAttribute("form") FastTrackForm fastTrackForm) {
     formState.apply(fastTrackForm);
-    return new ModelAndView("pwaApplication/temporary/fastTrack")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/fastTrack")
         .addObject("projectInformationUrl",
             ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(applicationId, null)))
         .addObject("startDate", DateUtil.formatDate(startDate))
         .addObject("minNotFastTrackStartDate", DateUtil.formatDate(LocalDate.now().plusMonths(3)));
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Fast-track");
+    return modelAndView;
   }
 
   @PostMapping("/fast-track")

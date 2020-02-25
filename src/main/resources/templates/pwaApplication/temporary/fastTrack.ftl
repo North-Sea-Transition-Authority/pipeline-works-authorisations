@@ -2,7 +2,7 @@
 
 <!-- @ftlvariable name="projectInformationUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Fast-track information" pageHeading="Fast-track information">
+<@defaultPage htmlTitle="Fast-track information" pageHeading="Fast-track information" breadcrumbs=true>
     <@fdsForm.htmlForm>
         <@fdsWarning.warning>
           You application will be fast-tracked as it's due to start on ${startDate}, which is outside of the minimum review period. All fast-tracked applications require approval prior to being processed.
