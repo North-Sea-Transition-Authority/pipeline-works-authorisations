@@ -20,7 +20,6 @@ public class BeanConfig {
     return Clock.systemDefaultZone();
   }
 
-
   @Bean
   public FilterRegistrationBean<FoxSessionFilter> foxSessionFilterRegistration(FoxSessionFilter foxSessionFilter) {
     // Important - disable automatic registration fo the FoxSessionFilter. We register it manually within the WebSecurityConfig
