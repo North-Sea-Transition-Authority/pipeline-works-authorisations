@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaCon
 import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.temp.controller.PwaApplicationController;
 
 @Service
 public class PwaApplicationRedirectService {
@@ -40,6 +41,8 @@ public class PwaApplicationRedirectService {
 
     switch (pwaApplication.getApplicationType()) {
       case INITIAL:
+        // temporary task list
+        return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(pwaApplication.getId()));
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
       case DECOMMISSIONING:
