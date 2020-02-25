@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.temp.controller.PipelinesController;
 import uk.co.ogauthority.pwa.temp.controller.PwaApplicationController;
 
 @Service
@@ -17,27 +18,54 @@ public class ApplicationBreadcrumbService {
     addAttrs(modelAndView, workArea(), thisPage);
   }
 
-  public void fromTaskList(ModelAndView modelAndView, String thisPage) {
-    addAttrs(modelAndView, taskList(), thisPage);
+  public void fromTaskList(Integer applicationId, ModelAndView modelAndView, String thisPage) {
+    addAttrs(modelAndView, taskList(applicationId), thisPage);
   }
 
-  public void fromCrossingAgreements(ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList();
-    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(null)), "Crossing agreements");
+  public void fromCrossingAgreements(Integer applicationId, ModelAndView modelAndView, String thisPage) {
+    Map<String, String> breadcrumbs = taskList(applicationId);
+    breadcrumbs.put(
+        ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(applicationId, null)),
+        "Crossing agreements"
+    );
 
     addAttrs(modelAndView, breadcrumbs, thisPage);
   }
 
-  public void fromPwaContacts(ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList();
-    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts()), "PWA contacts");
+  public void fromPwaContacts(Integer applicationId, ModelAndView modelAndView, String thisPage) {
+    Map<String, String> breadcrumbs = taskList(applicationId);
+    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts(applicationId)), "PWA contacts");
 
     addAttrs(modelAndView, breadcrumbs, thisPage);
   }
 
-  public void fromUoo(ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList();
-    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts()), "Users, operator, owners");
+  public void fromUoo(Integer applicationId, ModelAndView modelAndView, String thisPage) {
+    Map<String, String> breadcrumbs = taskList(applicationId);
+    breadcrumbs.put(
+        ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts(applicationId)),
+        "Users, operator, owners"
+    );
+
+    addAttrs(modelAndView, breadcrumbs, thisPage);
+  }
+
+  public void fromPipelines(Integer applicationId, ModelAndView modelAndView, String thisPage) {
+    Map<String, String> breadcrumbs = taskList(applicationId);
+    breadcrumbs.put(ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)), "Pipelines");
+
+    addAttrs(modelAndView, breadcrumbs, thisPage);
+  }
+
+  public void fromPipeline(Integer applicationId, String pipelineNumber,  ModelAndView modelAndView, String thisPage) {
+    Map<String, String> breadcrumbs = taskList(applicationId);
+    breadcrumbs.put(
+        ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)),
+        "Pipelines"
+    );
+    breadcrumbs.put(
+        ReverseRouter.route(on(PipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber)),
+        pipelineNumber
+    );
 
     addAttrs(modelAndView, breadcrumbs, thisPage);
   }
@@ -48,9 +76,9 @@ public class ApplicationBreadcrumbService {
     return breadcrumbs;
   }
 
-  private Map<String, String> taskList() {
+  private Map<String, String> taskList(Integer applicationId) {
     Map<String, String> breadcrumbs = workArea();
-    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewTaskList()), "Task list");
+    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)), "Task list");
     return breadcrumbs;
   }
 

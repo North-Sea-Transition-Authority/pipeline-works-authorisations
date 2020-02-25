@@ -96,7 +96,7 @@ public class PwaApplicationController {
                                                 @ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/administrativeDetails")
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
-    breadcrumbService.fromTaskList(modelAndView, "Administrative details");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Administrative details");
     return modelAndView;
   }
 
@@ -112,7 +112,7 @@ public class PwaApplicationController {
         .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)))
         .addObject("addContactUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewApplicationContact(applicationId, null)));
 
-    breadcrumbService.fromTaskList(modelAndView, "PWA contacts");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "PWA contacts");
     return modelAndView;
   }
 
@@ -123,7 +123,7 @@ public class PwaApplicationController {
         .addObject("roles", Arrays.stream(ContactRole.values())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
 
-    breadcrumbService.fromPwaContacts(modelAndView, "Add contact");
+    breadcrumbService.fromPwaContacts(applicationId, modelAndView, "Add contact");
     return modelAndView;
   }
 
@@ -137,7 +137,7 @@ public class PwaApplicationController {
   public ModelAndView viewProjectInformation(@PathVariable("applicationId") Integer applicationId,
                                              @ModelAttribute("form") ProjectInformationForm projectInformationForm) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/projectInformation");
-    breadcrumbService.fromTaskList(modelAndView, "Project information");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Project information");
     return modelAndView;
   }
 
@@ -180,7 +180,7 @@ public class PwaApplicationController {
             .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
         ).addObject("holderCompanyName", "ROYAL DUTCH SHELL");
 
-    breadcrumbService.fromTaskList(modelAndView, "Location details");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Location details");
     return modelAndView;
   }
 
@@ -209,7 +209,7 @@ public class PwaApplicationController {
         .addObject("telecommunicationCableCrossings", makeTelecommunicationCableCrossings())
         .addObject("pipelineCrossings", List.of());
 
-    breadcrumbService.fromTaskList(modelAndView, "Crossing agreements");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Crossing agreements");
     return modelAndView;
   }
 
@@ -224,7 +224,7 @@ public class PwaApplicationController {
                                            @ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newBlockCrossing");
 
-    breadcrumbService.fromCrossingAgreements(modelAndView, "Block crossing");
+    breadcrumbService.fromCrossingAgreements(applicationId, modelAndView, "Block crossing");
     return modelAndView;
   }
 
@@ -240,7 +240,7 @@ public class PwaApplicationController {
       @ModelAttribute("form") TelecommunicationCableCrossing telecommunicationCableCrossing) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newTelecommunicationCableCrossing");
 
-    breadcrumbService.fromCrossingAgreements(modelAndView, "Telecommunication cable crossing");
+    breadcrumbService.fromCrossingAgreements(applicationId, modelAndView, "Telecommunication cable crossing");
     return modelAndView;
   }
 
@@ -256,7 +256,7 @@ public class PwaApplicationController {
                                               @ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newPipelineCrossing");
 
-    breadcrumbService.fromCrossingAgreements(modelAndView, "Pipeline crossing");
+    breadcrumbService.fromCrossingAgreements(applicationId, modelAndView, "Pipeline crossing");
     return modelAndView;
   }
 
@@ -274,7 +274,7 @@ public class PwaApplicationController {
         .addObject("newUooUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewUooContact(applicationId, null)))
         .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)));
 
-    breadcrumbService.fromTaskList(modelAndView, "Users, operator, owners");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Users, operator, owners");
     return modelAndView;
   }
 
@@ -289,7 +289,7 @@ public class PwaApplicationController {
         .addObject("uooAgreements", Arrays.stream(UooAgreement.values())
             .collect(StreamUtils.toLinkedHashMap(UooAgreement::name, UooAgreement::toString)));
 
-    breadcrumbService.fromUoo(modelAndView, "Add user, operator or owner");
+    breadcrumbService.fromUoo(applicationId, modelAndView, "Add user, operator or owner");
     return modelAndView;
   }
 

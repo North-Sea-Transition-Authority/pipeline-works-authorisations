@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="viewEditPipelineUrl" type="String" -->
 <#-- @ftlvariable name="saveCompleteLaterUrl" type="String" -->
 
-<@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines">
+<@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" breadcrumbs=true>
 
     <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addProductionPipelineUrl) linkClass="govuk-button govuk-button--secondary" />
 
