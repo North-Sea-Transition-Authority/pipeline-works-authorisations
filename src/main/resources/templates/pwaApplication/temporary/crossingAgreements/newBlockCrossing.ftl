@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Add block crossing agreement" pageHeading="Add a new block crossing agreement" backLink=true>
+<@defaultPage htmlTitle="Add block crossing agreement" pageHeading="Add a new block crossing agreement" breadcrumbs=true>
 
     <@fdsForm.htmlForm>
         <@fdsFieldset.fieldset legendHeading="Block crossing details">

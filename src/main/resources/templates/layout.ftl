@@ -62,7 +62,7 @@
 
     <#--Breadcrumbs-->
     <#if breadcrumbs && !backLink>
-      <@fdsBreadcrumbs.breadcrumbs crumbsList="" currentPage=currentEndPoint/>
+      <@fdsBreadcrumbs.breadcrumbs crumbsList=breadcrumbMap currentPage=currentPage/>
     </#if>
 
     <#--Back link-->
