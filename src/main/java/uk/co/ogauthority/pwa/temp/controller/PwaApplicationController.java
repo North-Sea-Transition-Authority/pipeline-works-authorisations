@@ -100,10 +100,11 @@ public class PwaApplicationController {
           .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
   }
 
-  @PostMapping("/1/admin-details")
-  public ModelAndView postAdministrativeDetails(@PathVariable("applicationId") Integer applicationId, @ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
+  @PostMapping("/admin-details")
+  public ModelAndView postAdministrativeDetails(@PathVariable("applicationId") Integer applicationId,
+                                                @ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
     formState.save(administrativeDetailsForm);
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList());
+    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
   @GetMapping("/application-contacts")
