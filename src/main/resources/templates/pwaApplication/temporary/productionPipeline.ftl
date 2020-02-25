@@ -6,7 +6,7 @@
 
 <#assign heading = "${pipelineView.pipelineType.displayName} - ${pipelineView.pipelineNumber}" />
 
-<@defaultPage htmlTitle=heading pageHeading=heading twoThirdsColumn=false>
+<@defaultPage htmlTitle=heading pageHeading=heading twoThirdsColumn=false breadcrumbs=true>
 
     <@fdsDataItems.dataItem>
         <@fdsDataItems.dataValuesNumber key="Length" value="${pipelineView.length}m" valueId="${pipelineView.pipelineNumber}-length" />

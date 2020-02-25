@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="newUooUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Users, operator, and owners" pageHeading="Users, operator, and owners" twoThirdsColumn=false backLink=true backLinkUrl=springUrl(taskListUrl)>
+<@defaultPage htmlTitle="Users, operator, and owners" pageHeading="Users, operator, and owners" twoThirdsColumn=false breadcrumbs=true backLinkUrl=springUrl(taskListUrl)>
 
     <@fdsAction.link linkText="Add new user, operator, or owner" linkUrl=springUrl(newUooUrl) linkClass="govuk-button"/>
 

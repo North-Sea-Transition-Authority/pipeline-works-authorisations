@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -18,6 +19,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreement;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreementView;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooCompanyView;
@@ -44,6 +46,13 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 public class PwaApplicationController {
 
   private static LocalDate startDate = LocalDate.now().plusMonths(4);
+  private LinkedHashMap<String, String> taskList;
+  private final ApplicationBreadcrumbService breadcrumbService;
+
+  @Autowired
+  public PwaApplicationController(ApplicationBreadcrumbService breadcrumbService) {
+    this.breadcrumbService = breadcrumbService;
+  }
 
   private LinkedHashMap<String, String> getTaskList(Integer applicationId) {
     return new LinkedHashMap<>() {
@@ -75,15 +84,20 @@ public class PwaApplicationController {
             ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(applicationId, null))
             : null
     );
-    return new ModelAndView("pwaApplication/temporary/taskList")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/taskList")
         .addObject("availableTasks", taskList);
+
+    breadcrumbService.fromWorkArea(modelAndView, "Task list");
+    return modelAndView;
   }
 
   @GetMapping("/admin-details")
   public ModelAndView viewAdministrativeDetails(@PathVariable("applicationId") Integer applicationId,
                                                 @ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
-    return new ModelAndView("pwaApplication/temporary/administrativeDetails")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/administrativeDetails")
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Administrative details");
+    return modelAndView;
   }
 
   @PostMapping("/admin-details")
@@ -93,18 +107,24 @@ public class PwaApplicationController {
 
   @GetMapping("/application-contacts")
   public ModelAndView viewApplicationContacts(@PathVariable("applicationId") Integer applicationId) {
-    return new ModelAndView("pwaApplication/temporary/pwaContacts/contacts")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/pwaContacts/contacts")
         .addObject("contacts", makeContacts())
         .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)))
         .addObject("addContactUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewApplicationContact(applicationId, null)));
+
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "PWA contacts");
+    return modelAndView;
   }
 
   @GetMapping("/application-contacts/new")
   public ModelAndView viewNewApplicationContact(@PathVariable("applicationId") Integer applicationId,
                                                 @ModelAttribute("form") PwaContactForm pwaContactForm) {
-    return new ModelAndView("pwaApplication/temporary/pwaContacts/new")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/pwaContacts/new")
         .addObject("roles", Arrays.stream(ContactRole.values())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
+
+    breadcrumbService.fromPwaContacts(applicationId, modelAndView, "Add contact");
+    return modelAndView;
   }
 
   @PostMapping("/application-contacts/new")
@@ -116,7 +136,9 @@ public class PwaApplicationController {
   @GetMapping("/project-information")
   public ModelAndView viewProjectInformation(@PathVariable("applicationId") Integer applicationId,
                                              @ModelAttribute("form") ProjectInformationForm projectInformationForm) {
-    return new ModelAndView("pwaApplication/temporary/projectInformation");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/projectInformation");
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Project information");
+    return modelAndView;
   }
 
   @PostMapping("/project-information")
@@ -153,10 +175,13 @@ public class PwaApplicationController {
   @GetMapping("/location-details")
   public ModelAndView viewLocationDetails(@PathVariable("applicationId") Integer applicationId,
                                           @ModelAttribute("form") LocationForm locationForm) {
-    return new ModelAndView("pwaApplication/temporary/locationDetails")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/locationDetails")
         .addObject("medianLineSelections", Arrays.stream(MedianLineSelection.values())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
         ).addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Location details");
+    return modelAndView;
   }
 
   @PostMapping("/location-details")
@@ -168,7 +193,7 @@ public class PwaApplicationController {
   @GetMapping("/crossings")
   public ModelAndView viewCrossings(@PathVariable("applicationId") Integer applicationId,
                                     @ModelAttribute("form") CrossingAgreementsForm crossingAgreementsForm) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/crossings")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/crossings")
         .addObject("addBlockCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class)
             .viewAddBlockCrossing(applicationId, null)))
         .addObject("addTelecommuncationCableCrossingUrl", ReverseRouter.route(on(PwaApplicationController.class)
@@ -183,6 +208,9 @@ public class PwaApplicationController {
         .addObject("blockCrossings", makeBlockCrossings())
         .addObject("telecommunicationCableCrossings", makeTelecommunicationCableCrossings())
         .addObject("pipelineCrossings", List.of());
+
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Crossing agreements");
+    return modelAndView;
   }
 
   @PostMapping("/crossings")
@@ -194,7 +222,10 @@ public class PwaApplicationController {
   @GetMapping("/crossings/block-crossing/new")
   public ModelAndView viewAddBlockCrossing(@PathVariable("applicationId") Integer applicationId,
                                            @ModelAttribute("form") BlockCrossingForm blockCrossingForm) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newBlockCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newBlockCrossing");
+
+    breadcrumbService.fromCrossingAgreements(applicationId, modelAndView, "Block crossing");
+    return modelAndView;
   }
 
   @PostMapping("/crossings/block-crossing/new")
@@ -207,7 +238,10 @@ public class PwaApplicationController {
   public ModelAndView viewAddTelecommunicationCableCrossing(
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") TelecommunicationCableCrossing telecommunicationCableCrossing) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newTelecommunicationCableCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newTelecommunicationCableCrossing");
+
+    breadcrumbService.fromCrossingAgreements(applicationId, modelAndView, "Telecommunication cable crossing");
+    return modelAndView;
   }
 
   @PostMapping("/crossings/telecommunication-cable-crossing/new")
@@ -220,7 +254,10 @@ public class PwaApplicationController {
   @GetMapping("/crossings/pipeline-crossing/new")
   public ModelAndView viewAddPipelineCrossing(@PathVariable("applicationId") Integer applicationId,
                                               @ModelAttribute("form") PipelineCrossingForm pipelineCrossingForm) {
-    return new ModelAndView("pwaApplication/temporary/crossingAgreements/newPipelineCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/temporary/crossingAgreements/newPipelineCrossing");
+
+    breadcrumbService.fromCrossingAgreements(applicationId, modelAndView, "Pipeline crossing");
+    return modelAndView;
   }
 
   @PostMapping("/crossings/pipeline-crossing/new")
@@ -231,23 +268,29 @@ public class PwaApplicationController {
 
   @GetMapping("/uoo-contacts")
   public ModelAndView viewUserOwnerOperatorContacts(@PathVariable("applicationId") Integer applicationId) {
-    return new ModelAndView("pwaApplication/temporary/uooContacts/contacts")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/uooContacts/contacts")
         .addObject("uooCompanyList", makeUooCompanyViews())
         .addObject("uooTreatyList", makeUooTreatyViews())
         .addObject("newUooUrl", ReverseRouter.route(on(PwaApplicationController.class).viewNewUooContact(applicationId, null)))
         .addObject("taskListUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)));
+
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Users, operator, owners");
+    return modelAndView;
   }
 
   @GetMapping("/uoo-contacts/new")
   public ModelAndView viewNewUooContact(@PathVariable("applicationId") Integer applicationId,
                                         @ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
-    return new ModelAndView("pwaApplication/temporary/uooContacts/new")
+    var modelAndView = new ModelAndView("pwaApplication/temporary/uooContacts/new")
         .addObject("uooTypes", Arrays.stream(UooType.values())
             .collect(StreamUtils.toLinkedHashMap(UooType::name, UooType::toString)))
         .addObject("uooRoles", Arrays.stream(UooRole.values())
             .collect(StreamUtils.toLinkedHashMap(UooRole::name, UooRole::toString)))
         .addObject("uooAgreements", Arrays.stream(UooAgreement.values())
             .collect(StreamUtils.toLinkedHashMap(UooAgreement::name, UooAgreement::toString)));
+
+    breadcrumbService.fromUoo(applicationId, modelAndView, "Add user, operator or owner");
+    return modelAndView;
   }
 
   @PostMapping("/uoo-contacts/new")

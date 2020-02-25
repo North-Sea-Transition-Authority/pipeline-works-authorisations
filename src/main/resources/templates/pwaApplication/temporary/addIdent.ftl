@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="identNo" type="Integer" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 
-<@defaultPage htmlTitle="Add ident" pageHeading="Add ident">
+<@defaultPage htmlTitle="Add ident" pageHeading="Add ident" breadcrumbs=true>
     <@fdsForm.htmlForm>
 
         <@fdsFieldset.fieldset legendHeading="Where does this ident start?" legendHeadingSize="h2">

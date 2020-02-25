@@ -2,7 +2,7 @@
 
 <#-- @ftlvariable name="availableTasks" type="java.util.HashMap<String, String>" -->
 
-<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Pipeline Works Authorisation">
+<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Pipeline Works Authorisation" breadcrumbs=true>
 
     <@fdsTaskList.taskList>
 

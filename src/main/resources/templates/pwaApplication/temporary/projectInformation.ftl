@@ -1,6 +1,6 @@
 <#include '../../layout.ftl'>
 
-<@defaultPage htmlTitle="Project information" pageHeading="Project information">
+<@defaultPage htmlTitle="Project information" pageHeading="Project information" breadcrumbs=true>
     <@fdsForm.htmlForm>
         <@fdsDateInput.dateInput dayPath="form.workStartDay" monthPath="form.workStartMonth" yearPath="form.workStartYear" formId="1" labelText="Estimated start date" fieldsetHeadingClass="govuk-fieldset__legend--l"/>
 
