@@ -1,33 +1,53 @@
 package uk.co.ogauthority.pwa.temp.model.form;
 
+import javax.validation.constraints.NotNull;
+
 public class AddProductionPipelineForm {
 
+  @NotNull
   private String pipelineType;
 
+  @NotNull
   private String from;
 
+  @NotNull
   private String fromLatitudeDegrees;
+  @NotNull
   private String fromLatitudeMinutes;
+  @NotNull
   private String fromLatitudeSeconds;
 
+  @NotNull
   private String fromLongitudeDegrees;
+  @NotNull
   private String fromLongitudeMinutes;
+  @NotNull
   private String fromLongitudeSeconds;
 
+  @NotNull
   private String to;
 
+  @NotNull
   private String toLatitudeDegrees;
+  @NotNull
   private String toLatitudeMinutes;
+  @NotNull
   private String toLatitudeSeconds;
 
+  @NotNull
   private String toLongitudeDegrees;
+  @NotNull
   private String toLongitudeMinutes;
+  @NotNull
   private String toLongitudeSeconds;
 
+  @NotNull
   private String componentParts;
 
+  @NotNull
   private Integer length;
 
+  @NotNull
   private String productsToBeConveyed;
 
   public AddProductionPipelineForm() {
