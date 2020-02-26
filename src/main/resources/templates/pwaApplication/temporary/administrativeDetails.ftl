@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 <#import '../../dummyFileUpload.ftl' as dummyFileUpload/>
 
-<@defaultPage htmlTitle="Administrative details" pageHeading="Administrative details">
+<@defaultPage htmlTitle="Administrative details" pageHeading="Administrative details" breadcrumbs=true>
 
     <@fdsForm.htmlForm>
         <@fdsFieldset.fieldset legendHeading="Project overview" legendHeadingClass="govuk-fieldset__legend--l" legendHeadingSize="h2"/>
@@ -15,13 +15,13 @@
 
         <h2 class="govuk-heading-l">HSE</h2>
         <@fdsRadio.radioGroup path="form.withinSafetyZone" labelText="Is your application within 500m of a HSE safety zone?" hiddenContent=true fieldsetHeadingSize="h3">
-            <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={"WITHIN_SAFETY_ZONE": "Yes"}>
-                <@fdsTextInput.textInput path="form.structureName" labelText="What is the name of the structure that you will be within 500m of?"/>
-            </@fdsRadio.radioItem>
-            <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={"PARTIAL": "Partially"}>
-                <@fdsTextInput.textInput path="form.structureName" labelText="What is the name of the structure that you will be within 500m of?"/>
-            </@fdsRadio.radioItem>
-            <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={"NOT_WITHIN_SAFETY_ZONE": "No"}/>
+            <#list withinSafetyZone as name,value>
+              <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name: value}>
+                <#if name != "NO">
+                    <@fdsTextInput.textInput path="form.structureNameIf${value}" labelText="What is the name of the structure that you will be within 500m of?" nestingPath="form.withinSafetyZone"/>
+                </#if>
+              </@fdsRadio.radioItem>
+            </#list>
         </@fdsRadio.radioGroup>
 
         <h2 class="govuk-heading-l">Location</h2>

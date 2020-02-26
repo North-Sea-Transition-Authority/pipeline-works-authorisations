@@ -4,16 +4,21 @@
 <#-- @ftlvariable name="medianLineSelections" type="java.util.HashMap<String, String>" -->
 <#-- @ftlvariable name="holderCompanyName" type="java.lang.String" -->
 
-<@defaultPage htmlTitle="Location details" pageHeading="Location details">
+<@defaultPage htmlTitle="Location details" pageHeading="Location details" breadcrumbs=true>
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup labelText="Will the proposed works cross the median line?" path="form.medianLineSelection" hiddenContent=true fieldsetHeadingClass="govuk-fieldset__legend--l">
             <#list medianLineSelections as name, value>
                 <@fdsRadio.radioItem path="form.medianLineSelection" itemMap={name: value}>
                     <#if name != "NOT_CROSSED">
-                        <@fdsTextInput.textInput path="form.negotiatorName" labelText="Name of negotiator"/>
-                        <@fdsTextInput.textInput path="form.negotiatorEmail" labelText="Negotiator's email address"/>
-                        <@fdsTextarea.textarea path="form.medianLineAgreement" labelText="Median line agreement" hintText="Please provide the status of your median line agreement"/>
+                        <#if name=="NEGOTIATIONS_ONGOING">
+                            <#assign completeOrOngoing = "Ongoing"/>
+                        <#else>
+                            <#assign completeOrOngoing = "Complete"/>
+                        </#if>
+                        <@fdsTextInput.textInput path="form.negotiatorName${completeOrOngoing}" labelText="Name of negotiator" nestingPath="form.medianLineSelection"/>
+                        <@fdsTextInput.textInput path="form.negotiatorEmail${completeOrOngoing}" labelText="Negotiator's email address" nestingPath="form.medianLineSelection"/>
+                        <@fdsTextarea.textarea path="form.medianLineAgreement${completeOrOngoing}" labelText="Median line agreement" hintText="Please provide the status of your median line agreement" nestingPath="form.medianLineSelection"/>
                     </#if>
                     <#if name == "NEGOTIATIONS_COMPLETE">
                         <h3 class="govuk-heading-m">Agreement documents</h3>
@@ -28,12 +33,12 @@
             <@fdsRadio.radioNo path="form.likelySignificantImpact"/>
         </@fdsRadio.radioGroup>
 
-        <@fdsFieldset.fieldset legendHeading="Environmental">
-          <@fdsDateInput.dateInput formId="1" dayPath="form.emtSubmitByDay" monthPath="form.emtSubmitByMonth" yearPath="form.emtSubmitByYear" labelText="What is the latest you will submit relevant environmental permits to BEIS EMT?"/>
+        <@fdsFieldset.fieldset legendHeading="Environmental" legendHeadingSize="h2">
+          <@fdsDateInput.dateInput formId="1" dayPath="form.emtSubmitByDay" monthPath="form.emtSubmitByMonth" yearPath="form.emtSubmitByYear" labelText="What is the latest you will submit relevant environmental permits to BEIS EMT?" fieldsetHeadingSize="h3"/>
           <@fdsTextarea.textarea path="form.emtStatement" labelText="Actions to be taken to satisfy relevant environmental regulations" hintText="For example, Environmental Statement (ES), Direction and Exemptions"/>
         </@fdsFieldset.fieldset>
 
-        <@fdsFieldset.fieldset legendHeading="Decommissioning">
+        <@fdsFieldset.fieldset legendHeading="Decommissioning" legendHeadingSize="h2">
           <@fdsTextarea.textarea path="form.decommissioningPlans" labelText="What are your decommissioning plans?"/>
           <@fdsCheckbox.checkbox path="form.acceptEolRegulations" labelText="I accept that options for the decommissioning of the pipeline(s) will be considered at the end of the field life and should adhere to Government policies and regulations in force at the time."/>
           <@fdsCheckbox.checkbox path="form.acceptEolRemoval" labelText="I accept that any mattresses or grout bags which have been installed to protect pipelines during their operational life should be removed for disposal onshore."/>

@@ -1,64 +1,55 @@
-package uk.co.ogauthority.pwa.temp.model.form;
+package uk.co.ogauthority.pwa.temp.model.view;
 
-import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
-public class AddProductionPipelineForm {
+public class IdentView implements Serializable {
 
-  @NotNull
-  private String pipelineType;
+  private Integer identNo;
 
-  @NotNull
   private String from;
 
-  @NotNull
   private String fromLatitudeDegrees;
-  @NotNull
   private String fromLatitudeMinutes;
-  @NotNull
   private String fromLatitudeSeconds;
 
-  @NotNull
   private String fromLongitudeDegrees;
-  @NotNull
   private String fromLongitudeMinutes;
-  @NotNull
   private String fromLongitudeSeconds;
 
-  @NotNull
   private String to;
 
-  @NotNull
   private String toLatitudeDegrees;
-  @NotNull
   private String toLatitudeMinutes;
-  @NotNull
   private String toLatitudeSeconds;
 
-  @NotNull
   private String toLongitudeDegrees;
-  @NotNull
   private String toLongitudeMinutes;
-  @NotNull
   private String toLongitudeSeconds;
 
-  @NotNull
   private String componentParts;
 
-  @NotNull
-  private Integer length;
+  private BigDecimal length;
 
-  @NotNull
+  private BigDecimal externalDiameter;
+  private BigDecimal internalDiameter;
+  private BigDecimal wallThickness;
+
+  private String typeOfInsulationOrCoating;
+
+  private BigDecimal maop;
+
   private String productsToBeConveyed;
 
-  public AddProductionPipelineForm() {
+  public IdentView() {
   }
 
-  public String getPipelineType() {
-    return pipelineType;
+  public Integer getIdentNo() {
+    return identNo;
   }
 
-  public void setPipelineType(String pipelineType) {
-    this.pipelineType = pipelineType;
+  public void setIdentNo(Integer identNo) {
+    this.identNo = identNo;
   }
 
   public String getFrom() {
@@ -181,12 +172,52 @@ public class AddProductionPipelineForm {
     this.componentParts = componentParts;
   }
 
-  public Integer getLength() {
+  public BigDecimal getLength() {
     return length;
   }
 
-  public void setLength(Integer length) {
+  public void setLength(BigDecimal length) {
     this.length = length;
+  }
+
+  public BigDecimal getExternalDiameter() {
+    return externalDiameter;
+  }
+
+  public void setExternalDiameter(BigDecimal externalDiameter) {
+    this.externalDiameter = externalDiameter;
+  }
+
+  public BigDecimal getInternalDiameter() {
+    return internalDiameter;
+  }
+
+  public void setInternalDiameter(BigDecimal internalDiameter) {
+    this.internalDiameter = internalDiameter;
+  }
+
+  public BigDecimal getWallThickness() {
+    return wallThickness;
+  }
+
+  public void setWallThickness(BigDecimal wallThickness) {
+    this.wallThickness = wallThickness;
+  }
+
+  public String getTypeOfInsulationOrCoating() {
+    return typeOfInsulationOrCoating;
+  }
+
+  public void setTypeOfInsulationOrCoating(String typeOfInsulationOrCoating) {
+    this.typeOfInsulationOrCoating = typeOfInsulationOrCoating;
+  }
+
+  public BigDecimal getMaop() {
+    return maop;
+  }
+
+  public void setMaop(BigDecimal maop) {
+    this.maop = maop;
   }
 
   public String getProductsToBeConveyed() {
