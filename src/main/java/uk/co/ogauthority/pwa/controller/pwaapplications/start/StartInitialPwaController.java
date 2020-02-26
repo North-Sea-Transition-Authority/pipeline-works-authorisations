@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.temp.controller.PrototypePwaHolderController;
 
 @Controller
 @RequestMapping("/pwa-application/initial")
@@ -41,7 +41,7 @@ public class StartInitialPwaController {
   @PostMapping("/new")
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user) {
     PwaApplication pwaApplication = pwaApplicationService.createInitialPwaApplication(user);
-    return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(pwaApplication.getId(), null, null));
+    return ReverseRouter.redirect(on(PrototypePwaHolderController.class).renderHolderScreen(pwaApplication.getId(), null, null));
   }
 
 }

@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.start;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Arrays;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
-import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @RequestMapping("/start-application")
@@ -28,9 +27,13 @@ public class StartPwaApplicationController {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
+  private final String contactEmail;
+
   @Autowired
-  public StartPwaApplicationController(PwaApplicationRedirectService pwaApplicationRedirectService) {
+  public StartPwaApplicationController(Environment environment,
+                                       PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.contactEmail = environment.getProperty("app.support.email");
   }
 
   /**
@@ -43,10 +46,12 @@ public class StartPwaApplicationController {
   }
 
   private ModelAndView getStartAppModelAndView() {
+    var applicationTypes = List.of(PwaApplicationType.values());
+
     return new ModelAndView("pwaApplication/selectApplication")
+      .addObject("contactEmail", contactEmail)
       .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
-      .addObject("applicationTypes", Arrays.stream(PwaApplicationType.values())
-        .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName)))
+      .addObject("applicationTypes", applicationTypes)
       .addObject("errorList", List.of());
   }
 
