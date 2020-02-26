@@ -39,6 +39,8 @@ public class PipelineView implements Serializable {
 
   private List<IdentView> idents;
 
+  private TechnicalDetailsView technicalDetailsView;
+
   public PipelineView() {
   }
 
@@ -226,6 +228,14 @@ public class PipelineView implements Serializable {
     this.idents = idents;
   }
 
+  public TechnicalDetailsView getTechnicalDetailsView() {
+    return technicalDetailsView;
+  }
+
+  public void setTechnicalDetailsView(TechnicalDetailsView technicalDetailsView) {
+    this.technicalDetailsView = technicalDetailsView;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -254,7 +264,8 @@ public class PipelineView implements Serializable {
         && Objects.equals(componentParts, that.componentParts)
         && Objects.equals(length, that.length)
         && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
-        && Objects.equals(idents, that.idents);
+        && Objects.equals(idents, that.idents)
+        && Objects.equals(technicalDetailsView, that.technicalDetailsView);
   }
 
   @Override
@@ -263,6 +274,6 @@ public class PipelineView implements Serializable {
         fromLatitudeSeconds,
         fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, to, toLatitudeDegrees, toLatitudeMinutes,
         toLatitudeSeconds, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, componentParts, length,
-        productsToBeConveyed, idents);
+        productsToBeConveyed, idents, technicalDetailsView);
   }
 }
