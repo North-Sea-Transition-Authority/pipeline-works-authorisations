@@ -124,7 +124,7 @@ public class PrototypePwaHolderController {
         .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
         .collect(StreamUtils.toLinkedHashMap(ou -> String.valueOf(ou.getOuId()), PortalOrganisationUnit::getName));
 
-    return new ModelAndView("pwaApplication/form/holder")
+    return new ModelAndView("pwaApplication/temporary/holder")
         .addObject("ouMap", ouMap)
         .addObject("backUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of());
