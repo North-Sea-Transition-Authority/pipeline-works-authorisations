@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications;
+package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -22,10 +22,12 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
@@ -35,7 +37,7 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationId}")
+@RequestMapping("/pwa-application/initial/{applicationId}")
 public class PwaHolderController {
 
   private final TeamService teamService;
@@ -44,6 +46,7 @@ public class PwaHolderController {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaHolderFormValidator pwaHolderFormValidator;
   private final ApplicationHolderService applicationHolderService;
+  private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
   public PwaHolderController(TeamService teamService,
@@ -51,13 +54,15 @@ public class PwaHolderController {
                              PwaApplicationDetailService pwaApplicationDetailService,
                              PwaApplicationRedirectService pwaApplicationRedirectService,
                              PwaHolderFormValidator pwaHolderFormValidator,
-                             ApplicationHolderService applicationHolderService) {
+                             ApplicationHolderService applicationHolderService,
+                             ApplicationBreadcrumbService breadcrumbService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaHolderFormValidator = pwaHolderFormValidator;
     this.applicationHolderService = applicationHolderService;
+    this.breadcrumbService = breadcrumbService;
   }
 
   /**
@@ -67,8 +72,12 @@ public class PwaHolderController {
   public ModelAndView renderHolderScreen(@PathVariable Integer applicationId,
                                          @ModelAttribute("form") PwaHolderForm form,
                                          AuthenticatedUserAccount user) {
+
+
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
-        getHolderModelAndView(user));
+        getHolderModelAndView(user, detail, form)
+    );
+
   }
 
   /**
@@ -84,12 +93,13 @@ public class PwaHolderController {
 
       pwaHolderFormValidator.validate(form, bindingResult);
 
-      return ControllerUtils.validateAndRedirect(bindingResult, getHolderModelAndView(user), () -> {
+      return ControllerUtils.validateAndRedirect(bindingResult, getHolderModelAndView(user, detail, form), () -> {
 
         List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
 
         // check that selected org is accessible to user
-        PortalOrganisationUnit organisationUnit = portalOrganisationsAccessor.getOrganisationUnitById(form.getHolderOuId())
+        PortalOrganisationUnit organisationUnit = portalOrganisationsAccessor.getOrganisationUnitById(
+            form.getHolderOuId())
             .filter(orgUnitsForUser::contains)
             .orElseThrow(() ->
                 new PwaEntityNotFoundException(
@@ -107,21 +117,36 @@ public class PwaHolderController {
 
   }
 
-  private ModelAndView getHolderModelAndView(AuthenticatedUserAccount user) {
+  private ModelAndView getHolderModelAndView(AuthenticatedUserAccount user, PwaApplicationDetail applicationDetail,
+                                             PwaHolderForm form) {
 
     Map<String, String> ouMap = getOrgUnitsUserCanAccess(user).stream()
         .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
         .collect(StreamUtils.toLinkedHashMap(ou -> String.valueOf(ou.getOuId()), PortalOrganisationUnit::getName));
 
-    return new ModelAndView("pwaApplication/form/holder")
+    if (form == null || form.getHolderOuId() == null) {
+      form = applicationHolderService.mapHolderDetailsToForm(applicationDetail);
+    }
+
+    var modelAndView = new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
-        .addObject("backUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
-        .addObject("errorList", List.of());
+        .addObject("taskListUrl",
+            ReverseRouter.route(on(InitialTaskList.class).viewTaskList(applicationDetail.getMasterPwaApplicationId()))
+        )
+        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
+        .addObject("errorList", List.of())
+        .addObject("form", form)
+        .addObject("hasHolderSet", form.getHolderOuId() != null);
+
+    breadcrumbService.fromTaskList(applicationDetail.getMasterPwaApplicationId(), modelAndView, "Consent holder");
+
+    return modelAndView;
   }
 
   private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
 
-    List<PortalOrganisationGroup> userOrgGroups = teamService.getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(),
+    List<PortalOrganisationGroup> userOrgGroups = teamService.getOrganisationTeamListIfPersonInRole(
+        user.getLinkedPerson(),
         List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
         .map(PwaOrganisationTeam::getPortalOrganisationGroup)
         .collect(Collectors.toList());

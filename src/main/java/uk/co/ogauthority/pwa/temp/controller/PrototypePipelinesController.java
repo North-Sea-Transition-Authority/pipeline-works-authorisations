@@ -32,15 +32,15 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @Scope("request")
-@RequestMapping("/application/{applicationId}/pipelines")
-public class PipelinesController {
+@RequestMapping("/prototype/application/{applicationId}/pipelines")
+public class PrototypePipelinesController {
 
   private PipelineGodObject pipelineGodObject;
   private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public PipelinesController(PipelineGodObject pipelineGodObject,
-                             ApplicationBreadcrumbService breadcrumbService) {
+  public PrototypePipelinesController(PipelineGodObject pipelineGodObject,
+                                      ApplicationBreadcrumbService breadcrumbService) {
     this.pipelineGodObject = pipelineGodObject;
     this.breadcrumbService = breadcrumbService;
     if (pipelineGodObject.getPipelineViewList() == null || pipelineGodObject.getPipelineViewList().isEmpty()) {
@@ -75,10 +75,10 @@ public class PipelinesController {
           .sorted(Comparator.comparingInt(p -> p.getPipelineType().getDisplayOrder()))
           .collect(Collectors.toList()))
         .addObject("addProductionPipelineUrl",
-            ReverseRouter.route(on(PipelinesController.class).addProductionPipelineRender(applicationId, null)))
+            ReverseRouter.route(on(PrototypePipelinesController.class).addProductionPipelineRender(applicationId, null)))
         .addObject("viewEditPipelineUrl",
-            ReverseRouter.route(on(PipelinesController.class).editProductionPipelineRender(applicationId, null)))
-        .addObject("saveCompleteLaterUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)));
+            ReverseRouter.route(on(PrototypePipelinesController.class).editProductionPipelineRender(applicationId, null)))
+        .addObject("saveCompleteLaterUrl", ReverseRouter.route(on(PrototypePwaApplicationController.class).viewTaskList(applicationId)));
 
     breadcrumbService.fromTaskList(applicationId, modelAndView, "Pipelines");
     return modelAndView;
@@ -86,7 +86,8 @@ public class PipelinesController {
 
   @PostMapping
   public ModelAndView pipelinesComplete(@PathVariable Integer applicationId) {
-    return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId)); // TODO point to location when merged in
+    // TODO point to location when merged in
+    return ReverseRouter.redirect(on(PrototypePwaApplicationController.class).viewTaskList(applicationId));
   }
 
   @GetMapping("/add-production-pipeline")
@@ -100,7 +101,7 @@ public class PipelinesController {
         .addObject("pipelineTypes", Arrays.stream(PipelineType.values())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
         .addObject("form", form)
-        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
+        .addObject("cancelUrl", ReverseRouter.route(on(PrototypePipelinesController.class).pipelines(applicationId)));
     breadcrumbService.fromPipelines(applicationId, modelAndView, "Add pipeline");
     return modelAndView;
   }
@@ -141,7 +142,7 @@ public class PipelinesController {
       views.add(pipelineView);
       pipelineGodObject.setPipelineViewList(views);
 
-      return ReverseRouter.redirect(on(PipelinesController.class).editProductionPipelineRender(applicationId, newPipelineNumber));
+      return ReverseRouter.redirect(on(PrototypePipelinesController.class).editProductionPipelineRender(applicationId, newPipelineNumber));
 
     });
 
@@ -153,8 +154,9 @@ public class PipelinesController {
 
     var modelAndView = new ModelAndView("pwaApplication/temporary/productionPipeline")
         .addObject("pipelineView", getPipelineOrThrow(pipelineNumber))
-        .addObject("addIdentUrl", ReverseRouter.route(on(PipelinesController.class).addIdentRender(applicationId, pipelineNumber, null)))
-        .addObject("backToPipelinesUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
+        .addObject("addIdentUrl", ReverseRouter.route(on(PrototypePipelinesController.class)
+            .addIdentRender(applicationId, pipelineNumber, null)))
+        .addObject("backToPipelinesUrl", ReverseRouter.route(on(PrototypePipelinesController.class).pipelines(applicationId)));
 
     breadcrumbService.fromPipelines(applicationId, modelAndView, pipelineNumber);
     return modelAndView;
@@ -171,7 +173,7 @@ public class PipelinesController {
     var modelAndView = new ModelAndView("pwaApplication/temporary/addIdent")
         .addObject("identNo", getPipelineOrThrow(pipelineNumber).getIdents().size() + 1)
         .addObject("cancelUrl",
-            ReverseRouter.route(on(PipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber)));
+            ReverseRouter.route(on(PrototypePipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber)));
 
     breadcrumbService.fromPipeline(applicationId, pipelineNumber, modelAndView, "Add ident");
     return modelAndView;
@@ -218,7 +220,7 @@ public class PipelinesController {
 
       prodPipeline.setIdents(idents);
 
-      return ReverseRouter.redirect(on(PipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber));
+      return ReverseRouter.redirect(on(PrototypePipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber));
 
     });
 

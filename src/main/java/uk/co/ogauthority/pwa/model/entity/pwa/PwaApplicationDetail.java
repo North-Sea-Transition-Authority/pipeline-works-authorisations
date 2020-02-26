@@ -163,4 +163,8 @@ public class PwaApplicationDetail {
   public void setLastUpdatedTimestamp(Instant lastUpdatedTimestamp) {
     this.lastUpdatedTimestamp = lastUpdatedTimestamp;
   }
+
+  public Integer getMasterPwaApplicationId() {
+    return this.pwaApplication.getId();
+  }
 }

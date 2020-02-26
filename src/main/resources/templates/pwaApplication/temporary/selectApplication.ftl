@@ -1,4 +1,4 @@
-<#include '../layout.ftl'>
+<#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="createPwaApplicationUrl" type="String" -->
 <#-- @ftlvariable name="workAreaUrl" type="String" -->
@@ -8,6 +8,7 @@
 <@defaultPage htmlTitle="Start PWA application">
 
     <@fdsError.errorSummary errorItems=errorList/>
+
     <@fdsForm.htmlForm>
 
         <@fdsRadio.radio
