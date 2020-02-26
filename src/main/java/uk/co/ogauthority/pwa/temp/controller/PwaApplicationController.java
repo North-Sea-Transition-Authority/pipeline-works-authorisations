@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,6 +21,8 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.temp.FormState;
+import uk.co.ogauthority.pwa.temp.model.admindetails.WithinSafetyZone;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreement;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreementView;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooCompanyView;
@@ -42,16 +45,19 @@ import uk.co.ogauthority.pwa.util.DateUtil;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
+@Scope("request")
 @RequestMapping("/application/{applicationId}")
 public class PwaApplicationController {
 
+  private final FormState formState;
   private static LocalDate startDate = LocalDate.now().plusMonths(4);
   private LinkedHashMap<String, String> taskList;
   private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public PwaApplicationController(ApplicationBreadcrumbService breadcrumbService) {
+  public PwaApplicationController(ApplicationBreadcrumbService breadcrumbService, FormState formState) {
     this.breadcrumbService = breadcrumbService;
+    this.formState = formState;
   }
 
   private LinkedHashMap<String, String> getTaskList(Integer applicationId) {
@@ -79,7 +85,7 @@ public class PwaApplicationController {
   @GetMapping("/tasks")
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId) {
     var taskList = getTaskList(applicationId);
-    taskList.compute("Fast track", (String key, String oldValue) ->
+    taskList.compute("Fast-track", (String key, String oldValue) ->
         startDate.isBefore(LocalDate.now().plusMonths(3))
             ? ReverseRouter.route(on(PwaApplicationController.class).viewFastTrackInformation(applicationId, null))
             : null
@@ -94,14 +100,19 @@ public class PwaApplicationController {
   @GetMapping("/admin-details")
   public ModelAndView viewAdministrativeDetails(@PathVariable("applicationId") Integer applicationId,
                                                 @ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
+    formState.apply(administrativeDetailsForm);
     var modelAndView = new ModelAndView("pwaApplication/temporary/administrativeDetails")
-        .addObject("holderCompanyName", "ROYAL DUTCH SHELL");
+        .addObject("holderCompanyName", "ROYAL DUTCH SHELL")
+        .addObject("withinSafetyZone", Arrays.stream(WithinSafetyZone.values())
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
     breadcrumbService.fromTaskList(applicationId, modelAndView, "Administrative details");
     return modelAndView;
   }
 
   @PostMapping("/admin-details")
-  public ModelAndView postAdminDetails(@PathVariable("applicationId") Integer applicationId) {
+  public ModelAndView postAdministrativeDetails(@PathVariable("applicationId") Integer applicationId,
+                                                @ModelAttribute("form") AdministrativeDetailsForm administrativeDetailsForm) {
+    formState.save(administrativeDetailsForm);
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
@@ -136,6 +147,7 @@ public class PwaApplicationController {
   @GetMapping("/project-information")
   public ModelAndView viewProjectInformation(@PathVariable("applicationId") Integer applicationId,
                                              @ModelAttribute("form") ProjectInformationForm projectInformationForm) {
+    formState.apply(projectInformationForm);
     var modelAndView = new ModelAndView("pwaApplication/temporary/projectInformation");
     breadcrumbService.fromTaskList(applicationId, modelAndView, "Project information");
     return modelAndView;
@@ -144,6 +156,7 @@ public class PwaApplicationController {
   @PostMapping("/project-information")
   public ModelAndView postProjectInformation(@PathVariable("applicationId") Integer applicationId,
                                              @ModelAttribute("form") ProjectInformationForm projectInformationForm) {
+    formState.save(projectInformationForm);
     try {
       startDate = LocalDate.of(
           projectInformationForm.getWorkStartYear(),
@@ -159,22 +172,27 @@ public class PwaApplicationController {
   @GetMapping("/fast-track")
   public ModelAndView viewFastTrackInformation(@PathVariable("applicationId") Integer applicationId,
                                                @ModelAttribute("form") FastTrackForm fastTrackForm) {
-    return new ModelAndView("pwaApplication/temporary/fastTrack")
+    formState.apply(fastTrackForm);
+    var modelAndView = new ModelAndView("pwaApplication/temporary/fastTrack")
         .addObject("projectInformationUrl",
             ReverseRouter.route(on(PwaApplicationController.class).viewProjectInformation(applicationId, null)))
         .addObject("startDate", DateUtil.formatDate(startDate))
         .addObject("minNotFastTrackStartDate", DateUtil.formatDate(LocalDate.now().plusMonths(3)));
+    breadcrumbService.fromTaskList(applicationId, modelAndView, "Fast-track");
+    return modelAndView;
   }
 
   @PostMapping("/fast-track")
   public ModelAndView postFastTrackInformation(@PathVariable("applicationId") Integer applicationId,
                                                @ModelAttribute("form") FastTrackForm fastTrackForm) {
+    formState.save(fastTrackForm);
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
   @GetMapping("/location-details")
   public ModelAndView viewLocationDetails(@PathVariable("applicationId") Integer applicationId,
                                           @ModelAttribute("form") LocationForm locationForm) {
+    formState.apply(locationForm);
     var modelAndView = new ModelAndView("pwaApplication/temporary/locationDetails")
         .addObject("medianLineSelections", Arrays.stream(MedianLineSelection.values())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
@@ -187,6 +205,7 @@ public class PwaApplicationController {
   @PostMapping("/location-details")
   public ModelAndView postLocationDetails(@PathVariable("applicationId") Integer applicationId,
                                           @ModelAttribute("form") LocationForm locationForm) {
+    formState.save(locationForm);
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId));
   }
 
