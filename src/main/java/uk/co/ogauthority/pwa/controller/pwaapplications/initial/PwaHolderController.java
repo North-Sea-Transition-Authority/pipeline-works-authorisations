@@ -74,8 +74,10 @@ public class PwaHolderController {
                                          AuthenticatedUserAccount user) {
 
 
-    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
-        getHolderModelAndView(user, detail, form)
+    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
+          form.setHolderOuId(applicationHolderService.mapHolderDetailsToForm(detail).getHolderOuId());
+          return getHolderModelAndView(user, detail, form);
+        }
     );
 
   }
