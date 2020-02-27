@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwa;
+package uk.co.ogauthority.pwa.model.entity.masterpwa;
 
 import java.time.Instant;
 import javax.persistence.Entity;

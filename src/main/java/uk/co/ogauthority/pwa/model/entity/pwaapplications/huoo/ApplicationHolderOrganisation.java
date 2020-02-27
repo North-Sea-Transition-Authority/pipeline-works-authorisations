@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwa.huoo;
+package uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 /**
  * Used to store holder information against an application, separate from the master PWA holder information.

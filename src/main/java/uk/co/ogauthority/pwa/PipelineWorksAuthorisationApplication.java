@@ -6,15 +6,15 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class PwaApplication extends SpringBootServletInitializer {
+public class PipelineWorksAuthorisationApplication extends SpringBootServletInitializer {
 
   @Override
   protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-    return application.sources(PwaApplication.class);
+    return application.sources(PipelineWorksAuthorisationApplication.class);
   }
 
   public static void main(String[] args) {
-    SpringApplication.run(PwaApplication.class, args);
+    SpringApplication.run(PipelineWorksAuthorisationApplication.class, args);
   }
 
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.controller.pwaapplications.variations.shared.PickExistingPwA;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PickExistingPwaController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -17,7 +17,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @Controller
 @RequestMapping("/pwa-application/{applicationTypePathUrl}/new")
 public class StartVariationController {
-
 
   @GetMapping
   public ModelAndView renderVariationTypeStartPage(@PathVariable("applicationTypePathUrl")
@@ -44,7 +43,8 @@ public class StartVariationController {
                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType) {
     switch (pwaApplicationType) {
       // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 add case clause and fall through to single return statement
-      case CAT_1_VARIATION: return ReverseRouter.redirect(on(PickExistingPwA.class).renderPickPwA(pwaApplicationType));
+      case CAT_1_VARIATION: return ReverseRouter.redirect(on(PickExistingPwaController.class)
+          .renderPickPwaToStartApplication(pwaApplicationType, null, null, null));
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", pwaApplicationType));
     }
