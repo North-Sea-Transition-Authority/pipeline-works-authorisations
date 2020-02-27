@@ -12,12 +12,14 @@ public class TechnicalDrawingView implements Serializable {
   private final String image;
   private final List<PipelineView> pipelineViewList;
   private final Integer drawingId;
+  private final String name;
 
   public TechnicalDrawingView(Integer drawingId, String image,
-                              List<PipelineView> pipelineViewList) {
+                              List<PipelineView> pipelineViewList, String name) {
     this.drawingId = drawingId;
     this.pipelineViewList = pipelineViewList;
     this.image = image;
+    this.name = name;
   }
 
   public String getImageUrl() {
@@ -34,6 +36,10 @@ public class TechnicalDrawingView implements Serializable {
 
   public String getEditRoute(Integer applicationId) {
     return ReverseRouter.route(on(TechnicalDrawingsController.class).viewDrawingEdit(applicationId, drawingId, null));
+  }
+
+  public String getName() {
+    return name;
   }
 
   @Override

@@ -6,9 +6,7 @@
 <#-- @ftlvariable name="addIdentUrl" type="String" -->
 <#-- @ftlvariable name="backToPipelinesUrl" type="String" -->
 
-<#assign heading = "${pipelineView.pipelineType.displayName} - ${pipelineView.pipelineNumber}" />
-
-<@defaultPage htmlTitle=heading pageHeading=heading twoThirdsColumn=false breadcrumbs=true>
+<@defaultPage htmlTitle="${pipelineView.pipelineNumber} technical details" pageHeading="${pipelineView.pipelineNumber} technical details" twoThirdsColumn=false breadcrumbs=true>
 
     <@fdsDataItems.dataItem>
         <@fdsDataItems.dataValuesNumber key="Length" value="${pipelineView.length}m" valueId="${pipelineView.pipelineNumber}-length" />
@@ -17,7 +15,10 @@
         <@fdsDataItems.dataValues key="Component parts" value=pipelineView.componentParts!"" />
         <@fdsDataItems.dataValues key="Products to be conveyed" value=pipelineView.productsToBeConveyed!"" />
     </@fdsDataItems.dataItem>
-    <@techDetailsSummary.techDetailsSummary technicalDetailsView=pipelineView.technicalDetailsView canEdit=true/>
+
+    <@identsSummary.identsSummary pipelineView=pipelineView heading=true/>
+
+    <@techDetailsSummary.techDetailsSummary technicalDetailsView=pipelineView.technicalDetailsView/>
 
     <@fdsAction.link linkText="Back to pipelines" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(backToPipelinesUrl) />
 

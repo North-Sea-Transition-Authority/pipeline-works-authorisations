@@ -11,8 +11,7 @@ public enum ContactRole {
     this.displayText = displayText;
   }
 
-  @Override
-  public String toString() {
+  public String getDisplayText() {
     return displayText;
   }
 }

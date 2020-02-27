@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.temp.model.view.PipelineView>" -->
 <#-- @ftlvariable name="saveCompleteLaterUrl" type="String" -->
 
-<@defaultPage htmlTitle="Link pipelines" pageHeading="Link pipelines to technical drawing">
+<@defaultPage htmlTitle="Link pipelines" pageHeading="Link pipelines to technical drawing" breadcrumbs=true>
 
   <table class="govuk-table">
     <thead class="govuk-table__head">

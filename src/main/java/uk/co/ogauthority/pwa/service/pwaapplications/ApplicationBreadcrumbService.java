@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.controller.PipelinesController;
 import uk.co.ogauthority.pwa.temp.controller.PwaApplicationController;
+import uk.co.ogauthority.pwa.temp.controller.TechnicalDrawingsController;
 
 @Service
 public class ApplicationBreadcrumbService {
@@ -56,17 +57,26 @@ public class ApplicationBreadcrumbService {
     addAttrs(modelAndView, breadcrumbs, thisPage);
   }
 
-  public void fromPipeline(Integer applicationId, String pipelineNumber,  ModelAndView modelAndView, String thisPage) {
+  public void fromPipelineIdent(Integer applicationId, String pipelineNumber, ModelAndView modelAndView, String thisPage) {
     Map<String, String> breadcrumbs = taskList(applicationId);
     breadcrumbs.put(
         ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)),
         "Pipelines"
     );
     breadcrumbs.put(
-        ReverseRouter.route(on(PipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber)),
-        pipelineNumber
+        ReverseRouter.route(on(PipelinesController.class).identsRender(applicationId, pipelineNumber)),
+        pipelineNumber + " idents"
     );
 
+    addAttrs(modelAndView, breadcrumbs, thisPage);
+  }
+
+  public void fromTechnicalDrawings(Integer applicationId, ModelAndView modelAndView, String thisPage) {
+    Map<String, String> breadcrumbs = taskList(applicationId);
+    breadcrumbs.put(
+        ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)),
+        "Technical drawings"
+    );
     addAttrs(modelAndView, breadcrumbs, thisPage);
   }
 

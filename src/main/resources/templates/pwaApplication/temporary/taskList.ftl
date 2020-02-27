@@ -7,8 +7,8 @@
     <@fdsTaskList.taskList>
 
         <@fdsTaskList.taskListSection sectionNumber="1" sectionHeadingText="Prepare application">
-            <#list availableTasks as task, link>
-                <@fdsTaskList.taskListItem itemUrl=springUrl(link) itemText=task/>
+            <#list availableTasks as task>
+                <@fdsTaskList.taskListItem itemUrl=springUrl(task.taskRoute) itemText=task.taskName completed=task.completed/>
             </#list>
         </@fdsTaskList.taskListSection>
 
