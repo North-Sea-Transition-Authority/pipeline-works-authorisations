@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @Controller
-@RequestMapping("/pwa-application/initial")
+@RequestMapping("/pwa-application/initial/new")
 public class StartInitialPwaController {
 
   private final PwaApplicationService pwaApplicationService;
@@ -28,7 +28,7 @@ public class StartInitialPwaController {
   /**
    * Render of start page for initial PWA application.
    */
-  @GetMapping("/new")
+  @GetMapping
   public ModelAndView renderStartPage() {
     ModelAndView modelAndView = new ModelAndView("pwaApplication/startPages/initial");
     modelAndView.addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null)));
@@ -38,7 +38,7 @@ public class StartInitialPwaController {
   /**
    * Create initial PWA application and redirect to first task.
    */
-  @PostMapping("/new")
+  @PostMapping
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user) {
     PwaApplication pwaApplication = pwaApplicationService.createInitialPwaApplication(user);
     return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(pwaApplication.getId(), null, null));

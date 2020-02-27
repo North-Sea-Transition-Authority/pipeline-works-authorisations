@@ -7,6 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskList;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartVariationController;
 import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -29,7 +30,7 @@ public class PwaApplicationRedirectService {
       case HUOO_VARIATION:
       case OPTIONS_VARIATION:
       default:
-        return null;
+        return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
     }
 
   }

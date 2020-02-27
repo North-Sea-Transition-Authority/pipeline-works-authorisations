@@ -124,10 +124,6 @@ public class PwaHolderController {
         .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
         .collect(StreamUtils.toLinkedHashMap(ou -> String.valueOf(ou.getOuId()), PortalOrganisationUnit::getName));
 
-    if (form == null || form.getHolderOuId() == null) {
-      form = applicationHolderService.mapHolderDetailsToForm(applicationDetail);
-    }
-
     var modelAndView = new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("taskListUrl",
@@ -135,8 +131,7 @@ public class PwaHolderController {
         )
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of())
-        .addObject("form", form)
-        .addObject("hasHolderSet", form.getHolderOuId() != null);
+        .addObject("hasHolderSet", form != null && form.getHolderOuId() != null);
 
     breadcrumbService.fromTaskList(applicationDetail.getMasterPwaApplicationId(), modelAndView, "Consent holder");
 
