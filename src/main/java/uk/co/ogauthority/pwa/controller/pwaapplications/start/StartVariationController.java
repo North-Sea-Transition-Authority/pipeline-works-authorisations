@@ -49,7 +49,7 @@ public class StartVariationController {
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
         return ReverseRouter.redirect(on(PickExistingPwaController.class)
-            .renderPickPwaToStartApplication(pwaApplicationType, null, null, null));
+            .renderPickPwaToStartApplication(pwaApplicationType, null, null));
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", pwaApplicationType));
     }

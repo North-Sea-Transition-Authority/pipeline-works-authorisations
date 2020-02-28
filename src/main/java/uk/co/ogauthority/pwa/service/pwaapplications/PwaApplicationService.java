@@ -61,6 +61,7 @@ public class PwaApplicationService {
     var masterPwaDetail = new MasterPwaDetail(creationInstant);
     masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
     masterPwaDetail.setReference("New Pwa " + RandomUtils.nextInt());
+    masterPwaDetail.setMasterPwa(masterPwa);
     masterPwaDetailRepository.save(masterPwaDetail);
 
     var application = new PwaApplication(masterPwa, PwaApplicationType.INITIAL, 0);
