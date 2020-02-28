@@ -4,10 +4,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.category1.Category1TaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.category2.Category2TaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskList;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartVariationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -26,12 +29,13 @@ public class PwaApplicationRedirectService {
         return ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage());
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
+        return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
       case DECOMMISSIONING:
       case DEPOSIT_CONSENT:
       case HUOO_VARIATION:
       case OPTIONS_VARIATION:
       default:
-        return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
+        return ReverseRouter.redirect(on(StartPwaApplicationController.class).renderStartApplication(null));
     }
 
   }
@@ -39,7 +43,7 @@ public class PwaApplicationRedirectService {
   /**
    * Return a redirect to the right task list for the passed-in application.
    */
-  public ModelAndView getTaskListRedirect(PwaApplication pwaApplication) {
+  public ModelAndView getTaskListRedirect(PwaApplication pwaApplication, AuthenticatedUserAccount user) {
 
     switch (pwaApplication.getApplicationType()) {
       case INITIAL:
@@ -47,6 +51,7 @@ public class PwaApplicationRedirectService {
       case CAT_1_VARIATION:
         return ReverseRouter.redirect(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId()));
       case CAT_2_VARIATION:
+        return ReverseRouter.redirect(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DECOMMISSIONING:
       case DEPOSIT_CONSENT:
       case HUOO_VARIATION:
@@ -59,7 +64,7 @@ public class PwaApplicationRedirectService {
   /**
    * Return a route to the right task list for the passed-in application.
    */
-  public String getTaskListRoute(PwaApplication pwaApplication) {
+  public String getTaskListRoute(PwaApplication pwaApplication, AuthenticatedUserAccount user) {
 
     switch (pwaApplication.getApplicationType()) {
       case INITIAL:
@@ -67,6 +72,7 @@ public class PwaApplicationRedirectService {
       case CAT_1_VARIATION:
         return ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId()));
       case CAT_2_VARIATION:
+        return ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DECOMMISSIONING:
       case DEPOSIT_CONSENT:
       case HUOO_VARIATION:

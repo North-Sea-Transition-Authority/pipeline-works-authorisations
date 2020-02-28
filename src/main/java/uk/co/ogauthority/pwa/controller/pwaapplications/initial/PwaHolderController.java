@@ -109,7 +109,7 @@ public class PwaHolderController {
 
         applicationHolderService.updateHolderDetails(detail, organisationUnit);
 
-        return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
+        return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication(), user);
 
       });
 

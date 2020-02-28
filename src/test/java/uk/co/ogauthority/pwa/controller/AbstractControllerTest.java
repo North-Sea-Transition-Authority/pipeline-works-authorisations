@@ -62,7 +62,8 @@ public abstract class AbstractControllerTest {
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 
-    when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
+    when(pwaApplicationRedirectService.getTaskListRedirect(any(), any())).thenCallRealMethod();
+    when(pwaApplicationRedirectService.getTaskListRoute(any(), any())).thenCallRealMethod();
 
   }
 
