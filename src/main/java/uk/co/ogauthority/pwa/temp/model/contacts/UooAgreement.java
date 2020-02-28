@@ -12,13 +12,7 @@ public enum UooAgreement {
     this.agreementText = agreementText;
   }
 
-
   public String getAgreementText() {
-    return agreementText;
-  }
-
-  @Override
-  public String toString() {
     return agreementText;
   }
 }

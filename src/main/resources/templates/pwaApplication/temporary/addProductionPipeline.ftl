@@ -4,8 +4,9 @@
 <#-- @ftlvariable name="pipelineTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
+<#-- @ftlvariable name="viewMode" type="uk.co.ogauthority.pwa.temp.model.ViewMode" -->
 
-<@defaultPage htmlTitle="Add pipeline" pageHeading="Add pipeline" breadcrumbs=true>
+<@defaultPage htmlTitle="Add pipeline" pageHeading="${viewMode.displayText} pipeline" breadcrumbs=true>
     <@fdsForm.htmlForm>
 
         <@fdsSelect.select path="form.pipelineType" labelText="Pipeline type" options=pipelineTypes />
@@ -38,7 +39,11 @@
 
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Add pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+        <#if viewMode == "UPDATE">
+            <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Update pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+        <#elseif viewMode == "NEW">
+            <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Add new pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+        </#if>
 
     </@fdsForm.htmlForm>
 </@defaultPage>

@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.controller.PrototypePipelinesController;
 import uk.co.ogauthority.pwa.temp.controller.PrototypePwaApplicationController;
+import uk.co.ogauthority.pwa.temp.controller.TechnicalDrawingsController;
 
 @Service
 public class PrototypeApplicationBreadcrumbService {
@@ -57,15 +58,15 @@ public class PrototypeApplicationBreadcrumbService {
     addAttrs(modelAndView, breadcrumbs, thisPage);
   }
 
-  public void fromPipeline(Integer applicationId, String pipelineNumber,  ModelAndView modelAndView, String thisPage) {
+  public void fromPipelineIdent(Integer applicationId, String pipelineNumber, ModelAndView modelAndView, String thisPage) {
     Map<String, String> breadcrumbs = taskList(applicationId);
     breadcrumbs.put(
         ReverseRouter.route(on(PrototypePipelinesController.class).pipelines(applicationId)),
         "Pipelines"
     );
     breadcrumbs.put(
-        ReverseRouter.route(on(PrototypePipelinesController.class).editProductionPipelineRender(applicationId, pipelineNumber)),
-        pipelineNumber
+        ReverseRouter.route(on(PrototypePipelinesController.class).identsRender(applicationId, pipelineNumber)),
+        pipelineNumber + " idents"
     );
 
     addAttrs(modelAndView, breadcrumbs, thisPage);
@@ -81,6 +82,15 @@ public class PrototypeApplicationBreadcrumbService {
     Map<String, String> breadcrumbs = workArea();
     breadcrumbs.put(ReverseRouter.route(on(PrototypePwaApplicationController.class).viewTaskList(applicationId)), "Task list");
     return breadcrumbs;
+  }
+
+  public void fromTechnicalDrawings(Integer applicationId, ModelAndView modelAndView, String thisPage) {
+    Map<String, String> breadcrumbs = taskList(applicationId);
+    breadcrumbs.put(
+        ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)),
+        "Technical drawings"
+    );
+    addAttrs(modelAndView, breadcrumbs, thisPage);
   }
 
   private void addAttrs(ModelAndView modelAndView, Map<String, String> breadcrumbs, String currentPage) {

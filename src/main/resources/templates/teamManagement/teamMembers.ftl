@@ -13,7 +13,7 @@
           <th class="govuk-table__header" scope="col">Name</th>
           <th class="govuk-table__header" scope="col">Contact details</th>
           <th class="govuk-table__header" scope="col">Roles</th>
-          <th class="govuk-table__header" scope="col">Action</th>
+          <th class="govuk-table__header" scope="col">Actions</th>
         </tr>
         <tbody class="govuk-table__body">
         <#items as teamMemberView>
