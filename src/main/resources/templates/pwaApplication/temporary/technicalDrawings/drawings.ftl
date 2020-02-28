@@ -29,7 +29,7 @@
               </div>
             </@fdsCard.cardHeader>
           <br/>
-            <@fdsAction.link linkUrl=springUrl(route) linkText="Edit linked pipelines" linkClass="govuk-button govuk-button--secondary"/>
+            <@fdsAction.link linkUrl=springUrl(route) linkText="Edit linked pipelines" linkClass="govuk-link"/>
         </@fdsCard.card>
     </#list>
 

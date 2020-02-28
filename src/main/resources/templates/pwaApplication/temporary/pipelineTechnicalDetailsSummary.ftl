@@ -2,11 +2,11 @@
 
 <#-- @ftlvariable name="technicalDetailsView" type="uk.co.ogauthority.pwa.temp.model.view.TechnicalDetailsView" -->
 
-<#macro techDetailsSummary technicalDetailsView canEdit=false>
+<#macro techDetailsSummary technicalDetailsView canEdit=false buttonClass="">
   <hr class="govuk-section-break govuk-section-break--m"/>
   <h2 class="govuk-heading-l">Technical details</h2>
   <#if canEdit>
-      <@fdsAction.link linkText="Edit technical details" linkClass="govuk-button govuk-button--secondary" linkUrl=springUrl("/") />
+      <@fdsAction.link linkText="Edit technical details" linkClass="govuk-button ${buttonClass}" linkUrl=springUrl("/") />
   </#if>
   <h3 class="govuk-heading-m">Pipeline design</h3>
   <table class="govuk-table">

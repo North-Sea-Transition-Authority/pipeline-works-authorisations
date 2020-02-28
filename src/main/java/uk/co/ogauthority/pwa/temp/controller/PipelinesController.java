@@ -115,7 +115,8 @@ public class PipelinesController {
                                    @PathVariable("pipelineNumber") String pipelineNumber) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/productionPipeline")
         .addObject("pipelineView", getPipelineOrThrow(pipelineNumber))
-        .addObject("backToPipelinesUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
+        .addObject("backToPipelinesUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)))
+        .addObject("technicalDetailsView", getPipelineOrThrow(pipelineNumber).getTechnicalDetailsView());
 
     breadcrumbService.fromPipelines(applicationId, modelAndView, pipelineNumber + " technical details");
     return modelAndView;
@@ -142,9 +143,11 @@ public class PipelinesController {
   @GetMapping("/{pipelineNumber}/summary")
   public ModelAndView summaryRender(@PathVariable("applicationId") Integer applicationId,
                                     @PathVariable("pipelineNumber") String pipelineNumber) {
+    var technicalDetailsView = getPipelineOrThrow(pipelineNumber).getTechnicalDetailsView();
     var modelAndView = new ModelAndView("pwaApplication/temporary/pipelineSummary")
         .addObject("pipelineView", getPipelineOrThrow(pipelineNumber))
-        .addObject("backToPipelinesUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)));
+        .addObject("backToPipelinesUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)))
+        .addObject("technicalDetailsView", getPipelineOrThrow(pipelineNumber).getTechnicalDetailsView());
 
     breadcrumbService.fromPipelines(applicationId, modelAndView, pipelineNumber + " technical details");
     return modelAndView;

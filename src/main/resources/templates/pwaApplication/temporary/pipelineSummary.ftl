@@ -20,6 +20,6 @@
 
     <@techDetailsSummary.techDetailsSummary technicalDetailsView=pipelineView.technicalDetailsView/>
 
-    <@fdsAction.link linkText="Back to pipelines" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(backToPipelinesUrl) />
+    <@fdsAction.link linkText="Back to pipelines" linkClass="govuk-link" linkUrl=springUrl(backToPipelinesUrl) />
 
 </@defaultPage>

@@ -2,13 +2,13 @@
 
 <#-- @ftlvariable name="pipelineView" type="uk.co.ogauthority.pwa.temp.model.view.PipelineView" -->
 
-<#macro identsSummary pipelineView canEdit=false>
+<#macro identsSummary pipelineView canEdit=false buttonClass="">
     <h2 class="govuk-heading-l">Idents</h2>
     <#if canEdit>
-        <@fdsAction.link linkText="Add ident" linkClass="govuk-button govuk-button--secondary" linkUrl=springUrl(addIdentUrl) />
+        <@fdsAction.link linkText="Add ident" linkClass="govuk-button ${buttonClass}" linkUrl=springUrl(addIdentUrl) />
     </#if>
     <#if !(pipelineView.idents?size gt 0)>
-      <p class="govuk-body">No idents have been added</p>
+        <@fdsInsetText.insetText>No idents have been added</@fdsInsetText.insetText>
     </#if>
     <#if pipelineView.idents?size gt 0>
       <table class="govuk-table">
@@ -83,9 +83,14 @@
           <th class="govuk-table__header" scope="row">Actions</th>
             <#list pipelineView.idents as ident>
               <td class="govuk-table__cell">
-                  <@fdsAction.link linkUrl="#" linkText="Edit" />
-                <hr class="govuk-section-break"/>
-                  <@fdsAction.link linkUrl="#" linkText="Remove" />
+                <ul class="govuk-list">
+                  <li>
+                      <@fdsAction.link linkText="Edit" linkUrl=springUrl("/") linkClass="govuk-link"/>
+                  </li>
+                  <li>
+                      <@fdsAction.link linkText="Remove" linkUrl=springUrl("/") linkClass="govuk-link"/>
+                  </li>
+                </ul>
               </td>
             </#list>
         </tr>

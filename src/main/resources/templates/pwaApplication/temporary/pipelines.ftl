@@ -8,7 +8,7 @@
 
 <@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" breadcrumbs=true>
 
-    <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addProductionPipelineUrl) linkClass="govuk-button govuk-button--secondary" />
+    <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addProductionPipelineUrl) linkClass="govuk-button govuk-button--blue" />
 
     <#list pipelineCards as card>
 
