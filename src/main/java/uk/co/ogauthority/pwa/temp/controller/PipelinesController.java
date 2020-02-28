@@ -155,31 +155,20 @@ public class PipelinesController {
     return ReverseRouter.redirect(on(PwaApplicationController.class).viewTaskList(applicationId)); // TODO point to location when merged in
   }
 
-  @GetMapping("/add-production-pipeline")
-  public ModelAndView addProductionPipelineRender(@PathVariable Integer applicationId,
-                                                  @ModelAttribute("form") AddProductionPipelineForm form) {
-    return getAddProductionPipelineMav(applicationId, form);
-  }
-
   @GetMapping("/{pipelineNumber}/overview")
   public ModelAndView editProductionPipelineRender(@PathVariable Integer applicationId,
-                                                  @PathVariable("pipelineNumber") String pipelineNumber,
-                                                  @ModelAttribute("form") AddProductionPipelineForm form) {
+                                                   @PathVariable("pipelineNumber") String pipelineNumber,
+                                                   @ModelAttribute("form") AddProductionPipelineForm form) {
     var modelAndView = getAddProductionPipelineMav(applicationId, form);
     modelAndView.addObject("viewMode", ViewMode.UPDATE);
     breadcrumbService.fromPipelines(applicationId, modelAndView, pipelineNumber + " overview");
     return modelAndView;
   }
 
-  private ModelAndView getAddProductionPipelineMav(Integer applicationId, AddProductionPipelineForm form) {
-    var modelAndView = new ModelAndView("pwaApplication/temporary/addProductionPipeline")
-        .addObject("pipelineTypes", Arrays.stream(PipelineType.values())
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
-        .addObject("form", form)
-        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)))
-        .addObject("viewMode", ViewMode.NEW);
-    breadcrumbService.fromPipelines(applicationId, modelAndView, "Add pipeline");
-    return modelAndView;
+  @GetMapping("/add-production-pipeline")
+  public ModelAndView addProductionPipelineRender(@PathVariable Integer applicationId,
+                                                  @ModelAttribute("form") AddProductionPipelineForm form) {
+    return getAddProductionPipelineMav(applicationId, form);
   }
 
   @PostMapping("/add-production-pipeline")
@@ -219,10 +208,21 @@ public class PipelinesController {
       views.add(pipelineView);
       pipelineGodObject.setPipelineViewList(views);
 
-      return ReverseRouter.redirect(on(PipelinesController.class).editProductionPipelineRender(applicationId, newPipelineNumber, null));
+      return ReverseRouter.redirect(on(PipelinesController.class).pipelines(applicationId));
 
     });
 
+  }
+
+  private ModelAndView getAddProductionPipelineMav(Integer applicationId, AddProductionPipelineForm form) {
+    var modelAndView = new ModelAndView("pwaApplication/temporary/addProductionPipeline")
+        .addObject("pipelineTypes", Arrays.stream(PipelineType.values())
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
+        .addObject("form", form)
+        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)))
+        .addObject("viewMode", ViewMode.NEW);
+    breadcrumbService.fromPipelines(applicationId, modelAndView, "Add pipeline");
+    return modelAndView;
   }
 
   @PostMapping("/production/{pipelineNumber}")

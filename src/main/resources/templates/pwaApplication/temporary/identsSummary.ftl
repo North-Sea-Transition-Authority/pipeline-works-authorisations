@@ -2,10 +2,8 @@
 
 <#-- @ftlvariable name="pipelineView" type="uk.co.ogauthority.pwa.temp.model.view.PipelineView" -->
 
-<#macro identsSummary pipelineView heading=false canEdit=false>
-    <#if heading == true>
-      <h2 class="govuk-heading-l">Idents</h2>
-    </#if>
+<#macro identsSummary pipelineView canEdit=false>
+    <h2 class="govuk-heading-l">Idents</h2>
     <#if canEdit>
         <@fdsAction.link linkText="Add ident" linkClass="govuk-button govuk-button--secondary" linkUrl=springUrl(addIdentUrl) />
     </#if>

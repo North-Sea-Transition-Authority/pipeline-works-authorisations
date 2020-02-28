@@ -16,7 +16,7 @@
         <@fdsDataItems.dataValues key="Products to be conveyed" value=pipelineView.productsToBeConveyed!"" />
     </@fdsDataItems.dataItem>
 
-    <@identsSummary.identsSummary pipelineView=pipelineView heading=true/>
+    <@identsSummary.identsSummary pipelineView=pipelineView/>
 
     <@techDetailsSummary.techDetailsSummary technicalDetailsView=pipelineView.technicalDetailsView/>
 
