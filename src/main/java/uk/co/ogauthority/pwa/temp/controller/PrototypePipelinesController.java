@@ -105,7 +105,8 @@ public class PrototypePipelinesController {
                                    @PathVariable("pipelineNumber") String pipelineNumber) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/idents")
         .addObject("pipelineView", getPipelineOrThrow(pipelineNumber))
-        .addObject("addIdentUrl", ReverseRouter.route(on(PrototypePipelinesController.class).addIdentRender(applicationId, pipelineNumber, null)));
+        .addObject("addIdentUrl", ReverseRouter.route(on(PrototypePipelinesController.class)
+            .addIdentRender(applicationId, pipelineNumber, null)));
     breadcrumbService.fromPipelines(applicationId, modelAndView, pipelineNumber + " idents");
     return modelAndView;
   }
