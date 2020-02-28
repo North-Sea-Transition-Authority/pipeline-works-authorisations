@@ -24,7 +24,7 @@ public class StartVariationController {
     ModelAndView modelAndView;
 
     switch (pwaApplicationType) {
-      // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 add case clause
+      // TODO PWA-299, PWA-300, PWA-301, PWA-302 add case clause
       case CAT_1_VARIATION:
         modelAndView = new ModelAndView("pwaApplication/startPages/category1");
         break;
@@ -45,7 +45,7 @@ public class StartVariationController {
   public ModelAndView startVariation(@PathVariable("applicationTypePathUrl")
                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType) {
     switch (pwaApplicationType) {
-      // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 add case clause and fall through to single return statement
+      // TODO PWA-299, PWA-300, PWA-301, PWA-302 add case clause and fall through to single return statement
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
         return ReverseRouter.redirect(on(PickExistingPwaController.class)

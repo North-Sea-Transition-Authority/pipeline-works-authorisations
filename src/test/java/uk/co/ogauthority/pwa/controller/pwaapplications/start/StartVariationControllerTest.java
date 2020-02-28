@@ -29,8 +29,8 @@ public class StartVariationControllerTest extends AbstractControllerTest {
 
   @Test
   public void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus() throws Exception {
-    // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 as we add support update this test
-    var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION);
+    // TODO PWA-299, PWA-300, PWA-301, PWA-302 as we add support update this test
+    var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION);
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().isOk() : status().isForbidden();
@@ -49,8 +49,8 @@ public class StartVariationControllerTest extends AbstractControllerTest {
 
   @Test
   public void startVariation_onlySupportedTypesGetRedirectedStatus() throws Exception {
-    // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 as we add support update this test
-    var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION);
+    // TODO PWA-299, PWA-300, PWA-301, PWA-302 as we add support update this test
+    var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION);
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().is3xxRedirection() : status().isForbidden();
