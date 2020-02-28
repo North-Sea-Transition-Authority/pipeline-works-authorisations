@@ -60,7 +60,7 @@
     <tbody class="govuk-table__body">
     <#list technicalDetailsView.pipelineFluidChemicalComponentViewList as fluidComposition>
       <tr class="govuk-table__row">
-        <td class="govuk-table__cell govuk-!-width-one-third">${fluidComposition.componentName!""}</td>
+        <td class="govuk-table__cell">${fluidComposition.componentName!""}</td>
         <td class="govuk-table__cell">
             <#if fluidComposition.isTrace>
               Trace
@@ -132,32 +132,32 @@
     <tbody class="govuk-table__body">
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Temperature (min/max)</th>
-      <td class="govuk-table__cell govuk-!-width-one-third">
+      <td class="govuk-table__cell">
           ${technicalDetailsView.operatingTemperatureMin!""}
         / ${technicalDetailsView.operatingTemperatureMax!""}
       </td>
-      <td class="govuk-table__cell govuk-!-width-one-third">
+      <td class="govuk-table__cell">
           ${technicalDetailsView.designTemperatureMin!""}
         / ${technicalDetailsView.designTemperatureMax!""}
       </td>
     </tr>
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Pressure (internal/external)</th>
-      <td class="govuk-table__cell govuk-!-width-one-third">
+      <td class="govuk-table__cell">
           ${technicalDetailsView.operatingPressureInternal!""}
         / ${technicalDetailsView.operatingPressureExternal!""}
       </td>
-      <td class="govuk-table__cell govuk-!-width-one-third">${technicalDetailsView.designPressureInternal!""}
+      <td class="govuk-table__cell">${technicalDetailsView.designPressureInternal!""}
         / ${technicalDetailsView.designPressureExternal!""}
       </td>
     </tr>
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Flowrate (min/max)</th>
-      <td class="govuk-table__cell govuk-!-width-one-third">
+      <td class="govuk-table__cell">
           ${technicalDetailsView.operatingFlowRateMin!""}
         / ${technicalDetailsView.operatingFlowRateMax!""}
       </td>
-      <td class="govuk-table__cell govuk-!-width-one-third">
+      <td class="govuk-table__cell">
           ${technicalDetailsView.designFlowRateMax!""}
         / ${technicalDetailsView.designFlowRateMax!""}
       </td>
@@ -165,8 +165,8 @@
 
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">U-value (W/m<sub>2</sub>K)</th>
-      <td class="govuk-table__cell govuk-!-width-one-third">${technicalDetailsView.operatingUValue!""}</td>
-      <td class="govuk-table__cell govuk-!-width-one-third">${technicalDetailsView.designUValue!""}</td>
+      <td class="govuk-table__cell">${technicalDetailsView.operatingUValue!""}</td>
+      <td class="govuk-table__cell">${technicalDetailsView.designUValue!""}</td>
     </tr>
     </tbody>
   </table>
