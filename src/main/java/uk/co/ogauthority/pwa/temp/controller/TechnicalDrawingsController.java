@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.temp.PrototypeApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.components.PipelineGodObject;
 import uk.co.ogauthority.pwa.temp.components.TechnicalDrawingsGodObject;
 import uk.co.ogauthority.pwa.temp.model.form.DrawingLinkForm;
@@ -22,17 +22,17 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @Scope("request")
-@RequestMapping("/application/{applicationId}/technical-drawings")
+@RequestMapping("/prototype/application/{applicationId}/technical-drawings")
 public class TechnicalDrawingsController {
 
   private PipelineGodObject pipelineGodObject;
   private TechnicalDrawingsGodObject technicalDrawingsGodObject;
-  private ApplicationBreadcrumbService applicationBreadcrumbService;
+  private PrototypeApplicationBreadcrumbService applicationBreadcrumbService;
 
   @Autowired
   public TechnicalDrawingsController(PipelineGodObject pipelineGodObject,
                                      TechnicalDrawingsGodObject technicalDrawingsGodObject,
-                                     ApplicationBreadcrumbService applicationBreadcrumbService) {
+                                     PrototypeApplicationBreadcrumbService applicationBreadcrumbService) {
     this.pipelineGodObject = pipelineGodObject;
     this.technicalDrawingsGodObject = technicalDrawingsGodObject;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
@@ -49,7 +49,7 @@ public class TechnicalDrawingsController {
         .addObject("technicalDrawings", technicalDrawingsGodObject.getTechnicalDrawingViews()
             .stream().collect(StreamUtils.toLinkedHashMap(technicalDrawingView -> technicalDrawingView,
                 technicalDrawingView -> technicalDrawingView.getEditRoute(applicationId))))
-        .addObject("backLinkUrl", ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)));
+        .addObject("backLinkUrl", ReverseRouter.route(on(PrototypePwaApplicationController.class).viewTaskList(applicationId)));
     applicationBreadcrumbService.fromTaskList(applicationId, modelAndView, "Technical drawings");
     return modelAndView;
   }

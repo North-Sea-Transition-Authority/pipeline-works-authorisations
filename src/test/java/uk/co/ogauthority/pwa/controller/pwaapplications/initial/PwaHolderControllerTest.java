@@ -1,7 +1,8 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications;
+package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -9,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.time.Instant;
@@ -27,11 +29,14 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.pwa.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.TeamTestingUtils;
@@ -41,11 +46,16 @@ import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 @WebMvcTest(controllers = PwaHolderController.class)
 public class PwaHolderControllerTest extends AbstractControllerTest {
 
+  private static final int APP_ID = 1;
+
   @MockBean
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @MockBean
   private ApplicationHolderService applicationHolderService;
+
+  @MockBean
+  private ApplicationBreadcrumbService breadcrumbService;
 
   @MockBean
   private PwaHolderFormValidator pwaHolderFormValidator;
@@ -68,22 +78,26 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     orgUnit = TeamTestingUtils.createOrgUnit();
     when(portalOrganisationsAccessor.getOrganisationUnitById(111)).thenReturn(Optional.of(orgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
+    doCallRealMethod().when(breadcrumbService).fromWorkArea(any(), any());
+    doCallRealMethod().when(breadcrumbService).fromTaskList(any(), any(), any());
+
+    when(applicationHolderService.mapHolderDetailsToForm(any())).thenReturn(new PwaHolderForm());
 
   }
 
   @Test
-  public void testRender() throws Exception {
+  public void renderHolderScreen_withAuthenticatedUser() throws Exception {
 
-    mockMvc.perform(get("/pwa-application/{applicationId}/holder", 1)
+    mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class).renderHolderScreen(APP_ID, null, null)))
       .with(authenticatedUserAndSession(user))
     ).andExpect(status().isOk());
 
   }
 
   @Test
-  public void testPost_valid() throws Exception {
+  public void postHolderScreen_withHolderOrgId() throws Exception {
 
-    mockMvc.perform(post("/pwa-application/{applicationId}/holder", 1)
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -92,9 +106,9 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void testPost_appDoesntExist() throws Exception {
+  public void postHolderScreen_whenPathAppIdDoesntExist_andHolderOrgSet() throws Exception {
 
-    mockMvc.perform(post("/pwa-application/{applicationId}/holder", 123)
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(123, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -103,11 +117,11 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void testPost_noOrgSelected() throws Exception {
+  public void postHolderScreen_whenAppExists_andNoHolderOrgSelected() throws Exception {
 
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
 
-    mockMvc.perform(post("/pwa-application/{applicationId}/holder", 1)
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", ""))
@@ -118,11 +132,11 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void testPost_orgDoesntExist() throws Exception {
+  public void postHolderScreen_whenAppExists_andHolderOrgDoesntExist() throws Exception {
 
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
 
-    mockMvc.perform(post("/pwa-application/1/holder")
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "999"))
@@ -133,12 +147,12 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void testPost_userDoesntHaveAccessToOrg() throws Exception {
+  public void postHolderScreen_whenAppExists_andHolderOrgExists_andUserDoesntHaveAccessToOrg() throws Exception {
 
     when(portalOrganisationsAccessor.getOrganisationUnitById(44)).thenReturn(Optional.of(orgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of());
 
-    mockMvc.perform(post("/pwa-application/1/holder")
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "44"))

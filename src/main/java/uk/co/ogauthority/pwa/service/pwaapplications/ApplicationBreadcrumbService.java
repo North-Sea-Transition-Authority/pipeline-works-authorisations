@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.temp.controller.PipelinesController;
-import uk.co.ogauthority.pwa.temp.controller.PwaApplicationController;
-import uk.co.ogauthority.pwa.temp.controller.TechnicalDrawingsController;
+import uk.co.ogauthority.pwa.temp.controller.PrototypePwaApplicationController;
 
 @Service
 public class ApplicationBreadcrumbService {
@@ -23,63 +21,6 @@ public class ApplicationBreadcrumbService {
     addAttrs(modelAndView, taskList(applicationId), thisPage);
   }
 
-  public void fromCrossingAgreements(Integer applicationId, ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList(applicationId);
-    breadcrumbs.put(
-        ReverseRouter.route(on(PwaApplicationController.class).viewCrossings(applicationId, null)),
-        "Crossing agreements"
-    );
-
-    addAttrs(modelAndView, breadcrumbs, thisPage);
-  }
-
-  public void fromPwaContacts(Integer applicationId, ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList(applicationId);
-    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewApplicationContacts(applicationId)), "PWA contacts");
-
-    addAttrs(modelAndView, breadcrumbs, thisPage);
-  }
-
-  public void fromUoo(Integer applicationId, ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList(applicationId);
-    breadcrumbs.put(
-        ReverseRouter.route(on(PwaApplicationController.class).viewUserOwnerOperatorContacts(applicationId)),
-        "Users, operator, owners"
-    );
-
-    addAttrs(modelAndView, breadcrumbs, thisPage);
-  }
-
-  public void fromPipelines(Integer applicationId, ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList(applicationId);
-    breadcrumbs.put(ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)), "Pipelines");
-
-    addAttrs(modelAndView, breadcrumbs, thisPage);
-  }
-
-  public void fromPipelineIdent(Integer applicationId, String pipelineNumber, ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList(applicationId);
-    breadcrumbs.put(
-        ReverseRouter.route(on(PipelinesController.class).pipelines(applicationId)),
-        "Pipelines"
-    );
-    breadcrumbs.put(
-        ReverseRouter.route(on(PipelinesController.class).identsRender(applicationId, pipelineNumber)),
-        pipelineNumber + " idents"
-    );
-
-    addAttrs(modelAndView, breadcrumbs, thisPage);
-  }
-
-  public void fromTechnicalDrawings(Integer applicationId, ModelAndView modelAndView, String thisPage) {
-    Map<String, String> breadcrumbs = taskList(applicationId);
-    breadcrumbs.put(
-        ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)),
-        "Technical drawings"
-    );
-    addAttrs(modelAndView, breadcrumbs, thisPage);
-  }
-
   private Map<String, String> workArea() {
     Map<String, String> breadcrumbs = new LinkedHashMap<>();
     breadcrumbs.put(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()), "Work area");
@@ -88,7 +29,7 @@ public class ApplicationBreadcrumbService {
 
   private Map<String, String> taskList(Integer applicationId) {
     Map<String, String> breadcrumbs = workArea();
-    breadcrumbs.put(ReverseRouter.route(on(PwaApplicationController.class).viewTaskList(applicationId)), "Task list");
+    breadcrumbs.put(ReverseRouter.route(on(PrototypePwaApplicationController.class).viewTaskList(applicationId)), "Task list");
     return breadcrumbs;
   }
 

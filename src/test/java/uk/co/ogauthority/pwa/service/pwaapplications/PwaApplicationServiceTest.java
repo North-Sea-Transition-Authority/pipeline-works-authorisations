@@ -15,10 +15,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwa.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwa.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.pwaapplications.MasterPwaRepository;
+import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
+import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaDetailRepository;
+import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -31,6 +34,9 @@ public class PwaApplicationServiceTest {
 
   @Mock
   private MasterPwaRepository masterPwaRepository;
+
+  @Mock
+  private MasterPwaDetailRepository masterPwaDetailRepository;
 
   @Mock
   private PwaApplicationRepository pwaApplicationRepository;
@@ -52,6 +58,7 @@ public class PwaApplicationServiceTest {
   public void setUp() {
     pwaApplicationService = new PwaApplicationService(
         masterPwaRepository,
+        masterPwaDetailRepository,
         pwaApplicationRepository,
         pwaApplicationDetailRepository,
         camundaWorkflowService,
@@ -66,15 +73,19 @@ public class PwaApplicationServiceTest {
     PwaApplication createdApplication = pwaApplicationService.createInitialPwaApplication(user);
 
     ArgumentCaptor<MasterPwa> pwaArgumentCaptor = ArgumentCaptor.forClass(MasterPwa.class);
+    ArgumentCaptor<MasterPwaDetail> pwaDetailArgumentCaptor = ArgumentCaptor.forClass(MasterPwaDetail.class);
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
     ArgumentCaptor<PwaApplicationDetail> detailArgumentCaptor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
 
     verify(masterPwaRepository, times(1)).save(pwaArgumentCaptor.capture());
+    verify(masterPwaDetailRepository, times(1)).save(pwaDetailArgumentCaptor.capture());
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
     verify(pwaApplicationDetailRepository, times(1)).save(detailArgumentCaptor.capture());
-    verify(camundaWorkflowService, times(1)).startWorkflow(WorkflowType.PWA_APPLICATION, applicationArgumentCaptor.getValue().getId());
+    verify(camundaWorkflowService, times(1)).startWorkflow(WorkflowType.PWA_APPLICATION,
+        applicationArgumentCaptor.getValue().getId());
 
     MasterPwa masterPwa = pwaArgumentCaptor.getValue();
+    MasterPwaDetail masterPwaDetail = pwaDetailArgumentCaptor.getValue();
     PwaApplication application = applicationArgumentCaptor.getValue();
     PwaApplicationDetail detail = detailArgumentCaptor.getValue();
 
@@ -82,9 +93,69 @@ public class PwaApplicationServiceTest {
     assertThat(masterPwa.getCreatedTimestamp()).isEqualTo(fixedInstant);
     assertThat(masterPwa.getPortalOrganisationUnit()).isNull();
 
+    assertThat(masterPwaDetail.getStartInstant()).isEqualTo(fixedInstant);
+    assertThat(masterPwaDetail.getReference()).isNotBlank();
+    assertThat(masterPwaDetail.getMasterPwaDetailStatus()).isEqualTo(MasterPwaDetailStatus.APPLICATION);
+
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(PwaApplicationType.INITIAL);
+    assertThat(application.getAppReference()).isNull();
+    assertThat(application.getConsentReference()).isNull();
+    assertThat(application.getVariationNo()).isEqualTo(0);
+    assertThat(application.getDecision()).isEmpty();
+    assertThat(application.getDecisionTimestamp()).isEmpty();
+
+    assertThat(createdApplication).isEqualTo(application);
+
+    // check detail set up correctly
+    assertThat(detail.getPwaApplication()).isEqualTo(application);
+    assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.DRAFT);
+    assertThat(detail.isTipFlag()).isTrue();
+    assertThat(detail.getVersionNo()).isEqualTo(1);
+    assertThat(detail.getCreatedByWuaId()).isEqualTo(user.getWuaId());
+    assertThat(detail.getCreatedTimestamp()).isEqualTo(fixedInstant);
+    assertThat(detail.getSubmittedByWuaId()).isNull();
+    assertThat(detail.getSubmittedTimestamp()).isNull();
+    assertThat(detail.getLastUpdatedByWuaId()).isNull();
+    assertThat(detail.getLastUpdatedTimestamp()).isNull();
+
+  }
+
+
+  @Test
+  public void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory1() {
+    createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_1_VARIATION);
+  }
+
+  private void createVariationPwaApplication_assertUsingType(PwaApplicationType pwaApplicationType){
+    WebUserAccount user = new WebUserAccount(123);
+
+    MasterPwa masterPwa = new MasterPwa(fixedInstant);
+    masterPwa.setId(1);
+
+    PwaApplication createdApplication = pwaApplicationService.createVariationPwaApplication(
+        user,
+        masterPwa,
+        pwaApplicationType
+    );
+
+    ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
+    ArgumentCaptor<PwaApplicationDetail> detailArgumentCaptor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+
+    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    verify(pwaApplicationDetailRepository, times(1)).save(detailArgumentCaptor.capture());
+    verify(camundaWorkflowService, times(1)).startWorkflow(
+        WorkflowType.PWA_APPLICATION,
+        applicationArgumentCaptor.getValue().getId()
+    );
+
+    PwaApplication application = applicationArgumentCaptor.getValue();
+    PwaApplicationDetail detail = detailArgumentCaptor.getValue();
+
+    // check application set up correctly
+    assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
+    assertThat(application.getApplicationType()).isEqualTo(pwaApplicationType);
     assertThat(application.getAppReference()).isNull();
     assertThat(application.getConsentReference()).isNull();
     assertThat(application.getVariationNo()).isEqualTo(0);

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwa;
+package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import java.time.Instant;
 import javax.persistence.Entity;
@@ -162,5 +162,9 @@ public class PwaApplicationDetail {
 
   public void setLastUpdatedTimestamp(Instant lastUpdatedTimestamp) {
     this.lastUpdatedTimestamp = lastUpdatedTimestamp;
+  }
+
+  public Integer getMasterPwaApplicationId() {
+    return this.pwaApplication.getId();
   }
 }

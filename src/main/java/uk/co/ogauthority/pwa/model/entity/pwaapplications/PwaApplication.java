@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwa;
+package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 

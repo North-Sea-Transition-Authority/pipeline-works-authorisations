@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications;
+package uk.co.ogauthority.pwa.temp.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -35,27 +35,25 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationId}")
-public class PwaHolderController {
+@RequestMapping("/prototype/pwa-application/{applicationId}")
+public class PrototypePwaHolderController {
 
   private final TeamService teamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PwaApplicationDetailService pwaApplicationDetailService;
-  private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaHolderFormValidator pwaHolderFormValidator;
   private final ApplicationHolderService applicationHolderService;
 
   @Autowired
-  public PwaHolderController(TeamService teamService,
-                             PortalOrganisationsAccessor portalOrganisationsAccessor,
-                             PwaApplicationDetailService pwaApplicationDetailService,
-                             PwaApplicationRedirectService pwaApplicationRedirectService,
-                             PwaHolderFormValidator pwaHolderFormValidator,
-                             ApplicationHolderService applicationHolderService) {
+  public PrototypePwaHolderController(TeamService teamService,
+                                      PortalOrganisationsAccessor portalOrganisationsAccessor,
+                                      PwaApplicationDetailService pwaApplicationDetailService,
+                                      PwaApplicationRedirectService pwaApplicationRedirectService,
+                                      PwaHolderFormValidator pwaHolderFormValidator,
+                                      ApplicationHolderService applicationHolderService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
-    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaHolderFormValidator = pwaHolderFormValidator;
     this.applicationHolderService = applicationHolderService;
   }
@@ -99,7 +97,20 @@ public class PwaHolderController {
 
         applicationHolderService.updateHolderDetails(detail, organisationUnit);
 
-        return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
+        // Not using redirect service so it stays for the actual application
+        switch (detail.getPwaApplication().getApplicationType()) {
+          case INITIAL:
+            // temporary task list
+            return ReverseRouter.redirect(on(PrototypePwaApplicationController.class).viewTaskList(detail.getPwaApplication().getId()));
+          case CAT_1_VARIATION:
+          case CAT_2_VARIATION:
+          case DECOMMISSIONING:
+          case DEPOSIT_CONSENT:
+          case HUOO_VARIATION:
+          case OPTIONS_VARIATION:
+          default:
+            return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea());
+        }
 
       });
 
@@ -113,7 +124,7 @@ public class PwaHolderController {
         .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
         .collect(StreamUtils.toLinkedHashMap(ou -> String.valueOf(ou.getOuId()), PortalOrganisationUnit::getName));
 
-    return new ModelAndView("pwaApplication/form/holder")
+    return new ModelAndView("pwaApplication/temporary/holder")
         .addObject("ouMap", ouMap)
         .addObject("backUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of());
