@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.category2;
+package uk.co.ogauthority.pwa.controller.pwaapplications.category1;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = Category2TaskListController.class)
-public class Category2TaskListControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = Category1TaskListController.class)
+public class Category1TaskListControllerTest extends AbstractControllerTest {
 
   @MockBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -51,15 +51,16 @@ public class Category2TaskListControllerTest extends AbstractControllerTest {
   public void setUp() {
     user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
     masterPwa = new MasterPwa(Instant.now());
-    pwaApplication = new PwaApplication(masterPwa, PwaApplicationType.CAT_2_VARIATION, 0);
-    pwaApplicationWrongType = new PwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, 0);
+    pwaApplication = new PwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, 0);
+    pwaApplicationWrongType = new PwaApplication(masterPwa, PwaApplicationType.CAT_2_VARIATION, 0);
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
   }
 
   @Test
   public void viewTaskList_Authenticated() throws Exception {
     when(pwaApplicationService.getApplicationFromId(1)).thenReturn(pwaApplication);
-    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(1, null)))
+    var modelAndView = mockMvc.perform(get(
+        ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(1, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         // TODO: Remove hard-coded "PWA-Example-BP-2" once PWA references are in place.
@@ -74,14 +75,14 @@ public class Category2TaskListControllerTest extends AbstractControllerTest {
 
   @Test
   public void viewTaskList_Unauthenticated() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(1, null))))
+    mockMvc.perform(get(ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(1, null))))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
   public void viewTaskList_WrongApplicationType() throws Exception {
     when(pwaApplicationService.getApplicationFromId(1)).thenReturn(pwaApplicationWrongType);
-    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(1, null)))
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(1, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         // TODO: Remove hard-coded "PWA-Example-BP-2" once PWA references are in place.

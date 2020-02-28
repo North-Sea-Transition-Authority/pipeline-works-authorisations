@@ -36,7 +36,10 @@ public class Category2TaskListController {
   }
 
   private List<TaskListEntry> getPwaInformationTaskList(PwaApplication pwaApplication) {
-    return List.of();
+    return List.of(
+        new TaskListEntry("No tasks",
+            pwaApplicationRedirectService.getTaskListRoute(pwaApplication, null), false)
+    );
   }
 
   private List<TaskListEntry> getApplicationTaskList(PwaApplication pwaApplication) {
