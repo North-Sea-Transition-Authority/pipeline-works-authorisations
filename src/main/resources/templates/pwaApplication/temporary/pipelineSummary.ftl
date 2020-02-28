@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="addIdentUrl" type="String" -->
 <#-- @ftlvariable name="backToPipelinesUrl" type="String" -->
 
-<@defaultPage htmlTitle="${pipelineView.pipelineNumber} technical details" pageHeading="${pipelineView.pipelineNumber} technical details" twoThirdsColumn=false breadcrumbs=true>
+<@defaultPage htmlTitle="${pipelineView.pipelineNumber} summary" pageHeading="${pipelineView.pipelineNumber} summary" twoThirdsColumn=false breadcrumbs=true>
 
     <@fdsDataItems.dataItem>
         <@fdsDataItems.dataValuesNumber key="Length" value="${pipelineView.length}m" valueId="${pipelineView.pipelineNumber}-length" />
