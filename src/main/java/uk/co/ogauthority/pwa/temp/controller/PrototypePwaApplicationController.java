@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.FormState;
+import uk.co.ogauthority.pwa.temp.PrototypeApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.model.admindetails.WithinSafetyZone;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreement;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreementView;
@@ -52,10 +52,10 @@ public class PrototypePwaApplicationController {
   private final FormState formState;
   private static LocalDate startDate = LocalDate.now().plusMonths(4);
   private LinkedHashMap<String, String> taskList;
-  private final ApplicationBreadcrumbService breadcrumbService;
+  private final PrototypeApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public PrototypePwaApplicationController(ApplicationBreadcrumbService breadcrumbService, FormState formState) {
+  public PrototypePwaApplicationController(PrototypeApplicationBreadcrumbService breadcrumbService, FormState formState) {
     this.breadcrumbService = breadcrumbService;
     this.formState = formState;
   }

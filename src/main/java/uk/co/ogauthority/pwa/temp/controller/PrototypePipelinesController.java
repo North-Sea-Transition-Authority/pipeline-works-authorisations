@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.temp.PrototypeApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.components.PipelineGodObject;
 import uk.co.ogauthority.pwa.temp.model.form.AddIdentForm;
 import uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm;
@@ -36,11 +36,11 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 public class PrototypePipelinesController {
 
   private PipelineGodObject pipelineGodObject;
-  private final ApplicationBreadcrumbService breadcrumbService;
+  private final PrototypeApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
   public PrototypePipelinesController(PipelineGodObject pipelineGodObject,
-                                      ApplicationBreadcrumbService breadcrumbService) {
+                                      PrototypeApplicationBreadcrumbService breadcrumbService) {
     this.pipelineGodObject = pipelineGodObject;
     this.breadcrumbService = breadcrumbService;
     if (pipelineGodObject.getPipelineViewList() == null || pipelineGodObject.getPipelineViewList().isEmpty()) {
