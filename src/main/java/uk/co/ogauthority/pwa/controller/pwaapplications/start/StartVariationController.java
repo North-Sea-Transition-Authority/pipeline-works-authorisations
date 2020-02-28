@@ -44,7 +44,7 @@ public class StartVariationController {
     switch (pwaApplicationType) {
       // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 add case clause and fall through to single return statement
       case CAT_1_VARIATION: return ReverseRouter.redirect(on(PickExistingPwaController.class)
-          .renderPickPwaToStartApplication(pwaApplicationType, null, null, null));
+          .renderPickPwaToStartApplication(pwaApplicationType, null, null));
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", pwaApplicationType));
     }

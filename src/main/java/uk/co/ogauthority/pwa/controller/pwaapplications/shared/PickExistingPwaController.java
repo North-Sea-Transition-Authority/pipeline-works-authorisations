@@ -4,8 +4,10 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PickPwaForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -33,6 +36,10 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @RequestMapping("/pwa-application/{applicationTypePathUrl}")
 public class PickExistingPwaController {
 
+  private static final Set<PwaApplicationType> VALID_START_APPLICATION_TYPES = EnumSet.of(
+      PwaApplicationType.CAT_1_VARIATION
+  );
+
   private final PwaApplicationService pwaApplicationService;
   private final MasterPwaAuthorisationService masterPwaAuthorisationService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -44,7 +51,6 @@ public class PickExistingPwaController {
       PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.pwaApplicationService = pwaApplicationService;
     this.masterPwaAuthorisationService = masterPwaAuthorisationService;
-
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
@@ -52,11 +58,10 @@ public class PickExistingPwaController {
   @GetMapping("/pick-pwa-for-application")
   public ModelAndView renderPickPwaToStartApplication(@PathVariable("applicationTypePathUrl")
                                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                                      @ModelAttribute("form") @Valid PickPwaForm form,
-                                                      BindingResult bindingResult,
+                                                      @ModelAttribute("form") PickPwaForm form,
                                                       AuthenticatedUserAccount user) {
+    checkApplicationTypeValid(pwaApplicationType);
     return getPickPwaModelAndView(user);
-
   }
 
   private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user) {
@@ -66,11 +71,10 @@ public class PickExistingPwaController {
         .sorted(Comparator.comparing(MasterPwaDto::getReference))
         .collect(StreamUtils.toLinkedHashMap(pwa -> String.valueOf(pwa.getMasterPwaId()), MasterPwaDto::getReference));
 
-    var modelAndView = new ModelAndView("pwaApplication/shared/pickPwaForApplication")
+    return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
         .addObject("selectablePwaMap", selectablePwaMap)
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of());
-    return modelAndView;
   }
 
   @PostMapping("/pick-pwa-for-application")
@@ -79,12 +83,19 @@ public class PickExistingPwaController {
                                                  @ModelAttribute("form") @Valid PickPwaForm form,
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
+    checkApplicationTypeValid(pwaApplicationType);
     return ControllerUtils.validateAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
 
       var masterPwa = masterPwaAuthorisationService.getMasterPwaIfAuthorised(form.getMasterPwaId(), user);
       var newApplication = pwaApplicationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType);
       return pwaApplicationRedirectService.getTaskListRedirect(newApplication);
     });
+  }
+
+  private void checkApplicationTypeValid(PwaApplicationType pwaApplicationType) {
+    if (!VALID_START_APPLICATION_TYPES.contains(pwaApplicationType)) {
+      throw new AccessDeniedException("Unsupported type for pick pwa: " + pwaApplicationType);
+    }
   }
 
 
