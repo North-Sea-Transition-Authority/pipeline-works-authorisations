@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.temp.model.form.AddProductionPipelineForm;
 import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
 import uk.co.ogauthority.pwa.temp.model.view.IdentView;
 import uk.co.ogauthority.pwa.temp.model.view.PipelineView;
+import uk.co.ogauthority.pwa.temp.model.view.TechnicalDetailsView;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -64,6 +65,7 @@ public class PipelinesController {
       firstPipeline.setComponentParts("Sullom Voe Terminal");
       firstPipeline.setIdents(List.of());
       pipelineGodObject.setPipelineViewList(List.of(firstPipeline));
+      firstPipeline.setTechnicalDetailsView(TechnicalDetailsView.createExampleTechDetails());
     }
   }
 
@@ -131,6 +133,7 @@ public class PipelinesController {
       pipelineView.setComponentParts(form.getComponentParts());
       pipelineView.setProductsToBeConveyed(form.getProductsToBeConveyed());
       pipelineView.setLength(form.getLength());
+      pipelineView.setTechnicalDetailsView(TechnicalDetailsView.createExampleTechDetails());
 
       pipelineView.setIdents(List.of());
 
