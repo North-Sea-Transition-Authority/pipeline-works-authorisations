@@ -12,8 +12,7 @@ public enum UooRole {
     this.displayText = displayText;
   }
 
-  @Override
-  public String toString() {
+  public String getDisplayText() {
     return displayText;
   }
 }

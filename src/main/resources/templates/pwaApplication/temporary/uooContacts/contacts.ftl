@@ -20,7 +20,7 @@
       <th class="govuk-table__header" scope="col">Company name</th>
       <th class="govuk-table__header" scope="col">Company address</th>
       <th class="govuk-table__header" scope="col">Roles</th>
-      <th class="govuk-table__header" scope="col">Action</th>
+      <th class="govuk-table__header" scope="col">Actions</th>
     </tr>
     <tbody class="govuk-table__body">
     <#list uooCompanyList as uoo>
@@ -55,9 +55,9 @@
   <table class="govuk-table">
     <thead class="govuk-table__head">
     <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="col">Treaty</th>
+      <th class="govuk-table__header" scope="col">Agreement</th>
       <th class="govuk-table__header" scope="col">Roles</th>
-      <th class="govuk-table__header" scope="col">Action</th>
+      <th class="govuk-table__header" scope="col">Actions</th>
     </tr>
     <tbody class="govuk-table__body">
     <#list uooTreatyList as uoo>
