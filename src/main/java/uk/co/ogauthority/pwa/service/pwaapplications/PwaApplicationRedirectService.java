@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.category1.Category1TaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.category2.Category2TaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.deposit.DepositConsentTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.huoo.HuooVariationTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskList;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaController;
@@ -31,9 +32,9 @@ public class PwaApplicationRedirectService {
       case HUOO_VARIATION:
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
+      case DEPOSIT_CONSENT:
         return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
       case DECOMMISSIONING:
-      case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
       default:
         return ReverseRouter.redirect(on(StartPwaApplicationController.class).renderStartApplication(null));
@@ -55,6 +56,7 @@ public class PwaApplicationRedirectService {
         return ReverseRouter.redirect(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DECOMMISSIONING:
       case DEPOSIT_CONSENT:
+        return ReverseRouter.redirect(on(DepositConsentTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case HUOO_VARIATION:
         return ReverseRouter.redirect(on(HuooVariationTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case OPTIONS_VARIATION:
@@ -77,6 +79,7 @@ public class PwaApplicationRedirectService {
         return ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DECOMMISSIONING:
       case DEPOSIT_CONSENT:
+        return ReverseRouter.route(on(DepositConsentTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case HUOO_VARIATION:
         return ReverseRouter.route(on(HuooVariationTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case OPTIONS_VARIATION:
