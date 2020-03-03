@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @Controller
-@RequestMapping("/pwa-application/huoo-variation/{applicationId}/tasks")
+@RequestMapping("/pwa-application/huoo/{applicationId}/tasks")
 public class HuooVariationTaskListController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
