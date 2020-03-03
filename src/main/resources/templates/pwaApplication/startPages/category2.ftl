@@ -1,6 +1,6 @@
 <#include '../../layout.ftl'>
 
-<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
+<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start Category 2 variation" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
 
   <ul class="govuk-list govuk-list--bullet">
     <li>
