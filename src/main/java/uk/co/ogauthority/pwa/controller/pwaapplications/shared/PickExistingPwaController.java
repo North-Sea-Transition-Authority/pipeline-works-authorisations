@@ -41,7 +41,8 @@ public class PickExistingPwaController {
       PwaApplicationType.CAT_2_VARIATION,
       PwaApplicationType.HUOO_VARIATION,
       PwaApplicationType.DEPOSIT_CONSENT,
-      PwaApplicationType.OPTIONS_VARIATION
+      PwaApplicationType.OPTIONS_VARIATION,
+      PwaApplicationType.DECOMMISSIONING
   );
 
   private final PwaApplicationService pwaApplicationService;

@@ -24,7 +24,6 @@ public class StartVariationController {
     ModelAndView modelAndView;
 
     switch (pwaApplicationType) {
-      // TODO PWA-302 add case clause
       case CAT_1_VARIATION:
         modelAndView = new ModelAndView("pwaApplication/startPages/category1");
         break;
@@ -40,6 +39,9 @@ public class StartVariationController {
       case OPTIONS_VARIATION:
         modelAndView = new ModelAndView("pwaApplication/startPages/optionsVariation");
         break;
+      case DECOMMISSIONING:
+        modelAndView = new ModelAndView("pwaApplication/startPages/decommissioningVariation");
+        break;
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", pwaApplicationType));
     }
@@ -54,12 +56,12 @@ public class StartVariationController {
   public ModelAndView startVariation(@PathVariable("applicationTypePathUrl")
                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType) {
     switch (pwaApplicationType) {
-      // TODO PWA-302 add case clause and fall through to single return statement
       case HUOO_VARIATION:
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
+      case DECOMMISSIONING:
         return ReverseRouter.redirect(on(PickExistingPwaController.class)
             .renderPickPwaToStartApplication(pwaApplicationType, null, null));
       default:

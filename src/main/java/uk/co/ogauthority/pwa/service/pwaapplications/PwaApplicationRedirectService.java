@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.category1.Category1TaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.category2.Category2TaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.decommissioning.DecommissioningTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.deposit.DepositConsentTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.huoo.HuooVariationTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskList;
@@ -35,8 +36,8 @@ public class PwaApplicationRedirectService {
       case CAT_2_VARIATION:
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
-        return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
       case DECOMMISSIONING:
+        return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
       default:
         return ReverseRouter.redirect(on(StartPwaApplicationController.class).renderStartApplication(null));
     }
@@ -56,6 +57,7 @@ public class PwaApplicationRedirectService {
       case CAT_2_VARIATION:
         return ReverseRouter.redirect(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DECOMMISSIONING:
+        return ReverseRouter.redirect(on(DecommissioningTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DEPOSIT_CONSENT:
         return ReverseRouter.redirect(on(DepositConsentTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case HUOO_VARIATION:
@@ -80,6 +82,7 @@ public class PwaApplicationRedirectService {
       case CAT_2_VARIATION:
         return ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DECOMMISSIONING:
+        return ReverseRouter.route(on(DecommissioningTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case DEPOSIT_CONSENT:
         return ReverseRouter.route(on(DepositConsentTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case HUOO_VARIATION:
