@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @Controller
-@RequestMapping("/pwa-application/deposit-consent/{applicationId}/tasks")
+@RequestMapping("/pwa-application/dep/{applicationId}/tasks")
 public class DepositConsentTaskListController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
