@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.category2.Category2TaskL
 import uk.co.ogauthority.pwa.controller.pwaapplications.deposit.DepositConsentTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.huoo.HuooVariationTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskList;
+import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsVariationTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartVariationController;
@@ -33,9 +34,9 @@ public class PwaApplicationRedirectService {
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
       case DEPOSIT_CONSENT:
+      case OPTIONS_VARIATION:
         return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
       case DECOMMISSIONING:
-      case OPTIONS_VARIATION:
       default:
         return ReverseRouter.redirect(on(StartPwaApplicationController.class).renderStartApplication(null));
     }
@@ -60,6 +61,7 @@ public class PwaApplicationRedirectService {
       case HUOO_VARIATION:
         return ReverseRouter.redirect(on(HuooVariationTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case OPTIONS_VARIATION:
+        return ReverseRouter.redirect(on(OptionsVariationTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       default:
         return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea());
     }
@@ -83,6 +85,7 @@ public class PwaApplicationRedirectService {
       case HUOO_VARIATION:
         return ReverseRouter.route(on(HuooVariationTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       case OPTIONS_VARIATION:
+        return ReverseRouter.route(on(OptionsVariationTaskListController.class).viewTaskList(pwaApplication.getId(), user));
       default:
         return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea());
     }
