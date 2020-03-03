@@ -13,7 +13,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,14 +47,12 @@ public class Category1TaskListControllerTest extends AbstractControllerTest {
   private AuthenticatedUserAccount user;
   private MasterPwa masterPwa;
   private PwaApplication pwaApplication;
-  private PwaApplication pwaApplicationWrongType;
 
   @Before
   public void setUp() {
     user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
     masterPwa = new MasterPwa(Instant.now());
     pwaApplication = new PwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, 0);
-    pwaApplicationWrongType = new PwaApplication(masterPwa, PwaApplicationType.CAT_2_VARIATION, 0);
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
   }
 
@@ -81,11 +81,21 @@ public class Category1TaskListControllerTest extends AbstractControllerTest {
 
   @Test
   public void viewTaskList_WrongApplicationType() throws Exception {
-    when(pwaApplicationService.getApplicationFromId(1)).thenReturn(pwaApplicationWrongType);
-    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(1, null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        // TODO: Remove hard-coded "PWA-Example-BP-2" once PWA references are in place.
-        .andExpect(status().is4xxClientError());
+    var incorrectApplicationTypes = getIncorrectApplicationTypes(PwaApplicationType.CAT_1_VARIATION);
+    for (PwaApplicationType wrongType : incorrectApplicationTypes) {
+      var invalidApplication = new PwaApplication(masterPwa, wrongType, 0);
+      when(pwaApplicationService.getApplicationFromId(1)).thenReturn(invalidApplication);
+      mockMvc.perform(get(ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(1, null)))
+          .with(authenticatedUserAndSession(user))
+          .with(csrf()))
+          // TODO: Remove hard-coded "PWA-Example-BP-2" once PWA references are in place.
+          .andExpect(status().is4xxClientError());
+    }
+  }
+
+  private List<PwaApplicationType> getIncorrectApplicationTypes(PwaApplicationType correctApplicationType) {
+    return Arrays.stream(PwaApplicationType.values())
+        .filter(pwaApplicationType -> !pwaApplicationType.equals(correctApplicationType))
+        .collect(Collectors.toList());
   }
 }
