@@ -12,7 +12,7 @@
 
     <@fdsForm.htmlForm>
       <h2 class="govuk-heading-l">Block Crossings</h2>
-        <@fdsAction.link linkText="Add block crossing" linkUrl=springUrl(addBlockCrossingUrl) linkClass="govuk-button govuk-button--secondary"/>
+        <@fdsAction.link linkText="Add block crossing" linkUrl=springUrl(addBlockCrossingUrl) linkClass="govuk-button govuk-button--blue"/>
         <#if blockCrossings?has_content>
           <table class="govuk-table">
             <thead class="govuk-table__head">
@@ -54,7 +54,7 @@
         </#if>
 
       <h2 class="govuk-heading-l">Telecommunication Cable Crossings</h2>
-        <@fdsAction.link linkText="Add telecommunication cable crossing" linkUrl=springUrl(addTelecommuncationCableCrossingUrl) linkClass="govuk-button govuk-button--secondary"/>
+        <@fdsAction.link linkText="Add telecommunication cable crossing" linkUrl=springUrl(addTelecommuncationCableCrossingUrl) linkClass="govuk-button govuk-button--blue"/>
         <#if telecommunicationCableCrossings?has_content>
           <table class="govuk-table">
             <thead class="govuk-table__head">
@@ -80,7 +80,7 @@
         </#if>
 
       <h2 class="govuk-heading-l">Pipeline Crossings</h2>
-        <@fdsAction.link linkText="Add pipeline crossing" linkUrl=springUrl(addPipelineCrossingUrl) linkClass="govuk-button govuk-button--secondary"/>
+        <@fdsAction.link linkText="Add pipeline crossing" linkUrl=springUrl(addPipelineCrossingUrl) linkClass="govuk-button govuk-button--blue"/>
         <#if pipelineCrossings?has_content>
           <table class="govuk-table">
             <thead class="govuk-table__head">

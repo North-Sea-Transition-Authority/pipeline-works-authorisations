@@ -3,10 +3,12 @@ package uk.co.ogauthority.pwa.temp.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -20,8 +22,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.FormState;
+import uk.co.ogauthority.pwa.temp.PrototypeApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.model.admindetails.WithinSafetyZone;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreement;
 import uk.co.ogauthority.pwa.temp.model.contacts.UooAgreementView;
@@ -41,6 +43,7 @@ import uk.co.ogauthority.pwa.temp.model.form.crossings.BlockCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
 import uk.co.ogauthority.pwa.temp.model.pwacontacts.ContactRole;
+import uk.co.ogauthority.pwa.temp.model.view.TaskListEntry;
 import uk.co.ogauthority.pwa.util.DateUtil;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -52,44 +55,46 @@ public class PrototypePwaApplicationController {
   private final FormState formState;
   private static LocalDate startDate = LocalDate.now().plusMonths(4);
   private LinkedHashMap<String, String> taskList;
-  private final ApplicationBreadcrumbService breadcrumbService;
+  private final PrototypeApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public PrototypePwaApplicationController(ApplicationBreadcrumbService breadcrumbService, FormState formState) {
+  public PrototypePwaApplicationController(PrototypeApplicationBreadcrumbService breadcrumbService, FormState formState) {
     this.breadcrumbService = breadcrumbService;
     this.formState = formState;
   }
 
-  private LinkedHashMap<String, String> getTaskList(Integer applicationId) {
-    return new LinkedHashMap<>() {
-      {
-        put("PWA contacts",
-            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewApplicationContacts(applicationId)));
-        put("Project information",
-            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewProjectInformation(applicationId, null)));
-        put("Users, operators and owners",
-            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewUserOwnerOperatorContacts(applicationId)));
-        put("Administrative details",
-            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewAdministrativeDetails(applicationId, null)));
-        put("Pipelines",
-            ReverseRouter.route(on(PrototypePipelinesController.class).pipelines(applicationId)));
-        put("Crossings",
-            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewCrossings(applicationId, null)));
-        put("Location details",
-            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewLocationDetails(applicationId, null)));
-      }
-    };
+  private List<TaskListEntry> getTaskList(Integer applicationId) {
+    return new ArrayList<>(List.of(
+        new TaskListEntry("PWA contacts",
+            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewApplicationContacts(applicationId)), false),
+        new TaskListEntry("Project information",
+            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewProjectInformation(applicationId, null)), false),
+        new TaskListEntry("Users, operators and owners",
+            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewUserOwnerOperatorContacts(applicationId)), false),
+        new TaskListEntry("Administrative details",
+            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewAdministrativeDetails(applicationId, null)), false),
+        new TaskListEntry("Pipelines",
+            ReverseRouter.route(on(PrototypePipelinesController.class).pipelines(applicationId)), false),
+        new TaskListEntry("Crossings",
+            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewCrossings(applicationId, null)), false),
+        new TaskListEntry("Location details",
+            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewLocationDetails(applicationId, null)), false),
+        new TaskListEntry("Technical drawings",
+            ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)), false)
+    ));
   }
 
 
   @GetMapping("/tasks")
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId) {
     var taskList = getTaskList(applicationId);
-    taskList.compute("Fast-track", (String key, String oldValue) ->
-        startDate.isBefore(LocalDate.now().plusMonths(3))
-            ? ReverseRouter.route(on(PrototypePwaApplicationController.class).viewFastTrackInformation(applicationId, null))
-            : null
-    );
+
+    if (startDate.isBefore(LocalDate.now().plusMonths(3))) {
+      taskList.add(ListUtils.indexOf(taskList, taskListEntry -> taskListEntry.getTaskName().equals("Project information")) + 1,
+          new TaskListEntry("Fast-track",
+              ReverseRouter.route(on(PrototypePwaApplicationController.class).viewFastTrackInformation(applicationId, null)), false)
+      );
+    }
     var modelAndView = new ModelAndView("pwaApplication/temporary/taskList")
         .addObject("availableTasks", taskList);
 
@@ -104,7 +109,7 @@ public class PrototypePwaApplicationController {
     var modelAndView = new ModelAndView("pwaApplication/temporary/administrativeDetails")
         .addObject("holderCompanyName", "ROYAL DUTCH SHELL")
         .addObject("withinSafetyZone", Arrays.stream(WithinSafetyZone.values())
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, WithinSafetyZone::getDisplayText)));
     breadcrumbService.fromTaskList(applicationId, modelAndView, "Administrative details");
     return modelAndView;
   }
@@ -133,7 +138,7 @@ public class PrototypePwaApplicationController {
                                                 @ModelAttribute("form") PwaContactForm pwaContactForm) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/pwaContacts/new")
         .addObject("roles", Arrays.stream(ContactRole.values())
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString)));
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, ContactRole::getDisplayText)));
 
     breadcrumbService.fromPwaContacts(applicationId, modelAndView, "Add contact");
     return modelAndView;
@@ -196,7 +201,7 @@ public class PrototypePwaApplicationController {
     formState.apply(locationForm);
     var modelAndView = new ModelAndView("pwaApplication/temporary/locationDetails")
         .addObject("medianLineSelections", Arrays.stream(MedianLineSelection.values())
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, Enum::toString))
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, MedianLineSelection::getDisplayText))
         ).addObject("holderCompanyName", "ROYAL DUTCH SHELL");
 
     breadcrumbService.fromTaskList(applicationId, modelAndView, "Location details");
@@ -303,11 +308,11 @@ public class PrototypePwaApplicationController {
                                         @ModelAttribute("form") UserOwnerOperatorForm userOwnerOperatorForm) {
     var modelAndView = new ModelAndView("pwaApplication/temporary/uooContacts/new")
         .addObject("uooTypes", Arrays.stream(UooType.values())
-            .collect(StreamUtils.toLinkedHashMap(UooType::name, UooType::toString)))
+            .collect(StreamUtils.toLinkedHashMap(UooType::name, UooType::getDisplayText)))
         .addObject("uooRoles", Arrays.stream(UooRole.values())
-            .collect(StreamUtils.toLinkedHashMap(UooRole::name, UooRole::toString)))
+            .collect(StreamUtils.toLinkedHashMap(UooRole::name, UooRole::getDisplayText)))
         .addObject("uooAgreements", Arrays.stream(UooAgreement.values())
-            .collect(StreamUtils.toLinkedHashMap(UooAgreement::name, UooAgreement::toString)));
+            .collect(StreamUtils.toLinkedHashMap(UooAgreement::name, UooAgreement::getAgreementText)));
 
     breadcrumbService.fromUoo(applicationId, modelAndView, "Add user, operator or owner");
     return modelAndView;
@@ -370,7 +375,7 @@ public class PrototypePwaApplicationController {
   }
 
   private List<UooAgreementView> makeUooTreatyViews() {
-    var uooA = new UooAgreementView(UooAgreement.NCS_EXPORT_GAS.toString(), Set.of("User"));
+    var uooA = new UooAgreementView(UooAgreement.NCS_EXPORT_GAS.getAgreementText(), Set.of("User"));
     return List.of(uooA);
   }
 
