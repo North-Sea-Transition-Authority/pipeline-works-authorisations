@@ -93,7 +93,7 @@ public class PickExistingPwaController {
 
       var masterPwa = masterPwaAuthorisationService.getMasterPwaIfAuthorised(form.getMasterPwaId(), user);
       var newApplication = pwaApplicationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType);
-      return pwaApplicationRedirectService.getTaskListRedirect(newApplication, user);
+      return pwaApplicationRedirectService.getTaskListRedirect(newApplication);
     });
   }
 

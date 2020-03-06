@@ -1,6 +1,6 @@
 <#include '../../layout.ftl'>
 
-<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start decommissioning variation" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
+<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start ${typeDisplay}" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
 
   <p class="govuk-body">For proposed subsea pipeline works associated with Decommissioning- only to be used on the
     condition that OGA has agreed COP and the Operator has confirmed the last day of production in writing to OGA

@@ -7,16 +7,14 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,7 +63,7 @@ public class DepositConsentTaskListControllerTest extends AbstractControllerTest
         ReverseRouter.route(on(DepositConsentTaskListController.class).viewTaskList(1, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        // TODO: Remove hard-coded "PWA-Example-BP-2" once PWA references are in place.
+        // TODO: PWA-361 - Remove hard-coded "PWA-Example-BP-2".
         .andExpect(model().attribute("masterPwaReference", "PWA-Example-BP-2"))
         .andReturn()
         .getModelAndView();
@@ -79,29 +77,20 @@ public class DepositConsentTaskListControllerTest extends AbstractControllerTest
   public void viewTaskList_Unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(1, null))))
         .andExpect(status().is3xxRedirection());
-
-    mockMvc.perform(post(ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(1, null))))
-        .andExpect(status().isForbidden());
   }
 
   @Test
   public void viewTaskList_WrongApplicationType() throws Exception {
-    var incorrectApplicationTypes = getIncorrectApplicationTypes(PwaApplicationType.DEPOSIT_CONSENT);
+    var incorrectApplicationTypes = EnumSet.allOf(PwaApplicationType.class);
+    incorrectApplicationTypes.remove(PwaApplicationType.DEPOSIT_CONSENT);
     for (PwaApplicationType wrongType : incorrectApplicationTypes) {
       var invalidApplication = new PwaApplication(masterPwa, wrongType, 0);
       when(pwaApplicationService.getApplicationFromId(1)).thenReturn(invalidApplication);
       mockMvc.perform(get(ReverseRouter.route(on(DepositConsentTaskListController.class).viewTaskList(1, null)))
           .with(authenticatedUserAndSession(user))
           .with(csrf()))
-          // TODO: Remove hard-coded "PWA-Example-BP-2" once PWA references are in place.
-          .andExpect(status().is4xxClientError());
+          .andExpect(status().isNotFound());
     }
-  }
-
-  private List<PwaApplicationType> getIncorrectApplicationTypes(PwaApplicationType correctApplicationType) {
-    return Arrays.stream(PwaApplicationType.values())
-        .filter(pwaApplicationType -> !pwaApplicationType.equals(correctApplicationType))
-        .collect(Collectors.toList());
   }
 
 }

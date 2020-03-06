@@ -66,8 +66,11 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void renderPickPwaToStartApplication_onlySupportedTypesGetOkStatus() throws Exception {
     var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.HUOO_VARIATION, PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.DECOMMISSIONING);
+        PwaApplicationType.HUOO_VARIATION,
+        PwaApplicationType.DEPOSIT_CONSENT,
+        PwaApplicationType.OPTIONS_VARIATION,
+        PwaApplicationType.DECOMMISSIONING
+    );
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().isOk() : status().isForbidden();
@@ -86,9 +89,14 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   @Test
   public void pickPwaAndStartApplication_onlySupportedTypesGetOkRedicrectedToTaskList() throws Exception {
-    var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.HUOO_VARIATION, PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.OPTIONS_VARIATION,
-        PwaApplicationType.DECOMMISSIONING);
+    var expectOkAppTypes = EnumSet.of(
+        PwaApplicationType.CAT_1_VARIATION,
+        PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.HUOO_VARIATION,
+        PwaApplicationType.DEPOSIT_CONSENT,
+        PwaApplicationType.OPTIONS_VARIATION,
+        PwaApplicationType.DECOMMISSIONING
+    );
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().is3xxRedirection() : status().isForbidden();

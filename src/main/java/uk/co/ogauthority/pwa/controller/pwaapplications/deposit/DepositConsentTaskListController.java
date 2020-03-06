@@ -37,14 +37,14 @@ public class DepositConsentTaskListController {
   private List<TaskListEntry> getPwaInformationTaskList(PwaApplication pwaApplication) {
     return List.of(
         new TaskListEntry("No tasks",
-            pwaApplicationRedirectService.getTaskListRoute(pwaApplication, null), false)
+            pwaApplicationRedirectService.getTaskListRoute(pwaApplication), false)
     );
   }
 
   private List<TaskListEntry> getApplicationTaskList(PwaApplication pwaApplication) {
     return List.of(
         new TaskListEntry("No tasks",
-            pwaApplicationRedirectService.getTaskListRoute(pwaApplication, null), false)
+            pwaApplicationRedirectService.getTaskListRoute(pwaApplication), false)
     );
   }
 
@@ -55,6 +55,7 @@ public class DepositConsentTaskListController {
       throw new PwaEntityNotFoundException("Application of wrong type:" + application.getApplicationType());
     }
 
+    // TODO: PWA-361 - Remove hard-coded "PWA-Example-BP-2".
     var modelAndView = new ModelAndView("pwaApplication/depositConsent/depositConsentTaskList")
         .addObject("informationTasks", getPwaInformationTaskList(application))
         .addObject("applicationTasks", getApplicationTaskList(application))

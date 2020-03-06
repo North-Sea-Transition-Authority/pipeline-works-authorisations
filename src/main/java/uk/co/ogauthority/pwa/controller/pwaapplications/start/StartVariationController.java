@@ -49,6 +49,7 @@ public class StartVariationController {
     return modelAndView
         .addObject("htmlTitle", "Start new " + pwaApplicationType.getDisplayName())
         .addObject("pageHeading", "Start new " + pwaApplicationType.getDisplayName())
+        .addObject("typeDisplay", pwaApplicationType.getDisplayName())
         .addObject("buttonUrl", ReverseRouter.route(on(this.getClass()).startVariation(pwaApplicationType)));
   }
 

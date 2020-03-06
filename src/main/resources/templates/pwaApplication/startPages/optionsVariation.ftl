@@ -1,6 +1,6 @@
 <#include '../../layout.ftl'>
 
-<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start options variation" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
+<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start ${typeDisplay}" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
 
   <@fdsInsetText.insetText>
     The Holder should detail why they would like OGA to consider the case to be handled as an Options.
