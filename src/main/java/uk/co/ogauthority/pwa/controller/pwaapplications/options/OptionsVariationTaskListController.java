@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.category1;
+package uk.co.ogauthority.pwa.controller.pwaapplications.options;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +17,15 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @Controller
-@RequestMapping("/pwa-application/cat-1/{applicationId}/tasks")
-public class Category1TaskListController {
+@RequestMapping("/pwa-application/options-variation/{applicationId}/tasks")
+public class OptionsVariationTaskListController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaApplicationService pwaApplicationService;
 
   @Autowired
-  public Category1TaskListController(
+  public OptionsVariationTaskListController(
       ApplicationBreadcrumbService breadcrumbService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PwaApplicationService pwaApplicationService) {
@@ -51,18 +51,17 @@ public class Category1TaskListController {
   @GetMapping
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId, AuthenticatedUserAccount user) {
     var application = pwaApplicationService.getApplicationFromId(applicationId);
-    if (application.getApplicationType() != PwaApplicationType.CAT_1_VARIATION) {
+    if (application.getApplicationType() != PwaApplicationType.OPTIONS_VARIATION) {
       throw new PwaEntityNotFoundException("Application of wrong type:" + application.getApplicationType());
     }
 
     // TODO: PWA-361 - Remove hard-coded "PWA-Example-BP-2".
-    var modelAndView = new ModelAndView("pwaApplication/category1/cat1TaskList")
+    var modelAndView = new ModelAndView("pwaApplication/optionsVariation/optionsVariationTaskList")
         .addObject("informationTasks", getPwaInformationTaskList(application))
         .addObject("applicationTasks", getApplicationTaskList(application))
         .addObject("masterPwaReference", "PWA-Example-BP-2");
     breadcrumbService.fromWorkArea(modelAndView, "Task list");
     return modelAndView;
   }
-
 
 }

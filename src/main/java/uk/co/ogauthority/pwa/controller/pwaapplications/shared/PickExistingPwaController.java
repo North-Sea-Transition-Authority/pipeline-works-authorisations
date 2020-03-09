@@ -37,7 +37,12 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class PickExistingPwaController {
 
   private static final Set<PwaApplicationType> VALID_START_APPLICATION_TYPES = EnumSet.of(
-      PwaApplicationType.CAT_1_VARIATION
+      PwaApplicationType.CAT_1_VARIATION,
+      PwaApplicationType.CAT_2_VARIATION,
+      PwaApplicationType.HUOO_VARIATION,
+      PwaApplicationType.DEPOSIT_CONSENT,
+      PwaApplicationType.OPTIONS_VARIATION,
+      PwaApplicationType.DECOMMISSIONING
   );
 
   private final PwaApplicationService pwaApplicationService;

@@ -1,6 +1,6 @@
 <#include '../../layout.ftl'>
 
-<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
+<@fdsStartPage.startPage pageHeading=pageHeading buttonText="Start ${typeDisplay}" buttonUrl=buttonUrl htmlTitle=htmlTitle backLink=true>
 
   <p class="govuk-body">Varying an existing PWA and any new pipeline being installed in the Variation work scope is more than 500m in length and outside an HSE recognised safety zone. This also requires a 28 day Public Notice.</p>
 

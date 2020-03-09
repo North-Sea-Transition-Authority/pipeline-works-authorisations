@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="pwaInformationTasks" type="java.util.HashMap<String, String>" -->
 <#-- @ftlvariable name="applicationTasks" type="java.util.HashMap<String, String>" -->
 
-<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Category 1 variation for ${masterPwaReference}" breadcrumbs=true>
+<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Deposit Consent for ${masterPwaReference}" breadcrumbs=true>
 
     <@fdsTaskList.taskList>
 

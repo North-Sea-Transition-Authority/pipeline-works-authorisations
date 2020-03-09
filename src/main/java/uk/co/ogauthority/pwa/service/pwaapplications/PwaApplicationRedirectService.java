@@ -6,8 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.category1.Category1TaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.category2.Category2TaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.decommissioning.DecommissioningTaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.deposit.DepositConsentTaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.huoo.HuooVariationTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskList;
+import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsVariationTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartVariationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -24,14 +30,15 @@ public class PwaApplicationRedirectService {
     switch (applicationType) {
       case INITIAL:
         return ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage());
+      case HUOO_VARIATION:
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:
-      case DECOMMISSIONING:
       case DEPOSIT_CONSENT:
-      case HUOO_VARIATION:
       case OPTIONS_VARIATION:
-      default:
+      case DECOMMISSIONING:
         return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
+      default:
+        return ReverseRouter.redirect(on(StartPwaApplicationController.class).renderStartApplication(null));
     }
 
   }
@@ -45,12 +52,17 @@ public class PwaApplicationRedirectService {
       case INITIAL:
         return ReverseRouter.redirect(on(InitialTaskList.class).viewTaskList(pwaApplication.getId()));
       case CAT_1_VARIATION:
-        return ReverseRouter.redirect(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId()));
+        return ReverseRouter.redirect(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case CAT_2_VARIATION:
+        return ReverseRouter.redirect(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case DECOMMISSIONING:
+        return ReverseRouter.redirect(on(DecommissioningTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case DEPOSIT_CONSENT:
+        return ReverseRouter.redirect(on(DepositConsentTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case HUOO_VARIATION:
+        return ReverseRouter.redirect(on(HuooVariationTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case OPTIONS_VARIATION:
+        return ReverseRouter.redirect(on(OptionsVariationTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       default:
         return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea());
     }
@@ -65,12 +77,17 @@ public class PwaApplicationRedirectService {
       case INITIAL:
         return ReverseRouter.route(on(InitialTaskList.class).viewTaskList(pwaApplication.getId()));
       case CAT_1_VARIATION:
-        return ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId()));
+        return ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case CAT_2_VARIATION:
+        return ReverseRouter.route(on(Category2TaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case DECOMMISSIONING:
+        return ReverseRouter.route(on(DecommissioningTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case DEPOSIT_CONSENT:
+        return ReverseRouter.route(on(DepositConsentTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case HUOO_VARIATION:
+        return ReverseRouter.route(on(HuooVariationTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case OPTIONS_VARIATION:
+        return ReverseRouter.route(on(OptionsVariationTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       default:
         return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea());
     }

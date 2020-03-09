@@ -24,9 +24,23 @@ public class StartVariationController {
     ModelAndView modelAndView;
 
     switch (pwaApplicationType) {
-      // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 add case clause
       case CAT_1_VARIATION:
         modelAndView = new ModelAndView("pwaApplication/startPages/category1");
+        break;
+      case CAT_2_VARIATION:
+        modelAndView = new ModelAndView("pwaApplication/startPages/category2");
+        break;
+      case HUOO_VARIATION:
+        modelAndView = new ModelAndView("pwaApplication/startPages/huooVariation");
+        break;
+      case DEPOSIT_CONSENT:
+        modelAndView = new ModelAndView("pwaApplication/startPages/depositConsent");
+        break;
+      case OPTIONS_VARIATION:
+        modelAndView = new ModelAndView("pwaApplication/startPages/optionsVariation");
+        break;
+      case DECOMMISSIONING:
+        modelAndView = new ModelAndView("pwaApplication/startPages/decommissioningVariation");
         break;
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", pwaApplicationType));
@@ -35,6 +49,7 @@ public class StartVariationController {
     return modelAndView
         .addObject("htmlTitle", "Start new " + pwaApplicationType.getDisplayName())
         .addObject("pageHeading", "Start new " + pwaApplicationType.getDisplayName())
+        .addObject("typeDisplay", pwaApplicationType.getDisplayName())
         .addObject("buttonUrl", ReverseRouter.route(on(this.getClass()).startVariation(pwaApplicationType)));
   }
 
@@ -42,9 +57,14 @@ public class StartVariationController {
   public ModelAndView startVariation(@PathVariable("applicationTypePathUrl")
                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType) {
     switch (pwaApplicationType) {
-      // TODO PWA-298, PWA-299, PWA-300, PWA-301, PWA-302 add case clause and fall through to single return statement
-      case CAT_1_VARIATION: return ReverseRouter.redirect(on(PickExistingPwaController.class)
-          .renderPickPwaToStartApplication(pwaApplicationType, null, null));
+      case HUOO_VARIATION:
+      case CAT_1_VARIATION:
+      case CAT_2_VARIATION:
+      case DEPOSIT_CONSENT:
+      case OPTIONS_VARIATION:
+      case DECOMMISSIONING:
+        return ReverseRouter.redirect(on(PickExistingPwaController.class)
+            .renderPickPwaToStartApplication(pwaApplicationType, null, null));
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", pwaApplicationType));
     }

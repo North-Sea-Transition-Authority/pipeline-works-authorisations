@@ -1,9 +1,9 @@
 <#include '../../layout.ftl'>
 
-<#-- @ftlvariable name="pwaInformationTasks" type="java.util.HashMap<String, String>" -->
+<#-- @ftlvariable name="informationTasks" type="java.util.HashMap<String, String>" -->
 <#-- @ftlvariable name="applicationTasks" type="java.util.HashMap<String, String>" -->
 
-<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Category 1 variation for ${masterPwaReference}" breadcrumbs=true>
+<@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Holder, User, Operator, Owner Variation for ${masterPwaReference}" breadcrumbs=true>
 
     <@fdsTaskList.taskList>
 
