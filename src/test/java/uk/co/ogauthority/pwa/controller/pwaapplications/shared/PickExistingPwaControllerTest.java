@@ -65,7 +65,9 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   @Test
   public void renderPickPwaToStartApplication_onlySupportedTypesGetOkStatus() throws Exception {
-    var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION,
+    var expectOkAppTypes = EnumSet.of(
+        PwaApplicationType.CAT_1_VARIATION,
+        PwaApplicationType.CAT_2_VARIATION,
         PwaApplicationType.HUOO_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.OPTIONS_VARIATION,
