@@ -13,7 +13,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.masterpwa.PickedPwaRetrievalAndMigrationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @RunWith(MockitoJUnitRunner.class)

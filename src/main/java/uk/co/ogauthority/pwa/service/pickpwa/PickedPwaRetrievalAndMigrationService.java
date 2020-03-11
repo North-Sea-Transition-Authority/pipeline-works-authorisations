@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.masterpwa;
+package uk.co.ogauthority.pwa.service.pickpwa;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
+import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
 import uk.co.ogauthority.pwa.service.migration.PipelineAuthorisationMigrationService;
-import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
-import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaDto;
 
 @Service
 public class PickedPwaRetrievalAndMigrationService {

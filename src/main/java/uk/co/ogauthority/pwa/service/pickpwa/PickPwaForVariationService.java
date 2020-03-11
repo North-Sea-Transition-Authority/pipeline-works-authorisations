@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.masterpwa.PickedPwaRetrievalAndMigrationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 /**

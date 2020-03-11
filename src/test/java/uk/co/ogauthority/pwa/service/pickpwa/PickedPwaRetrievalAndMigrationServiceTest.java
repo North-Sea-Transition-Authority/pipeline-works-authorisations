@@ -15,7 +15,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
-import uk.co.ogauthority.pwa.service.masterpwa.PickedPwaRetrievalAndMigrationService;
 import uk.co.ogauthority.pwa.service.migration.PipelineAuthorisationMigrationService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,46 +31,53 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   @Mock
   private MasterPwaDetail masterPwaDetail;
 
+  @Mock
+  private PickablePwa pickedPwa;
+
   private WebUserAccount webUserAccount = new WebUserAccount(1);
 
-  private PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
+  private PickedPwaRetrievalAndMigrationService pickedPwaRetrievalAndMigrationService;
 
   @Before
   public void setup() {
-    masterPwaRetrievalAndMigrationService = new PickedPwaRetrievalAndMigrationService(
+    pickedPwaRetrievalAndMigrationService = new PickedPwaRetrievalAndMigrationService(
         masterPwaAuthorisationService,
         pipelineAuthorisationMigrationService
     );
   }
 
   @Test
-  public void getPickablePwasWhereAuthorised_whenNoPickablePwasExist(){
-    assertThat(masterPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount)).isEmpty();
+  public void getPickablePwasWhereAuthorised_whenNoPickablePwasExist() {
+    assertThat(pickedPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount)).isEmpty();
 
     verify(masterPwaAuthorisationService, times(1)).getMasterPwasWhereUserIsAuthorised(webUserAccount);
-    verify(pipelineAuthorisationMigrationService, times(1)).getMasterPwasWhereUserIsAuthorisedAndNotMigrated(webUserAccount);
+    verify(pipelineAuthorisationMigrationService, times(1)).getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
+        webUserAccount);
   }
 
   @Test
-  public void getPickablePwasWhereAuthorised_whenSingleMigrationPwaExistsOnly(){
+  public void getPickablePwasWhereAuthorised_whenSingleMigrationPwaExistsOnly() {
     migrationMasterPwa = new MigrationMasterPwa();
     migrationMasterPwa.setPadId(1);
     migrationMasterPwa.setReference("REFERENCE");
 
-    when(pipelineAuthorisationMigrationService.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(webUserAccount)).thenReturn(
+    when(pipelineAuthorisationMigrationService.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
+        webUserAccount)).thenReturn(
         List.of(migrationMasterPwa)
     );
 
-    var pickablePwaDtos =  masterPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount);
+    var pickablePwaDtos = pickedPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount);
 
     assertThat(pickablePwaDtos.size()).isEqualTo(1);
-    assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(PickablePwa.getMigrationPwaPrefix() + migrationMasterPwa.getPadId());
+    assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(
+        PickablePwa.getMigrationPwaPrefix() + migrationMasterPwa.getPadId()
+    );
     assertThat(pickablePwaDtos.get(0).getReference()).isEqualTo(migrationMasterPwa.getReference());
 
   }
 
   @Test
-  public void getPickablePwasWhereAuthorised_whenSingleMasterPwaExistsOnly(){
+  public void getPickablePwasWhereAuthorised_whenSingleMasterPwaExistsOnly() {
     when(masterPwaDetail.getReference()).thenReturn("REFERENCE");
     when(masterPwaDetail.getMasterPwaId()).thenReturn(100);
 
@@ -80,11 +86,19 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
         List.of(masterPwaDetail)
     );
 
-    var pickablePwaDtos =  masterPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount);
+    var pickablePwaDtos = pickedPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount);
 
     assertThat(pickablePwaDtos.size()).isEqualTo(1);
-    assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(PickablePwa.getMasterPwaPrefix() + masterPwaDetail.getMasterPwaId());
+    assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(
+        PickablePwa.getMasterPwaPrefix() + masterPwaDetail.getMasterPwaId()
+    );
     assertThat(pickablePwaDtos.get(0).getReference()).isEqualTo(masterPwaDetail.getReference());
 
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void getOrMigratePickedPwa_whenUnknownPwaSource() {
+    when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.UNKNOWN);
+    var masterPwa = pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, webUserAccount);
   }
 }

@@ -26,7 +26,7 @@ public class PickablePwa {
     this.pickablePwaString = pickedPwaString;
     this.pickablePwaSource = findPwaSourceFromPickableString(pickedPwaString);
     this.contentId = getPickablePwaContentIdFromPickableString(pickedPwaString)
-        .orElseThrow(() -> new RuntimeException("Could not decode picked pwa string:" + pickedPwaString));
+        .orElseThrow(() -> new IllegalArgumentException("Could not decode picked pwa string:" + pickedPwaString));
   }
 
 
