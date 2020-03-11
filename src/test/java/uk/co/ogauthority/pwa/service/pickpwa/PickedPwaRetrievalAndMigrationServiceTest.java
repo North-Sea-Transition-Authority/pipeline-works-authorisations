@@ -1,17 +1,21 @@
 package uk.co.ogauthority.pwa.service.pickpwa;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
@@ -32,6 +36,9 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   private MasterPwaDetail masterPwaDetail;
 
   @Mock
+  private MasterPwa masterPwa;
+
+  @Mock
   private PickablePwa pickedPwa;
 
   private WebUserAccount webUserAccount = new WebUserAccount(1);
@@ -44,6 +51,14 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
         masterPwaAuthorisationService,
         pipelineAuthorisationMigrationService
     );
+
+    migrationMasterPwa = new MigrationMasterPwa();
+    migrationMasterPwa.setPadId(1);
+    migrationMasterPwa.setReference("REFERENCE");
+
+    when(pickedPwa.getContentId()).thenReturn(100);
+    when(masterPwaDetail.getMasterPwaId()).thenReturn(999);
+    when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
   }
 
   @Test
@@ -57,9 +72,6 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
 
   @Test
   public void getPickablePwasWhereAuthorised_whenSingleMigrationPwaExistsOnly() {
-    migrationMasterPwa = new MigrationMasterPwa();
-    migrationMasterPwa.setPadId(1);
-    migrationMasterPwa.setReference("REFERENCE");
 
     when(pipelineAuthorisationMigrationService.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
         webUserAccount)).thenReturn(
@@ -79,8 +91,6 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   @Test
   public void getPickablePwasWhereAuthorised_whenSingleMasterPwaExistsOnly() {
     when(masterPwaDetail.getReference()).thenReturn("REFERENCE");
-    when(masterPwaDetail.getMasterPwaId()).thenReturn(100);
-
 
     when(masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(webUserAccount)).thenReturn(
         List.of(masterPwaDetail)
@@ -100,5 +110,42 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   public void getOrMigratePickedPwa_whenUnknownPwaSource() {
     when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.UNKNOWN);
     var masterPwa = pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, webUserAccount);
+  }
+
+  @Test
+  public void getOrMigratePickedPwa_whenSourceIsMaster() {
+    when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.MASTER);
+    pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, webUserAccount);
+    verify(masterPwaAuthorisationService, times(1)).getMasterPwaIfAuthorised(
+        pickedPwa.getContentId(),
+        webUserAccount
+    );
+    verifyNoMoreInteractions(masterPwaAuthorisationService, pipelineAuthorisationMigrationService);
+  }
+
+  @Test
+  public void getOrMigratePickedPwa_whenSourceIsMigration() {
+    when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.MIGRATION);
+    when(pipelineAuthorisationMigrationService.getMasterPwaWhereUserIsAuthorisedAndNotMigratedByPadId(
+        webUserAccount,
+        pickedPwa.getContentId()
+    )).thenReturn(migrationMasterPwa);
+
+    when(pipelineAuthorisationMigrationService.migrate(migrationMasterPwa)).thenReturn(masterPwaDetail);
+
+    InOrder orderVerifier = inOrder(pipelineAuthorisationMigrationService, masterPwaAuthorisationService);
+
+    pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, webUserAccount);
+
+    orderVerifier.verify(pipelineAuthorisationMigrationService, times(1))
+        .getMasterPwaWhereUserIsAuthorisedAndNotMigratedByPadId(
+            webUserAccount,
+            pickedPwa.getContentId()
+        );
+
+    orderVerifier.verify(pipelineAuthorisationMigrationService, times(1))
+        .migrate(migrationMasterPwa);
+
+    orderVerifier.verifyNoMoreInteractions();
   }
 }
