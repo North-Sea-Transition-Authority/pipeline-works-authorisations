@@ -91,6 +91,10 @@ public class MasterPwaDetail {
     this.endInstant = endInstant;
   }
 
+  public int getMasterPwaId() {
+    return this.masterPwa.getId();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

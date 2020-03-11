@@ -27,10 +27,14 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationServiceTest {
+
+  @Mock
+  private MasterPwaManagementService masterPwaManagementService;
 
   @Mock
   private MasterPwaRepository masterPwaRepository;
@@ -57,8 +61,7 @@ public class PwaApplicationServiceTest {
   @Before
   public void setUp() {
     pwaApplicationService = new PwaApplicationService(
-        masterPwaRepository,
-        masterPwaDetailRepository,
+        masterPwaManagementService,
         pwaApplicationRepository,
         pwaApplicationDetailRepository,
         camundaWorkflowService,

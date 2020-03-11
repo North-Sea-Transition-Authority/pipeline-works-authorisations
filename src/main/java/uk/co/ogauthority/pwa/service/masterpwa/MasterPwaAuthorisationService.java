@@ -41,7 +41,7 @@ public class MasterPwaAuthorisationService {
   /*
    * Skeleton implementation until we have the authorisation model done
    * */
-  private List<MasterPwaDetail> getMasterPwasWhereUserIsAuthorised(WebUserAccount requestingWebUserAccount) {
+  public List<MasterPwaDetail> getMasterPwasWhereUserIsAuthorised(WebUserAccount requestingWebUserAccount) {
     // TODO authorisation
     return masterPwaDetailRepository.findByEndInstantIsNullAndMasterPwaDetailStatus(MasterPwaDetailStatus.CONSENTED);
 
@@ -51,7 +51,8 @@ public class MasterPwaAuthorisationService {
    * Skeleton implementation until we have the authorisation model done
    * */
   public List<MasterPwaDto> getMasterPwaDtosWhereUserIsAuthorised(WebUserAccount requestingWebUserAccount) {
-    return getMasterPwasWhereUserIsAuthorised(requestingWebUserAccount).stream()
+    return getMasterPwasWhereUserIsAuthorised(requestingWebUserAccount)
+        .stream()
         .map(mpd -> new MasterPwaDto(mpd.getReference(), mpd.getMasterPwa().getId()))
         .collect(Collectors.toUnmodifiableList());
   }

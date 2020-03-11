@@ -24,8 +24,10 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PickPwaForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
-import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaDto;
+import uk.co.ogauthority.pwa.service.masterpwa.PickedPwaRetrievalAndMigrationService;
+import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
+import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
+import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -46,17 +48,20 @@ public class PickExistingPwaController {
   );
 
   private final PwaApplicationService pwaApplicationService;
-  private final MasterPwaAuthorisationService masterPwaAuthorisationService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
+  private final PickPwaForVariationService pickPwaForVariationService;
 
   @Autowired
   public PickExistingPwaController(
       PwaApplicationService pwaApplicationService,
-      MasterPwaAuthorisationService masterPwaAuthorisationService,
-      PwaApplicationRedirectService pwaApplicationRedirectService) {
+      PwaApplicationRedirectService pwaApplicationRedirectService,
+      PickedPwaRetrievalAndMigrationService pickPwaService,
+      PickPwaForVariationService pickPwaForVariationService) {
     this.pwaApplicationService = pwaApplicationService;
-    this.masterPwaAuthorisationService = masterPwaAuthorisationService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.masterPwaRetrievalAndMigrationService = pickPwaService;
+    this.pickPwaForVariationService = pickPwaForVariationService;
   }
 
 
@@ -71,10 +76,10 @@ public class PickExistingPwaController {
 
   private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user) {
 
-    Map<String, String> selectablePwaMap = masterPwaAuthorisationService.getMasterPwaDtosWhereUserIsAuthorised(user)
+    Map<String, String> selectablePwaMap = masterPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(user)
         .stream()
-        .sorted(Comparator.comparing(MasterPwaDto::getReference))
-        .collect(StreamUtils.toLinkedHashMap(pwa -> String.valueOf(pwa.getMasterPwaId()), MasterPwaDto::getReference));
+        .sorted(Comparator.comparing(PickablePwaDto::getReference))
+        .collect(StreamUtils.toLinkedHashMap(PickablePwaDto::getPickablePwaString, PickablePwaDto::getReference));
 
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
         .addObject("selectablePwaMap", selectablePwaMap)
@@ -90,12 +95,16 @@ public class PickExistingPwaController {
                                                  AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
     return ControllerUtils.validateAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
-
-      var masterPwa = masterPwaAuthorisationService.getMasterPwaIfAuthorised(form.getMasterPwaId(), user);
-      var newApplication = pwaApplicationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType);
+      var pickedPwa = new PickablePwa(form.getPickablePwaString());
+      var newApplication = pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(
+          pickedPwa,
+          pwaApplicationType,
+          user
+      );
       return pwaApplicationRedirectService.getTaskListRedirect(newApplication);
     });
   }
+
 
   private void checkApplicationTypeValid(PwaApplicationType pwaApplicationType) {
     if (!VALID_START_APPLICATION_TYPES.contains(pwaApplicationType)) {

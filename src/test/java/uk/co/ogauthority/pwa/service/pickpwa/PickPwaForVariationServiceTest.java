@@ -1,0 +1,55 @@
+package uk.co.ogauthority.pwa.service.pickpwa;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.masterpwa.PickedPwaRetrievalAndMigrationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PickPwaForVariationServiceTest {
+
+  @Mock
+  private PickedPwaRetrievalAndMigrationService pickedPwaRetrievalAndMigrationService;
+  @Mock
+  private PwaApplicationService pwaApplicationService;
+
+  @Mock
+  private PickablePwa pickablePwa;
+
+  @Mock
+  private MasterPwa masterPwa;
+
+  private WebUserAccount webUserAccount = new WebUserAccount(1);
+
+  private PickPwaForVariationService pickPwaForVariationService;
+
+  @Before
+  public void setup() {
+    pickPwaForVariationService = new PickPwaForVariationService(
+        pickedPwaRetrievalAndMigrationService,
+        pwaApplicationService
+    );
+
+    when(pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(any(), any())).thenReturn(masterPwa);
+  }
+
+  @Test
+  public void createPwaVariationApplicationForPickedPwa_verifyServiceInteractions(){
+
+    pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(pickablePwa, PwaApplicationType.CAT_1_VARIATION, webUserAccount);
+    verify(pickedPwaRetrievalAndMigrationService, times(1)).getOrMigratePickedPwa(pickablePwa, webUserAccount);
+    verify(pwaApplicationService, times(1)).createVariationPwaApplication(webUserAccount, masterPwa, PwaApplicationType.CAT_1_VARIATION);
+  }
+
+}
