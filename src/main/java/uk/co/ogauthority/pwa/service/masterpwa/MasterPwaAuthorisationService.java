@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.masterpwa;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -49,16 +48,6 @@ public class MasterPwaAuthorisationService {
 
   }
 
-  /*
-   * Skeleton implementation until we have the authorisation model done
-   * */
-  public List<MasterPwaDto> getMasterPwaDtosWhereUserIsAuthorised(WebUserAccount requestingWebUserAccount) {
-    // TODO authorisation
-    return getMasterPwasWhereUserIsAuthorised(requestingWebUserAccount)
-        .stream()
-        .map(mpd -> new MasterPwaDto(mpd.getReference(), mpd.getMasterPwa().getId()))
-        .collect(Collectors.toUnmodifiableList());
-  }
 
 
 }
