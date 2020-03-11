@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.licence;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,10 +21,7 @@ public class PedLicenceService {
   }
 
   public List<PedLicence> getAllLicences() {
-    var list = new ArrayList<PedLicence>();
-    pedLicenceRepository.findAll()
-        .forEach(list::add);
-    return list;
+    return (List<PedLicence>) pedLicenceRepository.findAll();
   }
 
 }
