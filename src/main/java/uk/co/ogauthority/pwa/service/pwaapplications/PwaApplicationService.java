@@ -14,12 +14,11 @@ import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaDetailRepository;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 /**
@@ -28,22 +27,20 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 @Service
 public class PwaApplicationService {
 
-  private final MasterPwaRepository masterPwaRepository;
-  private final MasterPwaDetailRepository masterPwaDetailRepository;
+
+  private final MasterPwaManagementService masterPwaManagementService;
   private final PwaApplicationRepository pwaApplicationRepository;
   private final PwaApplicationDetailRepository pwaApplicationDetailRepository;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
 
   @Autowired
-  public PwaApplicationService(MasterPwaRepository masterPwaRepository,
-                               MasterPwaDetailRepository masterPwaDetailRepository,
+  public PwaApplicationService(MasterPwaManagementService masterPwaManagementService,
                                PwaApplicationRepository pwaApplicationRepository,
                                PwaApplicationDetailRepository pwaApplicationDetailRepository,
                                CamundaWorkflowService camundaWorkflowService,
                                @Qualifier("utcClock") Clock clock) {
-    this.masterPwaRepository = masterPwaRepository;
-    this.masterPwaDetailRepository = masterPwaDetailRepository;
+    this.masterPwaManagementService = masterPwaManagementService;
     this.pwaApplicationRepository = pwaApplicationRepository;
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -54,17 +51,12 @@ public class PwaApplicationService {
   public PwaApplication createInitialPwaApplication(WebUserAccount createdByUser) {
 
     var creationInstant = Instant.now(clock);
+    MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
+        MasterPwaDetailStatus.APPLICATION,
+        "New Pwa " + RandomUtils.nextInt()
+    );
 
-    var masterPwa = new MasterPwa(creationInstant);
-    masterPwaRepository.save(masterPwa);
-
-    var masterPwaDetail = new MasterPwaDetail(creationInstant);
-    masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
-    masterPwaDetail.setReference("New Pwa " + RandomUtils.nextInt());
-    masterPwaDetail.setMasterPwa(masterPwa);
-    masterPwaDetailRepository.save(masterPwaDetail);
-
-    var application = new PwaApplication(masterPwa, PwaApplicationType.INITIAL, 0);
+    var application = new PwaApplication(masterPwaDetail.getMasterPwa(), PwaApplicationType.INITIAL, 0);
     pwaApplicationRepository.save(application);
 
     var detail = new PwaApplicationDetail(application, 1, createdByUser.getWuaId(), creationInstant);

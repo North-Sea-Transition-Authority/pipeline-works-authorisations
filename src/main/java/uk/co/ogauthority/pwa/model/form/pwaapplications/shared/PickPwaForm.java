@@ -4,13 +4,13 @@ import javax.validation.constraints.NotNull;
 
 public class PickPwaForm {
   @NotNull(message = "Select a PWA")
-  private Integer masterPwaId;
+  private String pickablePwaString;
 
-  public Integer getMasterPwaId() {
-    return masterPwaId;
+  public String getPickablePwaString() {
+    return pickablePwaString;
   }
 
-  public void setMasterPwaId(Integer masterPwaId) {
-    this.masterPwaId = masterPwaId;
+  public void setPickablePwaString(String pickablePwaString) {
+    this.pickablePwaString = pickablePwaString;
   }
 }

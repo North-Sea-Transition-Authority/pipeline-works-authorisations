@@ -17,6 +17,7 @@ import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,6 +30,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
+import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
+import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaSource;
+import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalAndMigrationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 @RunWith(SpringRunner.class)
@@ -41,16 +45,26 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @MockBean
   private MasterPwaAuthorisationService masterPwaAuthorisationService;
 
+  @MockBean
+  private PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
+
+  @MockBean
+  private PickPwaForVariationService pickPwaForVariationService;
+
+  @Mock
+  private PwaApplication pwaApplication;
+
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Collections.emptyList());
 
   private MasterPwa masterPwa = new MasterPwa();
+
   @Before
-  public void setup(){
+  public void setup() {
 
     when(masterPwaAuthorisationService.getMasterPwaIfAuthorised(anyInt(), any())).thenReturn(masterPwa);
     // fake create application service so we get an app of the requested type back
-    when(pwaApplicationService.createVariationPwaApplication(any(), any(), any())).thenAnswer( invocation -> {
+    when(pwaApplicationService.createVariationPwaApplication(any(), any(), any())).thenAnswer(invocation -> {
           PwaApplicationType appType = Arrays.stream(invocation.getArguments())
               .filter(arg -> arg instanceof PwaApplicationType)
               .map(o -> (PwaApplicationType) o)
@@ -60,6 +74,9 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
           return application;
         }
     );
+
+    when(pwaApplication.getApplicationType()).thenReturn(PwaApplicationType.CAT_1_VARIATION);
+    when(pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(any(), any(), any())).thenReturn(pwaApplication);
 
   }
 
@@ -90,7 +107,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void pickPwaAndStartApplication_onlySupportedTypesGetOkRedicrectedToTaskList() throws Exception {
+  public void pickPwaAndStartApplication_onlySupportedTypesGetOkRedirectedToTaskList() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
@@ -99,16 +116,17 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
         PwaApplicationType.OPTIONS_VARIATION,
         PwaApplicationType.DECOMMISSIONING
     );
-
+    var validPickedString = PickablePwaSource.MASTER.getPickableStringPrefix() + 1;
     for (PwaApplicationType appType : PwaApplicationType.values()) {
-      ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().is3xxRedirection() : status().isForbidden();
+      ResultMatcher expectedStatus = expectOkAppTypes.contains(appType)
+          ? status().is3xxRedirection() : status().isForbidden();
       try {
         mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-            .pickPwaAndStartApplication(appType, null, null, null))
-        )
-            .with(authenticatedUserAndSession(user))
-            .with(csrf())
-            .param("masterPwaId", "1")
+                .pickPwaAndStartApplication(appType, null, null, null))
+            )
+                .with(authenticatedUserAndSession(user))
+                .with(csrf())
+                .param("pickablePwaString", validPickedString)
         )
             .andExpect(expectedStatus);
       } catch (AssertionError e) {

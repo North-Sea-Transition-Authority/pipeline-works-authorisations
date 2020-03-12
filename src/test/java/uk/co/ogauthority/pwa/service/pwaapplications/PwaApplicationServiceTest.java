@@ -1,8 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -15,7 +18,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -27,10 +29,14 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationServiceTest {
+
+  @Mock
+  private MasterPwaManagementService masterPwaManagementService;
 
   @Mock
   private MasterPwaRepository masterPwaRepository;
@@ -54,11 +60,16 @@ public class PwaApplicationServiceTest {
       .atStartOfDay(ZoneId.systemDefault())
       .toInstant();
 
+  @Mock
+  private MasterPwaDetail masterPwaDetail;
+
+  @Mock
+  private MasterPwa masterPwa;
+
   @Before
   public void setUp() {
     pwaApplicationService = new PwaApplicationService(
-        masterPwaRepository,
-        masterPwaDetailRepository,
+        masterPwaManagementService,
         pwaApplicationRepository,
         pwaApplicationDetailRepository,
         camundaWorkflowService,
@@ -70,32 +81,21 @@ public class PwaApplicationServiceTest {
 
     WebUserAccount user = new WebUserAccount(123);
 
+    when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
+    when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
+
     PwaApplication createdApplication = pwaApplicationService.createInitialPwaApplication(user);
 
-    ArgumentCaptor<MasterPwa> pwaArgumentCaptor = ArgumentCaptor.forClass(MasterPwa.class);
-    ArgumentCaptor<MasterPwaDetail> pwaDetailArgumentCaptor = ArgumentCaptor.forClass(MasterPwaDetail.class);
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
     ArgumentCaptor<PwaApplicationDetail> detailArgumentCaptor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
 
-    verify(masterPwaRepository, times(1)).save(pwaArgumentCaptor.capture());
-    verify(masterPwaDetailRepository, times(1)).save(pwaDetailArgumentCaptor.capture());
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
     verify(pwaApplicationDetailRepository, times(1)).save(detailArgumentCaptor.capture());
     verify(camundaWorkflowService, times(1)).startWorkflow(WorkflowType.PWA_APPLICATION,
         applicationArgumentCaptor.getValue().getId());
 
-    MasterPwa masterPwa = pwaArgumentCaptor.getValue();
-    MasterPwaDetail masterPwaDetail = pwaDetailArgumentCaptor.getValue();
     PwaApplication application = applicationArgumentCaptor.getValue();
     PwaApplicationDetail detail = detailArgumentCaptor.getValue();
-
-    // check master pwa set up correctly
-    assertThat(masterPwa.getCreatedTimestamp()).isEqualTo(fixedInstant);
-    assertThat(masterPwa.getPortalOrganisationUnit()).isNull();
-
-    assertThat(masterPwaDetail.getStartInstant()).isEqualTo(fixedInstant);
-    assertThat(masterPwaDetail.getReference()).isNotBlank();
-    assertThat(masterPwaDetail.getMasterPwaDetailStatus()).isEqualTo(MasterPwaDetailStatus.APPLICATION);
 
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
@@ -128,7 +128,7 @@ public class PwaApplicationServiceTest {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_1_VARIATION);
   }
 
-  private void createVariationPwaApplication_assertUsingType(PwaApplicationType pwaApplicationType){
+  private void createVariationPwaApplication_assertUsingType(PwaApplicationType pwaApplicationType) {
     WebUserAccount user = new WebUserAccount(123);
 
     MasterPwa masterPwa = new MasterPwa(fixedInstant);
