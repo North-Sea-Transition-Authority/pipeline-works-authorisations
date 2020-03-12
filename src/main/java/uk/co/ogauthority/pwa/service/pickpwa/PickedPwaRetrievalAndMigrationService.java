@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
+import uk.co.ogauthority.pwa.service.migration.MigrationDataAccessor;
 import uk.co.ogauthority.pwa.service.migration.PipelineAuthorisationMigrationService;
 
 @Service
@@ -17,18 +18,21 @@ public class PickedPwaRetrievalAndMigrationService {
 
   private final MasterPwaAuthorisationService masterPwaAuthorisationService;
   private final PipelineAuthorisationMigrationService pipelineAuthorisationMigrationService;
+  private final MigrationDataAccessor migrationDataAccessor;
 
   @Autowired
   public PickedPwaRetrievalAndMigrationService(MasterPwaAuthorisationService masterPwaAuthorisationService,
-                                               PipelineAuthorisationMigrationService pipelineAuthorisationMigrationService) {
+                                               PipelineAuthorisationMigrationService pipelineAuthorisationMigrationService,
+                                               MigrationDataAccessor migrationDataAccessor) {
     this.masterPwaAuthorisationService = masterPwaAuthorisationService;
     this.pipelineAuthorisationMigrationService = pipelineAuthorisationMigrationService;
+    this.migrationDataAccessor = migrationDataAccessor;
   }
 
 
   public List<PickablePwaDto> getPickablePwasWhereAuthorised(WebUserAccount webUserAccount) {
     List<MasterPwaDetail> masterPwas = masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(webUserAccount);
-    List<MigrationMasterPwa> migrationPwas = pipelineAuthorisationMigrationService.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
+    List<MigrationMasterPwa> migrationPwas = migrationDataAccessor.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
         webUserAccount
     );
 
@@ -54,11 +58,8 @@ public class PickedPwaRetrievalAndMigrationService {
             user
         );
       case MIGRATION: {
-        MigrationMasterPwa migrationMasterPwa = pipelineAuthorisationMigrationService
-            .getMasterPwaWhereUserIsAuthorisedAndNotMigratedByPadId(
-                user,
-                pickedPwaForVariation.getContentId()
-            );
+        MigrationMasterPwa migrationMasterPwa = migrationDataAccessor
+            .getMasterPwaWhereUserIsAuthorisedAndNotMigratedByPadId(user, pickedPwaForVariation.getContentId());
         return pipelineAuthorisationMigrationService.migrate(migrationMasterPwa).getMasterPwa();
       }
       default:

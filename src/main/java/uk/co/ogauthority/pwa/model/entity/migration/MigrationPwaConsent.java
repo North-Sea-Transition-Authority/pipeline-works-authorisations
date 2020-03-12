@@ -40,7 +40,7 @@ public class MigrationPwaConsent implements MigratablePwaConsent {
                              int paId,
                              Integer pappId,
                              MigrationMasterPwa migrationMasterPwa,
-                             int variationNumber,
+                             Integer variationNumber,
                              Instant consentDate,
                              String reference) {
     this.padId = padId;

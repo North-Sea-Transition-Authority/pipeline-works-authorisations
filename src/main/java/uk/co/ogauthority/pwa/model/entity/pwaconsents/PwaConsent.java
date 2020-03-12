@@ -41,7 +41,10 @@ public class PwaConsent {
   @Enumerated(EnumType.STRING)
   private PwaConsentType consentType;
 
+  private Integer variationNumber;
+
   private String reference;
+
   private boolean isMigratedFlag;
 
   public PwaConsent() {
@@ -110,5 +113,13 @@ public class PwaConsent {
 
   public void setConsentInstant(Instant consentInstant) {
     this.consentInstant = consentInstant;
+  }
+
+  public Integer getVariationNumber() {
+    return variationNumber;
+  }
+
+  public void setVariationNumber(Integer variationNumber) {
+    this.variationNumber = variationNumber;
   }
 }

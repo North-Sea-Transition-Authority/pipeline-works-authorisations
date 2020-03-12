@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
+import uk.co.ogauthority.pwa.service.migration.MigrationDataAccessor;
 import uk.co.ogauthority.pwa.service.migration.PipelineAuthorisationMigrationService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,6 +37,9 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   private MasterPwaDetail masterPwaDetail;
 
   @Mock
+  private MigrationDataAccessor migrationDataAccessor;
+
+  @Mock
   private MasterPwa masterPwa;
 
   @Mock
@@ -49,8 +53,9 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   public void setup() {
     pickedPwaRetrievalAndMigrationService = new PickedPwaRetrievalAndMigrationService(
         masterPwaAuthorisationService,
-        pipelineAuthorisationMigrationService
-    );
+        pipelineAuthorisationMigrationService,
+        migrationDataAccessor
+        );
 
     migrationMasterPwa = new MigrationMasterPwa();
     migrationMasterPwa.setPadId(1);
@@ -66,14 +71,14 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
     assertThat(pickedPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount)).isEmpty();
 
     verify(masterPwaAuthorisationService, times(1)).getMasterPwasWhereUserIsAuthorised(webUserAccount);
-    verify(pipelineAuthorisationMigrationService, times(1)).getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
+    verify(migrationDataAccessor, times(1)).getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
         webUserAccount);
   }
 
   @Test
   public void getPickablePwasWhereAuthorised_whenSingleMigrationPwaExistsOnly() {
 
-    when(pipelineAuthorisationMigrationService.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
+    when(migrationDataAccessor.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
         webUserAccount)).thenReturn(
         List.of(migrationMasterPwa)
     );
@@ -126,18 +131,18 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   @Test
   public void getOrMigratePickedPwa_whenSourceIsMigration() {
     when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.MIGRATION);
-    when(pipelineAuthorisationMigrationService.getMasterPwaWhereUserIsAuthorisedAndNotMigratedByPadId(
+    when(migrationDataAccessor.getMasterPwaWhereUserIsAuthorisedAndNotMigratedByPadId(
         webUserAccount,
         pickedPwa.getContentId()
     )).thenReturn(migrationMasterPwa);
 
     when(pipelineAuthorisationMigrationService.migrate(migrationMasterPwa)).thenReturn(masterPwaDetail);
 
-    InOrder orderVerifier = inOrder(pipelineAuthorisationMigrationService, masterPwaAuthorisationService);
+    InOrder orderVerifier = inOrder(pipelineAuthorisationMigrationService, masterPwaAuthorisationService, migrationDataAccessor);
 
     pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, webUserAccount);
 
-    orderVerifier.verify(pipelineAuthorisationMigrationService, times(1))
+    orderVerifier.verify(migrationDataAccessor, times(1))
         .getMasterPwaWhereUserIsAuthorisedAndNotMigratedByPadId(
             webUserAccount,
             pickedPwa.getContentId()

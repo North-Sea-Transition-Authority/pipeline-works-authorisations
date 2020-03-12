@@ -6,6 +6,7 @@ CREATE TABLE ${datasource.user}.pwa_consents(
 , consent_timestamp TIMESTAMP NOT NULL
 , consent_type VARCHAR2(4000) NOT NULL
 , reference VARCHAR2(4000) NOT NULL
+, variation_number NUMBER
 , is_migrated_flag NUMBER(1) NOT NULL
 , CONSTRAINT pwac_id_fk FOREIGN KEY (pwa_id) REFERENCES ${datasource.user}.pwas (id)
 , CONSTRAINT pwac_app_id_fk FOREIGN KEY (source_pwa_application_id) REFERENCES ${datasource.user}.pwa_applications (id)

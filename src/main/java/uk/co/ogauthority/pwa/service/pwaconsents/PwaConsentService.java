@@ -29,6 +29,7 @@ public class PwaConsentService {
                                                        String reference,
                                                        PwaConsentType pwaConsentType,
                                                        Instant consentedInstant,
+                                                       Integer variationNumber,
                                                        boolean isMigrated) {
     var pwaConsent = new PwaConsent();
     pwaConsent.setMasterPwa(masterPwa);
@@ -37,6 +38,7 @@ public class PwaConsentService {
     pwaConsent.setCreatedInstant(clock.instant());
     pwaConsent.setConsentInstant(consentedInstant);
     pwaConsent.setReference(reference);
+    pwaConsent.setVariationNumber(variationNumber);
     pwaConsentRepository.save(pwaConsent);
     return pwaConsent;
   }
