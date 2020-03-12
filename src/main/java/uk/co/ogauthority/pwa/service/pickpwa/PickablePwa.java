@@ -6,8 +6,6 @@ import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 
 public class PickablePwa {
-  static final String MASTER_PWA_PREFIX = "MASTER_PWA/";
-  static final String MIGRATION_PWA_PREFIX = "MIGRATION_PWA/";
 
   private final PickablePwaSource pickablePwaSource;
   private final String pickablePwaString;
@@ -31,19 +29,23 @@ public class PickablePwa {
 
 
   PickablePwa(MasterPwaDetail masterPwaDetail) {
-    this(PickablePwaSource.MASTER, MASTER_PWA_PREFIX + masterPwaDetail.getMasterPwaId(),
-        masterPwaDetail.getMasterPwaId());
+    this(PickablePwaSource.MASTER,
+        PickablePwaSource.MASTER.getPickableStringPrefix() + masterPwaDetail.getMasterPwaId(),
+        masterPwaDetail.getMasterPwaId()
+    );
   }
 
   PickablePwa(MigrationMasterPwa migrationMasterPwa) {
-    this(PickablePwaSource.MIGRATION, MIGRATION_PWA_PREFIX + migrationMasterPwa.getPadId(),
-        migrationMasterPwa.getPadId());
+    this(PickablePwaSource.MIGRATION,
+        PickablePwaSource.MIGRATION.getPickableStringPrefix() + migrationMasterPwa.getPadId(),
+        migrationMasterPwa.getPadId()
+    );
   }
 
   private PickablePwaSource findPwaSourceFromPickableString(String inputString) {
-    if (inputString.startsWith(MASTER_PWA_PREFIX)) {
+    if (inputString.startsWith(PickablePwaSource.MASTER.getPickableStringPrefix())) {
       return PickablePwaSource.MASTER;
-    } else if (inputString.startsWith(MIGRATION_PWA_PREFIX)) {
+    } else if (inputString.startsWith(PickablePwaSource.MIGRATION.getPickableStringPrefix())) {
       return PickablePwaSource.MIGRATION;
     } else {
       return PickablePwaSource.UNKNOWN;
@@ -55,10 +57,10 @@ public class PickablePwa {
     Optional<String> content;
     switch (findPwaSourceFromPickableString(inputString)) {
       case MASTER:
-        content = Optional.of(inputString.substring(MASTER_PWA_PREFIX.length()));
+        content = Optional.of(getPickableStringContentFrom(PickablePwaSource.MASTER, inputString));
         break;
       case MIGRATION:
-        content = Optional.of(inputString.substring(MIGRATION_PWA_PREFIX.length()));
+        content = Optional.of(getPickableStringContentFrom(PickablePwaSource.MIGRATION, inputString));
         break;
       default:
         content = Optional.empty();
@@ -70,12 +72,8 @@ public class PickablePwa {
 
   }
 
-  public static String getMasterPwaPrefix() {
-    return MASTER_PWA_PREFIX;
-  }
-
-  public static String getMigrationPwaPrefix() {
-    return MIGRATION_PWA_PREFIX;
+  private String getPickableStringContentFrom(PickablePwaSource source, String pickedString) {
+    return pickedString.substring(source.getPickableStringPrefix().length());
   }
 
   public PickablePwaSource getPickablePwaSource() {

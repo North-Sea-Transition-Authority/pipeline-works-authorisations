@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
 /**
- * Coordinate migration of legacy PWA's into PWA's usable by the current in order to start a variation.
+ * Coordinate migration of legacy PWAs into PWAs usable by the current in order to start a variation.
  * Use the new migrated/existing MasterPwa as the basis for the new application.
  */
 @Service

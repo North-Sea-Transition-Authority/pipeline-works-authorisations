@@ -87,7 +87,7 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
 
     assertThat(pickablePwaDtos.size()).isEqualTo(1);
     assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(
-        PickablePwa.getMigrationPwaPrefix() + migrationMasterPwa.getPadId()
+        PickablePwaSource.MIGRATION.getPickableStringPrefix() + migrationMasterPwa.getPadId()
     );
     assertThat(pickablePwaDtos.get(0).getReference()).isEqualTo(migrationMasterPwa.getReference());
 
@@ -105,7 +105,7 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
 
     assertThat(pickablePwaDtos.size()).isEqualTo(1);
     assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(
-        PickablePwa.getMasterPwaPrefix() + masterPwaDetail.getMasterPwaId()
+        PickablePwaSource.MASTER.getPickableStringPrefix() + masterPwaDetail.getMasterPwaId()
     );
     assertThat(pickablePwaDtos.get(0).getReference()).isEqualTo(masterPwaDetail.getReference());
 

@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaAuthorisationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
-import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
+import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaSource;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalAndMigrationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 
@@ -116,7 +116,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
         PwaApplicationType.OPTIONS_VARIATION,
         PwaApplicationType.DECOMMISSIONING
     );
-    var validPickedString = PickablePwa.getMasterPwaPrefix() + 1;
+    var validPickedString = PickablePwaSource.MASTER.getPickableStringPrefix() + 1;
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType)
           ? status().is3xxRedirection() : status().isForbidden();

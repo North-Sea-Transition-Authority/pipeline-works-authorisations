@@ -32,9 +32,9 @@ public class MasterPwaManagementService {
 
   @Transactional
   public MasterPwaDetail createMasterPwa(MasterPwaDetailStatus masterPwaDetailStatus, String reference) {
-
-    var masterPwa = new MasterPwa(clock.instant());
-    var masterPwaDetail = new MasterPwaDetail(clock.instant());
+    var creationInstant = clock.instant();
+    var masterPwa = new MasterPwa(creationInstant);
+    var masterPwaDetail = new MasterPwaDetail(creationInstant);
     masterPwaDetail.setMasterPwa(masterPwa);
     masterPwaDetail.setReference(reference);
     masterPwaDetail.setMasterPwaDetailStatus(masterPwaDetailStatus);

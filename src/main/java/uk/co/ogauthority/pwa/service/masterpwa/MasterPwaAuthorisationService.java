@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaRepository;
 
 /**
- * Get Master PWA's a given web user account has authorisation to access.
+ * Get Master PWAs a given web user account has authorisation to access.
  */
 @Service
 public class MasterPwaAuthorisationService {

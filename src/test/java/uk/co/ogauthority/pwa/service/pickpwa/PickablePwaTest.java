@@ -14,8 +14,8 @@ import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 @RunWith(MockitoJUnitRunner.class)
 public class PickablePwaTest {
 
-  private static final String MASTER_PWA_PREFIX = "MASTER_PWA/";
-  private static final String MIGRATION_PWA_PREFIX = "MIGRATION_PWA/";
+  private static final String MASTER_PWA_PREFIX = PickablePwaSource.MASTER.getPickableStringPrefix();
+  private static final String MIGRATION_PWA_PREFIX = PickablePwaSource.MIGRATION.getPickableStringPrefix();
   private static final int CONTENT_ID = 1;
 
   private static final int MIGRATION_PWA_ID = 10;

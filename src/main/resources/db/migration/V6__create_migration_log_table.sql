@@ -11,7 +11,7 @@ TABLESPACE tbsidx;
 
 -- Hard enforce a rule which prevents double usage of a particular consent
 CREATE UNIQUE INDEX ${datasource.user}.mpa_idx2 ON ${datasource.user}.migrated_pipeline_auths (pwa_pipeline_consent_id)
-  TABLESPACE tbsidx;
+TABLESPACE tbsidx;
 
 
 

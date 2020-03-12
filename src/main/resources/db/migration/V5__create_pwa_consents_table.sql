@@ -19,5 +19,5 @@ CREATE INDEX ${datasource.user}.pwac_pwaa_fk_idx ON ${datasource.user}.pwa_conse
 TABLESPACE tbsidx;
 
 CREATE INDEX ${datasource.user}.pwac_type_idx ON ${datasource.user}.pwa_consents (consent_type)
-  TABLESPACE tbsidx;
+TABLESPACE tbsidx;
 
