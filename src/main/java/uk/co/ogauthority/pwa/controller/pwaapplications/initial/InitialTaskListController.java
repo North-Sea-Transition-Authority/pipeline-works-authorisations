@@ -9,25 +9,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 
 @Controller
 @RequestMapping("/pwa-application/initial/{applicationId}")
-public class InitialTaskList {
+public class InitialTaskListController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public InitialTaskList(ApplicationBreadcrumbService breadcrumbService) {
+  public InitialTaskListController(ApplicationBreadcrumbService breadcrumbService) {
     this.breadcrumbService = breadcrumbService;
   }
 
   private LinkedHashMap<String, String> getPwaInformationTaskList(Integer applicationId) {
     return new LinkedHashMap<>() {
       {
-        put("Consent holder", ReverseRouter.route(on(PwaHolderController.class).renderHolderScreen(applicationId, null, null))
-        );
+        put("Consent holder",
+            ReverseRouter.route(on(PwaHolderController.class).renderHolderScreen(applicationId, null, null)));
+        put("Field information",
+            ReverseRouter.route(on(InitialFieldsController.class).renderFields(applicationId, null, null)));
       }
     };
   }
@@ -35,7 +38,7 @@ public class InitialTaskList {
   private LinkedHashMap<String, String> getApplicationTaskList(Integer applicationId) {
     return new LinkedHashMap<>() {
       {
-        put("No tasks", ReverseRouter.route(on(InitialTaskList.class).viewTaskList(applicationId)));
+        put("No tasks", ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(applicationId)));
       }
     };
   }

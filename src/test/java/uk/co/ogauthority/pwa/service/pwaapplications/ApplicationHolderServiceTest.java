@@ -44,7 +44,8 @@ public class ApplicationHolderServiceTest {
     var detail = new PwaApplicationDetail();
     var appHolder1 = new ApplicationHolderOrganisation();
     var appHolder2 = new ApplicationHolderOrganisation();
-    when(applicationHolderOrganisationRepository.findByPwaApplicationDetail(detail)).thenReturn(List.of(appHolder1, appHolder2));
+    when(applicationHolderOrganisationRepository.findByPwaApplicationDetail(detail)).thenReturn(
+        List.of(appHolder1, appHolder2));
 
     var portalOrg = new PortalOrganisationUnit();
 
@@ -59,6 +60,16 @@ public class ApplicationHolderServiceTest {
     assertThat(appHolderOrg.getPwaApplicationDetail()).isEqualTo(detail);
     assertThat(appHolderOrg.getOrganisationUnit()).isEqualTo(portalOrg);
 
+  }
+
+  @Test
+  public void testGetHoldersFromApplicationDetail() {
+    var detail = new PwaApplicationDetail();
+    var applicationHolder = new ApplicationHolderOrganisation();
+    when(applicationHolderOrganisationRepository.findByPwaApplicationDetail(detail)).thenReturn(
+        List.of(applicationHolder));
+    var result = applicationHolderService.getHoldersFromApplicationDetail(detail);
+    assertThat(result).containsExactly(applicationHolder);
   }
 
 }

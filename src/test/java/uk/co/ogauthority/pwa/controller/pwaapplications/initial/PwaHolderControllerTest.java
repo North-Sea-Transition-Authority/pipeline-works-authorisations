@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -54,7 +54,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @MockBean
   private ApplicationHolderService applicationHolderService;
 
-  @MockBean
+  @SpyBean
   private ApplicationBreadcrumbService breadcrumbService;
 
   @MockBean
@@ -78,8 +78,6 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     orgUnit = TeamTestingUtils.createOrgUnit();
     when(portalOrganisationsAccessor.getOrganisationUnitById(111)).thenReturn(Optional.of(orgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
-    doCallRealMethod().when(breadcrumbService).fromWorkArea(any(), any());
-    doCallRealMethod().when(breadcrumbService).fromTaskList(any(), any(), any());
 
     when(applicationHolderService.mapHolderDetailsToForm(any())).thenReturn(new PwaHolderForm());
 

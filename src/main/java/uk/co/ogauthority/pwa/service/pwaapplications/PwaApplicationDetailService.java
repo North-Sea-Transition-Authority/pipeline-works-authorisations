@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import java.util.function.Function;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
@@ -43,6 +44,18 @@ public class PwaApplicationDetailService {
             String.format("Couldn't find tip PwaApplicationDetail for PwaApplication ID: %s and status: %s",
                 pwaApplicationId,
                 status.name())));
+  }
+
+  /**
+   * Update the status of the application being linked to fields.
+   * @param pwaApplicationDetail The current application detail.
+   * @param linked True/False. If linked, requires fields to be added.
+   * @return Saved app detail.
+   */
+  @Transactional
+  public PwaApplicationDetail setLinkedToFields(PwaApplicationDetail pwaApplicationDetail, Boolean linked) {
+    pwaApplicationDetail.setLinkedToField(linked);
+    return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
 }

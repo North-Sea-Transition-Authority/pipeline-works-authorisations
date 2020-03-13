@@ -129,13 +129,13 @@ public class PwaHolderController {
     var modelAndView = new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("taskListUrl",
-            ReverseRouter.route(on(InitialTaskList.class).viewTaskList(applicationDetail.getMasterPwaApplicationId()))
+            ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(applicationDetail.getMasterPwaApplicationId()))
         )
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of())
         .addObject("hasHolderSet", form != null && form.getHolderOuId() != null);
 
-    breadcrumbService.fromTaskList(applicationDetail.getMasterPwaApplicationId(), modelAndView, "Consent holder");
+    breadcrumbService.fromTaskList(applicationDetail.getPwaApplication(), modelAndView, "Consent holder");
 
     return modelAndView;
   }

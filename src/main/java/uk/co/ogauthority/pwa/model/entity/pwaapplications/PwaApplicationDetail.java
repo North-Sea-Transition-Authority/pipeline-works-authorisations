@@ -45,6 +45,8 @@ public class PwaApplicationDetail {
 
   private Instant lastUpdatedTimestamp;
 
+  private Boolean isLinkedToField;
+
   public PwaApplicationDetail() {
   }
 
@@ -162,6 +164,14 @@ public class PwaApplicationDetail {
 
   public void setLastUpdatedTimestamp(Instant lastUpdatedTimestamp) {
     this.lastUpdatedTimestamp = lastUpdatedTimestamp;
+  }
+
+  public Boolean getLinkedToField() {
+    return isLinkedToField;
+  }
+
+  public void setLinkedToField(Boolean linkedToField) {
+    isLinkedToField = linkedToField;
   }
 
   public Integer getMasterPwaApplicationId() {
