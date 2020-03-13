@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.licence;
 
 import java.util.List;
+import org.apache.commons.collections4.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.licence.PedLicence;
@@ -21,7 +22,7 @@ public class PedLicenceService {
   }
 
   public List<PedLicence> getAllLicences() {
-    return (List<PedLicence>) pedLicenceRepository.findAll();
+    return IteratorUtils.toList(pedLicenceRepository.findAll().iterator());
   }
 
 }
