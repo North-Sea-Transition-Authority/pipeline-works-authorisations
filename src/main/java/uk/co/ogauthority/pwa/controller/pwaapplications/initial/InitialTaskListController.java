@@ -38,7 +38,8 @@ public class InitialTaskListController {
   private LinkedHashMap<String, String> getApplicationTaskList(Integer applicationId) {
     return new LinkedHashMap<>() {
       {
-        put("No tasks", ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(applicationId)));
+        put("Environmental and decommissioning",
+            ReverseRouter.route(on(InitialEnvironmentalDecomController.class).renderAdminDetails(applicationId, null, null)));
       }
     };
   }
