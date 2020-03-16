@@ -1,11 +1,11 @@
 package uk.co.ogauthority.pwa.util;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 
 /**
  * Helper class for common methods interacting with ModelAndView objects.
@@ -22,12 +22,13 @@ public class ModelAndViewUtils {
    * @param bindingResult The result of the submitted form containing the list of validation errors
    */
   public static void addFieldValidationErrors(ModelAndView modelAndView, BindingResult bindingResult) {
-    Map<String, List<String>> errorList = bindingResult.getFieldErrors().stream()
-        .collect(Collectors.groupingBy(
-            FieldError::getField, Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())));
+    List<ErrorItem> errorList = new ArrayList<>();
+    IntStream.range(0, bindingResult.getFieldErrors().size()).forEach(index -> {
+      var fieldError = bindingResult.getFieldErrors().get(index);
+      errorList.add(new ErrorItem(index, fieldError.getField(), fieldError.getDefaultMessage()));
+    });
 
     modelAndView.addObject("errorList", errorList);
-
   }
 
 }
