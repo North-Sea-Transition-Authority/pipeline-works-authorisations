@@ -1,4 +1,4 @@
-CREATE TABLE ${datasource.user}.pad_data (
+CREATE TABLE ${datasource.user}.pad_env_and_decom (
   id NUMBER GENERATED ALWAYS AS IDENTITY
 , application_detail_id NUMBER
   -- Env/Decom fields
@@ -17,5 +17,5 @@ CREATE TABLE ${datasource.user}.pad_data (
 , CONSTRAINT pad_fk FOREIGN KEY (application_detail_id) REFERENCES ${datasource.user}.pwa_application_details(id)
 );
 
-CREATE INDEX ${datasource.user}.pad_data_pad_idx ON ${datasource.user}.pad_data (application_detail_id)
+CREATE INDEX ${datasource.user}.pad_env_and_decom_pad_idx ON ${datasource.user}.pad_env_and_decom (application_detail_id)
 TABLESPACE tbsidx;

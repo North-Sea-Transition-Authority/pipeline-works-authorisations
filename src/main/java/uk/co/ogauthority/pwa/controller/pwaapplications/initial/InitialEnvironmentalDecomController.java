@@ -24,12 +24,12 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.initial.PadData;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.initial.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.EnvDecomForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
-import uk.co.ogauthority.pwa.service.pwaapplications.initial.PadDataService;
+import uk.co.ogauthority.pwa.service.pwaapplications.initial.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.initial.validators.PadEnvDecomValidator;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -40,18 +40,18 @@ public class InitialEnvironmentalDecomController {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ApplicationHolderService applicationHolderService;
-  private final PadDataService padDataService;
+  private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
   private final PadEnvDecomValidator validator;
 
   @Autowired
   public InitialEnvironmentalDecomController(
       PwaApplicationDetailService pwaApplicationDetailService,
       ApplicationHolderService applicationHolderService,
-      PadDataService padDataService,
+      PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService,
       PadEnvDecomValidator validator) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.applicationHolderService = applicationHolderService;
-    this.padDataService = padDataService;
+    this.padEnvironmentalDecommissioningService = padEnvironmentalDecommissioningService;
     this.validator = validator;
   }
 
@@ -74,9 +74,9 @@ public class InitialEnvironmentalDecomController {
                                          @ModelAttribute("form") EnvDecomForm form,
                                          AuthenticatedUserAccount user) {
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
-      var adminDetail = padDataService.getPadData(detail);
+      var adminDetail = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
       var modelAndView = getAdminDetailsModelAndView(detail);
-      mapPadDataToForm(form, adminDetail);
+      mapDataToForm(form, adminDetail);
       return modelAndView;
     });
   }
@@ -89,7 +89,7 @@ public class InitialEnvironmentalDecomController {
     validator.validate(form, bindingResult);
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
         ControllerUtils.validateAndRedirect(bindingResult, getAdminDetailsModelAndView(detail), () -> {
-          var adminDetail = padDataService.getPadData(detail);
+          var adminDetail = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           saveForm(form, adminDetail);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId));
         }));
@@ -102,45 +102,45 @@ public class InitialEnvironmentalDecomController {
                                                AuthenticatedUserAccount user) {
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
         ControllerUtils.validateAndRedirect(bindingResult, getAdminDetailsModelAndView(detail), () -> {
-          var adminDetail = padDataService.getPadData(detail);
+          var adminDetail = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           saveForm(form, adminDetail);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId));
         })
     );
   }
 
-  private void mapPadDataToForm(EnvDecomForm form, PadData padData) {
-    form.setAcceptsEolRegulations(padData.getAcceptsEolRegulations());
-    form.setAcceptsEolRemoval(padData.getAcceptsEolRemoval());
-    form.setAcceptsRemovalProposal(padData.getAcceptsRemovalProposal());
-    form.setAcceptsOpolLiability(padData.getAcceptsOpolLiability());
-    form.setDecommissioningPlans(padData.getDecommissioningPlans());
-    form.setDischargeFundsAvailable(padData.getDischargeFundsAvailable());
-    form.setEmtHasOutstandingPermits(padData.getEmtHasOutstandingPermits());
-    form.setEmtHasSubmittedPermits(padData.getEmtHasSubmittedPermits());
-    form.setPermitsSubmitted(padData.getPermitsSubmitted());
-    form.setPermitsPendingSubmission(padData.getPermitsPendingSubmission());
-    form.setTransboundaryEffect(padData.getTransboundaryEffect());
-    if (padData.getEmtSubmissionTimestamp() != null) {
-      var localDate = LocalDate.ofInstant(padData.getEmtSubmissionTimestamp(), ZoneId.systemDefault());
+  private void mapDataToForm(EnvDecomForm form, PadEnvironmentalDecommissioning padEnvironmentalDecommissioning) {
+    form.setAcceptsEolRegulations(padEnvironmentalDecommissioning.getAcceptsEolRegulations());
+    form.setAcceptsEolRemoval(padEnvironmentalDecommissioning.getAcceptsEolRemoval());
+    form.setAcceptsRemovalProposal(padEnvironmentalDecommissioning.getAcceptsRemovalProposal());
+    form.setAcceptsOpolLiability(padEnvironmentalDecommissioning.getAcceptsOpolLiability());
+    form.setDecommissioningPlans(padEnvironmentalDecommissioning.getDecommissioningPlans());
+    form.setDischargeFundsAvailable(padEnvironmentalDecommissioning.getDischargeFundsAvailable());
+    form.setEmtHasOutstandingPermits(padEnvironmentalDecommissioning.getEmtHasOutstandingPermits());
+    form.setEmtHasSubmittedPermits(padEnvironmentalDecommissioning.getEmtHasSubmittedPermits());
+    form.setPermitsSubmitted(padEnvironmentalDecommissioning.getPermitsSubmitted());
+    form.setPermitsPendingSubmission(padEnvironmentalDecommissioning.getPermitsPendingSubmission());
+    form.setTransboundaryEffect(padEnvironmentalDecommissioning.getTransboundaryEffect());
+    if (padEnvironmentalDecommissioning.getEmtSubmissionTimestamp() != null) {
+      var localDate = LocalDate.ofInstant(padEnvironmentalDecommissioning.getEmtSubmissionTimestamp(), ZoneId.systemDefault());
       form.setEmtSubmissionDay(localDate.getDayOfMonth());
       form.setEmtSubmissionMonth(localDate.getMonthValue());
       form.setEmtSubmissionYear(localDate.getYear());
     }
   }
 
-  private void saveForm(EnvDecomForm form, PadData padData) {
-    padData.setAcceptsEolRegulations(form.getAcceptsEolRegulations());
-    padData.setAcceptsEolRemoval(form.getAcceptsEolRemoval());
-    padData.setAcceptsRemovalProposal(form.getAcceptsRemovalProposal());
-    padData.setAcceptsOpolLiability(form.getAcceptsOpolLiability());
-    padData.setDecommissioningPlans(form.getDecommissioningPlans());
-    padData.setDischargeFundsAvailable(form.getDischargeFundsAvailable());
-    padData.setEmtHasOutstandingPermits(form.getEmtHasOutstandingPermits());
-    padData.setEmtHasSubmittedPermits(form.getEmtHasSubmittedPermits());
-    padData.setPermitsSubmitted(form.getPermitsSubmitted());
-    padData.setPermitsPendingSubmission(form.getPermitsPendingSubmission());
-    padData.setEmtSubmissionTimestamp(null);
+  private void saveForm(EnvDecomForm form, PadEnvironmentalDecommissioning padEnvironmentalDecommissioning) {
+    padEnvironmentalDecommissioning.setAcceptsEolRegulations(form.getAcceptsEolRegulations());
+    padEnvironmentalDecommissioning.setAcceptsEolRemoval(form.getAcceptsEolRemoval());
+    padEnvironmentalDecommissioning.setAcceptsRemovalProposal(form.getAcceptsRemovalProposal());
+    padEnvironmentalDecommissioning.setAcceptsOpolLiability(form.getAcceptsOpolLiability());
+    padEnvironmentalDecommissioning.setDecommissioningPlans(form.getDecommissioningPlans());
+    padEnvironmentalDecommissioning.setDischargeFundsAvailable(form.getDischargeFundsAvailable());
+    padEnvironmentalDecommissioning.setEmtHasOutstandingPermits(form.getEmtHasOutstandingPermits());
+    padEnvironmentalDecommissioning.setEmtHasSubmittedPermits(form.getEmtHasSubmittedPermits());
+    padEnvironmentalDecommissioning.setPermitsSubmitted(form.getPermitsSubmitted());
+    padEnvironmentalDecommissioning.setPermitsPendingSubmission(form.getPermitsPendingSubmission());
+    padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(null);
     try {
       var localDate = LocalDate.of(
           form.getEmtSubmissionYear(),
@@ -148,12 +148,12 @@ public class InitialEnvironmentalDecomController {
           form.getEmtSubmissionDay()
       );
       var instant = Instant.ofEpochSecond(localDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC));
-      padData.setEmtSubmissionTimestamp(instant);
+      padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(instant);
     } catch (Exception e) {
-      padData.setEmtSubmissionTimestamp(null);
+      padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(null);
     }
-    padData.setTransboundaryEffect(form.getTransboundaryEffect());
-    padDataService.save(padData);
+    padEnvironmentalDecommissioning.setTransboundaryEffect(form.getTransboundaryEffect());
+    padEnvironmentalDecommissioningService.save(padEnvironmentalDecommissioning);
   }
 
 }
