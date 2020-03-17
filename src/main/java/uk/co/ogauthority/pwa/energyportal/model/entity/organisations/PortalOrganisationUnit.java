@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.energyportal.model.entity.organisations;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -19,6 +20,15 @@ public class PortalOrganisationUnit {
   @ManyToOne
   @JoinColumn(name = "org_grp_id")
   private PortalOrganisationGroup portalOrganisationGroup;
+
+  public PortalOrganisationUnit() {
+  }
+
+  @VisibleForTesting
+  public PortalOrganisationUnit(int ouId, String name) {
+    this.ouId = ouId;
+    this.name = name;
+  }
 
   public int getOuId() {
     return ouId;
