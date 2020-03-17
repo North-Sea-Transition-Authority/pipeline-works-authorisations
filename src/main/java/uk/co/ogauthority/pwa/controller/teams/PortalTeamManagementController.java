@@ -85,11 +85,12 @@ public class PortalTeamManagementController {
 
     return new ModelAndView("teamManagement/teamMembers")
         .addObject("teamId", team.getId())
-        .addObject("team", team)
+        .addObject("teamName", team.getName())
         .addObject("teamMemberViews", teamMemberViews)
         .addObject("addUserUrl", ReverseRouter.route(
             on(PortalTeamManagementController.class).renderAddUserToTeam(team.getId(), null, null)
-        ));
+        ))
+        .addObject("showBreadcrumbs", false);
   }
 
 

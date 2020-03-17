@@ -21,17 +21,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.MigrationFailedException;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationPwaConsent;
 import uk.co.ogauthority.pwa.model.entity.migration.ProcessedPwaConsentMigration;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.repository.migration.MigrationPwaConsentRepository;
 import uk.co.ogauthority.pwa.repository.migration.ProcessedPwaConsentMigrationRepository;
-import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -81,7 +82,6 @@ public class PipelineAuthorisationMigrationServiceTest {
   private MasterPwa masterPwa;
   private MasterPwaDetail masterPwaDetail;
 
-
   private PipelineAuthorisationMigrationService pipelineAuthorisationMigrationService;
 
   @Before
@@ -119,6 +119,8 @@ public class PipelineAuthorisationMigrationServiceTest {
 
   @Test
   public void migrate_verifyServiceInteraction_masterPwaManagementService() {
+
+    var user = new WebUserAccount();
 
     pipelineAuthorisationMigrationService.migrate(migrationMasterPwa);
 

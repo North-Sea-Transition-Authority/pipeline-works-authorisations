@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.MigrationFailedException;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigratablePwaConsent;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationPwaConsent;
@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.repository.migration.MigrationPwaConsentRepository;
 import uk.co.ogauthority.pwa.repository.migration.ProcessedPwaConsentMigrationRepository;
-import uk.co.ogauthority.pwa.service.masterpwa.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 
 /**
@@ -70,7 +70,8 @@ public class PipelineAuthorisationMigrationService {
 
     var masterPwaDetail = masterPwaManagementService.createMasterPwa(
         MasterPwaDetailStatus.CONSENTED,
-        migrationMasterPwa.getReference());
+        migrationMasterPwa.getReference()
+    );
 
     LOGGER.debug(String.format("Migration step: padId: %s About to save all processed consents",  migrationMasterPwa.getPadId()));
     processedPwaConsentMigrationRepository.saveAll(

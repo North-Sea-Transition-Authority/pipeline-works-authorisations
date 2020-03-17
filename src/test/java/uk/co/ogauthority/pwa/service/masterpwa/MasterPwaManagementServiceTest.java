@@ -11,15 +11,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaDetailRepository;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaRepository;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MasterPwaManagementServiceTest {
@@ -30,10 +31,15 @@ public class MasterPwaManagementServiceTest {
   @Mock
   private MasterPwaDetailRepository masterPwaDetailRepository;
 
+  @Captor
+  private ArgumentCaptor<MasterPwa> pwaArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<MasterPwaDetail> pwaDetailArgumentCaptor;
+
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private MasterPwaManagementService masterPwaManagementService;
-
 
   @Before
   public void setup() {
@@ -48,10 +54,7 @@ public class MasterPwaManagementServiceTest {
   @Test
   public void createMasterPwa() {
 
-    ArgumentCaptor<MasterPwa> pwaArgumentCaptor = ArgumentCaptor.forClass(MasterPwa.class);
-    ArgumentCaptor<MasterPwaDetail> pwaDetailArgumentCaptor = ArgumentCaptor.forClass(MasterPwaDetail.class);
-    ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
-    ArgumentCaptor<PwaApplicationDetail> detailArgumentCaptor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+    var user = new WebUserAccount();
 
     masterPwaManagementService.createMasterPwa(MasterPwaDetailStatus.APPLICATION, "REFERENCE");
 
@@ -66,7 +69,8 @@ public class MasterPwaManagementServiceTest {
     assertThat(masterPwa.getPortalOrganisationUnit()).isNull();
 
     assertThat(masterPwaDetail.getStartInstant()).isEqualTo(clock.instant());
-    assertThat(masterPwaDetail.getReference()).isNotBlank();
+    assertThat(masterPwaDetail.getReference()).isEqualTo("REFERENCE");
     assertThat(masterPwaDetail.getMasterPwaDetailStatus()).isEqualTo(MasterPwaDetailStatus.APPLICATION);
+
   }
 }

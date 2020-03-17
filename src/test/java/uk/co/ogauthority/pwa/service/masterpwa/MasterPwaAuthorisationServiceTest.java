@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.masterpwa;
 
-
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -14,9 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaDetailRepository;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaRepository;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MasterPwaAuthorisationServiceTest {

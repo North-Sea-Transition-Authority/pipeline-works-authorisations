@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pickpwa;
 
 import java.util.Optional;
 import org.flywaydb.core.internal.util.StringUtils;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 
 public class PickablePwa {

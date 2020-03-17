@@ -129,7 +129,7 @@ public class PwaHolderController {
     var modelAndView = new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("taskListUrl",
-            ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(applicationDetail.getMasterPwaApplicationId()))
+            ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(applicationDetail.getMasterPwaApplicationId(), null))
         )
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of())

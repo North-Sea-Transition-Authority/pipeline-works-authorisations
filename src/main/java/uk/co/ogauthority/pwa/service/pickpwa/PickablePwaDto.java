@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.pickpwa;
 
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 
 public class PickablePwaDto {

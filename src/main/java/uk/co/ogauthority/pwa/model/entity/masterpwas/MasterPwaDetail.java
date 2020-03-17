@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.masterpwa;
+package uk.co.ogauthority.pwa.model.entity.masterpwas;
 
 import java.time.Instant;
 import java.util.Objects;
