@@ -10,8 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-@Entity(name = "pad_data")
-public class PadData {
+@Entity(name = "pad_env_and_decom")
+public class PadEnvironmentalDecommissioning {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

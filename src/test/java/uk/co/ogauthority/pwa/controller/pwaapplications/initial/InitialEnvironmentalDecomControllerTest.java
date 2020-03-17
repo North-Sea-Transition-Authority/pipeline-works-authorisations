@@ -34,12 +34,12 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.initial.PadData;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.initial.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.EnvDecomForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
-import uk.co.ogauthority.pwa.service.pwaapplications.initial.PadDataService;
+import uk.co.ogauthority.pwa.service.pwaapplications.initial.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.initial.validators.PadEnvDecomValidator;
 
 @RunWith(SpringRunner.class)
@@ -53,7 +53,7 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
   private PadEnvDecomValidator padEnvDecomValidator;
 
   @MockBean
-  private PadDataService padDataService;
+  private PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
 
   private Person person;
   private WebUserAccount wua;
@@ -61,7 +61,7 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
   private PwaApplicationDetail appDetail;
   private ApplicationHolderOrganisation holderOrganisation;
   private Instant instant;
-  private PadData padData;
+  private PadEnvironmentalDecommissioning padEnvironmentalDecommissioning;
 
   @Before
   public void setUp() {
@@ -78,8 +78,8 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
     holderOrganisation = new ApplicationHolderOrganisation(appDetail, holderOrg);
     when(applicationHolderService.getHoldersFromApplicationDetail(appDetail)).thenReturn(List.of(holderOrganisation));
 
-    padData = buildPadData();
-    when(padDataService.getPadData(appDetail)).thenReturn(padData);
+    padEnvironmentalDecommissioning = buildEnvDecomData();
+    when(padEnvironmentalDecommissioningService.getEnvDecomData(appDetail)).thenReturn(padEnvironmentalDecommissioning);
 
   }
 
@@ -153,17 +153,17 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
         .andReturn()
         .getModelAndView();
     var form = (EnvDecomForm) modelAndView.getModel().get("form");
-    var formDate = LocalDate.ofInstant(padData.getEmtSubmissionTimestamp(), ZoneId.systemDefault());
-    assertThat(form.getEmtHasOutstandingPermits()).isEqualTo(padData.getEmtHasOutstandingPermits());
-    assertThat(form.getEmtHasSubmittedPermits()).isEqualTo(padData.getEmtHasSubmittedPermits());
-    assertThat(form.getPermitsSubmitted()).isEqualTo(padData.getPermitsSubmitted());
-    assertThat(form.getPermitsPendingSubmission()).isEqualTo(padData.getPermitsPendingSubmission());
-    assertThat(form.getAcceptsEolRegulations()).isEqualTo(padData.getAcceptsEolRegulations());
-    assertThat(form.getAcceptsEolRemoval()).isEqualTo(padData.getAcceptsEolRemoval());
-    assertThat(form.getAcceptsOpolLiability()).isEqualTo(padData.getAcceptsOpolLiability());
-    assertThat(form.getAcceptsRemovalProposal()).isEqualTo(padData.getAcceptsRemovalProposal());
-    assertThat(form.getDecommissioningPlans()).isEqualTo(padData.getDecommissioningPlans());
-    assertThat(form.getDischargeFundsAvailable()).isEqualTo(padData.getDischargeFundsAvailable());
+    var formDate = LocalDate.ofInstant(padEnvironmentalDecommissioning.getEmtSubmissionTimestamp(), ZoneId.systemDefault());
+    assertThat(form.getEmtHasOutstandingPermits()).isEqualTo(padEnvironmentalDecommissioning.getEmtHasOutstandingPermits());
+    assertThat(form.getEmtHasSubmittedPermits()).isEqualTo(padEnvironmentalDecommissioning.getEmtHasSubmittedPermits());
+    assertThat(form.getPermitsSubmitted()).isEqualTo(padEnvironmentalDecommissioning.getPermitsSubmitted());
+    assertThat(form.getPermitsPendingSubmission()).isEqualTo(padEnvironmentalDecommissioning.getPermitsPendingSubmission());
+    assertThat(form.getAcceptsEolRegulations()).isEqualTo(padEnvironmentalDecommissioning.getAcceptsEolRegulations());
+    assertThat(form.getAcceptsEolRemoval()).isEqualTo(padEnvironmentalDecommissioning.getAcceptsEolRemoval());
+    assertThat(form.getAcceptsOpolLiability()).isEqualTo(padEnvironmentalDecommissioning.getAcceptsOpolLiability());
+    assertThat(form.getAcceptsRemovalProposal()).isEqualTo(padEnvironmentalDecommissioning.getAcceptsRemovalProposal());
+    assertThat(form.getDecommissioningPlans()).isEqualTo(padEnvironmentalDecommissioning.getDecommissioningPlans());
+    assertThat(form.getDischargeFundsAvailable()).isEqualTo(padEnvironmentalDecommissioning.getDischargeFundsAvailable());
     assertThat(form.getEmtSubmissionDay()).isEqualTo(formDate.getDayOfMonth());
     assertThat(form.getEmtSubmissionMonth()).isEqualTo(formDate.getMonthValue());
     assertThat(form.getEmtSubmissionYear()).isEqualTo(formDate.getYear());
@@ -182,7 +182,7 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
             .params(completeParams))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/initial/environmentalAndDecommissioning"));
-    verify(padDataService, never()).getPadData(appDetail);
+    verify(padEnvironmentalDecommissioningService, never()).getEnvDecomData(appDetail);
   }
 
   @Test
@@ -210,23 +210,23 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
             .with(csrf())
             .params(completeParams))
         .andExpect(status().is3xxRedirection());
-    verify(padDataService, times(1)).getPadData(appDetail);
+    verify(padEnvironmentalDecommissioningService, times(1)).getEnvDecomData(appDetail);
   }
 
-  private PadData buildPadData() {
-    var padData = new PadData();
-    padData.setAcceptsEolRegulations(true);
-    padData.setAcceptsEolRemoval(true);
-    padData.setAcceptsRemovalProposal(true);
-    padData.setAcceptsOpolLiability(true);
-    padData.setDecommissioningPlans("Decom plan");
-    padData.setDischargeFundsAvailable(true);
-    padData.setEmtHasOutstandingPermits(true);
-    padData.setEmtHasSubmittedPermits(true);
-    padData.setPermitsSubmitted("manual list of permits");
-    padData.setPermitsPendingSubmission("manual list of permits");
-    padData.setEmtSubmissionTimestamp(instant);
-    padData.setTransboundaryEffect(true);
-    return padData;
+  private PadEnvironmentalDecommissioning buildEnvDecomData() {
+    var envDecomData = new PadEnvironmentalDecommissioning();
+    envDecomData.setAcceptsEolRegulations(true);
+    envDecomData.setAcceptsEolRemoval(true);
+    envDecomData.setAcceptsRemovalProposal(true);
+    envDecomData.setAcceptsOpolLiability(true);
+    envDecomData.setDecommissioningPlans("Decom plan");
+    envDecomData.setDischargeFundsAvailable(true);
+    envDecomData.setEmtHasOutstandingPermits(true);
+    envDecomData.setEmtHasSubmittedPermits(true);
+    envDecomData.setPermitsSubmitted("manual list of permits");
+    envDecomData.setPermitsPendingSubmission("manual list of permits");
+    envDecomData.setEmtSubmissionTimestamp(instant);
+    envDecomData.setTransboundaryEffect(true);
+    return envDecomData;
   }
 }
