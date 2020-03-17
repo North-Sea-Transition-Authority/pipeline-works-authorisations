@@ -3,6 +3,9 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -172,13 +175,14 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
     MultiValueMap completeParams = new LinkedMultiValueMap<>(){{
       add("Complete", "");
     }};
-    var modelAndView = mockMvc.perform(
-        get(ReverseRouter.route(on(InitialEnvironmentalDecomController.class).postCompleteAdminDetails(1, null, null, null)))
+    mockMvc.perform(
+        post(ReverseRouter.route(on(InitialEnvironmentalDecomController.class).postCompleteAdminDetails(1, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/initial/environmentalAndDecommissioning"));
+    verify(padDataService, never()).getPadData(appDetail);
   }
 
   @Test
@@ -206,6 +210,7 @@ public class InitialEnvironmentalDecomControllerTest extends AbstractControllerT
             .with(csrf())
             .params(completeParams))
         .andExpect(status().is3xxRedirection());
+    verify(padDataService, times(1)).getPadData(appDetail);
   }
 
   private PadData buildPadData() {
