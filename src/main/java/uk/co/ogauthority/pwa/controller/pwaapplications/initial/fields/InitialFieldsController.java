@@ -63,7 +63,7 @@ public class InitialFieldsController {
     var modelAndView = new ModelAndView("pwaApplication/initial/fieldInformation")
         .addObject("backUrl",
             ReverseRouter.route(on(InitialTaskListController.class)
-                .viewTaskList(pwaApplicationDetail.getMasterPwaApplicationId())));
+                .viewTaskList(pwaApplicationDetail.getMasterPwaApplicationId(), null)));
 
     var holders = applicationHolderService.getHoldersFromApplicationDetail(pwaApplicationDetail);
 
@@ -108,7 +108,7 @@ public class InitialFieldsController {
             fieldList.add(devukFieldService.findById(form.getFieldId()));
           }
           pwaApplicationFieldService.setFields(detail, fieldList);
-          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId));
+          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
         })
     );
   }

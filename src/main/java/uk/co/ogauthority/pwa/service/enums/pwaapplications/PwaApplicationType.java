@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Enumerates all types of application that can be submitted under the PWA process.
@@ -44,5 +45,9 @@ public enum PwaApplicationType {
 
   public String getUrlPathString() {
     return urlPathString;
+  }
+
+  public static Stream<PwaApplicationType> stream() {
+    return Stream.of(PwaApplicationType.values());
   }
 }

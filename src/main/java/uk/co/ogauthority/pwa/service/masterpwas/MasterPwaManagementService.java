@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.masterpwa;
+package uk.co.ogauthority.pwa.service.masterpwas;
 
 import java.time.Clock;
 import javax.transaction.Transactional;
@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaDetailRepository;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaRepository;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 
 @Service
 public class MasterPwaManagementService {
@@ -32,6 +32,7 @@ public class MasterPwaManagementService {
 
   @Transactional
   public MasterPwaDetail createMasterPwa(MasterPwaDetailStatus masterPwaDetailStatus, String reference) {
+
     var creationInstant = clock.instant();
     var masterPwa = new MasterPwa(creationInstant);
     var masterPwaDetail = new MasterPwaDetail(creationInstant);
@@ -39,10 +40,11 @@ public class MasterPwaManagementService {
     masterPwaDetail.setReference(reference);
     masterPwaDetail.setMasterPwaDetailStatus(masterPwaDetailStatus);
 
-
     masterPwaRepository.save(masterPwa);
     masterPwaDetailRepository.save(masterPwaDetail);
+
     return masterPwaDetail;
+
   }
 
 }

@@ -50,7 +50,7 @@ public class PwaApplicationRedirectService {
 
     switch (pwaApplication.getApplicationType()) {
       case INITIAL:
-        return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(pwaApplication.getId()));
+        return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case CAT_1_VARIATION:
         return ReverseRouter.redirect(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case CAT_2_VARIATION:
@@ -75,7 +75,7 @@ public class PwaApplicationRedirectService {
 
     switch (pwaApplication.getApplicationType()) {
       case INITIAL:
-        return ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(pwaApplication.getId()));
+        return ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case CAT_1_VARIATION:
         return ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(pwaApplication.getId(), null));
       case CAT_2_VARIATION:

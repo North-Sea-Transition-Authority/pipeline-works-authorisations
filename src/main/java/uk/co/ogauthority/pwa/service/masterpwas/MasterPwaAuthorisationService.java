@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.masterpwa;
+package uk.co.ogauthority.pwa.service.masterpwas;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwa.MasterPwaDetail;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaDetailRepository;
-import uk.co.ogauthority.pwa.repository.masterpwa.MasterPwaRepository;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 
 /**
  * Get Master PWAs a given web user account has authorisation to access.

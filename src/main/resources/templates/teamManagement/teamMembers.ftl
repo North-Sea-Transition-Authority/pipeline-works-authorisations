@@ -1,10 +1,11 @@
-<#-- @ftlvariable name="team" type="uk.co.ogauthority.pwa.model.teams.PwaTeam" -->
+<#-- @ftlvariable name="teamName" type="java.lang.String" -->
 <#-- @ftlvariable name="teamMemberViews" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
 <#-- @ftlvariable name="addUserUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="showBreadcrumbs" type="java.lang.Boolean" -->
 
 <#include "../layout.ftl">
 
-<@defaultPage htmlTitle=team.getName() pageHeading=team.getName() backLink=true topNavigation=true twoThirdsColumn=false>
+<@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=true twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
 
     <#list teamMemberViews>
       <table class="govuk-table">
