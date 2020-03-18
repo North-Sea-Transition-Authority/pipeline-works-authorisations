@@ -22,11 +22,8 @@ public class EnvironmentalConditionConverterTest {
         EnvironmentalCondition.DISCHARGE_FUNDS_AVAILABLE,
         EnvironmentalCondition.OPOL_LIABILITY_STATEMENT
     ));
-    assertThat(result).isEqualTo(String.format(
-        "%s,%s",
-        EnvironmentalCondition.DISCHARGE_FUNDS_AVAILABLE.name(),
-        EnvironmentalCondition.OPOL_LIABILITY_STATEMENT.name()
-    ));
+    assertThat(result).contains(EnvironmentalCondition.DISCHARGE_FUNDS_AVAILABLE.name());
+    assertThat(result).contains(EnvironmentalCondition.OPOL_LIABILITY_STATEMENT.name());
   }
 
   @Test

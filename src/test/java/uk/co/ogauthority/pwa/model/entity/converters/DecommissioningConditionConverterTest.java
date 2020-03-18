@@ -22,11 +22,8 @@ public class DecommissioningConditionConverterTest {
         DecommissioningCondition.EOL_REGULATION_STATEMENT,
         DecommissioningCondition.EOL_REMOVAL_STATEMENT
     ));
-    assertThat(result).isEqualTo(String.format(
-        "%s,%s",
-        DecommissioningCondition.EOL_REGULATION_STATEMENT.name(),
-        DecommissioningCondition.EOL_REMOVAL_STATEMENT.name()
-    ));
+    assertThat(result).contains(DecommissioningCondition.EOL_REGULATION_STATEMENT.name());
+    assertThat(result).contains(DecommissioningCondition.EOL_REMOVAL_STATEMENT.name());
   }
 
   @Test

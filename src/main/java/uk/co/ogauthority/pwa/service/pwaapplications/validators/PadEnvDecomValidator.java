@@ -54,11 +54,13 @@ public class PadEnvDecomValidator implements Validator {
             "You must provide a real date for submission");
       }
     }
-    if (form.getEnvironmentalConditions().size() < EnvironmentalCondition.values().length) {
+    if (form.getEnvironmentalConditions() == null
+        || form.getEnvironmentalConditions().size() < EnvironmentalCondition.values().length) {
       errors.rejectValue("environmentalConditions", "environmentalConditions.requiresAll",
-          "You must agree to all environmental acknowledgements");
+          "You must agree to all environmental conditions");
     }
-    if (form.getDecommissioningConditions().size() < DecommissioningCondition.values().length) {
+    if (form.getDecommissioningConditions() == null
+        || form.getDecommissioningConditions().size() < DecommissioningCondition.values().length) {
       errors.rejectValue("decommissioningConditions", "decommissioningConditions.requiresAll",
           "You must agree to all decommissioning conditions");
     }

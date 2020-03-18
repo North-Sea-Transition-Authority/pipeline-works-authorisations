@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -64,7 +65,9 @@ public class TaskListService {
 
     return new LinkedHashMap<>() {
       {
-        put("No tasks", pwaApplicationRedirectService.getTaskListRoute(application));
+        put("Environmental and decommissioning",
+            ReverseRouter.route(on(EnvironmentalDecomController.class)
+                .renderAdminDetails(application.getApplicationType(), application.getId(), null, null)));
       }
     };
 
@@ -74,7 +77,7 @@ public class TaskListService {
   public String getTaskListTemplatePath(PwaApplicationType applicationType) {
     switch (applicationType) {
       case INITIAL:
-        return "pwaApplication/initial/taskList";
+        return "pwaApplication/initial/initialTaskList";
       case CAT_1_VARIATION:
         return "pwaApplication/category1/cat1TaskList";
       case CAT_2_VARIATION:

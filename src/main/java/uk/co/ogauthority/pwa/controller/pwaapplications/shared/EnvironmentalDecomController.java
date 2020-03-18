@@ -104,7 +104,7 @@ public class EnvironmentalDecomController {
         ControllerUtils.validateAndRedirect(bindingResult, getAdminDetailsModelAndView(detail), () -> {
           var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           padEnvironmentalDecommissioningService.saveEntityUsingForm(envDecomData, form);
-          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId));
+          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
         }));
   }
 
@@ -120,7 +120,7 @@ public class EnvironmentalDecomController {
         ControllerUtils.validateAndRedirect(bindingResult, getAdminDetailsModelAndView(detail), () -> {
           var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           padEnvironmentalDecommissioningService.saveEntityUsingForm(envDecomData, form);
-          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId));
+          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
         })
     );
   }

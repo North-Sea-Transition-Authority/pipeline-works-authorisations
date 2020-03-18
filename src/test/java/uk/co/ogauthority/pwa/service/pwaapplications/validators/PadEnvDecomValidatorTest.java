@@ -35,8 +35,8 @@ public class PadEnvDecomValidatorTest {
     form.setEmtSubmissionYear(-1);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.invalidDate");
-    assertThat(errors.get("emtSubmissionMonth")).containsExactly("INVALID_DATE.invalidDate");
-    assertThat(errors.get("emtSubmissionYear")).containsExactly("INVALID_DATE.invalidDate");
+    assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.invalidDate");
+    assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.invalidDate");
   }
 
   @Test
@@ -57,7 +57,7 @@ public class PadEnvDecomValidatorTest {
     var form = new EnvDecomForm();
     form.setEmtHasSubmittedPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsSubmitted")).containsExactly("NO_CONTENT");
+    assertThat(errors.get("permitsSubmitted")).containsExactly("permitsSubmitted.empty");
   }
 
   @Test
@@ -66,7 +66,7 @@ public class PadEnvDecomValidatorTest {
     form.setEmtHasSubmittedPermits(true);
     form.setPermitsSubmitted("");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsSubmitted")).containsExactly("NO_CONTENT");
+    assertThat(errors.get("permitsSubmitted")).containsExactly("permitsSubmitted.empty");
   }
 
   @Test
@@ -83,7 +83,7 @@ public class PadEnvDecomValidatorTest {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsPendingSubmission")).containsExactly("NO_CONTENT");
+    assertThat(errors.get("permitsPendingSubmission")).containsExactly("permitsPendingSubmission.empty");
   }
 
   @Test
@@ -92,7 +92,7 @@ public class PadEnvDecomValidatorTest {
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission("");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsPendingSubmission")).containsExactly("NO_CONTENT");
+    assertThat(errors.get("permitsPendingSubmission")).containsExactly("permitsPendingSubmission.empty");
   }
 
   @Test
