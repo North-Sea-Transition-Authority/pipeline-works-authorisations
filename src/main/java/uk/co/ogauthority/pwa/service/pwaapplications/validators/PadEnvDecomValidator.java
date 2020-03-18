@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.validators;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -23,12 +24,12 @@ public class PadEnvDecomValidator implements Validator {
   public void validate(Object target, Errors errors) {
     EnvDecomForm form = (EnvDecomForm) target;
     if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())) {
-      if (form.getPermitsSubmitted() == null || form.getPermitsSubmitted().isBlank()) {
+      if (StringUtils.isBlank(form.getPermitsSubmitted())) {
         errors.rejectValue("permitsSubmitted", "permitsSubmitted.empty", "Enter a list of the submitted permits");
       }
     }
     if (BooleanUtils.isTrue(form.getEmtHasOutstandingPermits())) {
-      if (form.getPermitsPendingSubmission() == null || form.getPermitsPendingSubmission().isBlank()) {
+      if (StringUtils.isBlank(form.getPermitsPendingSubmission())) {
         errors.rejectValue("permitsPendingSubmission", "permitsPendingSubmission.empty",
             "Enter a list of the permits you will submit at a later date");
       }

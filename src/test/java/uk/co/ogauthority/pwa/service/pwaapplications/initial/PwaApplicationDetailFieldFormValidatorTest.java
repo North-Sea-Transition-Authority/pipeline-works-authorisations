@@ -27,7 +27,7 @@ public class PwaApplicationDetailFieldFormValidatorTest<T> {
   public void validate_RadioYes_NoSelection() {
     pwaFieldForm.setLinkedToField(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, pwaFieldForm);
-    assertThat(errors.get("fieldId")).containsExactly("NO_FIELD_ID");
+    assertThat(errors.get("fieldId")).containsExactly("fieldId.empty");
   }
 
   @Test

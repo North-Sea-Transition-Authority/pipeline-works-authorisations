@@ -29,13 +29,13 @@ public class EnvDecomForm {
 
   private Integer emtSubmissionYear;
 
-  private Set<EnvironmentalCondition> environmentalConditions;
+  private Set<EnvironmentalCondition> environmentalConditions = Set.of();
 
   @NotNull(message = "Enter decommissioning plans")
   @Length(max = 4000, message = "Must be 4000 characters or less")
   private String decommissioningPlans;
 
-  private Set<DecommissioningCondition> decommissioningConditions;
+  private Set<DecommissioningCondition> decommissioningConditions = Set.of();
 
   public Boolean getTransboundaryEffect() {
     return transboundaryEffect;

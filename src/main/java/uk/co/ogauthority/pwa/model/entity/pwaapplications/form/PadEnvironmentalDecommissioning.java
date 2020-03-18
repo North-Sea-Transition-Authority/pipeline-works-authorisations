@@ -9,7 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.model.entity.converters.DecommissioningConditionConverter;
 import uk.co.ogauthority.pwa.model.entity.converters.EnvironmentalConditionConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
@@ -23,7 +23,7 @@ public class PadEnvironmentalDecommissioning {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "application_detail_id")
   private PwaApplicationDetail pwaApplicationDetail;
 

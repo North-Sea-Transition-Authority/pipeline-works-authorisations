@@ -84,7 +84,17 @@ public class TaskListServiceTest {
 
       pwaApplication.setApplicationType(appType);
 
-      assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("Environmental and decommissioning");
+      switch(appType) {
+        case INITIAL:
+        case CAT_1_VARIATION:
+        case OPTIONS_VARIATION:
+        case DECOMMISSIONING:
+        case DEPOSIT_CONSENT:
+          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("Environmental and decommissioning");
+          break;
+        default:
+          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("No tasks");
+      }
 
     });
 
