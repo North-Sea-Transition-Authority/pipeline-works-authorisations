@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.service.fields.PwaApplicationFieldService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
-import uk.co.ogauthority.pwa.service.pwaapplications.initial.PwaFieldFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.validators.PwaFieldFormValidator;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 

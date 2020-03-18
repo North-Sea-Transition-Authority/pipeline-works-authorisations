@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.enums;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 public enum HseSafetyZone {
 
   YES("Yes", 10),
@@ -20,5 +23,9 @@ public enum HseSafetyZone {
 
   public int getDisplayOrder() {
     return displayOrder;
+  }
+
+  public static Stream<HseSafetyZone> stream() {
+    return Arrays.stream(HseSafetyZone.values());
   }
 }

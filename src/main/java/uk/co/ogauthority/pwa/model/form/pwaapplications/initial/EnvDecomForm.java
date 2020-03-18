@@ -1,23 +1,26 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.initial;
 
+import java.util.Set;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
+import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
+import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 
 public class EnvDecomForm {
 
-  @NotNull(message = "You must select one")
+  @NotNull(message = "Select yes if the development has significant trans-boundary effects")
   private Boolean transboundaryEffect;
 
-  @NotNull(message = "You must select one")
+  @NotNull(message = "Select yes if any relevant environmental permits have been submitted to BEIS")
   private Boolean emtHasSubmittedPermits;
 
-  @Length(max = 4000, message = "Must be 4000 characters or less")
+  @Length(max = 4000, message = "Permits submitted to BEIS must be 4000 characters or less")
   private String permitsSubmitted;
 
-  @NotNull(message = "You must select one")
+  @NotNull(message = "Select yes if you have any relevant permits that haven't been submitted to BEIS")
   private Boolean emtHasOutstandingPermits;
 
-  @Length(max = 4000, message = "Must be 4000 characters or less")
+  @Length(max = 4000, message = "Permits pending BEIS submission must be 4000 characters or less")
   private String permitsPendingSubmission;
 
   private Integer emtSubmissionDay;
@@ -26,24 +29,13 @@ public class EnvDecomForm {
 
   private Integer emtSubmissionYear;
 
-  @NotNull(message = "You must agree to this condition")
-  private Boolean dischargeFundsAvailable;
+  private Set<EnvironmentalCondition> environmentalConditions;
 
-  @NotNull(message = "You must agree to this condition")
-  private Boolean acceptsOpolLiability;
-
-  @NotNull(message = "You must provide decommissioning plans")
+  @NotNull(message = "Enter decommissioning plans")
   @Length(max = 4000, message = "Must be 4000 characters or less")
   private String decommissioningPlans;
 
-  @NotNull(message = "You must agree to this condition")
-  private Boolean acceptsEolRegulations;
-
-  @NotNull(message = "You must agree to this condition")
-  private Boolean acceptsEolRemoval;
-
-  @NotNull(message = "You must agree to this condition")
-  private Boolean acceptsRemovalProposal;
+  private Set<DecommissioningCondition> decommissioningConditions;
 
   public Boolean getTransboundaryEffect() {
     return transboundaryEffect;
@@ -109,20 +101,13 @@ public class EnvDecomForm {
     this.emtSubmissionYear = emtSubmissionYear;
   }
 
-  public Boolean getDischargeFundsAvailable() {
-    return dischargeFundsAvailable;
+  public Set<EnvironmentalCondition> getEnvironmentalConditions() {
+    return environmentalConditions;
   }
 
-  public void setDischargeFundsAvailable(Boolean dischargeFundsAvailable) {
-    this.dischargeFundsAvailable = dischargeFundsAvailable;
-  }
-
-  public Boolean getAcceptsOpolLiability() {
-    return acceptsOpolLiability;
-  }
-
-  public void setAcceptsOpolLiability(Boolean acceptsOpolLiability) {
-    this.acceptsOpolLiability = acceptsOpolLiability;
+  public void setEnvironmentalConditions(
+      Set<EnvironmentalCondition> environmentalConditions) {
+    this.environmentalConditions = environmentalConditions;
   }
 
   public String getDecommissioningPlans() {
@@ -133,27 +118,12 @@ public class EnvDecomForm {
     this.decommissioningPlans = decommissioningPlans;
   }
 
-  public Boolean getAcceptsEolRegulations() {
-    return acceptsEolRegulations;
+  public Set<DecommissioningCondition> getDecommissioningConditions() {
+    return decommissioningConditions;
   }
 
-  public void setAcceptsEolRegulations(Boolean acceptsEolRegulations) {
-    this.acceptsEolRegulations = acceptsEolRegulations;
-  }
-
-  public Boolean getAcceptsEolRemoval() {
-    return acceptsEolRemoval;
-  }
-
-  public void setAcceptsEolRemoval(Boolean acceptsEolRemoval) {
-    this.acceptsEolRemoval = acceptsEolRemoval;
-  }
-
-  public Boolean getAcceptsRemovalProposal() {
-    return acceptsRemovalProposal;
-  }
-
-  public void setAcceptsRemovalProposal(Boolean acceptsRemovalProposal) {
-    this.acceptsRemovalProposal = acceptsRemovalProposal;
+  public void setDecommissioningConditions(
+      Set<DecommissioningCondition> decommissioningConditions) {
+    this.decommissioningConditions = decommissioningConditions;
   }
 }

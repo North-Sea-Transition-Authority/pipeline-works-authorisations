@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.initial.validators;
+package uk.co.ogauthority.pwa.service.pwaapplications.validators;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,30 +17,30 @@ public class PadEnvDecomValidatorTest {
   }
 
   @Test
-  public void emptyDate() {
+  public void testValidate_EmptyDate() {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("emtSubmissionDay")).containsExactly("NO_CONTENT");
-    assertThat(errors.get("emtSubmissionMonth")).containsExactly("NO_CONTENT");
-    assertThat(errors.get("emtSubmissionYear")).containsExactly("NO_CONTENT");
+    assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.notParsable");
+    assertThat(errors.get("emtSubmissionMonth")).containsExactly("emtSubmissionMonth.notParsable");
+    assertThat(errors.get("emtSubmissionYear")).containsExactly("emtSubmissionYear.notParsable");
   }
 
   @Test
-  public void invalidDate() {
+  public void testValidate_InvalidDate() {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     form.setEmtSubmissionDay(-1);
     form.setEmtSubmissionMonth(-1);
     form.setEmtSubmissionYear(-1);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("emtSubmissionDay")).containsExactly("INVALID_DATE");
-    assertThat(errors.get("emtSubmissionMonth")).containsExactly("INVALID_DATE");
-    assertThat(errors.get("emtSubmissionYear")).containsExactly("INVALID_DATE");
+    assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.invalidDate");
+    assertThat(errors.get("emtSubmissionMonth")).containsExactly("INVALID_DATE.invalidDate");
+    assertThat(errors.get("emtSubmissionYear")).containsExactly("INVALID_DATE.invalidDate");
   }
 
   @Test
-  public void validDate() {
+  public void testValidate_ValidDate() {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     form.setEmtSubmissionDay(16);
@@ -53,7 +53,7 @@ public class PadEnvDecomValidatorTest {
   }
 
   @Test
-  public void nullPermitsSubmittedField() {
+  public void testValidate_NullPermitsSubmittedField() {
     var form = new EnvDecomForm();
     form.setEmtHasSubmittedPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -61,7 +61,7 @@ public class PadEnvDecomValidatorTest {
   }
 
   @Test
-  public void emptyPermitsSubmittedField() {
+  public void testValidate_EmptyPermitsSubmittedField() {
     var form = new EnvDecomForm();
     form.setEmtHasSubmittedPermits(true);
     form.setPermitsSubmitted("");
@@ -70,7 +70,7 @@ public class PadEnvDecomValidatorTest {
   }
 
   @Test
-  public void validPermitsSubmittedField() {
+  public void testValidate_ValidPermitsSubmittedField() {
     var form = new EnvDecomForm();
     form.setEmtHasSubmittedPermits(true);
     form.setPermitsSubmitted("Test");
@@ -79,7 +79,7 @@ public class PadEnvDecomValidatorTest {
   }
 
   @Test
-  public void nullPermitsPendingSubmissionField() {
+  public void testValidate_NullPermitsPendingSubmissionField() {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -87,7 +87,7 @@ public class PadEnvDecomValidatorTest {
   }
 
   @Test
-  public void emptyPermitsPendingSubmissionField() {
+  public void testValidate_EmptyPermitsPendingSubmissionField() {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission("");
@@ -96,7 +96,7 @@ public class PadEnvDecomValidatorTest {
   }
 
   @Test
-  public void validPermitsPendingSubmissionField() {
+  public void testValidate_ValidPermitsPendingSubmissionField() {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission("Test");

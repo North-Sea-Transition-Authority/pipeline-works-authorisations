@@ -1,13 +1,19 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.initial;
 
 import java.time.Instant;
+import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import uk.co.ogauthority.pwa.model.entity.converters.DecommissioningConditionConverter;
+import uk.co.ogauthority.pwa.model.entity.converters.EnvironmentalConditionConverter;
+import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
+import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Entity(name = "pad_env_and_decom")
@@ -28,12 +34,13 @@ public class PadEnvironmentalDecommissioning {
   private String permitsSubmitted;
   private Boolean emtHasOutstandingPermits;
   private String permitsPendingSubmission;
-  private Boolean dischargeFundsAvailable;
-  private Boolean acceptsOpolLiability;
   private String decommissioningPlans;
-  private Boolean acceptsEolRegulations;
-  private Boolean acceptsEolRemoval;
-  private Boolean acceptsRemovalProposal;
+
+  @Convert(converter = EnvironmentalConditionConverter.class)
+  private Set<EnvironmentalCondition> environmentalConditions;
+
+  @Convert(converter = DecommissioningConditionConverter.class)
+  private Set<DecommissioningCondition> decommissioningConditions;
 
   public Integer getId() {
     return id;
@@ -100,20 +107,13 @@ public class PadEnvironmentalDecommissioning {
     this.permitsPendingSubmission = permitsPendingSubmission;
   }
 
-  public Boolean getDischargeFundsAvailable() {
-    return dischargeFundsAvailable;
+  public Set<EnvironmentalCondition> getEnvironmentalConditions() {
+    return environmentalConditions;
   }
 
-  public void setDischargeFundsAvailable(Boolean dischargeFundsAvailable) {
-    this.dischargeFundsAvailable = dischargeFundsAvailable;
-  }
-
-  public Boolean getAcceptsOpolLiability() {
-    return acceptsOpolLiability;
-  }
-
-  public void setAcceptsOpolLiability(Boolean acceptsOpolLiability) {
-    this.acceptsOpolLiability = acceptsOpolLiability;
+  public void setEnvironmentalConditions(
+      Set<EnvironmentalCondition> environmentalConditions) {
+    this.environmentalConditions = environmentalConditions;
   }
 
   public String getDecommissioningPlans() {
@@ -124,27 +124,12 @@ public class PadEnvironmentalDecommissioning {
     this.decommissioningPlans = decommissioningPlans;
   }
 
-  public Boolean getAcceptsEolRegulations() {
-    return acceptsEolRegulations;
+  public Set<DecommissioningCondition> getDecommissioningConditions() {
+    return decommissioningConditions;
   }
 
-  public void setAcceptsEolRegulations(Boolean acceptsEolRegulations) {
-    this.acceptsEolRegulations = acceptsEolRegulations;
-  }
-
-  public Boolean getAcceptsEolRemoval() {
-    return acceptsEolRemoval;
-  }
-
-  public void setAcceptsEolRemoval(Boolean acceptsEolRemoval) {
-    this.acceptsEolRemoval = acceptsEolRemoval;
-  }
-
-  public Boolean getAcceptsRemovalProposal() {
-    return acceptsRemovalProposal;
-  }
-
-  public void setAcceptsRemovalProposal(Boolean acceptsRemovalProposal) {
-    this.acceptsRemovalProposal = acceptsRemovalProposal;
+  public void setDecommissioningConditions(
+      Set<DecommissioningCondition> decommissioningConditions) {
+    this.decommissioningConditions = decommissioningConditions;
   }
 }

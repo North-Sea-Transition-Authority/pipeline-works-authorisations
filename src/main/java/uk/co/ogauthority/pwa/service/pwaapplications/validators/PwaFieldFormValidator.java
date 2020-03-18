@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.initial;
+package uk.co.ogauthority.pwa.service.pwaapplications.validators;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,8 @@
 <#include '../../layout.ftl'>
 
-<@defaultPage htmlTitle="Environmental and decommissioning" pageHeading="Environmental and decommissioning" breadcrumbs=false>
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+
+<@defaultPage htmlTitle="Environmental and decommissioning" pageHeading="Environmental and decommissioning" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
@@ -33,15 +35,12 @@
         </@fdsFieldset.fieldset>
 
         <@fdsFieldset.fieldset legendHeading="Acknowledgements" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
-            <@fdsCheckbox.checkbox path="form.dischargeFundsAvailable" labelText="I hereby confirm that the holder has funds available to discharge any liability for damage attributable to the release or escape of anything from the pipeline."/>
-            <@fdsCheckbox.checkbox path="form.acceptsOpolLiability" labelText="I acknowledge liability insurance in respect of North Sea operations is arranged under the General Third Party Liability Risk Insurance and the complementary arrangements effected under the Offshore Pollution Liability Agreement (OPOL) of the holder."/>
+            <@fdsCheckbox.checkboxes path="form.environmentalConditions" checkboxes=environmentalConditions />
         </@fdsFieldset.fieldset>
 
         <@fdsFieldset.fieldset legendHeading="Decommissioning" legendHeadingSize="h2">
             <@fdsTextarea.textarea path="form.decommissioningPlans" labelText="What are your decommissioning plans?"/>
-            <@fdsCheckbox.checkbox path="form.acceptsEolRegulations" labelText="I accept that options for the decommissioning of the pipeline(s) will be considered at the end of the field life and should adhere to government policies and regulations in force at the time."/>
-            <@fdsCheckbox.checkbox path="form.acceptsEolRemoval" labelText="I accept that any mattresses or grout bags which have been installed to protect pipelines during their operational life should be removed for disposal onshore."/>
-            <@fdsCheckbox.checkbox path="form.acceptsRemovalProposal" labelText="I accept that if the condition of the mattresses or grout bags is such that they cannot be removed safely or efficiently then any proposal to leave them in place must be supported by an appropriate comparative assessment of the options."/>
+            <@fdsCheckbox.checkboxes path="form.decommissioningConditions" checkboxes=decommissioningConditions />
         </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
