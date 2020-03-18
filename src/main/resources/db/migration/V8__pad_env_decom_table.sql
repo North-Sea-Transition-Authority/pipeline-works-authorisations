@@ -1,6 +1,6 @@
 CREATE TABLE ${datasource.user}.pad_env_and_decom (
   id NUMBER GENERATED ALWAYS AS IDENTITY
-, application_detail_id NUMBER
+, application_detail_id NUMBER NOT NULL
 , trans_boundary_effect INTEGER CHECK(trans_boundary_effect IN (0, 1) OR trans_boundary_effect IS NULL)
 , emt_has_submitted_permits INTEGER CHECK(emt_has_submitted_permits IN (0, 1) OR emt_has_submitted_permits IS NULL)
 , permits_submitted VARCHAR2(4000)

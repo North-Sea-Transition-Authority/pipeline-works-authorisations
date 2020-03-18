@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Arrays;
 import java.util.Comparator;
-import java.util.EnumSet;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,20 +34,19 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/env-decom")
+@ApplicationTypeRestriction({
+    PwaApplicationType.INITIAL,
+    PwaApplicationType.CAT_1_VARIATION,
+    PwaApplicationType.OPTIONS_VARIATION,
+    PwaApplicationType.DECOMMISSIONING,
+    PwaApplicationType.DEPOSIT_CONSENT
+})
 public class EnvironmentalDecomController {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
   private final PadEnvDecomValidator validator;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-
-  private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
-      PwaApplicationType.INITIAL,
-      PwaApplicationType.CAT_1_VARIATION,
-      PwaApplicationType.OPTIONS_VARIATION,
-      PwaApplicationType.DECOMMISSIONING,
-      PwaApplicationType.DEPOSIT_CONSENT
-  );
 
   @Autowired
   public EnvironmentalDecomController(
@@ -61,7 +60,7 @@ public class EnvironmentalDecomController {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
-  private ModelAndView getAdminDetailsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+  private ModelAndView getEnvDecomModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/environmentalAndDecommissioning")
         .addObject("hseSafetyZones", HseSafetyZone.stream()
             .sorted(Comparator.comparing(HseSafetyZone::getDisplayOrder))
@@ -72,36 +71,37 @@ public class EnvironmentalDecomController {
         .addObject("decommissioningConditions", DecommissioningCondition.stream()
             .sorted(Comparator.comparing(DecommissioningCondition::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, DecommissioningCondition::getConditionText)));
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Environmental and decommissioning");
+    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        "Environmental and decommissioning");
     return modelAndView;
   }
 
   @GetMapping
-  public ModelAndView renderAdminDetails(@PathVariable("applicationType")
+  public ModelAndView renderEnvDecom(@PathVariable("applicationType")
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                         @PathVariable("applicationId") Integer applicationId,
-                                         @ModelAttribute("form") EnvDecomForm form,
-                                         AuthenticatedUserAccount user) {
+                                     @PathVariable("applicationId") Integer applicationId,
+                                     @ModelAttribute("form") EnvDecomForm form,
+                                     AuthenticatedUserAccount user) {
     ensureAllowed(pwaApplicationType);
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
       var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
-      var modelAndView = getAdminDetailsModelAndView(detail);
+      var modelAndView = getEnvDecomModelAndView(detail);
       padEnvironmentalDecommissioningService.mapEntityToForm(envDecomData, form);
       return modelAndView;
     });
   }
 
   @PostMapping(params = "Complete")
-  public ModelAndView postCompleteAdminDetails(@PathVariable("applicationType")
+  public ModelAndView postCompleteEnvDecom(@PathVariable("applicationType")
                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                               @PathVariable("applicationId") Integer applicationId,
-                                               @Valid @ModelAttribute("form") EnvDecomForm form,
-                                               BindingResult bindingResult,
-                                               AuthenticatedUserAccount user) {
+                                           @PathVariable("applicationId") Integer applicationId,
+                                           @Valid @ModelAttribute("form") EnvDecomForm form,
+                                           BindingResult bindingResult,
+                                           AuthenticatedUserAccount user) {
     ensureAllowed(pwaApplicationType);
     validator.validate(form, bindingResult);
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
-        ControllerUtils.validateAndRedirect(bindingResult, getAdminDetailsModelAndView(detail), () -> {
+        ControllerUtils.validateAndRedirect(bindingResult, getEnvDecomModelAndView(detail), () -> {
           var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           padEnvironmentalDecommissioningService.saveEntityUsingForm(envDecomData, form);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
@@ -109,15 +109,15 @@ public class EnvironmentalDecomController {
   }
 
   @PostMapping(params = "Save and complete later")
-  public ModelAndView postContinueAdminDetails(@PathVariable("applicationType")
+  public ModelAndView postContinueEnvDecom(@PathVariable("applicationType")
                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                               @PathVariable("applicationId") Integer applicationId,
-                                               @ModelAttribute("form") EnvDecomForm form,
-                                               BindingResult bindingResult,
-                                               AuthenticatedUserAccount user) {
+                                           @PathVariable("applicationId") Integer applicationId,
+                                           @ModelAttribute("form") EnvDecomForm form,
+                                           BindingResult bindingResult,
+                                           AuthenticatedUserAccount user) {
     ensureAllowed(pwaApplicationType);
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
-        ControllerUtils.validateAndRedirect(bindingResult, getAdminDetailsModelAndView(detail), () -> {
+        ControllerUtils.validateAndRedirect(bindingResult, getEnvDecomModelAndView(detail), () -> {
           var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           padEnvironmentalDecommissioningService.saveEntityUsingForm(envDecomData, form);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
@@ -126,8 +126,10 @@ public class EnvironmentalDecomController {
   }
 
   private void ensureAllowed(PwaApplicationType pwaApplicationType) {
-    var allowed = allowedApplicationTypes.stream()
-        .anyMatch(appType -> appType == pwaApplicationType);
+    var allowed = Arrays.stream(this.getClass()
+        .getAnnotation(ApplicationTypeRestriction.class)
+        .value())
+        .anyMatch(type -> type == pwaApplicationType);
     if (!allowed) {
       throw new AccessDeniedException(
           String.format("Application type %s is not allowed to access this endpoint", pwaApplicationType.name()));
