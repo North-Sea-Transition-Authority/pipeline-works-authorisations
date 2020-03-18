@@ -72,7 +72,8 @@ public class EnvironmentalDecomController {
         .addObject("decommissioningConditions", DecommissioningCondition.stream()
             .sorted(Comparator.comparing(DecommissioningCondition::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, DecommissioningCondition::getConditionText)));
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Environmental and decommissioning");
+    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        "Environmental and decommissioning");
     return modelAndView;
   }
 

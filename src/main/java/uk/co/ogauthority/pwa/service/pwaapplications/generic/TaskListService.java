@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -24,7 +25,8 @@ public class TaskListService {
   private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService, ApplicationBreadcrumbService breadcrumbService) {
+  public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService,
+                         ApplicationBreadcrumbService breadcrumbService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
   }
@@ -65,6 +67,9 @@ public class TaskListService {
 
     return new LinkedHashMap<>() {
       {
+        put("Project information",
+            ReverseRouter.route(on(ProjectInformationController.class)
+                .renderProjectInformation(application.getApplicationType(), application.getId(), null, null)));
         put("Environmental and decommissioning",
             ReverseRouter.route(on(EnvironmentalDecomController.class)
                 .renderAdminDetails(application.getApplicationType(), application.getId(), null, null)));
