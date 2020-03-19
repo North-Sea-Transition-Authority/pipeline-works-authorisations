@@ -76,7 +76,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm() {
+  public void saveEntityUsingForm_AllExpanded() {
     var form = buildForm();
     var entity = new PadEnvironmentalDecommissioning();
     padEnvironmentalDecommissioningService.saveEntityUsingForm(entity, form);
@@ -88,6 +88,24 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(entity.getDecommissioningPlans()).isEqualTo(form.getDecommissioningPlans());
     assertThat(LocalDate.ofInstant(entity.getEmtSubmissionTimestamp(), ZoneId.systemDefault()))
         .isEqualTo(LocalDate.of(2020, 3, 18));
+    assertThat(entity.getEnvironmentalConditions()).isEqualTo(form.getEnvironmentalConditions());
+    assertThat(entity.getDecommissioningConditions()).isEqualTo(form.getDecommissioningConditions());
+  }
+
+  @Test
+  public void saveEntityUsingForm_NoneExpanded() {
+    var form = buildForm();
+    form.setEmtHasOutstandingPermits(false);
+    form.setEmtHasSubmittedPermits(false);
+    var entity = new PadEnvironmentalDecommissioning();
+    padEnvironmentalDecommissioningService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getTransboundaryEffect()).isEqualTo(form.getTransboundaryEffect());
+    assertThat(entity.getEmtHasSubmittedPermits()).isEqualTo(form.getEmtHasSubmittedPermits());
+    assertThat(entity.getPermitsSubmitted()).isNull();
+    assertThat(entity.getEmtHasOutstandingPermits()).isEqualTo(form.getEmtHasOutstandingPermits());
+    assertThat(entity.getPermitsPendingSubmission()).isNull();
+    assertThat(entity.getDecommissioningPlans()).isEqualTo(form.getDecommissioningPlans());
+    assertThat(entity.getEmtSubmissionTimestamp()).isNull();
     assertThat(entity.getEnvironmentalConditions()).isEqualTo(form.getEnvironmentalConditions());
     assertThat(entity.getDecommissioningConditions()).isEqualTo(form.getDecommissioningConditions());
   }
