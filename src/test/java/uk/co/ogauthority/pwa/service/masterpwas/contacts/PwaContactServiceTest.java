@@ -5,7 +5,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +66,60 @@ public class PwaContactServiceTest {
     when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contactOne, contactTwo));
 
     assertThat(pwaContactService.getContactsForPwaApplication(pwaApplication)).containsExactlyInAnyOrder(contactOne, contactTwo);
+
+  }
+
+  @Test
+  public void personIsContactOnApplication() {
+
+    var pwaApplication = new PwaApplication();
+    var person = new Person();
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(new PwaContact()));
+
+    assertThat(pwaContactService.personIsContactOnApplication(pwaApplication, person)).isTrue();
+
+  }
+
+  @Test
+  public void personIsContactOnApplication_notContact() {
+
+    var pwaApplication = new PwaApplication();
+    var person = new Person();
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
+
+    assertThat(pwaContactService.personIsContactOnApplication(pwaApplication, person)).isFalse();
+
+  }
+
+  @Test
+  public void personHasContactRoleForPwaApplication_personHasRole() {
+
+    var pwaApplication = new PwaApplication();
+    var person = new Person();
+    var roles = Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER);
+
+    var pwaContact = new PwaContact(pwaApplication, person, roles);
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(pwaContact));
+
+    assertThat(pwaContactService.personHasContactRoleForPwaApplication(pwaApplication, person, PwaContactRole.ACCESS_MANAGER)).isTrue();
+    assertThat(pwaContactService.personHasContactRoleForPwaApplication(pwaApplication, person, PwaContactRole.PREPARER)).isTrue();
+    assertThat(pwaContactService.personHasContactRoleForPwaApplication(pwaApplication, person, PwaContactRole.VIEWER)).isFalse();
+
+  }
+
+  @Test
+  public void personHasContactRoleForPwaApplication_notContact() {
+
+    var pwaApplication = new PwaApplication();
+    var person = new Person();
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
+
+    Arrays.stream(PwaContactRole.values()).forEach(role ->
+        assertThat(pwaContactService.personHasContactRoleForPwaApplication(pwaApplication, person, role)).isFalse());
 
   }
 

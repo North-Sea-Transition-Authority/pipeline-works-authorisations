@@ -177,4 +177,9 @@ public class PwaApplicationDetail {
   public Integer getMasterPwaApplicationId() {
     return this.pwaApplication.getId();
   }
+
+  public String getPwaApplicationRef() {
+    return this.pwaApplication.getAppReference();
+  }
+
 }

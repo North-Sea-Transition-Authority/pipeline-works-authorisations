@@ -2,10 +2,15 @@
 <#-- @ftlvariable name="teamMemberViews" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
 <#-- @ftlvariable name="addUserUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="showBreadcrumbs" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="userCanManageAccess" type="java.lang.Boolean" -->
 
 <#include "../layout.ftl">
 
 <@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=true twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
+
+    <#if userCanManageAccess>
+        <@fdsAction.link linkText="Add user" linkUrl=springUrl(addUserUrl) linkClass="govuk-button" role=true/>
+    </#if>
 
     <#list teamMemberViews>
       <table class="govuk-table">
@@ -14,7 +19,9 @@
           <th class="govuk-table__header" scope="col">Name</th>
           <th class="govuk-table__header" scope="col">Contact details</th>
           <th class="govuk-table__header" scope="col">Roles</th>
-          <th class="govuk-table__header" scope="col">Actions</th>
+          <#if userCanManageAccess>
+            <th class="govuk-table__header" scope="col">Actions</th>
+          </#if>
         </tr>
         <tbody class="govuk-table__body">
         <#items as teamMemberView>
@@ -34,22 +41,22 @@
                   <br>
                 </#list>
             </td>
-            <td class="govuk-table__cell">
-              <ul class="govuk-list">
-                <li>
-                    <@fdsAction.link linkText="Edit" linkUrl=springUrl(teamMemberView.editRoute) linkClass="govuk-link"></@fdsAction.link>
-                </li>
-                <li>
-                    <@fdsAction.link linkText="Remove" linkUrl=springUrl(teamMemberView.removeRoute) linkClass="govuk-link"></@fdsAction.link>
-                </li>
-              </ul>
-            </td>
+            <#if userCanManageAccess>
+              <td class="govuk-table__cell">
+                <ul class="govuk-list">
+                  <li>
+                      <@fdsAction.link linkText="Edit" linkUrl=springUrl(teamMemberView.editRoute) linkClass="govuk-link"></@fdsAction.link>
+                  </li>
+                  <li>
+                      <@fdsAction.link linkText="Remove" linkUrl=springUrl(teamMemberView.removeRoute) linkClass="govuk-link"></@fdsAction.link>
+                  </li>
+                </ul>
+              </td>
+            </#if>
           </tr>
         </#items>
         </tbody>
       </table>
     </#list>
-
-    <@fdsAction.link linkText="Add user" linkUrl=springUrl(addUserUrl) linkClass="govuk-button" role=true/>
 
 </@defaultPage>

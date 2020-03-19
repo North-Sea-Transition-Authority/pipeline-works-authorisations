@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.masterpwas.contacts;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,4 +35,19 @@ public class PwaContactService {
 
   }
 
+  public boolean personIsContactOnApplication(PwaApplication pwaApplication, Person person) {
+    return getContact(pwaApplication, person).isPresent();
+  }
+
+  private Optional<PwaContact> getContact(PwaApplication pwaApplication, Person person) {
+    return pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person);
+  }
+
+  public boolean personHasContactRoleForPwaApplication(PwaApplication pwaApplication, Person person, PwaContactRole role) {
+
+    return getContact(pwaApplication, person)
+        .map(contact -> contact.getRoles().contains(role))
+        .orElse(false);
+
+  }
 }
