@@ -78,7 +78,7 @@ public class EnvironmentalDecomController {
 
   @GetMapping
   public ModelAndView renderEnvDecom(@PathVariable("applicationType")
-                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                      @PathVariable("applicationId") Integer applicationId,
                                      @ModelAttribute("form") EnvDecomForm form,
                                      AuthenticatedUserAccount user) {
@@ -93,7 +93,7 @@ public class EnvironmentalDecomController {
 
   @PostMapping(params = "Complete")
   public ModelAndView postCompleteEnvDecom(@PathVariable("applicationType")
-                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            @PathVariable("applicationId") Integer applicationId,
                                            @Valid @ModelAttribute("form") EnvDecomForm form,
                                            BindingResult bindingResult,
@@ -110,7 +110,7 @@ public class EnvironmentalDecomController {
 
   @PostMapping(params = "Save and complete later")
   public ModelAndView postContinueEnvDecom(@PathVariable("applicationType")
-                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            @PathVariable("applicationId") Integer applicationId,
                                            @ModelAttribute("form") EnvDecomForm form,
                                            BindingResult bindingResult,
