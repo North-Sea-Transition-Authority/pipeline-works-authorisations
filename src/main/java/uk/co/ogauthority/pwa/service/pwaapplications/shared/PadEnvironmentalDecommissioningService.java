@@ -54,6 +54,7 @@ public class PadEnvironmentalDecommissioningService {
     }
   }
 
+  @Transactional
   public void saveEntityUsingForm(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning, EnvDecomForm form) {
     padEnvironmentalDecommissioning.setDecommissioningPlans(form.getDecommissioningPlans());
     padEnvironmentalDecommissioning.setEmtHasOutstandingPermits(form.getEmtHasOutstandingPermits());
@@ -63,6 +64,7 @@ public class PadEnvironmentalDecommissioningService {
     padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(null);
     padEnvironmentalDecommissioning.setEnvironmentalConditions(form.getEnvironmentalConditions());
     padEnvironmentalDecommissioning.setDecommissioningConditions(form.getDecommissioningConditions());
+    // TODO: PWA-379 - Prevent discard when date is invalid.
     try {
       var localDate = LocalDate.of(
           form.getEmtSubmissionYear(),

@@ -17,7 +17,7 @@ public class EnvironmentalConditionConverterTest {
   }
 
   @Test
-  public void testConvertToDatabaseColumn() {
+  public void testConvertToDatabaseColumn_ValidSet() {
     var result = converter.convertToDatabaseColumn(Set.of(
         EnvironmentalCondition.DISCHARGE_FUNDS_AVAILABLE,
         EnvironmentalCondition.OPOL_LIABILITY_STATEMENT
@@ -27,7 +27,19 @@ public class EnvironmentalConditionConverterTest {
   }
 
   @Test
-  public void testConvertToEntityAttribute() {
+  public void testConvertToDatabaseColumn_EmptySet() {
+    var result = converter.convertToDatabaseColumn(Set.of());
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void testConvertToDatabaseColumn_NullSet() {
+    var result = converter.convertToDatabaseColumn(null);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void testConvertToEntityAttribute_ValidConditionString() {
     var result = converter.convertToEntityAttribute(String.format(
         "%s,%s",
         EnvironmentalCondition.DISCHARGE_FUNDS_AVAILABLE.name(),
@@ -37,6 +49,18 @@ public class EnvironmentalConditionConverterTest {
         EnvironmentalCondition.DISCHARGE_FUNDS_AVAILABLE,
         EnvironmentalCondition.OPOL_LIABILITY_STATEMENT
     );
+  }
+
+  @Test
+  public void testConvertToEntityAttribute_EmptyConditionsString() {
+    var result = converter.convertToEntityAttribute("");
+    assertThat(result).isEqualTo(Set.of());
+  }
+
+  @Test
+  public void testConvertToEntityAttribute_NullConditionsString() {
+    var result = converter.convertToEntityAttribute(null);
+    assertThat(result).isEqualTo(Set.of());
   }
 
 }

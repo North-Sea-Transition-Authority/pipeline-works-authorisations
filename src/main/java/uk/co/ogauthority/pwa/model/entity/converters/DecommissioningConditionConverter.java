@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.converters;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
@@ -14,13 +16,15 @@ public class DecommissioningConditionConverter implements AttributeConverter<Set
 
   @Override
   public String convertToDatabaseColumn(Set<DecommissioningCondition> decommissioningConditions) {
-    if (decommissioningConditions.isEmpty()) {
-      return null;
-    }
-    return decommissioningConditions
+    var converted = Optional.ofNullable(decommissioningConditions)
         .stream()
+        .flatMap(Collection::stream)
         .map(Enum::name)
         .collect(Collectors.joining(","));
+    if (converted.isBlank()) {
+      return null;
+    }
+    return converted;
   }
 
   @Override

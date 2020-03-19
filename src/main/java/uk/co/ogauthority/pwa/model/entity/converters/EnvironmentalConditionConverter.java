@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.converters;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
@@ -14,13 +16,15 @@ public class EnvironmentalConditionConverter implements AttributeConverter<Set<E
 
   @Override
   public String convertToDatabaseColumn(Set<EnvironmentalCondition> environmentalConditions) {
-    if (environmentalConditions.isEmpty()) {
-      return null;
-    }
-    return environmentalConditions
+    var converted = Optional.ofNullable(environmentalConditions)
         .stream()
+        .flatMap(Collection::stream)
         .map(Enum::name)
         .collect(Collectors.joining(","));
+    if (converted.isBlank()) {
+      return null;
+    }
+    return converted;
   }
 
   @Override
