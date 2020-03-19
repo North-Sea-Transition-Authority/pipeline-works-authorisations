@@ -1,9 +1,11 @@
-<#-- @ftlvariable name="team" type="uk.co.ogauthority.pwa.model.teams.PwaTeam" -->
+<#-- @ftlvariable name="teamName" type="String" -->
+<#-- @ftlvariable name="error" type="String" -->
 <#-- @ftlvariable name="teamMember" type="uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView" -->
+<#-- @ftlvariable name="cancelUrl" type="String" -->
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Remove User" pageHeading="Are you sure you want to remove this user from the ${team.name} team?" backLink=true topNavigation=true twoThirdsColumn=false>
+<@defaultPage htmlTitle="Remove User" pageHeading="Are you sure you want to remove this user from the ${teamName} team?" backLink=true topNavigation=true twoThirdsColumn=false>
 
     <#if error?has_content>
         <@fdsError.singleErrorSummary errorMessage=error/>
@@ -11,7 +13,7 @@
 
     <@fdsForm.htmlForm>
       <table class="govuk-table">
-        <caption class="govuk-table__caption govuk-visually-hidden">Are you sure you want to remove this user from ${team.name}?</caption>
+        <caption class="govuk-table__caption govuk-visually-hidden">Are you sure you want to remove this user from ${teamName}?</caption>
         <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="row">Full name</th>

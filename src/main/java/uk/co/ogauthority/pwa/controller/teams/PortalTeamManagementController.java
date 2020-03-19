@@ -167,7 +167,7 @@ public class PortalTeamManagementController {
 
     return new ModelAndView("teamManagement/removeMember")
         .addObject("cancelUrl", ReverseRouter.route(on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null)))
-        .addObject("team", team)
+        .addObject("teamName", team.getName())
         .addObject("teamMember", teamMemberView)
         .addObject("error", error);
   }
