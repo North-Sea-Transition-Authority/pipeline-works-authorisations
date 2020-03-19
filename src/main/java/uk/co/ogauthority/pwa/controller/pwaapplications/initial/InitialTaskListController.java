@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 
 @Controller
-@RequestMapping("/pwa-application/initial/{applicationId}")
+@RequestMapping("/pwa-application/initial/{applicationId}/tasks")
 public class InitialTaskListController {
 
   private final TaskListService taskListService;
@@ -26,7 +26,7 @@ public class InitialTaskListController {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
-  @GetMapping("/tasks")
+  @GetMapping
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId, AuthenticatedUserAccount user) {
 
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {

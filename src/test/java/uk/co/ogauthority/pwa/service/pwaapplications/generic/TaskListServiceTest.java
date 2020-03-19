@@ -84,7 +84,17 @@ public class TaskListServiceTest {
 
       pwaApplication.setApplicationType(appType);
 
-      assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("No tasks");
+      switch(appType) {
+        case INITIAL:
+        case CAT_1_VARIATION:
+        case OPTIONS_VARIATION:
+        case DECOMMISSIONING:
+        case DEPOSIT_CONSENT:
+          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("Environmental and decommissioning");
+          break;
+        default:
+          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("No tasks");
+      }
 
     });
 
@@ -97,7 +107,7 @@ public class TaskListServiceTest {
 
       switch (applicationType) {
         case INITIAL:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/initial/taskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/initial/initialTaskList");
           break;
         case CAT_1_VARIATION:
           assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/category1/cat1TaskList");

@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
+import uk.co.ogauthority.pwa.service.pwaapplications.validators.PwaFieldFormValidator;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,7 +27,7 @@ public class PwaApplicationDetailFieldFormValidatorTest<T> {
   public void validate_RadioYes_NoSelection() {
     pwaFieldForm.setLinkedToField(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, pwaFieldForm);
-    assertThat(errors.get("fieldId")).containsExactly("NO_FIELD_ID");
+    assertThat(errors.get("fieldId")).containsExactly("fieldId.empty");
   }
 
   @Test
