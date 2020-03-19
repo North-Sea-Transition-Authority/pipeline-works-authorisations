@@ -70,6 +70,7 @@ public class PadProjectInformationService {
     padProjectInformation.setProjectName(form.getProjectName());
     padProjectInformation.setMethodOfPipelineDeployment(form.getMethodOfPipelineDeployment());
 
+    // TODO: PWA-379
     try {
       var date = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(), form.getProposedStartDay());
       padProjectInformation.setProposedStartTimestamp(Instant.ofEpochSecond(

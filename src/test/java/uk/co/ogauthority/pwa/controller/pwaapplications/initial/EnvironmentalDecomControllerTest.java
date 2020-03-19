@@ -181,7 +181,8 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
       add("Complete", "");
     }};
     mockMvc.perform(
-        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
+        post(ReverseRouter.route(on(EnvironmentalDecomController.class)
+            .postCompleteEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))
