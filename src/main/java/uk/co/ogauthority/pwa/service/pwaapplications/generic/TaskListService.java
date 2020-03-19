@@ -69,6 +69,7 @@ public class TaskListService {
 
     var restrictions = new LinkedHashMap<String, Class>() {
       {
+        put("Project information", ProjectInformationController.class);
         put("Environmental and decommissioning", EnvironmentalDecomController.class);
       }
     };

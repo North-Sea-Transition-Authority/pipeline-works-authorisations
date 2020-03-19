@@ -5,6 +5,10 @@ import java.time.format.DateTimeFormatter;
 
 public class DateUtil {
 
+  public DateUtil() {
+    throw new AssertionError();
+  }
+
   private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM YYYY");
 
   public static String formatDate(LocalDate localDate) {

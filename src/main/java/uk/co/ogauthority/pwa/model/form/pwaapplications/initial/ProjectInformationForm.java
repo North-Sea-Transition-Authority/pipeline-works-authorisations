@@ -1,9 +1,26 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.initial;
 
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
+
 public class ProjectInformationForm {
 
+  public interface Full {
+  }
+
+  public interface Partial {
+  }
+
+  @NotNull(message = "Enter the project name", groups = {Full.class})
+  @Length(max = 4000, message = "Project name must be 4000 characters or fewer", groups = {Full.class, Partial.class})
   private String projectName;
+
+  @NotNull(message = "Enter the project overview", groups = {Full.class})
+  @Length(max = 4000, message = "Project overview must be 4000 characters or fewer", groups = {Full.class, Partial.class})
   private String projectOverview;
+
+  @NotNull(message = "Enter the pipeline installation method", groups = {Full.class})
+  @Length(max = 4000, message = "Pipeline installation method must be 4000 characters or fewer", groups = {Full.class, Partial.class})
   private String methodOfPipelineDeployment;
 
   private Integer proposedStartDay;

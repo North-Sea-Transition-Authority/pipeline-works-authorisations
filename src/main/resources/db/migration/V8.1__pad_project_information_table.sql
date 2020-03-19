@@ -1,6 +1,6 @@
 CREATE TABLE ${datasource.user}.pad_project_information (
   id NUMBER GENERATED ALWAYS AS IDENTITY
-, application_detail_id NUMBER
+, application_detail_id NUMBER NOT NULL
 , project_name VARCHAR2(4000)
 , project_overview VARCHAR2(4000)
 , project_diagram_file_id NUMBER -- TODO: !!PWA-370!! Foreign key reference to files table.
