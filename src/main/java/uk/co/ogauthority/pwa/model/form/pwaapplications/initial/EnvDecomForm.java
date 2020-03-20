@@ -31,7 +31,7 @@ public class EnvDecomForm {
 
   private Set<EnvironmentalCondition> environmentalConditions;
 
-  @NotNull(message = "Enter decommissioning plans")
+  @NotNull(message = "You must provide your decommissioning plans")
   @Length(max = 4000, message = "Must be 4000 characters or less")
   private String decommissioningPlans;
 
