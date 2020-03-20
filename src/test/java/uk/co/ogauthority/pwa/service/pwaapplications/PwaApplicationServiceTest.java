@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
-import uk.co.ogauthority.pwa.service.masterpwas.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 @RunWith(MockitoJUnitRunner.class)
