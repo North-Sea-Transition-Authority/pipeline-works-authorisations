@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import javax.validation.Valid;
@@ -15,17 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.EnvDecomForm;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -47,17 +44,20 @@ public class EnvironmentalDecomController {
   private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
   private final PadEnvDecomValidator validator;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public EnvironmentalDecomController(
       PwaApplicationDetailService pwaApplicationDetailService,
       PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService,
       PadEnvDecomValidator validator,
-      ApplicationBreadcrumbService applicationBreadcrumbService) {
+      ApplicationBreadcrumbService applicationBreadcrumbService,
+      PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.padEnvironmentalDecommissioningService = padEnvironmentalDecommissioningService;
     this.validator = validator;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
   private ModelAndView getEnvDecomModelAndView(PwaApplicationDetail pwaApplicationDetail) {
@@ -104,7 +104,7 @@ public class EnvironmentalDecomController {
         ControllerUtils.validateAndRedirect(bindingResult, getEnvDecomModelAndView(detail), () -> {
           var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           padEnvironmentalDecommissioningService.saveEntityUsingForm(envDecomData, form);
-          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
+          return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
         }));
   }
 
@@ -120,7 +120,7 @@ public class EnvironmentalDecomController {
         ControllerUtils.validateAndRedirect(bindingResult, getEnvDecomModelAndView(detail), () -> {
           var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
           padEnvironmentalDecommissioningService.saveEntityUsingForm(envDecomData, form);
-          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
+          return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
         })
     );
   }

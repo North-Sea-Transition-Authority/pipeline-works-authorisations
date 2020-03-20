@@ -26,20 +26,20 @@ public class ValidatorUtils {
         if (date.isBefore(LocalDate.now())) {
           errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.beforeToday", fieldPrefix),
               String.format("%s must not be in the past", StringUtils.capitalize(displayPrefix)));
-          errors.rejectValue(fieldPrefix + "Month", String.format("%sDay.beforeToday", fieldPrefix), "");
-          errors.rejectValue(fieldPrefix + "Year", String.format("%sDay.beforeToday", fieldPrefix), "");
+          errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.beforeToday", fieldPrefix), "");
+          errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.beforeToday", fieldPrefix), "");
         }
       } catch (DateTimeException dte) {
         errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.invalid", fieldPrefix),
             String.format("Enter a valid %s day", displayPrefix));
-        errors.rejectValue(fieldPrefix + "Month", String.format("%sDay.invalid", fieldPrefix), "");
-        errors.rejectValue(fieldPrefix + "Year", String.format("%sDay.invalid", fieldPrefix), "");
+        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.invalid", fieldPrefix), "");
+        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.invalid", fieldPrefix), "");
       }
     } else {
       errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.invalid", fieldPrefix),
           String.format("Enter a valid %s date", displayPrefix));
-      errors.rejectValue(fieldPrefix + "Month", String.format("%sDay.invalid", fieldPrefix), "");
-      errors.rejectValue(fieldPrefix + "Year", String.format("%sDay.invalid", fieldPrefix), "");
+      errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.invalid", fieldPrefix), "");
+      errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.invalid", fieldPrefix), "");
     }
   }
 

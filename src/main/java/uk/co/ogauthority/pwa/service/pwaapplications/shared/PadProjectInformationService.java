@@ -81,7 +81,7 @@ public class PadProjectInformationService {
     }
 
     try {
-      var date = LocalDate.of(form.getMobilisationDay(), form.getMobilisationMonth(), form.getMobilisationDay());
+      var date = LocalDate.of(form.getMobilisationYear(), form.getMobilisationMonth(), form.getMobilisationDay());
       padProjectInformation.setMobilisationTimestamp(Instant.ofEpochSecond(
           date.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)
       ));

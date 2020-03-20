@@ -90,10 +90,15 @@ public class TaskListServiceTest {
         case OPTIONS_VARIATION:
         case DECOMMISSIONING:
         case DEPOSIT_CONSENT:
-          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("Environmental and decommissioning");
+          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsKeys(
+              "Project information",
+              "Environmental and decommissioning"
+          );
           break;
-        default:
-          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("No tasks");
+        case CAT_2_VARIATION:
+          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsKeys(
+              "Project information"
+          );
       }
 
     });
