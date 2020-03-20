@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.initial;
+package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
 import java.util.Set;
 import javax.validation.constraints.NotNull;
