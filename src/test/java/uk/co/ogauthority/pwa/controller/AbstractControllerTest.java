@@ -15,6 +15,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
@@ -73,6 +74,14 @@ public abstract class AbstractControllerTest {
     @Bean
     public SystemAreaAccessService systemAreaAccessService() {
       return new SystemAreaAccessService();
+    }
+
+    @Bean
+    public FileUploadProperties fileUploadProperties() {
+      FileUploadProperties fileUploadProperties = new FileUploadProperties();
+      fileUploadProperties.setMaxFileSize(1000L);
+      fileUploadProperties.setAllowedExtensions("txt, xls, doc");
+      return fileUploadProperties;
     }
   }
 
