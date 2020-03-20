@@ -1,0 +1,103 @@
+.fileupload-dropzone {
+  border: 2px dashed govuk-colour("mid-grey");
+  background: govuk-colour("light-grey");
+  padding: 2em;
+  text-align: center;
+  font-size: 1.2em;
+  color: govuk-colour("black");
+  transition: background 0.2s;
+  margin-bottom: 1rem;
+
+  &--hidden {
+    display: none;
+  }
+
+  &--hover {
+    background: govuk-colour("light-grey")
+  }
+
+  &__text {
+    @include govuk-font($size: 19, $line-height: 19px);
+  }
+
+  &__hidden-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+  }
+
+  &__link {
+    display: inline;
+    font-weight: inherit;
+    text-decoration: underline;
+    color: $govuk-link-colour;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+      color: $govuk-link-hover-colour;
+    }
+
+    @at-root .fileupload-dropzone__hidden-input--has-focus + & {
+      @include govuk-focused-text;
+    }
+
+  }
+}
+
+.uploaded-file {
+  display: flex;
+  flex-flow: column;
+  @include govuk-responsive-margin(3, "bottom");
+  border: 5px solid govuk-colour("light-grey");
+  padding: 1em;
+  @include govuk-font($size: 19, $line-height: 19px);
+
+  &--error {
+    border-color: $govuk-error-colour;
+  }
+
+  &__filename {
+    word-break: break-all;
+  }
+
+  &__extra-info,
+  &__progress {
+    margin-left: .3em;
+  }
+
+  &__error {
+    color: $govuk-error-colour;
+    @include govuk-typography-weight-bold;
+  }
+
+  &__file-info-wrapper {
+    @include govuk-responsive-margin(3, "bottom");
+    display: flex;
+  }
+
+  &__info {
+    .govuk-form-group {
+      &--file-upload {
+        @include govuk-responsive-margin(0, "bottom");
+      }
+    }
+
+    .govuk-textarea {
+      &--file-upload {
+        @include govuk-responsive-margin(0, "bottom");
+      }
+    }
+  }
+
+  &__delete-link {
+    margin-left: auto;
+  }
+
+  &--hidden {
+    display: none;
+  }
+}
