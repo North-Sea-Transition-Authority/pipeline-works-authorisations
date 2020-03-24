@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PickExistingPwaCo
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.util.ApplicationTypeUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -50,6 +51,9 @@ public class StartVariationController {
         .addObject("htmlTitle", "Start new " + pwaApplicationType.getDisplayName())
         .addObject("pageHeading", "Start new " + pwaApplicationType.getDisplayName())
         .addObject("typeDisplay", pwaApplicationType.getDisplayName())
+        .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(pwaApplicationType))
+        .addObject("formattedImplicationDuration",
+            ApplicationTypeUtils.getFormattedImplicationDuration(pwaApplicationType))
         .addObject("buttonUrl", ReverseRouter.route(on(this.getClass()).startVariation(pwaApplicationType)));
   }
 

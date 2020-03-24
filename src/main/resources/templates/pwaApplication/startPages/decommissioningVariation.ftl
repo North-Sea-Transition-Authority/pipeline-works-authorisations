@@ -12,7 +12,7 @@
       condition that OGA has agreed COP and the Operator has confirmed the last day of production in writing to OGA
       Operations</p>
 
-    <p class="govuk-body">Where there are no objections, it takes approximately 6+ (note where there are Median Line implications this will take 6+ months) to authorisation</p>
+    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} (note where there are Median Line implications this will take ${formattedImplicationDuration}) to authorisation</p>
 
   </@fdsStartPage.startPage>
 

@@ -12,7 +12,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListServiceTest {
@@ -23,11 +25,18 @@ public class TaskListServiceTest {
   @Mock
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
+  @Mock
+  private PwaApplicationDetailService pwaApplicationDetailService;
+
+  @Mock
+  private PadFastTrackService padFastTrackService;
+
   private TaskListService taskListService;
 
   @Before
   public void setUp() {
-    taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService);
+    taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
+        pwaApplicationDetailService, padFastTrackService);
   }
 
   @Test

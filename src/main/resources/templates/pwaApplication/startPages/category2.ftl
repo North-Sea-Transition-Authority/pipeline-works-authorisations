@@ -18,8 +18,8 @@
           seabed or taken out of use. This is prior to agreement of COP approval.</p>
       </li>
     </ul>
-    <p class="govuk-body">Where there are no objections, it takes approximately 6-8 weeks (note where there are Median
-      Line implications this will take 8+ weeks) to authorisation</p>
+    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} (note where there are Median
+      Line implications this will take ${formattedImplicationDuration}) to authorisation</p>
 
   </@fdsStartPage.startPage>
 

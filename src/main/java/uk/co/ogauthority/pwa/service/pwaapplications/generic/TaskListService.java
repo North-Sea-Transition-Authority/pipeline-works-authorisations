@@ -13,24 +13,34 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderControl
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ApplicationTypeRestriction;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 @Service
 public class TaskListService {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final ApplicationBreadcrumbService breadcrumbService;
+  private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final PadFastTrackService padFastTrackService;
 
   @Autowired
   public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService,
-                         ApplicationBreadcrumbService breadcrumbService) {
+                         ApplicationBreadcrumbService breadcrumbService,
+                         PwaApplicationDetailService pwaApplicationDetailService,
+                         PadFastTrackService padFastTrackService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.padFastTrackService = padFastTrackService;
   }
 
   @VisibleForTesting
@@ -67,10 +77,18 @@ public class TaskListService {
   @VisibleForTesting
   public LinkedHashMap<String, String> getPrepareAppTasks(PwaApplication application) {
 
+    var detail = pwaApplicationDetailService.getTipDetailWithStatus(application.getId(), PwaApplicationStatus.DRAFT);
+
     var restrictions = new LinkedHashMap<String, Class>() {
       {
         put("Project information", ProjectInformationController.class);
         put("Environmental and decommissioning", EnvironmentalDecomController.class);
+        compute("Fast-track", (key, value) -> {
+          if (padFastTrackService.isFastTrackRequired(detail)) {
+            return FastTrackController.class;
+          }
+          return null;
+        });
       }
     };
 
@@ -82,6 +100,9 @@ public class TaskListService {
         put("Environmental and decommissioning",
             ReverseRouter.route(on(EnvironmentalDecomController.class)
                 .renderEnvDecom(application.getApplicationType(), application.getId(), null, null)));
+        put("Fast-track",
+            ReverseRouter.route(on(FastTrackController.class)
+                .renderFastTrack(application.getApplicationType(), application.getId(), null, null)));
       }
     };
 

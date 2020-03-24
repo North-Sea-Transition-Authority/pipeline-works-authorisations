@@ -1,0 +1,59 @@
+package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import javax.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
+
+@Service
+public class PadFastTrackService {
+
+  private final PadFastTrackRepository padFastTrackRepository;
+  private final PadProjectInformationService padProjectInformationService;
+
+  @Autowired
+  public PadFastTrackService(
+      PadFastTrackRepository padFastTrackRepository,
+      PadProjectInformationService padProjectInformationService) {
+    this.padFastTrackRepository = padFastTrackRepository;
+    this.padProjectInformationService = padProjectInformationService;
+  }
+
+  @Transactional
+  public PadFastTrack save(PadFastTrack padFastTrack) {
+    return padFastTrackRepository.save(padFastTrack);
+  }
+
+  public PadFastTrack getFastTrackForDraft(PwaApplicationDetail detail) {
+    var noFastTrack = new PadFastTrack();
+    noFastTrack.setPwaApplicationDetail(detail);
+    return padFastTrackRepository.findByPwaApplicationDetail(detail)
+        .orElse(noFastTrack);
+  }
+
+  public boolean isFastTrackRequired(PwaApplicationDetail detail) {
+    var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
+    if (projectInformation.getProposedStartTimestamp() != null) {
+      var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
+      return startDate.isBefore(LocalDate.now().plus(detail.getApplicationType().getMinPeriod()));
+    }
+    return false;
+  }
+
+  public void mapEntityToForm(PadFastTrack fastTrack, FastTrackForm form) {
+    form.setAvoidEnvironmentalDisaster(fastTrack.getAvoidEnvironmentalDisaster());
+    form.setEnvironmentalDisasterReason(fastTrack.getEnvironmentalDisasterReason());
+    form.setSavingBarrels(fastTrack.getSavingBarrels());
+    form.setSavingBarrelsReason(fastTrack.getSavingBarrelsReason());
+    form.setProjectPlanning(fastTrack.getProjectPlanning());
+    form.setProjectPlanningReason(fastTrack.getProjectPlanningReason());
+    form.setHasOtherReason(fastTrack.getHasOtherReason());
+    form.setOtherReason(fastTrack.getOtherReason());
+  }
+
+}
