@@ -1,9 +1,9 @@
-"use strict";
-
 // Modal - GOVUK Themed
-// Setup a NAMESPACE
-var IRS = IRS || {}; // Create the Modal object
 
+// Setup a NAMESPACE
+const IRS = IRS || {};
+
+// Create the Modal object
 IRS.Modal = {
   overlayID: 'modal-overlay',
   contentID: 'modal-content',
@@ -20,27 +20,34 @@ IRS.Modal = {
    * @param ariaLabel The label for the modal, read out by screen readers but not shown onscreen
    * @param size The size of the modal. Is set to 'medium' by default
    */
-  displayModal: function displayModal($content, ariaLabel, size) {
-    "use strict"; // Store reference to currently focused element
+  displayModal($content, ariaLabel, size) {
+    "use strict";
 
-    IRS.Modal.$originalFocusedElement = $(document.activeElement); // Remove any existing modal
+    // Store reference to currently focused element
+    IRS.Modal.$originalFocusedElement = $(document.activeElement);
 
-    IRS.Modal.closeModal(); //Default to a medium-sized popup if size isn't specified
+    // Remove any existing modal
+    IRS.Modal.closeModal();
 
-    if (typeof size === 'undefined' || size === '') {
-      size = 'medium';
-    } // Build the new modal
+    //Default to a medium-sized popup if size isn't specified
+    if(typeof size === 'undefined' || size === '') { size = 'medium'; }
 
+    // Build the new modal
+    const $modal = $(`<div id="${IRS.Modal.overlayID}"> 
+      <div id="modal" class="${size}-modal" role="dialog" aria-label="${ariaLabel}" aria-describedby="modal-aria-description"> 
+      <div id="${IRS.Modal.contentID}" role="document"> 
+      </div></div></div>`);
+    const closePopoverButtonHidden = `<div id="modal-aria-description" class="govuk-visually-hidden">Press escape to close this popover</div>`;
+    const closePopoverButton = `<button id="close-modal-fixed-button" class="${IRS.Modal.closeClass} govuk-button govuk-button--link" data-module="govuk-button">Close</a>`;
 
-    var $modal = $("<div id=\"".concat(IRS.Modal.overlayID, "\"> \n      <div id=\"modal\" class=\"").concat(size, "-modal\" role=\"dialog\" aria-label=\"").concat(ariaLabel, "\" aria-describedby=\"modal-aria-description\"> \n      <div id=\"").concat(IRS.Modal.contentID, "\" role=\"document\"> \n      </div></div></div>"));
-    var closePopoverButtonHidden = "<div id=\"modal-aria-description\" class=\"govuk-visually-hidden\">Press escape to close this popover</div>";
-    var closePopoverButton = "<button id=\"close-modal-fixed-button\" class=\"".concat(IRS.Modal.closeClass, " govuk-button govuk-button--link\" data-module=\"govuk-button\">Close</a>");
-    $modal.find("#".concat(IRS.Modal.contentID)).append(closePopoverButtonHidden);
-    $modal.find("#".concat(IRS.Modal.contentID)).append(closePopoverButton);
-    $modal.find("#".concat(IRS.Modal.contentID)).append($content); // Add the class that stops scrolling of the main page
+    $modal.find(`#${IRS.Modal.contentID}`).append(closePopoverButtonHidden);
+    $modal.find(`#${IRS.Modal.contentID}`).append(closePopoverButton);
+    $modal.find(`#${IRS.Modal.contentID}`).append($content);
 
-    $('html').addClass(IRS.Modal.htmlClass); // Add the modal to the page
+    // Add the class that stops scrolling of the main page
+    $('html').addClass(IRS.Modal.htmlClass);
 
+    // Add the modal to the page
     $('body').append($modal);
     IRS.Modal.bindEvents();
     IRS.Modal.focusOnFirstElement();
@@ -55,16 +62,19 @@ IRS.Modal = {
    * content of the template will be replaced by the value specified in this object
    * @param ariaLabel The label for the modal, read out by screen readers but not shown onscreen
    */
-  displayModalFromTemplate: function displayModalFromTemplate($template, templateParams, ariaLabel, size) {
-    "use strict"; // Clone the template
+  displayModalFromTemplate($template, templateParams, ariaLabel, size) {
+    "use strict";
 
-    var $content = $template.clone().removeClass(IRS.Modal.templateClass); // For each template param name, replace any instances of it in the template with the param value
+    // Clone the template
+    const $content = $template.clone().removeClass(IRS.Modal.templateClass);
 
-    $.each(templateParams, function (key, value) {
-      var pattern = new RegExp('{{' + key + '}}', 'g');
+    // For each template param name, replace any instances of it in the template with the param value
+    $.each(templateParams, function(key, value){
+      const pattern = new RegExp('{{' + key + '}}', 'g');
       $content.html($content.html().replace(pattern, IRS.Modal.escapeHtml(value)));
-    }); // Show the modal
+    });
 
+    // Show the modal
     IRS.Modal.displayModal($content, ariaLabel, size);
   },
 
@@ -72,23 +82,24 @@ IRS.Modal = {
    * Close the modal
    * @param event click event that triggered the close
    */
-  closeModal: function closeModal(event) {
+  closeModal(event) {
     "use strict";
 
-    $("#".concat(IRS.Modal.overlayID)).remove();
+    $(`#${IRS.Modal.overlayID}`).remove();
     $('html').removeClass(IRS.Modal.htmlClass);
-    IRS.Modal.unbindEvents(); // Refocus on element that was focused when the modal opened (probably the link/button that triggered it)
+    IRS.Modal.unbindEvents();
 
+    // Refocus on element that was focused when the modal opened (probably the link/button that triggered it)
     IRS.Modal.$originalFocusedElement.get(0).focus();
   },
 
   /**
    * Sets focus to the first focusable element inside the modal
    */
-  focusOnFirstElement: function focusOnFirstElement() {
+  focusOnFirstElement() {
     "use strict";
 
-    var $elms = IRS.Modal.getFocusableElements();
+    const $elms = IRS.Modal.getFocusableElements();
 
     if ($elms.length > 0) {
       $elms[0].focus();
@@ -99,27 +110,30 @@ IRS.Modal = {
    * Binds events associated with the modal
    * @private
    */
-  bindEvents: function bindEvents() {
-    "use strict"; // Keydown events
+  bindEvents() {
+    "use strict";
 
-    $('body').on('keydown.IRS.Modal', function (e) {
+    // Keydown events
+    $('body').on('keydown.IRS.Modal', (e) => {
       // Escape key closes modal
       if (e.which === 27) {
         IRS.Modal.closeModal();
-      } // Trap tab key
+      }
 
-
+      // Trap tab key
       if (e.which === 9) {
         IRS.Modal.trapTabKey(e);
       }
-    }); // If anything other than the modal gets focus (eg tabbing from address bar), force focus into the modal
+    });
 
-    $("body>*[id!=\"".concat(IRS.Modal.overlayID, "\"]")).on('focusin.IRS.Modal', function (e) {
+    // If anything other than the modal gets focus (eg tabbing from address bar), force focus into the modal
+    $(`body>*[id!="${IRS.Modal.overlayID}"]`).on('focusin.IRS.Modal', (e) => {
       IRS.Modal.focusOnFirstElement();
       e.stopPropagation();
-    }); // Lets consumer define close links/buttons by giving them the class defined by closeClass
+    });
 
-    $('body').on('click.IRS.Modal', ".".concat(IRS.Modal.closeClass), function () {
+    // Lets consumer define close links/buttons by giving them the class defined by closeClass
+    $('body').on('click.IRS.Modal', `.${IRS.Modal.closeClass}`, () => {
       IRS.Modal.closeModal();
       return false;
     });
@@ -129,7 +143,7 @@ IRS.Modal = {
    * Unbinds all events associated with this modal set by bindEvents()
    * @private
    */
-  unbindEvents: function unbindEvents() {
+  unbindEvents() {
     "use strict";
 
     $('*').off('.IRS.Modal');
@@ -140,26 +154,27 @@ IRS.Modal = {
    * @param event keydown event
    * @private
    */
-  trapTabKey: function trapTabKey(event) {
+  trapTabKey(event) {
     "use strict";
 
-    var $focusableElms = IRS.Modal.getFocusableElements();
-    var $focusedElm = $(document.activeElement);
-    var focusedElmIndex = $focusableElms.index($focusedElm);
+    const $focusableElms = IRS.Modal.getFocusableElements();
+    const $focusedElm = $(document.activeElement);
+
+    const focusedElmIndex = $focusableElms.index($focusedElm);
 
     if (event.shiftKey && focusedElmIndex === 0) {
       // If we're going backwards (shift-tab) and we're at the first focusable element,
       // loop back to last focusable element
-      $focusableElms.get($focusableElms.length - 1).focus();
+      $focusableElms.get($focusableElms.length-1).focus();
       event.preventDefault();
-    } else if (!event.shiftKey && focusedElmIndex === $focusableElms.length - 1) {
+    } else if(!event.shiftKey && focusedElmIndex === $focusableElms.length-1) {
       // If we're going forwards and we're at the last focusable element,
       // loop forwards to the first focusable element
       $focusableElms.get(0).focus();
       event.preventDefault();
-    } // Otherwise, allow the tab to proceed as normal because we're still in the group of
+    }
+    // Otherwise, allow the tab to proceed as normal because we're still in the group of
     // focusable elements in the modal
-
   },
 
   /**
@@ -167,10 +182,10 @@ IRS.Modal = {
    * @returns {jQuery} collection of the focusable elements inside the modal
    * @private
    */
-  getFocusableElements: function getFocusableElements() {
+  getFocusableElements() {
     "use strict";
 
-    return $("#".concat(IRS.Modal.contentID)).find('*').filter(IRS.Modal.focusableElementsString).filter(':visible');
+    return $(`#${IRS.Modal.contentID}`).find('*').filter(IRS.Modal.focusableElementsString).filter(':visible');
   },
 
   /**
@@ -179,10 +194,10 @@ IRS.Modal = {
    * @returns {string} the escaped string
    * @private
    */
-  escapeHtml: function escapeHtml(string) {
+  escapeHtml(string) {
     "use strict";
 
-    var entityMap = {
+    const entityMap = {
       '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;',
@@ -192,7 +207,8 @@ IRS.Modal = {
       '`': '&#x60;',
       '=': '&#x3D;'
     };
-    return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+
+    return String(string).replace(/[&<>"'`=\/]/g, (s) => {
       return entityMap[s];
     });
   }

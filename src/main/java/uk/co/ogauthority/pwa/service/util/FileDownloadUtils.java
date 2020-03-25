@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.util;
 
-import java.io.ByteArrayInputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import org.slf4j.Logger;
@@ -27,10 +26,10 @@ public class FileDownloadUtils {
    * @param contentLength the length of the file
    * @return the ResponseEntity object associated to the required resource
    */
-  public static ResponseEntity<Resource> downloadResponse(Resource resource,
-                                                          MediaType mediaType,
-                                                          String filename,
-                                                          long contentLength) {
+  public static ResponseEntity<Resource> getResourceAsResponse(Resource resource,
+                                                               MediaType mediaType,
+                                                               String filename,
+                                                               long contentLength) {
     return ResponseEntity.ok()
         .contentType(mediaType)
         .contentLength(contentLength)
@@ -42,7 +41,8 @@ public class FileDownloadUtils {
   public static Resource fetchFileAsStream(String fileName, Blob fileData) {
     try {
       return new InputStreamResource(
-          new ByteArrayInputStream(fileData == null ? new byte[]{} : fileData.getBytes(1, (int) fileData.length())));
+          fileData.getBinaryStream()
+      );
     } catch (SQLException e) {
       LOGGER.error("Failed to fetch file " + fileName + " from the database", e);
       return null;

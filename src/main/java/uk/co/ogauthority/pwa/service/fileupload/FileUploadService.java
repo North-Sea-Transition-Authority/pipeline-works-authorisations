@@ -44,7 +44,7 @@ public class FileUploadService {
                            VirusCheckService virusCheckService) {
     this.fileUploadProperties = fileUploadProperties;
     this.uploadedFileRepository = uploaded;
-    this.allowedExtensions = fileUploadProperties.getAllowedExtensionsList();
+    this.allowedExtensions = fileUploadProperties.getAllowedExtensions();
     this.virusCheckService = virusCheckService;
   }
 
@@ -84,7 +84,7 @@ public class FileUploadService {
   }
 
   /**
-   * Processes the multipart file and if this is valid (allowed size and extension).
+   * Construct file upload result from multipartfile.
    *
    * @param file the multipart file
    * @param user the logged in user

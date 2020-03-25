@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Upload file" pageHeading="Upload file " >
+<@defaultPage htmlTitle="Upload file" pageHeading="Upload file">
   <@fdsError.errorSummary errorItems=errorList/>
   <@fdsForm.htmlForm >
     <h2 class="govuk-visually-hidden">Upload file</h2>

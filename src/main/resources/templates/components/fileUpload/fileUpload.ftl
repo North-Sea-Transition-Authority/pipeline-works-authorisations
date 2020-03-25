@@ -1,8 +1,9 @@
 <#include '../../layout.ftl'>
 
-<#macro fileUpload id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[]>
+<#macro fileUpload id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions=[] dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[]>
 
   <div id="${id}-dropzone" class="fileupload-dropzone">
+    <#local allowedExtensionsString=allowedExtensions?join(",")/>
     <div class="fileupload-dropzone__text">
       ${dropzoneText}, or
       <input id="${id}"
@@ -14,9 +15,9 @@
         data-url="<@spring.url uploadUrl/>"
         data-delete-url="<@spring.url deleteUrl/>"
         data-download-url="<@spring.url downloadUrl/>"
-        upload-file-allowed-extensions="${allowedExtensions}"
+        upload-file-allowed-extensions="${allowedExtensionsString}"
         upload-file-max-size="${maxAllowedSize}"
-        accept="${allowedExtensions}"
+        accept="${allowedExtensionsString}"
         <#if multiFile>multiple</#if>
       >
       <label for="${id}" class="fileupload-dropzone__link" tabindex="0">choose a file</label>

@@ -2,9 +2,8 @@ package uk.co.ogauthority.pwa.config.fileupload;
 
 
 import fi.solita.clamav.ClamAVClient;
-import java.util.Arrays;
 import java.util.List;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,11 +21,10 @@ public class FileUploadProperties {
   @NotNull
   private long maxFileSize;
 
-  @NotBlank
-  private String allowedExtensions;
+  @NotEmpty
+  private List<String> allowedExtensions;
 
   private String fileNameFilter;
-
 
   public long getMaxFileSize() {
     return maxFileSize;
@@ -34,14 +32,6 @@ public class FileUploadProperties {
 
   public void setMaxFileSize(long maxFileSize) {
     this.maxFileSize = maxFileSize;
-  }
-
-  public String getAllowedExtensions() {
-    return allowedExtensions;
-  }
-
-  public void setAllowedExtensions(String allowedExtensions) {
-    this.allowedExtensions = allowedExtensions;
   }
 
   public String getFileNameFilter() {
@@ -52,8 +42,12 @@ public class FileUploadProperties {
     this.fileNameFilter = fileNameFilter;
   }
 
-  public List<String> getAllowedExtensionsList() {
-    return Arrays.asList(allowedExtensions.split(",[ ]*"));
+  public void setAllowedExtensions(List<String> allowedExtensions) {
+    this.allowedExtensions = allowedExtensions;
+  }
+
+  public List<String> getAllowedExtensions() {
+    return this.allowedExtensions;
   }
 
   @Bean

@@ -63,11 +63,11 @@ public class FileUploadDownloadController {
 
   @GetMapping("/files/download/{fileId}")
   @ResponseBody
-  public ResponseEntity<Resource> handleDownload(@PathVariable String fileId,
-                                                 AuthenticatedUserAccount user) {
+  public ResponseEntity<Resource> handleFileDownloadRequest(@PathVariable String fileId,
+                                                            AuthenticatedUserAccount user) {
     UploadedFile file = uploadedFileRepository.findById(fileId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find uploaded file with id:" + fileId));
-    return downloadUploadedFile(file);
+    return serveFile(file);
   }
 
   @PostMapping("/files/upload")
@@ -95,7 +95,8 @@ public class FileUploadDownloadController {
 
   @GetMapping("/files/all")
   @ResponseBody
-  public ModelAndView renderUploadFiles() {
+  public ModelAndView renderUploadFiles(@ModelAttribute("form") ExampleMultipleUploadForm form,
+                                        AuthenticatedUserAccount userAccount) {
     return getExampleFileUPloadModelAndView(new ExampleMultipleUploadForm(), null);
   }
 
@@ -120,7 +121,7 @@ public class FileUploadDownloadController {
         ReverseRouter.route(on(FileUploadDownloadController.class).handleUpload(null, null))
     );
     modelAndView.addObject("downloadUrl",
-        ReverseRouter.route(on(FileUploadDownloadController.class).handleDownload(null, null)));
+        ReverseRouter.route(on(FileUploadDownloadController.class).handleFileDownloadRequest(null, null)));
     modelAndView.addObject("deleteUrl",
         ReverseRouter.route(on(FileUploadDownloadController.class).handleDelete(null, null))
     );
@@ -156,10 +157,12 @@ public class FileUploadDownloadController {
    * @param uploadedFile file we want to trigger download for
    * @return the ResponseEntity object containing the downloaded file
    */
-  private ResponseEntity<Resource> downloadUploadedFile(UploadedFile uploadedFile) {
+  private ResponseEntity<Resource> serveFile(UploadedFile uploadedFile) {
+
+
     Resource resource = FileDownloadUtils.fetchFileAsStream(uploadedFile.getFileName(), uploadedFile.getFileData());
     MediaType mediaType = MediaType.parseMediaType(uploadedFile.getContentType());
-    return FileDownloadUtils.downloadResponse(resource, mediaType, uploadedFile.getFileName(),
+    return FileDownloadUtils.getResourceAsResponse(resource, mediaType, uploadedFile.getFileName(),
         uploadedFile.getFileSize());
   }
 }
