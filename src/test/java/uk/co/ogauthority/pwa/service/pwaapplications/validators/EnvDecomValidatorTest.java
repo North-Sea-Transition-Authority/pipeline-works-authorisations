@@ -6,15 +6,15 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvDecomForm;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.validators.PadEnvDecomValidator;
+import uk.co.ogauthority.pwa.validators.EnvDecomValidator;
 
-public class PadEnvDecomValidatorTest {
+public class EnvDecomValidatorTest {
 
-  private PadEnvDecomValidator validator;
+  private EnvDecomValidator validator;
 
   @Before
   public void setUp() {
-    validator = new PadEnvDecomValidator();
+    validator = new EnvDecomValidator();
   }
 
   @Test

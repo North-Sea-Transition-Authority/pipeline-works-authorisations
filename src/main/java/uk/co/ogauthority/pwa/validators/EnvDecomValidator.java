@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvDecomForm;
 
 @Service
-public class PadEnvDecomValidator implements Validator {
+public class EnvDecomValidator implements Validator {
 
 
   @Override

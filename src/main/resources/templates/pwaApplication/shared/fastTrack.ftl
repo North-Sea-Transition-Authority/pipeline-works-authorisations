@@ -21,16 +21,16 @@
 
         <@fdsFieldset.fieldset legendHeading="Provide reasons for fast-tracking your application" legendHeadingSize="h2">
             <@fdsCheckbox.checkbox path="form.avoidEnvironmentalDisaster" labelText="Avoiding environmental disaster"/>
-            <@fdsTextarea.textarea path="form.environmentalDisasterReason" labelText="Avoiding environmental disaster reason"/>
+            <@fdsTextarea.textarea path="form.environmentalDisasterReason" labelText="Why have you selected this reason?"/>
 
             <@fdsCheckbox.checkbox path="form.savingBarrels" labelText="Save barrels"/>
-            <@fdsTextarea.textarea path="form.environmentalDisasterReason" labelText="Save barrels reason"/>
+            <@fdsTextarea.textarea path="form.savingBarrelsReason" labelText="Why have you selected this reason?"/>
 
             <@fdsCheckbox.checkbox path="form.projectPlanning" labelText="Project planning"/>
-            <@fdsTextarea.textarea path="form.projectPlanningReason" labelText="Project planning reason"/>
+            <@fdsTextarea.textarea path="form.projectPlanningReason" labelText="Why have you selected this reason?"/>
 
             <@fdsCheckbox.checkbox path="form.hasOtherReason" labelText="Other reason"/>
-            <@fdsTextarea.textarea path="form.otherReason" labelText="Other reasons and their justifications"/>
+            <@fdsTextarea.textarea path="form.otherReason" labelText="Why have you selected this reason?"/>
         </@fdsFieldset.fieldset>
 
 <#--        <@fdsCheckbox.checkboxes path="form.fastTrackReasons" checkboxes=reasons/>-->

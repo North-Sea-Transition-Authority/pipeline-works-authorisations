@@ -1,34 +1,28 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
-import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 
 @SuppressWarnings("checkstyle:CommentsIndentation")
 public class FastTrackForm {
 
-//  @NotNull
-//  private Set<FastTrackReason> fastTrackReasons;
-
-  @NotNull
   private Boolean avoidEnvironmentalDisaster;
 
-  @NotNull
   private Boolean savingBarrels;
 
   private Boolean projectPlanning;
 
   private Boolean hasOtherReason;
 
-  @Length(max = 4000)
+  @Length(max = 4000, message = "The environmental disaster section must be 4000 characters or less")
   private String environmentalDisasterReason;
 
-  @Length(max = 4000)
+  @Length(max = 4000, message = "The saving barrels section must be 4000 characters or less")
   private String savingBarrelsReason;
 
-  @Length(max = 4000)
+  @Length(max = 4000, message = "The project planning section must be 4000 characters or less")
   private String projectPlanningReason;
 
-  @Length(max = 4000)
+  @Length(max = 4000, message = "The other reasons section must be 4000 characters or less")
   private String otherReason;
 
   public Boolean getAvoidEnvironmentalDisaster() {

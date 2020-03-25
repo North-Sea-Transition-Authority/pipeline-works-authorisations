@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -54,6 +55,38 @@ public class PadFastTrackService {
     form.setProjectPlanningReason(fastTrack.getProjectPlanningReason());
     form.setHasOtherReason(fastTrack.getHasOtherReason());
     form.setOtherReason(fastTrack.getOtherReason());
+  }
+
+  @Transactional
+  public void saveEntityUsingForm(PadFastTrack fastTrack, FastTrackForm form) {
+    fastTrack.setAvoidEnvironmentalDisaster(form.getAvoidEnvironmentalDisaster());
+    if (BooleanUtils.isTrue(form.getAvoidEnvironmentalDisaster())) {
+      fastTrack.setEnvironmentalDisasterReason(form.getEnvironmentalDisasterReason());
+    } else {
+      fastTrack.setEnvironmentalDisasterReason(null);
+    }
+
+    fastTrack.setSavingBarrels(form.getSavingBarrels());
+    if (BooleanUtils.isTrue(form.getSavingBarrels())) {
+      fastTrack.setSavingBarrelsReason(form.getSavingBarrelsReason());
+    } else {
+      fastTrack.setSavingBarrelsReason(null);
+    }
+
+    fastTrack.setProjectPlanning(form.getProjectPlanning());
+    if (BooleanUtils.isTrue(form.getProjectPlanning())) {
+      fastTrack.setProjectPlanningReason(form.getProjectPlanningReason());
+    } else {
+      fastTrack.setProjectPlanningReason(null);
+    }
+
+    fastTrack.setHasOtherReason(form.getHasOtherReason());
+    if (BooleanUtils.isTrue(form.getHasOtherReason())) {
+      fastTrack.setOtherReason(form.getOtherReason());
+    } else {
+      fastTrack.setOtherReason(null);
+    }
+    save(fastTrack);
   }
 
 }
