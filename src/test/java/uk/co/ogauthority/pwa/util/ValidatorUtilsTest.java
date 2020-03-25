@@ -21,31 +21,9 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void isIntegerBetween_Null() {
-    assertThat(ValidatorUtils.isIntegerBetween(null, 1, 10)).isFalse();
-  }
-
-  @Test
-  public void isIntegerBetween_LessThan() {
-    assertThat(ValidatorUtils.isIntegerBetween(0, 1, 10)).isFalse();
-  }
-
-  @Test
-  public void isIntegerBetween_GreaterThan() {
-    assertThat(ValidatorUtils.isIntegerBetween(11, 1, 10)).isFalse();
-  }
-
-  @Test
-  public void isIntegerBetween_InBounds() {
-    assertThat(ValidatorUtils.isIntegerBetween(1, 1, 10)).isTrue();
-    assertThat(ValidatorUtils.isIntegerBetween(5, 1, 10)).isTrue();
-    assertThat(ValidatorUtils.isIntegerBetween(10, 1, 10)).isTrue();
-  }
-
-  @Test
-  public void validateDate_WithNulls() {
+  public void validateDateIsPresentOrFuture_WithNulls() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateDate("proposedStart", "proposed start", null, null, null, errors);
+    ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start", null, null, null, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
             "proposedStartDay.invalid",
@@ -55,9 +33,9 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDate_InPast() {
+  public void validateDateIsPresentOrFuture_Past() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateDate("proposedStart", "proposed start", 1, 1, 2020, errors);
+    ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start", 1, 1, 2020, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
             "proposedStartDay.beforeToday",
@@ -67,10 +45,20 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDate_InFuture() {
+  public void validateDateIsPresentOrFuture_Future() {
     var date = LocalDate.now().plusDays(2);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateDate("proposedStart", "proposed start",
+    ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start",
+        date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
+  }
+
+  @Test
+  public void validateDateIsPresentOrFuture_Present() {
+    var date = LocalDate.now();
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start",
         date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
     assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");

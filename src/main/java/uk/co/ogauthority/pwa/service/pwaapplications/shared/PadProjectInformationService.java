@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -23,6 +24,7 @@ public class PadProjectInformationService {
     this.padProjectInformationRepository = padProjectInformationRepository;
   }
 
+  @Transactional
   public PadProjectInformation save(PadProjectInformation padProjectInformation) {
     return padProjectInformationRepository.save(padProjectInformation);
   }
@@ -39,6 +41,8 @@ public class PadProjectInformationService {
     form.setProjectOverview(padProjectInformation.getProjectOverview());
     form.setProjectName(padProjectInformation.getProjectName());
     form.setMethodOfPipelineDeployment(padProjectInformation.getMethodOfPipelineDeployment());
+    form.setUsingCampaignApproach(padProjectInformation.getUsingCampaignApproach());
+
     if (padProjectInformation.getProposedStartTimestamp() != null) {
       var date = LocalDate.ofInstant(padProjectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
       form.setProposedStartDay(date.getDayOfMonth());
@@ -65,10 +69,12 @@ public class PadProjectInformationService {
     }
   }
 
+  @Transactional
   public void saveEntityUsingForm(PadProjectInformation padProjectInformation, ProjectInformationForm form) {
     padProjectInformation.setProjectOverview(form.getProjectOverview());
     padProjectInformation.setProjectName(form.getProjectName());
     padProjectInformation.setMethodOfPipelineDeployment(form.getMethodOfPipelineDeployment());
+    padProjectInformation.setUsingCampaignApproach(form.getUsingCampaignApproach());
 
     // TODO: PWA-379
     try {

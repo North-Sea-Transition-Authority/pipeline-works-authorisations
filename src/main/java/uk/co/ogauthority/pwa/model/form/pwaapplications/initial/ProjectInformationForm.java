@@ -39,6 +39,9 @@ public class ProjectInformationForm {
   private Integer latestCompletionMonth;
   private Integer latestCompletionYear;
 
+  @NotNull(message = "Select yes if using a campaign approach", groups = {Full.class})
+  private Boolean usingCampaignApproach;
+
   public String getProjectName() {
     return projectName;
   }
@@ -157,5 +160,13 @@ public class ProjectInformationForm {
 
   public void setLatestCompletionYear(Integer latestCompletionYear) {
     this.latestCompletionYear = latestCompletionYear;
+  }
+
+  public Boolean getUsingCampaignApproach() {
+    return usingCampaignApproach;
+  }
+
+  public void setUsingCampaignApproach(Boolean usingCampaignApproach) {
+    this.usingCampaignApproach = usingCampaignApproach;
   }
 }

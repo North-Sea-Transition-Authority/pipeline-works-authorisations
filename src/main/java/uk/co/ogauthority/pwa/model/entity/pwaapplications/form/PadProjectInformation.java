@@ -30,6 +30,7 @@ public class PadProjectInformation {
   private Instant mobilisationTimestamp;
   private Instant earliestCompletionTimestamp;
   private Instant latestCompletionTimestamp;
+  private Boolean usingCampaignApproach;
 
   public Integer getId() {
     return id;
@@ -110,5 +111,13 @@ public class PadProjectInformation {
 
   public void setLatestCompletionTimestamp(Instant latestCompletionTimestamp) {
     this.latestCompletionTimestamp = latestCompletionTimestamp;
+  }
+
+  public Boolean getUsingCampaignApproach() {
+    return usingCampaignApproach;
+  }
+
+  public void setUsingCampaignApproach(Boolean usingCampaignApproach) {
+    this.usingCampaignApproach = usingCampaignApproach;
   }
 }

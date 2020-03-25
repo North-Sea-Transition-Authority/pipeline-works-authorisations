@@ -18,16 +18,16 @@ public class ProjectInformationValidator implements Validator {
   @Override
   public void validate(Object o, Errors errors) {
     var form = (ProjectInformationForm) o;
-    ValidatorUtils.validateDate(
+    ValidatorUtils.validateDateIsPresentOrFuture(
         "proposedStart", "proposed start",
         form.getProposedStartDay(), form.getProposedStartMonth(), form.getProposedStartYear(), errors);
-    ValidatorUtils.validateDate(
+    ValidatorUtils.validateDateIsPresentOrFuture(
         "mobilisation", "mobilisation",
         form.getMobilisationDay(), form.getMobilisationMonth(), form.getMobilisationYear(), errors);
-    ValidatorUtils.validateDate(
+    ValidatorUtils.validateDateIsPresentOrFuture(
         "earliestCompletion", "earliest completion",
         form.getEarliestCompletionDay(), form.getEarliestCompletionMonth(), form.getEarliestCompletionYear(), errors);
-    ValidatorUtils.validateDate(
+    ValidatorUtils.validateDateIsPresentOrFuture(
         "latestCompletion", "latest completion",
         form.getLatestCompletionDay(), form.getLatestCompletionMonth(), form.getLatestCompletionYear(), errors);
   }

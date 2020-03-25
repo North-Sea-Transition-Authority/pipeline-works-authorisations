@@ -112,6 +112,7 @@ public class PadProjectInformationServiceTest {
     form.setProjectName("Name");
     form.setProjectOverview("Overview");
     form.setMethodOfPipelineDeployment("Method");
+    form.setUsingCampaignApproach(true);
 
     form.setProposedStartDay(date.getDayOfMonth());
     form.setProposedStartMonth(date.getMonthValue());
@@ -138,6 +139,7 @@ public class PadProjectInformationServiceTest {
     entity.setProjectName("Name");
     entity.setProjectOverview("Overview");
     entity.setMethodOfPipelineDeployment("Method");
+    entity.setUsingCampaignApproach(true);
 
     var instant = Instant.ofEpochSecond(date.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC));
 

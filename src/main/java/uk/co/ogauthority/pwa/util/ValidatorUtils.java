@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.util;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.Errors;
 
@@ -11,14 +12,10 @@ public class ValidatorUtils {
     throw new AssertionError();
   }
 
-  public static boolean isIntegerBetween(Integer num, int minInclusive, int maxInclusive) {
-    return num != null && num >= minInclusive && num <= maxInclusive;
-  }
-
-  public static void validateDate(String fieldPrefix, String displayPrefix,
-                                     Integer day, Integer month, Integer year, Errors errors) {
-    var dayValid = isIntegerBetween(day, 1, 31);
-    var monthValid = isIntegerBetween(month, 1, 12);
+  public static void validateDateIsPresentOrFuture(String fieldPrefix, String displayPrefix,
+                                                   Integer day, Integer month, Integer year, Errors errors) {
+    var dayValid = Range.between(1, 31).contains(day);
+    var monthValid = Range.between(1, 12).contains(month);
     var yearValid = year != null && year >= LocalDate.now().getYear();
     if (dayValid && monthValid && yearValid) {
       try {
