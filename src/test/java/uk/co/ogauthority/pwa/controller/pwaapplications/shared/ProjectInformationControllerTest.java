@@ -253,6 +253,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
       add("latestCompletionDay", "" + date.getDayOfMonth());
       add("latestCompletionMonth", "" + date.getMonthValue());
       add("latestCompletionYear", "" + date.getYear());
+      add("usingCampaignApproach", "true");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
