@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderControl
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ApplicationTypeRestriction;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -68,12 +69,16 @@ public class TaskListService {
 
     var restrictions = new LinkedHashMap<String, Class>() {
       {
+        put("Project information", ProjectInformationController.class);
         put("Environmental and decommissioning", EnvironmentalDecomController.class);
       }
     };
 
     var routes = new LinkedHashMap<String, String>() {
       {
+        put("Project information",
+            ReverseRouter.route(on(ProjectInformationController.class)
+                .renderProjectInformation(application.getApplicationType(), application.getId(), null, null)));
         put("Environmental and decommissioning",
             ReverseRouter.route(on(EnvironmentalDecomController.class)
                 .renderEnvDecom(application.getApplicationType(), application.getId(), null, null)));

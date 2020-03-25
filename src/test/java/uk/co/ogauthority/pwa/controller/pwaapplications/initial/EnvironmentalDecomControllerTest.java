@@ -40,7 +40,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
-import uk.co.ogauthority.pwa.service.pwaapplications.validators.PadEnvDecomValidator;
+import uk.co.ogauthority.pwa.validators.PadEnvDecomValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = EnvironmentalDecomController.class)
@@ -181,7 +181,8 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
       add("Complete", "");
     }};
     mockMvc.perform(
-        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
+        post(ReverseRouter.route(on(EnvironmentalDecomController.class)
+            .postCompleteEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))

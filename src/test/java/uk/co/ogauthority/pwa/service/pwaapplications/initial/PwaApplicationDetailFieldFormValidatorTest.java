@@ -8,8 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.validators.PwaFieldFormValidator;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationDetailFieldFormValidatorTest<T> {

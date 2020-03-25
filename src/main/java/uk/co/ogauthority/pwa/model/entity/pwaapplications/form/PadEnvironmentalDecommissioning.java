@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.initial;
+package uk.co.ogauthority.pwa.model.entity.pwaapplications.form;
 
 import java.time.Instant;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.validators;
+package uk.co.ogauthority.pwa.validators;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
