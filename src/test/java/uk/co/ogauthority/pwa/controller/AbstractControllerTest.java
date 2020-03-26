@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
@@ -73,6 +75,14 @@ public abstract class AbstractControllerTest {
     @Bean
     public SystemAreaAccessService systemAreaAccessService() {
       return new SystemAreaAccessService();
+    }
+
+    @Bean
+    public FileUploadProperties fileUploadProperties() {
+      FileUploadProperties fileUploadProperties = new FileUploadProperties();
+      fileUploadProperties.setMaxFileSize(1000L);
+      fileUploadProperties.setAllowedExtensions(List.of("txt", "xls", "doc"));
+      return fileUploadProperties;
     }
   }
 
