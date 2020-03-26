@@ -41,10 +41,12 @@ public class TaskListService {
     if (application.getApplicationType().equals(PwaApplicationType.INITIAL)) {
 
       tasks.put("Consent holder",
-          ReverseRouter.route(on(PwaHolderController.class).renderHolderScreen(application.getId(), null, null)));
+          ReverseRouter.route(on(PwaHolderController.class)
+              .renderHolderScreen(application.getApplicationType(), application.getId(), null, null)));
 
       tasks.put("Field information",
-          ReverseRouter.route(on(InitialFieldsController.class).renderFields(application.getId(), null, null)));
+          ReverseRouter.route(on(InitialFieldsController.class)
+              .renderFields(application.getApplicationType(), application.getId(), null, null)));
 
     } else {
       tasks.put("No tasks", pwaApplicationRedirectService.getTaskListRoute(application));
@@ -59,7 +61,8 @@ public class TaskListService {
     return new LinkedHashMap<>() {
       {
         put("Application contacts",
-            ReverseRouter.route(on(PwaContactController.class).renderContactsScreen(application.getId(), null)));
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactsScreen(application.getApplicationType(), application.getId(),  null)));
       }
     };
   }

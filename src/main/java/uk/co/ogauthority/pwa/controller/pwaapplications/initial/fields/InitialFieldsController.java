@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fields.DevukFieldService;
 import uk.co.ogauthority.pwa.service.fields.PwaApplicationFieldService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -30,10 +31,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @Controller
-@RequestMapping("/pwa-application/initial/{applicationId}/fields")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/fields")
 public class InitialFieldsController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
@@ -77,7 +79,8 @@ public class InitialFieldsController {
   }
 
   @GetMapping
-  public ModelAndView renderFields(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView renderFields(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                   @PathVariable("applicationId") Integer applicationId,
                                    @ModelAttribute("form") PwaFieldForm form, AuthenticatedUserAccount user) {
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
 
@@ -96,8 +99,11 @@ public class InitialFieldsController {
   }
 
   @PostMapping
-  public ModelAndView postFields(@PathVariable("applicationId") Integer applicationId, AuthenticatedUserAccount user,
-                                 @Valid @ModelAttribute("form") PwaFieldForm form, BindingResult bindingResult) {
+  public ModelAndView postFields(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                 @PathVariable("applicationId") Integer applicationId,
+                                 AuthenticatedUserAccount user,
+                                 @Valid @ModelAttribute("form") PwaFieldForm form,
+                                 BindingResult bindingResult) {
 
     pwaFieldFormValidator.validate(form, bindingResult);
     var isLinkedtoField = form.getLinkedToField();

@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Entity(name = "pwa_application_details")
 public class PwaApplicationDetail {
@@ -180,6 +181,10 @@ public class PwaApplicationDetail {
 
   public String getPwaApplicationRef() {
     return this.pwaApplication.getAppReference();
+  }
+
+  public PwaApplicationType getPwaApplicationType() {
+    return this.pwaApplication.getApplicationType();
   }
 
 }

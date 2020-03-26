@@ -86,7 +86,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void renderHolderScreen_withAuthenticatedUser() throws Exception {
 
-    mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class).renderHolderScreen(APP_ID, null, null)))
+    mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class).renderHolderScreen(PwaApplicationType.INITIAL, APP_ID, null, null)))
       .with(authenticatedUserAndSession(user))
     ).andExpect(status().isOk());
 
@@ -95,7 +95,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_withHolderOrgId() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -106,7 +106,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_whenPathAppIdDoesntExist_andHolderOrgSet() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(123, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(PwaApplicationType.INITIAL, 123, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -119,7 +119,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
 
-    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", ""))
@@ -134,7 +134,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
 
-    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "999"))
@@ -150,7 +150,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     when(portalOrganisationsAccessor.getOrganisationUnitById(44)).thenReturn(Optional.of(orgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of());
 
-    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(APP_ID, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class).postHolderScreen(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "44"))

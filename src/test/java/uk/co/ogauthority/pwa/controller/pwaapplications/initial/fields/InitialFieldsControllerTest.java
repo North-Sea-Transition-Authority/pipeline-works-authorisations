@@ -105,12 +105,12 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void testAuthentication() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(1, null, null)))
+    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk());
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(1, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -118,10 +118,10 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
 
   @Test
   public void testAuthentication_Invalid() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(1, null, null))))
+    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null))))
         .andExpect(status().is3xxRedirection());
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(1, null, null))))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null))))
         .andExpect(status().isForbidden());
   }
 
@@ -129,7 +129,7 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void renderFields() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(1, null, null)))
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -147,7 +147,7 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void postFields_FailedValidationNoRadio() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(1, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -157,7 +157,7 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void postFields_FailedValidationNoSelection() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(1, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("result", "true"))
@@ -171,7 +171,7 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
 
     when(devukFieldService.findById(1)).thenReturn(devukField);
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(1, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("linkedToField", "true")
@@ -189,7 +189,7 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
 
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(1, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("linkedToField", "false"))
