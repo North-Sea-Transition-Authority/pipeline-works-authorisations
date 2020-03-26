@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -62,13 +63,13 @@ public class PadEnvironmentalDecommissioningService {
     padEnvironmentalDecommissioning.setEnvironmentalConditions(form.getEnvironmentalConditions());
     padEnvironmentalDecommissioning.setDecommissioningConditions(form.getDecommissioningConditions());
 
-    if (form.getEmtHasSubmittedPermits()) {
+    if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())) {
       padEnvironmentalDecommissioning.setPermitsSubmitted(form.getPermitsSubmitted());
     } else {
       padEnvironmentalDecommissioning.setPermitsSubmitted(null);
     }
 
-    if (form.getEmtHasOutstandingPermits()) {
+    if (BooleanUtils.isTrue(form.getEmtHasOutstandingPermits())) {
       padEnvironmentalDecommissioning.setPermitsPendingSubmission(form.getPermitsPendingSubmission());
       // TODO: PWA-379 - Prevent discard when date is invalid.
       try {

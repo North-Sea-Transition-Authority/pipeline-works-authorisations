@@ -110,6 +110,22 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(entity.getDecommissioningConditions()).isEqualTo(form.getDecommissioningConditions());
   }
 
+  @Test
+  public void saveEntityUsingForm_NullValues() {
+    var form = new EnvDecomForm();
+    var entity = new PadEnvironmentalDecommissioning();
+    padEnvironmentalDecommissioningService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getTransboundaryEffect()).isNull();
+    assertThat(entity.getEmtHasSubmittedPermits()).isNull();
+    assertThat(entity.getPermitsSubmitted()).isNull();
+    assertThat(entity.getEmtHasOutstandingPermits()).isNull();
+    assertThat(entity.getPermitsPendingSubmission()).isNull();
+    assertThat(entity.getDecommissioningPlans()).isNull();
+    assertThat(entity.getEmtSubmissionTimestamp()).isNull();
+    assertThat(entity.getEnvironmentalConditions()).isNull();
+    assertThat(entity.getDecommissioningConditions()).isNull();
+  }
+
   private PadEnvironmentalDecommissioning buildEntity() {
     var entity = new PadEnvironmentalDecommissioning();
     entity.setTransboundaryEffect(true);
