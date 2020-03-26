@@ -90,7 +90,8 @@ public class PortalTeamManagementController {
         .addObject("addUserUrl", ReverseRouter.route(
             on(PortalTeamManagementController.class).renderAddUserToTeam(team.getId(), null, null)
         ))
-        .addObject("showBreadcrumbs", false);
+        .addObject("showBreadcrumbs", false)
+        .addObject("userCanManageAccess", true);
   }
 
 
@@ -103,6 +104,7 @@ public class PortalTeamManagementController {
 
   private ModelAndView getAddUserToTeamModelAndView(PwaTeam team) {
     return new ModelAndView("teamManagement/addUserToTeam")
+        .addObject("groupName", "team")
         .addObject("teamId", team.getId())
         .addObject("cancelUrl", ReverseRouter.route(
             on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null))
@@ -165,7 +167,7 @@ public class PortalTeamManagementController {
 
     return new ModelAndView("teamManagement/removeMember")
         .addObject("cancelUrl", ReverseRouter.route(on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null)))
-        .addObject("team", team)
+        .addObject("teamName", team.getName())
         .addObject("teamMember", teamMemberView)
         .addObject("error", error);
   }
@@ -213,8 +215,8 @@ public class PortalTeamManagementController {
         .addObject("teamId", team.getId())
         .addObject("form", form)
         .addObject("roles", ControllerUtils.asCheckboxMap(roles))
-        .addObject("team", team)
-        .addObject("teamUser", person)
+        .addObject("teamName", team.getName())
+        .addObject("userName", person.getFullName())
         .addObject("cancelUrl", ReverseRouter.route(
             on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null))
         );

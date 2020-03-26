@@ -179,6 +179,11 @@ public class PwaApplicationDetail {
     return this.pwaApplication.getId();
   }
 
+  public String getPwaApplicationRef() {
+    return this.pwaApplication.getAppReference();
+  }
+
+
   public PwaApplicationType getApplicationType() {
     return getPwaApplication().getApplicationType();
   }

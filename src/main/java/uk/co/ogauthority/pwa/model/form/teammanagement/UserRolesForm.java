@@ -5,7 +5,7 @@ import javax.validation.constraints.NotEmpty;
 
 public class UserRolesForm {
 
-  @NotEmpty(message = "Select a role from the list")
+  @NotEmpty(message = "Select at least one role")
   private List<String> userRoles;
 
   public List<String> getUserRoles() {
