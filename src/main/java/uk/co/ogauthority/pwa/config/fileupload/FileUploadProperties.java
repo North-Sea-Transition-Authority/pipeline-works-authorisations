@@ -51,9 +51,9 @@ public class FileUploadProperties {
   }
 
   @Bean
-  public ClamAVClient clamAvClient(@Value("#{'${clamav.host:}'.split(';')}") String clamavHost,
-                                   @Value("#{'${clamav.port:}'.split(';')}") int clamavPort,
-                                   @Value("#{'${clamav.timeout:}'.split(';')}") int clamavTimeout) {
+  public ClamAVClient clamAvClient(@Value("${clamav.host}") String clamavHost,
+                                   @Value("${clamav.port}") int clamavPort,
+                                   @Value("${clamav.timeout}") int clamavTimeout) {
     return new ClamAVClient(clamavHost, clamavPort, clamavTimeout);
   }
 }

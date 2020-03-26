@@ -122,6 +122,7 @@
 
   <#--Custom scripts go here-->
     <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery.iframe-transport.min.js'/>"></script>
+    <!-- TODO remove jquery UI dependency, investigate impact on modals -->
     <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery-ui.min.js'/>"></script>
     <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery.fileupload.min.js'/>"></script>
 
