@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -79,6 +80,7 @@ public class FastTrackController {
                                       @ModelAttribute("form") FastTrackForm form,
                                       AuthenticatedUserAccount user) {
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
+      ensureAllowed(detail);
       var entity = padFastTrackService.getFastTrackForDraft(detail);
       padFastTrackService.mapEntityToForm(entity, form);
       return getFastTrackModelAndView(detail);
@@ -111,12 +113,27 @@ public class FastTrackController {
                                                    BindingResult bindingResult,
                                                    AuthenticatedUserAccount user) {
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
+      ensureAllowed(detail);
       return ControllerUtils.validateAndRedirect(bindingResult, getFastTrackModelAndView(detail), () -> {
         var entity = padFastTrackService.getFastTrackForDraft(detail);
         padFastTrackService.saveEntityUsingForm(entity, form);
         return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
       });
     });
+  }
+
+  private void ensureAllowed(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail);
+    if (projectInformation.getProposedStartTimestamp() != null) {
+      var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
+      if (!startDate.isBefore(LocalDate.now().plus(pwaApplicationDetail.getApplicationType().getMinPeriod()))) {
+        throw new AccessDeniedException(String.format("Application detail (%s) start is not before minimum period",
+            pwaApplicationDetail.getId()));
+      }
+    } else {
+      throw new AccessDeniedException(String.format("Application detail (%s) does not have a specified start date",
+          pwaApplicationDetail.getId()));
+    }
   }
 
 }
