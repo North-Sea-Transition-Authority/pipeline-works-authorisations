@@ -6,10 +6,11 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.initial.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.EnvDecomForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
 
@@ -59,21 +60,31 @@ public class PadEnvironmentalDecommissioningService {
     padEnvironmentalDecommissioning.setDecommissioningPlans(form.getDecommissioningPlans());
     padEnvironmentalDecommissioning.setEmtHasOutstandingPermits(form.getEmtHasOutstandingPermits());
     padEnvironmentalDecommissioning.setEmtHasSubmittedPermits(form.getEmtHasSubmittedPermits());
-    padEnvironmentalDecommissioning.setPermitsSubmitted(form.getPermitsSubmitted());
-    padEnvironmentalDecommissioning.setPermitsPendingSubmission(form.getPermitsPendingSubmission());
-    padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(null);
     padEnvironmentalDecommissioning.setEnvironmentalConditions(form.getEnvironmentalConditions());
     padEnvironmentalDecommissioning.setDecommissioningConditions(form.getDecommissioningConditions());
-    // TODO: PWA-379 - Prevent discard when date is invalid.
-    try {
-      var localDate = LocalDate.of(
-          form.getEmtSubmissionYear(),
-          form.getEmtSubmissionMonth(),
-          form.getEmtSubmissionDay()
-      );
-      var instant = Instant.ofEpochSecond(localDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC));
-      padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(instant);
-    } catch (Exception e) {
+
+    if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())) {
+      padEnvironmentalDecommissioning.setPermitsSubmitted(form.getPermitsSubmitted());
+    } else {
+      padEnvironmentalDecommissioning.setPermitsSubmitted(null);
+    }
+
+    if (BooleanUtils.isTrue(form.getEmtHasOutstandingPermits())) {
+      padEnvironmentalDecommissioning.setPermitsPendingSubmission(form.getPermitsPendingSubmission());
+      // TODO: PWA-379 - Prevent discard when date is invalid.
+      try {
+        var localDate = LocalDate.of(
+            form.getEmtSubmissionYear(),
+            form.getEmtSubmissionMonth(),
+            form.getEmtSubmissionDay()
+        );
+        var instant = Instant.ofEpochSecond(localDate.toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC));
+        padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(instant);
+      } catch (Exception e) {
+        padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(null);
+      }
+    } else {
+      padEnvironmentalDecommissioning.setPermitsPendingSubmission(null);
       padEnvironmentalDecommissioning.setEmtSubmissionTimestamp(null);
     }
     padEnvironmentalDecommissioning.setTransboundaryEffect(form.getTransboundaryEffect());

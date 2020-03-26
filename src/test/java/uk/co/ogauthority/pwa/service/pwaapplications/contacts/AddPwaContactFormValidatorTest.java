@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.masterpwas.contacts;
+package uk.co.ogauthority.pwa.service.pwaapplications.contacts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;

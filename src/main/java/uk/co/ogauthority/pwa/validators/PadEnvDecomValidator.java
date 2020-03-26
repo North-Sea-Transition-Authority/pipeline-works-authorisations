@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.validators;
+package uk.co.ogauthority.pwa.validators;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -41,18 +41,14 @@ public class PadEnvDecomValidator implements Validator {
         );
       } catch (NullPointerException npe) {
         errors.rejectValue("emtSubmissionDay", "emtSubmissionDay.notParsable",
-            "You must provide all submission date values");
-        errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.notParsable",
-            "You must provide all submission date values");
-        errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.notParsable",
-            "You must provide all submission date values");
+            "You must provide a submission date");
+        errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.notParsable", "");
+        errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.notParsable", "");
       } catch (DateTimeException dte) {
         errors.rejectValue("emtSubmissionDay", "emtSubmissionDay.invalidDate",
             "You must provide a real date for submission");
-        errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.invalidDate",
-            "You must provide a real date for submission");
-        errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.invalidDate",
-            "You must provide a real date for submission");
+        errors.rejectValue("emtSubmissionMonth", "emtSubmissionMonth.invalidDate", "");
+        errors.rejectValue("emtSubmissionYear", "emtSubmissionYear.invalidDate", "");
       }
     }
     if (form.getEnvironmentalConditions() == null

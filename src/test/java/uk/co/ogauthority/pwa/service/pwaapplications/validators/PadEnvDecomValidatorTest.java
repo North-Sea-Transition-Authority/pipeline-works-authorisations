@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.EnvDecomForm;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.validators.PadEnvDecomValidator;
 
 public class PadEnvDecomValidatorTest {
 

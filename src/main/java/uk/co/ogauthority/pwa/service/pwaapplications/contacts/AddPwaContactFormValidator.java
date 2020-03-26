@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.masterpwas.contacts;
+package uk.co.ogauthority.pwa.service.pwaapplications.contacts;
 
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;

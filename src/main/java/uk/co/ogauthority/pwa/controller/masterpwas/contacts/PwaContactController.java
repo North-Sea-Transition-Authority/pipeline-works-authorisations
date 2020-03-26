@@ -26,13 +26,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.masterpwas.contacts.AddPwaContactFormValidator;
-import uk.co.ogauthority.pwa.service.masterpwas.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -78,7 +77,7 @@ public class PwaContactController {
       var pwaApplication = detail.getPwaApplication();
 
       List<TeamMemberView> teamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplication).stream()
-          .map(contact -> this.toTeamMemberView(contact, applicationId))
+          .map(contact -> pwaContactService.getTeamMemberView(pwaApplication, contact))
           .sorted(Comparator.comparing(TeamMemberView::getFullName))
           .collect(Collectors.toList());
 
@@ -95,23 +94,6 @@ public class PwaContactController {
       return modelAndView;
 
     });
-
-  }
-
-  private TeamMemberView toTeamMemberView(PwaContact contact, Integer applicationId) {
-
-    var person = contact.getPerson();
-    var removeUrl = ReverseRouter.route(on(PwaContactController.class)
-        .renderRemoveContactScreen(applicationId, person.getId().asInt(), null));
-
-    return new TeamMemberView(
-        person,
-        "#",
-        removeUrl,
-        contact.getRoles().stream()
-            .map(r -> new TeamRoleView(r.getRoleName(), r.getRoleName(), r.getRoleName(), r.getDisplayOrder()))
-            .collect(Collectors.toSet())
-    );
 
   }
 
@@ -178,8 +160,7 @@ public class PwaContactController {
         .addObject("roles", rolesMap)
         .addObject("userName", person.getFullName())
         .addObject("cancelUrl", ReverseRouter.route(
-            on(PwaContactController.class).renderContactsScreen(detail.getMasterPwaApplicationId(), null))
-        );
+            on(PwaContactController.class).renderContactsScreen(detail.getMasterPwaApplicationId(), null)));
 
   }
 
@@ -192,6 +173,13 @@ public class PwaContactController {
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
 
       var person = teamManagementService.getPerson(personId);
+
+      // if person is already a contact, pre-populate the form with their roles
+      List<String> existingRoles = pwaContactService.getContactRoles(detail.getPwaApplication(), person).stream()
+          .map(Enum::name)
+          .collect(Collectors.toList());
+      form.setUserRoles(existingRoles);
+
       return getContactRolesModelAndView(detail, person, form);
 
     });
@@ -215,9 +203,18 @@ public class PwaContactController {
             .map(r -> EnumUtils.getEnumValue(PwaContactRole.class, r))
             .collect(Collectors.toSet());
 
-        pwaContactService.addContact(detail.getPwaApplication(), person, roles);
+        try {
 
-        return ReverseRouter.redirect(on(PwaContactController.class).renderContactsScreen(applicationId, null));
+          pwaContactService.updateContact(detail.getPwaApplication(), person, roles);
+          return ReverseRouter.redirect(on(PwaContactController.class).renderContactsScreen(applicationId, null));
+
+        } catch (LastAdministratorException e) {
+
+          return getContactRolesModelAndView(detail, person, form)
+              .addObject("error",
+                  "This person cannot be taken out of the access manager role as they are currently the only person in that role.");
+
+        }
 
       });
 
@@ -225,14 +222,13 @@ public class PwaContactController {
 
   }
 
-  private ModelAndView getRemoveContactScreenModelAndView(PwaApplicationDetail detail, PwaContact contact, String error) {
+  private ModelAndView getRemoveContactScreenModelAndView(PwaApplicationDetail detail, PwaContact contact) {
 
     return new ModelAndView("teamManagement/removeMember")
         .addObject("cancelUrl",
             ReverseRouter.route(on(PwaContactController.class).renderContactsScreen(detail.getMasterPwaApplicationId(), null)))
         .addObject("teamName", detail.getPwaApplicationRef() + " contacts")
-        .addObject("teamMember", this.toTeamMemberView(contact, detail.getMasterPwaApplicationId()))
-        .addObject("error", error);
+        .addObject("teamMember", pwaContactService.getTeamMemberView(detail.getPwaApplication(), contact));
 
   }
 
@@ -245,7 +241,7 @@ public class PwaContactController {
 
       var person = teamManagementService.getPerson(personId);
       var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), person);
-      return getRemoveContactScreenModelAndView(detail, contact, null);
+      return getRemoveContactScreenModelAndView(detail, contact);
 
     });
 
@@ -268,7 +264,8 @@ public class PwaContactController {
       } catch (LastAdministratorException e) {
 
         var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), person);
-        return getRemoveContactScreenModelAndView(detail, contact,
+        return getRemoveContactScreenModelAndView(detail, contact)
+            .addObject("error",
             "This person cannot be removed from the contacts as they are currently the only person in the access manager role.");
 
       }
