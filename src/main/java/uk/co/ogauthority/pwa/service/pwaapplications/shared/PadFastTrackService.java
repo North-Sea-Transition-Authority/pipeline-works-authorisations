@@ -38,6 +38,7 @@ public class PadFastTrackService {
   }
 
   public boolean isFastTrackRequired(PwaApplicationDetail detail) {
+    // TODO: PWA-374 Add median line agreement impact
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     if (projectInformation.getProposedStartTimestamp() != null) {
       var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());

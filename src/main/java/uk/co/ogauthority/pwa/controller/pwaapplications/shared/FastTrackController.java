@@ -123,15 +123,8 @@ public class FastTrackController {
   }
 
   private void ensureAllowed(PwaApplicationDetail pwaApplicationDetail) {
-    var projectInformation = padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail);
-    if (projectInformation.getProposedStartTimestamp() != null) {
-      var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
-      if (!startDate.isBefore(LocalDate.now().plus(pwaApplicationDetail.getApplicationType().getMinPeriod()))) {
-        throw new AccessDeniedException(String.format("Application detail (%s) start is not before minimum period",
-            pwaApplicationDetail.getId()));
-      }
-    } else {
-      throw new AccessDeniedException(String.format("Application detail (%s) does not have a specified start date",
+    if (!padFastTrackService.isFastTrackRequired(pwaApplicationDetail)) {
+      throw new AccessDeniedException(String.format("Application detail (%s) doesn't require fast-track",
           pwaApplicationDetail.getId()));
     }
   }

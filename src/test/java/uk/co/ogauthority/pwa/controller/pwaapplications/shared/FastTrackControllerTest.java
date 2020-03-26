@@ -76,6 +76,7 @@ public class FastTrackControllerTest extends AbstractControllerTest {
     when(pwaApplicationDetailService.withDraftTipDetail(eq(1), eq(user), any())).thenCallRealMethod();
     when(pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(pwaApplicationDetail);
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail)).thenReturn(padProjectInformation);
+    when(padFastTrackService.isFastTrackRequired(pwaApplicationDetail)).thenReturn(true);
   }
 
   @Test
@@ -133,6 +134,39 @@ public class FastTrackControllerTest extends AbstractControllerTest {
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .params(continueParams)
+    ).andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void fastTrackNotAllowed() throws Exception {
+    when(padFastTrackService.isFastTrackRequired(pwaApplicationDetail)).thenReturn(false);
+    mockMvc.perform(
+        get(ReverseRouter.route(on(FastTrackController.class)
+            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user))
+    ).andExpect(status().isForbidden());
+
+
+    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
+      add("Complete", "");
+    }};
+    mockMvc.perform(
+        post(ReverseRouter.route(on(FastTrackController.class)
+            .postCompleteFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(completeParams)
+    ).andExpect(status().isForbidden());
+
+    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
+      add("Save and complete later", "");
+    }};
+    mockMvc.perform(
+        post(ReverseRouter.route(on(FastTrackController.class)
+            .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
             .params(continueParams)
     ).andExpect(status().isForbidden());
   }
