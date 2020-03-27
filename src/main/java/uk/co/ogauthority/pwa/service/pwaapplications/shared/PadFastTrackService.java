@@ -42,7 +42,7 @@ public class PadFastTrackService {
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     if (projectInformation.getProposedStartTimestamp() != null) {
       var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
-      return startDate.isBefore(LocalDate.now().plus(detail.getApplicationType().getMinPeriod()));
+      return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMinPeriod()));
     }
     return false;
   }
