@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
 
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 
 /**
@@ -10,7 +11,8 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformatio
 public enum ApplicationTask {
 
   PROJECT_INFORMATION("Project information", ProjectInformationController.class, 10),
-  ENVIRONMENTAL_DECOMMISSIONING("Environmental and decommissioning", EnvironmentalDecomController.class, 20);
+  FAST_TRACK("Fast-track", FastTrackController.class, 20),
+  ENVIRONMENTAL_DECOMMISSIONING("Environmental and decommissioning", EnvironmentalDecomController.class, 30);
 
   private String displayName;
   private Class<?> controllerClass;

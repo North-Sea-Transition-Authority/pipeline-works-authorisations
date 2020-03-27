@@ -66,7 +66,7 @@ public class FastTrackController {
       modelAndView.addObject("startDate", DateUtils.formatDate(startDate));
       modelAndView.addObject("modifyStartDateUrl",
           ReverseRouter.route(on(ProjectInformationController.class)
-              .renderProjectInformation(detail.getApplicationType(), detail.getPwaApplication().getId(), null, null)));
+              .renderProjectInformation(detail.getPwaApplicationType(), detail.getPwaApplication().getId(), null, null)));
     }
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Fast-track");
     return modelAndView;
