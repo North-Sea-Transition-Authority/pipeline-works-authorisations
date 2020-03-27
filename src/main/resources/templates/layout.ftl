@@ -4,6 +4,7 @@
 <#include 'fds/objects/layouts/generic.ftl'>
 <#import 'fds/objects/grid/grid.ftl' as grid>
 <#import 'header.ftl' as pipelinesHeader>
+<#import 'components/fileUpload/fileUpload.ftl' as fileUpload>
 
 <#function springUrl url>
   <#local springUrl>
@@ -118,6 +119,12 @@
 
     <#--Footer-->
     <@fdsFooter.footer wrapperWidth=wrapperWidth/>
+
+  <#--Custom scripts go here-->
+    <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery.iframe-transport.min.js'/>"></script>
+    <!-- TODO remove jquery UI dependency, investigate impact on modals -->
+    <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery-ui.min.js'/>"></script>
+    <script src="<@spring.url '/assets/static/js/vendor/jquery/jquery.fileupload.min.js'/>"></script>
 
   </@genericLayout>
 </#macro>

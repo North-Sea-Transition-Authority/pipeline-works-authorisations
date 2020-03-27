@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -308,6 +309,7 @@ public class PwaContactServiceTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(123);
+    pwaApplication.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
 
     var person = new Person(1, "forename", "surname", "a@b.com", "020 123 4567");
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER));
@@ -320,10 +322,12 @@ public class PwaContactServiceTest {
     assertThat(teamMemberView.getTelephoneNo()).isEqualTo(person.getTelephoneNo());
 
     assertThat(teamMemberView.getEditRoute()).isEqualTo(
-        ReverseRouter.route(on(PwaContactController.class).renderContactRolesScreen(pwaApplication.getId(), person.getId().asInt(), null, null)));
+        ReverseRouter.route(on(PwaContactController.class)
+            .renderContactRolesScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), person.getId().asInt(), null, null)));
 
     assertThat(teamMemberView.getRemoveRoute()).isEqualTo(
-        ReverseRouter.route(on(PwaContactController.class).renderRemoveContactScreen(pwaApplication.getId(), person.getId().asInt(), null)));
+        ReverseRouter.route(on(PwaContactController.class)
+            .renderRemoveContactScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), person.getId().asInt(), null)));
 
     assertThat(teamMemberView.getRoleViews().size()).isEqualTo(2);
 

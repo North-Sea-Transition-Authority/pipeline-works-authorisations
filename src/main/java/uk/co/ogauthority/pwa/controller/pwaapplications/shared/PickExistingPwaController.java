@@ -29,7 +29,6 @@ import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaDto;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalAndMigrationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -47,18 +46,15 @@ public class PickExistingPwaController {
       PwaApplicationType.DECOMMISSIONING
   );
 
-  private final PwaApplicationService pwaApplicationService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
   private final PickPwaForVariationService pickPwaForVariationService;
 
   @Autowired
   public PickExistingPwaController(
-      PwaApplicationService pwaApplicationService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PickedPwaRetrievalAndMigrationService pickPwaService,
       PickPwaForVariationService pickPwaForVariationService) {
-    this.pwaApplicationService = pwaApplicationService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.masterPwaRetrievalAndMigrationService = pickPwaService;
     this.pickPwaForVariationService = pickPwaForVariationService;
