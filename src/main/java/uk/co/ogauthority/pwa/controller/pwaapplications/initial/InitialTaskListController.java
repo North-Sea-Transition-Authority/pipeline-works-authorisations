@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -14,6 +15,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 
 @Controller
 @RequestMapping("/pwa-application/initial/{applicationId}/tasks")
+@PwaApplicationTypeCheck(types = { PwaApplicationType.INITIAL })
 public class InitialTaskListController {
 
   private final TaskListService taskListService;
