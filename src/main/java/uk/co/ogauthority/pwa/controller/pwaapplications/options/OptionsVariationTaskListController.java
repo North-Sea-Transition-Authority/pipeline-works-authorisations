@@ -31,12 +31,10 @@ public class OptionsVariationTaskListController {
 
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
 
-      var pwaApplication = detail.getPwaApplication();
-      if (pwaApplication.getApplicationType() != PwaApplicationType.OPTIONS_VARIATION) {
-        throw new PwaEntityNotFoundException("Application of wrong type:" + pwaApplication.getApplicationType());
+      if (detail.getPwaApplicationType() != PwaApplicationType.OPTIONS_VARIATION) {
+        throw new PwaEntityNotFoundException("Application of wrong type:" + detail.getPwaApplicationType());
       }
-
-      return taskListService.getTaskListModelAndView(pwaApplication);
+      return taskListService.getTaskListModelAndView(detail);
 
     });
 

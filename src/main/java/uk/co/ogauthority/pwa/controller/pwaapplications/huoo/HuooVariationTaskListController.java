@@ -31,12 +31,10 @@ public class HuooVariationTaskListController {
 
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
 
-      var pwaApplication = detail.getPwaApplication();
-      if (pwaApplication.getApplicationType() != PwaApplicationType.HUOO_VARIATION) {
-        throw new PwaEntityNotFoundException("Application of wrong type:" + pwaApplication.getApplicationType());
+      if (detail.getPwaApplicationType() != PwaApplicationType.HUOO_VARIATION) {
+        throw new PwaEntityNotFoundException("Application of wrong type:" + detail.getPwaApplicationType());
       }
-
-      return taskListService.getTaskListModelAndView(pwaApplication);
+      return taskListService.getTaskListModelAndView(detail);
 
     });
 

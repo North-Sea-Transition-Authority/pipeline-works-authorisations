@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -36,7 +37,7 @@ public class TaskListServiceTest {
   @Before
   public void setUp() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        pwaApplicationDetailService, padFastTrackService);
+        padFastTrackService);
   }
 
   @Test
@@ -90,6 +91,8 @@ public class TaskListServiceTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    var detail = new PwaApplicationDetail();
+    detail.setPwaApplication(pwaApplication);
 
     PwaApplicationType.stream().forEach(appType -> {
 
@@ -101,16 +104,16 @@ public class TaskListServiceTest {
         case OPTIONS_VARIATION:
         case DECOMMISSIONING:
         case DEPOSIT_CONSENT:
-          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys(
+          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
               "Project information",
               "Environmental and decommissioning"
           );
           break;
         case CAT_2_VARIATION:
-          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("Project information");
+          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("Project information");
           break;
         case HUOO_VARIATION:
-          assertThat(taskListService.getPrepareAppTasks(pwaApplication)).containsOnlyKeys("Project information"); // TODO PWA-66 fix restriction, HUOO shouldn't have this
+          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("Project information"); // TODO PWA-66 fix restriction, HUOO shouldn't have this
           break;
       }
 
@@ -158,12 +161,14 @@ public class TaskListServiceTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    var detail = new PwaApplicationDetail();
+    detail.setPwaApplication(pwaApplication);
 
     PwaApplicationType.stream().forEach(applicationType -> {
 
       pwaApplication.setApplicationType(applicationType);
 
-      var modelAndView = taskListService.getTaskListModelAndView(pwaApplication);
+      var modelAndView = taskListService.getTaskListModelAndView(detail);
 
       assertThat(modelAndView.getViewName()).isEqualTo(taskListService.getTaskListTemplatePath(applicationType));
 
