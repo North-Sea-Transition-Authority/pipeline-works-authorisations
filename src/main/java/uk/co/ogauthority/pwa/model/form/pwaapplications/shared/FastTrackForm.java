@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
 import org.hibernate.validator.constraints.Length;
 
-@SuppressWarnings("checkstyle:CommentsIndentation")
 public class FastTrackForm {
 
   private Boolean avoidEnvironmentalDisaster;

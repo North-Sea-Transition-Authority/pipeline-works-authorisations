@@ -57,7 +57,6 @@ public class FastTrackController {
     this.validator = validator;
   }
 
-  @SuppressWarnings("checkstyle:CommentsIndentation")
   private ModelAndView getFastTrackModelAndView(PwaApplicationDetail detail) {
     var startDate = LocalDate.now();
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
