@@ -58,4 +58,11 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
+  public PwaApplicationDetail getTipDetail(int applicationId) {
+    return pwaApplicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(applicationId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find tip PwaApplicationDetail for PwaApplication ID: %s",
+            applicationId))
+        );
+  }
 }

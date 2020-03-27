@@ -77,6 +77,7 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void setUp() {
     pwaApplication = new PwaApplication();
     pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
+    pwaApplication.setId(1);
     pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setPwaApplication(pwaApplication);
 

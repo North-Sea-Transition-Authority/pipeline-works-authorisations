@@ -71,6 +71,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
               .findFirst().orElse(null);
           var application = new PwaApplication();
           application.setApplicationType(appType);
+          application.setId(1);
           return application;
         }
     );

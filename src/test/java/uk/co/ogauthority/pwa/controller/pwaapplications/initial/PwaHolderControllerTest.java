@@ -69,6 +69,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     MasterPwa pwa = new MasterPwa();
     PwaApplication application = new PwaApplication(pwa, PwaApplicationType.INITIAL, 0);
+    application.setId(1);
     PwaApplicationDetail detail = new PwaApplicationDetail(application, 1, 123, Instant.now());
     when(pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(detail);
     given(pwaApplicationDetailService.getTipDetailWithStatus(123, PwaApplicationStatus.DRAFT))
