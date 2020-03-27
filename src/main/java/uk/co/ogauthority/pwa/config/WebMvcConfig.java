@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.config;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.ogauthority.pwa.mvc.AuthenticatedUserAccountArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.PwaApplicationContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.ResponseBufferSizeHandlerInterceptor;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
@@ -20,8 +22,16 @@ import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConve
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+  private final PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver;
+
+  @Autowired
+  public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver) {
+    this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
+  }
+
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+    resolvers.add(pwaApplicationContextArgumentResolver);
     resolvers.add(new AuthenticatedUserAccountArgumentResolver());
   }
 

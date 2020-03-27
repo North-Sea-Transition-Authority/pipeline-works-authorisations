@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Import(AbstractControllerTest.AbstractControllerTestConfiguration.class)
@@ -51,6 +52,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   private TopMenuService topMenuService;
+
+  @MockBean
+  protected PwaApplicationContextService pwaApplicationContextService;
 
   @Before
   public void abstractControllerTestSetup() {

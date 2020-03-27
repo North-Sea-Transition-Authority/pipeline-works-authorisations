@@ -4,19 +4,23 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ApplicationTypeRestriction;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 
@@ -70,43 +74,48 @@ public class TaskListService {
   @VisibleForTesting
   public LinkedHashMap<String, String> getPrepareAppTasks(PwaApplication application) {
 
-    var restrictions = new LinkedHashMap<String, Class>() {
-      {
-        put("Project information", ProjectInformationController.class);
-        put("Environmental and decommissioning", EnvironmentalDecomController.class);
-      }
-    };
+    var tasks = new LinkedHashMap<String, String>();
 
-    var routes = new LinkedHashMap<String, String>() {
-      {
-        put("Project information",
-            ReverseRouter.route(on(ProjectInformationController.class)
-                .renderProjectInformation(application.getApplicationType(), application.getId(), null, null)));
-        put("Environmental and decommissioning",
-            ReverseRouter.route(on(EnvironmentalDecomController.class)
-                .renderEnvDecom(application.getApplicationType(), application.getId(), null, null)));
-      }
-    };
+    ApplicationTask.stream()
+        .sorted(Comparator.comparing(ApplicationTask::getDisplayOrder))
+        .forEachOrdered(task -> addTaskToList(tasks, task, application));
 
-    var builder = new LinkedHashMap<String, String>();
-    restrictions.forEach((key, value) -> {
-      var annotation = (ApplicationTypeRestriction) value.getAnnotation(ApplicationTypeRestriction.class);
-      if (annotation != null) {
-        // Check if appType is within restriction
-        var contained = Arrays.stream(annotation.value())
-            .anyMatch(type -> type == application.getApplicationType());
-        if (contained) {
-          builder.put(key, routes.get(key));
-        }
-      } else {
-        // No annotation, controller is not restricted
-        builder.put(key, routes.get(key));
-      }
-    });
-    if (builder.isEmpty()) {
-      builder.put("No tasks", pwaApplicationRedirectService.getTaskListRoute(application));
+    if (tasks.isEmpty()) {
+      tasks.put("No tasks", pwaApplicationRedirectService.getTaskListRoute(application));
     }
-    return builder;
+
+    return tasks;
+
+  }
+
+  private void addTaskToList(LinkedHashMap<String, String> tasks, ApplicationTask task, PwaApplication application) {
+
+    var applicationId = application.getId();
+    var applicationType = application.getApplicationType();
+
+    Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
+        typeCheck -> {
+          if (Arrays.asList(typeCheck.types()).contains(applicationType)) {
+            tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId));
+          }
+        },
+        () -> tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId))
+    );
+
+  }
+
+  @VisibleForTesting
+  public String getRouteForTask(ApplicationTask task, PwaApplicationType applicationType, int applicationId) {
+    switch (task) {
+      case PROJECT_INFORMATION:
+        return ReverseRouter.route(on(ProjectInformationController.class)
+            .renderProjectInformation(applicationType, applicationId, null, null));
+      case ENVIRONMENTAL_DECOMMISSIONING:
+        return ReverseRouter.route(on(EnvironmentalDecomController.class)
+            .renderEnvDecom(applicationType, null, null, null), Map.of("applicationId", applicationId));
+      default:
+        return "";
+    }
   }
 
   @VisibleForTesting

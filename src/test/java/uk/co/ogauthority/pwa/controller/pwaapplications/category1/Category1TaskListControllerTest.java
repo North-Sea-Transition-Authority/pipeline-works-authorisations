@@ -41,6 +41,7 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
     user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
     masterPwa = new MasterPwa(Instant.now());
     pwaApplication = new PwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, 0);
+    pwaApplication.setId(1);
     detail = new PwaApplicationDetail(pwaApplication, 1, user.getWuaId(), Instant.now());
 
     when(pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(detail);
@@ -51,6 +52,7 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
 
   @Test
   public void viewTaskList_Authenticated() throws Exception {
+
     mockMvc.perform(get(
         ReverseRouter.route(on(Category1TaskListController.class).viewTaskList(1, null)))
         .with(authenticatedUserAndSession(user)))

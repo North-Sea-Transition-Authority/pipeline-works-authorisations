@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +17,8 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,13 +34,15 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDeco
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.validators.PadEnvDecomValidator;
 
@@ -82,66 +86,69 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     appDetail.setPwaApplication(pwaApplication);
     instant = Instant.now();
 
-    when(pwaApplicationDetailService.withDraftTipDetail(eq(1), eq(user), any())).thenCallRealMethod();
-    when(pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(appDetail);
-
     var holderOrg = new PortalOrganisationUnit(1, "HOLDER");
     holderOrganisation = new ApplicationHolderOrganisation(appDetail, holderOrg);
+
+    when(pwaApplicationContextService.getApplicationContext(any(), any(), any(), any(), any())).thenReturn(new PwaApplicationContext(appDetail, user, Set.of(PwaContactRole.PREPARER)));
 
   }
 
   @Test
-  public void testAuthenticated() throws Exception {
-    for(var appType : PwaApplicationType.values()) {
-      var result = mockMvc.perform(
-          get(ReverseRouter.route(
-              on(EnvironmentalDecomController.class).renderEnvDecom(appType, 1, null, null)))
-              .with(authenticatedUserAndSession(user))
-              .with(csrf()));
-      if (allowedApplicationTypes.contains(appType)) {
-        result.andExpect(status().isOk());
-      } else {
-        result.andExpect(status().isForbidden());
+  public void render_authenticated_validAppType() {
+
+    when(pwaApplicationContextService.getApplicationContext(any(), any(), anySet(), any(), any()))
+        .thenReturn(new PwaApplicationContext(appDetail, user, Set.of(PwaContactRole.PREPARER)));
+
+    allowedApplicationTypes.forEach(validAppType -> {
+
+      try {
+        mockMvc.perform(
+            get(ReverseRouter.route(
+                on(EnvironmentalDecomController.class).renderEnvDecom(validAppType, null, null, null),
+                Map.of("applicationId", 1)))
+                .with(authenticatedUserAndSession(user))
+                .with(csrf()))
+        .andExpect(status().isOk());
+      } catch (Exception e) {
+        throw new AssertionError();
       }
 
-      // Expect isOk because endpoint validates. If form can't validate, return same page.
-      MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
-        add("Complete", "");
-      }};
-      result = mockMvc.perform(
-          post(ReverseRouter.route(
-              on(EnvironmentalDecomController.class).postCompleteEnvDecom(appType, 1, null, null, null)))
-              .with(authenticatedUserAndSession(user))
-              .with(csrf())
-              .params(completeParams));
-      if (allowedApplicationTypes.contains(appType)) {
-        result.andExpect(status().isOk());
-      } else {
-        result.andExpect(status().isForbidden());
+    });
+
+  }
+
+  @Test
+  public void render_authenticated_invalidAppType() {
+
+    when(pwaApplicationContextService.getApplicationContext(any(), any(), anySet(), any(), any()))
+        .thenThrow(AccessDeniedException.class);
+
+    PwaApplicationType.stream()
+        .filter(t -> !allowedApplicationTypes.contains(t))
+        .forEach(invalidAppType -> {
+
+      try {
+        mockMvc.perform(
+            get(ReverseRouter.route(
+                on(EnvironmentalDecomController.class).renderEnvDecom(invalidAppType, null, null, null),
+                Map.of("applicationId", 1)))
+                .with(authenticatedUserAndSession(user))
+                .with(csrf()))
+            .andExpect(status().isForbidden());
+      } catch (Exception e) {
+        if (!(e instanceof AccessDeniedException)) {
+          throw new AssertionError();
+        }
       }
 
-      // Expect redirection because endpoint ignores validation.
-      MultiValueMap continueParams = new LinkedMultiValueMap<>() {{
-        add("Save and complete later", "");
-      }};
-      result = mockMvc.perform(
-          post(ReverseRouter.route(
-              on(EnvironmentalDecomController.class).postContinueEnvDecom(appType, 1, null, null, null)))
-              .with(authenticatedUserAndSession(user))
-              .with(csrf())
-              .params(continueParams));
-      if (allowedApplicationTypes.contains(appType)) {
-        result.andExpect(status().is3xxRedirection());
-      } else {
-        result.andExpect(status().isForbidden());
-      }
-    }
+    });
+
   }
 
   @Test
   public void testUnauthenticated() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, 1, null, null))))
+        get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null, null), Map.of("applicationId", 1))))
         .andExpect(status().is3xxRedirection());
 
 
@@ -150,7 +157,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
+            on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
             .params(completeParams))
         .andExpect(status().isForbidden());
 
@@ -160,15 +167,16 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(EnvironmentalDecomController.class).postContinueEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
+            on(EnvironmentalDecomController.class).postContinueEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
             .params(continueParams))
         .andExpect(status().isForbidden());
   }
 
   @Test
   public void testRenderAdminDetails() throws Exception {
+
     mockMvc.perform(
-        get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, 1, null, null)))
+        get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())
@@ -182,7 +190,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
-            .postCompleteEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postCompleteEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))
@@ -211,7 +219,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
       add("acceptsRemovalProposal", "true");
     }};
     mockMvc.perform(
-        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, 1, null, null, null)))
+        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))
