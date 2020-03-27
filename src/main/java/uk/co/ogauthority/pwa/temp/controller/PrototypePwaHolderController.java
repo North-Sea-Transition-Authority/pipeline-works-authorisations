@@ -98,7 +98,7 @@ public class PrototypePwaHolderController {
         applicationHolderService.updateHolderDetails(detail, organisationUnit);
 
         // Not using redirect service so it stays for the actual application
-        switch (detail.getPwaApplication().getApplicationType()) {
+        switch (detail.getPwaApplicationType()) {
           case INITIAL:
             // temporary task list
             return ReverseRouter.redirect(on(PrototypePwaApplicationController.class).viewTaskList(detail.getPwaApplication().getId()));

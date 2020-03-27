@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
@@ -37,9 +38,10 @@ import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationId}/contacts")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/contacts")
 public class PwaContactController {
 
   private final PwaContactService pwaContactService;
@@ -69,7 +71,8 @@ public class PwaContactController {
   }
 
   @GetMapping
-  public ModelAndView renderContactsScreen(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView renderContactsScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                           @PathVariable("applicationId") Integer applicationId,
                                            AuthenticatedUserAccount user) {
 
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
@@ -84,7 +87,8 @@ public class PwaContactController {
       var modelAndView = new ModelAndView("teamManagement/teamMembers")
           .addObject("teamName", pwaApplication.getAppReference() + " contacts")
           .addObject("teamMemberViews", teamMemberViews)
-          .addObject("addUserUrl", ReverseRouter.route(on(PwaContactController.class).renderAddContact(applicationId, null, user)))
+          .addObject("addUserUrl", ReverseRouter.route(on(PwaContactController.class)
+              .renderAddContact(pwaApplication.getApplicationType(), applicationId, null, user)))
           .addObject("showBreadcrumbs", true)
           .addObject("userCanManageAccess", pwaContactService
               .personHasContactRoleForPwaApplication(pwaApplication, user.getLinkedPerson(), PwaContactRole.ACCESS_MANAGER));
@@ -104,12 +108,13 @@ public class PwaContactController {
     return new ModelAndView("teamManagement/addUserToTeam")
         .addObject("groupName", pwaApplication.getAppReference() + " contacts")
         .addObject("cancelUrl", ReverseRouter.route(
-            on(PwaContactController.class).renderContactsScreen(pwaApplication.getId(), null)))
+            on(PwaContactController.class).renderContactsScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null)))
         .addObject("form", form);
   }
 
   @GetMapping("/new")
-  public ModelAndView renderAddContact(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView renderAddContact(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                       @PathVariable("applicationId") Integer applicationId,
                                        @ModelAttribute("form") AddPwaContactForm form,
                                        AuthenticatedUserAccount user) {
 
@@ -119,7 +124,8 @@ public class PwaContactController {
   }
 
   @PostMapping("/new")
-  public ModelAndView addContact(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView addContact(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                 @PathVariable("applicationId") Integer applicationId,
                                  @ModelAttribute("form")  AddPwaContactForm form,
                                  BindingResult bindingResult,
                                  AuthenticatedUserAccount user) {
@@ -140,6 +146,7 @@ public class PwaContactController {
         }
 
         return ReverseRouter.redirect(on(PwaContactController.class).renderContactRolesScreen(
+            pwaApplication.getApplicationType(),
             applicationId,
             person.get().getId().asInt(),
             null,
@@ -160,12 +167,14 @@ public class PwaContactController {
         .addObject("roles", rolesMap)
         .addObject("userName", person.getFullName())
         .addObject("cancelUrl", ReverseRouter.route(
-            on(PwaContactController.class).renderContactsScreen(detail.getMasterPwaApplicationId(), null)));
+            on(PwaContactController.class)
+                .renderContactsScreen(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null)));
 
   }
 
   @GetMapping("{personId}/edit")
-  public ModelAndView renderContactRolesScreen(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView renderContactRolesScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                               @PathVariable("applicationId") Integer applicationId,
                                                @PathVariable("personId") Integer personId,
                                                @ModelAttribute("form") UserRolesForm form,
                                                AuthenticatedUserAccount user) {
@@ -187,7 +196,8 @@ public class PwaContactController {
   }
 
   @PostMapping("{personId}/edit")
-  public ModelAndView updateContactRoles(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView updateContactRoles(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                         @PathVariable("applicationId") Integer applicationId,
                                          @PathVariable("personId") Integer personId,
                                          @ModelAttribute("form") @Valid UserRolesForm form,
                                          BindingResult bindingResult,
@@ -206,7 +216,8 @@ public class PwaContactController {
         try {
 
           pwaContactService.updateContact(detail.getPwaApplication(), person, roles);
-          return ReverseRouter.redirect(on(PwaContactController.class).renderContactsScreen(applicationId, null));
+          return ReverseRouter.redirect(on(PwaContactController.class)
+              .renderContactsScreen(detail.getPwaApplicationType(), applicationId, null));
 
         } catch (LastAdministratorException e) {
 
@@ -226,14 +237,16 @@ public class PwaContactController {
 
     return new ModelAndView("teamManagement/removeMember")
         .addObject("cancelUrl",
-            ReverseRouter.route(on(PwaContactController.class).renderContactsScreen(detail.getMasterPwaApplicationId(), null)))
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactsScreen(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null)))
         .addObject("teamName", detail.getPwaApplicationRef() + " contacts")
         .addObject("teamMember", pwaContactService.getTeamMemberView(detail.getPwaApplication(), contact));
 
   }
 
   @GetMapping("{personId}/remove")
-  public ModelAndView renderRemoveContactScreen(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView renderRemoveContactScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                                @PathVariable("applicationId") Integer applicationId,
                                                 @PathVariable("personId") Integer personId,
                                                 AuthenticatedUserAccount user) {
 
@@ -248,7 +261,8 @@ public class PwaContactController {
   }
 
   @PostMapping("{personId}/remove")
-  public ModelAndView removeContact(@PathVariable("applicationId") Integer applicationId,
+  public ModelAndView removeContact(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                    @PathVariable("applicationId") Integer applicationId,
                                     @PathVariable("personId") Integer personId,
                                     AuthenticatedUserAccount user) {
 
@@ -259,7 +273,8 @@ public class PwaContactController {
       try {
 
         pwaContactService.removeContact(detail.getPwaApplication(), person);
-        return ReverseRouter.redirect(on(PwaContactController.class).renderContactsScreen(applicationId, user));
+        return ReverseRouter.redirect(on(PwaContactController.class)
+            .renderContactsScreen(detail.getPwaApplicationType(),applicationId, user));
 
       } catch (LastAdministratorException e) {
 

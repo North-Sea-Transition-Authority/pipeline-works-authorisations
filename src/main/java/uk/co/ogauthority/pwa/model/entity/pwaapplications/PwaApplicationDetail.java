@@ -183,8 +183,8 @@ public class PwaApplicationDetail {
     return this.pwaApplication.getAppReference();
   }
 
-
-  public PwaApplicationType getApplicationType() {
-    return getPwaApplication().getApplicationType();
+  public PwaApplicationType getPwaApplicationType() {
+    return this.pwaApplication.getApplicationType();
   }
+
 }

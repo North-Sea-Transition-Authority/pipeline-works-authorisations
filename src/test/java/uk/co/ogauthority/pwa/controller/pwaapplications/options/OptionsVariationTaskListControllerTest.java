@@ -41,6 +41,7 @@ public class OptionsVariationTaskListControllerTest extends TaskListControllerTe
     user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
     masterPwa = new MasterPwa(Instant.now());
     pwaApplication = new PwaApplication(masterPwa, PwaApplicationType.OPTIONS_VARIATION, 0);
+    pwaApplication.setId(1);
     detail = new PwaApplicationDetail(pwaApplication, 1, user.getWuaId(), Instant.now());
 
     when(pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(detail);

@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -34,10 +35,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderServi
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @Controller
-@RequestMapping("/pwa-application/initial/{applicationId}")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}")
 public class PwaHolderController {
 
   private final TeamService teamService;
@@ -69,7 +71,8 @@ public class PwaHolderController {
    * Screen allowing user to select the holder for a PWA.
    */
   @GetMapping("/holder")
-  public ModelAndView renderHolderScreen(@PathVariable Integer applicationId,
+  public ModelAndView renderHolderScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                         @PathVariable Integer applicationId,
                                          @ModelAttribute("form") PwaHolderForm form,
                                          AuthenticatedUserAccount user) {
 
@@ -86,7 +89,8 @@ public class PwaHolderController {
    * Handle storage of holder selected by user.
    */
   @PostMapping("/holder")
-  public ModelAndView postHolderScreen(@PathVariable Integer applicationId,
+  public ModelAndView postHolderScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+                                       @PathVariable Integer applicationId,
                                        @Valid @ModelAttribute("form") PwaHolderForm form,
                                        BindingResult bindingResult,
                                        AuthenticatedUserAccount user) {
@@ -119,7 +123,7 @@ public class PwaHolderController {
 
   }
 
-  private ModelAndView getHolderModelAndView(AuthenticatedUserAccount user, PwaApplicationDetail applicationDetail,
+  private ModelAndView getHolderModelAndView(AuthenticatedUserAccount user, PwaApplicationDetail detail,
                                              PwaHolderForm form) {
 
     Map<String, String> ouMap = getOrgUnitsUserCanAccess(user).stream()
@@ -129,13 +133,13 @@ public class PwaHolderController {
     var modelAndView = new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("taskListUrl",
-            ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(applicationDetail.getMasterPwaApplicationId(), null))
+            ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(detail.getMasterPwaApplicationId(), null))
         )
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of())
         .addObject("hasHolderSet", form != null && form.getHolderOuId() != null);
 
-    breadcrumbService.fromTaskList(applicationDetail.getPwaApplication(), modelAndView, "Consent holder");
+    breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Consent holder");
 
     return modelAndView;
   }

@@ -129,13 +129,14 @@ public class PwaContactService {
    */
   public TeamMemberView getTeamMemberView(PwaApplication pwaApplication, PwaContact contact) {
 
+    var applicationType = pwaApplication.getApplicationType();
     var applicationId = pwaApplication.getId();
     var person = contact.getPerson();
 
     var editUrl = ReverseRouter.route(on(PwaContactController.class)
-        .renderContactRolesScreen(applicationId, person.getId().asInt(), null, null));
+        .renderContactRolesScreen(applicationType, applicationId, person.getId().asInt(), null, null));
     var removeUrl = ReverseRouter.route(on(PwaContactController.class)
-        .renderRemoveContactScreen(applicationId, person.getId().asInt(), null));
+        .renderRemoveContactScreen(applicationType, applicationId, person.getId().asInt(), null));
 
     return new TeamMemberView(
         person,
