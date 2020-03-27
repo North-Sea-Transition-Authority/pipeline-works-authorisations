@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
@@ -130,6 +131,9 @@ public class TaskListService {
       case ENVIRONMENTAL_DECOMMISSIONING:
         return ReverseRouter.route(on(EnvironmentalDecomController.class)
             .renderEnvDecom(applicationType, null, null, null), Map.of("applicationId", applicationId));
+      case CROSSING_AGREEMENTS:
+        return ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(applicationType, null, null), Map.of("applicationId", applicationId));
       default:
         return "";
     }
