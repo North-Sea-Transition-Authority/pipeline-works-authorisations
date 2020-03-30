@@ -25,12 +25,12 @@ public class EnvDecomValidator implements Validator {
     EnvDecomForm form = (EnvDecomForm) target;
     if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())) {
       if (StringUtils.isBlank(form.getPermitsSubmitted())) {
-        errors.rejectValue("permitsSubmitted", "permitsSubmitted.empty", "Enter a list of the submitted permits");
+        errors.rejectValue("permitsSubmitted", "permitsSubmitted.required", "Enter a list of the submitted permits");
       }
     }
     if (BooleanUtils.isTrue(form.getEmtHasOutstandingPermits())) {
       if (StringUtils.isBlank(form.getPermitsPendingSubmission())) {
-        errors.rejectValue("permitsPendingSubmission", "permitsPendingSubmission.empty",
+        errors.rejectValue("permitsPendingSubmission", "permitsPendingSubmission.required",
             "Enter a list of the permits you will submit at a later date");
       }
       try {

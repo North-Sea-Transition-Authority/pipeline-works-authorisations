@@ -44,10 +44,10 @@ public class FastTrackValidatorTest {
     form.setOtherReason(null);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errors).containsOnly(
-        entry("environmentalDisasterReason", Set.of("environmentalDisasterReason.empty")),
-        entry("savingBarrelsReason", Set.of("savingBarrelsReason.empty")),
-        entry("projectPlanningReason", Set.of("projectPlanningReason.empty")),
-        entry("otherReason", Set.of("otherReason.empty"))
+        entry("environmentalDisasterReason", Set.of("environmentalDisasterReason.required")),
+        entry("savingBarrelsReason", Set.of("savingBarrelsReason.required")),
+        entry("projectPlanningReason", Set.of("projectPlanningReason.required")),
+        entry("otherReason", Set.of("otherReason.required"))
     );
   }
 

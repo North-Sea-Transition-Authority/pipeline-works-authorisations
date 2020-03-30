@@ -58,7 +58,7 @@ public class EnvDecomValidatorTest {
     var form = new EnvDecomForm();
     form.setEmtHasSubmittedPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsSubmitted")).containsExactly("permitsSubmitted.empty");
+    assertThat(errors.get("permitsSubmitted")).containsExactly("permitsSubmitted.required");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class EnvDecomValidatorTest {
     form.setEmtHasSubmittedPermits(true);
     form.setPermitsSubmitted("");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsSubmitted")).containsExactly("permitsSubmitted.empty");
+    assertThat(errors.get("permitsSubmitted")).containsExactly("permitsSubmitted.required");
   }
 
   @Test
@@ -84,7 +84,7 @@ public class EnvDecomValidatorTest {
     var form = new EnvDecomForm();
     form.setEmtHasOutstandingPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsPendingSubmission")).containsExactly("permitsPendingSubmission.empty");
+    assertThat(errors.get("permitsPendingSubmission")).containsExactly("permitsPendingSubmission.required");
   }
 
   @Test
@@ -93,7 +93,7 @@ public class EnvDecomValidatorTest {
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission("");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errors.get("permitsPendingSubmission")).containsExactly("permitsPendingSubmission.empty");
+    assertThat(errors.get("permitsPendingSubmission")).containsExactly("permitsPendingSubmission.required");
   }
 
   @Test
