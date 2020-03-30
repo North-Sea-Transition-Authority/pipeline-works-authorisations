@@ -17,6 +17,8 @@
         Current start date: ${startDate}
         <br/>
         <a href="${springUrl(modifyStartDateUrl)}" class="govuk-link">Click here to change your start date</a>
+        <br/><br/>
+        You will lose any progress on this page by clicking this link.
     </@fdsInsetText.insetText>
 
     <@fdsForm.htmlForm>
