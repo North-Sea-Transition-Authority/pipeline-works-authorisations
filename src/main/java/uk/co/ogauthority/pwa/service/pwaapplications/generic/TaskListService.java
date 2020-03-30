@@ -102,7 +102,9 @@ public class TaskListService {
     Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
         typeCheck -> {
           if (Arrays.asList(typeCheck.types()).contains(applicationType)) {
-            tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId));
+            if (task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail)) {
+              tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId));
+            }
           }
         },
         () -> {
