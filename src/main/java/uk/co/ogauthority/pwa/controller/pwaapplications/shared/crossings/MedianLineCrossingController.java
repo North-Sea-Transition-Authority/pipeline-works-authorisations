@@ -3,8 +3,10 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,8 +23,10 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/median-line")
@@ -37,13 +41,16 @@ public class MedianLineCrossingController {
 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final MedianLineAgreementValidator medianLineAgreementValidator;
 
   @Autowired
   public MedianLineCrossingController(
       PadMedianLineAgreementService padMedianLineAgreementService,
-      PwaApplicationRedirectService pwaApplicationRedirectService) {
+      PwaApplicationRedirectService pwaApplicationRedirectService,
+      MedianLineAgreementValidator medianLineAgreementValidator) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.medianLineAgreementValidator = medianLineAgreementValidator;
   }
 
   private ModelAndView getMedianLineModelAndView() {
@@ -68,23 +75,34 @@ public class MedianLineCrossingController {
   @PostMapping(params = "Save and complete later")
   public ModelAndView postContinueMedianLine(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                             @ModelAttribute("form") MedianLineAgreementsForm form,
+                                             @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
+                                             BindingResult bindingResult,
                                              PwaApplicationContext applicationContext,
                                              AuthenticatedUserAccount user) {
-    return pwaApplicationRedirectService.getTaskListRedirect(
-        applicationContext.getApplicationDetail().getPwaApplication()
-    );
+    return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
   }
 
   @PostMapping(params = "Complete")
   public ModelAndView postCompleteMedianLine(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                             @ModelAttribute("form") MedianLineAgreementsForm form,
+                                             @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
+                                             BindingResult bindingResult,
                                              PwaApplicationContext applicationContext,
                                              AuthenticatedUserAccount user) {
+    medianLineAgreementValidator.validate(form, bindingResult);
+    return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
+  }
+
+  private ModelAndView postValidateSaveAndRedirect(PwaApplicationContext applicationContext,
+                                                   MedianLineAgreementsForm form, BindingResult bindingResult,
+                                                   AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
-    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-        .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), null, null));
+    return ControllerUtils.validateAndRedirect(bindingResult, getMedianLineModelAndView(), () -> {
+      var entity = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+      padMedianLineAgreementService.saveEntityUsingForm(entity, form);
+      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+          .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), null, null));
+    });
   }
 
 }

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
@@ -26,29 +27,34 @@ public class PadMedianLineAgreementService {
         .orElse(agreementIfOptionalEmpty);
   }
 
+  @Transactional
   public void save(PadMedianLineAgreement padMedianLineAgreement) {
     padMedianLineAgreementRepository.save(padMedianLineAgreement);
   }
 
   public void mapEntityToForm(PadMedianLineAgreement padMedianLineAgreement, MedianLineAgreementsForm form) {
     form.setAgreementStatus(padMedianLineAgreement.getAgreementStatus());
-    if (padMedianLineAgreement.getAgreementStatus().equals(MedianLineStatus.NEGOTIATIONS_ONGOING)) {
+    if (padMedianLineAgreement.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_ONGOING) {
       form.setNegotiatorNameIfOngoing(padMedianLineAgreement.getNegotiatorName());
       form.setNegotiatorEmailIfOngoing(padMedianLineAgreement.getNegotiatorEmail());
-    } else if (padMedianLineAgreement.getAgreementStatus().equals(MedianLineStatus.NEGOTIATIONS_COMPLETED)) {
+    } else if (padMedianLineAgreement.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_COMPLETED) {
       form.setNegotiatorNameIfCompleted(padMedianLineAgreement.getNegotiatorName());
       form.setNegotiatorEmailIfCompleted(padMedianLineAgreement.getNegotiatorEmail());
     }
   }
 
+  @Transactional
   public void saveEntityUsingForm(PadMedianLineAgreement padMedianLineAgreement, MedianLineAgreementsForm form) {
     padMedianLineAgreement.setAgreementStatus(form.getAgreementStatus());
-    if (form.getAgreementStatus().equals(MedianLineStatus.NEGOTIATIONS_ONGOING)) {
+    if (form.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_ONGOING) {
       padMedianLineAgreement.setNegotiatorName(form.getNegotiatorNameIfOngoing());
       padMedianLineAgreement.setNegotiatorEmail(form.getNegotiatorEmailIfOngoing());
-    } else if (form.getAgreementStatus().equals(MedianLineStatus.NEGOTIATIONS_COMPLETED)) {
+    } else if (form.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_COMPLETED) {
       padMedianLineAgreement.setNegotiatorName(form.getNegotiatorNameIfCompleted());
       padMedianLineAgreement.setNegotiatorEmail(form.getNegotiatorEmailIfCompleted());
+    } else if (form.getAgreementStatus() == MedianLineStatus.NOT_CROSSED) {
+      padMedianLineAgreement.setNegotiatorName(null);
+      padMedianLineAgreement.setNegotiatorEmail(null);
     }
     padMedianLineAgreementRepository.save(padMedianLineAgreement);
   }

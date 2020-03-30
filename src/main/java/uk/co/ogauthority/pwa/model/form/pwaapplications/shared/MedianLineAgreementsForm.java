@@ -1,12 +1,10 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
-import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 
 public class MedianLineAgreementsForm {
 
-  @NotNull(message = "You must select one")
   private MedianLineStatus agreementStatus;
 
   @Length(max = 4000, message = "Negotiator name must be 4000 characters or fewer")

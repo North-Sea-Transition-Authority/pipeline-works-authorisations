@@ -11,11 +11,13 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -30,11 +32,14 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class CrossingAgreementsController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
+  private final PadMedianLineAgreementService padMedianLineAgreementService;
 
   @Autowired
   public CrossingAgreementsController(
-      ApplicationBreadcrumbService applicationBreadcrumbService) {
+      ApplicationBreadcrumbService applicationBreadcrumbService,
+      PadMedianLineAgreementService padMedianLineAgreementService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.padMedianLineAgreementService = padMedianLineAgreementService;
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
@@ -51,7 +56,17 @@ public class CrossingAgreementsController {
                                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                        PwaApplicationContext applicationContext,
                                                        AuthenticatedUserAccount user) {
-    return getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail());
+    var detail = applicationContext.getApplicationDetail();
+    var modelAndView = getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail());
+    var entity = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+    if (entity.getAgreementStatus() != null) {
+      modelAndView.addObject("medianLineAgreementView", new MedianLineAgreementView(
+          entity.getAgreementStatus(),
+          entity.getNegotiatorName(),
+          entity.getNegotiatorEmail()
+      ));
+    }
+    return modelAndView;
   }
 
 }

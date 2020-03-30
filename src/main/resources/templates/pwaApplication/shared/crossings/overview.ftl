@@ -2,14 +2,24 @@
 
 <@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true>
   <h2 class="govuk-heading-l">Median line agreement</h2>
-    <#if medianLineCrossing?has_content>
+    <#if medianLineAgreementView?has_content>
         <@fdsAction.link linkText="Update median line agreement" linkUrl=springUrl(medianLineUrl) role=true linkClass="govuk-button govuk-button--blue"/>
       <table class="govuk-table">
         <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="col">Will the proposed works cross the median line?</th>
-          <td class="govuk-table__cell">Not crossed</td>
+          <th class="govuk-table__header" scope="col">Status</th>
+          <td class="govuk-table__cell">${medianLineAgreementView.agreementStatus.displayText}</td>
         </tr>
+        <#if medianLineAgreementView.agreementStatus != "NOT_CROSSED">
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="col">Name of negotiator</th>
+            <td class="govuk-table__cell">${medianLineAgreementView.negotiatorName!}</td>
+          </tr>
+          <tr class="govuk-table__row">
+            <th class="govuk-table__header" scope="col">Contact email for negotiator</th>
+            <td class="govuk-table__cell">${medianLineAgreementView.negotiatorEmail!}</td>
+          </tr>
+        </#if>
         </tbody>
       </table>
     <#else>
