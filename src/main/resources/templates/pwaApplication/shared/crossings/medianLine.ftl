@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Median line agreements" breadcrumbs=false>
+<@defaultPage htmlTitle="Median line agreements" breadcrumbs=true>
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup path="form.agreementStatus" labelText="Will the proposed works cross the median line?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--xl" hiddenContent=true>
             <#assign firstItem=true/>
