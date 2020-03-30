@@ -32,10 +32,9 @@ public class StartInitialPwaController {
    */
   @GetMapping
   public ModelAndView renderStartPage() {
-    ModelAndView modelAndView = new ModelAndView("pwaApplication/startPages/initial")
+    return new ModelAndView("pwaApplication/startPages/initial")
         .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null)))
         .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL));
-    return modelAndView;
   }
 
   /**

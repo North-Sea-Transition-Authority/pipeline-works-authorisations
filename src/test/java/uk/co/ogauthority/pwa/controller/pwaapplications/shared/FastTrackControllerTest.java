@@ -80,14 +80,16 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void authenticated() throws Exception {
+  public void authenticated_renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null)))
             .with(authenticatedUserAndSession(user))
     ).andExpect(status().isOk());
+  }
 
-
+  @Test
+  public void authenticated_postComplete() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
       add("Complete", "");
     }};
@@ -98,7 +100,10 @@ public class FastTrackControllerTest extends AbstractControllerTest {
             .with(csrf())
             .params(completeParams)
     ).andExpect(status().isOk());
+  }
 
+  @Test
+  public void authenticated_postContinue() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
     }};
@@ -112,13 +117,15 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void unauthenticated() throws Exception {
+  public void unauthenticated_renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null)))
     ).andExpect(status().is3xxRedirection());
+  }
 
-
+  @Test
+  public void unauthenticated_postComplete() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
       add("Complete", "");
     }};
@@ -127,7 +134,10 @@ public class FastTrackControllerTest extends AbstractControllerTest {
             .postCompleteFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
             .params(completeParams)
     ).andExpect(status().isForbidden());
+  }
 
+  @Test
+  public void unauthenticated_postContinue() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
     }};

@@ -1,6 +1,8 @@
 <#-- @ftlvariable name="pageHeading" type="String" -->
 <#-- @ftlvariable name="typeDisplay" type="String" -->
 <#-- @ftlvariable name="buttonUrl" type="String" -->
+<#-- @ftlvariable name="formattedDuration" type="java.lang.String" -->
+<#-- @ftlvariable name="formattedMedianLineDuration" type="java.lang.String" -->
 
 <#include '../../layout.ftl'>
 
@@ -12,7 +14,7 @@
       condition that OGA has agreed COP and the Operator has confirmed the last day of production in writing to OGA
       Operations</p>
 
-    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} (note where there are Median Line implications this will take ${formattedImplicationDuration}) to authorisation</p>
+    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} (note where there are Median Line implications this will take ${formattedMedianLineDuration}) to authorisation</p>
 
   </@fdsStartPage.startPage>
 

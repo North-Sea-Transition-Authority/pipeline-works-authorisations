@@ -31,10 +31,10 @@ public class PadFastTrackService {
   }
 
   public PadFastTrack getFastTrackForDraft(PwaApplicationDetail detail) {
-    var noFastTrack = new PadFastTrack();
-    noFastTrack.setPwaApplicationDetail(detail);
+    var fastTrackIfOptionalEmpty = new PadFastTrack();
+    fastTrackIfOptionalEmpty.setPwaApplicationDetail(detail);
     return padFastTrackRepository.findByPwaApplicationDetail(detail)
-        .orElse(noFastTrack);
+        .orElse(fastTrackIfOptionalEmpty);
   }
 
   public boolean isFastTrackRequired(PwaApplicationDetail detail) {
@@ -42,7 +42,7 @@ public class PadFastTrackService {
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     if (projectInformation.getProposedStartTimestamp() != null) {
       var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
-      return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMinPeriod()));
+      return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMinProcessingPeriod()));
     }
     return false;
   }

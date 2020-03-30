@@ -1,4 +1,5 @@
 <#-- @ftlvariable name="startUrl" type="String" -->
+<#-- @ftlvariable name="formattedDuration" type="java.lang.String" -->
 
 <#include '../../layout.ftl'>
 

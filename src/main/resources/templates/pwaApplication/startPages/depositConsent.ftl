@@ -1,6 +1,7 @@
 <#-- @ftlvariable name="pageHeading" type="String" -->
 <#-- @ftlvariable name="typeDisplay" type="String" -->
 <#-- @ftlvariable name="buttonUrl" type="String" -->
+<#-- @ftlvariable name="formattedDuration" type="java.lang.String" -->
 
 <#include '../../layout.ftl'>
 

@@ -1,5 +1,5 @@
 CREATE TABLE ${datasource.user}.pad_fast_track_information (
-  id NUMBER GENERATED ALWAYS AS IDENTITY
+  id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
 , application_detail_id NUMBER NOT NULL
 , avoid_environmental_disaster INTEGER CHECK(avoid_environmental_disaster IN (0, 1) OR avoid_environmental_disaster IS NULL)
 , saving_barrels INTEGER CHECK(saving_barrels IN (0, 1) OR saving_barrels IS NULL)
