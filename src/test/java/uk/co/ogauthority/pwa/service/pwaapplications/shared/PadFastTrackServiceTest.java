@@ -84,7 +84,7 @@ public class PadFastTrackServiceTest {
         .thenReturn(projectInformation);
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
 
-      var start = LocalDate.now().plus(type.getMinPeriod()).minusDays(1);
+      var start = LocalDate.now().plus(type.getMinProcessingPeriod()).minusDays(1);
       projectInformation.setProposedStartTimestamp(
           Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
       );
@@ -106,7 +106,7 @@ public class PadFastTrackServiceTest {
         .thenReturn(projectInformation);
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
 
-      var start = LocalDate.now().plus(type.getMinPeriod());
+      var start = LocalDate.now().plus(type.getMinProcessingPeriod());
       projectInformation.setProposedStartTimestamp(
           Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
       );
@@ -128,7 +128,7 @@ public class PadFastTrackServiceTest {
         .thenReturn(projectInformation);
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
 
-      var start = LocalDate.now().plus(type.getMinPeriod()).plusDays(1);
+      var start = LocalDate.now().plus(type.getMinProcessingPeriod()).plusDays(1);
       projectInformation.setProposedStartTimestamp(
           Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
       );

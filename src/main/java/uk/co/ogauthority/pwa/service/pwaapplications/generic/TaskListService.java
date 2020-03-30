@@ -84,15 +84,7 @@ public class TaskListService {
 
     ApplicationTask.stream()
         .sorted(Comparator.comparing(ApplicationTask::getDisplayOrder))
-        .forEachOrdered(task -> {
-          if (task.getControllerClass().equals(FastTrackController.class)) {
-            if (padFastTrackService.isFastTrackRequired(detail)) {
-              addTaskToList(tasks, task, detail.getPwaApplication());
-            }
-          } else {
-            addTaskToList(tasks, task, detail.getPwaApplication());
-          }
-        });
+        .forEachOrdered(task -> addTaskToList(tasks, task, detail));
 
     if (tasks.isEmpty()) {
       tasks.put("No tasks", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
@@ -102,10 +94,10 @@ public class TaskListService {
 
   }
 
-  private void addTaskToList(LinkedHashMap<String, String> tasks, ApplicationTask task, PwaApplication application) {
+  private void addTaskToList(LinkedHashMap<String, String> tasks, ApplicationTask task, PwaApplicationDetail detail) {
 
-    var applicationId = application.getId();
-    var applicationType = application.getApplicationType();
+    var applicationId = detail.getPwaApplication().getId();
+    var applicationType = detail.getPwaApplicationType();
 
     Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
         typeCheck -> {
@@ -113,7 +105,11 @@ public class TaskListService {
             tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId));
           }
         },
-        () -> tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId))
+        () -> {
+          if (task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail)) {
+            tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId));
+          }
+        }
     );
 
   }

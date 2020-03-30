@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -119,6 +120,38 @@ public class TaskListServiceTest {
 
     });
 
+  }
+
+  @Test
+  public void prepareAppTasks_fastTrackInList() {
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
+    var detail = new PwaApplicationDetail();
+    detail.setPwaApplication(pwaApplication);
+
+    when(padFastTrackService.isFastTrackRequired(detail)).thenReturn(true);
+
+    PwaApplicationType.stream().forEach(applicationType -> {
+      pwaApplication.setApplicationType(applicationType);
+      var result = taskListService.getPrepareAppTasks(detail);
+      assertThat(result).containsKey("Fast-track");
+    });
+  }
+
+  @Test
+  public void prepareAppTasks_fastTrackNotInList() {
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
+    var detail = new PwaApplicationDetail();
+    detail.setPwaApplication(pwaApplication);
+
+    when(padFastTrackService.isFastTrackRequired(detail)).thenReturn(false);
+
+    PwaApplicationType.stream().forEach(applicationType -> {
+      pwaApplication.setApplicationType(applicationType);
+      var result = taskListService.getPrepareAppTasks(detail);
+      assertThat(result).doesNotContainKey("Fast-track");
+    });
   }
 
   @Test

@@ -1,10 +1,9 @@
 package uk.co.ogauthority.pwa.validators;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Map;
 import java.util.Set;
-import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
@@ -27,12 +26,12 @@ public class FastTrackValidatorTest {
 
   @Test
   public void validate_EmptyForm() {
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, new FastTrackForm());
-    assertThat(result).extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue).containsExactlyInAnyOrder(
-        Tuple.tuple("avoidEnvironmentalDisaster", Set.of("avoidEnvironmentalDisaster.noneSelected")),
-        Tuple.tuple("savingBarrels", Set.of("savingBarrels.noneSelected")),
-        Tuple.tuple("projectPlanning", Set.of("projectPlanning.noneSelected")),
-        Tuple.tuple("hasOtherReason", Set.of("hasOtherReason.noneSelected"))
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, new FastTrackForm());
+    assertThat(errors).containsOnly(
+        entry("avoidEnvironmentalDisaster", Set.of("avoidEnvironmentalDisaster.noneSelected")),
+        entry("savingBarrels", Set.of("savingBarrels.noneSelected")),
+        entry("projectPlanning", Set.of("projectPlanning.noneSelected")),
+        entry("hasOtherReason", Set.of("hasOtherReason.noneSelected"))
     );
   }
 
@@ -43,12 +42,12 @@ public class FastTrackValidatorTest {
     form.setSavingBarrelsReason("");
     form.setProjectPlanningReason(null);
     form.setOtherReason(null);
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(result).extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue).containsExactlyInAnyOrder(
-        Tuple.tuple("environmentalDisasterReason", Set.of("environmentalDisasterReason.empty")),
-        Tuple.tuple("savingBarrelsReason", Set.of("savingBarrelsReason.empty")),
-        Tuple.tuple("projectPlanningReason", Set.of("projectPlanningReason.empty")),
-        Tuple.tuple("otherReason", Set.of("otherReason.empty"))
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errors).containsOnly(
+        entry("environmentalDisasterReason", Set.of("environmentalDisasterReason.empty")),
+        entry("savingBarrelsReason", Set.of("savingBarrelsReason.empty")),
+        entry("projectPlanningReason", Set.of("projectPlanningReason.empty")),
+        entry("otherReason", Set.of("otherReason.empty"))
     );
   }
 
