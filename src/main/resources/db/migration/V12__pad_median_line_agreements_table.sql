@@ -1,6 +1,6 @@
 CREATE TABLE ${datasource.user}.pad_median_line_agreements (
   id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
-, application_detail_id NUMBER
+, application_detail_id NUMBER NOT NULL
 , agreement_status VARCHAR2(4000)
 , negotiator_name VARCHAR2(4000)
 , negotiator_email VARCHAR2(4000)

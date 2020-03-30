@@ -1,12 +1,23 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 
 public class MedianLineAgreementsForm {
 
+  @NotNull(message = "You must select one")
   private MedianLineStatus agreementStatus;
-  private String negotiatorName;
-  private String negotiatorEmail;
+
+  @Length(max = 4000, message = "Negotiator name must be 4000 characters or fewer")
+  private String negotiatorNameIfOngoing;
+  @Length(max = 4000, message = "Negotiator name must be 4000 characters or fewer")
+  private String negotiatorNameIfCompleted;
+
+  @Length(max = 4000, message = "Negotiator email must be 4000 characters or fewer")
+  private String negotiatorEmailIfOngoing;
+  @Length(max = 4000, message = "Negotiator email must be 4000 characters or fewer")
+  private String negotiatorEmailIfCompleted;
 
   public MedianLineStatus getAgreementStatus() {
     return agreementStatus;
@@ -16,19 +27,35 @@ public class MedianLineAgreementsForm {
     this.agreementStatus = agreementStatus;
   }
 
-  public String getNegotiatorName() {
-    return negotiatorName;
+  public String getNegotiatorNameIfOngoing() {
+    return negotiatorNameIfOngoing;
   }
 
-  public void setNegotiatorName(String negotiatorName) {
-    this.negotiatorName = negotiatorName;
+  public void setNegotiatorNameIfOngoing(String negotiatorNameIfOngoing) {
+    this.negotiatorNameIfOngoing = negotiatorNameIfOngoing;
   }
 
-  public String getNegotiatorEmail() {
-    return negotiatorEmail;
+  public String getNegotiatorNameIfCompleted() {
+    return negotiatorNameIfCompleted;
   }
 
-  public void setNegotiatorEmail(String negotiatorEmail) {
-    this.negotiatorEmail = negotiatorEmail;
+  public void setNegotiatorNameIfCompleted(String negotiatorNameIfCompleted) {
+    this.negotiatorNameIfCompleted = negotiatorNameIfCompleted;
+  }
+
+  public String getNegotiatorEmailIfOngoing() {
+    return negotiatorEmailIfOngoing;
+  }
+
+  public void setNegotiatorEmailIfOngoing(String negotiatorEmailIfOngoing) {
+    this.negotiatorEmailIfOngoing = negotiatorEmailIfOngoing;
+  }
+
+  public String getNegotiatorEmailIfCompleted() {
+    return negotiatorEmailIfCompleted;
+  }
+
+  public void setNegotiatorEmailIfCompleted(String negotiatorEmailIfCompleted) {
+    this.negotiatorEmailIfCompleted = negotiatorEmailIfCompleted;
   }
 }
