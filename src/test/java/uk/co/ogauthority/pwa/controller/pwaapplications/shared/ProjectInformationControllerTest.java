@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,21 +36,27 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ProjectInformationController.class)
 public class ProjectInformationControllerTest extends AbstractControllerTest {
 
+  private static final Integer APP_ID = 1;
+
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
   private PadProjectInformationService padProjectInformationService;
+
+  @MockBean
+  private PwaApplicationFileService applicationFileService;
+
 
   @SpyBean
   private ProjectInformationValidator projectInformationValidator;
@@ -79,6 +84,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
 
     pwaApplication = new PwaApplication();
     pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
+    pwaApplication.setId(APP_ID);
 
     pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setPwaApplication(pwaApplication);
@@ -86,10 +92,11 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
     padProjectInformation = new PadProjectInformation();
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
 
-    when(pwaApplicationDetailService.withDraftTipDetail(any(), any(), any())).thenCallRealMethod();
-    when(pwaApplicationDetailService.getTipDetailWithStatus(any(), eq(PwaApplicationStatus.DRAFT)))
-        .thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+
+
   }
+
 
   @Test
   public void authenticated() throws Exception {
@@ -139,6 +146,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
     }
   }
 
+
   @Test
   public void unauthenticated() throws Exception {
     mockMvc.perform(
@@ -178,12 +186,12 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/projectInformation"));
-    verify(padProjectInformationService, times(1)).mapEntityToForm(any(), any());
+    verify(padProjectInformationService, times(1)).mapEntityToForm(any(), any(), any());
   }
 
   @Test
   public void postContinueProjectInformation_Valid() throws Exception {
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>(){{
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
     }};
     mockMvc.perform(
@@ -194,12 +202,12 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
             .params(params))
         .andExpect(status().is3xxRedirection());
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
-    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any());
+    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
   }
 
   @Test
   public void postContinueProjectInformation_ValidationFailed() throws Exception {
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>(){{
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
       add("projectOverview", StringUtils.repeat("a", 5000));
     }};
@@ -215,7 +223,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
 
   @Test
   public void postCompleteProjectInformation_NoData() throws Exception {
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>(){{
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "");
     }};
     mockMvc.perform(
@@ -236,7 +244,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
   @Test
   public void postCompleteProjectInformation_ValidData() throws Exception {
     LocalDate date = LocalDate.now().plusDays(2);
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>(){{
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "");
       add("projectName", "name");
       add("projectOverview", "overview");
@@ -263,7 +271,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
             .params(params))
         .andExpect(status().is3xxRedirection());
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
-    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any());
+    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
 
     var captor = ArgumentCaptor.forClass(Errors.class);
 

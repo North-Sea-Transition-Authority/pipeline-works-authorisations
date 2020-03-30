@@ -4,6 +4,7 @@ class FileUpload {
   constructor($fileInput) {
     this.$fileInput = $fileInput;
     this.fileInputId = this.$fileInput.attr('id');
+    this.fileInputNamePrefix = this.$fileInput.attr('data-fileInputName');
     this.$dropzone = $(`#${this.fileInputId}-dropzone`);
 
     this._bindEventHandlers();
@@ -45,6 +46,7 @@ class FileUpload {
 
     const maxSize = parseInt(this.$fileInput.attr('upload-file-max-size'));
     const allowedExtensions = this.$fileInput.attr('accept').split(',');
+    const inputName = this.fileInputNamePrefix;
 
     const indexCard = $(`.uploaded-file`).last().index() + 1;
     const uploadedFileInfoHtml = `<div class="uploaded-file"><div class="uploaded-file__info">
@@ -55,7 +57,7 @@ class FileUpload {
         <div class="uploaded-file__error"></div>
       </div></div>`;
     const fileDescriptionHtml = `<div class="govuk-form-group govuk-form-group--file-upload"><label class="govuk-label" for="file-upload-description">File description</label>
-                                  <textarea class="govuk-textarea govuk-textarea--file-upload" id="file-upload-description" name="documentListDetails[${indexCard}].uploadedFileDescription" rows="2"></textarea>
+                                  <textarea class="govuk-textarea govuk-textarea--file-upload" id="file-upload-description" name="${inputName}[${indexCard}].uploadedFileDescription" rows="2"></textarea>
                                  </div>`;
     const progressText = `<div class="uploaded-file__progress">- <span class="uploaded-file__progress-value" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></span><span class="uploaded-file__progress-unit">%</span></div>`;
 
@@ -98,6 +100,7 @@ class FileUpload {
 
       const filenameDownloadLink = `<a href="${downloadUrl + data.result.fileId}" class="govuk-link">${data.files[0].name} </a>`;
       const indexCard = data.context.attr("id");
+      const inputName = this.fileInputNamePrefix;
 
       data.context.attr('data-fileId', data.result.fileId);
       data.context.attr('data-deleteUrl', `${deleteUrl}${data.result.fileId}`);
@@ -110,8 +113,8 @@ class FileUpload {
       });
 
       data.context.find('input[name="uploadedFileId"]').attr('value', data.result.fileId);
-      data.context.find('.uploaded-file__info').append($(`<input type="hidden" name="documentListDetails[${indexCard}].uploadedFileId" value="${this.uploadedFileId}"/>`));
-      data.context.find('.uploaded-file__info').append($(`<input type="hidden" name="documentListDetails[${indexCard}].uploadedFileInstant" value="${data.submitTimestamp}"/>`));
+      data.context.find('.uploaded-file__info').append($(`<input type="hidden" name="${inputName}[${indexCard}].uploadedFileId" value="${this.uploadedFileId}"/>`));
+      data.context.find('.uploaded-file__info').append($(`<input type="hidden" name="${inputName}[${indexCard}].uploadedFileInstant" value="${data.submitTimestamp}"/>`));
     }
     else if (data.result.errorType === "VIRUS_FOUND_IN_FILE") {
       data.context.addClass('uploaded-file--error');

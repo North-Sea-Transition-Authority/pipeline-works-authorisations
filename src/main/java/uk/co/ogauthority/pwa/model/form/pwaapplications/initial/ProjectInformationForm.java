@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.initial;
 
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
+import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
-public class ProjectInformationForm {
+public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionForm {
 
   public interface Full {
   }

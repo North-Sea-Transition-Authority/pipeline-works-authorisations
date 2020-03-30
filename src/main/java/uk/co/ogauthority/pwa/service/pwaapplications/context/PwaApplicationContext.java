@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.context;
 
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
@@ -33,5 +34,9 @@ public class PwaApplicationContext {
 
   public Set<PwaContactRole> getUserRoles() {
     return userRoles;
+  }
+
+  public PwaApplication getPwaApplication() {
+    return applicationDetail.getPwaApplication();
   }
 }

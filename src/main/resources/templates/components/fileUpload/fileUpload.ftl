@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 
-<#macro fileUpload id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions=[] dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[]>
-
+<#macro fileUpload path id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions=[] dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[] >
+  <#local inputName = path?remove_beginning("form.") />
   <div id="${id}-dropzone" class="fileupload-dropzone">
     <#local allowedExtensionsString=allowedExtensions?join(",")/>
     <div class="fileupload-dropzone__text">
@@ -12,6 +12,7 @@
         name="file"
         tabindex="-1"
         data-form-data='{"${_csrf.parameterName}": "${_csrf.token}"}'
+        data-fileInputName="${inputName}"
         data-url="<@spring.url uploadUrl/>"
         data-delete-url="<@spring.url deleteUrl/>"
         data-download-url="<@spring.url downloadUrl/>"
@@ -28,6 +29,7 @@
     <#list existingFiles as file>
       <@uploadedFile
       index=file?index
+      path=path
       htmlId=file.getFileId()
       fileName=file.getFileName()
       fileSize=file.getFileSize()
@@ -51,7 +53,8 @@
   fileDescription is an optional parameter to avoid a freemarker null or missing value crash if the user removes the file
   description from an existing file and then attempts to save the page.
  -->
-<#macro uploadedFile index htmlId fileName fileSize fileId fileUploadedInstant url deleteUrl sourceUploadId fileDescription="">
+<#macro uploadedFile index path htmlId fileName fileSize fileId fileUploadedInstant url deleteUrl sourceUploadId fileDescription="">
+  <#local inputName = path?remove_beginning("form.") />
   <div id="${htmlId}-uploaded-file" data-fileId="${fileId}" data-fileName="${fileName}" data-deleteUrl="<@spring.url deleteUrl/>" class="uploaded-file" data-source-upload-id="${sourceUploadId}">
     <div class="uploaded-file__info">
       <div class="uploaded-file__file-info-wrapper uploaded-file__file-info-wrapper--saved">
@@ -68,15 +71,15 @@
         <a href="#" class="govuk-link uploaded-file__delete-link uploaded-file__delete-link--saved">Remove file <span class="govuk-visually-hidden">${fileName}</span></a>
       </div>
       <@fdsTextarea.textarea
-        path="form.uploadedFileWithDescriptionForms["+index+"].uploadedFileDescription"
+        path=path+"["+index+"].uploadedFileDescription"
         labelText="File description"
         textareaValue=fileDescription
         rows="2"
         inputClass="govuk-textarea--file-upload"
         formGroupClass="govuk-form-group--file-upload"/>
     </div>
-    <input type="hidden" name="uploadedFileWithDescriptionForms[${index}].uploadedFileId" value="${fileId}">
-    <input type="hidden" name="uploadedFileWithDescriptionForms[${index}].uploadedFileInstant" value="${fileUploadedInstant}">
+    <input type="hidden" name="${inputName}[${index}].uploadedFileId" value="${fileId}">
+    <input type="hidden" name="${inputName}[${index}].uploadedFileInstant" value="${fileUploadedInstant}">
   </div>
 </#macro>
 

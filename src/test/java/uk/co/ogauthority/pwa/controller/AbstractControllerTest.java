@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
@@ -46,6 +47,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected PwaApplicationRedirectService pwaApplicationRedirectService;
+
+  @MockBean
+  protected PwaContactService pwaContactService;
 
   @MockBean
   protected TeamService teamService;

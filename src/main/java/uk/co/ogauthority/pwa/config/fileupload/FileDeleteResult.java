@@ -10,14 +10,12 @@ public class FileDeleteResult {
     this.deleteOutcomeType = deleteOutcomeType;
   }
 
-  public static FileDeleteResult generateSuccessfulFileDeleteResult(String fileId,
-                                                                    DeleteOutcomeType deleteOutcomeType) {
-    return new FileDeleteResult(fileId, deleteOutcomeType);
+  public static FileDeleteResult generateSuccessfulFileDeleteResult(String fileId) {
+    return new FileDeleteResult(fileId, DeleteOutcomeType.SUCCESS);
   }
 
-  public static FileDeleteResult generateFailedFileDeleteResult(String fileId,
-                                                                DeleteOutcomeType deleteOutcomeType) {
-    return new FileDeleteResult(fileId, deleteOutcomeType);
+  public static FileDeleteResult generateFailedFileDeleteResult(String fileId) {
+    return new FileDeleteResult(fileId, DeleteOutcomeType.INTERNAL_SERVER_ERROR);
   }
 
   public boolean isValid() {
