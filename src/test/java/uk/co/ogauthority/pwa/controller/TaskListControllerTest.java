@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 public abstract class TaskListControllerTest extends AbstractControllerTest {
 
@@ -16,11 +17,15 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   protected ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
+  private PadFastTrackService padFastTrackService;
+
+  @MockBean
   protected TaskListService taskListService;
 
   @Before
   public void taskListControllerTestSetup() {
-    taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService);
+    taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
+        padFastTrackService);
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
 
   }

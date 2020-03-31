@@ -44,14 +44,14 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
-import uk.co.ogauthority.pwa.validators.PadEnvDecomValidator;
+import uk.co.ogauthority.pwa.validators.EnvDecomValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = EnvironmentalDecomController.class)
 public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
 
   @MockBean
-  private PadEnvDecomValidator padEnvDecomValidator;
+  private EnvDecomValidator envDecomValidator;
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;

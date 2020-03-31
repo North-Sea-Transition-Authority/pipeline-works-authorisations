@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.util;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class DateUtil {
+public class DateUtils {
 
-  public DateUtil() {
+  public DateUtils() {
     throw new AssertionError();
   }
 

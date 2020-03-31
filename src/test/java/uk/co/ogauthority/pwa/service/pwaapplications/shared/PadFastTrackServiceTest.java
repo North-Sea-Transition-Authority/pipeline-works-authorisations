@@ -1,0 +1,255 @@
+package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.EnumSet;
+import java.util.Optional;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PadFastTrackServiceTest {
+
+  @Mock
+  private PadFastTrackRepository padFastTrackRepository;
+
+  @Mock
+  private PadProjectInformationService padProjectInformationService;
+
+  private PadFastTrackService padFastTrackService;
+  private PwaApplicationDetail pwaApplicationDetail;
+
+  @Before
+  public void setUp() {
+    padFastTrackService = new PadFastTrackService(padFastTrackRepository, padProjectInformationService);
+    pwaApplicationDetail = new PwaApplicationDetail();
+  }
+
+  @Test
+  public void save() {
+    var fastTrack = new PadFastTrack();
+    padFastTrackService.save(fastTrack);
+    verify(padFastTrackRepository, times(1)).save(fastTrack);
+  }
+
+  @Test
+  public void getFastTrackForDraft_Existing() {
+    var fastTrack = new PadFastTrack();
+    when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(fastTrack));
+    var result = padFastTrackService.getFastTrackForDraft(pwaApplicationDetail);
+    assertThat(fastTrack).isEqualTo(result);
+  }
+
+  @Test
+  public void getFastTrackForDraft_NotExisting() {
+    when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.empty());
+    var result = padFastTrackService.getFastTrackForDraft(pwaApplicationDetail);
+    assertThat(result).extracting(PadFastTrack::getId).isNull();
+  }
+
+  @Test
+  public void isFastTrackRequired_NoProposedStart() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+
+    var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void isFastTrackRequired_BeforeMinPeriod() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+    EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
+
+      var start = LocalDate.now().plus(type.getMinProcessingPeriod()).minusDays(1);
+      projectInformation.setProposedStartTimestamp(
+          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+      );
+
+      var application = new PwaApplication();
+      application.setApplicationType(type);
+      pwaApplicationDetail.setPwaApplication(application);
+
+      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+      assertThat(result).isTrue();
+    });
+  }
+
+  @Test
+  public void isFastTrackRequired_AtMinPeriod() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+    EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
+
+      var start = LocalDate.now().plus(type.getMinProcessingPeriod());
+      projectInformation.setProposedStartTimestamp(
+          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+      );
+
+      var application = new PwaApplication();
+      application.setApplicationType(type);
+      pwaApplicationDetail.setPwaApplication(application);
+
+      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+      assertThat(result).isFalse();
+    });
+  }
+
+  @Test
+  public void isFastTrackRequired_PastMinPeriod() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+    EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
+
+      var start = LocalDate.now().plus(type.getMinProcessingPeriod()).plusDays(1);
+      projectInformation.setProposedStartTimestamp(
+          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+      );
+
+      var application = new PwaApplication();
+      application.setApplicationType(type);
+      pwaApplicationDetail.setPwaApplication(application);
+
+      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+      assertThat(result).isFalse();
+    });
+  }
+
+  @Test
+  public void mapEntityToForm() {
+    var entity = buildEntity();
+    var form = new FastTrackForm();
+    var expectedForm = buildForm();
+    padFastTrackService.mapEntityToForm(entity, form);
+    assertThat(form.getAvoidEnvironmentalDisaster()).isEqualTo(expectedForm.getAvoidEnvironmentalDisaster());
+    assertThat(form.getEnvironmentalDisasterReason()).isEqualTo(expectedForm.getEnvironmentalDisasterReason());
+    assertThat(form.getSavingBarrels()).isEqualTo(expectedForm.getSavingBarrels());
+    assertThat(form.getSavingBarrelsReason()).isEqualTo(expectedForm.getSavingBarrelsReason());
+    assertThat(form.getProjectPlanning()).isEqualTo(expectedForm.getProjectPlanning());
+    assertThat(form.getProjectPlanningReason()).isEqualTo(expectedForm.getProjectPlanningReason());
+    assertThat(form.getHasOtherReason()).isEqualTo(expectedForm.getHasOtherReason());
+    assertThat(form.getOtherReason()).isEqualTo(expectedForm.getOtherReason());
+  }
+
+  @Test
+  public void saveEntityUsingForm() {
+    var entity = new PadFastTrack();
+    var expectedEntity = buildEntity();
+    var form = buildForm();
+    padFastTrackService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getAvoidEnvironmentalDisaster()).isEqualTo(expectedEntity.getAvoidEnvironmentalDisaster());
+    assertThat(entity.getEnvironmentalDisasterReason()).isEqualTo(expectedEntity.getEnvironmentalDisasterReason());
+    assertThat(entity.getSavingBarrels()).isEqualTo(expectedEntity.getSavingBarrels());
+    assertThat(entity.getSavingBarrelsReason()).isEqualTo(expectedEntity.getSavingBarrelsReason());
+    assertThat(entity.getProjectPlanning()).isEqualTo(expectedEntity.getProjectPlanning());
+    assertThat(entity.getProjectPlanningReason()).isEqualTo(expectedEntity.getProjectPlanningReason());
+    assertThat(entity.getHasOtherReason()).isEqualTo(expectedEntity.getHasOtherReason());
+    assertThat(entity.getOtherReason()).isEqualTo(expectedEntity.getOtherReason());
+    verify(padFastTrackRepository, times(1)).save(entity);
+  }
+
+  @Test
+  public void saveEntityUsingForm_EnvironmentalUnchecked() {
+    var entity = new PadFastTrack();
+    var expectedEntity = buildEntity();
+    var form = buildForm();
+    form.setAvoidEnvironmentalDisaster(null);
+    padFastTrackService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getEnvironmentalDisasterReason()).isNull();
+    assertThat(entity.getSavingBarrelsReason()).isEqualTo(expectedEntity.getSavingBarrelsReason());
+    assertThat(entity.getProjectPlanningReason()).isEqualTo(expectedEntity.getProjectPlanningReason());
+    assertThat(entity.getOtherReason()).isEqualTo(expectedEntity.getOtherReason());
+  }
+
+  @Test
+  public void saveEntityUsingForm_SavingBarrelsUnchecked() {
+    var entity = new PadFastTrack();
+    var expectedEntity = buildEntity();
+    var form = buildForm();
+    form.setSavingBarrels(null);
+    padFastTrackService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getEnvironmentalDisasterReason()).isEqualTo(expectedEntity.getEnvironmentalDisasterReason());
+    assertThat(entity.getSavingBarrelsReason()).isNull();
+    assertThat(entity.getProjectPlanningReason()).isEqualTo(expectedEntity.getProjectPlanningReason());
+    assertThat(entity.getOtherReason()).isEqualTo(expectedEntity.getOtherReason());
+  }
+
+  @Test
+  public void saveEntityUsingForm_ProjectPlanningUnchecked() {
+    var entity = new PadFastTrack();
+    var expectedEntity = buildEntity();
+    var form = buildForm();
+    form.setProjectPlanning(null);
+    padFastTrackService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getEnvironmentalDisasterReason()).isEqualTo(expectedEntity.getEnvironmentalDisasterReason());
+    assertThat(entity.getSavingBarrelsReason()).isEqualTo(expectedEntity.getSavingBarrelsReason());
+    assertThat(entity.getProjectPlanningReason()).isNull();
+    assertThat(entity.getOtherReason()).isEqualTo(expectedEntity.getOtherReason());
+  }
+
+  @Test
+  public void saveEntityUsingForm_OtherReasonUnchecked() {
+    var entity = new PadFastTrack();
+    var expectedEntity = buildEntity();
+    var form = buildForm();
+    form.setHasOtherReason(null);
+    padFastTrackService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getEnvironmentalDisasterReason()).isEqualTo(expectedEntity.getEnvironmentalDisasterReason());
+    assertThat(entity.getSavingBarrelsReason()).isEqualTo(expectedEntity.getSavingBarrelsReason());
+    assertThat(entity.getProjectPlanningReason()).isEqualTo(expectedEntity.getProjectPlanningReason());
+    assertThat(entity.getOtherReason()).isNull();
+  }
+
+  private PadFastTrack buildEntity() {
+    var fastTrack = new PadFastTrack();
+    fastTrack.setAvoidEnvironmentalDisaster(true);
+    fastTrack.setEnvironmentalDisasterReason("Env Reason");
+    fastTrack.setSavingBarrels(true);
+    fastTrack.setSavingBarrelsReason("Barrels Reason");
+    fastTrack.setProjectPlanning(true);
+    fastTrack.setProjectPlanningReason("Planning reason");
+    fastTrack.setHasOtherReason(true);
+    fastTrack.setOtherReason("Other reason");
+    return fastTrack;
+  }
+
+  private FastTrackForm buildForm() {
+    var form = new FastTrackForm();
+    form.setAvoidEnvironmentalDisaster(true);
+    form.setEnvironmentalDisasterReason("Env Reason");
+    form.setSavingBarrels(true);
+    form.setSavingBarrelsReason("Barrels Reason");
+    form.setProjectPlanning(true);
+    form.setProjectPlanningReason("Planning reason");
+    form.setHasOtherReason(true);
+    form.setOtherReason("Other reason");
+    return form;
+  }
+}

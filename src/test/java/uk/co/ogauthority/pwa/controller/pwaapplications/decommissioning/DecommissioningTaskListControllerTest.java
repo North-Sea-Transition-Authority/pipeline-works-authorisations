@@ -46,7 +46,7 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
 
     when(pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(detail);
     when(pwaApplicationDetailService.withDraftTipDetail(any(), any(), any())).thenCallRealMethod();
-    when(taskListService.getTaskListModelAndView(pwaApplication)).thenCallRealMethod();
+    when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();
 
   }
 

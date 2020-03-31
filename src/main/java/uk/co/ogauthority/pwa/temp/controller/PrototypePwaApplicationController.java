@@ -44,7 +44,7 @@ import uk.co.ogauthority.pwa.temp.model.form.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.temp.model.locations.MedianLineSelection;
 import uk.co.ogauthority.pwa.temp.model.pwacontacts.ContactRole;
 import uk.co.ogauthority.pwa.temp.model.view.TaskListEntry;
-import uk.co.ogauthority.pwa.util.DateUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -182,8 +182,8 @@ public class PrototypePwaApplicationController {
     var modelAndView = new ModelAndView("pwaApplication/temporary/fastTrack")
         .addObject("projectInformationUrl",
             ReverseRouter.route(on(PrototypePwaApplicationController.class).viewProjectInformation(applicationId, null)))
-        .addObject("startDate", DateUtil.formatDate(startDate))
-        .addObject("minNotFastTrackStartDate", DateUtil.formatDate(LocalDate.now().plusMonths(3)));
+        .addObject("startDate", DateUtils.formatDate(startDate))
+        .addObject("minNotFastTrackStartDate", DateUtils.formatDate(LocalDate.now().plusMonths(3)));
     breadcrumbService.fromTaskList(applicationId, modelAndView, "Fast-track");
     return modelAndView;
   }

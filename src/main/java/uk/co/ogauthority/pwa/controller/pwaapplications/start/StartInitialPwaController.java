@@ -12,7 +12,9 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.util.ApplicationTypeUtils;
 
 @Controller
 @RequestMapping("/pwa-application/initial/new")
@@ -30,9 +32,9 @@ public class StartInitialPwaController {
    */
   @GetMapping
   public ModelAndView renderStartPage() {
-    ModelAndView modelAndView = new ModelAndView("pwaApplication/startPages/initial");
-    modelAndView.addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null)));
-    return modelAndView;
+    return new ModelAndView("pwaApplication/startPages/initial")
+        .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null)))
+        .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL));
   }
 
   /**
