@@ -12,6 +12,7 @@
                     <#elseif name == "NEGOTIATIONS_COMPLETED">
                         <@fdsTextInput.textInput path="form.negotiatorNameIfCompleted" labelText="Name of negotiator" nestingPath="form.agreementStatus"/>
                         <@fdsTextInput.textInput path="form.negotiatorEmailIfCompleted" labelText="Email address of negotiator" nestingPath="form.agreementStatus"/>
+                        <#-- TODO : PWA-393 Add file uploads -->
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem=false/>

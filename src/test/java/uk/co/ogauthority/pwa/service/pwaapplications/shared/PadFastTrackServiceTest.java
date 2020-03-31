@@ -15,9 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
@@ -32,12 +34,16 @@ public class PadFastTrackServiceTest {
   @Mock
   private PadProjectInformationService padProjectInformationService;
 
+  @Mock
+  private PadMedianLineAgreementService padMedianLineAgreementService;
+
   private PadFastTrackService padFastTrackService;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
-    padFastTrackService = new PadFastTrackService(padFastTrackRepository, padProjectInformationService);
+    padFastTrackService = new PadFastTrackService(padFastTrackRepository, padProjectInformationService,
+        padMedianLineAgreementService);
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 
@@ -77,7 +83,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_BeforeMinPeriod() {
+  public void isFastTrackRequired_BeforeMinPeriod_NoMedianLine() {
     var projectInformation = new PadProjectInformation();
 
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
@@ -99,7 +105,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_AtMinPeriod() {
+  public void isFastTrackRequired_AtMinPeriod_NoMedianLine() {
     var projectInformation = new PadProjectInformation();
 
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
@@ -121,7 +127,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_PastMinPeriod() {
+  public void isFastTrackRequired_PastMinPeriod_NoMedianLine() {
     var projectInformation = new PadProjectInformation();
 
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
@@ -140,6 +146,117 @@ public class PadFastTrackServiceTest {
       var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
       assertThat(result).isFalse();
     });
+  }
+
+  @Test
+  public void isFastTrackRequired_BeforeMaxPeriod_WithMedianLine() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+
+    var medianLine = new PadMedianLineAgreement();
+    medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
+    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+
+    EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
+
+      var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).minusDays(1);
+      projectInformation.setProposedStartTimestamp(
+          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+      );
+
+      var application = new PwaApplication();
+      application.setApplicationType(type);
+      pwaApplicationDetail.setPwaApplication(application);
+
+      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+      assertThat(result).isTrue();
+    });
+  }
+
+  @Test
+  public void isFastTrackRequired_AtMaxPeriod_WithMedianLine() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+
+    var medianLine = new PadMedianLineAgreement();
+    medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
+    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+
+    EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
+
+      var start = LocalDate.now().plus(type.getMaxProcessingPeriod());
+      projectInformation.setProposedStartTimestamp(
+          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+      );
+
+      var application = new PwaApplication();
+      application.setApplicationType(type);
+      pwaApplicationDetail.setPwaApplication(application);
+
+      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+      assertThat(result).isFalse();
+    });
+  }
+
+  @Test
+  public void isFastTrackRequired_PastMaxPeriod_WithMedianLine() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+
+    var medianLine = new PadMedianLineAgreement();
+    medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
+    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+
+    EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
+
+      var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).plusDays(1);
+      projectInformation.setProposedStartTimestamp(
+          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+      );
+
+      var application = new PwaApplication();
+      application.setApplicationType(type);
+      pwaApplicationDetail.setPwaApplication(application);
+
+      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+      assertThat(result).isFalse();
+    });
+  }
+
+  @Test
+  public void isFastTrackRequired_BeforeAndAfterMedianLine() {
+    var projectInformation = new PadProjectInformation();
+
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
+
+    var medianLine = new PadMedianLineAgreement();
+    medianLine.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
+    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+
+    var start = LocalDate.now().plus(PwaApplicationType.CAT_2_VARIATION.getMinProcessingPeriod()).plusWeeks(1);
+    projectInformation.setProposedStartTimestamp(
+        Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+    );
+
+    var application = new PwaApplication();
+    application.setApplicationType(PwaApplicationType.CAT_2_VARIATION);
+    pwaApplicationDetail.setPwaApplication(application);
+
+    // Without median line
+    var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+    assertThat(result).isFalse();
+
+    // With median line
+    medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
+    result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+    assertThat(result).isTrue();
   }
 
   @Test

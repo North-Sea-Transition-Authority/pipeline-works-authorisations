@@ -6,6 +6,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
@@ -16,13 +17,16 @@ public class PadFastTrackService {
 
   private final PadFastTrackRepository padFastTrackRepository;
   private final PadProjectInformationService padProjectInformationService;
+  private final PadMedianLineAgreementService padMedianLineAgreementService;
 
   @Autowired
   public PadFastTrackService(
       PadFastTrackRepository padFastTrackRepository,
-      PadProjectInformationService padProjectInformationService) {
+      PadProjectInformationService padProjectInformationService,
+      PadMedianLineAgreementService padMedianLineAgreementService) {
     this.padFastTrackRepository = padFastTrackRepository;
     this.padProjectInformationService = padProjectInformationService;
+    this.padMedianLineAgreementService = padMedianLineAgreementService;
   }
 
   @Transactional
@@ -38,10 +42,17 @@ public class PadFastTrackService {
   }
 
   public boolean isFastTrackRequired(PwaApplicationDetail detail) {
-    // TODO: PWA-374 Add median line agreement impact
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     if (projectInformation.getProposedStartTimestamp() != null) {
       var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
+      var medianLine = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+      if (medianLine != null) {
+        if (medianLine.getAgreementStatus() == null || medianLine.getAgreementStatus() == MedianLineStatus.NOT_CROSSED) {
+          return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMinProcessingPeriod()));
+        } else {
+          return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMaxProcessingPeriod()));
+        }
+      }
       return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMinProcessingPeriod()));
     }
     return false;
