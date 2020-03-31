@@ -57,7 +57,7 @@ public abstract class AbstractControllerTest {
   @MockBean
   private TopMenuService topMenuService;
 
-  @MockBean
+  @Autowired
   protected PwaApplicationContextService pwaApplicationContextService;
 
   @Before

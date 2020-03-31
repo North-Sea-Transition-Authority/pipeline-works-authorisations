@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,6 +26,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -36,14 +39,17 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = ProjectInformationController.class)
+@WebMvcTest(controllers = ProjectInformationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class ProjectInformationControllerTest extends AbstractControllerTest {
 
   private static final Integer APP_ID = 1;
@@ -88,73 +94,107 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
 
     pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setPwaApplication(pwaApplication);
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
 
     padProjectInformation = new PadProjectInformation();
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
 
+    //support app context code
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+    // by default has all roles
+    when(pwaContactService.getContactRoles(eq(pwaApplication), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
 
   }
 
+  @Test
+  public void renderProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+    for (var appType : PwaApplicationType.values()) {
+      try {
+        pwaApplication.setApplicationType(appType);
+        var result = mockMvc.perform(
+            get(ReverseRouter.route(
+                on(ProjectInformationController.class).renderProjectInformation(appType, APP_ID, null, null)))
+                .with(authenticatedUserAndSession(user))
+                .with(csrf()));
+        if (allowedApplicationTypes.contains(appType)) {
+          result.andExpect(status().isOk());
+        } else {
+          result.andExpect(status().isForbidden());
+        }
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at type:" + appType + "\n" + e.getMessage(), e);
+      }
+
+    }
+
+  }
 
   @Test
-  public void authenticated() throws Exception {
+  public void postCompleteProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
     for (var appType : PwaApplicationType.values()) {
-      var result = mockMvc.perform(
-          get(ReverseRouter.route(
-              on(ProjectInformationController.class).renderProjectInformation(appType, 1, null, null)))
-              .with(authenticatedUserAndSession(user))
-              .with(csrf()));
-      if (allowedApplicationTypes.contains(appType)) {
-        result.andExpect(status().isOk());
-      } else {
-        result.andExpect(status().isForbidden());
-      }
-
-      // Expect isOk because endpoint validates. If form can't validate, return same page.
-      MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
-        add("Complete", "");
-      }};
-      result = mockMvc.perform(
-          post(ReverseRouter.route(
-              on(ProjectInformationController.class).postCompleteProjectInformation(appType, 1, null, null, null)))
-              .with(authenticatedUserAndSession(user))
-              .with(csrf())
-              .params(completeParams));
-      if (allowedApplicationTypes.contains(appType)) {
-        result.andExpect(status().isOk());
-      } else {
-        result.andExpect(status().isForbidden());
-      }
-
-      // Expect redirection because endpoint ignores validation.
-      MultiValueMap continueParams = new LinkedMultiValueMap<>() {{
-        add("Save and complete later", "");
-      }};
-      result = mockMvc.perform(
-          post(ReverseRouter.route(
-              on(ProjectInformationController.class).postContinueProjectInformation(appType, 1, null, null, null)))
-              .with(authenticatedUserAndSession(user))
-              .with(csrf())
-              .params(continueParams));
-      if (allowedApplicationTypes.contains(appType)) {
-        result.andExpect(status().is3xxRedirection());
-      } else {
-        result.andExpect(status().isForbidden());
+      try {
+        pwaApplication.setApplicationType(appType);
+        // Expect isOk because endpoint validates. If form can't validate, return same page.
+        MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
+          add("Complete", "");
+        }};
+        var result = mockMvc.perform(
+            post(ReverseRouter.route(
+                on(ProjectInformationController.class).postCompleteProjectInformation(appType, APP_ID, null, null, null)))
+                .with(authenticatedUserAndSession(user))
+                .with(csrf())
+                .params(completeParams));
+        if (allowedApplicationTypes.contains(appType)) {
+          result.andExpect(status().isOk());
+        } else {
+          result.andExpect(status().isForbidden());
+        }
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at type:" + appType + "\n" + e.getMessage(), e);
       }
     }
   }
 
+  @Test
+  public void postContinueProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+    for (var appType : PwaApplicationType.values()) {
+      try {
+        pwaApplication.setApplicationType(appType);
+        // Expect isOk because endpoint validates. If form can't validate, return same page.
+
+        // Expect redirection because endpoint ignores validation.
+        MultiValueMap continueParams = new LinkedMultiValueMap<>() {{
+          add("Save and complete later", "");
+        }};
+        var result = mockMvc.perform(
+            post(ReverseRouter.route(
+                on(ProjectInformationController.class).postContinueProjectInformation(appType, APP_ID, null, null, null)))
+                .with(authenticatedUserAndSession(user))
+                .with(csrf())
+                .params(continueParams));
+        if (allowedApplicationTypes.contains(appType)) {
+          result.andExpect(status().is3xxRedirection());
+        } else {
+          result.andExpect(status().isForbidden());
+        }
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at type:" + appType + "\n" + e.getMessage(), e);
+      }
+    }
+  }
 
   @Test
-  public void unauthenticated() throws Exception {
+  public void renderProjectInformation_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(PwaApplicationType.INITIAL, 1, null, null))))
         .andExpect(status().is3xxRedirection());
 
+  }
 
+  @Test
+  public void postCompleteProjectInformation_unauthenticated() throws Exception {
     MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
       add("Complete", "");
     }};
@@ -164,8 +204,10 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
                 .postCompleteProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null)))
             .params(completeParams))
         .andExpect(status().isForbidden());
+  }
 
-
+  @Test
+  public void postContinueProjectInformation_unauthenticated() throws Exception {
     MultiValueMap continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
     }};
@@ -178,7 +220,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderProjectInformation() throws Exception {
+  public void renderProjectInformation_serviceInteractions() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(PwaApplicationType.INITIAL, 1, null, null)))
@@ -190,7 +232,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postContinueProjectInformation_Valid() throws Exception {
+  public void postContinueProjectInformation_validForm() throws Exception {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
     }};
@@ -206,7 +248,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postContinueProjectInformation_ValidationFailed() throws Exception {
+  public void postContinueProjectInformation_formValidationFailed() throws Exception {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
       add("projectOverview", StringUtils.repeat("a", 5000));
@@ -222,7 +264,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postCompleteProjectInformation_NoData() throws Exception {
+  public void postCompleteProjectInformation_noData() throws Exception {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "");
     }};
@@ -242,7 +284,7 @@ public class ProjectInformationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postCompleteProjectInformation_ValidData() throws Exception {
+  public void postCompleteProjectInformation_validData() throws Exception {
     LocalDate date = LocalDate.now().plusDays(2);
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "");
