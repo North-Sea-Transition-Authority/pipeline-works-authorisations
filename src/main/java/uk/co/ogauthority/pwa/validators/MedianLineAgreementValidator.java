@@ -9,6 +9,10 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreeme
 
 @Service
 public class MedianLineAgreementValidator implements Validator {
+
+  private static String MISSING_NAME = "You must provide the name of the negotiator";
+  private static String MISSING_EMAIL = "You must provide a contact email for the negotiator";
+
   @Override
   public boolean supports(Class<?> clazz) {
     return clazz.equals(MedianLineAgreementsForm.class);
@@ -21,21 +25,17 @@ public class MedianLineAgreementValidator implements Validator {
       errors.rejectValue("agreementStatus", "agreementStatus.required", "You must select one");
     } else if (form.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_ONGOING) {
       if (StringUtils.isBlank(form.getNegotiatorNameIfOngoing())) {
-        errors.rejectValue("negotiatorNameIfOngoing", "negotiatorNameIfOngoing.required",
-            "You must provide the name of the negotiator");
+        errors.rejectValue("negotiatorNameIfOngoing", "negotiatorNameIfOngoing.required", MISSING_NAME);
       }
       if (StringUtils.isBlank(form.getNegotiatorEmailIfOngoing())) {
-        errors.rejectValue("negotiatorEmailIfOngoing", "negotiatorEmailIfOngoing.required",
-            "You must provide a contact email for the negotiator");
+        errors.rejectValue("negotiatorEmailIfOngoing", "negotiatorEmailIfOngoing.required", MISSING_EMAIL);
       }
     } else if (form.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_COMPLETED) {
       if (StringUtils.isBlank(form.getNegotiatorNameIfCompleted())) {
-        errors.rejectValue("negotiatorNameIfCompleted", "negotiatorNameIfCompleted.required",
-            "You must provide the name of the negotiator");
+        errors.rejectValue("negotiatorNameIfCompleted", "negotiatorNameIfCompleted.required", MISSING_NAME);
       }
       if (StringUtils.isBlank(form.getNegotiatorEmailIfCompleted())) {
-        errors.rejectValue("negotiatorEmailIfCompleted", "negotiatorEmailIfCompleted.required",
-            "You must provide a contact email for the negotiator");
+        errors.rejectValue("negotiatorEmailIfCompleted", "negotiatorEmailIfCompleted.required", MISSING_EMAIL);
       }
     }
   }
