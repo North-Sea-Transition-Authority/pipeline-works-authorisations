@@ -4,8 +4,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.ProjectInformationForm;
-import uk.co.ogauthority.pwa.util.DateUtil;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 /**
  * Mapping of form data to entity and entity to form data for project information application form.
@@ -60,28 +60,28 @@ public class ProjectInformationEntityMappingService {
     padProjectInformation.setUsingCampaignApproach(form.getUsingCampaignApproach());
 
     // TODO: PWA-379
-    DateUtil.consumeInstantFromIntegersElseNull(
+    DateUtils.consumeInstantFromIntegersElseNull(
         form.getProposedStartYear(),
         form.getProposedStartMonth(),
         form.getProposedStartDay(),
         padProjectInformation::setProposedStartTimestamp
     );
 
-    DateUtil.consumeInstantFromIntegersElseNull(
+    DateUtils.consumeInstantFromIntegersElseNull(
         form.getMobilisationYear(),
         form.getMobilisationMonth(),
         form.getMobilisationDay(),
         padProjectInformation::setMobilisationTimestamp
     );
 
-    DateUtil.consumeInstantFromIntegersElseNull(
+    DateUtils.consumeInstantFromIntegersElseNull(
         form.getEarliestCompletionYear(),
         form.getEarliestCompletionMonth(),
         form.getEarliestCompletionDay(),
         padProjectInformation::setEarliestCompletionTimestamp
     );
 
-    DateUtil.consumeInstantFromIntegersElseNull(
+    DateUtils.consumeInstantFromIntegersElseNull(
         form.getLatestCompletionYear(),
         form.getLatestCompletionMonth(),
         form.getLatestCompletionDay(),

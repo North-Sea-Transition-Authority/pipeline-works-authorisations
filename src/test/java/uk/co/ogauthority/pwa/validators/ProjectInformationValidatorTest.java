@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.ProjectInformationForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
 public class ProjectInformationValidatorTest {

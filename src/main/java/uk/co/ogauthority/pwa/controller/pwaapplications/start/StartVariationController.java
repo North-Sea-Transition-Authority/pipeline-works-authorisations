@@ -11,7 +11,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PickExistingPwaController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.MedianLineImplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.util.ApplicationTypeUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -46,10 +48,16 @@ public class StartVariationController {
         throw new AccessDeniedException(String.format("Application type not supported %s", pwaApplicationType));
     }
 
+    if (pwaApplicationType.getMedianLineImplication().equals(MedianLineImplication.TRUE)) {
+      modelAndView.addObject("formattedMedianLineDuration",
+          ApplicationTypeUtils.getFormattedMedianLineDuration(pwaApplicationType));
+    }
+
     return modelAndView
         .addObject("htmlTitle", "Start new " + pwaApplicationType.getDisplayName())
         .addObject("pageHeading", "Start new " + pwaApplicationType.getDisplayName())
         .addObject("typeDisplay", pwaApplicationType.getDisplayName())
+        .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(pwaApplicationType))
         .addObject("buttonUrl", ReverseRouter.route(on(this.getClass()).startVariation(pwaApplicationType)));
   }
 

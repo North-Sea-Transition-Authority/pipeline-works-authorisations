@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.EnvDecomForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvDecomForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDeco
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.PadEnvDecomValidator;
+import uk.co.ogauthority.pwa.validators.EnvDecomValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/env-decom")
@@ -41,14 +41,14 @@ import uk.co.ogauthority.pwa.validators.PadEnvDecomValidator;
 public class EnvironmentalDecomController {
 
   private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
-  private final PadEnvDecomValidator validator;
+  private final EnvDecomValidator validator;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public EnvironmentalDecomController(
       PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService,
-      PadEnvDecomValidator validator,
+      EnvDecomValidator validator,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.padEnvironmentalDecommissioningService = padEnvironmentalDecommissioningService;

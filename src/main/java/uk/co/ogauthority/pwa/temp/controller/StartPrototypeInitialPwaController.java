@@ -11,7 +11,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.util.ApplicationTypeUtils;
 
 @Controller
 @RequestMapping("/prototype/pwa-application/initial")
@@ -29,8 +31,11 @@ public class StartPrototypeInitialPwaController {
    */
   @GetMapping("/new")
   public ModelAndView renderStartPage() {
-    ModelAndView modelAndView = new ModelAndView("pwaApplication/startPages/initial");
-    modelAndView.addObject("startUrl", ReverseRouter.route(on(StartPrototypeInitialPwaController.class).startInitialPwa(null)));
+    ModelAndView modelAndView = new ModelAndView("pwaApplication/startPages/initial")
+        .addObject("formattedDuration",
+            ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL))
+        .addObject("startUrl",
+            ReverseRouter.route(on(StartPrototypeInitialPwaController.class).startInitialPwa(null)));
     return modelAndView;
   }
 
@@ -40,7 +45,8 @@ public class StartPrototypeInitialPwaController {
   @PostMapping("/new")
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user) {
     PwaApplication pwaApplication = pwaApplicationService.createInitialPwaApplication(user);
-    return ReverseRouter.redirect(on(PrototypePwaHolderController.class).renderHolderScreen(pwaApplication.getId(), null, null));
+    return ReverseRouter.redirect(
+        on(PrototypePwaHolderController.class).renderHolderScreen(pwaApplication.getId(), null, null));
   }
 
 }

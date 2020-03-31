@@ -7,9 +7,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
-public class DateUtil {
+public class DateUtils {
 
-  public DateUtil() {
+  public DateUtils() {
     throw new AssertionError();
   }
 

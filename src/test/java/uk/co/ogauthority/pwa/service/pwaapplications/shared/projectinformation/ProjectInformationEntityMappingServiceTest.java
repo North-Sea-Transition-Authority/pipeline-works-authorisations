@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.ProjectInformationForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectInformationEntityMappingServiceTest {

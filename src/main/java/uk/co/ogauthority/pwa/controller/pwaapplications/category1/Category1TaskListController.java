@@ -31,13 +31,10 @@ public class Category1TaskListController {
 
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
 
-      var pwaApplication = detail.getPwaApplication();
-
-      if (pwaApplication.getApplicationType() != PwaApplicationType.CAT_1_VARIATION) {
-        throw new PwaEntityNotFoundException("Application of wrong type:" + pwaApplication.getApplicationType());
+      if (detail.getPwaApplicationType() != PwaApplicationType.CAT_1_VARIATION) {
+        throw new PwaEntityNotFoundException("Application of wrong type:" + detail.getPwaApplicationType());
       }
-
-      return taskListService.getTaskListModelAndView(pwaApplication);
+      return taskListService.getTaskListModelAndView(detail);
 
     });
 

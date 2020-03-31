@@ -9,10 +9,10 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.EnvDecomForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvDecomForm;
 
 @Service
-public class PadEnvDecomValidator implements Validator {
+public class EnvDecomValidator implements Validator {
 
 
   @Override
@@ -25,12 +25,12 @@ public class PadEnvDecomValidator implements Validator {
     EnvDecomForm form = (EnvDecomForm) target;
     if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())) {
       if (StringUtils.isBlank(form.getPermitsSubmitted())) {
-        errors.rejectValue("permitsSubmitted", "permitsSubmitted.empty", "Enter a list of the submitted permits");
+        errors.rejectValue("permitsSubmitted", "permitsSubmitted.required", "Enter a list of the submitted permits");
       }
     }
     if (BooleanUtils.isTrue(form.getEmtHasOutstandingPermits())) {
       if (StringUtils.isBlank(form.getPermitsPendingSubmission())) {
-        errors.rejectValue("permitsPendingSubmission", "permitsPendingSubmission.empty",
+        errors.rejectValue("permitsPendingSubmission", "permitsPendingSubmission.required",
             "Enter a list of the permits you will submit at a later date");
       }
       try {

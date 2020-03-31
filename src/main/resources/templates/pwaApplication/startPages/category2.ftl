@@ -1,6 +1,8 @@
 <#-- @ftlvariable name="pageHeading" type="String" -->
 <#-- @ftlvariable name="typeDisplay" type="String" -->
 <#-- @ftlvariable name="buttonUrl" type="String" -->
+<#-- @ftlvariable name="formattedDuration" type="java.lang.String" -->
+<#-- @ftlvariable name="formattedMedianLineDuration" type="java.lang.String" -->
 
 <#include '../../layout.ftl'>
 
@@ -18,8 +20,8 @@
           seabed or taken out of use. This is prior to agreement of COP approval.</p>
       </li>
     </ul>
-    <p class="govuk-body">Where there are no objections, it takes approximately 6-8 weeks (note where there are Median
-      Line implications this will take 8+ weeks) to authorisation</p>
+    <p class="govuk-body">Where there are no objections, it takes approximately ${formattedDuration} (note where there are Median
+      Line implications this will take ${formattedMedianLineDuration}) to authorisation</p>
 
   </@fdsStartPage.startPage>
 

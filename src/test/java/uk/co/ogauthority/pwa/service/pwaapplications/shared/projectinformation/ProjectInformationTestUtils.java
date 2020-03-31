@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.initial.ProjectInformationForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 
 public class ProjectInformationTestUtils {
 
