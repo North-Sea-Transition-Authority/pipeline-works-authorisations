@@ -166,7 +166,7 @@ public class ProjectInformationFileServiceTest {
   @Test(expected = RuntimeException.class)
   public void deleteProjectInformationFilesAndLinkedUploads_whenDeleteFails() {
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
-        FileDeleteResult.generateSuccessfulFileDeleteResult(invocation.getArgument(0))
+        FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
     );
 
     var file1 = new PadProjectInformationFile(

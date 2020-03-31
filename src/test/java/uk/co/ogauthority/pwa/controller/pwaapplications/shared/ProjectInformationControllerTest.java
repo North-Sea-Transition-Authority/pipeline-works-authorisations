@@ -63,7 +63,6 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   @MockBean
   private PwaApplicationFileService applicationFileService;
 
-
   @SpyBean
   private ProjectInformationValidator projectInformationValidator;
 

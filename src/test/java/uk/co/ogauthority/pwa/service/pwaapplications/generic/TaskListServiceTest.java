@@ -96,26 +96,30 @@ public class TaskListServiceTest {
     detail.setPwaApplication(pwaApplication);
 
     PwaApplicationType.stream().forEach(appType -> {
+      try {
+        pwaApplication.setApplicationType(appType);
 
-      pwaApplication.setApplicationType(appType);
+        switch (appType) {
+          case INITIAL:
+          case CAT_1_VARIATION:
+          case OPTIONS_VARIATION:
+          case DECOMMISSIONING:
+          case DEPOSIT_CONSENT:
+            assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
+                "Project information",
+                "Environmental and decommissioning"
+            );
+            break;
+          case CAT_2_VARIATION:
+            assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("Project information");
+            break;
+          case HUOO_VARIATION:
+            assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("No tasks");
+            break;
+        }
 
-      switch(appType) {
-        case INITIAL:
-        case CAT_1_VARIATION:
-        case OPTIONS_VARIATION:
-        case DECOMMISSIONING:
-        case DEPOSIT_CONSENT:
-          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
-              "Project information",
-              "Environmental and decommissioning"
-          );
-          break;
-        case CAT_2_VARIATION:
-          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("Project information");
-          break;
-        case HUOO_VARIATION:
-          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("Project information"); // TODO PWA-66 fix restriction, HUOO shouldn't have this
-          break;
+      }catch (AssertionError e){
+        throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
 
     });

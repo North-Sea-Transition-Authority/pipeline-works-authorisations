@@ -48,11 +48,11 @@ public class PwaApplicationContextServiceTest {
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
 
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
+    detail.setStatus(PwaApplicationStatus.DRAFT);
 
     contextService = new PwaApplicationContextService(detailService, contactService);
 
     when(detailService.getTipDetail(1)).thenReturn(detail);
-    when(detailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(detail);
     when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
   }
@@ -87,7 +87,6 @@ public class PwaApplicationContextServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void getApplicationContext_statusCheck_invalid() {
-    when(detailService.getTipDetailWithStatus(1, PwaApplicationStatus.SUBMITTED)).thenThrow(PwaEntityNotFoundException.class);
     contextService.getApplicationContext(1, user, Set.of(), PwaApplicationStatus.SUBMITTED, Set.of());
   }
 
@@ -145,7 +144,8 @@ public class PwaApplicationContextServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void getApplicationContext_allChecks_statusInvalid() {
-    when(detailService.getTipDetailWithStatus(1, PwaApplicationStatus.SUBMITTED)).thenThrow(PwaEntityNotFoundException.class);
+    //TODO PWA-66
+   // when(detailService.getTipDetail(1)).thenThrow(PwaEntityNotFoundException.class);
     contextService.getApplicationContext(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.SUBMITTED, Set.of(PwaApplicationType.INITIAL));
   }
 
