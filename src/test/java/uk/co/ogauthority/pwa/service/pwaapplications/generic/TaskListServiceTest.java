@@ -104,6 +104,12 @@ public class TaskListServiceTest {
         case CAT_1_VARIATION:
         case OPTIONS_VARIATION:
         case DECOMMISSIONING:
+          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
+              "Project information",
+              "Environmental and decommissioning",
+              "Crossing agreements"
+          );
+          break;
         case DEPOSIT_CONSENT:
           assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
               "Project information",
@@ -111,7 +117,10 @@ public class TaskListServiceTest {
           );
           break;
         case CAT_2_VARIATION:
-          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("Project information");
+          assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
+              "Project information",
+              "Crossing agreements"
+          );
           break;
         case HUOO_VARIATION:
           assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("Project information"); // TODO PWA-66 fix restriction, HUOO shouldn't have this

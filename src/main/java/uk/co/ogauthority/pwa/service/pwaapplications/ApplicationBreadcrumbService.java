@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -24,6 +25,14 @@ public class ApplicationBreadcrumbService {
 
   public void fromWorkArea(ModelAndView modelAndView, String thisPage) {
     addAttrs(modelAndView, workArea(), thisPage);
+  }
+
+  public void fromCrossings(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), null, null)),
+        "Crossings");
+    addAttrs(modelAndView, map, thisPage);
   }
 
   public void fromTaskList(PwaApplication application, ModelAndView modelAndView, String thisPage) {
