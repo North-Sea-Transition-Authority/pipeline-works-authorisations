@@ -39,12 +39,17 @@ public class PadFastTrackServiceTest {
 
   private PadFastTrackService padFastTrackService;
   private PwaApplicationDetail pwaApplicationDetail;
+  private PadProjectInformation projectInformation;
 
   @Before
   public void setUp() {
     padFastTrackService = new PadFastTrackService(padFastTrackRepository, padProjectInformationService,
         padMedianLineAgreementService);
     pwaApplicationDetail = new PwaApplicationDetail();
+
+    projectInformation = new PadProjectInformation();
+    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
+        .thenReturn(projectInformation);
   }
 
   @Test
@@ -73,169 +78,86 @@ public class PadFastTrackServiceTest {
 
   @Test
   public void isFastTrackRequired_NoProposedStart() {
-    var projectInformation = new PadProjectInformation();
-
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
-
     var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
     assertThat(result).isFalse();
   }
 
   @Test
   public void isFastTrackRequired_BeforeMinPeriod_NoMedianLine() {
-    var projectInformation = new PadProjectInformation();
-
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
-
       var start = LocalDate.now().plus(type.getMinProcessingPeriod()).minusDays(1);
-      projectInformation.setProposedStartTimestamp(
-          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
-      );
-
-      var application = new PwaApplication();
-      application.setApplicationType(type);
-      pwaApplicationDetail.setPwaApplication(application);
-
-      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
-      assertThat(result).isTrue();
+      assertFastTrackRequired(type, start, true);
     });
   }
 
   @Test
   public void isFastTrackRequired_AtMinPeriod_NoMedianLine() {
-    var projectInformation = new PadProjectInformation();
-
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
-
       var start = LocalDate.now().plus(type.getMinProcessingPeriod());
-      projectInformation.setProposedStartTimestamp(
-          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
-      );
-
-      var application = new PwaApplication();
-      application.setApplicationType(type);
-      pwaApplicationDetail.setPwaApplication(application);
-
-      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
-      assertThat(result).isFalse();
+      assertFastTrackRequired(type, start, false);
     });
   }
 
   @Test
   public void isFastTrackRequired_PastMinPeriod_NoMedianLine() {
-    var projectInformation = new PadProjectInformation();
 
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
-
       var start = LocalDate.now().plus(type.getMinProcessingPeriod()).plusDays(1);
-      projectInformation.setProposedStartTimestamp(
-          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
-      );
-
-      var application = new PwaApplication();
-      application.setApplicationType(type);
-      pwaApplicationDetail.setPwaApplication(application);
-
-      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
-      assertThat(result).isFalse();
+      assertFastTrackRequired(type, start, false);
     });
   }
 
   @Test
   public void isFastTrackRequired_BeforeMaxPeriod_WithMedianLine() {
-    var projectInformation = new PadProjectInformation();
-
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
-
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
-
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).minusDays(1);
-      projectInformation.setProposedStartTimestamp(
-          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
-      );
-
-      var application = new PwaApplication();
-      application.setApplicationType(type);
-      pwaApplicationDetail.setPwaApplication(application);
-
-      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
-      assertThat(result).isTrue();
+      assertFastTrackRequired(type, start, true);
     });
   }
 
   @Test
   public void isFastTrackRequired_AtMaxPeriod_WithMedianLine() {
-    var projectInformation = new PadProjectInformation();
-
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
-
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
-
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod());
-      projectInformation.setProposedStartTimestamp(
-          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
-      );
-
-      var application = new PwaApplication();
-      application.setApplicationType(type);
-      pwaApplicationDetail.setPwaApplication(application);
-
-      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
-      assertThat(result).isFalse();
+      assertFastTrackRequired(type, start, false);
     });
   }
 
   @Test
   public void isFastTrackRequired_PastMaxPeriod_WithMedianLine() {
-    var projectInformation = new PadProjectInformation();
-
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
-
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
-
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).plusDays(1);
-      projectInformation.setProposedStartTimestamp(
-          Instant.ofEpochSecond(start.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
-      );
-
-      var application = new PwaApplication();
-      application.setApplicationType(type);
-      pwaApplicationDetail.setPwaApplication(application);
-
-      var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
-      assertThat(result).isFalse();
+      assertFastTrackRequired(type, start, false);
     });
+  }
+
+  private void assertFastTrackRequired(PwaApplicationType type, LocalDate startDate, Boolean expecting) {
+    projectInformation.setProposedStartTimestamp(
+        Instant.ofEpochSecond(startDate.atStartOfDay().toEpochSecond(ZoneOffset.UTC))
+    );
+
+    var application = new PwaApplication();
+    application.setApplicationType(type);
+    pwaApplicationDetail.setPwaApplication(application);
+
+    var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+    assertThat(result).isEqualTo(expecting);
   }
 
   @Test
   public void isFastTrackRequired_BeforeAndAfterMedianLine() {
-    var projectInformation = new PadProjectInformation();
-
-    when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail))
-        .thenReturn(projectInformation);
-
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
     when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
