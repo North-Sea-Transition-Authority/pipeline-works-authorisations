@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.validators;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
@@ -131,5 +132,26 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionYear(date.getYear());
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errors).doesNotContainKeys("latestCompletionDay", "latestCompletionMonth", "latestCompletionYear");
+  }
+
+  @Test
+  public void validate_EarliestAndLatestCompletionSwap() {
+    var date = LocalDate.now().plusDays(2);
+    var form = new ProjectInformationForm();
+
+    form.setEarliestCompletionDay(date.plusDays(2).getDayOfMonth());
+    form.setEarliestCompletionMonth(date.plusDays(2).getMonthValue());
+    form.setEarliestCompletionYear(date.plusDays(2).getYear());
+
+    form.setLatestCompletionDay(date.getDayOfMonth());
+    form.setLatestCompletionMonth(date.getMonthValue());
+    form.setLatestCompletionYear(date.getYear());
+
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errors).containsValues(
+        Set.of("latestCompletionDay.beforeStart"),
+        Set.of("latestCompletionMonth.beforeStart"),
+        Set.of("latestCompletionYear.beforeStart")
+    );
   }
 }

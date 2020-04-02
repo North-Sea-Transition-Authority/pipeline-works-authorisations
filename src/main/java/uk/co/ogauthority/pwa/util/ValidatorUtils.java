@@ -12,7 +12,7 @@ public class ValidatorUtils {
     throw new AssertionError();
   }
 
-  public static void validateDateIsPresentOrFuture(String fieldPrefix, String displayPrefix,
+  public static boolean validateDateIsPresentOrFuture(String fieldPrefix, String displayPrefix,
                                                    Integer day, Integer month, Integer year, Errors errors) {
     var dayValid = Range.between(1, 31).contains(day);
     var monthValid = Range.between(1, 12).contains(month);
@@ -25,19 +25,23 @@ public class ValidatorUtils {
               String.format("%s must not be in the past", StringUtils.capitalize(displayPrefix)));
           errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.beforeToday", fieldPrefix), "");
           errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.beforeToday", fieldPrefix), "");
+          return false;
         }
       } catch (DateTimeException dte) {
         errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.invalid", fieldPrefix),
             String.format("Enter a valid %s day", displayPrefix));
         errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.invalid", fieldPrefix), "");
         errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.invalid", fieldPrefix), "");
+        return false;
       }
     } else {
       errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.invalid", fieldPrefix),
           String.format("Enter a valid %s date", displayPrefix));
       errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.invalid", fieldPrefix), "");
       errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.invalid", fieldPrefix), "");
+      return false;
     }
+    return true;
   }
 
 }

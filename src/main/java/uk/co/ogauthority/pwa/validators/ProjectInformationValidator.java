@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.validators;
 
+import java.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -24,11 +25,24 @@ public class ProjectInformationValidator implements Validator {
     ValidatorUtils.validateDateIsPresentOrFuture(
         "mobilisation", "mobilisation",
         form.getMobilisationDay(), form.getMobilisationMonth(), form.getMobilisationYear(), errors);
-    ValidatorUtils.validateDateIsPresentOrFuture(
+    var earliestCompletionDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
         "earliestCompletion", "earliest completion",
         form.getEarliestCompletionDay(), form.getEarliestCompletionMonth(), form.getEarliestCompletionYear(), errors);
-    ValidatorUtils.validateDateIsPresentOrFuture(
+    var latestCompletionDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
         "latestCompletion", "latest completion",
         form.getLatestCompletionDay(), form.getLatestCompletionMonth(), form.getLatestCompletionYear(), errors);
+
+    if (earliestCompletionDateValid && latestCompletionDateValid) {
+      var earliestCompletion = LocalDate.of(form.getEarliestCompletionYear(), form.getEarliestCompletionMonth(),
+          form.getEarliestCompletionDay());
+      var latestCompletion = LocalDate.of(form.getLatestCompletionYear(), form.getLatestCompletionMonth(),
+          form.getLatestCompletionDay());
+      if (latestCompletion.isBefore(earliestCompletion)) {
+        errors.rejectValue("latestCompletionDay", "latestCompletionDay.beforeStart",
+            "Latest completion must not be before earliest completion");
+        errors.rejectValue("latestCompletionMonth", "latestCompletionMonth.beforeStart", "");
+        errors.rejectValue("latestCompletionYear", "latestCompletionYear.beforeStart", "");
+      }
+    }
   }
 }
