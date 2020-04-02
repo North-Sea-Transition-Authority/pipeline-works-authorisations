@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
-@Import(AbstractControllerTest.AbstractControllerTestConfiguration.class)
-public abstract class AbstractControllerTest {
+@Import(PwaApplicationContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
+public abstract class PwaApplicationContextAbstractControllerTest {
 
   protected MockMvc mockMvc;
 
@@ -57,7 +57,7 @@ public abstract class AbstractControllerTest {
   @MockBean
   private TopMenuService topMenuService;
 
-  @MockBean
+  @Autowired
   protected PwaApplicationContextService pwaApplicationContextService;
 
   @Before

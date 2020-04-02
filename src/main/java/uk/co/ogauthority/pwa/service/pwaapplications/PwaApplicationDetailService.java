@@ -23,9 +23,10 @@ public class PwaApplicationDetailService {
 
   /**
    * Execute a caller-defined function if the tip detail for a specific PWA application is in Draft status and accessible to the user.
+   *
    * @param pwaApplicationId for application being queried
-   * @param user attempting to access the application
-   * @param function to execute if application is in the right state and user has access to it
+   * @param user             attempting to access the application
+   * @param function         to execute if application is in the right state and user has access to it
    * @return result of function
    */
   public ModelAndView withDraftTipDetail(Integer pwaApplicationId,
@@ -33,6 +34,15 @@ public class PwaApplicationDetailService {
                                          Function<PwaApplicationDetail, ModelAndView> function) {
     PwaApplicationDetail detail = getTipDetailWithStatus(pwaApplicationId, PwaApplicationStatus.DRAFT);
     return function.apply(detail);
+  }
+
+  public PwaApplicationDetail getTipDetail(Integer pwaApplicationId) {
+    return pwaApplicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(pwaApplicationId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find tip PwaApplicationDetail for PwaApplication ID: %s",
+                pwaApplicationId
+            ))
+        );
   }
 
   /**
@@ -48,8 +58,9 @@ public class PwaApplicationDetailService {
 
   /**
    * Update the status of the application being linked to fields.
+   *
    * @param pwaApplicationDetail The current application detail.
-   * @param linked True/False. If linked, requires fields to be added.
+   * @param linked               True/False. If linked, requires fields to be added.
    * @return Saved app detail.
    */
   @Transactional
@@ -58,11 +69,4 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
-  public PwaApplicationDetail getTipDetail(int applicationId) {
-    return pwaApplicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(applicationId)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("Couldn't find tip PwaApplicationDetail for PwaApplication ID: %s",
-            applicationId))
-        );
-  }
 }

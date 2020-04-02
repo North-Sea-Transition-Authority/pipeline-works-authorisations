@@ -1,6 +1,6 @@
 <#include 'layout.ftl'>
 
-<#macro fileUpload id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[]>
+<#macro dummyFileUpload id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[]>
 
   <div id="${id}-dropzone" class="fileupload-dropzone">
     <div class="fileupload-dropzone__text">
@@ -25,7 +25,7 @@
 
   <div class="fileupload">
       <#list existingFiles as file>
-          <@uploadedFile
+          <@dummyUploadedFile
           index=file?index
           htmlId=file.getFileId()
           fileName=file.getFileName()
@@ -49,7 +49,7 @@
   fileDescription is an optional parameter to avoid a freemarker null or missing value crash if the user removes the file
   description from an existing file and then attempts to save the page.
  -->
-<#macro uploadedFile index htmlId fileName fileSize fileId fileUploadedInstant url deleteUrl sourceUploadId fileDescription="">
+<#macro dummyUploadedFile index htmlId fileName fileSize fileId fileUploadedInstant url deleteUrl sourceUploadId fileDescription="">
   <div id="${htmlId}-uploaded-file" data-fileId="${fileId}" data-fileName="${fileName}" data-deleteUrl="<@spring.url deleteUrl/>" class="uploaded-file" data-source-upload-id="${sourceUploadId}">
     <div class="uploaded-file__info">
       <div class="uploaded-file__file-info-wrapper uploaded-file__file-info-wrapper--saved">

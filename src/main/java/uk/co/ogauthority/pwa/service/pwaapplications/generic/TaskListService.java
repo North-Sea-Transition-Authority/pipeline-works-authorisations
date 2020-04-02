@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -119,6 +120,8 @@ public class TaskListService {
 
   @VisibleForTesting
   public String getRouteForTask(ApplicationTask task, PwaApplicationType applicationType, int applicationId) {
+    Map<String, Object> uriVariables = new HashMap<>();
+    uriVariables.put("applicationId", applicationId);
     switch (task) {
       case PROJECT_INFORMATION:
         return ReverseRouter.route(on(ProjectInformationController.class)
@@ -128,7 +131,7 @@ public class TaskListService {
             .renderFastTrack(applicationType, applicationId, null, null));
       case ENVIRONMENTAL_DECOMMISSIONING:
         return ReverseRouter.route(on(EnvironmentalDecomController.class)
-            .renderEnvDecom(applicationType, null, null, null), Map.of("applicationId", applicationId));
+            .renderEnvDecom(applicationType, null, null, null), uriVariables);
       case CROSSING_AGREEMENTS:
         return ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(applicationType, null, null), Map.of("applicationId", applicationId));

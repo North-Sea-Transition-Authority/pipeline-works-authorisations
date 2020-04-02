@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.files;
 
 import java.time.Instant;
 import java.util.Objects;
+import uk.co.ogauthority.pwa.service.util.FileDownloadUtils;
 
 /**
  * Simple class to represent an UploadedFile Entity.
@@ -15,20 +16,16 @@ public class UploadedFileView {
   private Instant fileUploadedTime;
   private String fileUrl;
 
-  public UploadedFileView(String fileId, String fileName, String fileSize, String fileDescription,
+  public UploadedFileView(String fileId, String fileName, Long fileSize, String fileDescription,
                           Instant fileUploadedTime, String fileUrl) {
     this.fileId = fileId;
     this.fileName = fileName;
-    this.fileSize = fileSize;
+    this.fileSize = FileDownloadUtils.fileSizeFormatter(fileSize);
     this.fileDescription = fileDescription;
     this.fileUploadedTime = fileUploadedTime;
     this.fileUrl = fileUrl;
   }
 
-  public UploadedFileView(String fileId, String fileName, String fileSize, String fileDescription,
-                          Instant fileUploadedTime) {
-    this(fileId, fileName, fileSize, fileDescription, fileUploadedTime, null);
-  }
 
   public String getFileId() {
     return fileId;

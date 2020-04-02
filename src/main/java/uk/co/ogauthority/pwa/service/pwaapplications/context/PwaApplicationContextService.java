@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -41,9 +43,8 @@ public class PwaApplicationContextService {
                                                      PwaApplicationStatus appStatus,
                                                      Set<PwaApplicationType> applicationTypes) {
 
-    var detail = appStatus != null
-        ? detailService.getTipDetailWithStatus(applicationId, appStatus)
-        : detailService.getTipDetail(applicationId);
+    var detail = detailService.getTipDetail(applicationId);
+    performAppStatusCheck(appStatus, detail);
 
     var application = detail.getPwaApplication();
 
@@ -54,6 +55,21 @@ public class PwaApplicationContextService {
     performPrivilegeCheck(requiredPermissions, roles, authenticatedUser, applicationId);
 
     return new PwaApplicationContext(detail, authenticatedUser, roles);
+
+  }
+
+
+  private void performAppStatusCheck(PwaApplicationStatus expectedStatus,
+                                     PwaApplicationDetail pwaApplicationDetail) {
+    if (expectedStatus != null && !expectedStatus.equals(pwaApplicationDetail.getStatus())) {
+      throw new PwaEntityNotFoundException(
+          String.format("PwaApplicationDetailId:%s Did not have expected status:%s. Actual status:%s",
+              pwaApplicationDetail.getId(),
+              expectedStatus,
+              pwaApplicationDetail.getStatus()
+          )
+      );
+    }
 
   }
 
@@ -92,7 +108,8 @@ public class PwaApplicationContextService {
 
   }
 
-  private void throwPermissionException(int wuaId, int applicationId, Set<PwaApplicationPermission> requiredPermissions) {
+  private void throwPermissionException(int wuaId, int applicationId,
+                                        Set<PwaApplicationPermission> requiredPermissions) {
     throw new AccessDeniedException(
         String.format(
             "User with wua ID: %s cannot access PWA application with ID: %s as they do not have the required permissions: %s",
