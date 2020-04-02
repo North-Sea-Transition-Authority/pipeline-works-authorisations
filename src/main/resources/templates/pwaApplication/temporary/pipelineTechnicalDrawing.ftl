@@ -3,7 +3,7 @@
 
 <@defaultPage htmlTitle="Upload a technical drawing" pageHeading="Upload a technical drawing for ${pipelineNumber}" breadcrumbs=true>
 
-    <@dummyFileUpload.fileUpload id="technicalDrawing" uploadUrl="/" deleteUrl="/" downloadUrl="/" maxAllowedSize="500" allowedExtensions="png|jpg"/>
+    <@dummyFileUpload.dummyFileUpload id="technicalDrawing" uploadUrl="/" deleteUrl="/" downloadUrl="/" maxAllowedSize="500" allowedExtensions="png|jpg"/>
 
     <@fdsForm.htmlForm>
       <@fdsAction.button buttonText="Continue"/>

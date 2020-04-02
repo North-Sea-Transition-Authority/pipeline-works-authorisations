@@ -1,38 +1,40 @@
 package uk.co.ogauthority.pwa.model.entity.licence;
 
 import com.google.common.annotations.VisibleForTesting;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import org.hibernate.annotations.Immutable;
 
 @Immutable
 @Entity(name = "ped_licences")
-public class PedLicence {
+public class PearsLicence {
 
   @Id
-  private int id;
+  @Column(name = "plm_id", insertable = false, updatable = false)
+  private Integer masterId;
 
   private String licenceType;
-  private int licenceNumber;
+  private Integer licenceNumber;
   private String licenceName;
 
-  public PedLicence() {
+  public PearsLicence() {
   }
 
   @VisibleForTesting
-  public PedLicence(int id, String licenceType, int licenceNumber, String licenceName) {
-    this.id = id;
+  public PearsLicence(int masterId, String licenceType, int licenceNumber, String licenceName) {
+    this.masterId = masterId;
     this.licenceType = licenceType;
     this.licenceNumber = licenceNumber;
     this.licenceName = licenceName;
   }
 
-  public int getId() {
-    return id;
+  public int getMasterId() {
+    return masterId;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public void setMasterId(int id) {
+    this.masterId = id;
   }
 
   public String getLicenceType() {
