@@ -12,7 +12,6 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 
 public class ControllerTestUtils {
 
@@ -49,7 +48,7 @@ public class ControllerTestUtils {
    * Return a clean binding result when the passed-in validation type is used.
    */
   public static void passValidationWhenPost(ApplicationFormSectionService service, Object form, ValidationType validationType) {
-    when(service.validate(any(), any(), eq(validationType))).thenReturn(new BeanPropertyBindingResult(new ProjectInformationForm(), "form"));
+    when(service.validate(any(), any(), eq(validationType))).thenReturn(new BeanPropertyBindingResult(form, "form"));
   }
 
 }

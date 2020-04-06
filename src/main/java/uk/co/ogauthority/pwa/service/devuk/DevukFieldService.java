@@ -1,12 +1,12 @@
-package uk.co.ogauthority.pwa.service.fields;
+package uk.co.ogauthority.pwa.service.devuk;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.fields.DevukField;
-import uk.co.ogauthority.pwa.repository.fields.DevukFieldRepository;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.repository.devuk.DevukFieldRepository;
 
 @Service
 public class DevukFieldService {

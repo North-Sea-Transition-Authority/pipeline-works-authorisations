@@ -92,7 +92,8 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     var holderOrg = new PortalOrganisationUnit(1, "HOLDER");
     holderOrganisation = new ApplicationHolderOrganisation(appDetail, holderOrg);
 
-    when(pwaApplicationContextService.getApplicationContext(any(), any(), any(), any(), any())).thenReturn(new PwaApplicationContext(appDetail, user, Set.of(PwaContactRole.PREPARER)));
+    when(pwaApplicationContextService.getApplicationContext(any(), any(), any(), any(), any()))
+        .thenReturn(new PwaApplicationContext(appDetail, user, Set.of(PwaContactRole.PREPARER)));
 
   }
 
@@ -160,7 +161,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
             .params(completeParams))
         .andExpect(status().isForbidden());
 
@@ -170,7 +171,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
             .params(continueParams))
         .andExpect(status().isForbidden());
   }
@@ -198,7 +199,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
-            .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
+            .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeLaterParams))
@@ -221,7 +222,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
-            .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
+            .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))
@@ -258,7 +259,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     when(padEnvironmentalDecommissioningService.validate(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
+        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))

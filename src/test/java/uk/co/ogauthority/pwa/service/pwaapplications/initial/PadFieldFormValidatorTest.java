@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationDetailFieldFormValidatorTest<T> {
+public class PadFieldFormValidatorTest {
 
   private PwaFieldFormValidator validator;
   private PwaFieldForm pwaFieldForm;

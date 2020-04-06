@@ -1,31 +1,31 @@
-package uk.co.ogauthority.pwa.service.fields;
+package uk.co.ogauthority.pwa.service.devuk;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.fields.DevukField;
-import uk.co.ogauthority.pwa.model.entity.fields.PwaApplicationDetailField;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.fields.PwaFieldRepository;
+import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @Service
-public class PwaApplicationFieldService {
+public class PadFieldService {
 
-  private final PwaFieldRepository pwaFieldRepository;
+  private final PadFieldRepository padFieldRepository;
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
   @Autowired
-  public PwaApplicationFieldService(PwaFieldRepository pwaFieldRepository,
-                                    PwaApplicationDetailService pwaApplicationDetailService) {
-    this.pwaFieldRepository = pwaFieldRepository;
+  public PadFieldService(PadFieldRepository padFieldRepository,
+                         PwaApplicationDetailService pwaApplicationDetailService) {
+    this.padFieldRepository = padFieldRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
   }
 
-  public List<PwaApplicationDetailField> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+  public List<PadField> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
   /**
@@ -36,11 +36,11 @@ public class PwaApplicationFieldService {
    * @return The new PwaField.
    */
   @Transactional
-  public PwaApplicationDetailField addField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField) {
-    var newField = new PwaApplicationDetailField();
+  public PadField addField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField) {
+    var newField = new PadField();
     newField.setDevukField(devukField);
     newField.setPwaApplicationDetail(pwaApplicationDetail);
-    pwaFieldRepository.save(newField);
+    padFieldRepository.save(newField);
     return newField;
   }
 
@@ -52,9 +52,9 @@ public class PwaApplicationFieldService {
    * @return The removed field.
    */
   @Transactional
-  public PwaApplicationDetailField removeField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField) {
-    var oldField = pwaFieldRepository.findByPwaApplicationDetailAndDevukField(pwaApplicationDetail, devukField);
-    pwaFieldRepository.delete(oldField);
+  public PadField removeField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField) {
+    var oldField = padFieldRepository.findByPwaApplicationDetailAndDevukField(pwaApplicationDetail, devukField);
+    padFieldRepository.delete(oldField);
     return oldField;
   }
 
@@ -67,12 +67,12 @@ public class PwaApplicationFieldService {
    * @return List of added PwaApplicationDetailFields.
    */
   @Transactional
-  public List<PwaApplicationDetailField> setFields(PwaApplicationDetail pwaApplicationDetail, List<DevukField> fields) {
+  public List<PadField> setFields(PwaApplicationDetail pwaApplicationDetail, List<DevukField> fields) {
 
     removeAllFields(pwaApplicationDetail);
 
     pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, fields.size() != 0);
-    var addedFields = new ArrayList<PwaApplicationDetailField>();
+    var addedFields = new ArrayList<PadField>();
     fields.forEach(devukField -> {
       var addedField = addField(pwaApplicationDetail, devukField);
       addedFields.add(addedField);
@@ -87,11 +87,11 @@ public class PwaApplicationFieldService {
    * @return Returns a list of the ended fields.
    */
   @Transactional
-  public List<PwaApplicationDetailField> removeAllFields(PwaApplicationDetail pwaApplicationDetail) {
-    var endedFields = new ArrayList<PwaApplicationDetailField>();
+  public List<PadField> removeAllFields(PwaApplicationDetail pwaApplicationDetail) {
+    var endedFields = new ArrayList<PadField>();
     getActiveFieldsForApplicationDetail(pwaApplicationDetail).forEach(
-        pwaApplicationDetailField -> {
-          var removedField = removeField(pwaApplicationDetail, pwaApplicationDetailField.getDevukField());
+        padField -> {
+          var removedField = removeField(pwaApplicationDetail, padField.getDevukField());
           endedFields.add(removedField);
         }
     );

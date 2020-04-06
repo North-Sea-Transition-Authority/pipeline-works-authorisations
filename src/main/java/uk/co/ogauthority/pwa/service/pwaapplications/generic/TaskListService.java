@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFi
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -146,6 +147,9 @@ public class TaskListService {
       case CROSSING_AGREEMENTS:
         return ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(applicationType, null, null), Map.of("applicationId", applicationId));
+      case LOCATION_DETAILS:
+        return ReverseRouter.route(on(LocationDetailsController.class)
+            .renderLocationDetails(applicationType, null, null, null), Map.of("applicationId", applicationId));
       default:
         return "";
     }

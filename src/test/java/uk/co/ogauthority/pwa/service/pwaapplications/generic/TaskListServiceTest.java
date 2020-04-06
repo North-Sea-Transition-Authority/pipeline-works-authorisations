@@ -114,19 +114,22 @@ public class TaskListServiceTest {
             assertThat(taskNamesList).containsOnly(
                 "Project information",
                 "Environmental and decommissioning",
-                "Crossing agreements"
-            );
-            break;
-          case DEPOSIT_CONSENT:
-            assertThat(taskNamesList).containsOnly(
-                "Project information",
-                "Environmental and decommissioning"
-            );
-            break;
-          case CAT_2_VARIATION:
-            assertThat(taskNamesList).containsOnly(
-                "Project information",
-                "Crossing agreements"
+                "Crossing agreements",
+              "Location details"
+          );
+          break;
+        case DEPOSIT_CONSENT:
+          assertThat(taskNamesList).containsOnly(
+              "Project information",
+              "Environmental and decommissioning",
+              "Location details"
+          );
+          break;
+        case CAT_2_VARIATION:
+          assertThat(taskNamesList).containsOnly(
+              "Project information",
+              "Crossing agreements",
+              "Location details"
             );
             break;
           case HUOO_VARIATION:

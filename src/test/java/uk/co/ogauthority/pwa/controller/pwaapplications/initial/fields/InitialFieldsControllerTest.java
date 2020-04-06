@@ -30,15 +30,15 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.model.entity.fields.DevukField;
-import uk.co.ogauthority.pwa.model.entity.fields.PwaApplicationDetailField;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
+import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.fields.DevukFieldService;
-import uk.co.ogauthority.pwa.service.fields.PwaApplicationFieldService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
@@ -61,14 +61,14 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   private ApplicationHolderService applicationHolderService;
 
   @MockBean
-  private PwaApplicationFieldService pwaApplicationFieldService;
+  private PadFieldService padFieldService;
 
   @SpyBean
   private PwaFieldFormValidator pwaFieldFormValidator;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-  private PwaApplicationDetailField pwaApplicationDetailField;
+  private PadField padField;
   private DevukField devukField;
   private ApplicationHolderOrganisation applicationHolderOrganisation;
   private PortalOrganisationUnit portalOrganisationUnit;
@@ -82,9 +82,9 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
     pwaApplicationDetail.setPwaApplication(pwaApplication);
 
     devukField = new DevukField(1, "abc", 500);
-    pwaApplicationDetailField = new PwaApplicationDetailField();
-    pwaApplicationDetailField.setId(1);
-    pwaApplicationDetailField.setDevukField(devukField);
+    padField = new PadField();
+    padField.setId(1);
+    padField.setDevukField(devukField);
     portalOrganisationUnit = new PortalOrganisationUnit();
     applicationHolderOrganisation = new ApplicationHolderOrganisation();
     applicationHolderOrganisation.setOrganisationUnit(portalOrganisationUnit);
@@ -92,8 +92,8 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
     when(pwaApplicationDetailService.withDraftTipDetail(any(), any(), any())).thenCallRealMethod();
     when(pwaApplicationDetailService.getTipDetailWithStatus(any(), any())).thenReturn(pwaApplicationDetail);
 
-    when(pwaApplicationFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(
-        pwaApplicationDetailField));
+    when(padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(
+        padField));
 
     when(applicationHolderService.getHoldersFromApplicationDetail(pwaApplicationDetail)).thenReturn(
         List.of(applicationHolderOrganisation));
@@ -138,10 +138,10 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
         .andExpect(view().name("pwaApplication/initial/fieldInformation"))
         .andReturn()
         .getModelAndView();
-    var fields = (List<PwaApplicationDetailField>) modelAndView.getModel().get("fields");
+    var fields = (List<PadField>) modelAndView.getModel().get("fields");
     var fieldMap = (Map<String, String>) modelAndView.getModel().get("fieldMap");
-    assertThat(fields).containsExactly(pwaApplicationDetailField);
-    assertThat(fieldMap).containsExactly(new DataUtils.MapEntry<>(pwaApplicationDetailField.getDevukField().getFieldId().toString(), pwaApplicationDetailField.getDevukField().getFieldName()));
+    assertThat(fields).containsExactly(padField);
+    assertThat(fieldMap).containsExactly(new DataUtils.MapEntry<>(padField.getDevukField().getFieldId().toString(), padField.getDevukField().getFieldName()));
   }
 
   @Test
@@ -180,7 +180,7 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection());
 
     var argumentCaptor = ArgumentCaptor.forClass(List.of(new DevukField()).getClass());
-    verify(pwaApplicationFieldService, times(1)).setFields(eq(pwaApplicationDetail), argumentCaptor.capture());
+    verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), argumentCaptor.capture());
 
     assertThat((List<DevukField>) argumentCaptor.getValue()).containsExactly(devukField);
   }
@@ -196,6 +196,6 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
         .param("linkedToField", "false"))
         .andExpect(status().is3xxRedirection());
 
-    verify(pwaApplicationFieldService, times(1)).setFields(eq(pwaApplicationDetail), any());
+    verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), any());
   }
 }

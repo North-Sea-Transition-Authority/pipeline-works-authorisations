@@ -139,7 +139,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
-                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null, null)))
+                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
                 .params(completeParams));
@@ -170,7 +170,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
-                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null, null)))
+                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
                 .params(continueParams));
@@ -202,7 +202,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
-                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null, null)))
+                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null)))
             .params(completeParams))
         .andExpect(status().isForbidden());
   }
@@ -215,7 +215,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
-                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null, null)))
+                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null)))
             .params(continueParams))
         .andExpect(status().isForbidden());
   }
@@ -243,7 +243,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
@@ -264,7 +264,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
@@ -284,7 +284,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
@@ -322,7 +322,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))

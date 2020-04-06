@@ -1,0 +1,32 @@
+package uk.co.ogauthority.pwa.model.entity.devuk;
+
+import com.google.common.annotations.VisibleForTesting;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import org.hibernate.annotations.Immutable;
+
+@Entity(name = "devuk_facilities")
+@Immutable
+public class DevukFacility {
+
+  @Id
+  private Integer id;
+
+  private String facilityName;
+
+  public DevukFacility() {}
+
+  @VisibleForTesting
+  public DevukFacility(Integer id, String facilityName) {
+    this.id = id;
+    this.facilityName = facilityName;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public String getFacilityName() {
+    return facilityName;
+  }
+}

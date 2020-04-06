@@ -26,7 +26,7 @@ public class TaskCompletionService {
           applicationTask.name()));
     }
 
-    var service = (ApplicationFormSectionService) context.getBean(applicationTask.getServiceClass());
+    var service = context.getBean(applicationTask.getServiceClass());
     return service.isComplete(detail);
 
   }

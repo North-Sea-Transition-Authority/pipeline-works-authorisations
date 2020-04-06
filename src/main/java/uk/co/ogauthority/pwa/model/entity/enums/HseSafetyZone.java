@@ -5,14 +5,14 @@ import java.util.stream.Stream;
 
 public enum HseSafetyZone {
 
-  YES("Yes", 10),
-  PARTIALLY("Partially", 20),
-  NO("No", 30);
+  YES(10, "Yes"),
+  PARTIALLY(20, "Partially"),
+  NO(30, "No");
 
-  private String displayText;
   private int displayOrder;
+  private String displayText;
 
-  HseSafetyZone(String displayText, int displayOrder) {
+  HseSafetyZone(int displayOrder, String displayText) {
     this.displayText = displayText;
     this.displayOrder = displayOrder;
   }

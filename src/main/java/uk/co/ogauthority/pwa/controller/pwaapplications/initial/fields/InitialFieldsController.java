@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
-import uk.co.ogauthority.pwa.model.entity.fields.DevukField;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
+import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.fields.DevukFieldService;
-import uk.co.ogauthority.pwa.service.fields.PwaApplicationFieldService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
@@ -42,7 +42,7 @@ public class InitialFieldsController {
   private final DevukFieldService devukFieldService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ApplicationHolderService applicationHolderService;
-  private final PwaApplicationFieldService pwaApplicationFieldService;
+  private final PadFieldService padFieldService;
   private final PwaFieldFormValidator pwaFieldFormValidator;
 
   @Autowired
@@ -50,13 +50,13 @@ public class InitialFieldsController {
                                  DevukFieldService devukFieldService,
                                  PwaApplicationDetailService pwaApplicationDetailService,
                                  ApplicationHolderService applicationHolderService,
-                                 PwaApplicationFieldService pwaApplicationFieldService,
+                                 PadFieldService padFieldService,
                                  PwaFieldFormValidator pwaFieldFormValidator) {
     this.breadcrumbService = breadcrumbService;
     this.devukFieldService = devukFieldService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.applicationHolderService = applicationHolderService;
-    this.pwaApplicationFieldService = pwaApplicationFieldService;
+    this.padFieldService = padFieldService;
     this.pwaFieldFormValidator = pwaFieldFormValidator;
   }
 
@@ -70,7 +70,7 @@ public class InitialFieldsController {
     var holders = applicationHolderService.getHoldersFromApplicationDetail(pwaApplicationDetail);
 
     modelAndView.addObject("fields",
-        pwaApplicationFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
+        padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
     modelAndView.addObject("fieldMap", getDevukFieldMap(holders));
 
     breadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Field information");
@@ -86,7 +86,7 @@ public class InitialFieldsController {
 
       var modelAndView = getFieldsModelAndView(detail, form, user);
 
-      var fields = pwaApplicationFieldService.getActiveFieldsForApplicationDetail(detail);
+      var fields = padFieldService.getActiveFieldsForApplicationDetail(detail);
       form.setLinkedToField(detail.getLinkedToField());
       if (fields.size() == 1) {
         if (fields.get(0).isLinkedToDevuk()) {
@@ -113,7 +113,7 @@ public class InitialFieldsController {
           if (isLinkedtoField) {
             fieldList.add(devukFieldService.findById(form.getFieldId()));
           }
-          pwaApplicationFieldService.setFields(detail, fieldList);
+          padFieldService.setFields(detail, fieldList);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
         })
     );

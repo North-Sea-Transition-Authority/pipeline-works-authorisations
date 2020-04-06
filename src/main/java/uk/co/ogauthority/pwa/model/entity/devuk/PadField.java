@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.fields;
+package uk.co.ogauthority.pwa.model.entity.devuk;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Entity(name = "pad_fields")
-public class PwaApplicationDetailField {
+public class PadField {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class PwaApplicationDetailField {
   @JoinColumn(name = "application_detail_id")
   private PwaApplicationDetail pwaApplicationDetail;
 
-  public PwaApplicationDetailField() {}
+  public PadField() {}
 
   public Integer getId() {
     return id;

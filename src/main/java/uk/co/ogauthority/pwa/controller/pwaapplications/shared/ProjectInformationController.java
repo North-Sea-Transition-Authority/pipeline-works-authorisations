@@ -135,12 +135,9 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
                                              PwaApplicationContext applicationContext,
                                              @ModelAttribute("form") ProjectInformationForm form,
                                              BindingResult bindingResult,
-                                             @RequestParam(value = "Save and complete later", required = false)
-                                             String saveAndCompleteLater,
-                                             @RequestParam(value = "Complete", required = false) String complete) {
+                                             ValidationType validationType) {
 
-    bindingResult = padProjectInformationService
-        .validate(form, bindingResult, ValidationType.getFromRequestParams(saveAndCompleteLater, complete));
+    bindingResult = padProjectInformationService.validate(form, bindingResult, validationType);
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         // if invalid form, get all files, including not yet saved ones as they may have errored.

@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 @RunWith(SpringRunner.class)
@@ -48,6 +49,9 @@ public class TaskCompletionServiceTest {
   @MockBean
   private CrossingAgreementsService crossingAgreementsService;
 
+  @MockBean
+  private PadLocationDetailsService padLocationDetailsService;
+
   @Test
   public void isTaskComplete() {
 
@@ -70,6 +74,9 @@ public class TaskCompletionServiceTest {
           break;
         case CROSSING_AGREEMENTS:
           service = crossingAgreementsService;
+          break;
+        case LOCATION_DETAILS:
+          service = padLocationDetailsService;
           break;
         default:
           throw new AssertionError();

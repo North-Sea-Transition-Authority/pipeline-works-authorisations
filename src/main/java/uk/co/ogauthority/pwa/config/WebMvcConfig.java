@@ -16,6 +16,7 @@ import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.ogauthority.pwa.mvc.AuthenticatedUserAccountArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.PwaApplicationContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.ResponseBufferSizeHandlerInterceptor;
+import uk.co.ogauthority.pwa.mvc.ValidationTypeArgumentResolver;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
 
@@ -33,6 +34,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(pwaApplicationContextArgumentResolver);
     resolvers.add(new AuthenticatedUserAccountArgumentResolver());
+    resolvers.add(new ValidationTypeArgumentResolver());
   }
 
   @Override

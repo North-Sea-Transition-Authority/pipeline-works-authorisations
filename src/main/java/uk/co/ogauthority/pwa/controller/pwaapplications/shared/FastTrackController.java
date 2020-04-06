@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -98,16 +97,13 @@ public class FastTrackController {
                                     @ModelAttribute("form") FastTrackForm form,
                                     BindingResult bindingResult,
                                     AuthenticatedUserAccount user,
-                                    @RequestParam(value = "Save and complete later", required = false)
-                                    String saveAndCompleteLater,
-                                    @RequestParam(value = "Complete", required = false) String complete) {
+                                    ValidationType validationType) {
 
     var detail = applicationContext.getApplicationDetail();
 
     assertFastTrackAllowed(detail);
 
-    bindingResult = padFastTrackService
-        .validate(form, bindingResult, ValidationType.getFromRequestParams(saveAndCompleteLater, complete));
+    bindingResult = padFastTrackService.validate(form, bindingResult, validationType);
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, getFastTrackModelAndView(detail), () -> {
       var entity = padFastTrackService.getFastTrackForDraft(detail);

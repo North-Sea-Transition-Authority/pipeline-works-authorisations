@@ -4,10 +4,13 @@ import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 /**
@@ -27,26 +30,34 @@ public enum ApplicationTask {
       PadFastTrackService.class,
       20),
 
+  LOCATION_DETAILS(
+      "Location details",
+      LocationDetailsController.class,
+      PadLocationDetailsService.class,
+      30),
+
   ENVIRONMENTAL_DECOMMISSIONING(
       "Environmental and decommissioning",
       EnvironmentalDecomController.class,
       PadEnvironmentalDecommissioningService.class,
-      30),
+      40),
 
   CROSSING_AGREEMENTS(
       "Crossing agreements",
       CrossingAgreementsController.class,
       CrossingAgreementsService.class,
-      40);
+      50);
 
 
 
   private String displayName;
   private Class<?> controllerClass;
-  private Class<?> serviceClass;
+  private Class<? extends ApplicationFormSectionService> serviceClass;
   private int displayOrder;
 
-  ApplicationTask(String displayName, Class<?> controllerClass, Class<?> serviceClass, int displayOrder) {
+  ApplicationTask(String displayName, Class<?> controllerClass,
+                  Class<? extends ApplicationFormSectionService> serviceClass,
+                  int displayOrder) {
     this.displayName = displayName;
     this.controllerClass = controllerClass;
     this.serviceClass = serviceClass;
@@ -61,7 +72,7 @@ public enum ApplicationTask {
     return controllerClass;
   }
 
-  public Class<?> getServiceClass() {
+  public Class<? extends ApplicationFormSectionService> getServiceClass() {
     return serviceClass;
   }
 

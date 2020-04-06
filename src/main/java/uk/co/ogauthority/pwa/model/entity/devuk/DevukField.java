@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.fields;
+package uk.co.ogauthority.pwa.model.entity.devuk;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Entity;
