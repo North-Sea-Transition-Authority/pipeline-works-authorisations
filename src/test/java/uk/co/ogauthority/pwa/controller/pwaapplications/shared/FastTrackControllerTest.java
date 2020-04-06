@@ -16,6 +16,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.time.Instant;
 import java.time.Period;
+import java.util.EnumSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,26 +24,32 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.validators.FastTrackValidator;
+import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = FastTrackController.class)
-public class FastTrackControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = FastTrackController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class FastTrackControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -52,9 +59,6 @@ public class FastTrackControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PadProjectInformationService padProjectInformationService;
-
-  @SpyBean
-  private FastTrackValidator fastTrackValidator;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -68,6 +72,7 @@ public class FastTrackControllerTest extends AbstractControllerTest {
     pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setId(1);
     pwaApplicationDetail.setPwaApplication(pwaApplication);
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
     var wua = new WebUserAccount(1);
     user = new AuthenticatedUserAccount(wua, Set.of());
     padProjectInformation = new PadProjectInformation();
@@ -77,13 +82,18 @@ public class FastTrackControllerTest extends AbstractControllerTest {
     when(pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT)).thenReturn(pwaApplicationDetail);
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail)).thenReturn(padProjectInformation);
     when(padFastTrackService.isFastTrackRequired(pwaApplicationDetail)).thenReturn(true);
+
+    //support app context code
+    when(pwaApplicationDetailService.getTipDetail(1)).thenReturn(pwaApplicationDetail);
+    // by default has all roles
+    when(pwaContactService.getContactRoles(eq(pwaApplication), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
   }
 
   @Test
   public void authenticated_renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
-            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null)))
+            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
     ).andExpect(status().isOk());
   }
@@ -91,11 +101,14 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   @Test
   public void authenticated_postComplete() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
+      add("Complete", "Complete");
     }};
+
+    ControllerTestUtils.failValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.FULL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postCompleteFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams)
@@ -104,12 +117,16 @@ public class FastTrackControllerTest extends AbstractControllerTest {
 
   @Test
   public void authenticated_postContinue() throws Exception {
+
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
+      add("Save and complete later", "Save and complete later");
     }};
+
+    ControllerTestUtils.passValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.PARTIAL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(continueParams)
@@ -120,18 +137,18 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   public void unauthenticated_renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
-            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null)))
+            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
     ).andExpect(status().is3xxRedirection());
   }
 
   @Test
   public void unauthenticated_postComplete() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
+      add("Complete", "Complete");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postCompleteFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .params(completeParams)
     ).andExpect(status().isForbidden());
   }
@@ -139,11 +156,11 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   @Test
   public void unauthenticated_postContinue() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
+      add("Save and complete later", "Save and complete later");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .params(continueParams)
     ).andExpect(status().isForbidden());
   }
@@ -153,28 +170,28 @@ public class FastTrackControllerTest extends AbstractControllerTest {
     when(padFastTrackService.isFastTrackRequired(pwaApplicationDetail)).thenReturn(false);
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
-            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null)))
+            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
     ).andExpect(status().isForbidden());
 
 
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
+      add("Complete", "Complete");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postCompleteFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams)
     ).andExpect(status().isForbidden());
 
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
+      add("Save and complete later", "Save and complete later");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(continueParams)
@@ -185,7 +202,7 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   public void renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
-            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null)))
+            .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
     ).andExpect(status().isOk())
     .andExpect(view().name("pwaApplication/shared/fastTrack"));
@@ -193,8 +210,9 @@ public class FastTrackControllerTest extends AbstractControllerTest {
 
   @Test
   public void postCompleteFastTrack_EmptyData() throws Exception {
+
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
+      add("Complete", "Complete");
       add("avoidEnvironmentalDisaster", null);
       add("environmentalDisasterReason", null);
       add("savingBarrels", null);
@@ -204,9 +222,12 @@ public class FastTrackControllerTest extends AbstractControllerTest {
       add("hasOtherReason", null);
       add("otherReason", null);
     }};
+
+    ControllerTestUtils.failValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.FULL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .params(completeParams)
             .with(authenticatedUserAndSession(user))
             .with(csrf())
@@ -217,7 +238,7 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   @Test
   public void postCompleteFastTrack_WithData() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
+      add("Complete", "Complete");
       add("avoidEnvironmentalDisaster", "true");
       add("environmentalDisasterReason", "reason");
       add("savingBarrels", "true");
@@ -227,9 +248,12 @@ public class FastTrackControllerTest extends AbstractControllerTest {
       add("hasOtherReason", "true");
       add("otherReason", "reason");
     }};
+
+    ControllerTestUtils.passValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.FULL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postCompleteFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .params(completeParams)
             .with(authenticatedUserAndSession(user))
             .with(csrf())
@@ -238,9 +262,9 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postContinueFastTrack_EmptyData() throws Exception {
+  public void postFastTrack_EmptyData() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
+      add("Save and complete later", "Save and complete later");
       add("avoidEnvironmentalDisaster", null);
       add("environmentalDisasterReason", null);
       add("savingBarrels", null);
@@ -250,9 +274,12 @@ public class FastTrackControllerTest extends AbstractControllerTest {
       add("hasOtherReason", null);
       add("otherReason", null);
     }};
+
+    ControllerTestUtils.passValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.PARTIAL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .params(continueParams)
             .with(authenticatedUserAndSession(user))
             .with(csrf())
@@ -261,9 +288,9 @@ public class FastTrackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postContinueFastTrack_WithData() throws Exception {
+  public void postFastTrack_WithData() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
+      add("Save and complete later", "Save and complete later");
       add("avoidEnvironmentalDisaster", "true");
       add("environmentalDisasterReason", "reason");
       add("savingBarrels", "true");
@@ -273,9 +300,12 @@ public class FastTrackControllerTest extends AbstractControllerTest {
       add("hasOtherReason", "true");
       add("otherReason", "reason");
     }};
+
+    ControllerTestUtils.passValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.PARTIAL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
-            .postContinueFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null, null)))
             .params(continueParams)
             .with(authenticatedUserAndSession(user))
             .with(csrf())

@@ -3,10 +3,12 @@ package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
@@ -35,14 +38,17 @@ public class TaskListService {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PadFastTrackService padFastTrackService;
+  private final TaskCompletionService taskCompletionService;
 
   @Autowired
   public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService,
                          ApplicationBreadcrumbService breadcrumbService,
-                         PadFastTrackService padFastTrackService) {
+                         PadFastTrackService padFastTrackService,
+                         TaskCompletionService taskCompletionService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
     this.padFastTrackService = padFastTrackService;
+    this.taskCompletionService = taskCompletionService;
   }
 
   @VisibleForTesting
@@ -80,41 +86,46 @@ public class TaskListService {
   }
 
   @VisibleForTesting
-  public LinkedHashMap<String, String> getPrepareAppTasks(PwaApplicationDetail detail) {
+  public List<TaskListEntry> getPrepareAppTasks(PwaApplicationDetail detail) {
 
-    var tasks = new LinkedHashMap<String, String>();
+    List<TaskListEntry> tasks = new ArrayList<>();
 
     ApplicationTask.stream()
         .sorted(Comparator.comparing(ApplicationTask::getDisplayOrder))
-        .forEachOrdered(task -> addTaskToList(tasks, task, detail));
+        .forEachOrdered(task -> checkTaskAndAddToList(tasks, task, detail));
 
     if (tasks.isEmpty()) {
-      tasks.put("No tasks", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
+      tasks.add(new TaskListEntry("No tasks", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()), false));
     }
 
     return tasks;
 
   }
 
-  private void addTaskToList(LinkedHashMap<String, String> tasks, ApplicationTask task, PwaApplicationDetail detail) {
+  private void checkTaskAndAddToList(List<TaskListEntry> tasks, ApplicationTask task, PwaApplicationDetail detail) {
+
+    Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
+        typeCheck -> {
+          if (Arrays.asList(typeCheck.types()).contains(detail.getPwaApplicationType())) {
+            addTask(tasks, task, detail);
+          }
+        },
+        () -> addTask(tasks, task, detail)
+    );
+
+  }
+
+  private void addTask(List<TaskListEntry> tasks, ApplicationTask task, PwaApplicationDetail detail) {
 
     var applicationId = detail.getPwaApplication().getId();
     var applicationType = detail.getPwaApplicationType();
 
-    Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
-        typeCheck -> {
-          if (Arrays.asList(typeCheck.types()).contains(applicationType)) {
-            if (task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail)) {
-              tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId));
-            }
-          }
-        },
-        () -> {
-          if (task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail)) {
-            tasks.put(task.getDisplayName(), getRouteForTask(task, applicationType, applicationId));
-          }
-        }
-    );
+    if (task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail)) {
+      tasks.add(new TaskListEntry(
+          task.getDisplayName(),
+          getRouteForTask(task, applicationType, applicationId),
+          taskCompletionService.isTaskComplete(detail, task)));
+    }
 
   }
 
@@ -125,10 +136,10 @@ public class TaskListService {
     switch (task) {
       case PROJECT_INFORMATION:
         return ReverseRouter.route(on(ProjectInformationController.class)
-            .renderProjectInformation(applicationType, applicationId, null, null));
+            .renderProjectInformation(applicationType, null, null, null));
       case FAST_TRACK:
         return ReverseRouter.route(on(FastTrackController.class)
-            .renderFastTrack(applicationType, applicationId, null, null));
+            .renderFastTrack(applicationType, 1, null, null, null));
       case ENVIRONMENTAL_DECOMMISSIONING:
         return ReverseRouter.route(on(EnvironmentalDecomController.class)
             .renderEnvDecom(applicationType, null, null, null), uriVariables);

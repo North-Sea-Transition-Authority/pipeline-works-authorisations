@@ -4,22 +4,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvDecomForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.validators.EnvDecomValidator;
+import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
-public class EnvDecomValidatorTest {
+public class EnvironmentalDecommissioningValidatorTest {
 
-  private EnvDecomValidator validator;
+  private EnvironmentalDecommissioningValidator validator;
 
   @Before
   public void setUp() {
-    validator = new EnvDecomValidator();
+    validator = new EnvironmentalDecommissioningValidator();
   }
 
   @Test
   public void testValidate_EmptyDate() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasOutstandingPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errors.get("emtSubmissionDay")).containsExactly("emtSubmissionDay.notParsable");
@@ -29,7 +29,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_InvalidDate() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasOutstandingPermits(true);
     form.setEmtSubmissionDay(-1);
     form.setEmtSubmissionMonth(-1);
@@ -42,7 +42,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_ValidDate() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasOutstandingPermits(true);
     form.setEmtSubmissionDay(16);
     form.setEmtSubmissionMonth(3);
@@ -55,7 +55,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_NullPermitsSubmittedField() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasSubmittedPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errors.get("permitsSubmitted")).containsExactly("permitsSubmitted.required");
@@ -63,7 +63,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_EmptyPermitsSubmittedField() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasSubmittedPermits(true);
     form.setPermitsSubmitted("");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -72,7 +72,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_ValidPermitsSubmittedField() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasSubmittedPermits(true);
     form.setPermitsSubmitted("Test");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -81,7 +81,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_NullPermitsPendingSubmissionField() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasOutstandingPermits(true);
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errors.get("permitsPendingSubmission")).containsExactly("permitsPendingSubmission.required");
@@ -89,7 +89,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_EmptyPermitsPendingSubmissionField() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission("");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -98,7 +98,7 @@ public class EnvDecomValidatorTest {
 
   @Test
   public void testValidate_ValidPermitsPendingSubmissionField() {
-    var form = new EnvDecomForm();
+    var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission("Test");
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);

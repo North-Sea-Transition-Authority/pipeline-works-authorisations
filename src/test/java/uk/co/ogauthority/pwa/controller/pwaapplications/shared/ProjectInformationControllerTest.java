@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -22,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -31,7 +29,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -42,11 +39,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
+import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
+import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ProjectInformationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -62,9 +61,6 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
   @MockBean
   private PwaApplicationFileService applicationFileService;
-
-  @SpyBean
-  private ProjectInformationValidator projectInformationValidator;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -131,16 +127,19 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
   @Test
   public void postCompleteProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+
+    ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
+
     for (var appType : PwaApplicationType.values()) {
       try {
         pwaApplication.setApplicationType(appType);
         // Expect isOk because endpoint validates. If form can't validate, return same page.
-        MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
-          add("Complete", "");
+        MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
+          add("Complete", "Complete");
         }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
-                on(ProjectInformationController.class).postCompleteProjectInformation(appType, APP_ID, null, null, null)))
+                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
                 .params(completeParams));
@@ -156,19 +155,22 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postContinueProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+  public void postProjectInformation_continue_authenticatedUser_appTypeSmokeTest() throws Exception {
+
+    ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
+
     for (var appType : PwaApplicationType.values()) {
       try {
         pwaApplication.setApplicationType(appType);
         // Expect isOk because endpoint validates. If form can't validate, return same page.
 
         // Expect redirection because endpoint ignores validation.
-        MultiValueMap continueParams = new LinkedMultiValueMap<>() {{
-          add("Save and complete later", "");
+        MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
+          add("Save and complete later", "Save and complete later");
         }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
-                on(ProjectInformationController.class).postContinueProjectInformation(appType, APP_ID, null, null, null)))
+                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
                 .params(continueParams));
@@ -187,33 +189,33 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   public void renderProjectInformation_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(ProjectInformationController.class)
-            .renderProjectInformation(PwaApplicationType.INITIAL, 1, null, null))))
+            .renderProjectInformation(PwaApplicationType.INITIAL, null, null, null))))
         .andExpect(status().is3xxRedirection());
 
   }
 
   @Test
-  public void postCompleteProjectInformation_unauthenticated() throws Exception {
-    MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
+  public void postProjectInformation_complete_unauthenticated() throws Exception {
+    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
       add("Complete", "");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
-                .postCompleteProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null)))
+                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null, null)))
             .params(completeParams))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void postContinueProjectInformation_unauthenticated() throws Exception {
-    MultiValueMap continueParams = new LinkedMultiValueMap<>() {{
+  public void postProjectInformation_continue_unauthenticated() throws Exception {
+    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
-                .postContinueProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null)))
+                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null, null)))
             .params(continueParams))
         .andExpect(status().isForbidden());
   }
@@ -231,13 +233,17 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postContinueProjectInformation_validForm() throws Exception {
+  public void postProjectInformation__continue_validForm() throws Exception {
+
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
+      add("Save and complete later", "Save and complete later");
     }};
+
+    ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postContinueProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
@@ -247,29 +253,38 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postContinueProjectInformation_formValidationFailed() throws Exception {
+  public void postProjectInformation__continue_formValidationFailed() throws Exception {
+
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
+      add("Save and complete later", "Save and complete later");
       add("projectOverview", StringUtils.repeat("a", 5000));
     }};
+
+    ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postContinueProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
         .andExpect(status().isOk());
     verify(padProjectInformationService, times(0)).getPadProjectInformationData(pwaApplicationDetail);
+
   }
 
   @Test
-  public void postCompleteProjectInformation_noData() throws Exception {
+  public void postProjectInformation__complete_noData() throws Exception {
+
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
+      add("Complete", "Complete");
     }};
+
+    ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postCompleteProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
@@ -277,16 +292,14 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     verify(padProjectInformationService, never()).getPadProjectInformationData(pwaApplicationDetail);
 
-    var captor = ArgumentCaptor.forClass(Errors.class);
-    verify(projectInformationValidator).validate(any(), captor.capture());
-    assertThat(captor.getValue().getErrorCount()).isGreaterThan(0);
   }
 
   @Test
-  public void postCompleteProjectInformation_validData() throws Exception {
+  public void postProjectInformation_complete_valid() throws Exception {
+
     LocalDate date = LocalDate.now().plusDays(2);
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
+      add("Complete", "Complete");
       add("projectName", "name");
       add("projectOverview", "overview");
       add("methodOfPipelineDeployment", "pipeline installation method");
@@ -304,19 +317,21 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
       add("latestCompletionYear", "" + date.getYear());
       add("usingCampaignApproach", "true");
     }};
+
+    ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postCompleteProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null)))
+            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
         .andExpect(status().is3xxRedirection());
+
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
     verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
+    verify(padProjectInformationService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
 
-    var captor = ArgumentCaptor.forClass(Errors.class);
 
-    verify(projectInformationValidator).validate(any(), captor.capture());
-    assertThat(captor.getValue().getErrorCount()).isEqualTo(0);
   }
 }

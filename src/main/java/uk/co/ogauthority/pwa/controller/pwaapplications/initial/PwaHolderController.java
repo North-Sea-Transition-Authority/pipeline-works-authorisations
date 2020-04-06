@@ -99,7 +99,7 @@ public class PwaHolderController {
 
       pwaHolderFormValidator.validate(form, bindingResult);
 
-      return ControllerUtils.validateAndRedirect(bindingResult, getHolderModelAndView(user, detail, form), () -> {
+      return ControllerUtils.checkErrorsAndRedirect(bindingResult, getHolderModelAndView(user, detail, form), () -> {
 
         List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
 

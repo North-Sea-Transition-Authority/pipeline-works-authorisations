@@ -1,11 +1,18 @@
 package uk.co.ogauthority.pwa.util;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 
 public class ControllerTestUtils {
 
@@ -27,6 +34,22 @@ public class ControllerTestUtils {
       return result;
     }).when(validator).validate(any(), any());
 
+  }
+
+  /**
+   * Return a binding result with a validation error when the passed-in validation type is used.
+   */
+  public static void failValidationWhenPost(ApplicationFormSectionService service, Object form, ValidationType validationType) {
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    bindingResult.addError(new ObjectError("fake", "fake"));
+    when(service.validate(any(), any(), eq(validationType))).thenReturn(bindingResult);
+  }
+
+  /**
+   * Return a clean binding result when the passed-in validation type is used.
+   */
+  public static void passValidationWhenPost(ApplicationFormSectionService service, Object form, ValidationType validationType) {
+    when(service.validate(any(), any(), eq(validationType))).thenReturn(new BeanPropertyBindingResult(new ProjectInformationForm(), "form"));
   }
 
 }

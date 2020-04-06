@@ -6,21 +6,27 @@ import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 
-public class EnvDecomForm {
+public class EnvironmentalDecommissioningForm {
 
-  @NotNull(message = "Select yes if the development has significant trans-boundary effects")
+  public interface Full {
+  }
+
+  public interface Partial {
+  }
+
+  @NotNull(message = "Select yes if the development has significant trans-boundary effects", groups = Full.class)
   private Boolean transboundaryEffect;
 
-  @NotNull(message = "Select yes if any relevant environmental permits have been submitted to BEIS")
+  @NotNull(message = "Select yes if any relevant environmental permits have been submitted to BEIS", groups = Full.class)
   private Boolean emtHasSubmittedPermits;
 
-  @Length(max = 4000, message = "Permits submitted to BEIS must be 4000 characters or less")
+  @Length(max = 4000, message = "Permits submitted to BEIS must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String permitsSubmitted;
 
-  @NotNull(message = "Select yes if you have any relevant permits that haven't been submitted to BEIS")
+  @NotNull(message = "Select yes if you have any relevant permits that haven't been submitted to BEIS", groups = Full.class)
   private Boolean emtHasOutstandingPermits;
 
-  @Length(max = 4000, message = "Permits pending BEIS submission must be 4000 characters or less")
+  @Length(max = 4000, message = "Permits pending BEIS submission must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String permitsPendingSubmission;
 
   private Integer emtSubmissionDay;
@@ -31,8 +37,8 @@ public class EnvDecomForm {
 
   private Set<EnvironmentalCondition> environmentalConditions;
 
-  @NotNull(message = "You must provide your decommissioning plans")
-  @Length(max = 4000, message = "Must be 4000 characters or less")
+  @NotNull(message = "You must provide your decommissioning plans", groups = Full.class)
+  @Length(max = 4000, message = "Must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String decommissioningPlans;
 
   private Set<DecommissioningCondition> decommissioningConditions;

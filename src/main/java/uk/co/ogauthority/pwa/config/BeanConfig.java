@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.config;
 
 import java.time.Clock;
+import javax.validation.Validation;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
 
@@ -18,6 +20,11 @@ public class BeanConfig {
   @Bean
   public Clock tzClock() {
     return Clock.systemDefaultZone();
+  }
+
+  @Bean
+  public SpringValidatorAdapter groupValidator() {
+    return new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
   }
 
   @Bean

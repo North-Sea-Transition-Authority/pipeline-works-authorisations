@@ -59,7 +59,7 @@ public class StartPrototypePwaApplicationController {
   public ModelAndView startApplication(@Valid @ModelAttribute("form") StartPwaApplicationForm form,
                                        BindingResult bindingResult) {
 
-    return ControllerUtils.validateAndRedirect(bindingResult, getStartAppModelAndView(), () -> {
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(), () -> {
           var applicationType = EnumUtils.getEnumValue(PrototypeApplicationType.class, form.getApplicationType());
           switch (applicationType) {
             case INITIAL:

@@ -181,7 +181,7 @@ public class PrototypePipelinesController {
                                             @Valid @ModelAttribute("form") AddProductionPipelineForm form,
                                             BindingResult bindingResult) {
 
-    return ControllerUtils.validateAndRedirect(bindingResult, getAddProductionPipelineMav(applicationId, form), () -> {
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getAddProductionPipelineMav(applicationId, form), () -> {
 
       PipelineView pipelineView = new PipelineView();
       pipelineView.setPipelineType(EnumUtils.getEnumValue(PipelineType.class, form.getPipelineType()));
@@ -260,7 +260,7 @@ public class PrototypePipelinesController {
                                @Valid @ModelAttribute("form") AddIdentForm form,
                                BindingResult bindingResult) {
 
-    return ControllerUtils.validateAndRedirect(bindingResult, getAddIdentMav(applicationId, pipelineNumber), () -> {
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getAddIdentMav(applicationId, pipelineNumber), () -> {
 
       PipelineView prodPipeline = getPipelineOrThrow(pipelineNumber);
 

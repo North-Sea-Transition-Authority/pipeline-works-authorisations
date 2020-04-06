@@ -4,6 +4,9 @@ import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -12,23 +15,32 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 /* Service providing simplified API for project information app form */
 @Service
-public class PadProjectInformationService {
+public class PadProjectInformationService implements ApplicationFormSectionService {
 
   private final PadProjectInformationRepository padProjectInformationRepository;
   private final ProjectInformationFileService projectInformationFileService;
   private final ProjectInformationEntityMappingService projectInformationEntityMappingService;
+  private final ProjectInformationValidator projectInformationValidator;
+  private final SpringValidatorAdapter groupValidator;
 
   @Autowired
   public PadProjectInformationService(
       PadProjectInformationRepository padProjectInformationRepository,
       ProjectInformationFileService projectInformationFileService,
-      ProjectInformationEntityMappingService projectInformationEntityMappingService) {
+      ProjectInformationEntityMappingService projectInformationEntityMappingService,
+      ProjectInformationValidator projectInformationValidator,
+      SpringValidatorAdapter groupValidator) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationFileService = projectInformationFileService;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
+    this.projectInformationValidator = projectInformationValidator;
+    this.groupValidator = groupValidator;
   }
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
@@ -118,4 +130,30 @@ public class PadProjectInformationService {
     );
   }
 
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+
+    PadProjectInformation projectInformation = getPadProjectInformationData(detail);
+    var projectInformationForm = new ProjectInformationForm();
+    mapEntityToForm(projectInformation, projectInformationForm, ApplicationFileLinkStatus.FULL);
+    BindingResult bindingResult = new BeanPropertyBindingResult(projectInformationForm, "form");
+    projectInformationValidator.validate(projectInformationForm, bindingResult);
+
+    return !bindingResult.hasErrors();
+
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+
+    if (validationType.equals(ValidationType.PARTIAL)) {
+      groupValidator.validate(form, bindingResult, ProjectInformationForm.Partial.class);
+      return bindingResult;
+    }
+
+    groupValidator.validate(form, bindingResult, ProjectInformationForm.Full.class);
+    projectInformationValidator.validate(form, bindingResult);
+    return bindingResult;
+
+  }
 }

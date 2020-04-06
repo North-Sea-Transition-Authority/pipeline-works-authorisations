@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -10,11 +12,15 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
+import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -24,7 +30,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.validators.FastTrackValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadFastTrackServiceTest {
@@ -38,14 +47,22 @@ public class PadFastTrackServiceTest {
   @Mock
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
+  @Mock
+  private FastTrackValidator validator;
+
+  private SpringValidatorAdapter groupValidator;
+
   private PadFastTrackService padFastTrackService;
   private PwaApplicationDetail pwaApplicationDetail;
   private PadProjectInformation projectInformation;
 
   @Before
   public void setUp() {
+
+    groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
+
     padFastTrackService = new PadFastTrackService(padFastTrackRepository, padProjectInformationService,
-        padMedianLineAgreementService);
+        padMedianLineAgreementService, validator, groupValidator);
     pwaApplicationDetail = new PwaApplicationDetail();
 
     projectInformation = new PadProjectInformation();
@@ -267,6 +284,90 @@ public class PadFastTrackServiceTest {
     assertThat(entity.getOtherReason()).isNull();
   }
 
+  @Test
+  public void validate_partial_fail() {
+
+    var form = new FastTrackForm();
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
+    form.setOtherReason(ValidatorTestUtils.over4000Chars());
+    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
+    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("environmentalDisasterReason", Set.of("Length")),
+        entry("otherReason", Set.of("Length")),
+        entry("projectPlanningReason", Set.of("Length")),
+        entry("savingBarrelsReason", Set.of("Length"))
+    );
+
+    verifyNoInteractions(validator);
+
+  }
+
+  @Test
+  public void validate_partial_pass() {
+
+    var form = new FastTrackForm();
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.exactly4000chars());
+    form.setOtherReason(ValidatorTestUtils.exactly4000chars());
+    form.setProjectPlanningReason(ValidatorTestUtils.exactly4000chars());
+    form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).isEmpty();
+
+  }
+
+  @Test
+  public void validate_full_fail() {
+
+    var form = new FastTrackForm();
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.over4000Chars());
+    form.setOtherReason(ValidatorTestUtils.over4000Chars());
+    form.setProjectPlanningReason(ValidatorTestUtils.over4000Chars());
+    form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    padFastTrackService.validate(form, bindingResult, ValidationType.FULL);
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("environmentalDisasterReason", Set.of("Length")),
+        entry("otherReason", Set.of("Length")),
+        entry("projectPlanningReason", Set.of("Length")),
+        entry("savingBarrelsReason", Set.of("Length"))
+    );
+
+    verify(validator, times(1)).validate(form, bindingResult);
+
+  }
+
+  @Test
+  public void validate_full_pass() {
+
+    var form = new FastTrackForm();
+    form.setEnvironmentalDisasterReason(ValidatorTestUtils.exactly4000chars());
+    form.setOtherReason(ValidatorTestUtils.exactly4000chars());
+    form.setProjectPlanningReason(ValidatorTestUtils.exactly4000chars());
+    form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    padFastTrackService.validate(form, bindingResult, ValidationType.FULL);
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).isEmpty();
+
+    verify(validator, times(1)).validate(form, bindingResult);
+
+  }
+
   private PadFastTrack buildEntity() {
     var fastTrack = new PadFastTrack();
     fastTrack.setAvoidEnvironmentalDisaster(true);
@@ -292,4 +393,5 @@ public class PadFastTrackServiceTest {
     form.setOtherReason("Other reason");
     return form;
   }
+
 }

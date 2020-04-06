@@ -108,7 +108,7 @@ public class InitialFieldsController {
     pwaFieldFormValidator.validate(form, bindingResult);
     var isLinkedtoField = form.getLinkedToField();
     return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
-        ControllerUtils.validateAndRedirect(bindingResult, getFieldsModelAndView(detail, form, user), () -> {
+        ControllerUtils.checkErrorsAndRedirect(bindingResult, getFieldsModelAndView(detail, form, user), () -> {
           var fieldList = new ArrayList<DevukField>();
           if (isLinkedtoField) {
             fieldList.add(devukFieldService.findById(form.getFieldId()));

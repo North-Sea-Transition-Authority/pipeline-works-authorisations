@@ -6,28 +6,40 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.validators.FastTrackValidator;
 
 @Service
-public class PadFastTrackService {
+public class PadFastTrackService implements ApplicationFormSectionService {
 
   private final PadFastTrackRepository padFastTrackRepository;
   private final PadProjectInformationService padProjectInformationService;
   private final PadMedianLineAgreementService padMedianLineAgreementService;
+  private final FastTrackValidator fastTrackValidator;
+  private final SpringValidatorAdapter groupValidator;
 
   @Autowired
   public PadFastTrackService(
       PadFastTrackRepository padFastTrackRepository,
       PadProjectInformationService padProjectInformationService,
-      PadMedianLineAgreementService padMedianLineAgreementService) {
+      PadMedianLineAgreementService padMedianLineAgreementService,
+      FastTrackValidator fastTrackValidator,
+      SpringValidatorAdapter groupValidator) {
     this.padFastTrackRepository = padFastTrackRepository;
     this.padProjectInformationService = padProjectInformationService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
+    this.fastTrackValidator = fastTrackValidator;
+    this.groupValidator = groupValidator;
   }
 
   @Transactional
@@ -102,4 +114,30 @@ public class PadFastTrackService {
     save(fastTrack);
   }
 
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+
+    var fastTrack = getFastTrackForDraft(detail);
+    var fastTrackForm = new FastTrackForm();
+    mapEntityToForm(fastTrack, fastTrackForm);
+    BindingResult bindingResult = new BeanPropertyBindingResult(fastTrackForm, "form");
+    fastTrackValidator.validate(fastTrackForm, bindingResult);
+
+    return !bindingResult.hasErrors();
+
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+
+    if (validationType.equals(ValidationType.PARTIAL)) {
+      groupValidator.validate(form, bindingResult, FastTrackForm.Partial.class);
+      return bindingResult;
+    }
+
+    groupValidator.validate(form, bindingResult, FastTrackForm.Full.class);
+    fastTrackValidator.validate(form, bindingResult);
+    return bindingResult;
+
+  }
 }

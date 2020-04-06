@@ -3,7 +3,9 @@ package uk.co.ogauthority.pwa.util;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -28,6 +30,24 @@ public class ValidatorTestUtils {
     return errors.getFieldErrors().stream()
         .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
 
+  }
+
+  /**
+   * Return a map of field id -> set of field error codes for a BindingResult
+   */
+  public static Map<String, Set<String>> extractErrors(BindingResult bindingResult) {
+
+    return bindingResult.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+
+  }
+
+  public static String over4000Chars() {
+    return StringUtils.repeat("a", 4001);
+  }
+
+  public static String exactly4000chars() {
+    return StringUtils.repeat("a", 4000);
   }
 
 }

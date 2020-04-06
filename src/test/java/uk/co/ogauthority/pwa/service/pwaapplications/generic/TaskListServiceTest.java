@@ -5,6 +5,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -33,12 +36,15 @@ public class TaskListServiceTest {
   @Mock
   private PadFastTrackService padFastTrackService;
 
+  @Mock
+  private TaskCompletionService taskCompletionService;
+
   private TaskListService taskListService;
 
   @Before
   public void setUp() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        padFastTrackService);
+        padFastTrackService, taskCompletionService);
   }
 
   @Test
@@ -98,36 +104,37 @@ public class TaskListServiceTest {
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
+        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(detail));
 
-        switch (appType) {
+        switch(appType) {
           case INITIAL:
           case CAT_1_VARIATION:
           case OPTIONS_VARIATION:
           case DECOMMISSIONING:
-            assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
+            assertThat(taskNamesList).containsOnly(
                 "Project information",
                 "Environmental and decommissioning",
                 "Crossing agreements"
             );
             break;
           case DEPOSIT_CONSENT:
-            assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
+            assertThat(taskNamesList).containsOnly(
                 "Project information",
                 "Environmental and decommissioning"
             );
             break;
           case CAT_2_VARIATION:
-            assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys(
+            assertThat(taskNamesList).containsOnly(
                 "Project information",
                 "Crossing agreements"
             );
             break;
           case HUOO_VARIATION:
-            assertThat(taskListService.getPrepareAppTasks(detail)).containsOnlyKeys("No tasks");
+            assertThat(taskNamesList).containsOnly("No tasks");
             break;
         }
 
-      }catch (AssertionError e){
+      } catch (AssertionError e){
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
 
@@ -146,8 +153,8 @@ public class TaskListServiceTest {
 
     PwaApplicationType.stream().forEach(applicationType -> {
       pwaApplication.setApplicationType(applicationType);
-      var result = taskListService.getPrepareAppTasks(detail);
-      assertThat(result).containsKey("Fast-track");
+      var result = getKeysFromTaskList(taskListService.getPrepareAppTasks(detail));
+      assertThat(result).contains("Fast-track");
     });
   }
 
@@ -162,8 +169,8 @@ public class TaskListServiceTest {
 
     PwaApplicationType.stream().forEach(applicationType -> {
       pwaApplication.setApplicationType(applicationType);
-      var result = taskListService.getPrepareAppTasks(detail);
-      assertThat(result).doesNotContainKey("Fast-track");
+      var result = getKeysFromTaskList(taskListService.getPrepareAppTasks(detail));
+      assertThat(result).doesNotContain("Fast-track");
     });
   }
 
@@ -233,6 +240,12 @@ public class TaskListServiceTest {
 
     });
 
+  }
+
+  private List<String> getKeysFromTaskList(List<TaskListEntry> taskList) {
+    return taskList.stream()
+        .map(TaskListEntry::getTaskName)
+        .collect(Collectors.toList());
   }
 
 }

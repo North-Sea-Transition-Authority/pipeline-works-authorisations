@@ -137,7 +137,7 @@ public class PwaContactController {
       form.setPwaApplicationId(pwaApplication.getId());
       addPwaContactFormValidator.validate(form, bindingResult);
 
-      return ControllerUtils.validateAndRedirect(bindingResult, getAddUserToTeamModelAndView(pwaApplication, form), () -> {
+      return ControllerUtils.checkErrorsAndRedirect(bindingResult, getAddUserToTeamModelAndView(pwaApplication, form), () -> {
 
         Optional<Person> person = teamManagementService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
 
@@ -207,7 +207,7 @@ public class PwaContactController {
 
       var person = teamManagementService.getPerson(personId);
 
-      return ControllerUtils.validateAndRedirect(bindingResult, getContactRolesModelAndView(detail, person, form), () -> {
+      return ControllerUtils.checkErrorsAndRedirect(bindingResult, getContactRolesModelAndView(detail, person, form), () -> {
 
         Set<PwaContactRole> roles = form.getUserRoles().stream()
             .map(r -> EnumUtils.getEnumValue(PwaContactRole.class, r))

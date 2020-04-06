@@ -1,19 +1,26 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import javax.validation.Validation;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -22,6 +29,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadProjectInformationServiceTest {
@@ -37,6 +47,10 @@ public class PadProjectInformationServiceTest {
   @Mock
   private ProjectInformationEntityMappingService projectInformationEntityMappingService;
 
+  @Mock
+  private ProjectInformationValidator validator;
+
+  private SpringValidatorAdapter groupValidator;
 
   private PadProjectInformationService service;
   private PadProjectInformation padProjectInformation;
@@ -47,10 +61,15 @@ public class PadProjectInformationServiceTest {
 
   @Before
   public void setUp() {
+
+    groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
+
     service = new PadProjectInformationService(
         padProjectInformationRepository,
         projectInformationFileService,
-        projectInformationEntityMappingService
+        projectInformationEntityMappingService,
+        validator,
+        groupValidator
     );
 
     date = LocalDate.now();
@@ -158,6 +177,96 @@ public class PadProjectInformationServiceTest {
     verify(projectInformationFileService, times(1)).createAndSaveProjectInformationFile(
         pwaApplicationDetail, FILE_ID
     );
+  }
+
+  @Test
+  public void validate_partial_fail() {
+
+    var tooBig = StringUtils.repeat("a", 4001);
+    var form = new ProjectInformationForm();
+    form.setProjectOverview(tooBig);
+    form.setProjectName(tooBig);
+    form.setMethodOfPipelineDeployment(tooBig);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    service.validate(form, bindingResult, ValidationType.PARTIAL);
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("projectOverview", Set.of("Length")),
+        entry("projectName", Set.of("Length")),
+        entry("methodOfPipelineDeployment", Set.of("Length"))
+    );
+
+    verifyNoInteractions(validator);
+
+  }
+
+  @Test
+  public void validate_partial_pass() {
+
+    var ok = StringUtils.repeat("a", 4000);
+    var form = new ProjectInformationForm();
+    form.setProjectOverview(ok);
+    form.setProjectName(ok);
+    form.setMethodOfPipelineDeployment(ok);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    service.validate(form, bindingResult, ValidationType.PARTIAL);
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).isEmpty();
+
+    verifyNoInteractions(validator);
+
+  }
+
+  @Test
+  public void validate_full_fail() {
+
+    var tooBig = StringUtils.repeat("a", 4001);
+    var form = new ProjectInformationForm();
+    form.setProjectOverview(tooBig);
+    form.setProjectName(tooBig);
+    form.setMethodOfPipelineDeployment(tooBig);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    service.validate(form, bindingResult, ValidationType.FULL);
+
+    verify(validator, times(1)).validate(form, bindingResult);
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("projectOverview", Set.of("Length")),
+        entry("projectName", Set.of("Length")),
+        entry("methodOfPipelineDeployment", Set.of("Length")),
+        entry("usingCampaignApproach", Set.of("NotNull")) // only required when full
+    );
+
+  }
+
+  @Test
+  public void validate_full_pass() {
+
+    var ok = StringUtils.repeat("a", 4000);
+    var form = new ProjectInformationForm();
+    form.setProjectOverview(ok);
+    form.setProjectName(ok);
+    form.setMethodOfPipelineDeployment(ok);
+    form.setUsingCampaignApproach(false);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    service.validate(form, bindingResult, ValidationType.FULL);
+
+    verify(validator, times(1)).validate(form, bindingResult);
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).isEmpty();
+
   }
 
 }

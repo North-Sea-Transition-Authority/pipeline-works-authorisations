@@ -4,6 +4,14 @@ import org.hibernate.validator.constraints.Length;
 
 public class FastTrackForm {
 
+  public interface Full {
+
+  }
+
+  public interface Partial {
+
+  }
+
   private Boolean avoidEnvironmentalDisaster;
 
   private Boolean savingBarrels;
@@ -12,16 +20,16 @@ public class FastTrackForm {
 
   private Boolean hasOtherReason;
 
-  @Length(max = 4000, message = "The environmental disaster section must be 4000 characters or less")
+  @Length(max = 4000, message = "The environmental disaster section must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String environmentalDisasterReason;
 
-  @Length(max = 4000, message = "The saving barrels section must be 4000 characters or less")
+  @Length(max = 4000, message = "The saving barrels section must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String savingBarrelsReason;
 
-  @Length(max = 4000, message = "The project planning section must be 4000 characters or less")
+  @Length(max = 4000, message = "The project planning section must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String projectPlanningReason;
 
-  @Length(max = 4000, message = "The other reasons section must be 4000 characters or less")
+  @Length(max = 4000, message = "The other reasons section must be 4000 characters or less", groups = {Full.class, Partial.class})
   private String otherReason;
 
   public Boolean getAvoidEnvironmentalDisaster() {

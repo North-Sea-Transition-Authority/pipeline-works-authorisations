@@ -9,20 +9,20 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvDecomForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 
 @Service
-public class EnvDecomValidator implements Validator {
+public class EnvironmentalDecommissioningValidator implements Validator {
 
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return clazz.equals(EnvDecomForm.class);
+    return clazz.equals(EnvironmentalDecommissioningForm.class);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    EnvDecomForm form = (EnvDecomForm) target;
+    EnvironmentalDecommissioningForm form = (EnvironmentalDecommissioningForm) target;
     if (BooleanUtils.isTrue(form.getEmtHasSubmittedPermits())) {
       if (StringUtils.isBlank(form.getPermitsSubmitted())) {
         errors.rejectValue("permitsSubmitted", "permitsSubmitted.required", "Enter a list of the submitted permits");

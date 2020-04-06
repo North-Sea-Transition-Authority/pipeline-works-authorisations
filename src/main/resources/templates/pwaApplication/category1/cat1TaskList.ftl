@@ -2,7 +2,7 @@
 
 <#-- @ftlvariable name="pwaInfoTasks" type="java.util.HashMap<String, String>" -->
 <#-- @ftlvariable name="appInfoTasks" type="java.util.HashMap<String, String>" -->
-<#-- @ftlvariable name="prepareAppTasks" type="java.util.HashMap<String, String>" -->
+<#-- @ftlvariable name="prepareAppTasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
 <#-- @ftlvariable name="masterPwaReference" type="String" -->
 
 <@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Category 1 variation for ${masterPwaReference}" breadcrumbs=true>
@@ -20,8 +20,8 @@
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="3" sectionHeadingText="Prepare application">
-            <#list prepareAppTasks as task, link>
-                <@fdsTaskList.taskListItem itemUrl=springUrl(link) itemText=task/>
+            <#list prepareAppTasks as task>
+                <@fdsTaskList.taskListItem itemUrl=springUrl(task.route) itemText=task.taskName completed=task.completed/>
             </#list>
         </@fdsTaskList.taskListSection>
 

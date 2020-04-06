@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,6 +29,8 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
@@ -38,20 +41,18 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
-import uk.co.ogauthority.pwa.validators.EnvDecomValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = EnvironmentalDecomController.class)
 public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
-
-  @MockBean
-  private EnvDecomValidator envDecomValidator;
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -76,12 +77,14 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
 
   @Before
   public void setUp() {
+
     person = new Person();
     wua = new WebUserAccount(1, person);
     user = new AuthenticatedUserAccount(wua, List.of());
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
+    pwaApplication.setId(1);
     appDetail = new PwaApplicationDetail();
     appDetail.setPwaApplication(pwaApplication);
     instant = Instant.now();
@@ -157,7 +160,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
+            on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
             .params(completeParams))
         .andExpect(status().isForbidden());
 
@@ -167,7 +170,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(EnvironmentalDecomController.class).postContinueEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
+            on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
             .params(continueParams))
         .andExpect(status().isForbidden());
   }
@@ -184,25 +187,57 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void testPostCompleteAdminDetails_Invalid() throws Exception {
-    MultiValueMap completeParams = new LinkedMultiValueMap<>(){{
-      add("Complete", "");
+  public void testPostAdminDetails_partial() throws Exception {
+
+    MultiValueMap<String, String> completeLaterParams = new LinkedMultiValueMap<>(){{
+      add("Save and complete later", "Save and complete later");
     }};
+
+    var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
+    when(padEnvironmentalDecommissioningService.validate(any(), any(), any())).thenReturn(bindingResult);
+
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
-            .postCompleteEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
+            .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(completeLaterParams))
+        .andExpect(status().is3xxRedirection());
+
+    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.PARTIAL));
+
+  }
+
+  @Test
+  public void testPostAdminDetails_full_invalid() throws Exception {
+
+    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>(){{
+      add("Complete", "Complete");
+    }};
+
+    var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
+    bindingResult.addError(new ObjectError("fake error", "fake"));
+    when(padEnvironmentalDecommissioningService.validate(any(), any(), any())).thenReturn(bindingResult);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(EnvironmentalDecomController.class)
+            .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/environmentalAndDecommissioning"));
+
+    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
     verify(padEnvironmentalDecommissioningService, never()).getEnvDecomData(appDetail);
+
   }
 
   @Test
-  public void testPostCompleteAdminDetails_Valid() throws Exception {
-    MultiValueMap completeParams = new LinkedMultiValueMap<>(){{
-      add("Complete", "");
+  public void testPostAdminDetails_full_valid() throws Exception {
+
+    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>(){{
+      add("Complete", "Complete");
       add("transboundaryEffect", "true");
       add("emtSubmissionDay", "1");
       add("emtSubmissionMonth", "1");
@@ -218,12 +253,19 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
       add("acceptsEolRemoval", "true");
       add("acceptsRemovalProposal", "true");
     }};
+
+    var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
+    when(padEnvironmentalDecommissioningService.validate(any(), any(), any())).thenReturn(bindingResult);
+
     mockMvc.perform(
-        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postCompleteEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
+        post(ReverseRouter.route(on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(completeParams))
         .andExpect(status().is3xxRedirection());
+
     verify(padEnvironmentalDecommissioningService, times(1)).getEnvDecomData(appDetail);
+    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
+
   }
 }

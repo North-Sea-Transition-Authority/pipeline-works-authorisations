@@ -90,7 +90,7 @@ public class PickExistingPwaController {
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
-    return ControllerUtils.validateAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
       var pickedPwa = new PickablePwa(form.getPickablePwaString());
       var newApplication = pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(
           pickedPwa,

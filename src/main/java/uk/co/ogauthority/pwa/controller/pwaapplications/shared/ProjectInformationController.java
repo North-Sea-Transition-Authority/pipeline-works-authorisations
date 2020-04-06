@@ -7,7 +7,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +26,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -34,7 +34,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/project-information")
@@ -50,20 +49,17 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final ProjectInformationValidator validator;
   private final PadProjectInformationService padProjectInformationService;
   private final PwaApplicationFileService applicationFileService;
 
   @Autowired
   public ProjectInformationController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                       PwaApplicationRedirectService pwaApplicationRedirectService,
-                                      ProjectInformationValidator validator,
                                       PadProjectInformationService padProjectInformationService,
                                       PwaApplicationFileService applicationFileService) {
     this.applicationFileService = applicationFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.validator = validator;
     this.padProjectInformationService = padProjectInformationService;
   }
 
@@ -123,25 +119,30 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
   public ModelAndView renderProjectInformation(@PathVariable("applicationType")
                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                @PathVariable("applicationId") Integer applicationId,
-                                               @ModelAttribute("form") ProjectInformationForm form,
-                                               PwaApplicationContext applicationContext) {
+                                               PwaApplicationContext applicationContext,
+                                               @ModelAttribute("form") ProjectInformationForm form) {
     var entity = padProjectInformationService.getPadProjectInformationData(applicationContext.getApplicationDetail());
     padProjectInformationService.mapEntityToForm(entity, form, ApplicationFileLinkStatus.FULL);
     return getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
-  @PostMapping(params = "Save and complete later")
+  @PostMapping
   @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  public ModelAndView postContinueProjectInformation(@PathVariable("applicationType")
-                                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                                     @PathVariable("applicationId") Integer applicationId,
-                                                     @Validated({ProjectInformationForm.Partial.class})
-                                                     @ModelAttribute("form") ProjectInformationForm form,
-                                                     BindingResult bindingResult,
-                                                     PwaApplicationContext applicationContext) {
+  public ModelAndView postProjectInformation(@PathVariable("applicationType")
+                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                             @PathVariable("applicationId") Integer applicationId,
+                                             PwaApplicationContext applicationContext,
+                                             @ModelAttribute("form") ProjectInformationForm form,
+                                             BindingResult bindingResult,
+                                             @RequestParam(value = "Save and complete later", required = false)
+                                             String saveAndCompleteLater,
+                                             @RequestParam(value = "Complete", required = false) String complete) {
 
-    return ControllerUtils.validateAndRedirect(bindingResult,
+    bindingResult = padProjectInformationService
+        .validate(form, bindingResult, ValidationType.getFromRequestParams(saveAndCompleteLater, complete));
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         // if invalid form, get all files, including not yet saved ones as they may have errored.
         getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form), () -> {
           var entity = padProjectInformationService.getPadProjectInformationData(
@@ -151,28 +152,6 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
         });
 
-  }
-
-  @PostMapping(params = "Complete")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  public ModelAndView postCompleteProjectInformation(@PathVariable("applicationType")
-                                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                                     @PathVariable("applicationId") Integer applicationId,
-                                                     @Validated({ProjectInformationForm.Full.class})
-                                                     @ModelAttribute("form") ProjectInformationForm form,
-                                                     BindingResult bindingResult,
-                                                     PwaApplicationContext applicationContext) {
-    validator.validate(form, bindingResult);
-
-    return ControllerUtils.validateAndRedirect(bindingResult,
-        getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form), () -> {
-          var entity = padProjectInformationService.getPadProjectInformationData(
-              applicationContext.getApplicationDetail()
-          );
-          padProjectInformationService.saveEntityUsingForm(entity, form, applicationContext.getUser());
-          return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
-        });
   }
 
 

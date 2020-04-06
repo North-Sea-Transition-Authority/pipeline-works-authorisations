@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -13,48 +12,45 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.FastTrackValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/fast-track")
 public class FastTrackController {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadFastTrackService padFastTrackService;
   private final PadProjectInformationService padProjectInformationService;
-  private final FastTrackValidator validator;
 
   @Autowired
   public FastTrackController(
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      PwaApplicationDetailService pwaApplicationDetailService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadFastTrackService padFastTrackService,
-      PadProjectInformationService padProjectInformationService,
-      FastTrackValidator validator) {
+      PadProjectInformationService padProjectInformationService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padFastTrackService = padFastTrackService;
     this.padProjectInformationService = padProjectInformationService;
-    this.validator = validator;
   }
 
   private ModelAndView getFastTrackModelAndView(PwaApplicationDetail detail) {
@@ -66,62 +62,62 @@ public class FastTrackController {
       modelAndView.addObject("startDate", DateUtils.formatDate(startDate));
       modelAndView.addObject("modifyStartDateUrl",
           ReverseRouter.route(on(ProjectInformationController.class)
-              .renderProjectInformation(detail.getPwaApplicationType(), detail.getPwaApplication().getId(), null, null)));
+              .renderProjectInformation(detail.getPwaApplicationType(), null, null, null)));
     }
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Fast-track");
     return modelAndView;
   }
 
   @GetMapping
+  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderFastTrack(@PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       @PathVariable("applicationId") Integer applicationId,
+                                      PwaApplicationContext applicationContext,
                                       @ModelAttribute("form") FastTrackForm form,
                                       AuthenticatedUserAccount user) {
-    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
-      ensureAllowed(detail);
+
+    var detail = applicationContext.getApplicationDetail();
+
+    assertFastTrackAllowed(detail);
+
+    var entity = padFastTrackService.getFastTrackForDraft(detail);
+    padFastTrackService.mapEntityToForm(entity, form);
+    return getFastTrackModelAndView(detail);
+
+  }
+
+  @PostMapping
+  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
+  public ModelAndView postFastTrack(@PathVariable("applicationType")
+                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                    @PathVariable("applicationId") Integer applicationId,
+                                    PwaApplicationContext applicationContext,
+                                    @ModelAttribute("form") FastTrackForm form,
+                                    BindingResult bindingResult,
+                                    AuthenticatedUserAccount user,
+                                    @RequestParam(value = "Save and complete later", required = false)
+                                    String saveAndCompleteLater,
+                                    @RequestParam(value = "Complete", required = false) String complete) {
+
+    var detail = applicationContext.getApplicationDetail();
+
+    assertFastTrackAllowed(detail);
+
+    bindingResult = padFastTrackService
+        .validate(form, bindingResult, ValidationType.getFromRequestParams(saveAndCompleteLater, complete));
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getFastTrackModelAndView(detail), () -> {
       var entity = padFastTrackService.getFastTrackForDraft(detail);
-      padFastTrackService.mapEntityToForm(entity, form);
-      return getFastTrackModelAndView(detail);
+      padFastTrackService.saveEntityUsingForm(entity, form);
+      return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
     });
+
   }
 
-  @PostMapping(params = "Complete")
-  public ModelAndView postCompleteFastTrack(@PathVariable("applicationType")
-                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                            @PathVariable("applicationId") Integer applicationId,
-                                            @Valid @ModelAttribute("form") FastTrackForm form,
-                                            BindingResult bindingResult,
-                                            AuthenticatedUserAccount user) {
-    validator.validate(form, bindingResult);
-    return postValidateSaveAndRedirect(applicationId, pwaApplicationType, form, bindingResult, user);
-  }
-
-  @PostMapping(params = "Save and complete later")
-  public ModelAndView postContinueFastTrack(@PathVariable("applicationType")
-                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                            @PathVariable("applicationId") Integer applicationId,
-                                            @Valid @ModelAttribute("form") FastTrackForm form,
-                                            BindingResult bindingResult,
-                                            AuthenticatedUserAccount user) {
-    return postValidateSaveAndRedirect(applicationId, pwaApplicationType, form, bindingResult, user);
-  }
-
-  private ModelAndView postValidateSaveAndRedirect(Integer applicationId, PwaApplicationType pwaApplicationType,
-                                                   FastTrackForm form,
-                                                   BindingResult bindingResult,
-                                                   AuthenticatedUserAccount user) {
-    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
-      ensureAllowed(detail);
-      return ControllerUtils.validateAndRedirect(bindingResult, getFastTrackModelAndView(detail), () -> {
-        var entity = padFastTrackService.getFastTrackForDraft(detail);
-        padFastTrackService.saveEntityUsingForm(entity, form);
-        return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
-      });
-    });
-  }
-
-  private void ensureAllowed(PwaApplicationDetail pwaApplicationDetail) {
+  private void assertFastTrackAllowed(PwaApplicationDetail pwaApplicationDetail) {
     if (!padFastTrackService.isFastTrackRequired(pwaApplicationDetail)) {
       throw new AccessDeniedException(String.format("Application detail (%s) doesn't require fast-track",
           pwaApplicationDetail.getId()));

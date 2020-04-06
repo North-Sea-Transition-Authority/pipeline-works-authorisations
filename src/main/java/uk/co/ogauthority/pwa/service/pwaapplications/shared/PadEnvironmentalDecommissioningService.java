@@ -9,20 +9,32 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvDecomForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
 @Service
-public class PadEnvironmentalDecommissioningService {
+public class PadEnvironmentalDecommissioningService implements ApplicationFormSectionService {
 
   private final PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository;
+  private final EnvironmentalDecommissioningValidator environmentalDecommissioningValidator;
+  private final SpringValidatorAdapter groupValidator;
 
   @Autowired
   public PadEnvironmentalDecommissioningService(
-      PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository) {
+      PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository,
+      EnvironmentalDecommissioningValidator environmentalDecommissioningValidator,
+      SpringValidatorAdapter groupValidator) {
     this.padEnvironmentalDecommissioningRepository = padEnvironmentalDecommissioningRepository;
+    this.environmentalDecommissioningValidator = environmentalDecommissioningValidator;
+    this.groupValidator = groupValidator;
   }
 
   public PadEnvironmentalDecommissioning getEnvDecomData(PwaApplicationDetail pwaApplicationDetail) {
@@ -37,7 +49,7 @@ public class PadEnvironmentalDecommissioningService {
     return padEnvironmentalDecommissioningRepository.save(padEnvironmentalDecommissioning);
   }
 
-  public void mapEntityToForm(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning, EnvDecomForm form) {
+  public void mapEntityToForm(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning, EnvironmentalDecommissioningForm form) {
     form.setDecommissioningPlans(padEnvironmentalDecommissioning.getDecommissioningPlans());
     form.setEmtHasOutstandingPermits(padEnvironmentalDecommissioning.getEmtHasOutstandingPermits());
     form.setEmtHasSubmittedPermits(padEnvironmentalDecommissioning.getEmtHasSubmittedPermits());
@@ -56,7 +68,7 @@ public class PadEnvironmentalDecommissioningService {
   }
 
   @Transactional
-  public void saveEntityUsingForm(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning, EnvDecomForm form) {
+  public void saveEntityUsingForm(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning, EnvironmentalDecommissioningForm form) {
     padEnvironmentalDecommissioning.setDecommissioningPlans(form.getDecommissioningPlans());
     padEnvironmentalDecommissioning.setEmtHasOutstandingPermits(form.getEmtHasOutstandingPermits());
     padEnvironmentalDecommissioning.setEmtHasSubmittedPermits(form.getEmtHasSubmittedPermits());
@@ -91,4 +103,30 @@ public class PadEnvironmentalDecommissioningService {
     save(padEnvironmentalDecommissioning);
   }
 
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+
+    PadEnvironmentalDecommissioning environmentalDecommissioning = getEnvDecomData(detail);
+    var environmentalDecommissioningForm = new EnvironmentalDecommissioningForm();
+    mapEntityToForm(environmentalDecommissioning, environmentalDecommissioningForm);
+    BindingResult bindingResult = new BeanPropertyBindingResult(environmentalDecommissioningForm, "form");
+    environmentalDecommissioningValidator.validate(environmentalDecommissioningForm, bindingResult);
+
+    return !bindingResult.hasErrors();
+
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+
+    if (validationType.equals(ValidationType.PARTIAL)) {
+      groupValidator.validate(form, bindingResult, EnvironmentalDecommissioningForm.Partial.class);
+      return bindingResult;
+    }
+
+    groupValidator.validate(form, bindingResult, EnvironmentalDecommissioningForm.Full.class);
+    environmentalDecommissioningValidator.validate(form, bindingResult);
+    return bindingResult;
+
+  }
 }
