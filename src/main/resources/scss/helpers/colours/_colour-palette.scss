@@ -1,0 +1,15 @@
+// Custom extension of the govuk colour palette
+// e.g. govuk-frontend\settings\_colour-palette.scss
+
+///
+/// @type Map
+///
+/// @prop $colour - Representation for the given $colour, where $colour is the
+///   friendly name for the colour (e.g. "red": #ff0000);
+///
+/// @access public
+
+$govuk-custom-colours: (
+  "insert-green": #acf2bd,
+  "delete-red": #fdb8c0
+) !default;

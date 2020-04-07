@@ -47,29 +47,6 @@ public class PrototypePipelinesController {
                                       PrototypeApplicationBreadcrumbService breadcrumbService) {
     this.pipelineGodObject = pipelineGodObject;
     this.breadcrumbService = breadcrumbService;
-    if (pipelineGodObject.getPipelineViewList() == null || pipelineGodObject.getPipelineViewList().isEmpty()) {
-      PipelineView firstPipeline = new PipelineView("PL1", PipelineType.PRODUCTION_FLOWLINE, List.of());
-      firstPipeline.setLength(99);
-      firstPipeline.setFrom("Schiehallion FPSO");
-      firstPipeline.setFromLatitudeDegrees("1");
-      firstPipeline.setFromLatitudeMinutes("2");
-      firstPipeline.setFromLatitudeSeconds("3");
-      firstPipeline.setFromLongitudeDegrees("3");
-      firstPipeline.setFromLongitudeMinutes("2");
-      firstPipeline.setFromLongitudeSeconds("1");
-      firstPipeline.setToLatitudeDegrees("5");
-      firstPipeline.setToLatitudeMinutes("4");
-      firstPipeline.setToLatitudeSeconds("3");
-      firstPipeline.setToLongitudeDegrees("10");
-      firstPipeline.setToLongitudeMinutes("89");
-      firstPipeline.setToLongitudeSeconds("77");
-      firstPipeline.setTo("Sullom Voe Terminal");
-      firstPipeline.setProductsToBeConveyed("Oil");
-      firstPipeline.setComponentParts("Sullom Voe Terminal");
-      firstPipeline.setIdents(List.of());
-      pipelineGodObject.setPipelineViewList(List.of(firstPipeline));
-      firstPipeline.setTechnicalDetailsView(TechnicalDetailsView.createExampleTechDetails());
-    }
   }
 
   @GetMapping
@@ -94,6 +71,8 @@ public class PrototypePipelinesController {
             .collect(Collectors.toList()))
         .addObject("addProductionPipelineUrl",
             ReverseRouter.route(on(PrototypePipelinesController.class).addProductionPipelineRender(applicationId, null)))
+        .addObject("managePipelineOrgsUrl",
+            ReverseRouter.route(on(PrototypeManagePipelineHuoosController.class).selectPipelines(applicationId, null, false)))
         .addObject("saveCompleteLaterUrl", ReverseRouter.route(on(PrototypePwaApplicationController.class).viewTaskList(applicationId)));
 
     breadcrumbService.fromTaskList(applicationId, modelAndView, "Pipelines");

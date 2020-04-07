@@ -1,0 +1,39 @@
+// Diff changes between values
+.diff-changes {
+  $root: &;
+  display: none;
+
+  &__insert {
+    text-decoration: none;
+    align-self: flex-start;
+
+    #{$root}__value {
+      background: govuk-custom-colour("insert-green");
+    }
+  }
+
+  &__delete {
+    align-self: flex-start;
+    margin-bottom: govuk-spacing(1);
+    display: flex;
+    text-decoration: none;
+
+    #{$root}__value {
+      background: govuk-custom-colour("delete-red");
+      text-decoration-line: line-through;
+    }
+  }
+
+  &__value {
+    margin-right: govuk-spacing(2);
+  }
+
+  &--flex {
+    display: flex;
+    flex-flow: column;
+  }
+}
+
+.diff-raw-value {
+  display: none;
+}

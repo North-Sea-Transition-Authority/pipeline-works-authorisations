@@ -2,6 +2,7 @@
 
 <#-- @ftlvariable name="pipelineCards" type="java.util.List<uk.co.ogauthority.pwa.temp.model.view.PipelineCardView>" -->
 <#-- @ftlvariable name="addProductionPipelineUrl" type="String" -->
+<#-- @ftlvariable name="managePipelineOrgsUrl" type="String" -->
 <#-- @ftlvariable name="viewEditPipelineUrl" type="String" -->
 <#-- @ftlvariable name="saveCompleteLaterUrl" type="String" -->
 <#-- @ftlvariable name="saveCompleteLaterUrl" type="String" -->
@@ -9,6 +10,8 @@
 <@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" breadcrumbs=true>
 
     <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addProductionPipelineUrl) linkClass="govuk-button govuk-button--blue" />
+
+    <@fdsAction.link linkText="Manage pipeline organisations" linkUrl=springUrl(managePipelineOrgsUrl) linkClass="govuk-button govuk-button--blue" />
 
     <#list pipelineCards as card>
 

@@ -35,6 +35,10 @@ public class PipelineGodObject implements Serializable {
     firstPipeline.setProductsToBeConveyed("Oil");
     firstPipeline.setComponentParts("Sullom Voe Terminal");
     firstPipeline.setIdents(List.of());
+    firstPipeline.setHolders(List.of("Royal Dutch Shell"));
+    firstPipeline.setUsers(List.of("Conocophillips", "Taqa Brittani"));
+    firstPipeline.setOperators(List.of("Wintershall BV"));
+    firstPipeline.setOwners(List.of("GASSCO AS"));
     firstPipeline.setTechnicalDetailsView(TechnicalDetailsView.createExampleTechDetails());
     this.pipelineViewList = List.of(firstPipeline);
   }

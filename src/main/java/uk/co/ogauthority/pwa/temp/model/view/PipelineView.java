@@ -41,6 +41,14 @@ public class PipelineView implements Serializable {
 
   private TechnicalDetailsView technicalDetailsView;
 
+  private List<String> holders;
+
+  private List<String> users;
+
+  private List<String> operators;
+
+  private List<String> owners;
+
   public PipelineView() {
   }
 
@@ -236,6 +244,38 @@ public class PipelineView implements Serializable {
     this.technicalDetailsView = technicalDetailsView;
   }
 
+  public List<String> getHolders() {
+    return holders;
+  }
+
+  public void setHolders(List<String> holders) {
+    this.holders = holders;
+  }
+
+  public List<String> getUsers() {
+    return users;
+  }
+
+  public void setUsers(List<String> users) {
+    this.users = users;
+  }
+
+  public List<String> getOperators() {
+    return operators;
+  }
+
+  public void setOperators(List<String> operators) {
+    this.operators = operators;
+  }
+
+  public List<String> getOwners() {
+    return owners;
+  }
+
+  public void setOwners(List<String> owners) {
+    this.owners = owners;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -265,7 +305,11 @@ public class PipelineView implements Serializable {
         && Objects.equals(length, that.length)
         && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
         && Objects.equals(idents, that.idents)
-        && Objects.equals(technicalDetailsView, that.technicalDetailsView);
+        && Objects.equals(technicalDetailsView, that.technicalDetailsView)
+        && Objects.equals(holders, that.holders)
+        && Objects.equals(users, that.users)
+        && Objects.equals(operators, that.operators)
+        && Objects.equals(owners, that.owners);
   }
 
   @Override
@@ -274,6 +318,6 @@ public class PipelineView implements Serializable {
         fromLatitudeSeconds,
         fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, to, toLatitudeDegrees, toLatitudeMinutes,
         toLatitudeSeconds, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, componentParts, length,
-        productsToBeConveyed, idents, technicalDetailsView);
+        productsToBeConveyed, idents, technicalDetailsView, holders, users, operators, owners);
   }
 }

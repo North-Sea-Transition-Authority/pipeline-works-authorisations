@@ -1,0 +1,22 @@
+@import "colour-palette";
+
+// Custom extension of the govuk colour function
+// e.g. govuk-frontend\helpers\_colour.scss
+
+/// Get colour
+///
+/// @param {String} $colour - Name of colour from the colour palette
+///   (`$govuk-colours`)
+/// @return {Colour} Representation of named colour
+/// @throw if `$colour` is not a colour from the colour palette
+/// @access public
+
+@function govuk-custom-colour($colour) {
+  $colour: quote($colour);
+
+  @if not map-has-key($govuk-custom-colours, $colour) {
+    @error "Unknown colour `#{$colour}`";
+  }
+
+  @return map-get($govuk-custom-colours, $colour);
+}

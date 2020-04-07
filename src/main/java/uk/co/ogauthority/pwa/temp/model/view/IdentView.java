@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.temp.model.view;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class IdentView implements Serializable {
 
@@ -40,6 +41,14 @@ public class IdentView implements Serializable {
   private BigDecimal maop;
 
   private String productsToBeConveyed;
+
+  private List<String> holders;
+
+  private List<String> users;
+
+  private List<String> operators;
+
+  private List<String> owners;
 
   public IdentView() {
   }
@@ -226,5 +235,37 @@ public class IdentView implements Serializable {
 
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
+  }
+
+  public List<String> getHolders() {
+    return holders;
+  }
+
+  public void setHolders(List<String> holders) {
+    this.holders = holders;
+  }
+
+  public List<String> getUsers() {
+    return users;
+  }
+
+  public void setUsers(List<String> users) {
+    this.users = users;
+  }
+
+  public List<String> getOperators() {
+    return operators;
+  }
+
+  public void setOperators(List<String> operators) {
+    this.operators = operators;
+  }
+
+  public List<String> getOwners() {
+    return owners;
+  }
+
+  public void setOwners(List<String> owners) {
+    this.owners = owners;
   }
 }

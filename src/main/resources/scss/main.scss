@@ -11,3 +11,9 @@ $govuk-assets-path: "../../govuk-frontend/govuk/assets/";
 
 // PWA Components
 @import "components/all-components";
+
+// Helpers
+@import "helpers/all";
+
+// Patterns
+@import "patterns/all";
