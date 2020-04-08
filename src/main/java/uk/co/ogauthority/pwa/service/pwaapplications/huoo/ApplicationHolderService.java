@@ -14,10 +14,13 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.ApplicationHolderOr
 public class ApplicationHolderService {
 
   private final ApplicationHolderOrganisationRepository applicationHolderOrganisationRepository;
+  private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
-  public ApplicationHolderService(ApplicationHolderOrganisationRepository applicationHolderOrganisationRepository) {
+  public ApplicationHolderService(ApplicationHolderOrganisationRepository applicationHolderOrganisationRepository,
+                                  PadOrganisationRoleService padOrganisationRoleService) {
     this.applicationHolderOrganisationRepository = applicationHolderOrganisationRepository;
+    this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
   /**
@@ -32,6 +35,9 @@ public class ApplicationHolderService {
 
     var holder = new ApplicationHolderOrganisation(detail, organisationUnit);
     applicationHolderOrganisationRepository.save(holder);
+
+    padOrganisationRoleService.addHolder(detail, organisationUnit);
+
 
   }
 

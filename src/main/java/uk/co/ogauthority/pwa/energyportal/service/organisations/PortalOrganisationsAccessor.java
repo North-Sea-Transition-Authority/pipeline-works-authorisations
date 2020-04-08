@@ -9,7 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationGroupRepository;
+import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitDetailRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
 
 /**
@@ -20,13 +22,16 @@ import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganis
 public class PortalOrganisationsAccessor {
   private final PortalOrganisationGroupRepository organisationGroupRepository;
   private final PortalOrganisationUnitRepository organisationUnitRepository;
+  private final PortalOrganisationUnitDetailRepository organisationUnitDetailRepository;
 
   @Autowired
   public PortalOrganisationsAccessor(
       PortalOrganisationGroupRepository organisationGroupRepository,
-      PortalOrganisationUnitRepository organisationUnitRepository) {
+      PortalOrganisationUnitRepository organisationUnitRepository,
+      PortalOrganisationUnitDetailRepository organisationUnitDetailRepository) {
     this.organisationGroupRepository = organisationGroupRepository;
     this.organisationUnitRepository = organisationUnitRepository;
+    this.organisationUnitDetailRepository = organisationUnitDetailRepository;
   }
 
   /**
@@ -71,6 +76,10 @@ public class PortalOrganisationsAccessor {
    */
   public List<PortalOrganisationUnit> getOrganisationUnitsByIdIn(Iterable<Integer> organisationUnitList) {
     return IterableUtils.toList(organisationUnitRepository.findAllById(organisationUnitList));
+  }
+
+  public List<PortalOrganisationUnitDetail> getOrganisationUnitDetails(List<PortalOrganisationUnit> unit) {
+    return organisationUnitDetailRepository.getAllByOrganisationUnitIn(unit);
   }
 
   /**

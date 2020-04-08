@@ -15,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFieldsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -59,10 +59,6 @@ public class TaskListService {
 
     if (application.getApplicationType().equals(PwaApplicationType.INITIAL)) {
 
-      tasks.put("Consent holder",
-          ReverseRouter.route(on(PwaHolderController.class)
-              .renderHolderScreen(application.getApplicationType(), application.getId(), null, null)));
-
       tasks.put("Field information",
           ReverseRouter.route(on(InitialFieldsController.class)
               .renderFields(application.getApplicationType(), application.getId(), null, null)));
@@ -82,6 +78,8 @@ public class TaskListService {
         put("Application contacts",
             ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(application.getApplicationType(), application.getId(), null)));
+        put("Holders, users, operators, and owners", ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(application.getApplicationType(), application.getId(), null, null)));
       }
     };
   }

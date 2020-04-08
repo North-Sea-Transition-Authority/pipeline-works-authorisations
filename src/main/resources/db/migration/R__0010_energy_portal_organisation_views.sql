@@ -1,6 +1,7 @@
 GRANT SELECT ON decmgr.xview_organisation_units TO ${datasource.user};
 GRANT SELECT ON decmgr.current_org_grp_organisations TO ${datasource.user};
 GRANT SELECT ON decmgr.current_organisation_groups TO ${datasource.user};
+GRANT SELECT ON decmgr.organisation_address_details TO ${datasource.user};
 
 CREATE OR REPLACE VIEW ${datasource.user}.portal_organisation_units AS
 SELECT xou.organ_id ou_id, xou.name, cog.id org_grp_id
@@ -18,3 +19,15 @@ SELECT cog.id org_grp_id
 , cog.id || '++' || cog.org_grp_type || 'ORGGRP' uref_value
 FROM decmgr.current_organisation_groups cog
 WHERE cog.org_grp_type = 'REG';
+
+-- ou_id and org_unit_id are identical in order to reference the PortalOrganisationUnit entity.
+CREATE OR REPLACE VIEW ${datasource.user}.portal_org_unit_detail AS
+SELECT
+  xou.organ_id ou_id
+, xou.organ_id org_unit_id
+, oad.legal_address
+, oad.registered_number
+FROM decmgr.xview_organisation_units xou
+JOIN decmgr.organisation_address_details oad ON oad.organ_id = xou.organ_id
+WHERE xou.end_date IS NULL
+AND xou.is_duplicate IS NULL;

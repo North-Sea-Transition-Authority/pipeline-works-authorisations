@@ -18,12 +18,16 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.ApplicationHolderOrganisationRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationHolderServiceTest {
 
   @Mock
   private ApplicationHolderOrganisationRepository applicationHolderOrganisationRepository;
+
+  @Mock
+  private PadOrganisationRoleService padOrganisationRoleService;
 
   @Captor
   ArgumentCaptor<List<ApplicationHolderOrganisation>> orgsDeletedCaptor;
@@ -35,7 +39,8 @@ public class ApplicationHolderServiceTest {
 
   @Before
   public void setUp() {
-    applicationHolderService = new ApplicationHolderService(applicationHolderOrganisationRepository);
+    applicationHolderService = new ApplicationHolderService(applicationHolderOrganisationRepository,
+        padOrganisationRoleService);
   }
 
   @Test
@@ -59,6 +64,8 @@ public class ApplicationHolderServiceTest {
     var appHolderOrg = appHolderArgCaptor.getValue();
     assertThat(appHolderOrg.getPwaApplicationDetail()).isEqualTo(detail);
     assertThat(appHolderOrg.getOrganisationUnit()).isEqualTo(portalOrg);
+
+    verify(padOrganisationRoleService, times(1)).addHolder(detail, portalOrg);
 
   }
 

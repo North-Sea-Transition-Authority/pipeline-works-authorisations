@@ -54,8 +54,7 @@ public class TaskListServiceTest {
     pwaApplication.setId(1);
     pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
 
-    assertThat(taskListService.getPwaInfoTasks(pwaApplication)).containsOnlyKeys(
-        "Consent holder", "Field information");
+    assertThat(taskListService.getPwaInfoTasks(pwaApplication)).containsOnlyKeys("Field information");
 
   }
 
@@ -87,7 +86,9 @@ public class TaskListServiceTest {
 
       pwaApplication.setApplicationType(applicationType);
 
-      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys("Application contacts");
+      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys(
+          "Application contacts",
+          "Holders, users, operators, and owners");
 
     });
 
