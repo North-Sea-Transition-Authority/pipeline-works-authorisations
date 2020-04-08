@@ -1,17 +1,25 @@
 package uk.co.ogauthority.pwa.validators;
 
+import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
-public class MedianLineAgreementValidator implements Validator {
+public class MedianLineAgreementValidator implements SmartValidator {
 
   private static String MISSING_NAME = "You must provide the name of the negotiator";
   private static String MISSING_EMAIL = "You must provide a contact email for the negotiator";
+
+  private static String NEGOTIATOR_NAME = "Negotiator name";
+  private static String NEGOTIATOR_EMAIL = "Negotiator email";
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -20,17 +28,30 @@ public class MedianLineAgreementValidator implements Validator {
 
   @Override
   public void validate(Object target, Errors errors) {
+    validate(target, errors, PartialValidation.class);
+  }
+
+  @Override
+  public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (MedianLineAgreementsForm) target;
-    if (form.getAgreementStatus() == null) {
-      errors.rejectValue("agreementStatus", "agreementStatus.required", "You must select one");
-    } else if (form.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_ONGOING) {
+
+    partialValidation(form, errors);
+
+    if (Arrays.asList(validationHints).contains(FullValidation.class)) {
+      fullValidation(form, errors);
+    }
+
+  }
+
+  private void fullValidation(MedianLineAgreementsForm form, Errors errors) {
+    if (MedianLineStatus.NEGOTIATIONS_ONGOING.equals(form.getAgreementStatus())) {
       if (StringUtils.isBlank(form.getNegotiatorNameIfOngoing())) {
         errors.rejectValue("negotiatorNameIfOngoing", "negotiatorNameIfOngoing.required", MISSING_NAME);
       }
       if (StringUtils.isBlank(form.getNegotiatorEmailIfOngoing())) {
         errors.rejectValue("negotiatorEmailIfOngoing", "negotiatorEmailIfOngoing.required", MISSING_EMAIL);
       }
-    } else if (form.getAgreementStatus() == MedianLineStatus.NEGOTIATIONS_COMPLETED) {
+    } else if (MedianLineStatus.NEGOTIATIONS_COMPLETED.equals(form.getAgreementStatus())) {
       if (StringUtils.isBlank(form.getNegotiatorNameIfCompleted())) {
         errors.rejectValue("negotiatorNameIfCompleted", "negotiatorNameIfCompleted.required", MISSING_NAME);
       }
@@ -38,5 +59,46 @@ public class MedianLineAgreementValidator implements Validator {
         errors.rejectValue("negotiatorEmailIfCompleted", "negotiatorEmailIfCompleted.required", MISSING_EMAIL);
       }
     }
+
+  }
+
+  private void partialValidation(MedianLineAgreementsForm form, Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "agreementStatus",
+        "agreementStatus.required",
+        "You must select an agreement status");
+
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        "negotiatorEmailIfOngoing",
+        form::getNegotiatorEmailIfOngoing,
+        NEGOTIATOR_EMAIL);
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        "negotiatorNameIfOngoing",
+        form::getNegotiatorEmailIfOngoing,
+        NEGOTIATOR_NAME);
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        "negotiatorEmailIfCompleted",
+        form::getNegotiatorEmailIfCompleted,
+        NEGOTIATOR_EMAIL);
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        "negotiatorNameIfCompleted", form::getNegotiatorEmailIfCompleted,
+        NEGOTIATOR_NAME);
+
+    ValidatorUtils.validateEmailIfPresent(
+        errors,
+        "negotiatorEmailIfOngoing",
+        form::getNegotiatorEmailIfOngoing,
+        NEGOTIATOR_EMAIL);
+
+    ValidatorUtils.validateEmailIfPresent(
+        errors,
+        "negotiatorEmailIfCompleted",
+        form::getNegotiatorEmailIfCompleted,
+        NEGOTIATOR_EMAIL);
   }
 }

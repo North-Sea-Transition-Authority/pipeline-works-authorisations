@@ -190,7 +190,7 @@ public class MedianLineCrossingControllerTest extends AbstractControllerTest {
     }};
 
     var entity = new PadMedianLineAgreement();
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(entity);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(entity);
 
     mockMvc.perform(
         post(ReverseRouter.route(
@@ -223,7 +223,7 @@ public class MedianLineCrossingControllerTest extends AbstractControllerTest {
     }};
 
     var entity = new PadMedianLineAgreement();
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(entity);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(entity);
 
     mockMvc.perform(
         post(ReverseRouter.route(

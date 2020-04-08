@@ -33,6 +33,19 @@ public class ValidatorTestUtils {
   }
 
   /**
+   * Apply a validator with hints to a form object and return a map of field id -> set of field error codes.
+   */
+  public static Map<String, Set<String>> getFormValidationErrors(Validator validator, Object form, Object... validationHints) {
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+    ValidationUtils.invokeValidator(validator, form, errors, validationHints);
+
+    return errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+
+  }
+
+  /**
    * Return a map of field id -> set of field error codes for a BindingResult
    */
   public static Map<String, Set<String>> extractErrors(BindingResult bindingResult) {
@@ -49,5 +62,7 @@ public class ValidatorTestUtils {
   public static String exactly4000chars() {
     return StringUtils.repeat("a", 4000);
   }
+
+
 
 }

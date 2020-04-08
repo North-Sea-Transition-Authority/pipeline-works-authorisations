@@ -3,24 +3,34 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
 @Service
-public class PadMedianLineAgreementService {
+public class PadMedianLineAgreementService implements ApplicationFormSectionService {
 
   private final PadMedianLineAgreementRepository padMedianLineAgreementRepository;
+  private final MedianLineAgreementValidator medianLineAgreementValidator;
 
   @Autowired
   public PadMedianLineAgreementService(
-      PadMedianLineAgreementRepository padMedianLineAgreementRepository) {
+      PadMedianLineAgreementRepository padMedianLineAgreementRepository,
+      MedianLineAgreementValidator medianLineAgreementValidator) {
     this.padMedianLineAgreementRepository = padMedianLineAgreementRepository;
+    this.medianLineAgreementValidator = medianLineAgreementValidator;
+
   }
 
-  public PadMedianLineAgreement getMedianLineAgreementForDraft(PwaApplicationDetail pwaApplicationDetail) {
+  public PadMedianLineAgreement getMedianLineAgreement(PwaApplicationDetail pwaApplicationDetail) {
     var agreementIfOptionalEmpty = new PadMedianLineAgreement();
     agreementIfOptionalEmpty.setPwaApplicationDetail(pwaApplicationDetail);
     return padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)
@@ -59,4 +69,25 @@ public class PadMedianLineAgreementService {
     padMedianLineAgreementRepository.save(padMedianLineAgreement);
   }
 
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    var medianLineAgreement = getMedianLineAgreement(detail);
+    var form = new MedianLineAgreementsForm();
+    mapEntityToForm(medianLineAgreement, form);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    validate(form, bindingResult, ValidationType.FULL);
+    return !bindingResult.hasErrors();
+
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+
+    if (validationType.equals(ValidationType.FULL)) {
+      medianLineAgreementValidator.validate(form, bindingResult, FullValidation.class);
+    } else {
+      medianLineAgreementValidator.validate(form, bindingResult);
+    }
+    return bindingResult;
+  }
 }

@@ -129,7 +129,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_BeforeMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).minusDays(1);
@@ -141,7 +141,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_AtMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod());
@@ -153,7 +153,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_PastMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).plusDays(1);
@@ -178,7 +178,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_BeforeAndAfterMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     var start = LocalDate.now().plus(PwaApplicationType.CAT_2_VARIATION.getMinProcessingPeriod()).plusWeeks(1);
     projectInformation.setProposedStartTimestamp(

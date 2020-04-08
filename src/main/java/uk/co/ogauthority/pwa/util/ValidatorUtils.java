@@ -2,8 +2,10 @@ package uk.co.ogauthority.pwa.util;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.validation.Errors;
 
 public class ValidatorUtils {
@@ -12,8 +14,12 @@ public class ValidatorUtils {
     throw new AssertionError();
   }
 
-  public static boolean validateDateIsPresentOrFuture(String fieldPrefix, String displayPrefix,
-                                                   Integer day, Integer month, Integer year, Errors errors) {
+  public static boolean validateDateIsPresentOrFuture(String fieldPrefix,
+                                                      String displayPrefix,
+                                                      Integer day,
+                                                      Integer month,
+                                                      Integer year,
+                                                      Errors errors) {
     var dayValid = Range.between(1, 31).contains(day);
     var monthValid = Range.between(1, 12).contains(month);
     var yearValid = year != null && year >= LocalDate.now().getYear();
@@ -42,6 +48,35 @@ public class ValidatorUtils {
       return false;
     }
     return true;
+  }
+
+
+  public static void validateDefaultStringLength(Errors errors,
+                                                 String field,
+                                                 Supplier<String> stringSupplier,
+                                                 String messagePrefix) {
+
+    validateMaxLength(errors, field, stringSupplier, messagePrefix + " must be 4000 characters or fewer", 4000);
+
+  }
+
+  private static void validateMaxLength(Errors errors,
+                                        String fieldName,
+                                        Supplier<String> stringSupplier,
+                                        String message,
+                                        int maxLength) {
+    var testString = stringSupplier.get();
+    if (testString != null && testString.length() > maxLength) {
+      errors.rejectValue(fieldName, fieldName + ".maxLengthExceeded", message);
+    }
+  }
+
+  public static void validateEmailIfPresent(Errors errors, String field, Supplier<String> email, String messagePrefix) {
+    var emailAddress = email.get();
+    if (emailAddress != null && !EmailValidator.getInstance().isValid(emailAddress)) {
+      errors.rejectValue(field, field + ".invalid", messagePrefix + " must be a valid email");
+    }
+
   }
 
 }

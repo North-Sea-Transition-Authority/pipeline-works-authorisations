@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,11 +13,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadMedianLineAgreementServiceTest {
@@ -23,13 +29,19 @@ public class PadMedianLineAgreementServiceTest {
   @Mock
   private PadMedianLineAgreementRepository padMedianLineAgreementRepository;
 
+  @Mock
+  private MedianLineAgreementValidator medianLineAgreementValidator;
+
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() throws Exception {
-    padMedianLineAgreementService = new PadMedianLineAgreementService(padMedianLineAgreementRepository);
+    padMedianLineAgreementService = new PadMedianLineAgreementService(
+        padMedianLineAgreementRepository,
+       medianLineAgreementValidator
+    );
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 
@@ -37,14 +49,14 @@ public class PadMedianLineAgreementServiceTest {
   public void getMedianLineAgreementForDraft_WithExisting() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(agreement));
-    var result = padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail);
+    var result = padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail);
     assertThat(result).isEqualTo(agreement);
   }
 
   @Test
   public void getMedianLineAgreementForDraft_NoneExisting() {
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.empty());
-    var result = padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail);
+    var result = padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail);
     assertThat(result.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
   }
 
@@ -165,5 +177,30 @@ public class PadMedianLineAgreementServiceTest {
     assertThat(entity.getAgreementStatus()).isEqualTo(form.getAgreementStatus());
     assertThat(entity.getNegotiatorName()).isEqualTo(form.getNegotiatorNameIfCompleted());
     assertThat(entity.getNegotiatorEmail()).isEqualTo(form.getNegotiatorEmailIfCompleted());
+  }
+
+  @Test
+  public void isComplete_serviceInteractions(){
+
+    padMedianLineAgreementService.isComplete(pwaApplicationDetail);
+    verify(medianLineAgreementValidator, times(1) ).validate(any(), any(), eq(FullValidation.class));
+  }
+
+  @Test
+  public void validate_serviceInteractions_whenFullValidation(){
+    var form = new MedianLineAgreementsForm();
+    var errors = new BeanPropertyBindingResult(form, "form");
+    padMedianLineAgreementService.validate(form, errors, ValidationType.FULL);
+
+    verify(medianLineAgreementValidator, times(1) ).validate(any(), any(), eq(FullValidation.class));
+  }
+
+  @Test
+  public void validate_serviceInteractions_whenPartialValidation(){
+    var form = new MedianLineAgreementsForm();
+    var errors = new BeanPropertyBindingResult(form, "form");
+    padMedianLineAgreementService.validate(form, errors, ValidationType.PARTIAL);
+
+    verify(medianLineAgreementValidator, times(1) ).validate(any(), any());
   }
 }

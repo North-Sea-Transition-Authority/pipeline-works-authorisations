@@ -26,14 +26,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/median-line")
@@ -47,19 +46,14 @@ import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 public class MedianLineCrossingController {
 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
-  private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final MedianLineAgreementValidator medianLineAgreementValidator;
+
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @Autowired
   public MedianLineCrossingController(
       PadMedianLineAgreementService padMedianLineAgreementService,
-      PwaApplicationRedirectService pwaApplicationRedirectService,
-      MedianLineAgreementValidator medianLineAgreementValidator,
       ApplicationBreadcrumbService applicationBreadcrumbService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
-    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.medianLineAgreementValidator = medianLineAgreementValidator;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
@@ -82,7 +76,7 @@ public class MedianLineCrossingController {
                                            PwaApplicationContext applicationContext,
                                            AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
-    var entity = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+    var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
     padMedianLineAgreementService.mapEntityToForm(entity, form);
     return getMedianLineModelAndView(detail);
   }
@@ -96,6 +90,7 @@ public class MedianLineCrossingController {
                                              BindingResult bindingResult,
                                              PwaApplicationContext applicationContext,
                                              AuthenticatedUserAccount user) {
+    padMedianLineAgreementService.validate(form, bindingResult, ValidationType.PARTIAL);
     return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
   }
 
@@ -108,7 +103,7 @@ public class MedianLineCrossingController {
                                              BindingResult bindingResult,
                                              PwaApplicationContext applicationContext,
                                              AuthenticatedUserAccount user) {
-    medianLineAgreementValidator.validate(form, bindingResult);
+    padMedianLineAgreementService.validate(form, bindingResult, ValidationType.FULL);
     return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
   }
 
@@ -118,7 +113,7 @@ public class MedianLineCrossingController {
     // TODO: PWA-393 Add file uploads
     var detail = applicationContext.getApplicationDetail();
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, getMedianLineModelAndView(detail), () -> {
-      var entity = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+      var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
       padMedianLineAgreementService.saveEntityUsingForm(entity, form);
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
           .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), null, null));

@@ -58,7 +58,7 @@ public class PadFastTrackService implements ApplicationFormSectionService {
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     if (projectInformation.getProposedStartTimestamp() != null) {
       var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
-      var medianLine = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+      var medianLine = padMedianLineAgreementService.getMedianLineAgreement(detail);
       if (medianLine != null) {
         if (medianLine.getAgreementStatus() == null || medianLine.getAgreementStatus() == MedianLineStatus.NOT_CROSSED) {
           return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMinProcessingPeriod()));

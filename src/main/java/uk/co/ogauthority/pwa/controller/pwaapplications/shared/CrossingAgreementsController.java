@@ -73,7 +73,7 @@ public class CrossingAgreementsController {
                                                        AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
     var modelAndView = getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail());
-    var entity = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+    var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
     if (entity.getAgreementStatus() != null) {
       modelAndView.addObject("medianLineAgreementView", new MedianLineAgreementView(
           entity.getAgreementStatus(),

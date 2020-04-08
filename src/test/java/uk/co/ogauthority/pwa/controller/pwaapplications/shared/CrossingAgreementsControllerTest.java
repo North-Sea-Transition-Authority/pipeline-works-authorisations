@@ -91,7 +91,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
     entity.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_ONGOING);
     entity.setNegotiatorName("Name");
     entity.setNegotiatorEmail("Email");
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(entity);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(entity);
 
     var model = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(CrossingAgreementsController.class)

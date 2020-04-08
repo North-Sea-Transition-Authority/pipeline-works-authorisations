@@ -19,7 +19,9 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return false;
+
+    // Add other sections validation results
+    return padMedianLineAgreementService.isComplete(detail);
   }
 
   @Override
