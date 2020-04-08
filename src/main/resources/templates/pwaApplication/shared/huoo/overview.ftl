@@ -22,9 +22,9 @@
       <tbody class="govuk-table__body">
       <#list huooOrgs as org>
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">${org.registeredNumber}</td>
+          <td class="govuk-table__cell">${org.registeredNumber?has_content?then(org.registeredNumber, "")}</td>
           <td class="govuk-table__cell">${org.companyName}</td>
-          <td class="govuk-table__cell">${org.companyAddress}</td>
+          <td class="govuk-table__cell">${org.companyAddress?has_content?then(org.companyAddress, "")}</td>
           <td class="govuk-table__cell">${org.roles}</td>
           <td class="govuk-table__cell">
               <@fdsAction.link linkText="Edit" linkUrl=springUrl(org.editUrl) linkClass="govuk-link"/>
