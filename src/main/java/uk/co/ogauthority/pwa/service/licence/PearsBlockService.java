@@ -49,7 +49,7 @@ public class PearsBlockService {
     return results.stream()
         .sorted(Comparator.comparing(PearsBlock::getQuadrantNumber)
             .thenComparing(PearsBlock::getBlockNumber)
-            .thenComparing(PearsBlock::getSuffix)
+            .thenComparing((pb) -> pb.getSuffix() != null ? pb.getSuffix() : "")
             .thenComparing(PearsBlock::getCompositeKey))
         .map(PickablePearsBlock::new)
         .collect(Collectors.toList());
