@@ -1,13 +1,11 @@
 package uk.co.ogauthority.pwa.model.entity.masterpwas;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 
 @Entity(name = "pwas")
 public class MasterPwa {
@@ -15,10 +13,6 @@ public class MasterPwa {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
-
-  @OneToOne
-  @JoinColumn(name = "holder_ou_id")
-  private PortalOrganisationUnit portalOrganisationUnit;
 
   private Instant createdTimestamp;
 
@@ -38,20 +32,29 @@ public class MasterPwa {
     this.id = id;
   }
 
-  public PortalOrganisationUnit getPortalOrganisationUnit() {
-    return portalOrganisationUnit;
-  }
-
-  public void setPortalOrganisationUnit(
-      PortalOrganisationUnit portalOrganisationUnit) {
-    this.portalOrganisationUnit = portalOrganisationUnit;
-  }
-
   public Instant getCreatedTimestamp() {
     return createdTimestamp;
   }
 
   public void setCreatedTimestamp(Instant createdTimestamp) {
     this.createdTimestamp = createdTimestamp;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MasterPwa masterPwa = (MasterPwa) o;
+    return id.equals(masterPwa.id)
+        && createdTimestamp.equals(masterPwa.createdTimestamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, createdTimestamp);
   }
 }

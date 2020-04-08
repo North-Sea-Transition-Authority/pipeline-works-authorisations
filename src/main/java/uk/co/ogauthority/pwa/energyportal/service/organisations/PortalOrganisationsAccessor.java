@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
@@ -49,6 +50,16 @@ public class PortalOrganisationsAccessor {
   }
 
   /**
+   * Return a list of  all organisation units where the search term is contained within the actual name.
+   *
+   * @param searchString find org units with name containing this string
+   * @return organisation unit Entities matching search term.
+   */
+  public List<PortalOrganisationUnit> findOrganisationUnitsWhereNameContains(String searchString, Pageable pageable) {
+    return organisationUnitRepository.findByNameContainingIgnoreCase(searchString, pageable);
+  }
+
+  /**
    * Returns a list of all organisation units.
    */
   public List<PortalOrganisationUnit> getAllOrganisationUnits() {
@@ -58,7 +69,7 @@ public class PortalOrganisationsAccessor {
   /**
    * Returns a list of Organisation units whose ouId matches a value in the param list.
    */
-  public List<PortalOrganisationUnit> getOrganisationUnitsByIdIn(List<Integer> organisationUnitList) {
+  public List<PortalOrganisationUnit> getOrganisationUnitsByIdIn(Iterable<Integer> organisationUnitList) {
     return IterableUtils.toList(organisationUnitRepository.findAllById(organisationUnitList));
   }
 

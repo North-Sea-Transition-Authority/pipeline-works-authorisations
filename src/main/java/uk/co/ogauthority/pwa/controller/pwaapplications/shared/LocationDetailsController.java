@@ -46,7 +46,6 @@ public class LocationDetailsController {
   private final PadFacilityService padFacilityService;
   private final PadLocationDetailsService padLocationDetailsService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final LocationDetailsValidator locationDetailsValidator;
 
   @Autowired
   public LocationDetailsController(
@@ -61,7 +60,6 @@ public class LocationDetailsController {
     this.devukFacilityService = devukFacilityService;
     this.padLocationDetailsService = padLocationDetailsService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.locationDetailsValidator = locationDetailsValidator;
   }
 
   private ModelAndView getLocationModelAndView(PwaApplicationDetail detail) {

@@ -41,10 +41,9 @@ public class PwaApplicationFileService {
 
 
   /**
-   * When handling file deletes, save file deleation and allow callers to provide after delete action e.g remove app concept link
+   * When handling file deletes, save file deletion and allow callers to provide after delete action e.g remove app concept link
    *
    * @param afterDeleteAction String: fileId PwaApplicationDetail linked detail
-   * @return
    */
   @Transactional
   public FileDeleteResult processApplicationFileDelete(String fileId, PwaApplicationDetail applicationDetail,

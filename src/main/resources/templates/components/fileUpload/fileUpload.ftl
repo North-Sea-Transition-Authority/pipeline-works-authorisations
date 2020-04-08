@@ -1,27 +1,36 @@
 <#include '../../layout.ftl'>
 
-<#macro fileUpload path id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions=[] dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[] >
-  <#local inputName = path?remove_beginning("form.") />
-  <div id="${id}-dropzone" class="fileupload-dropzone">
-    <#local allowedExtensionsString=allowedExtensions?join(",")/>
-    <div class="fileupload-dropzone__text">
-      ${dropzoneText}, or
-      <input id="${id}"
-        class="fileupload-dropzone__hidden-input"
-        type="file"
-        name="file"
-        tabindex="-1"
-        data-form-data='{"${_csrf.parameterName}": "${_csrf.token}"}'
-        data-fileInputName="${inputName}"
-        data-url="<@spring.url uploadUrl/>"
-        data-delete-url="<@spring.url deleteUrl/>"
-        data-download-url="<@spring.url downloadUrl/>"
-        upload-file-allowed-extensions="${allowedExtensionsString}"
-        upload-file-max-size="${maxAllowedSize}"
-        accept="${allowedExtensionsString}"
-        <#if multiFile>multiple</#if>
-      >
-      <label for="${id}" class="fileupload-dropzone__link" tabindex="0">choose a file</label>
+<#macro fileUpload path id uploadUrl deleteUrl downloadUrl maxAllowedSize allowedExtensions=[] dropzoneText="Drag and drop a file here" multiFile=true existingFiles=[] validationErrors=[] formGroupClass="" >
+    <@spring.bind path/>
+    <#local inputId = spring.status.expression/>
+    <#local inputName = path?remove_beginning("form.") />
+    <#local hasError=(spring.status.errorMessages?size > 0)>
+
+  <div class="govuk-form-group ${formGroupClass}<#if hasError> govuk-form-group--error</#if>">
+    <#if hasError>
+        <@fdsError.inputError inputId=inputId/>
+    </#if>
+    <div id="${inputId}-dropzone" class="fileupload-dropzone">
+      <#local allowedExtensionsString=allowedExtensions?join(",")/>
+      <div class="fileupload-dropzone__text">
+        ${dropzoneText}, or
+        <input id="${inputId}"
+          class="fileupload-dropzone__hidden-input"
+          type="file"
+          name="file"
+          tabindex="-1"
+          data-form-data='{"${_csrf.parameterName}": "${_csrf.token}"}'
+          data-fileInputName="${inputName}"
+          data-url="<@spring.url uploadUrl/>"
+          data-delete-url="<@spring.url deleteUrl/>"
+          data-download-url="<@spring.url downloadUrl/>"
+          upload-file-allowed-extensions="${allowedExtensionsString}"
+          upload-file-max-size="${maxAllowedSize}"
+          accept="${allowedExtensionsString}"
+          <#if multiFile>multiple</#if>
+        >
+        <label for="${inputId}" class="fileupload-dropzone__link" tabindex="0">choose a file</label>
+      </div>
     </div>
   </div>
 
@@ -47,6 +56,23 @@
   </#list>
   <script src="<@spring.url '/assets/static/js/pwa/modal.js'/>"></script>
   <script src="<@spring.url '/assets/static/js/pwa/fileUpload.js'/>"></script>
+</#macro>
+
+<#macro uploadedFileList downloadUrl existingFiles=[] >
+ <#if existingFiles?has_content>
+  <table class="govuk-table">
+    <tbody class="govuk-table__body">
+    <#list existingFiles as file>
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header govuk-!-width-one-third" scope="row">
+            <@fdsAction.link  linkText=file.getFileName() linkUrl=downloadUrl+file.getFileId() linkClass="govuk-link govuk-link--button" linkScreenReaderText="Download ${file.getFileName()}" role=false start=false openInNewTab=true/>
+        </th>
+        <td class="govuk-table__cell">${file.getFileDescription()}</td>
+      </tr>
+    </#list>
+    </tbody>
+  </table>
+  </#if>
 </#macro>
 
 <#--

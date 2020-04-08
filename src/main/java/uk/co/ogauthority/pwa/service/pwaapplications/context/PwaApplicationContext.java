@@ -5,6 +5,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 /**
  * A data class to store contextual information for a PWA application to allow for easier access to commonly required data.
@@ -38,5 +39,9 @@ public class PwaApplicationContext {
 
   public PwaApplication getPwaApplication() {
     return applicationDetail.getPwaApplication();
+  }
+
+  public PwaApplicationType getApplicationType() {
+    return applicationDetail.getPwaApplicationType();
   }
 }

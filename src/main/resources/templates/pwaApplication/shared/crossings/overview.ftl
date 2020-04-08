@@ -1,6 +1,15 @@
 <#include '../../../layout.ftl'>
+<#import 'blockCrossingsManagement.ftl' as blockCrossingManagement>
+
+<#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
+<#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
+<#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="blockCrossingDocumentsUrl" type="java.lang.String" -->
 
 <@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true>
+
+  <@blockCrossingManagement.blockCrossingManagement blockCrossings=blockCrossings blockCrossingFileViews=blockCrossingFiles urlFactory=blockCrossingUrlFactory />
+
   <h2 class="govuk-heading-l">Median line agreement</h2>
     <#if medianLineAgreementView?has_content>
         <@fdsAction.link linkText="Update median line agreement" linkUrl=springUrl(medianLineUrl) role=true linkClass="govuk-button govuk-button--blue"/>

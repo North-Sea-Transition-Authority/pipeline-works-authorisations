@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -35,6 +36,9 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
   @Autowired
   protected WebApplicationContext context;
+
+  @Autowired
+  protected PwaApplicationContextService pwaApplicationContextService;
 
   @MockBean
   protected FoxUrlService foxUrlService;
@@ -57,8 +61,9 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   @MockBean
   private TopMenuService topMenuService;
 
-  @Autowired
-  protected PwaApplicationContextService pwaApplicationContextService;
+  @MockBean
+  protected PwaApplicationFileService pwaApplicationFileService;
+
 
   @Before
   public void abstractControllerTestSetup() {

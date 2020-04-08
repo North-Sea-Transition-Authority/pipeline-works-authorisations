@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.energyportal.repository.organisations;
 
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
@@ -12,6 +13,8 @@ public interface PortalOrganisationUnitRepository extends CrudRepository<PortalO
   List<PortalOrganisationUnit> findAll();
 
   List<PortalOrganisationUnit> findByNameContainingIgnoreCase(String searchTerm);
+
+  List<PortalOrganisationUnit> findByNameContainingIgnoreCase(String searchTerm, Pageable pageable);
 
   List<PortalOrganisationUnit> findByPortalOrganisationGroupIn(List<PortalOrganisationGroup> organisationGroups);
 }

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.List;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -64,6 +65,7 @@ public class MedianLineCrossingController {
 
   private ModelAndView getMedianLineModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/medianLine")
+        .addObject("errorList", List.of())
         .addObject("crossingOptions", MedianLineStatus.stream()
             .sorted(Comparator.comparing(MedianLineStatus::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, MedianLineStatus::getDisplayText)));

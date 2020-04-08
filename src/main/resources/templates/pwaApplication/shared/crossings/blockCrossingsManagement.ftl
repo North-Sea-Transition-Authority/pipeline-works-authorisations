@@ -1,0 +1,65 @@
+<#include '../../../layout.ftl'>
+
+<#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
+<#-- @ftlvariable name="blockCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
+
+<#macro blockCrossingManagement urlFactory blockCrossings=[] blockCrossingFileViews=[] >
+  <h2 class="govuk-heading-l">Block crossings</h2>
+  <@fdsAction.link linkText="Add block crossing" linkUrl=springUrl(urlFactory.getAddBlockCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
+  <#if !blockCrossings?has_content>
+    <p class="govuk-body">No block crossings have been added to this application.</p>
+  <#else>
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header" scope="col">UK block reference</th>
+        <th class="govuk-table__header" scope="col">Licence</th>
+        <th class="govuk-table__header" scope="col">Block operator</th>
+        <th class="govuk-table__header" scope="col"></th>
+      </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+      <#list blockCrossings as crossing>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">${crossing.blockReference}</td>
+          <td class="govuk-table__cell">${crossing.licenceReference}</td>
+          <td class="govuk-table__cell">
+            <ul class="govuk-list">
+                <#if crossing.blockOwnedCompletelyByHolder>
+                  <li>Holder owned</li>
+                </#if>
+                <#list crossing.blockOperatorList as operator>
+                  <li>${operator}</li>
+                </#list>
+            </ul>
+          </td>
+          <td class="govuk-table__cell">
+            <ul class="govuk-list">
+              <li>
+                <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getEditBlockCrossingUrl(crossing.id)) linkClass="govuk-link govuk-link-s"/>
+              </li>
+              <li>
+                <@fdsForm.htmlForm actionUrl=springUrl(urlFactory.getRemoveBlockCrossingUrl(crossing.id)) >
+                    <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button"/>
+                </@fdsForm.htmlForm>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </#list>
+      </tbody>
+    </table>
+  </#if>
+  <h3 class="govuk-heading-m">Block crossing agreement documents</h3>
+    <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+    <#if blockCrossingFiles?has_content>
+      <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFiles/>
+    <#else>
+      <p class="govuk-body">No block crossing agreement documents have been added to this application</p>
+    </#if>
+
+
+
+
+</#macro>

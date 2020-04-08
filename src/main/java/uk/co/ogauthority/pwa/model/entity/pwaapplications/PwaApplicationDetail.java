@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -187,4 +188,35 @@ public class PwaApplicationDetail {
     return this.pwaApplication.getApplicationType();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PwaApplicationDetail that = (PwaApplicationDetail) o;
+    return tipFlag == that.tipFlag
+        && id.equals(that.id)
+        && pwaApplication.equals(that.pwaApplication)
+        && Objects.equals(versionNo, that.versionNo)
+        && status == that.status
+        && Objects.equals(createdByWuaId, that.createdByWuaId)
+        && Objects.equals(createdTimestamp, that.createdTimestamp)
+        && Objects.equals(submittedByWuaId, that.submittedByWuaId)
+        && Objects.equals(submittedTimestamp, that.submittedTimestamp)
+        && Objects.equals(approvedByWuaId, that.approvedByWuaId)
+        && Objects.equals(approvedTimestamp, that.approvedTimestamp)
+        && Objects.equals(lastUpdatedByWuaId, that.lastUpdatedByWuaId)
+        && Objects.equals(lastUpdatedTimestamp, that.lastUpdatedTimestamp)
+        && Objects.equals(isLinkedToField, that.isLinkedToField);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, createdByWuaId, createdTimestamp,
+        submittedByWuaId, submittedTimestamp, approvedByWuaId, approvedTimestamp, lastUpdatedByWuaId,
+        lastUpdatedTimestamp, isLinkedToField);
+  }
 }

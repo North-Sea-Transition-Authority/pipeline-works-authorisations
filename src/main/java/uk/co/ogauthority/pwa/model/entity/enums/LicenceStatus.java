@@ -7,7 +7,7 @@ import java.util.stream.Stream;
  * Blocks in PEARS have statuses represented by internalCharacter.
  * New applications should use extant at time of selection, but may have their status change at a later date.
  */
-public enum BlockLicenceStatus {
+public enum LicenceStatus {
   EXTANT("E"),
   PROVISIONAL("P"),
   SURRENDERED("S"),
@@ -15,7 +15,7 @@ public enum BlockLicenceStatus {
 
   private final String internalCharacter;
 
-  BlockLicenceStatus(String internalCharacter) {
+  LicenceStatus(String internalCharacter) {
     this.internalCharacter = internalCharacter;
   }
 
@@ -23,7 +23,7 @@ public enum BlockLicenceStatus {
     return internalCharacter;
   }
 
-  public static Stream<BlockLicenceStatus> stream() {
-    return Arrays.stream(BlockLicenceStatus.values());
+  public static Stream<LicenceStatus> stream() {
+    return Arrays.stream(LicenceStatus.values());
   }
 }

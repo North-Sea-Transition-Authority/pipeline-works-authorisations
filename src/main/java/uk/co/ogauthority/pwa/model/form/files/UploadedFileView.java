@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.form.files;
 
 import java.time.Instant;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.service.util.FileDownloadUtils;
+import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 
 /**
  * Simple class to represent an UploadedFile Entity.

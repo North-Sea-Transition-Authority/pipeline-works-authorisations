@@ -11,12 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
-import uk.co.ogauthority.pwa.model.entity.licence.PadCrossedBlock;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,16 +52,14 @@ public class PadCrossedBlockServiceTest {
   public void createFromPearsBlock() {
     var licence = new PearsLicence();
     var pearsBlock = new PearsBlock("Key", licence, "Ref", "BlockNo", "QuadNo", "Suffix",
-        BlockLocation.OFFSHORE, BlockLicenceStatus.EXTANT);
+        BlockLocation.OFFSHORE);
     var result = padCrossedBlockService.createFromPearsBlock(pearsBlock);
     assertThat(result.getBlockNumber()).isEqualTo(pearsBlock.getBlockNumber());
     assertThat(result.getBlockReference()).isEqualTo(pearsBlock.getBlockReference());
     assertThat(result.getLicence()).isEqualTo(pearsBlock.getPearsLicence());
     assertThat(result.getQuadrantNumber()).isEqualTo(pearsBlock.getQuadrantNumber());
     assertThat(result.getSuffix()).isEqualTo(pearsBlock.getSuffix());
-    assertThat(result.getLicenceStatus()).isEqualTo(pearsBlock.getLicenceStatus());
-    assertThat(result.getLocation()).isEqualTo(pearsBlock.getLocation());
-    assertThat(result.getStartTimestamp()).isNotNull();
-    verify(padCrossedBlockRepository).save(result);
+    assertThat(result.getLocation()).isEqualTo(pearsBlock.getBlockLocation());
+    assertThat(result.getCreatedInstant()).isNotNull();
   }
 }

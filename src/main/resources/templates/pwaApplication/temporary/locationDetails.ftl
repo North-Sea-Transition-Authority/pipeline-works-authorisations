@@ -22,7 +22,7 @@
                     </#if>
                     <#if name == "NEGOTIATIONS_COMPLETE">
                         <h3 class="govuk-heading-m">Agreement documents</h3>
-                        <@dummyFileUpload.dummyFileUpload id="1" uploadUrl="/" maxAllowedSize="500" downloadUrl="/" deleteUrl="/" allowedExtensions="txt"/>
+                        <@dummyFileUpload.fileUpload id="1" uploadUrl="/" maxAllowedSize="500" downloadUrl="/" deleteUrl="/" allowedExtensions="txt"/>
                     </#if>
                 </@fdsRadio.radioItem>
             </#list>

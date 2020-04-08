@@ -10,7 +10,7 @@
             Project diagram
             <span class="govuk-hint">Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)</span>
         </h3>
-        <@dummyFileUpload.dummyFileUpload id="upload" allowedExtensions="txt" deleteUrl="" downloadUrl="" maxAllowedSize="200" uploadUrl=""/>
+        <@dummyFileUpload.fileUpload id="upload" allowedExtensions="txt" deleteUrl="" downloadUrl="" maxAllowedSize="200" uploadUrl=""/>
         <hr class="govuk-section-break govuk-section-break--m">
 
         <h2 class="govuk-heading-l">HSE</h2>

@@ -137,10 +137,10 @@ public class TaskListService {
     switch (task) {
       case PROJECT_INFORMATION:
         return ReverseRouter.route(on(ProjectInformationController.class)
-            .renderProjectInformation(applicationType, null, null, null));
+            .renderProjectInformation(applicationType, applicationId, null, null));
       case FAST_TRACK:
         return ReverseRouter.route(on(FastTrackController.class)
-            .renderFastTrack(applicationType, 1, null, null, null));
+            .renderFastTrack(applicationType, applicationId, null, null, null));
       case ENVIRONMENTAL_DECOMMISSIONING:
         return ReverseRouter.route(on(EnvironmentalDecomController.class)
             .renderEnvDecom(applicationType, null, null, null), uriVariables);

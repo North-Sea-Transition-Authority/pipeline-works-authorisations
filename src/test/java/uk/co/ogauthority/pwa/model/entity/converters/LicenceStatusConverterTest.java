@@ -4,20 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLicenceStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 
-public class BlockLicenceStatusConverterTest {
+public class LicenceStatusConverterTest {
 
-  private BlockLicenceStatusConverter converter;
+  private LicenceStatusConverter converter;
 
   @Before
   public void setUp() {
-    converter = new BlockLicenceStatusConverter();
+    converter = new LicenceStatusConverter();
   }
 
   @Test
   public void convertToDatabaseColumn_ProvidedValue() {
-    BlockLicenceStatus.stream()
+    LicenceStatus.stream()
         .forEach(licenceStatus -> {
           var result = converter.convertToDatabaseColumn(licenceStatus);
           assertThat(result).isEqualTo(licenceStatus.getInternalCharacter());
@@ -32,7 +32,7 @@ public class BlockLicenceStatusConverterTest {
 
   @Test
   public void convertToEntityAttribute_ProvidedValue() {
-    BlockLicenceStatus.stream()
+    LicenceStatus.stream()
         .forEach(licenceStatus -> {
           var result = converter.convertToEntityAttribute(licenceStatus.getInternalCharacter());
           assertThat(result).isEqualTo(licenceStatus);

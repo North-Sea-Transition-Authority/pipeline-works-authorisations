@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.repository.licence.PearsLicenceRepository;
 
@@ -28,8 +29,8 @@ public class PearsLicenceServiceTest {
   @Before
   public void setUp() {
     pearsLicenceService = new PearsLicenceService(pearsLicenceRepository);
-    pearsLicence_PL1 = new PearsLicence(1, "PL", 1, "PL6");
-    pearsLicence_AL6 = new PearsLicence(2, "AL", 6, "AL6");
+    pearsLicence_PL1 = new PearsLicence(1, "PL", 1, "PL6", LicenceStatus.EXTANT);
+    pearsLicence_AL6 = new PearsLicence(2, "AL", 6, "AL6", LicenceStatus.EXTANT);
   }
 
   @Test

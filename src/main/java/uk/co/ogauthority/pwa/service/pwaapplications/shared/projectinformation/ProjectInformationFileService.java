@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationFileRepository;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 
 /**
  * Retrieving, persisting and converting of project information file records.
@@ -33,14 +34,17 @@ public class ProjectInformationFileService {
   private final PadProjectInformationFileRepository padProjectInformationFileRepository;
   private final FileUploadService fileUploadService;
   private final EntityManager entityManager;
+  private final PwaApplicationFileService pwaApplicationFileService;
 
   @Autowired
   public ProjectInformationFileService(
       PadProjectInformationFileRepository padProjectInformationFileRepository,
-      FileUploadService fileUploadService, EntityManager entityManager) {
+      FileUploadService fileUploadService, EntityManager entityManager,
+      PwaApplicationFileService pwaApplicationFileService) {
     this.padProjectInformationFileRepository = padProjectInformationFileRepository;
     this.fileUploadService = fileUploadService;
     this.entityManager = entityManager;
+    this.pwaApplicationFileService = pwaApplicationFileService;
   }
 
 

@@ -61,6 +61,7 @@ public class PwaApplicationContextService {
 
   private void performAppStatusCheck(PwaApplicationStatus expectedStatus,
                                      PwaApplicationDetail pwaApplicationDetail) {
+
     if (expectedStatus != null && !expectedStatus.equals(pwaApplicationDetail.getStatus())) {
       throw new PwaEntityNotFoundException(
           String.format("PwaApplicationDetailId:%s Did not have expected status:%s. Actual status:%s",

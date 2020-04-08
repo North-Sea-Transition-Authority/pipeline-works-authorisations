@@ -1,16 +1,19 @@
-package uk.co.ogauthority.pwa.model.entity.licence;
+package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
+import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Entity(name = "pad_blocks")
@@ -34,13 +37,17 @@ public class PadCrossedBlock {
   @Column(name = "quadrant_no")
   private String quadrantNumber;
 
-  @Column(name = "blockNumber")
+  @Column(name = "block_no")
   private String blockNumber;
+
+  @Enumerated(EnumType.STRING)
+  private CrossedBlockOwner blockOwner;
 
   private String suffix;
   private BlockLocation location;
-  private BlockLicenceStatus licenceStatus;
-  private Instant startTimestamp;
+
+  @Column(name = "created_timestamp")
+  private Instant createdInstant;
 
   public Integer getId() {
     return id;
@@ -107,19 +114,56 @@ public class PadCrossedBlock {
     this.location = location;
   }
 
-  public BlockLicenceStatus getLicenceStatus() {
-    return licenceStatus;
+  public Instant getCreatedInstant() {
+    return createdInstant;
   }
 
-  public void setLicenceStatus(BlockLicenceStatus licenceStatus) {
-    this.licenceStatus = licenceStatus;
+  public void setCreatedInstant(Instant createdInstant) {
+    this.createdInstant = createdInstant;
   }
 
-  public Instant getStartTimestamp() {
-    return startTimestamp;
+  public CrossedBlockOwner getBlockOwner() {
+    return blockOwner;
   }
 
-  public void setStartTimestamp(Instant startTimestamp) {
-    this.startTimestamp = startTimestamp;
+  public void setBlockOwner(CrossedBlockOwner blockOwner) {
+    this.blockOwner = blockOwner;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadCrossedBlock that = (PadCrossedBlock) o;
+    return Objects.equals(id, that.id)
+        && pwaApplicationDetail.equals(that.pwaApplicationDetail)
+        && Objects.equals(licence, that.licence)
+        && Objects.equals(blockReference, that.blockReference)
+        && Objects.equals(quadrantNumber, that.quadrantNumber)
+        && Objects.equals(blockNumber, that.blockNumber)
+        && blockOwner == that.blockOwner
+        && Objects.equals(suffix, that.suffix)
+        && location == that.location
+        && Objects.equals(createdInstant, that.createdInstant);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        id,
+        pwaApplicationDetail,
+        licence,
+        blockReference,
+        quadrantNumber,
+        blockNumber,
+        blockOwner,
+        suffix,
+        location,
+        createdInstant
+    );
   }
 }

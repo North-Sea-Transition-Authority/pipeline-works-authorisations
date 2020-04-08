@@ -40,7 +40,6 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -58,9 +57,6 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
   @MockBean
   private PadProjectInformationService padProjectInformationService;
-
-  @MockBean
-  private PwaApplicationFileService applicationFileService;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -316,6 +312,9 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
       add("latestCompletionMonth", "" + date.getMonthValue());
       add("latestCompletionYear", "" + date.getYear());
       add("usingCampaignApproach", "true");
+      add("uploadedFileWithDescriptionForms[0].uploadedFileId", "123" );
+      add("uploadedFileWithDescriptionForms[0].uploadedFileDescription", "321" );
+      add("uploadedFileWithDescriptionForms[0].uploadedFileInstant", "2020-04-02T16:15:33.166138Z" );
     }};
 
     ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);

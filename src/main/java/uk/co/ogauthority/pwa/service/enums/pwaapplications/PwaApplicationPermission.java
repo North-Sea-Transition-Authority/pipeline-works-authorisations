@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 /**
@@ -15,7 +17,7 @@ public enum PwaApplicationPermission {
 
   MANAGE_CONTACTS(Set.of(PwaContactRole.ACCESS_MANAGER)),
 
-  VIEW(PwaContactRole.stream().collect(Collectors.toSet()));
+  VIEW(EnumSet.allOf(PwaContactRole.class));
 
   private Set<PwaContactRole> roles;
 
@@ -27,7 +29,7 @@ public enum PwaApplicationPermission {
     return roles;
   }
 
-  public void setRoles(Set<PwaContactRole> roles) {
-    this.roles = roles;
+  public static Stream<PwaApplicationPermission> stream() {
+    return Arrays.stream(PwaApplicationPermission.values());
   }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -19,6 +20,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -34,19 +38,28 @@ public class CrossingAgreementsController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadMedianLineAgreementService padMedianLineAgreementService;
+  private final BlockCrossingService blockCrossingService;
+  private final BlockCrossingFileService blockCrossingFileService;
 
   @Autowired
   public CrossingAgreementsController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadMedianLineAgreementService padMedianLineAgreementService) {
+      PadMedianLineAgreementService padMedianLineAgreementService,
+      BlockCrossingService blockCrossingService,
+      BlockCrossingFileService blockCrossingFileService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
+    this.blockCrossingService = blockCrossingService;
+    this.blockCrossingFileService = blockCrossingFileService;
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/overview")
         .addObject("medianLineUrl", ReverseRouter.route(on(MedianLineCrossingController.class)
-            .renderMedianLineForm(detail.getPwaApplicationType(), null, null, null)));
+            .renderMedianLineForm(detail.getPwaApplicationType(), null, null, null)))
+        .addObject("blockCrossings", blockCrossingService.getCrossedBlockViews(detail))
+        .addObject("blockCrossingFiles", blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+        .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Crossings");
     return modelAndView;
   }
@@ -70,5 +83,6 @@ public class CrossingAgreementsController {
     }
     return modelAndView;
   }
+
 
 }

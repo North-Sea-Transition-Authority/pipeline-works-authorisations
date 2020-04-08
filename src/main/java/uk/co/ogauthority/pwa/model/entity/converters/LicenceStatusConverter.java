@@ -4,16 +4,16 @@ import java.util.Optional;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import org.apache.commons.lang3.StringUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLicenceStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 
 @Converter
-public class BlockLicenceStatusConverter implements AttributeConverter<BlockLicenceStatus, String> {
+public class LicenceStatusConverter implements AttributeConverter<LicenceStatus, String> {
 
   @Override
-  public String convertToDatabaseColumn(BlockLicenceStatus status) {
+  public String convertToDatabaseColumn(LicenceStatus status) {
     var converted = Optional.ofNullable(status)
         .stream()
-        .map(BlockLicenceStatus::getInternalCharacter)
+        .map(LicenceStatus::getInternalCharacter)
         .findAny()
         .orElse("");
     if (converted.isBlank()) {
@@ -23,12 +23,12 @@ public class BlockLicenceStatusConverter implements AttributeConverter<BlockLice
   }
 
   @Override
-  public BlockLicenceStatus convertToEntityAttribute(String status) {
+  public LicenceStatus convertToEntityAttribute(String status) {
     if (StringUtils.isBlank(status)) {
       return null;
     }
-    return BlockLicenceStatus.stream()
-        .filter(blockLicenceStatus -> blockLicenceStatus.getInternalCharacter().equals(status))
+    return LicenceStatus.stream()
+        .filter(licenceStatus -> licenceStatus.getInternalCharacter().equals(status))
         .findAny()
         .orElse(null);
   }

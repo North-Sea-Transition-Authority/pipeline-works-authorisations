@@ -52,6 +52,7 @@ public class PadProjectInformationServiceTest {
 
   private SpringValidatorAdapter groupValidator;
 
+
   private PadProjectInformationService service;
   private PadProjectInformation padProjectInformation;
   private ProjectInformationForm form;

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.util;
+package uk.co.ogauthority.pwa.util;
 
 import java.sql.Blob;
 import java.sql.SQLException;

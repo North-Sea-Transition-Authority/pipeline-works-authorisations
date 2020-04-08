@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,6 +58,9 @@ public class ProjectInformationFileServiceTest {
   @Mock
   private EntityManager entityManager;
 
+  @Mock
+  private PwaApplicationFileService pwaApplicationFileService;
+
   private ProjectInformationFileService projectInformationFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -68,8 +72,8 @@ public class ProjectInformationFileServiceTest {
     projectInformationFileService = new ProjectInformationFileService(
         padProjectInformationFileRepository,
         fileUploadService,
-        entityManager
-    );
+        entityManager,
+        pwaApplicationFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     // just return whatever is given

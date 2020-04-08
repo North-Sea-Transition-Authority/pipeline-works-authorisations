@@ -8,11 +8,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
 
-@Entity(name = "ped_blocks")
+@Entity
+@Table(name = "ped_blocks")
 @Immutable
 public class PearsBlock {
 
@@ -35,23 +36,27 @@ public class PearsBlock {
   private String suffix;
 
   @Enumerated(EnumType.STRING)
-  private BlockLocation location;
+  @Column(name = "location")
+  private BlockLocation blockLocation;
 
-  private BlockLicenceStatus licenceStatus;
-
-  public PearsBlock() { }
+  public PearsBlock() {
+  }
 
   @VisibleForTesting
-  public PearsBlock(String compositeKey, PearsLicence licence, String blockRef, String blockNo, String quadrantNo,
-                    String suffix, BlockLocation location, BlockLicenceStatus licenceStatus) {
+  public PearsBlock(String compositeKey,
+                    PearsLicence licence,
+                    String blockRef,
+                    String blockNo,
+                    String quadrantNo,
+                    String suffix,
+                    BlockLocation blockLocation) {
     this.compositeKey = compositeKey;
     this.pearsLicence = licence;
     this.blockReference = blockRef;
     this.blockNumber = blockNo;
     this.quadrantNumber = quadrantNo;
     this.suffix = suffix;
-    this.location = location;
-    this.licenceStatus = licenceStatus;
+    this.blockLocation = blockLocation;
   }
 
   public String getCompositeKey() {
@@ -78,12 +83,8 @@ public class PearsBlock {
     return suffix;
   }
 
-  public BlockLocation getLocation() {
-    return location;
-  }
-
-  public BlockLicenceStatus getLicenceStatus() {
-    return licenceStatus;
+  public BlockLocation getBlockLocation() {
+    return blockLocation;
   }
 
   public boolean isLicensed() {

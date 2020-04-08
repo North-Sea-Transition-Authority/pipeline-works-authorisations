@@ -39,7 +39,7 @@ FROM (
   FROM pedmgr.ped_current_licence_blocks pclb
   JOIN ${datasource.user}.ped_licences pl ON pl.licence_type = pclb.licence_type AND pl.licence_number = pclb.licence_no
   UNION ALL
-  SELECT
+  SELECT DISTINCT
     ub.block_ref || ub.quadrant_no || TO_CHAR(ub.block_no) || ub.block_suffix || '_UNLICENCED' composite_key
   , ub.block_ref
   , ub.quadrant_no

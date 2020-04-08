@@ -33,7 +33,7 @@
             </tbody>
           </table>
           <h3 class="govuk-heading-m">Upload documents</h3>
-            <@dummyFileUpload.dummyFileUpload id="1" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
+            <@dummyFileUpload.fileUpload id="1" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
           <div class="uploaded-file">
             <div class="uploaded-file__info">
               <div class="uploaded-file__file-info-wrapper">
@@ -73,7 +73,7 @@
             </tbody>
           </table>
           <h3 class="govuk-heading-m">Upload documents</h3>
-            <@dummyFileUpload.dummyFileUpload id="2" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
+            <@dummyFileUpload.fileUpload id="2" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
           <hr class="govuk-section-break govuk-section-break--m">
         <#else>
           <p class="govuk-body">No telecommunication crossing agreements</p>
@@ -99,7 +99,7 @@
             </tbody>
           </table>
           <h3 class="govuk-heading-m">Upload documents</h3>
-            <@dummyFileUpload.dummyFileUpload id="3" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
+            <@dummyFileUpload.fileUpload id="3" uploadUrl="/" deleteUrl="" downloadUrl="" maxAllowedSize=500 allowedExtensions="txt"/>
           <hr class="govuk-section-break govuk-section-break--m">
         <#else>
           <p class="govuk-body">No pipeline crossing agreements</p>

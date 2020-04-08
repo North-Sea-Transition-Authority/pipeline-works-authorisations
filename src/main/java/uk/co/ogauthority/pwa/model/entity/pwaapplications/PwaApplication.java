@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -110,5 +111,30 @@ public class PwaApplication {
 
   public void setDecisionTimestamp(Instant decisionTimestamp) {
     this.decisionTimestamp = decisionTimestamp;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PwaApplication that = (PwaApplication) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(masterPwa, that.masterPwa)
+        && Objects.equals(applicationType, that.applicationType)
+        && Objects.equals(appReference, that.appReference)
+        && Objects.equals(consentReference, that.consentReference)
+        && Objects.equals(variationNo, that.variationNo)
+        && Objects.equals(decision, that.decision)
+        && Objects.equals(decisionTimestamp, that.decisionTimestamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, masterPwa, applicationType, appReference, consentReference, variationNo, decision,
+        decisionTimestamp);
   }
 }

@@ -66,7 +66,6 @@ public class MasterPwaManagementServiceTest {
 
     // check master pwa set up correctly
     assertThat(masterPwa.getCreatedTimestamp()).isEqualTo(clock.instant());
-    assertThat(masterPwa.getPortalOrganisationUnit()).isNull();
 
     assertThat(masterPwaDetail.getStartInstant()).isEqualTo(clock.instant());
     assertThat(masterPwaDetail.getReference()).isEqualTo("REFERENCE");

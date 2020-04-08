@@ -3,17 +3,27 @@ package uk.co.ogauthority.pwa.model.form.files;
 import java.time.Instant;
 import java.util.Objects;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 /**
  * Form which allows a single file with a mandatory description to be uploaded.
  */
 public class UploadFileWithDescriptionForm {
 
+  @NotNull(groups = {FullValidation.class, PartialValidation.class, MandatoryUploadValidation.class})
   private String uploadedFileId;
 
-  @NotEmpty(message = "File must have a description")
+  @NotEmpty(message = "File must have a description", groups = {
+      FullValidation.class,
+      PartialValidation.class,
+      MandatoryUploadValidation.class
+  })
   private String uploadedFileDescription;
 
+  @NotNull(groups = {FullValidation.class, PartialValidation.class, MandatoryUploadValidation.class})
   private Instant uploadedFileInstant;
 
   public UploadFileWithDescriptionForm() {

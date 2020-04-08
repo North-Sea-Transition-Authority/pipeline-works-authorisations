@@ -1,0 +1,213 @@
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
+
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
+import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
+import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
+import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
+import uk.co.ogauthority.pwa.service.licence.PearsLicenceService;
+
+@Service
+public class BlockCrossingService {
+  private final PearsLicenceService pedLicenceService;
+  private final PadCrossedBlockRepository padCrossedBlockRepository;
+  private final PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository;
+  private final PearsBlockService pearsBlockService;
+  private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final Clock clock;
+
+  @Autowired
+  public BlockCrossingService(PearsLicenceService pearsLicenceService,
+                              PadCrossedBlockRepository padCrossedBlockRepository,
+                              PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository,
+                              PearsBlockService pearsBlockService,
+                              PortalOrganisationsAccessor portalOrganisationsAccessor,
+                              @Qualifier("utcClock") Clock clock) {
+    this.pedLicenceService = pearsLicenceService;
+    this.padCrossedBlockRepository = padCrossedBlockRepository;
+    this.padCrossedBlockOwnerRepository = padCrossedBlockOwnerRepository;
+    this.pearsBlockService = pearsBlockService;
+    this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.clock = clock;
+  }
+
+  public PadCrossedBlock getCrossedBlockByIdAndApplicationDetail(int crossedBlockId,
+                                                                 PwaApplicationDetail pwaApplicationDetail) {
+    return padCrossedBlockRepository.findById(crossedBlockId)
+        .filter(cb -> cb.getPwaApplicationDetail().equals(pwaApplicationDetail))
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Crossed block not found with id:" + crossedBlockId + " for appDetailId:" + pwaApplicationDetail.getId()));
+  }
+
+  public List<BlockCrossingView> getCrossedBlockViews(PwaApplicationDetail pwaApplicationDetail) {
+
+    var crossedBlocks = padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+
+    Map<PadCrossedBlock, List<PadCrossedBlockOwner>> allCrossedBlockOwnersMap = padCrossedBlockOwnerRepository.findByPadCrossedBlockIn(
+        crossedBlocks
+    )
+        .stream()
+        .collect(Collectors.groupingBy(PadCrossedBlockOwner::getPadCrossedBlock));
+
+    // O(N) loop over owners
+    var ownerOrgUnitIds = allCrossedBlockOwnersMap.values()
+        .stream()
+        .flatMap(List::stream)
+        .filter(owner -> !Objects.isNull(owner.getOwnerOuId()))
+        .map(PadCrossedBlockOwner::getOwnerOuId)
+        .collect(Collectors.toSet());
+
+    Map<Integer, String> orgUnitIdToNameMap = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(ownerOrgUnitIds)
+        .stream()
+        .collect(Collectors.toMap(PortalOrganisationUnit::getOuId, PortalOrganisationUnit::getName));
+
+
+    var crossedBlockViewList = new ArrayList<BlockCrossingView>();
+    crossedBlocks.forEach((crossedBlock) -> {
+      var ownerNameList = allCrossedBlockOwnersMap.getOrDefault(crossedBlock, Collections.emptyList())
+          .stream()
+          .map(o -> orgUnitIdToNameMap.getOrDefault(o.getOwnerOuId(), o.getOwnerName()))
+          .collect(Collectors.toList());
+
+      var view = new BlockCrossingView(
+          crossedBlock.getId(),
+          crossedBlock.getBlockReference(),
+          crossedBlock.getLicence() != null ? crossedBlock.getLicence().getLicenceName() : "Unlicensed",
+          ownerNameList,
+          CrossedBlockOwner.HOLDER.equals(crossedBlock.getBlockOwner())
+      );
+      crossedBlockViewList.add(view);
+    });
+
+    crossedBlockViewList.sort(Comparator.comparing(BlockCrossingView::getBlockReference));
+    return crossedBlockViewList;
+
+  }
+
+  @Transactional
+  public PadCrossedBlock updateAndSaveBlockCrossingAndOwnersFromForm(PadCrossedBlock padCrossedBlock,
+                                                                     EditBlockCrossingForm form) {
+    // replace linked owners by deleting all existing linked once and inserting new records
+    deleteAllCrossedBlockOwners(padCrossedBlock);
+    mapEditFormBlockToEntity(padCrossedBlock, form);
+
+    var newCrossedBlockOwners = createBlockCrossingOwnerEntitiesFromForm(padCrossedBlock, form);
+    padCrossedBlockOwnerRepository.saveAll(newCrossedBlockOwners);
+    return padCrossedBlockRepository.save(padCrossedBlock);
+  }
+
+
+  public void mapBlockCrossingToEditForm(PadCrossedBlock padCrossedBlock,
+                                         EditBlockCrossingForm form) {
+    var ownerList = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
+
+    if (CrossedBlockOwner.OTHER_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
+      form.setOperatorNotFoundFreeTextBox(
+          ownerList.stream()
+              .filter(o -> o.getOwnerName() != null)
+              .map(PadCrossedBlockOwner::getOwnerName)
+              .findFirst()
+              .orElse(null)
+      );
+      form.setBlockOwnersOuIdList(Collections.emptyList());
+    } else if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
+      form.setBlockOwnersOuIdList(
+          ownerList.stream()
+              .filter(o -> o.getOwnerOuId() != null)
+              .map(PadCrossedBlockOwner::getOwnerOuId)
+              .collect(Collectors.toList())
+      );
+      form.setOperatorNotFoundFreeTextBox(null);
+    }
+
+    form.setCrossedBlockOwner(padCrossedBlock.getBlockOwner());
+
+  }
+
+  @Transactional
+  public PadCrossedBlock createAndSaveBlockCrossingAndOwnersFromForm(PwaApplicationDetail pwaApplicationDetail,
+                                                                     AddBlockCrossingForm form) {
+
+    var crossedBlock = createBlockCrossingEntityFromForm(pwaApplicationDetail, form);
+    var crossedBlockOwners = createBlockCrossingOwnerEntitiesFromForm(crossedBlock, form);
+
+    crossedBlock = padCrossedBlockRepository.save(crossedBlock);
+    padCrossedBlockOwnerRepository.saveAll(crossedBlockOwners);
+    return crossedBlock;
+  }
+
+  private PadCrossedBlock createBlockCrossingEntityFromForm(PwaApplicationDetail pwaApplicationDetail,
+                                                            AddBlockCrossingForm form) {
+    var crossedBlock = new PadCrossedBlock();
+    crossedBlock.setPwaApplicationDetail(pwaApplicationDetail);
+    mapAddFormBlockToEntity(crossedBlock, form);
+    return crossedBlock;
+  }
+
+  private void mapAddFormBlockToEntity(PadCrossedBlock padCrossedBlock, AddBlockCrossingForm form) {
+    var pearsBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(form.getPickedBlock());
+    padCrossedBlock.setQuadrantNumber(pearsBlock.getQuadrantNumber());
+    padCrossedBlock.setBlockNumber(pearsBlock.getBlockNumber());
+    padCrossedBlock.setSuffix(pearsBlock.getSuffix());
+    padCrossedBlock.setBlockReference(pearsBlock.getBlockReference());
+    padCrossedBlock.setLicence(pearsBlock.getPearsLicence());
+    padCrossedBlock.setLocation(pearsBlock.getBlockLocation());
+    padCrossedBlock.setCreatedInstant(clock.instant());
+    mapEditFormBlockToEntity(padCrossedBlock, form);
+  }
+
+  private void mapEditFormBlockToEntity(PadCrossedBlock padCrossedBlock, EditBlockCrossingForm form) {
+    padCrossedBlock.setBlockOwner(form.getCrossedBlockOwner());
+  }
+
+
+  private List<PadCrossedBlockOwner> createBlockCrossingOwnerEntitiesFromForm(PadCrossedBlock padCrossedBlock,
+                                                                              EditBlockCrossingForm form) {
+    var createdBlockOwners = new ArrayList<PadCrossedBlockOwner>();
+    // Each ouId will have been validated so we can assume everything is good for db persistence
+    form.getBlockOwnersOuIdList().forEach(ouId -> {
+      createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null));
+    });
+
+    if (!StringUtils.isBlank(form.getOperatorNotFoundFreeTextBox())) {
+      createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, null, form.getOperatorNotFoundFreeTextBox()));
+    }
+
+    return createdBlockOwners;
+
+  }
+
+  @Transactional
+  public void removeBlockCrossing(PadCrossedBlock padCrossedBlock) {
+    deleteAllCrossedBlockOwners(padCrossedBlock);
+    padCrossedBlockRepository.delete(padCrossedBlock);
+  }
+
+
+  private void deleteAllCrossedBlockOwners(PadCrossedBlock padCrossedBlock) {
+    var existingBlockCrossingOwners = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
+    padCrossedBlockOwnerRepository.deleteAll(existingBlockCrossingOwners);
+  }
+
+
+}

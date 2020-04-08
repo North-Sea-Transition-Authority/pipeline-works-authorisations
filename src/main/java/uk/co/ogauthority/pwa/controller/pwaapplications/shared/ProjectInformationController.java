@@ -65,7 +65,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
 
   @GetMapping("/files/download/{fileId}")
   @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.VIEW})
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
   @ResponseBody
   public ResponseEntity<Resource> handleDownload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
@@ -87,7 +87,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
       @RequestParam("file") MultipartFile file,
       PwaApplicationContext applicationContext) {
 
-    // not creating link project information link until Save is clicked.
+    // not creating full link until Save is clicked.
     return applicationFileService.processApplicationFileUpload(
         file,
         applicationContext.getUser(),

@@ -17,6 +17,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 /* Service providing simplified API for project information app form */
@@ -147,11 +149,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
 
     if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, ProjectInformationForm.Partial.class);
+      groupValidator.validate(form, bindingResult, PartialValidation.class);
       return bindingResult;
     }
 
-    groupValidator.validate(form, bindingResult, ProjectInformationForm.Full.class);
+    groupValidator.validate(form, bindingResult, FullValidation.class);
     projectInformationValidator.validate(form, bindingResult);
     return bindingResult;
 
