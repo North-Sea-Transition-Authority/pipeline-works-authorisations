@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -29,7 +28,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -90,7 +89,13 @@ public class MedianLineCrossingController {
                                              BindingResult bindingResult,
                                              PwaApplicationContext applicationContext,
                                              AuthenticatedUserAccount user) {
-    padMedianLineAgreementService.validate(form, bindingResult, ValidationType.PARTIAL);
+    padMedianLineAgreementService.validate(
+        form,
+        bindingResult,
+        ValidationType.PARTIAL,
+        applicationContext.getApplicationDetail()
+    );
+
     return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
   }
 
@@ -103,7 +108,12 @@ public class MedianLineCrossingController {
                                              BindingResult bindingResult,
                                              PwaApplicationContext applicationContext,
                                              AuthenticatedUserAccount user) {
-    padMedianLineAgreementService.validate(form, bindingResult, ValidationType.FULL);
+    padMedianLineAgreementService.validate(
+        form,
+        bindingResult,
+        ValidationType.FULL,
+        applicationContext.getApplicationDetail()
+    );
     return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
   }
 

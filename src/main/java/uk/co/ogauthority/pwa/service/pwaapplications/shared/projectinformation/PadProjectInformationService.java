@@ -146,15 +146,17 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
-
+  public BindingResult validate(Object form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
     if (validationType.equals(ValidationType.PARTIAL)) {
       groupValidator.validate(form, bindingResult, PartialValidation.class);
-      return bindingResult;
+    } else {
+      groupValidator.validate(form, bindingResult, FullValidation.class);
+      projectInformationValidator.validate(form, bindingResult);
     }
 
-    groupValidator.validate(form, bindingResult, FullValidation.class);
-    projectInformationValidator.validate(form, bindingResult);
     return bindingResult;
 
   }

@@ -4,9 +4,13 @@
 <#-- @ftlvariable name="blockCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 
-<#macro blockCrossingManagement urlFactory blockCrossings=[] blockCrossingFileViews=[] >
-  <h2 class="govuk-heading-l">Block crossings</h2>
-  <@fdsAction.link linkText="Add block crossing" linkUrl=springUrl(urlFactory.getAddBlockCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
+<#macro blockCrossingManagement urlFactory blockCrossings=[] blockCrossingFileViews=[] isCompleted=false>
+  <h2 class="govuk-heading-l">Block crossings (Optional) <@completedTag.completedTag isCompleted/></h2>
+  <@fdsInsetText.insetText>
+    <p class="govuk-body">Any crossed block(s) not 100% owned byt the PWA holder(s) require a block crossing agreement document to be uploaded.</p>
+  </@fdsInsetText.insetText>
+    <@fdsAction.link linkText="Add block crossing" linkUrl=springUrl(urlFactory.getAddBlockCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
+
   <#if !blockCrossings?has_content>
     <p class="govuk-body">No block crossings have been added to this application.</p>
   <#else>

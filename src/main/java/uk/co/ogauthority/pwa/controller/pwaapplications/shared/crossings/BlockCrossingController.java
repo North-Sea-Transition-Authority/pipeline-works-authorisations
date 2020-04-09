@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -119,7 +118,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
           return redirectToCrossingOverview(applicationContext);
         }
     );
-
   }
 
   @PostMapping("/remove-block-crossing/{blockCrossingId}")
@@ -129,7 +127,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("blockCrossingId") Integer blockCrossingId,
-      @ModelAttribute("form") AddBlockCrossingForm form,
       PwaApplicationContext applicationContext) {
     var crossedBlock = blockCrossingService.getCrossedBlockByIdAndApplicationDetail(
         blockCrossingId,

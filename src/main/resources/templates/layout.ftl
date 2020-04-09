@@ -1,10 +1,11 @@
-<#import '/spring.ftl' as spring/>
+ <#import '/spring.ftl' as spring/>
 
 <#--Layout-->
 <#include 'fds/objects/layouts/generic.ftl'>
 <#import 'fds/objects/grid/grid.ftl' as grid>
 <#import 'header.ftl' as pipelinesHeader>
 <#import 'components/fileUpload/fileUpload.ftl' as fileUpload>
+<#import 'components/completedTag/completedTag.ftl' as completedTag>
 
 <#function springUrl url>
   <#local springUrl>

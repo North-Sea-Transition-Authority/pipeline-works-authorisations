@@ -153,7 +153,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.PARTIAL);
+    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -177,7 +177,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.PARTIAL);
+    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -196,7 +196,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.FULL);
+    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -225,7 +225,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.FULL);
+    padEnvironmentalDecommissioningService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 

@@ -329,7 +329,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
     verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
-    verify(padProjectInformationService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
+    verify(padProjectInformationService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
 
   }

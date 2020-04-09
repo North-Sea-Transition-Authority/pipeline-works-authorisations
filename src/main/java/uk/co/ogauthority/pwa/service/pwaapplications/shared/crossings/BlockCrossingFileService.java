@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,9 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingDocumentsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -25,26 +29,34 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.BlockCr
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadBlockCrossingFileRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
-public class BlockCrossingFileService {
+public class BlockCrossingFileService implements ApplicationFormSectionService {
 
   private final PadBlockCrossingFileRepository padBlockCrossingFileRepository;
   private final PadCrossedBlockRepository padCrossedBlockRepository;
   private final FileUploadService fileUploadService;
   private final EntityManager entityManager;
+  private final SpringValidatorAdapter groupValidator;
 
   @Autowired
   public BlockCrossingFileService(PadBlockCrossingFileRepository padBlockCrossingFileRepository,
                                   PadCrossedBlockRepository padCrossedBlockRepository,
                                   FileUploadService fileUploadService,
-                                  EntityManager entityManager) {
+                                  EntityManager entityManager,
+                                  SpringValidatorAdapter groupValidator) {
     this.padBlockCrossingFileRepository = padBlockCrossingFileRepository;
     this.padCrossedBlockRepository = padCrossedBlockRepository;
     this.fileUploadService = fileUploadService;
     this.entityManager = entityManager;
 
+    this.groupValidator = groupValidator;
   }
 
   public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, BlockCrossingDocumentsForm form) {
@@ -64,7 +76,7 @@ public class BlockCrossingFileService {
    * Create and persist a newblock crossing file linked to app detail and uploaded file id.
    */
   private PadBlockCrossingFile createAndSaveBlockCrossingFile(PwaApplicationDetail pwaApplicationDetail,
-                                                      String uploadedFileId) {
+                                                              String uploadedFileId) {
     var newFileLink = new PadBlockCrossingFile(
         pwaApplicationDetail,
         uploadedFileId,
@@ -262,4 +274,30 @@ public class BlockCrossingFileService {
     );
   }
 
+
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    var form = new BlockCrossingDocumentsForm();
+    mapDocumentsToForm(detail, form);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
+  }
+
+  @Override
+  public BindingResult validate(Object form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
+    List<Object> hints = new ArrayList<>();
+    if (validationType.equals(ValidationType.FULL)) {
+      hints.add(FullValidation.class);
+      if (requiresFullValidation(pwaApplicationDetail)) {
+        hints.add(MandatoryUploadValidation.class);
+      }
+    } else {
+      hints.add(PartialValidation.class);
+    }
+    groupValidator.validate(form, bindingResult, hints.toArray());
+    return bindingResult;
+  }
 }

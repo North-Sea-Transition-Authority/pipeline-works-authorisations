@@ -41,14 +41,14 @@ public class ControllerTestUtils {
   public static void failValidationWhenPost(ApplicationFormSectionService service, Object form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.addError(new ObjectError("fake", "fake"));
-    when(service.validate(any(), any(), eq(validationType))).thenReturn(bindingResult);
+    when(service.validate(any(), any(), eq(validationType), any())).thenReturn(bindingResult);
   }
 
   /**
    * Return a clean binding result when the passed-in validation type is used.
    */
   public static void passValidationWhenPost(ApplicationFormSectionService service, Object form, ValidationType validationType) {
-    when(service.validate(any(), any(), eq(validationType))).thenReturn(new BeanPropertyBindingResult(form, "form"));
+    when(service.validate(any(), any(), eq(validationType), any())).thenReturn(new BeanPropertyBindingResult(form, "form"));
   }
 
 }

@@ -117,8 +117,10 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
   }
 
   @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
-
+  public BindingResult validate(Object form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
     if (validationType.equals(ValidationType.PARTIAL)) {
       groupValidator.validate(form, bindingResult, EnvironmentalDecommissioningForm.Partial.class);
       return bindingResult;

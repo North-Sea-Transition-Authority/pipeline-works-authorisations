@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,14 +75,16 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
     var form = new MedianLineAgreementsForm();
     mapEntityToForm(medianLineAgreement, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    validate(form, bindingResult, ValidationType.FULL);
+    validate(form, bindingResult, ValidationType.FULL, detail);
     return !bindingResult.hasErrors();
 
   }
 
   @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
-
+  public BindingResult validate(Object form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
     if (validationType.equals(ValidationType.FULL)) {
       medianLineAgreementValidator.validate(form, bindingResult, FullValidation.class);
     } else {

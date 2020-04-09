@@ -190,7 +190,7 @@ public class PadProjectInformationServiceTest {
     form.setMethodOfPipelineDeployment(tooBig);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    service.validate(form, bindingResult, ValidationType.PARTIAL);
+    service.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -214,7 +214,7 @@ public class PadProjectInformationServiceTest {
     form.setMethodOfPipelineDeployment(ok);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    service.validate(form, bindingResult, ValidationType.PARTIAL);
+    service.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -234,7 +234,7 @@ public class PadProjectInformationServiceTest {
     form.setMethodOfPipelineDeployment(tooBig);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    service.validate(form, bindingResult, ValidationType.FULL);
+    service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     verify(validator, times(1)).validate(form, bindingResult);
 
@@ -260,7 +260,7 @@ public class PadProjectInformationServiceTest {
     form.setUsingCampaignApproach(false);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    service.validate(form, bindingResult, ValidationType.FULL);
+    service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     verify(validator, times(1)).validate(form, bindingResult);
 

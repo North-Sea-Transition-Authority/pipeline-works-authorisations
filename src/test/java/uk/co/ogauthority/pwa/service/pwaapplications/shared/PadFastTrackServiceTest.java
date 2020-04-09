@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.FastTrackValidator;
@@ -294,7 +295,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
@@ -318,7 +319,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).isEmpty();
@@ -335,7 +336,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.FULL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
@@ -359,7 +360,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.FULL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).isEmpty();

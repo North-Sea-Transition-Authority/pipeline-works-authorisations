@@ -16,12 +16,15 @@ import java.util.Optional;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
+import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -34,6 +37,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.BlockCr
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadBlockCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -49,6 +53,9 @@ public class BlockCrossingFileServiceTest {
   private FileUploadService fileUploadService;
   @Mock
   private EntityManager entityManager;
+
+
+  private SpringValidatorAdapter springValidatorAdapter = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
 
   private BlockCrossingFileService blockCrossingFileService;
 
@@ -66,6 +73,8 @@ public class BlockCrossingFileServiceTest {
       Instant.now(),
       "");
 
+  private BlockCrossingDocumentsForm form = new BlockCrossingDocumentsForm();
+
   @Before
   public void setUp() throws Exception {
 
@@ -73,9 +82,8 @@ public class BlockCrossingFileServiceTest {
         padBlockCrossingFileRepository,
         padCrossedBlockRepository,
         fileUploadService,
-        entityManager
-
-    );
+        entityManager,
+        springValidatorAdapter);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     file = new PadBlockCrossingFile();
@@ -183,9 +191,75 @@ public class BlockCrossingFileServiceTest {
     when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
     when(mockQuery.getResultList()).thenReturn(fileViews);
 
-    var result  = blockCrossingFileService.getUpdatedBlockCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form);
+    var result = blockCrossingFileService.getUpdatedBlockCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form);
 
     assertThat(result.get(0).getFileDescription()).isEqualTo("New Description");
 
   }
+
+  @Test
+  public void validate_full_whenNoDocumentRequired_andDocumentProvidedWithDescription() {
+
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "2", Instant.now())));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    blockCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+
+  }
+
+  @Test
+  public void validate_full_whenNoDocumentRequired_andDocumentProvidedWithoutDescription() {
+
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    blockCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isTrue();
+
+  }
+
+
+  @Test
+  public void validate_full_whenDocumentRequired_andZeroDocuments() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerIn(eq(pwaApplicationDetail), any())).thenReturn(1);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    blockCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isTrue();
+
+  }
+
+  @Test
+  public void validate_full_whenDocumentRequired_andDocumentWithDescriptionProvided() {
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerIn(eq(pwaApplicationDetail), any())).thenReturn(1);
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    blockCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+
+  }
+
+  @Test
+  public void validate_partial_whenDocumentWithoutDescriptionProvided() {
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    blockCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isTrue();
+
+  }
+
+  @Test
+  public void validate_partial_whenDocumentWithDescriptionProvided() {
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    blockCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+
+  }
+
 }
