@@ -9,7 +9,7 @@ public class CrossingAgreementsValidationResult {
   private final Map<CrossingAgreementsSection, Boolean> sectionValidity;
   private final boolean isValid;
 
-  CrossingAgreementsValidationResult(Set<CrossingAgreementsSection> validSections) {
+  public CrossingAgreementsValidationResult(Set<CrossingAgreementsSection> validSections) {
     this.sectionValidity = CrossingAgreementsSection.stream()
         .collect(Collectors.toMap(cas -> cas, validSections::contains));
 
