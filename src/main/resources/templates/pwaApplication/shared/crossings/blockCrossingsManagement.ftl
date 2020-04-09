@@ -7,7 +7,7 @@
 <#macro blockCrossingManagement urlFactory blockCrossings=[] blockCrossingFileViews=[] isCompleted=false>
   <h2 class="govuk-heading-l">Block crossings (Optional) <@completedTag.completedTag isCompleted/></h2>
   <@fdsInsetText.insetText>
-    <p class="govuk-body">Any crossed block(s) not 100% owned byt the PWA holder(s) require a block crossing agreement document to be uploaded.</p>
+    <p class="govuk-body">Any crossed block not 100% owned by the PWA holder(s) requires a block crossing agreement document to be uploaded.</p>
   </@fdsInsetText.insetText>
     <@fdsAction.link linkText="Add block crossing" linkUrl=springUrl(urlFactory.getAddBlockCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
 
