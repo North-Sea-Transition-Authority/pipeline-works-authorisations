@@ -6,7 +6,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
-public class AddHuooForm {
+public class HuooForm {
 
   private Set<HuooRole> huooRoles;
   private HuooType huooType;

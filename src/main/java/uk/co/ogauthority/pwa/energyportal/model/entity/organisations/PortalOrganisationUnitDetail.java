@@ -26,10 +26,6 @@ public class PortalOrganisationUnitDetail {
     return ouId;
   }
 
-  public void setOuId(Integer ouId) {
-    this.ouId = ouId;
-  }
-
   public PortalOrganisationUnit getOrganisationUnit() {
     return organisationUnit;
   }
@@ -43,15 +39,8 @@ public class PortalOrganisationUnitDetail {
     return legalAddress;
   }
 
-  public void setLegalAddress(String legalAddress) {
-    this.legalAddress = legalAddress;
-  }
-
   public String getRegisteredNumber() {
     return registeredNumber;
   }
 
-  public void setRegisteredNumber(String registeredNumber) {
-    this.registeredNumber = registeredNumber;
-  }
 }

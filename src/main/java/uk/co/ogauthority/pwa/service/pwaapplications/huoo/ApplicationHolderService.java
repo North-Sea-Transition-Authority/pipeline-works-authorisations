@@ -38,7 +38,6 @@ public class ApplicationHolderService {
 
     padOrganisationRoleService.addHolder(detail, organisationUnit);
 
-
   }
 
   // TODO integrate with controller PWA-332

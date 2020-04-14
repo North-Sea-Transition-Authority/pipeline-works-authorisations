@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.util;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 
 public class PortalOrganisationTestUtils {
 
@@ -51,6 +52,23 @@ public class PortalOrganisationTestUtils {
     }
 
     return portalOrganisationGroup;
+  }
+
+  public static PortalOrganisationUnitDetail generateOrganisationUnitDetail(PortalOrganisationUnit orgUnit, String address, String registeredNumber) {
+
+    var detail = new PortalOrganisationUnitDetail();
+
+    try {
+      FieldUtils.writeField(detail, "ouId", orgUnit.getOuId(), true);
+      FieldUtils.writeField(detail, "organisationUnit", orgUnit, true);
+      FieldUtils.writeField(detail, "legalAddress", address, true);
+      FieldUtils.writeField(detail, "registeredNumber", registeredNumber, true);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+
+    return detail;
+
   }
 
 
