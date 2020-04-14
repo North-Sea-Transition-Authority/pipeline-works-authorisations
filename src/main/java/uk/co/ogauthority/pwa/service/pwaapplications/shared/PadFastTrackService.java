@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.validators.FastTrackValidator;
 
@@ -58,7 +59,7 @@ public class PadFastTrackService implements ApplicationFormSectionService {
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     if (projectInformation.getProposedStartTimestamp() != null) {
       var startDate = LocalDate.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
-      var medianLine = padMedianLineAgreementService.getMedianLineAgreementForDraft(detail);
+      var medianLine = padMedianLineAgreementService.getMedianLineAgreement(detail);
       if (medianLine != null) {
         if (medianLine.getAgreementStatus() == null || medianLine.getAgreementStatus() == MedianLineStatus.NOT_CROSSED) {
           return startDate.isBefore(LocalDate.now().plus(detail.getPwaApplicationType().getMinProcessingPeriod()));
@@ -128,7 +129,10 @@ public class PadFastTrackService implements ApplicationFormSectionService {
   }
 
   @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+  public BindingResult validate(Object form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
 
     if (validationType.equals(ValidationType.PARTIAL)) {
       groupValidator.validate(form, bindingResult, FastTrackForm.Partial.class);

@@ -1,20 +1,15 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
-import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 
 public class MedianLineAgreementsForm {
 
   private MedianLineStatus agreementStatus;
 
-  @Length(max = 4000, message = "Negotiator name must be 4000 characters or fewer")
   private String negotiatorNameIfOngoing;
-  @Length(max = 4000, message = "Negotiator name must be 4000 characters or fewer")
   private String negotiatorNameIfCompleted;
 
-  @Length(max = 4000, message = "Negotiator email must be 4000 characters or fewer")
   private String negotiatorEmailIfOngoing;
-  @Length(max = 4000, message = "Negotiator email must be 4000 characters or fewer")
   private String negotiatorEmailIfCompleted;
 
   public MedianLineStatus getAgreementStatus() {

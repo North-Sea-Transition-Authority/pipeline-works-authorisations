@@ -18,11 +18,16 @@ public interface ApplicationFormSectionService {
 
   /**
    * Validate the form object associated with the section and return the result.
-   * @param form object
-   * @param bindingResult obtained by binding request into form
-   * @param validationType specifying whether to do full or partial validation
+   *
+   * @param form                 object
+   * @param bindingResult        obtained by binding request into form
+   * @param validationType       specifying whether to do full or partial validation
+   * @param pwaApplicationDetail to give to validator context
    * @return binding result containing errors if there were validation problems, clean otherwise
    */
-  BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType);
+  BindingResult validate(Object form,
+                         BindingResult bindingResult,
+                         ValidationType validationType,
+                         PwaApplicationDetail pwaApplicationDetail);
 
 }

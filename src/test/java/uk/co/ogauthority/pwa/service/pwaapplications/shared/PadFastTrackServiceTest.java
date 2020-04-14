@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.FastTrackValidator;
@@ -129,7 +130,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_BeforeMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).minusDays(1);
@@ -141,7 +142,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_AtMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod());
@@ -153,7 +154,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_PastMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMaxProcessingPeriod()).plusDays(1);
@@ -178,7 +179,7 @@ public class PadFastTrackServiceTest {
   public void isFastTrackRequired_BeforeAndAfterMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
-    when(padMedianLineAgreementService.getMedianLineAgreementForDraft(pwaApplicationDetail)).thenReturn(medianLine);
+    when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
 
     var start = LocalDate.now().plus(PwaApplicationType.CAT_2_VARIATION.getMinProcessingPeriod()).plusWeeks(1);
     projectInformation.setProposedStartTimestamp(
@@ -294,7 +295,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
@@ -318,7 +319,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).isEmpty();
@@ -335,7 +336,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.over4000Chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.FULL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
@@ -359,7 +360,7 @@ public class PadFastTrackServiceTest {
     form.setSavingBarrelsReason(ValidatorTestUtils.exactly4000chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    padFastTrackService.validate(form, bindingResult, ValidationType.FULL);
+    padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).isEmpty();

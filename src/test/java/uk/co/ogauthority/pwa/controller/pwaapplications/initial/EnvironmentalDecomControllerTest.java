@@ -195,7 +195,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
-    when(padEnvironmentalDecommissioningService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(padEnvironmentalDecommissioningService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
@@ -205,7 +205,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
             .params(completeLaterParams))
         .andExpect(status().is3xxRedirection());
 
-    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.PARTIAL));
+    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.PARTIAL), any());
 
   }
 
@@ -218,7 +218,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
     bindingResult.addError(new ObjectError("fake error", "fake"));
-    when(padEnvironmentalDecommissioningService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(padEnvironmentalDecommissioningService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
@@ -229,7 +229,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/environmentalAndDecommissioning"));
 
-    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
+    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
     verify(padEnvironmentalDecommissioningService, never()).getEnvDecomData(appDetail);
 
   }
@@ -256,7 +256,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     }};
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
-    when(padEnvironmentalDecommissioningService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(padEnvironmentalDecommissioningService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
@@ -266,7 +266,7 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection());
 
     verify(padEnvironmentalDecommissioningService, times(1)).getEnvDecomData(appDetail);
-    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.FULL));
+    verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
   }
 }

@@ -51,7 +51,6 @@ public class BlockCrossingUrlFactory {
         applicationType,
         pwaApplicationId,
         blockCrossingId,
-        null,
         null
     ));
   }

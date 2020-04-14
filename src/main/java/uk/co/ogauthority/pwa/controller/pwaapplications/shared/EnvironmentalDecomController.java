@@ -96,7 +96,11 @@ public class EnvironmentalDecomController {
                                    ValidationType validationType) {
 
     var detail = applicationContext.getApplicationDetail();
-    bindingResult = padEnvironmentalDecommissioningService.validate(form, bindingResult, validationType);
+    bindingResult = padEnvironmentalDecommissioningService.validate(
+        form,
+        bindingResult,
+        validationType,
+        applicationContext.getApplicationDetail());
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, getEnvDecomModelAndView(detail), () -> {
       var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);

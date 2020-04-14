@@ -5,12 +5,19 @@
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 <#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="blockCrossingDocumentsUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
+
+
 
 <@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true>
 
-  <@blockCrossingManagement.blockCrossingManagement blockCrossings=blockCrossings blockCrossingFileViews=blockCrossingFiles urlFactory=blockCrossingUrlFactory />
+  <@blockCrossingManagement.blockCrossingManagement
+  blockCrossings=blockCrossings
+  blockCrossingFileViews=blockCrossingFiles
+  urlFactory=blockCrossingUrlFactory
+  isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
 
-  <h2 class="govuk-heading-l">Median line agreement</h2>
+  <h2 class="govuk-heading-l">Median line agreement <@completedTag.completedTag isCompleted=crossingAgreementValidationResult.isSectionValid("MEDIAN_LINE")/></h2>
     <#if medianLineAgreementView?has_content>
         <@fdsAction.link linkText="Update median line agreement" linkUrl=springUrl(medianLineUrl) role=true linkClass="govuk-button govuk-button--blue"/>
       <table class="govuk-table">

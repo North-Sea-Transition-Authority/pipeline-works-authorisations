@@ -284,7 +284,6 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                 pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(),
                 null,
-                null,
                 null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
@@ -301,7 +300,6 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     BLOCK_CROSSING_ID,
-                    null,
                     null)
             )
         );
@@ -319,7 +317,6 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     BLOCK_CROSSING_ID,
-                    null,
                     null)
             )
         );
@@ -337,7 +334,6 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     BLOCK_CROSSING_ID,
-                    null,
                     null)
             )
         );

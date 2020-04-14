@@ -137,7 +137,10 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
                                              BindingResult bindingResult,
                                              ValidationType validationType) {
 
-    bindingResult = padProjectInformationService.validate(form, bindingResult, validationType);
+    bindingResult = padProjectInformationService.validate(form,
+        bindingResult,
+        validationType,
+        applicationContext.getApplicationDetail());
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         // if invalid form, get all files, including not yet saved ones as they may have errored.

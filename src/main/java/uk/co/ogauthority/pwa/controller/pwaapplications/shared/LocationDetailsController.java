@@ -103,7 +103,10 @@ public class LocationDetailsController {
                                           ValidationType validationType) {
 
     var detail = applicationContext.getApplicationDetail();
-    bindingResult = padLocationDetailsService.validate(form, bindingResult, validationType);
+    bindingResult = padLocationDetailsService.validate(form,
+        bindingResult,
+        validationType,
+        applicationContext.getApplicationDetail());
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, getLocationModelAndView(detail), () -> {
       var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(detail);

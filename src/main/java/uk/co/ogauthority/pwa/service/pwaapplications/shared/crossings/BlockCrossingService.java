@@ -25,11 +25,10 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlo
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
-import uk.co.ogauthority.pwa.service.licence.PearsLicenceService;
 
 @Service
 public class BlockCrossingService {
-  private final PearsLicenceService pedLicenceService;
+
   private final PadCrossedBlockRepository padCrossedBlockRepository;
   private final PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository;
   private final PearsBlockService pearsBlockService;
@@ -37,13 +36,12 @@ public class BlockCrossingService {
   private final Clock clock;
 
   @Autowired
-  public BlockCrossingService(PearsLicenceService pearsLicenceService,
-                              PadCrossedBlockRepository padCrossedBlockRepository,
+  public BlockCrossingService(PadCrossedBlockRepository padCrossedBlockRepository,
                               PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository,
                               PearsBlockService pearsBlockService,
                               PortalOrganisationsAccessor portalOrganisationsAccessor,
                               @Qualifier("utcClock") Clock clock) {
-    this.pedLicenceService = pearsLicenceService;
+
     this.padCrossedBlockRepository = padCrossedBlockRepository;
     this.padCrossedBlockOwnerRepository = padCrossedBlockOwnerRepository;
     this.pearsBlockService = pearsBlockService;
@@ -165,7 +163,8 @@ public class BlockCrossingService {
   }
 
   private void mapAddFormBlockToEntity(PadCrossedBlock padCrossedBlock, AddBlockCrossingForm form) {
-    var pearsBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(form.getPickedBlock());
+    var pearsBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(
+        form.getPickedBlock());
     padCrossedBlock.setQuadrantNumber(pearsBlock.getQuadrantNumber());
     padCrossedBlock.setBlockNumber(pearsBlock.getBlockNumber());
     padCrossedBlock.setSuffix(pearsBlock.getSuffix());
@@ -185,11 +184,15 @@ public class BlockCrossingService {
                                                                               EditBlockCrossingForm form) {
     var createdBlockOwners = new ArrayList<PadCrossedBlockOwner>();
     // Each ouId will have been validated so we can assume everything is good for db persistence
-    form.getBlockOwnersOuIdList().forEach(ouId -> {
-      createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null));
-    });
+    // only create owners when the owner type is not holder
+    if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(form.getCrossedBlockOwner())) {
+      form.getBlockOwnersOuIdList().forEach(ouId -> {
+        createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null));
+      });
+    }
 
-    if (!StringUtils.isBlank(form.getOperatorNotFoundFreeTextBox())) {
+    if (CrossedBlockOwner.OTHER_ORGANISATION.equals(form.getCrossedBlockOwner())
+        && !StringUtils.isBlank(form.getOperatorNotFoundFreeTextBox())) {
       createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, null, form.getOperatorNotFoundFreeTextBox()));
     }
 

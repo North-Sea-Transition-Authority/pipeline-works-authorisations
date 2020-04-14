@@ -50,6 +50,7 @@ dependencies {
   compile 'com.google.guava:guava:28.1-jre'
   compile 'org.apache.commons:commons-lang3:3.9'
   compile 'org.apache.commons:commons-collections4:4.4'
+  compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
 
   compile group: 'fi.solita.clamav', name: 'clamav-client', version: '1.0.1'
 

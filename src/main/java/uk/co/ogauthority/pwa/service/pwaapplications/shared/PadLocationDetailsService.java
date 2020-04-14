@@ -101,7 +101,10 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   }
 
   @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType) {
+  public BindingResult validate(Object form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
 
     if (validationType.equals(ValidationType.PARTIAL)) {
       groupValidator.validate(form, bindingResult);

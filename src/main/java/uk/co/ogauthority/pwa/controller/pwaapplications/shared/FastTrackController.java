@@ -103,7 +103,10 @@ public class FastTrackController {
 
     assertFastTrackAllowed(detail);
 
-    bindingResult = padFastTrackService.validate(form, bindingResult, validationType);
+    bindingResult = padFastTrackService.validate(form,
+        bindingResult,
+        validationType,
+        applicationContext.getApplicationDetail());
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, getFastTrackModelAndView(detail), () -> {
       var entity = padFastTrackService.getFastTrackForDraft(detail);

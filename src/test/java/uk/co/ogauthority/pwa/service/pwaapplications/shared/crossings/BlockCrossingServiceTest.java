@@ -37,7 +37,6 @@ import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
-import uk.co.ogauthority.pwa.service.licence.PearsLicenceService;
 import uk.co.ogauthority.pwa.util.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -51,9 +50,6 @@ public class BlockCrossingServiceTest {
   private final int OU_ID = 99;
 
   private final String BLOCK_REF = "1/2/3";
-
-  @Mock
-  private PearsLicenceService pearsLicenceService;
 
   @Mock
   private PadCrossedBlockRepository padCrossedBlockRepository;
@@ -87,7 +83,6 @@ public class BlockCrossingServiceTest {
   @Before
   public void setUp() throws Exception {
     blockCrossingService = new BlockCrossingService(
-        pearsLicenceService,
         padCrossedBlockRepository,
         padCrossedBlockOwnerRepository,
         pearsBlockService,
