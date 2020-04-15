@@ -62,7 +62,7 @@ public class CrossingAgreementsController {
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/overview")
         .addObject("medianLineUrl", ReverseRouter.route(on(MedianLineCrossingController.class)
-            .renderMedianLineForm(detail.getPwaApplicationType(), null, null, null)))
+            .renderMedianLineForm(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
         .addObject("blockCrossings", blockCrossingService.getCrossedBlockViews(detail))
         .addObject("blockCrossingFiles", blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))

@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -44,6 +45,9 @@ import uk.co.ogauthority.pwa.util.TeamTestingUtils;
 @RunWith(SpringRunner.class)
 @WebMvcTest(PortalTeamManagementController.class)
 public class PortalTeamManagementControllerTest extends AbstractControllerTest {
+
+  @MockBean
+  private PwaApplicationContextService pwaApplicationContextService;
 
   private static final int UNKNOWN_PERSON_ID = 123456789;
   private static final int UNKNOWN_RES_ID = 99999;

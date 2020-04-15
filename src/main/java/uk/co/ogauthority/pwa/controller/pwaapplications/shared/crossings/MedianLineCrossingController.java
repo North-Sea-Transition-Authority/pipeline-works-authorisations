@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -71,9 +70,9 @@ public class MedianLineCrossingController {
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderMedianLineForm(@PathVariable("applicationType")
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           @PathVariable("applicationId") Integer applicationId,
                                            @ModelAttribute("form") MedianLineAgreementsForm form,
-                                           PwaApplicationContext applicationContext,
-                                           AuthenticatedUserAccount user) {
+                                           PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
     var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
     padMedianLineAgreementService.mapEntityToForm(entity, form);
@@ -85,10 +84,10 @@ public class MedianLineCrossingController {
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postContinueMedianLine(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                             @PathVariable("applicationId") Integer applicationId,
                                              @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
                                              BindingResult bindingResult,
-                                             PwaApplicationContext applicationContext,
-                                             AuthenticatedUserAccount user) {
+                                             PwaApplicationContext applicationContext) {
     padMedianLineAgreementService.validate(
         form,
         bindingResult,
@@ -96,7 +95,7 @@ public class MedianLineCrossingController {
         applicationContext.getApplicationDetail()
     );
 
-    return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
+    return postValidateSaveAndRedirect(applicationContext, form, bindingResult);
   }
 
   @PostMapping(params = "Complete")
@@ -104,22 +103,21 @@ public class MedianLineCrossingController {
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postCompleteMedianLine(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                             @PathVariable("applicationId") Integer applicationId,
                                              @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
                                              BindingResult bindingResult,
-                                             PwaApplicationContext applicationContext,
-                                             AuthenticatedUserAccount user) {
+                                             PwaApplicationContext applicationContext) {
     padMedianLineAgreementService.validate(
         form,
         bindingResult,
         ValidationType.FULL,
         applicationContext.getApplicationDetail()
     );
-    return postValidateSaveAndRedirect(applicationContext, form, bindingResult, user);
+    return postValidateSaveAndRedirect(applicationContext, form, bindingResult);
   }
 
   private ModelAndView postValidateSaveAndRedirect(PwaApplicationContext applicationContext,
-                                                   MedianLineAgreementsForm form, BindingResult bindingResult,
-                                                   AuthenticatedUserAccount user) {
+                                                   MedianLineAgreementsForm form, BindingResult bindingResult) {
     // TODO: PWA-393 Add file uploads
     var detail = applicationContext.getApplicationDetail();
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, getMedianLineModelAndView(detail), () -> {

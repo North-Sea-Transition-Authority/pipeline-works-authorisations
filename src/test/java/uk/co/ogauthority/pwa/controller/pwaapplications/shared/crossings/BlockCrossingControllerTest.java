@@ -96,8 +96,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.DECOMMISSIONING,
-            PwaApplicationType.OPTIONS_VARIATION)
+            PwaApplicationType.DEPOSIT_CONSENT)
         .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
@@ -110,6 +109,8 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
+    when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
+        .thenReturn(EnumSet.allOf(PwaContactRole.class));
   }
 
   @Test

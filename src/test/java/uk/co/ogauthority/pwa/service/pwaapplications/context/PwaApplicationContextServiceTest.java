@@ -58,9 +58,9 @@ public class PwaApplicationContextServiceTest {
   }
 
   @Test
-  public void getApplicationContext_noChecks() {
+  public void createAndPerformApplicationContextChecks_noChecks() {
 
-    var appContext = contextService.getApplicationContext(1, user, Set.of(), null, Set.of());
+    var appContext = contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), null, Set.of());
 
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
@@ -69,15 +69,15 @@ public class PwaApplicationContextServiceTest {
   }
 
   @Test(expected = AccessDeniedException.class)
-  public void getApplicationContext_noChecks_userHasNoRolesForApp() {
+  public void createAndPerformApplicationContextChecks_noChecks_userHasNoRolesForApp() {
     when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
-    contextService.getApplicationContext(1, user, Set.of(), null, Set.of());
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), null, Set.of());
   }
 
   @Test
-  public void getApplicationContext_statusCheck_valid() {
+  public void createAndPerformApplicationContextChecks_statusCheck_valid() {
 
-    var appContext = contextService.getApplicationContext(1, user, Set.of(), PwaApplicationStatus.DRAFT, Set.of());
+    var appContext = contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), PwaApplicationStatus.DRAFT, Set.of());
 
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
@@ -86,26 +86,26 @@ public class PwaApplicationContextServiceTest {
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
-  public void getApplicationContext_statusCheck_invalid() {
-    contextService.getApplicationContext(1, user, Set.of(), PwaApplicationStatus.SUBMITTED, Set.of());
+  public void createAndPerformApplicationContextChecks_statusCheck_invalid() {
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), PwaApplicationStatus.SUBMITTED, Set.of());
   }
 
   @Test
-  public void getApplicationContext_permissionsCheck_valid() {
-    var appContext = contextService.getApplicationContext(1, user, Set.of(PwaApplicationPermission.EDIT), null, Set.of());
+  public void createAndPerformApplicationContextChecks_permissionsCheck_valid() {
+    var appContext = contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.EDIT), null, Set.of());
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
     assertThat(appContext.getUserRoles()).containsExactly(PwaContactRole.PREPARER);
   }
 
   @Test(expected = AccessDeniedException.class)
-  public void getApplicationContext_permissionsCheck_invalid() {
+  public void createAndPerformApplicationContextChecks_permissionsCheck_invalid() {
     when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of(PwaContactRole.VIEWER));
-    contextService.getApplicationContext(1, user, Set.of(PwaApplicationPermission.EDIT), null, Set.of());
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.EDIT), null, Set.of());
   }
 
   @Test
-  public void getApplicationContext_appTypesCheck_valid() {
+  public void createAndPerformApplicationContextChecks_appTypesCheck_valid() {
 
     var allowedTypes = Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION);
 
@@ -113,7 +113,7 @@ public class PwaApplicationContextServiceTest {
 
       detail.getPwaApplication().setApplicationType(type);
 
-      var appContext = contextService.getApplicationContext(1, user, Set.of(), null, allowedTypes);
+      var appContext = contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), null, allowedTypes);
 
       assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
       assertThat(appContext.getUser()).isEqualTo(user);
@@ -124,40 +124,40 @@ public class PwaApplicationContextServiceTest {
   }
 
   @Test(expected = AccessDeniedException.class)
-  public void getApplicationContext_appTypesCheck_invalid() {
+  public void createAndPerformApplicationContextChecks_appTypesCheck_invalid() {
 
     var invalidType = PwaApplicationType.HUOO_VARIATION;
 
     detail.getPwaApplication().setApplicationType(invalidType);
 
-    contextService.getApplicationContext(1, user, Set.of(), null, Set.of(PwaApplicationType.INITIAL));
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), null, Set.of(PwaApplicationType.INITIAL));
 
   }
 
   @Test
-  public void getApplicationContext_allChecks_valid() {
-    var appContext = contextService.getApplicationContext(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.DRAFT, Set.of(PwaApplicationType.INITIAL));
+  public void createAndPerformApplicationContextChecks_allChecks_valid() {
+    var appContext = contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.DRAFT, Set.of(PwaApplicationType.INITIAL));
     assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
     assertThat(appContext.getUser()).isEqualTo(user);
     assertThat(appContext.getUserRoles()).containsExactly(PwaContactRole.PREPARER);
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
-  public void getApplicationContext_allChecks_statusInvalid() {
+  public void createAndPerformApplicationContextChecks_allChecks_statusInvalid() {
     //TODO PWA-66
    // when(detailService.getTipDetail(1)).thenThrow(PwaEntityNotFoundException.class);
-    contextService.getApplicationContext(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.SUBMITTED, Set.of(PwaApplicationType.INITIAL));
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.SUBMITTED, Set.of(PwaApplicationType.INITIAL));
   }
 
   @Test(expected = AccessDeniedException.class)
-  public void getApplicationContext_allChecks_typeInvalid() {
+  public void createAndPerformApplicationContextChecks_allChecks_typeInvalid() {
     detail.getPwaApplication().setApplicationType(PwaApplicationType.CAT_2_VARIATION);
-    contextService.getApplicationContext(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.DRAFT, Set.of(PwaApplicationType.INITIAL));
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.DRAFT, Set.of(PwaApplicationType.INITIAL));
   }
 
   @Test(expected = AccessDeniedException.class)
-  public void getApplicationContext_allChecks_permissionInvalid() {
-    contextService.getApplicationContext(1, user, Set.of(PwaApplicationPermission.MANAGE_CONTACTS), PwaApplicationStatus.DRAFT, Set.of(PwaApplicationType.INITIAL));
+  public void createAndPerformApplicationContextChecks_allChecks_permissionInvalid() {
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.MANAGE_CONTACTS), PwaApplicationStatus.DRAFT, Set.of(PwaApplicationType.INITIAL));
   }
 
 }

@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,10 +24,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest // We need a WebApplicationContext to test the reverse router
 public class ReverseRouterTest extends AbstractControllerTest {
+
+  @MockBean
+  private PwaApplicationContextService pwaApplicationContextService;
 
   @Before
   public void setUp() {

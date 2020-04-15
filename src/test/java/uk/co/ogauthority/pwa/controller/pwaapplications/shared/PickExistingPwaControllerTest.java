@@ -34,10 +34,13 @@ import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaSource;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalAndMigrationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PickExistingPwaController.class)
 public class PickExistingPwaControllerTest extends AbstractControllerTest {
+  @MockBean
+  private PwaApplicationContextService pwaApplicationContextService;
 
   @MockBean
   private PwaApplicationService pwaApplicationService;
@@ -77,7 +80,8 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     );
 
     when(pwaApplication.getApplicationType()).thenReturn(PwaApplicationType.CAT_1_VARIATION);
-    when(pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(any(), any(), any())).thenReturn(pwaApplication);
+    when(pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(any(), any(), any())).thenReturn(
+        pwaApplication);
 
   }
 

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import org.h2.mvstore.DataUtils;
@@ -25,9 +27,11 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
@@ -38,15 +42,18 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolder
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
+import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = InitialFieldsController.class)
-public class InitialFieldsControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = InitialFieldsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class InitialFieldsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -75,11 +82,8 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
 
   @Before
   public void setUp() {
-    pwaApplication = new PwaApplication();
-    pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
-    pwaApplication.setId(1);
-    pwaApplicationDetail = new PwaApplicationDetail();
-    pwaApplicationDetail.setPwaApplication(pwaApplication);
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     devukField = new DevukField(1, "abc", 500);
     padField = new PadField();
@@ -89,8 +93,9 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
     applicationHolderOrganisation = new ApplicationHolderOrganisation();
     applicationHolderOrganisation.setOrganisationUnit(portalOrganisationUnit);
 
-    when(pwaApplicationDetailService.withDraftTipDetail(any(), any(), any())).thenCallRealMethod();
-    when(pwaApplicationDetailService.getTipDetailWithStatus(any(), any())).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+
 
     when(padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(
         padField));
@@ -106,12 +111,14 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void testAuthentication() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
+    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class)
+        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk());
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
+        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -119,10 +126,12 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
 
   @Test
   public void testAuthentication_Invalid() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null))))
+    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class)
+        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null))))
         .andExpect(status().is3xxRedirection());
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null))))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
+        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null))))
         .andExpect(status().isForbidden());
   }
 
@@ -130,7 +139,8 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void renderFields() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class)
+        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -148,7 +158,8 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void postFields_FailedValidationNoRadio() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).renderFields(PwaApplicationType.INITIAL, 1, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
+        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -158,7 +169,8 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
   public void postFields_FailedValidationNoSelection() throws Exception {
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(PwaApplicationType.INITIAL, 1, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
+        .postFields(PwaApplicationType.INITIAL, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("result", "true"))
@@ -172,7 +184,8 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
 
     when(devukFieldService.findById(1)).thenReturn(devukField);
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(PwaApplicationType.INITIAL, 1, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
+        .postFields(PwaApplicationType.INITIAL, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("linkedToField", "true")
@@ -190,7 +203,8 @@ public class InitialFieldsControllerTest extends AbstractControllerTest {
 
     var wua = new WebUserAccount();
     var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class).postFields(PwaApplicationType.INITIAL, 1, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
+        .postFields(PwaApplicationType.INITIAL, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("linkedToField", "false"))

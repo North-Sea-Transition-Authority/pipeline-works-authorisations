@@ -12,6 +12,7 @@ import java.util.EnumSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -19,10 +20,14 @@ import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = StartVariationController.class)
 public class StartVariationControllerTest extends AbstractControllerTest {
+
+  @MockBean
+  private PwaApplicationContextService pwaApplicationContextService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Collections.emptyList());

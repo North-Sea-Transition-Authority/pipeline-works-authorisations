@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.decommissioning;
+package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -26,8 +26,8 @@ import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = DecommissioningTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class DecommissioningTaskListControllerTest extends TaskListControllerTest {
+@WebMvcTest(controllers = InitialTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class InitialTaskListControllerTest extends TaskListControllerTest {
 
   private PwaApplicationDetail detail;
 
@@ -36,7 +36,7 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
   @Before
   public void setUp() {
 
-    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DECOMMISSIONING);
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();
 
@@ -44,7 +44,7 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
-        .setAllowedTypes(PwaApplicationType.DECOMMISSIONING)
+        .setAllowedTypes(PwaApplicationType.INITIAL)
         .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
@@ -54,7 +54,7 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
   public void viewTaskList_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(DecommissioningTaskListController.class)
+            ReverseRouter.route(on(InitialTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
@@ -70,7 +70,7 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
   public void viewTaskList_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(DecommissioningTaskListController.class)
+            ReverseRouter.route(on(InitialTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
@@ -86,7 +86,7 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
   public void viewTaskList_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(DecommissioningTaskListController.class)
+            ReverseRouter.route(on(InitialTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
