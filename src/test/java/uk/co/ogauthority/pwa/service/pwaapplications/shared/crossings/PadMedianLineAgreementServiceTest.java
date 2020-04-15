@@ -3,10 +3,13 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,16 +35,19 @@ public class PadMedianLineAgreementServiceTest {
   @Mock
   private MedianLineAgreementValidator medianLineAgreementValidator;
 
+  @Mock
+  private MedianLineCrossingFileService medianLineCrossingFileService;
+
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     padMedianLineAgreementService = new PadMedianLineAgreementService(
         padMedianLineAgreementRepository,
-        medianLineAgreementValidator
-    );
+        medianLineAgreementValidator,
+        medianLineCrossingFileService);
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 
@@ -182,10 +188,30 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void isComplete_serviceInteractions() {
-
+  public void isComplete_notCrossedServiceInteractions() {
+    var agreement = new PadMedianLineAgreement();
+    when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(agreement));
+    agreement.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
     padMedianLineAgreementService.isComplete(pwaApplicationDetail);
     verify(medianLineAgreementValidator, times(1)).validate(any(), any(), eq(FullValidation.class));
+    verify(medianLineCrossingFileService, never()).getFullFileCount(pwaApplicationDetail);
+  }
+
+  @Test
+  public void isComplete_otherServiceInteractions() {
+    var agreement = new PadMedianLineAgreement();
+    when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(agreement));
+    EnumSet.allOf(MedianLineStatus.class).stream()
+        .filter(medianLineStatus -> medianLineStatus != MedianLineStatus.NOT_CROSSED)
+        .forEach(medianLineStatus -> {
+          agreement.setAgreementStatus(medianLineStatus);
+          padMedianLineAgreementService.isComplete(pwaApplicationDetail);
+          // Have to use atLeastOnce() inside forEach, otherwise additional iterations increase times().
+          verify(medianLineAgreementValidator, atLeastOnce()).validate(any(), any(), eq(FullValidation.class));
+          verify(medianLineCrossingFileService, atLeastOnce()).getFullFileCount(pwaApplicationDetail);
+        });
   }
 
   @Test

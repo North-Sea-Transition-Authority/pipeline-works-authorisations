@@ -73,7 +73,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
   }
 
   /**
-   * Create and persist a newblock crossing file linked to app detail and uploaded file id.
+   * Create and persist a new block crossing file linked to app detail and uploaded file id.
    */
   private PadBlockCrossingFile createAndSaveBlockCrossingFile(PwaApplicationDetail pwaApplicationDetail,
                                                               String uploadedFileId) {
