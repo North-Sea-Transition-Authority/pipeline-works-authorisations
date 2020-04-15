@@ -7,6 +7,7 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.validation.Errors;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 public class ValidatorUtils {
 
@@ -27,24 +28,26 @@ public class ValidatorUtils {
       try {
         var date = LocalDate.of(year, month, day);
         if (date.isBefore(LocalDate.now())) {
-          errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.beforeToday", fieldPrefix),
+          errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()),
               String.format("%s must not be in the past", StringUtils.capitalize(displayPrefix)));
-          errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.beforeToday", fieldPrefix), "");
-          errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.beforeToday", fieldPrefix), "");
+          errors.rejectValue(fieldPrefix + "Month",
+              String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
+          errors.rejectValue(fieldPrefix + "Year",
+              String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
           return false;
         }
       } catch (DateTimeException dte) {
-        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.invalid", fieldPrefix),
+        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
             String.format("Enter a valid %s day", displayPrefix));
-        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.invalid", fieldPrefix), "");
-        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.invalid", fieldPrefix), "");
+        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
         return false;
       }
     } else {
-      errors.rejectValue(fieldPrefix + "Day", String.format("%sDay.invalid", fieldPrefix),
+      errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
           String.format("Enter a valid %s date", displayPrefix));
-      errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth.invalid", fieldPrefix), "");
-      errors.rejectValue(fieldPrefix + "Year", String.format("%sYear.invalid", fieldPrefix), "");
+      errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+      errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
       return false;
     }
     return true;

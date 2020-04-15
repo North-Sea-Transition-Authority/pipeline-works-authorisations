@@ -8,7 +8,7 @@ import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.AddHuooForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 
 @Service
@@ -34,7 +34,7 @@ public class AddHuooValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var form = (AddHuooForm) target;
+    var form = (HuooForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
     var roles = padOrganisationRoleService.getOrgRolesForDetail(detail);
     if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {

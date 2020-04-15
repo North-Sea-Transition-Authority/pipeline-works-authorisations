@@ -45,16 +45,21 @@ public class HuooController {
   }
 
   private ModelAndView getHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+
     var padOrganisationRoleList = padOrganisationRoleService.getOrgRolesForDetail(pwaApplicationDetail);
+
     var modelAndView = new ModelAndView("pwaApplication/shared/huoo/overview")
         .addObject("addHuooUrl", ReverseRouter.route(on(AddHuooController.class)
-                .renderAddHuoo(pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+                .renderAddHuoo(pwaApplicationDetail.getPwaApplicationType(),
+                    pwaApplicationDetail.getMasterPwaApplicationId(), null, null, null)))
         .addObject("huooOrgs", padOrganisationRoleService
-            .getPortalOrganisationUnitDetailViews(pwaApplicationDetail, padOrganisationRoleList))
+            .getHuooOrganisationUnitRoleViews(pwaApplicationDetail, padOrganisationRoleList))
         .addObject("treatyAgreements",
             padOrganisationRoleService.getTreatyAgreementViews(pwaApplicationDetail, padOrganisationRoleList));
+
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Holders, users, operators and owners");
+
     return modelAndView;
   }
 

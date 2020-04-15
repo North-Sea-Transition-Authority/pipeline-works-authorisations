@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
-import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.AddHuooForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -97,8 +96,9 @@ public class AddHuooController {
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderAddHuoo(@PathVariable("applicationType")
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                    @PathVariable("applicationId") Integer applicationId,
                                     PwaApplicationContext applicationContext,
-                                    @ModelAttribute("form") AddHuooForm form,
+                                    @ModelAttribute("form") HuooForm form,
                                     AuthenticatedUserAccount user) {
     return getAddHuooModelAndView(applicationContext.getApplicationDetail());
   }
@@ -108,8 +108,9 @@ public class AddHuooController {
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postAddHuoo(@PathVariable("applicationType")
                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                  @PathVariable("applicationId") Integer applicationId,
                                   PwaApplicationContext applicationContext,
-                                  @Valid @ModelAttribute("form") AddHuooForm form,
+                                  @Valid @ModelAttribute("form") HuooForm form,
                                   BindingResult bindingResult,
                                   AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
@@ -118,8 +119,7 @@ public class AddHuooController {
         getAddHuooModelAndView(applicationContext.getApplicationDetail()), () -> {
           padOrganisationRoleService.createAndSaveEntityUsingForm(detail, form);
           return ReverseRouter.redirect(
-              on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null),
-              Map.of("applicationId", detail.getPwaApplication().getId()));
+              on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
         });
   }
 
@@ -131,7 +131,7 @@ public class AddHuooController {
                                      @PathVariable("applicationId") Integer applicationId,
                                      @PathVariable("orgRoleId") Integer orgRoleId,
                                      PwaApplicationContext applicationContext,
-                                     @ModelAttribute("form") AddHuooForm form,
+                                     @ModelAttribute("form") HuooForm form,
                                      AuthenticatedUserAccount user) {
     var padOrgRole = padOrganisationRoleService.getOrganisationRoleById(orgRoleId);
     padOrganisationRoleService.mapPadOrganisationRoleToForm(padOrgRole, form);
@@ -146,7 +146,7 @@ public class AddHuooController {
                                    @PathVariable("applicationId") Integer applicationId,
                                    @PathVariable("orgRoleId") Integer orgRoleId,
                                    PwaApplicationContext applicationContext,
-                                   @Valid @ModelAttribute("form") AddHuooForm form,
+                                   @Valid @ModelAttribute("form") HuooForm form,
                                    BindingResult bindingResult,
                                    AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
@@ -168,7 +168,7 @@ public class AddHuooController {
                                      @PathVariable("applicationId") Integer applicationId,
                                      @PathVariable("orgRoleId") Integer orgRoleId,
                                      PwaApplicationContext applicationContext,
-                                     @Valid @ModelAttribute("form") AddHuooForm form,
+                                     @Valid @ModelAttribute("form") HuooForm form,
                                      BindingResult bindingResult,
                                      AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.AddHuooForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUnitRoleView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -52,8 +53,8 @@ public class PadOrganisationRoleService {
         .orElseThrow(() -> new EntityNotFoundException("Unable to find PadOrganisationRole with ID: " + id));
   }
 
-  public List<HuooOrganisationUnitRoleView> getPortalOrganisationUnitDetailViews(PwaApplicationDetail detail,
-                                                                                 List<PadOrganisationRole> padOrganisationRoleList) {
+  public List<HuooOrganisationUnitRoleView> getHuooOrganisationUnitRoleViews(PwaApplicationDetail detail,
+                                                                             List<PadOrganisationRole> padOrganisationRoleList) {
 
     // filter so we are only looking at portal organisation roles
     var orgRoles = padOrganisationRoleList.stream()
@@ -87,7 +88,7 @@ public class PadOrganisationRoleService {
               canRemoveOrg ? getRemoveHuooUrl(detail, orgUnitRole) : null);
 
         })
-        .sorted((this::compareRoles))
+        .sorted()
         .collect(Collectors.toList());
 
   }
@@ -102,23 +103,6 @@ public class PadOrganisationRoleService {
         .postDeleteHuoo(detail.getPwaApplicationType(), detail.getPwaApplication().getId(), orgRole.getId(), null, null, null, null));
   }
 
-  /**
-   * Given two organisations with HUOO roles, return the result of comparing:
-   * 1. the roles the companies have, whichever has the role with the lowest display order wins
-   * 2. if no winner can be found based on roles, compare the organisations by name
-   * Obeys compareTo contract.
-   */
-  private int compareRoles(HuooOrganisationUnitRoleView roleA, HuooOrganisationUnitRoleView roleB) {
-
-    int orderA = getLowestHuooEnumOrderFromSet(roleA.getRoleSet()).getDisplayOrder();
-    int orderB = getLowestHuooEnumOrderFromSet(roleB.getRoleSet()).getDisplayOrder();
-    int comparison = -Integer.compare(orderA, orderB);
-    if (comparison == 0) {
-      return roleA.getCompanyName().compareTo(roleB.getCompanyName());
-    }
-    return comparison;
-  }
-
   public List<HuooTreatyAgreementView> getTreatyAgreementViews(PwaApplicationDetail detail,
                                                                List<PadOrganisationRole> padOrganisationRoleList) {
     return padOrganisationRoleList.stream()
@@ -127,20 +111,14 @@ public class PadOrganisationRoleService {
             treatyRole,
             getEditHuooUrl(detail, treatyRole),
             getRemoveHuooUrl(detail, treatyRole)))
+        .sorted(Comparator.comparing(HuooTreatyAgreementView::getCountry))
         .collect(Collectors.toList());
   }
 
-  private HuooRole getLowestHuooEnumOrderFromSet(Set<HuooRole> roles) {
-    return roles.stream()
-        .reduce((huooRole, huooRole2) -> {
-          if (huooRole.getDisplayOrder() < huooRole2.getDisplayOrder()) {
-            return huooRole;
-          }
-          return huooRole2;
-        })
-        .orElse(null);
-  }
-
+  /**
+   * If the organisation being removed is a holder, return true if there is > 1 holder on the application, false otherwise.
+   * If the organisation being removed isn't a holder, return true.
+   */
   public boolean canRemoveOrganisationRole(PwaApplicationDetail detail, PadOrganisationRole padOrganisationRole) {
     var padOrgs = getOrgRolesForDetail(detail);
     var holderCount = padOrgs.stream()
@@ -157,13 +135,13 @@ public class PadOrganisationRoleService {
     padOrganisationRolesRepository.delete(padOrganisationRole);
   }
 
-  public void createAndSaveEntityUsingForm(PwaApplicationDetail detail, AddHuooForm form) {
+  public void createAndSaveEntityUsingForm(PwaApplicationDetail detail, HuooForm form) {
     var role = new PadOrganisationRole();
     role.setPwaApplicationDetail(detail);
     saveEntityUsingForm(role, form);
   }
 
-  public void mapPadOrganisationRoleToForm(PadOrganisationRole padOrganisationRole, AddHuooForm form) {
+  public void mapPadOrganisationRoleToForm(PadOrganisationRole padOrganisationRole, HuooForm form) {
     form.setHuooType(padOrganisationRole.getType());
     form.setHuooRoles(padOrganisationRole.getRoles());
     form.setOrganisationUnit(padOrganisationRole.getOrganisationUnit());
@@ -171,7 +149,7 @@ public class PadOrganisationRoleService {
   }
 
   @Transactional
-  public void saveEntityUsingForm(PadOrganisationRole padOrganisationRole, AddHuooForm form) {
+  public void saveEntityUsingForm(PadOrganisationRole padOrganisationRole, HuooForm form) {
     padOrganisationRole.setType(form.getHuooType());
     padOrganisationRole.setRoles(form.getHuooRoles());
     if (form.getHuooType().equals(HuooType.PORTAL_ORG)) {

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications;
+package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -17,8 +17,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.ApplicationHolderOrganisationRepository;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationHolderServiceTest {
