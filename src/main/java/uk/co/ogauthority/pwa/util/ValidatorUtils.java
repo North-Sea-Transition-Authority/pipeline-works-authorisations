@@ -70,14 +70,14 @@ public class ValidatorUtils {
                                         int maxLength) {
     var testString = stringSupplier.get();
     if (testString != null && testString.length() > maxLength) {
-      errors.rejectValue(fieldName, fieldName + ".maxLengthExceeded", message);
+      errors.rejectValue(fieldName, fieldName + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(), message);
     }
   }
 
   public static void validateEmailIfPresent(Errors errors, String field, Supplier<String> email, String messagePrefix) {
     var emailAddress = email.get();
     if (emailAddress != null && !EmailValidator.getInstance().isValid(emailAddress)) {
-      errors.rejectValue(field, field + ".invalid", messagePrefix + " must be a valid email");
+      errors.rejectValue(field, field + FieldValidationErrorCodes.INVALID.getCode(), messagePrefix + " must be a valid email");
     }
 
   }
