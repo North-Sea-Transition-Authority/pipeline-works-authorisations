@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.LocationDetailsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
 public class LocationDetailsValidatorTest {
