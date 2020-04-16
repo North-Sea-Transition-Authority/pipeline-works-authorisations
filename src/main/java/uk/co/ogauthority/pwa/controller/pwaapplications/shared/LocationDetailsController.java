@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.LocationDetailsForm;
@@ -24,6 +25,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.LocationDetailsUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailFileService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -46,6 +49,7 @@ public class LocationDetailsController {
   private final PadFacilityService padFacilityService;
   private final PadLocationDetailsService padLocationDetailsService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final PadLocationDetailFileService padLocationDetailFileService;
 
   @Autowired
   public LocationDetailsController(
@@ -54,12 +58,14 @@ public class LocationDetailsController {
       DevukFacilityService devukFacilityService,
       PadLocationDetailsService padLocationDetailsService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      LocationDetailsValidator locationDetailsValidator) {
+      LocationDetailsValidator locationDetailsValidator,
+      PadLocationDetailFileService padLocationDetailFileService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padFacilityService = padFacilityService;
     this.devukFacilityService = devukFacilityService;
     this.padLocationDetailsService = padLocationDetailsService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.padLocationDetailFileService = padLocationDetailFileService;
   }
 
   private ModelAndView getLocationModelAndView(PwaApplicationDetail detail) {
@@ -70,7 +76,11 @@ public class LocationDetailsController {
             .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText)))
         .addObject("facilityOptions", facilities.stream()
             .collect(
-                StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)));
+                StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
+        .addObject("urlFactory",
+            new LocationDetailsUrlFactory(detail.getPwaApplicationType(), detail.getPwaApplication().getId()))
+        .addObject("uploadedFiles",
+            padLocationDetailFileService.getLocationDetailFileViews(detail, ApplicationFileLinkStatus.FULL));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
   }

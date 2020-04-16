@@ -33,6 +33,28 @@
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.transportsMaterialsToShore"/>
         </@fdsRadio.radioGroup>
+
+        <@fdsRadio.radioGroup path="form.routeSurveyUndertaken" labelText="Has a pipeline route survey been undertaken?" hiddenContent=true>
+            <@fdsRadio.radioYes path="form.routeSurveyUndertaken">
+                <@fdsDateInput.dateInput dayPath="form.surveyConcludedDay" monthPath="form.surveyConcludedMonth" yearPath="form.surveyConcludedYear" labelText="When was the pipeline route survey concluded?" formId="surveyConcludedDate"/>
+            </@fdsRadio.radioYes>
+            <@fdsRadio.radioNo path="form.routeSurveyUndertaken"/>
+        </@fdsRadio.radioGroup>
+        <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details"/>
+        <@fdsCheckbox.checkbox path="form.withinLimitsOfDeviation" labelText="I confirm that the limit of deviation during construction will be ±100m"/>
+
+        <@fdsFieldset.fieldset legendHeading="Pipeline route documents" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" optionalLabel=true>
+            <#if uploadedFiles?has_content>
+                <@fdsAction.link linkText="Add, edit or remove pipeline route documents" linkUrl=springUrl(urlFactory.getEditDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+                <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=uploadedFiles/>
+            <#else>
+                <@fdsInsetText.insetText>
+                  No pipeline route documents have been uploaded.
+                </@fdsInsetText.insetText>
+                <@fdsAction.link linkText="Add, edit or remove pipeline route documents" linkUrl=springUrl(urlFactory.getEditDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+            </#if>
+        </@fdsFieldset.fieldset>
+
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
     </@fdsForm.htmlForm>
 
