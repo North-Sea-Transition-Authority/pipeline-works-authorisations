@@ -9,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -36,16 +36,19 @@ public class CableCrossingController {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
+  private ModelAndView createRenderModelAndView() {
+    return new ModelAndView("pwaApplication/shared/cableCrossing.ftl");
+  }
+
   @GetMapping
   @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderCableCrossings(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("blockCrossingId") Integer blockCrossingId,
-      @ModelAttribute("form") EditBlockCrossingForm form,
+      @ModelAttribute("form") AddCableCrossingForm form,
       PwaApplicationContext applicationContext) {
-    return null;
+    return createRenderModelAndView();
   }
 
 }
