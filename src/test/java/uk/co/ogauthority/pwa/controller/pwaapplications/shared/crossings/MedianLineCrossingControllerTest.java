@@ -67,8 +67,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
         PwaApplicationType.INITIAL,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.DECOMMISSIONING,
-        PwaApplicationType.OPTIONS_VARIATION);
+        PwaApplicationType.DEPOSIT_CONSENT);
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
