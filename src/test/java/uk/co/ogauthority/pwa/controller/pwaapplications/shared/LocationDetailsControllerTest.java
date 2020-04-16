@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,13 +24,14 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.LocationDetailsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -40,14 +41,15 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
+import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = LocationDetailsController.class)
-public class LocationDetailsControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = LocationDetailsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class LocationDetailsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -79,20 +81,15 @@ public class LocationDetailsControllerTest extends AbstractControllerTest {
 
   @Before
   public void setUp() {
-    var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, 1);
-    pwaApplicationDetail = new PwaApplicationDetail();
-    pwaApplicationDetail.setPwaApplication(pwaApplication);
-    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
 
-    when(pwaApplicationContextService.getApplicationContext(any(), any(), any(), any(), any()))
-        .thenReturn(new PwaApplicationContext(pwaApplicationDetail, user, Set.of(PwaContactRole.PREPARER)));
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
   }
 
   @Test
   public void render_authenticated_validAppType() {
-
-    when(pwaApplicationContextService.getApplicationContext(any(), any(), anySet(), any(), any()))
-        .thenReturn(new PwaApplicationContext(pwaApplicationDetail, user, Set.of(PwaContactRole.PREPARER)));
 
     allowedApplicationTypes.forEach(validAppType -> {
 

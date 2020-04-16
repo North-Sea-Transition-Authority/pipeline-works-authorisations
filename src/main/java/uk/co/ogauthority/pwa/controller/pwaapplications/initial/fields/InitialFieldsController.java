@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
@@ -25,9 +27,12 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -36,6 +41,8 @@ import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/fields")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class InitialFieldsController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
@@ -79,44 +86,51 @@ public class InitialFieldsController {
   }
 
   @GetMapping
-  public ModelAndView renderFields(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-                                   @PathVariable("applicationId") Integer applicationId,
-                                   @ModelAttribute("form") PwaFieldForm form, AuthenticatedUserAccount user) {
-    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
+  public ModelAndView renderFields(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") PwaFieldForm form,
+      AuthenticatedUserAccount user,
+      PwaApplicationContext applicationContext
+  ) {
 
-      var modelAndView = getFieldsModelAndView(detail, form, user);
 
-      var fields = padFieldService.getActiveFieldsForApplicationDetail(detail);
-      form.setLinkedToField(detail.getLinkedToField());
-      if (fields.size() == 1) {
-        if (fields.get(0).isLinkedToDevuk()) {
-          form.setFieldId(fields.get(0).getDevukField().getFieldId());
-        }
+    var modelAndView = getFieldsModelAndView(applicationContext.getApplicationDetail(), form, user);
+
+    var fields = padFieldService.getActiveFieldsForApplicationDetail(applicationContext.getApplicationDetail());
+    form.setLinkedToField(applicationContext.getApplicationDetail().getLinkedToField());
+    if (fields.size() == 1) {
+      if (fields.get(0).isLinkedToDevuk()) {
+        form.setFieldId(fields.get(0).getDevukField().getFieldId());
       }
+    }
 
-      return modelAndView;
-    });
+    return modelAndView;
+
   }
 
   @PostMapping
-  public ModelAndView postFields(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-                                 @PathVariable("applicationId") Integer applicationId,
-                                 AuthenticatedUserAccount user,
-                                 @Valid @ModelAttribute("form") PwaFieldForm form,
-                                 BindingResult bindingResult) {
+  public ModelAndView postFields(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      AuthenticatedUserAccount user,
+      @Valid @ModelAttribute("form") PwaFieldForm form,
+      BindingResult bindingResult,
+      PwaApplicationContext applicationContext) {
 
     pwaFieldFormValidator.validate(form, bindingResult);
     var isLinkedtoField = form.getLinkedToField();
-    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail ->
-        ControllerUtils.checkErrorsAndRedirect(bindingResult, getFieldsModelAndView(detail, form, user), () -> {
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        getFieldsModelAndView(applicationContext.getApplicationDetail(), form, user), () -> {
           var fieldList = new ArrayList<DevukField>();
           if (isLinkedtoField) {
             fieldList.add(devukFieldService.findById(form.getFieldId()));
           }
-          padFieldService.setFields(detail, fieldList);
+          padFieldService.setFields(applicationContext.getApplicationDetail(), fieldList);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
-        })
-    );
+        });
+
   }
 
   private Map<String, String> getDevukFieldMap(List<ApplicationHolderOrganisation> holders) {

@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
@@ -27,10 +30,13 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -40,6 +46,9 @@ import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}")
+@PwaApplicationTypeCheck(types = {PwaApplicationType.INITIAL})
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class PwaHolderController {
 
   private final TeamService teamService;
@@ -71,17 +80,15 @@ public class PwaHolderController {
    * Screen allowing user to select the holder for a PWA.
    */
   @GetMapping("/holder")
-  public ModelAndView renderHolderScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-                                         @PathVariable Integer applicationId,
-                                         @ModelAttribute("form") PwaHolderForm form,
-                                         AuthenticatedUserAccount user) {
+  public ModelAndView renderHolderScreen(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable Integer applicationId,
+      @ModelAttribute("form") PwaHolderForm form,
+      AuthenticatedUserAccount user,
+      PwaApplicationContext applicationContext) {
 
-
-    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
-          form.setHolderOuId(applicationHolderService.mapHolderDetailsToForm(detail).getHolderOuId());
-          return getHolderModelAndView(user, detail, form);
-        }
-    );
+    applicationHolderService.mapHolderDetailsToForm(applicationContext.getApplicationDetail(), form);
+    return getHolderModelAndView(user, applicationContext.getApplicationDetail(), form);
 
   }
 
@@ -89,38 +96,37 @@ public class PwaHolderController {
    * Handle storage of holder selected by user.
    */
   @PostMapping("/holder")
-  public ModelAndView postHolderScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-                                       @PathVariable Integer applicationId,
-                                       @Valid @ModelAttribute("form") PwaHolderForm form,
-                                       BindingResult bindingResult,
-                                       AuthenticatedUserAccount user) {
+  public ModelAndView postHolderScreen(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable Integer applicationId,
+      @Valid @ModelAttribute("form") PwaHolderForm form,
+      BindingResult bindingResult,
+      AuthenticatedUserAccount user,
+      PwaApplicationContext applicationContext) {
 
-    return pwaApplicationDetailService.withDraftTipDetail(applicationId, user, detail -> {
+    pwaHolderFormValidator.validate(form, bindingResult);
 
-      pwaHolderFormValidator.validate(form, bindingResult);
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        getHolderModelAndView(user, applicationContext.getApplicationDetail(), form), () -> {
 
-      return ControllerUtils.checkErrorsAndRedirect(bindingResult, getHolderModelAndView(user, detail, form), () -> {
+          List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
 
-        List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
+          // check that selected org is accessible to user
+          PortalOrganisationUnit organisationUnit = portalOrganisationsAccessor.getOrganisationUnitById(
+              form.getHolderOuId())
+              .filter(orgUnitsForUser::contains)
+              .orElseThrow(() ->
+                  new PwaEntityNotFoundException(
+                      String.format(
+                          "Couldn't find PortalOrganisationUnit with ID: %s accessible to user with WUA ID: %s",
+                          form.getHolderOuId(),
+                          user.getWuaId())));
 
-        // check that selected org is accessible to user
-        PortalOrganisationUnit organisationUnit = portalOrganisationsAccessor.getOrganisationUnitById(
-            form.getHolderOuId())
-            .filter(orgUnitsForUser::contains)
-            .orElseThrow(() ->
-                new PwaEntityNotFoundException(
-                    String.format("Couldn't find PortalOrganisationUnit with ID: %s accessible to user with WUA ID: %s",
-                        form.getHolderOuId(),
-                        user.getWuaId())));
+          applicationHolderService.updateHolderDetails(applicationContext.getApplicationDetail(), organisationUnit);
 
-        applicationHolderService.updateHolderDetails(detail, organisationUnit);
+          return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
 
-        return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
-
-      });
-
-    });
-
+        });
   }
 
   private ModelAndView getHolderModelAndView(AuthenticatedUserAccount user, PwaApplicationDetail detail,
@@ -133,7 +139,8 @@ public class PwaHolderController {
     var modelAndView = new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("taskListUrl",
-            ReverseRouter.route(on(InitialTaskListController.class).viewTaskList(detail.getMasterPwaApplicationId(), null))
+            ReverseRouter.route(
+                on(InitialTaskListController.class).viewTaskList(detail.getMasterPwaApplicationId(), null))
         )
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("errorList", List.of())

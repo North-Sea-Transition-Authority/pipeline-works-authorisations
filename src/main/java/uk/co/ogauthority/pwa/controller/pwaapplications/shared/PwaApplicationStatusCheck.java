@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
  * methods to restrict processing of the method to applications at a specific status.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface PwaApplicationStatusCheck {
 
   PwaApplicationStatus status();

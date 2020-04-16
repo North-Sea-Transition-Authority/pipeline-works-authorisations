@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.initial;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -19,26 +19,26 @@ import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
@@ -47,12 +47,13 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
+import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = EnvironmentalDecomController.class)
-public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = EnvironmentalDecomController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -82,29 +83,23 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
     wua = new WebUserAccount(1, person);
     user = new AuthenticatedUserAccount(wua, List.of());
 
-    var pwaApplication = new PwaApplication();
-    pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
-    pwaApplication.setId(1);
-    appDetail = new PwaApplicationDetail();
-    appDetail.setPwaApplication(pwaApplication);
+    appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     instant = Instant.now();
 
     var holderOrg = new PortalOrganisationUnit(1, "HOLDER");
     holderOrganisation = new ApplicationHolderOrganisation(appDetail, holderOrg);
 
-    when(pwaApplicationContextService.getApplicationContext(any(), any(), any(), any(), any()))
-        .thenReturn(new PwaApplicationContext(appDetail, user, Set.of(PwaContactRole.PREPARER)));
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(appDetail);
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
   }
 
   @Test
   public void render_authenticated_validAppType() {
 
-    when(pwaApplicationContextService.getApplicationContext(any(), any(), anySet(), any(), any()))
-        .thenReturn(new PwaApplicationContext(appDetail, user, Set.of(PwaContactRole.PREPARER)));
 
     allowedApplicationTypes.forEach(validAppType -> {
-
+      appDetail.getPwaApplication().setApplicationType(validAppType);
       try {
         mockMvc.perform(
             get(ReverseRouter.route(
@@ -124,13 +119,11 @@ public class EnvironmentalDecomControllerTest extends AbstractControllerTest {
   @Test
   public void render_authenticated_invalidAppType() {
 
-    when(pwaApplicationContextService.getApplicationContext(any(), any(), anySet(), any(), any()))
-        .thenThrow(AccessDeniedException.class);
 
     PwaApplicationType.stream()
         .filter(t -> !allowedApplicationTypes.contains(t))
         .forEach(invalidAppType -> {
-
+          appDetail.getPwaApplication().setApplicationType(invalidAppType);
       try {
         mockMvc.perform(
             get(ReverseRouter.route(

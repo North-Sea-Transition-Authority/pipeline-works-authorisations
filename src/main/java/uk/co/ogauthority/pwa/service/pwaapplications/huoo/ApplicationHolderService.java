@@ -41,18 +41,16 @@ public class ApplicationHolderService {
   }
 
   // TODO integrate with controller PWA-332
-  public PwaHolderForm mapHolderDetailsToForm(PwaApplicationDetail detail) {
-    var form = new PwaHolderForm();
-    // clear out any pre-existing data (legacy apps could have multiple holders)
-    form.setHolderOuId(
-        applicationHolderOrganisationRepository.findByPwaApplicationDetail(detail)
-            .stream()
-            .findFirst()
-            .map(appHolderOrganisation -> appHolderOrganisation.getOrganisationUnit().getOuId())
-        .orElse(null)
-    );
+  public void mapHolderDetailsToForm(PwaApplicationDetail detail,
+                                     PwaHolderForm form) {
 
-    return form;
+    Integer ouId = applicationHolderOrganisationRepository.findByPwaApplicationDetail(detail).stream()
+        .findFirst()
+        .map(appHolderOrganisation -> appHolderOrganisation.getOrganisationUnit().getOuId())
+        .orElse(null);
+
+    form.setHolderOuId(ouId);
+
   }
 
   public List<ApplicationHolderOrganisation> getHoldersFromApplicationDetail(PwaApplicationDetail detail) {

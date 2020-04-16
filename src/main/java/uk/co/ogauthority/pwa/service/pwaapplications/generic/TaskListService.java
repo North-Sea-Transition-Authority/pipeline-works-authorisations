@@ -61,7 +61,7 @@ public class TaskListService {
 
       tasks.put("Field information",
           ReverseRouter.route(on(InitialFieldsController.class)
-              .renderFields(application.getApplicationType(), application.getId(), null, null)));
+              .renderFields(application.getApplicationType(), application.getId(), null, null, null)));
 
     } else {
       tasks.put("No tasks", pwaApplicationRedirectService.getTaskListRoute(application));

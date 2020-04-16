@@ -33,8 +33,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING,
-    PwaApplicationType.OPTIONS_VARIATION
+    PwaApplicationType.DEPOSIT_CONSENT
 })
 public class CrossingAgreementsController {
 

@@ -50,10 +50,10 @@ public enum ApplicationTask {
 
 
 
-  private String displayName;
-  private Class<?> controllerClass;
-  private Class<? extends ApplicationFormSectionService> serviceClass;
-  private int displayOrder;
+  private final String displayName;
+  private final Class<?> controllerClass;
+  private final Class<? extends ApplicationFormSectionService> serviceClass;
+  private final int displayOrder;
 
   ApplicationTask(String displayName, Class<?> controllerClass,
                   Class<? extends ApplicationFormSectionService> serviceClass,

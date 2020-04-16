@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -66,16 +67,16 @@ public class BlockCrossingDocumentsControllerTest extends PwaApplicationContextA
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.DECOMMISSIONING,
-            PwaApplicationType.OPTIONS_VARIATION)
+            PwaApplicationType.DEPOSIT_CONSENT)
         .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
-        pwaApplicationDetail);
+
+    when(pwaApplicationDetailService.getTipDetail(eq(APP_ID))).thenReturn(pwaApplicationDetail);
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
 
   }

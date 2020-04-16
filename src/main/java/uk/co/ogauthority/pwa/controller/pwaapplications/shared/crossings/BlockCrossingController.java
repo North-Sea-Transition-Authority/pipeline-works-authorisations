@@ -46,9 +46,10 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.EditBlo
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING,
-    PwaApplicationType.OPTIONS_VARIATION
+    PwaApplicationType.DEPOSIT_CONSENT
 })
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class BlockCrossingController extends PwaApplicationDataFileUploadAndDownloadController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -75,8 +76,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   }
 
   @GetMapping("/edit-block-crossing/{blockCrossingId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderEditBlockCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -92,8 +91,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   }
 
   @PostMapping("/edit-block-crossing/{blockCrossingId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView editBlockCrossingFormSave(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -121,8 +118,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   }
 
   @PostMapping("/remove-block-crossing/{blockCrossingId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView removeBlockCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -137,8 +132,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   }
 
   @GetMapping("/add-block-crossing")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderAddBlockCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -149,8 +142,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   }
 
   @PostMapping("/add-block-crossing")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView addBlockCrossingFormSave(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,

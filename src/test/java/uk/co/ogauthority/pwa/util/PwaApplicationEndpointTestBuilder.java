@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -42,6 +43,8 @@ public class PwaApplicationEndpointTestBuilder {
 
   private BiFunction<PwaApplicationDetail, PwaApplicationType, String> endpointUrlProducer;
 
+  private Consumer<PwaApplicationDetail> preTestSetup;
+
   private Map<String, String> requestParams = new HashMap<>();
 
   private WebUserAccount userWua;
@@ -58,13 +61,14 @@ public class PwaApplicationEndpointTestBuilder {
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
 
-    this.userWua = new WebUserAccount(1);
-    this.user = new AuthenticatedUserAccount(userWua, EnumSet.allOf(PwaUserPrivilege.class));
-    this.detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    setupTestObjects();
+    // do nothing by default
+    this.preTestSetup = (detail) -> {};
+  }
 
-    // setup mocks so basic app context checks can be executed
-    when(this.pwaApplicationDetailService.getTipDetail(any())).thenReturn(detail);
-    when(this.pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+  public PwaApplicationEndpointTestBuilder setPreTestSetupMethod(Consumer<PwaApplicationDetail> setup){
+    this.preTestSetup = setup;
+    return this;
   }
 
   public PwaApplicationEndpointTestBuilder setEndpointUrlProducer(
@@ -159,11 +163,31 @@ public class PwaApplicationEndpointTestBuilder {
     }
   }
 
+  private void setupTestObjects() {
+    var defaultStatus = this.allowedStatuses.stream().findAny().orElse(PwaApplicationStatus.DRAFT);
+    var defaultType = this.allowedTypes.stream().findAny().orElse(PwaApplicationType.INITIAL);
+
+    this.userWua = new WebUserAccount(1);
+    this.user = new AuthenticatedUserAccount(userWua, EnumSet.allOf(PwaUserPrivilege.class));
+    this.detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var defaultRoles = EnumSet.allOf(PwaContactRole.class);
+
+    detail.setStatus(defaultStatus);
+    detail.getPwaApplication().setApplicationType(defaultType);
+    when(pwaContactService.getContactRoles(eq(detail.getPwaApplication()), any())).thenReturn(defaultRoles);
+    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+
+  }
+
   public void performAppStatusChecks(ResultMatcher matchingTypeResultMatcher, ResultMatcher otherTypeResultMatcher) {
+    setupTestObjects();
 
     for (PwaApplicationStatus status : PwaApplicationStatus.values()) {
       try {
+
         detail.setStatus(status);
+        preTestSetup.accept(detail);
         var expected = this.allowedStatuses.contains(status);
 
         performRequest(
@@ -177,11 +201,13 @@ public class PwaApplicationEndpointTestBuilder {
     }
   }
 
-  public void performAppTypeChecks(ResultMatcher matchingTypeResultMatcher, ResultMatcher otherTypeResultMatcher) {
 
+  public void performAppTypeChecks(ResultMatcher matchingTypeResultMatcher, ResultMatcher otherTypeResultMatcher) {
+    setupTestObjects();
     for (PwaApplicationType type : PwaApplicationType.values()) {
       try {
         detail.getPwaApplication().setApplicationType(type);
+        preTestSetup.accept(detail);
         var expected = this.allowedTypes.contains(type);
         performRequest(
             this.endpointUrlProducer.apply(detail, type),
@@ -196,12 +222,13 @@ public class PwaApplicationEndpointTestBuilder {
 
   public void performAppContactRoleCheck(ResultMatcher matchingTypeResultMatcher,
                                          ResultMatcher otherTypeResultMatcher) {
-
+    setupTestObjects();
     for (PwaContactRole role : PwaContactRole.values()) {
       try {
         var userAppRoles = Set.of(role);
+        preTestSetup.accept(detail);
         when(pwaContactService.getContactRoles(eq(detail.getPwaApplication()), any())).thenReturn(userAppRoles);
-        // Based on required permission for endpoin, if role under test grants required permission
+        // Based on required permission for endpoint, if role under test grants required permission
         var expected = this.rolesGivenAccess.contains(role);
 
         performRequest(

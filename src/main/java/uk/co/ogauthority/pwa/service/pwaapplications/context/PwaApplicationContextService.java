@@ -29,7 +29,7 @@ public class PwaApplicationContextService {
   }
 
   /**
-   * Construct an application context to provide common objects associated with a PWA application.
+   * Construct an application context to provide common objects associated with a PWA application and perform standard permission checks.
    * @param applicationId for the PWA application
    * @param authenticatedUser trying to access the PWA application
    * @param requiredPermissions user must have to be able to access the PWA application
@@ -37,25 +37,35 @@ public class PwaApplicationContextService {
    * @param applicationTypes the application must be one of
    * @return application context if app is in right state and user has right privileges, throw relevant exceptions otherwise
    */
+  public PwaApplicationContext createAndPerformApplicationContextChecks(Integer applicationId,
+                                                                        AuthenticatedUserAccount authenticatedUser,
+                                                                        Set<PwaApplicationPermission> requiredPermissions,
+                                                                        PwaApplicationStatus appStatus,
+                                                                        Set<PwaApplicationType> applicationTypes) {
+
+    var context = getApplicationContext(applicationId, authenticatedUser);
+
+    performAppStatusCheck(appStatus, context.getApplicationDetail());
+
+    performApplicationTypeCheck(applicationTypes, context.getApplicationType(), applicationId);
+
+    performPrivilegeCheck(requiredPermissions, context.getUserRoles(), authenticatedUser, applicationId);
+
+    return context;
+
+  }
+
+  /**
+   * Construct an application context to provide common objects associated with a PWA application.
+   * @param applicationId for the PWA application
+   * @param authenticatedUser trying to access the PWA application
+   * @return application context object with app detail, users roles etc populated
+   */
   public PwaApplicationContext getApplicationContext(Integer applicationId,
-                                                     AuthenticatedUserAccount authenticatedUser,
-                                                     Set<PwaApplicationPermission> requiredPermissions,
-                                                     PwaApplicationStatus appStatus,
-                                                     Set<PwaApplicationType> applicationTypes) {
-
+                                                     AuthenticatedUserAccount authenticatedUser) {
     var detail = detailService.getTipDetail(applicationId);
-    performAppStatusCheck(appStatus, detail);
-
-    var application = detail.getPwaApplication();
-
-    performApplicationTypeCheck(applicationTypes, application.getApplicationType(), applicationId);
-
     var roles = pwaContactService.getContactRoles(detail.getPwaApplication(), authenticatedUser.getLinkedPerson());
-
-    performPrivilegeCheck(requiredPermissions, roles, authenticatedUser, applicationId);
-
     return new PwaApplicationContext(detail, authenticatedUser, roles);
-
   }
 
 

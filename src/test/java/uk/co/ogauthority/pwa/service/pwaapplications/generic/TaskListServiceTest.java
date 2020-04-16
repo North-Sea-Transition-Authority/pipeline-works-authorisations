@@ -110,16 +110,16 @@ public class TaskListServiceTest {
         switch(appType) {
           case INITIAL:
           case CAT_1_VARIATION:
-          case OPTIONS_VARIATION:
-          case DECOMMISSIONING:
+          case DEPOSIT_CONSENT:
             assertThat(taskNamesList).containsOnly(
-                "Project information",
-                "Environmental and decommissioning",
-                "Crossing agreements",
+              "Project information",
+              "Environmental and decommissioning",
+              "Crossing agreements",
               "Location details"
-          );
-          break;
-        case DEPOSIT_CONSENT:
+            );
+            break;
+          case DECOMMISSIONING:
+          case OPTIONS_VARIATION:
           assertThat(taskNamesList).containsOnly(
               "Project information",
               "Environmental and decommissioning",

@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
  * methods to restrict processing of the method to users who have all defined permissions on the application.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface PwaApplicationPermissionCheck {
 
   PwaApplicationPermission[] permissions();
