@@ -4,7 +4,6 @@ import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 
@@ -32,10 +31,6 @@ public class DateUtils {
     } catch (DateTimeException | NullPointerException e) {
       consumer.accept(null);
     }
-  }
-
-  public static Instant createInstantFromLocalDate(LocalDate localDate) {
-    return Instant.ofEpochSecond(localDate.atStartOfDay().toEpochSecond(ZoneOffset.UTC));
   }
 
   public static void setYearMonthDayFromInstant(Consumer<Integer> yearConsumer,

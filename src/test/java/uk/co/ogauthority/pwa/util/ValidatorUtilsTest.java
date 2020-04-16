@@ -21,15 +21,25 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateIsPresentOrFuture_WithNulls() {
+  public void validateDate_WithNulls() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start", null, null, null, errors);
+    ValidatorUtils.validateDate("proposedStart", "proposed start", null, null, null, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
             "proposedStartDay.invalid",
             "proposedStartMonth.invalid",
             "proposedStartYear.invalid"
         );
+  }
+
+  @Test
+  public void validateDate_ValidDate() {
+    var date = LocalDate.now();
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDate("proposedStart", "proposed start",
+        date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
 
   @Test
