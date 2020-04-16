@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailFileService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
@@ -62,6 +63,9 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
 
   @MockBean
   private PadFacilityService padFacilityService;
+
+  @MockBean
+  private PadLocationDetailFileService padLocationDetailFileService;
 
   @SpyBean
   private LocationDetailsValidator locationDetailsValidator;
