@@ -13,3 +13,5 @@ CREATE TABLE ${datasource.user}.pad_location_detail_files (
 , CONSTRAINT pad_ldf_pad_id_fk FOREIGN KEY (application_detail_id) REFERENCES ${datasource.user}.pwa_application_details (id)
 , CONSTRAINT pad_ldf_file_id_fk FOREIGN KEY (file_id) REFERENCES ${datasource.user}.uploaded_files (file_id)
 ) TABLESPACE tbsdata;
+
+CREATE INDEX ${datasource.user}.pad_ldf_pad_idx ON ${datasource.user}.pad_location_detail_files (application_detail_id);
