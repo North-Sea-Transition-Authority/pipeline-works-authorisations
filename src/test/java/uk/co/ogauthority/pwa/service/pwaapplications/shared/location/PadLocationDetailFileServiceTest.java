@@ -94,7 +94,7 @@ public class PadLocationDetailFileServiceTest {
   }
 
   @Test
-  public void getBlockCrossingFile_verifyServiceInteractions() {
+  public void getLocationDetailFile_verifyServiceInteractions() {
     when(padLocationDetailFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
         .thenReturn(Optional.of(file));
     padLocationDetailFileService.getLocationDetailFile(FILE_ID, pwaApplicationDetail);
@@ -103,18 +103,18 @@ public class PadLocationDetailFileServiceTest {
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
-  public void getBlockCrossingFile_whenNotFound() {
+  public void getLocationDetailFile_whenNotFound() {
     padLocationDetailFileService.getLocationDetailFile(FILE_ID, pwaApplicationDetail);
   }
 
   @Test
-  public void deleteBlockCrossingFilesAndLinkedUploads_uploadedFileRemoveSuccessful() {
+  public void deleteLocationDetailFilesAndLinkedUploads_uploadedFileRemoveSuccessful() {
     padLocationDetailFileService.deleteLocationDetailFilesAndLinkedUploads(List.of(file), wua);
     verify(padLocationDetailFileRepository).deleteAll(eq(List.of(file)));
   }
 
   @Test(expected = RuntimeException.class)
-  public void deleteBlockCrossingFilesAndLinkedUploads_uploadedFileRemoveFail() {
+  public void deleteLocationDetailFilesAndLinkedUploads_uploadedFileRemoveFail() {
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
         FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
     );
@@ -122,7 +122,7 @@ public class PadLocationDetailFileServiceTest {
   }
 
   @Test
-  public void deleteBlockCrossingFileLink_verifyServiceInteraction() {
+  public void deleteLocationDetailFileLink_verifyServiceInteraction() {
     padLocationDetailFileService.deleteLocationDetailFileLink(file);
     verify(padLocationDetailFileRepository, times(1)).delete(file);
   }
@@ -165,7 +165,7 @@ public class PadLocationDetailFileServiceTest {
 
 
   @Test
-  public void getUpdatedBlockCrossingFileViewsWhenFileOnForm() {
+  public void getUpdatedLocationDetailFileViewsWhenFileOnForm() {
 
     var fileViews = List.of(
         fileView

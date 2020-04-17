@@ -73,4 +73,30 @@ public class ValidatorUtilsTest {
     assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
+
+  @Test
+  public void validateBoolean_Null() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateBoolean(errors, "usingCampaignApproach", "Err");
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("usingCampaignApproach.required");
+  }
+
+  @Test
+  public void validateBoolean_False() {
+    projectInformationForm.setUsingCampaignApproach(false);
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateBoolean(errors, "usingCampaignApproach", "Err");
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .contains("usingCampaignApproach.required");
+  }
+
+  @Test
+  public void validateBoolean_True() {
+    projectInformationForm.setUsingCampaignApproach(true);
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateBoolean(errors, "usingCampaignApproach", "Err");
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .doesNotContain("usingCampaignApproach.required");
+  }
 }

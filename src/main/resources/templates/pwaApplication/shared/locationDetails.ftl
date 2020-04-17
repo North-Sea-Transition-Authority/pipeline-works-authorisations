@@ -43,7 +43,8 @@
         <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details"/>
         <@fdsCheckbox.checkbox path="form.withinLimitsOfDeviation" labelText="I confirm that the limit of deviation during construction will be ±100m"/>
 
-        <@fdsFieldset.fieldset legendHeading="Pipeline route documents" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" optionalLabel=true>
+        <#-- TODO: PWA-432 Update guidance text with correct supporting documents. -->
+        <@fdsFieldset.fieldset legendHeading="Pipeline route documents" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" optionalLabel=true hintText="You may attach supporting documents, such as bathymetric data">
             <#if uploadedFiles?has_content>
                 <@fdsAction.link linkText="Add, edit or remove pipeline route documents" linkUrl=springUrl(urlFactory.getEditDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
                 <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=uploadedFiles/>
@@ -51,7 +52,7 @@
                 <@fdsInsetText.insetText>
                   No pipeline route documents have been uploaded.
                 </@fdsInsetText.insetText>
-                <@fdsAction.link linkText="Add, edit or remove pipeline route documents" linkUrl=springUrl(urlFactory.getEditDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+                <@fdsAction.button buttonText="Add, edit or remove pipeline route documents" buttonClass="govuk-button govuk-button--blue"/>
             </#if>
         </@fdsFieldset.fieldset>
 

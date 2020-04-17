@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.location;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -37,6 +40,8 @@ import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/location")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
@@ -89,8 +94,6 @@ public class LocationDetailsController {
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderLocationDetails(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             PwaApplicationContext applicationContext,
@@ -105,8 +108,6 @@ public class LocationDetailsController {
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postLocationDetails(@PathVariable("applicationType")
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           PwaApplicationContext applicationContext,
@@ -126,6 +127,30 @@ public class LocationDetailsController {
       padLocationDetailsService.saveEntityUsingForm(locationDetail, form);
       padFacilityService.setFacilities(detail, form);
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
+    });
+
+  }
+
+  @PostMapping(params = "Add, edit or remove pipeline route documents")
+  public ModelAndView postLocationDetailsToUploadDocuments(@PathVariable("applicationType")
+                                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                           PwaApplicationContext applicationContext,
+                                                           @ModelAttribute("form") LocationDetailsForm form,
+                                                           BindingResult bindingResult,
+                                                           AuthenticatedUserAccount user) {
+
+    var detail = applicationContext.getApplicationDetail();
+    bindingResult = padLocationDetailsService.validate(form,
+        bindingResult,
+        ValidationType.PARTIAL,
+        applicationContext.getApplicationDetail());
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getLocationModelAndView(detail), () -> {
+      var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(detail);
+      padLocationDetailsService.saveEntityUsingForm(locationDetail, form);
+      padFacilityService.setFacilities(detail, form);
+      return ReverseRouter.redirect(on(LocationDetailsDocumentsController.class)
+          .renderEditDocuments(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
     });
 
   }

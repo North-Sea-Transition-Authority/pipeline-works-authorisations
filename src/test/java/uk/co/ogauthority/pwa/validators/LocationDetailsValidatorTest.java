@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.entry;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
@@ -169,6 +172,48 @@ public class LocationDetailsValidatorTest {
     form.setPipelineRouteDetails("Detail text");
     form.setWithinLimitsOfDeviation(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validatePartial_Nulls() {
+    var form = new LocationDetailsForm();
+    var errors = new BeanPropertyBindingResult(form, "form");
+    locationDetailsValidator.validatePartial(form, errors);
+    var result = errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validatePartial_InvalidDate() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedDay(1);
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+    locationDetailsValidator.validatePartial(form, errors);
+    var result = errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+    assertThat(result).contains(
+        entry("surveyConcludedDay", Set.of("surveyConcludedDay.invalid")),
+        entry("surveyConcludedMonth", Set.of("surveyConcludedMonth.invalid")),
+        entry("surveyConcludedYear", Set.of("surveyConcludedYear.invalid"))
+    );
+  }
+
+  @Test
+  public void validatePartial_Valid() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedDay(1);
+    form.setSurveyConcludedMonth(1);
+    form.setSurveyConcludedYear(2020);
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+    locationDetailsValidator.validatePartial(form, errors);
+    var result = errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
     assertThat(result).isEmpty();
   }
 

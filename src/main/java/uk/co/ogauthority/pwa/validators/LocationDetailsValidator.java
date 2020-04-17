@@ -4,6 +4,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -39,10 +40,8 @@ public class LocationDetailsValidator implements Validator {
           break;
       }
     }
-    if (StringUtils.isBlank(form.getApproximateProjectLocationFromShore())) {
-      errors.rejectValue("approximateProjectLocationFromShore", "approximateProjectLocationFromShore.required",
-          "You must provide approximate location information");
-    }
+    ValidationUtils.rejectIfEmpty(errors, "approximateProjectLocationFromShore",
+        "approximateProjectLocationFromShore.required", "You must provide approximate location information");
     if (form.getFacilitiesOffshore() == null) {
       errors.rejectValue("facilitiesOffshore", "facilitiesOffshore.required",
           "Select yes if facilities are wholly offshore and subsea");
@@ -50,14 +49,13 @@ public class LocationDetailsValidator implements Validator {
     if (form.getTransportsMaterialsToShore() == null) {
       errors.rejectValue("transportsMaterialsToShore", "transportsMaterialsToShore.required",
           "Select yes if the pipeline will be used to transport materials / facilitate the transportation of materials to shore");
-    } else if (form.getTransportsMaterialsToShore().equals(true) && StringUtils.isBlank(form.getTransportationMethod())) {
+    } else if (form.getTransportsMaterialsToShore().equals(true) && StringUtils.isBlank(
+        form.getTransportationMethod())) {
       errors.rejectValue("transportationMethod", "transportationMethod.required",
           "You must provide the method of transportation to shore");
     }
-    if (StringUtils.isBlank(form.getPipelineRouteDetails())) {
-      errors.rejectValue("pipelineRouteDetails", "pipelineRouteDetails.required",
-          "You must provide pipeline route details");
-    }
+    ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",
+        "pipelineRouteDetails.required", "You must provide pipeline route details");
     if (form.getRouteSurveyUndertaken() == null) {
       errors.rejectValue("routeSurveyUndertaken", "routeSurveyUndertaken.required",
           "Select yes if a pipeline route survey has been undertaken");
@@ -72,9 +70,22 @@ public class LocationDetailsValidator implements Validator {
         );
       }
     }
-    if (!BooleanUtils.toBooleanDefaultIfNull(form.getWithinLimitsOfDeviation(), false)) {
-      errors.rejectValue("withinLimitsOfDeviation", "withinLimitsOfDeviation.required",
-          "You must confirm that the limit of deviation during construction will be ±100m");
+    ValidatorUtils.validateBoolean(errors, "withinLimitsOfDeviation",
+        "You must confirm that the limit of deviation during construction will be ±100m");
+  }
+
+  public void validatePartial(Object target, Errors errors) {
+    var form = (LocationDetailsForm) target;
+    if (form.getRouteSurveyUndertaken() != null && form.getRouteSurveyUndertaken().equals(true)) {
+      if (!(form.getSurveyConcludedDay() == null && form.getSurveyConcludedMonth() == null && form.getSurveyConcludedYear() == null)) {
+        ValidatorUtils.validateDate(
+            "surveyConcluded", "survey concluded",
+            form.getSurveyConcludedDay(),
+            form.getSurveyConcludedMonth(),
+            form.getSurveyConcludedYear(),
+            errors
+        );
+      }
     }
   }
 }

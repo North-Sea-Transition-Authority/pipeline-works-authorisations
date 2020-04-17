@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.util;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -15,11 +17,21 @@ public class ValidatorUtils {
     throw new AssertionError();
   }
 
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
+   * @param fieldPrefix The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
+   * @param displayPrefix The grouped name in the error message. EG: "proposed start".
+   * @param day Form field day
+   * @param month Form field month
+   * @param year Form field year
+   * @param errors Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
   public static boolean validateDate(String fieldPrefix,
                                      String displayPrefix,
-                                     Integer day,
-                                     Integer month,
-                                     Integer year,
+                                     @Nullable Integer day,
+                                     @Nullable Integer month,
+                                     @Nullable Integer year,
                                      Errors errors) {
     var dayValid = Range.between(1, 31).contains(day);
     var monthValid = Range.between(1, 12).contains(month);
@@ -35,6 +47,17 @@ public class ValidatorUtils {
     }
   }
 
+  /**
+   * Provide standardised error messages to ensure consistent date validation.
+   * Ensures that the date is valid, and the date is either the current day, or is in the future.
+   * @param fieldPrefix The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
+   * @param displayPrefix The grouped name in the error message. EG: "proposed start".
+   * @param day Form field day
+   * @param month Form field month
+   * @param year Form field year
+   * @param errors Errors object to add rejection codes and messages to.
+   * @return True if date is valid with no errors.
+   */
   public static boolean validateDateIsPresentOrFuture(String fieldPrefix,
                                                       String displayPrefix,
                                                       Integer day,
@@ -91,7 +114,18 @@ public class ValidatorUtils {
     if (emailAddress != null && !EmailValidator.getInstance().isValid(emailAddress)) {
       errors.rejectValue(field, field + FieldValidationErrorCodes.INVALID.getCode(), messagePrefix + " must be a valid email");
     }
+  }
 
+  /**
+   * Ensures that a Boolean object is true.
+   * @param errors Errors object
+   * @param field The field name matching the form's field name.
+   * @param errorMessage The message to display if invalid.
+   */
+  public static void validateBoolean(Errors errors, String field, String errorMessage) {
+    if (!BooleanUtils.toBooleanDefaultIfNull((Boolean) errors.getFieldValue(field), false)) {
+      errors.rejectValue(field, field + ".required", errorMessage);
+    }
   }
 
 }

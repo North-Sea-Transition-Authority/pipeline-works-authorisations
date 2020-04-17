@@ -15,3 +15,4 @@ CREATE TABLE ${datasource.user}.pad_location_detail_files (
 ) TABLESPACE tbsdata;
 
 CREATE INDEX ${datasource.user}.pad_ldf_pad_idx ON ${datasource.user}.pad_location_detail_files (application_detail_id);
+CREATE INDEX ${datasource.user}.pad_ldf_uf_idx ON ${datasource.user}.pad_location_detail_files (file_id);

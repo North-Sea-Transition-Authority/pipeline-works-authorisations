@@ -55,13 +55,8 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
     form.setUploadedFileWithDescriptionForms(fileFormViewList);
   }
 
-  public boolean requiresFullValidation(PwaApplicationDetail pwaApplicationDetail) {
-    // return 'true' for full validation if non holder organisations listed as crossed block owners
-    return false;
-  }
-
   /**
-   * Create and persist a newblock crossing file linked to app detail and uploaded file id.
+   * Create and persist a newlocation detail file linked to app detail and uploaded file id.
    */
   private PadLocationDetailFile createAndSaveLocationDetailFile(PwaApplicationDetail pwaApplicationDetail,
                                                                 String uploadedFileId) {
@@ -76,7 +71,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
   }
 
   /**
-   * Return linked block crossing if it exists for application detail else throw not found exception.
+   * Return linked location detail file if it exists for application detail else throw not found exception.
    */
   public PadLocationDetailFile getLocationDetailFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
     return padLocationDetailFileRepository.findByPwaApplicationDetailAndFileId(
@@ -92,7 +87,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
 
 
   /**
-   * Remove block crossing file link and delete uploaded file.
+   * Remove location detail file link and delete uploaded file.
    */
   @Transactional
   void deleteLocationDetailFilesAndLinkedUploads(Iterable<PadLocationDetailFile> filesToBeRemoved,
@@ -177,7 +172,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
 
 
   /**
-   * Gets linked block crossing files as uploaded file forms.
+   * Gets linked location detail files as uploaded file forms.
    */
   private List<UploadFileWithDescriptionForm> getUploadedFileListAsFormList(PwaApplicationDetail pwaApplicationDetail,
                                                                             ApplicationFileLinkStatus applicationFileLinkStatus) {
@@ -189,7 +184,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
 
 
   /**
-   * Get block crossing files with requested link status as standard uploaded file views.
+   * Get location detail files with requested link status as standard uploaded file views.
    */
   public List<UploadedFileView> getLocationDetailFileViews(PwaApplicationDetail pwaApplicationDetail,
                                                            ApplicationFileLinkStatus fileLinkStatus) {
@@ -250,7 +245,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
   }
 
   /**
-   * Method which creates "temporary" link to application detail block crossing file
+   * Method which creates "temporary" link to application detail location detail file
    * If form left unsaved, we know which files are deletable.
    */
   @Transactional

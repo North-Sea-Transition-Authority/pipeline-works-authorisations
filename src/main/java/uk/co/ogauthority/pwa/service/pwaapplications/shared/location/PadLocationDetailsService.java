@@ -132,6 +132,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
     if (validationType.equals(ValidationType.PARTIAL)) {
       groupValidator.validate(form, bindingResult);
+      validator.validatePartial(form, bindingResult);
       return bindingResult;
     }
 

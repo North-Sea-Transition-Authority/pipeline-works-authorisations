@@ -29,6 +29,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
@@ -140,6 +141,15 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
         post(ReverseRouter.route(
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
             .params(continueParams))
+        .andExpect(status().isForbidden());
+
+    MultiValueMap<String, String> documentParams = new LinkedMultiValueMap<>() {{
+      add("Add, edit or remove pipeline route documents", "Add, edit or remove pipeline route documents");
+    }};
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(LocationDetailsController.class).postLocationDetailsToUploadDocuments(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
+            .params(documentParams))
         .andExpect(status().isForbidden());
   }
 
@@ -255,4 +265,50 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
     verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
     verify(padFacilityService, times(1)).setFacilities(any(), any());
   }
+
+  @Test
+  public void postLocationDetailsToUploadDocuments_Valid() throws Exception {
+
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
+      add("Add, edit or remove pipeline route documents", "Add, edit or remove pipeline route documents");
+    }};
+
+    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(), ValidationType.PARTIAL);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(LocationDetailsController.class).postLocationDetailsToUploadDocuments(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
+            .params(params)
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+    verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
+  }
+
+  @Test
+  public void postLocationDetailsToUploadDocuments_Invalid() throws Exception {
+
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
+      add("Add, edit or remove pipeline route documents", "Add, edit or remove pipeline route documents");
+      add("routeSurveyUndertaken", "true");
+      add("surveyConcludedDay", "1");
+    }};
+
+    when(padLocationDetailsService.validate(any(), any(), any(), any())).thenAnswer(invocation -> {
+      var error = new BeanPropertyBindingResult(new LocationDetailsForm(), "form");
+      error.rejectValue("surveyConcludedDay", "surveyConcludedDay.invalid", "");
+      return error;
+    });
+
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(LocationDetailsController.class).postLocationDetailsToUploadDocuments(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
+            .params(params)
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk());
+    verify(padLocationDetailsService, never()).saveEntityUsingForm(any(), any());
+  }
+
+
 }
