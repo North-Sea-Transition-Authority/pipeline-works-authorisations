@@ -117,7 +117,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
     }
 
-    BindingResult bindingResult = new BeanPropertyBindingResult(locationDetails, "form");
+    BindingResult bindingResult = new BeanPropertyBindingResult(locationDetailsForm, "form");
     validator.validate(locationDetailsForm, bindingResult);
 
     return !bindingResult.hasErrors();
