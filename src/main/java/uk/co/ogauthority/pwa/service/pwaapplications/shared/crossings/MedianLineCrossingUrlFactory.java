@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Map;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -21,7 +20,7 @@ public class MedianLineCrossingUrlFactory {
 
   public String getAddMedianLineCrossingUrl() {
     return ReverseRouter.route(on(MedianLineCrossingController.class)
-        .renderMedianLineForm(applicationType, null, null, null), Map.of("applicationId", pwaApplicationId));
+        .renderMedianLineForm(applicationType, pwaApplicationId, null, null));
   }
 
   public String getMedianLineCrossingDocumentsUrl() {

@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="blockCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 
-<#-- NOTE: medianLineAgreementView argument must have a default modifer applied to allow for null-safety. -->
+<#-- NOTE: You must pass in a default value to medianLineAgreementView to stop freemarker throwing an error if null. -->
 <#macro medianLineCrossingManagement urlFactory medianLineAgreementView medianLineFileViews=[] isCompleted=false>
   <h2 class="govuk-heading-l">Median line
     agreement <@completedTag.completedTag isCompleted=crossingAgreementValidationResult.isSectionValid("MEDIAN_LINE")/></h2>
