@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.BlockCrossingDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.MedianLineCrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -32,68 +32,92 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/block-crossing-documents")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/median-line-documents")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DEPOSIT_CONSENT
 })
-public class BlockCrossingDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
+public class MedianLineDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
-  private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationFileService applicationFileService;
-  private final BlockCrossingFileService blockCrossingFileService;
+  private final MedianLineCrossingFileService medianLineCrossingFileService;
+  private final ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @Autowired
-  public BlockCrossingDocumentsController(ApplicationBreadcrumbService applicationBreadcrumbService,
-                                          PwaApplicationFileService applicationFileService,
-                                          BlockCrossingFileService blockCrossingFileService) {
+  public MedianLineDocumentsController(
+      PwaApplicationFileService applicationFileService,
+      MedianLineCrossingFileService medianLineCrossingFileService,
+      ApplicationBreadcrumbService applicationBreadcrumbService) {
     this.applicationFileService = applicationFileService;
+    this.medianLineCrossingFileService = medianLineCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.blockCrossingFileService = blockCrossingFileService;
   }
 
+  private ModelAndView createMedianLineCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                            MedianLineCrossingDocumentsForm form) {
+    var modelAndView = createModelAndView(
+        "pwaApplication/form/uploadFiles",
+        ReverseRouter.route(on(MedianLineDocumentsController.class)
+            .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
+        ReverseRouter.route(on(MedianLineDocumentsController.class)
+            .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
+        ReverseRouter.route(on(MedianLineDocumentsController.class)
+            .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
+        // only load fully linked (saved) files
+        medianLineCrossingFileService.getUpdatedMedianLineCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+    );
+
+    modelAndView.addObject("pageTitle", "Median line agreement documents")
+        .addObject("backButtonText", "Back to crossing agreements")
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(), null, null)));
+    applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        "Median line agreement documents");
+    return modelAndView;
+  }
 
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  public ModelAndView renderEditBlockCrossingDocuments(
+  public ModelAndView renderEditMedianLineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") BlockCrossingDocumentsForm form,
+      @ModelAttribute("form") MedianLineCrossingDocumentsForm form,
       PwaApplicationContext applicationContext) {
 
-    blockCrossingFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
-    return createBlockCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    medianLineCrossingFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
+    return createMedianLineCrossingModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  public ModelAndView postBlockCrossingDocuments(
+  public ModelAndView postMedianLineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") BlockCrossingDocumentsForm form,
+      @ModelAttribute("form") MedianLineCrossingDocumentsForm form,
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
 
-    blockCrossingFileService.validate(
+    medianLineCrossingFileService.validate(
         form,
         bindingResult,
         ValidationType.FULL,
         applicationContext.getApplicationDetail()
     );
-    var modelAndView = createBlockCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = createMedianLineCrossingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      blockCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
+      medianLineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
           applicationContext.getApplicationDetail(),
           form,
           applicationContext.getUser());
@@ -102,34 +126,7 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
     });
   }
 
-  private ModelAndView createBlockCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                       BlockCrossingDocumentsForm form) {
-    var modelAndView = createModelAndView(
-        "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(BlockCrossingDocumentsController.class)
-            .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(BlockCrossingDocumentsController.class)
-            .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(BlockCrossingDocumentsController.class)
-            .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        // only load fully linked (saved) files
-        blockCrossingFileService.getUpdatedBlockCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
-    );
-
-    modelAndView.addObject("pageTitle", "Block crossing documents")
-        .addObject("backButtonText", "Back to crossing agreements")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(), null, null)));
-    applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Block crossing documents");
-    return modelAndView;
-  }
-
   @GetMapping("/files/download/{fileId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
   @ResponseBody
   public ResponseEntity<Resource> handleDownload(
@@ -137,14 +134,12 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    var blockCrossingFile = blockCrossingFileService.getBlockCrossingFile(fileId,
+    var medianLineCrossingFile = medianLineCrossingFileService.getMedianLineCrossingFile(fileId,
         applicationContext.getApplicationDetail());
-    return serveFile(applicationFileService.getUploadedFile(blockCrossingFile));
+    return serveFile(applicationFileService.getUploadedFile(medianLineCrossingFile));
   }
 
   @PostMapping("/files/upload")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   @ResponseBody
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -157,13 +152,11 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
         file,
         applicationContext.getUser(),
         applicationContext.getApplicationDetail(),
-        blockCrossingFileService::createUploadedFileLink
+        medianLineCrossingFileService::createUploadedFileLink
     );
   }
 
   @PostMapping("/files/delete/{fileId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   @ResponseBody
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -174,8 +167,7 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
         fileId,
         applicationContext.getApplicationDetail(),
         applicationContext.getUser(),
-        blockCrossingFileService::deleteUploadedFileLink
+        medianLineCrossingFileService::deleteUploadedFileLink
     );
   }
-
 }

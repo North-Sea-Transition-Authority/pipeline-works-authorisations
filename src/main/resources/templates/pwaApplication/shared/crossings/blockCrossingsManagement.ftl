@@ -57,8 +57,8 @@
   </#if>
   <h3 class="govuk-heading-m">Block crossing agreement documents</h3>
     <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-    <#if blockCrossingFiles?has_content>
-      <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFiles/>
+    <#if blockCrossingFileViews?has_content>
+      <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
     <#else>
       <p class="govuk-body">No block crossing agreement documents have been added to this application</p>
     </#if>

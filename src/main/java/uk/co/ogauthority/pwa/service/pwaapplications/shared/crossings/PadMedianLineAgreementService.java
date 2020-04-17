@@ -20,14 +20,16 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
 
   private final PadMedianLineAgreementRepository padMedianLineAgreementRepository;
   private final MedianLineAgreementValidator medianLineAgreementValidator;
+  private final MedianLineCrossingFileService medianLineCrossingFileService;
 
   @Autowired
   public PadMedianLineAgreementService(
       PadMedianLineAgreementRepository padMedianLineAgreementRepository,
-      MedianLineAgreementValidator medianLineAgreementValidator) {
+      MedianLineAgreementValidator medianLineAgreementValidator,
+      MedianLineCrossingFileService medianLineCrossingFileService) {
     this.padMedianLineAgreementRepository = padMedianLineAgreementRepository;
     this.medianLineAgreementValidator = medianLineAgreementValidator;
-
+    this.medianLineCrossingFileService = medianLineCrossingFileService;
   }
 
   public PadMedianLineAgreement getMedianLineAgreement(PwaApplicationDetail pwaApplicationDetail) {
@@ -76,6 +78,12 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
     mapEntityToForm(medianLineAgreement, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     validate(form, bindingResult, ValidationType.FULL, detail);
+    if (form.getAgreementStatus() != MedianLineStatus.NOT_CROSSED) {
+      if (medianLineCrossingFileService.getFullFileCount(detail) == 0) {
+        return false;
+      }
+      medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, detail);
+    }
     return !bindingResult.hasErrors();
 
   }
