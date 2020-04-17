@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,7 +18,6 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,13 +27,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
@@ -40,6 +41,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -47,6 +49,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
+import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
@@ -85,11 +88,40 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   private AuthenticatedUserAccount user;
   private PwaApplicationDetail pwaApplicationDetail;
 
+  private static final int APP_ID = 100;
+  private PwaApplicationEndpointTestBuilder endpointTester;
+
+
   @Before
   public void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
+    pwaApplicationDetail.getPwaApplication().setId(APP_ID);
+
+    user = new AuthenticatedUserAccount(
+        new WebUserAccount(1),
+        EnumSet.allOf(PwaUserPrivilege.class));
+
+    doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
+    // set default checks for entire controller
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+        .setAllowedTypes(
+            PwaApplicationType.INITIAL,
+            PwaApplicationType.CAT_1_VARIATION,
+            PwaApplicationType.CAT_2_VARIATION,
+            PwaApplicationType.OPTIONS_VARIATION,
+            PwaApplicationType.DECOMMISSIONING,
+            PwaApplicationType.DEPOSIT_CONSENT)
+        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail.getPwaApplication().setId(APP_ID);
+
+    when(pwaApplicationDetailService.getTipDetail(eq(APP_ID))).thenReturn(pwaApplicationDetail);
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
   }
@@ -129,7 +161,8 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
+                null), Map.of("applicationId", 1)))
             .params(completeParams))
         .andExpect(status().isForbidden());
 
@@ -139,17 +172,9 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
+                null), Map.of("applicationId", 1)))
             .params(continueParams))
-        .andExpect(status().isForbidden());
-
-    MultiValueMap<String, String> documentParams = new LinkedMultiValueMap<>() {{
-      add("Add, edit or remove pipeline route documents", "Add, edit or remove pipeline route documents");
-    }};
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetailsToUploadDocuments(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .params(documentParams))
         .andExpect(status().isForbidden());
   }
 
@@ -172,11 +197,15 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
       add("Save and complete later", "Save and complete later");
     }};
 
-    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
+        ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
+        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
+                null), Map.of("applicationId", 1)))
             .params(continueParams)
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
@@ -192,11 +221,15 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
       add("transportationMethod", StringUtils.repeat('a', 5000));
     }};
 
-    ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
+        ValidationType.PARTIAL);
+    ControllerTestUtils.failValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
+        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
+                null), Map.of("applicationId", 1)))
             .params(continueParams)
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
@@ -210,11 +243,15 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
       add("Save and complete later", "Save and complete later");
     }};
 
-    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
+        ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
+        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
+                null), Map.of("applicationId", 1)))
             .params(continueParams)
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
@@ -229,11 +266,15 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
       add("Complete", "Complete");
     }};
 
-    ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(), ValidationType.FULL);
+    ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
+        ValidationType.FULL);
+    ControllerTestUtils.failValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
+        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
+                null), Map.of("applicationId", 1)))
             .params(params)
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
@@ -253,11 +294,15 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
       add("transportationMethod", "method");
     }};
 
-    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(), ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
+        ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
+        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null, null), Map.of("applicationId", 1)))
+            on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
+                null), Map.of("applicationId", 1)))
             .params(params)
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
@@ -267,48 +312,39 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetailsToUploadDocuments_Valid() throws Exception {
+  public void renderEditBlockCrossingDocuments_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(LocationDetailsController.class)
+                    .renderLocationDetails(type, null, null, null),
+                Map.of("applicationId", applicationDetail.getMasterPwaApplicationId())));
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Add, edit or remove pipeline route documents", "Add, edit or remove pipeline route documents");
-    }};
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
-    ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(), ValidationType.PARTIAL);
-
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetailsToUploadDocuments(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .params(params)
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().is3xxRedirection());
-    verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
   }
 
   @Test
-  public void postLocationDetailsToUploadDocuments_Invalid() throws Exception {
+  public void renderEditBlockCrossingDocuments_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(LocationDetailsController.class)
+                    .renderLocationDetails(type, null, null, null),
+                Map.of("applicationId", applicationDetail.getMasterPwaApplicationId())));
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Add, edit or remove pipeline route documents", "Add, edit or remove pipeline route documents");
-      add("routeSurveyUndertaken", "true");
-      add("surveyConcludedDay", "1");
-    }};
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
-    when(padLocationDetailsService.validate(any(), any(), any(), any())).thenAnswer(invocation -> {
-      var error = new BeanPropertyBindingResult(new LocationDetailsForm(), "form");
-      error.rejectValue("surveyConcludedDay", "surveyConcludedDay.invalid", "");
-      return error;
-    });
-
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(LocationDetailsController.class).postLocationDetailsToUploadDocuments(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .params(params)
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk());
-    verify(padLocationDetailsService, never()).saveEntityUsingForm(any(), any());
   }
 
+  @Test
+  public void renderEditBlockCrossingDocuments_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(LocationDetailsController.class)
+                    .renderLocationDetails(type, null, null, null),
+                Map.of("applicationId", applicationDetail.getMasterPwaApplicationId())));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
 
 }

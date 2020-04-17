@@ -77,7 +77,7 @@ public class ValidatorUtilsTest {
   @Test
   public void validateBoolean_Null() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateBoolean(errors, "usingCampaignApproach", "Err");
+    ValidatorUtils.validateBoolean(errors, projectInformationForm.getUsingCampaignApproach(), "usingCampaignApproach", "Err");
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .contains("usingCampaignApproach.required");
   }
@@ -86,7 +86,7 @@ public class ValidatorUtilsTest {
   public void validateBoolean_False() {
     projectInformationForm.setUsingCampaignApproach(false);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateBoolean(errors, "usingCampaignApproach", "Err");
+    ValidatorUtils.validateBoolean(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .contains("usingCampaignApproach.required");
   }
@@ -95,7 +95,7 @@ public class ValidatorUtilsTest {
   public void validateBoolean_True() {
     projectInformationForm.setUsingCampaignApproach(true);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateBoolean(errors, "usingCampaignApproach", "Err");
+    ValidatorUtils.validateBoolean(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .doesNotContain("usingCampaignApproach.required");
   }

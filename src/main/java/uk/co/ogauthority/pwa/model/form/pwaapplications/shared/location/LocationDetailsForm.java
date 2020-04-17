@@ -5,8 +5,9 @@ import java.util.List;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
-public class LocationDetailsForm {
+public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm {
 
   @Length(max = 4000, message = "Approximate project location from shore must be 4000 characters or fewer")
   private String approximateProjectLocationFromShore;

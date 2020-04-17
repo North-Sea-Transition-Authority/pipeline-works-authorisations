@@ -70,7 +70,9 @@ public class LocationDetailsValidator implements Validator {
         );
       }
     }
-    ValidatorUtils.validateBoolean(errors, "withinLimitsOfDeviation",
+    ValidatorUtils.validateBoolean(errors,
+        form.getWithinLimitsOfDeviation(),
+        "withinLimitsOfDeviation",
         "You must confirm that the limit of deviation during construction will be ±100m");
   }
 

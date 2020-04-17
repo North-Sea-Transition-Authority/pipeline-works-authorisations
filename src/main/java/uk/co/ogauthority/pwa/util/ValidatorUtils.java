@@ -122,8 +122,8 @@ public class ValidatorUtils {
    * @param field The field name matching the form's field name.
    * @param errorMessage The message to display if invalid.
    */
-  public static void validateBoolean(Errors errors, String field, String errorMessage) {
-    if (!BooleanUtils.toBooleanDefaultIfNull((Boolean) errors.getFieldValue(field), false)) {
+  public static void validateBoolean(Errors errors, Boolean bool, String field, String errorMessage) {
+    if (!BooleanUtils.toBooleanDefaultIfNull(bool, false)) {
       errors.rejectValue(field, field + ".required", errorMessage);
     }
   }

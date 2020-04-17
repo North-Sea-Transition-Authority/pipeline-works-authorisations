@@ -45,15 +45,7 @@
 
         <#-- TODO: PWA-432 Update guidance text with correct supporting documents. -->
         <@fdsFieldset.fieldset legendHeading="Pipeline route documents" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" optionalLabel=true hintText="You may attach supporting documents, such as bathymetric data">
-            <#if uploadedFiles?has_content>
-                <@fdsAction.link linkText="Add, edit or remove pipeline route documents" linkUrl=springUrl(urlFactory.getEditDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-                <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=uploadedFiles/>
-            <#else>
-                <@fdsInsetText.insetText>
-                  No pipeline route documents have been uploaded.
-                </@fdsInsetText.insetText>
-                <@fdsAction.button buttonText="Add, edit or remove pipeline route documents" buttonClass="govuk-button govuk-button--blue"/>
-            </#if>
+            <@fileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="project-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
         </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>

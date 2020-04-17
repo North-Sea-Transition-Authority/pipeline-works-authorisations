@@ -13,7 +13,7 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsDocumentsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.location.PadLocationDetailFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -50,7 +50,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
   }
 
 
-  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, LocationDetailDocumentsForm form) {
+  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, LocationDetailsForm form) {
     var fileFormViewList = getUploadedFileListAsFormList(pwaApplicationDetail, ApplicationFileLinkStatus.FULL);
     form.setUploadedFileWithDescriptionForms(fileFormViewList);
   }
@@ -116,7 +116,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
    */
   @Transactional
   public void updateOrDeleteLinkedFilesUsingForm(PwaApplicationDetail pwaApplicationDetail,
-                                                 LocationDetailDocumentsForm form,
+                                                 LocationDetailsForm form,
                                                  WebUserAccount user) {
     Map<String, UploadFileWithDescriptionForm> uploadedFilesMap = form.getUploadedFileWithDescriptionForms()
         .stream()
@@ -150,7 +150,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
    * Get all uploaded files as views where the file exists on form and with description as set on form.
    */
   private List<UploadedFileView> updateFormWithSuppliedUploadedFileViews(
-      LocationDetailDocumentsForm form,
+      LocationDetailsForm form,
       Supplier<List<UploadedFileView>> viewListSupplier
   ) {
     Map<String, UploadFileWithDescriptionForm> formFilesMap = form.getUploadedFileWithDescriptionForms()
@@ -210,7 +210,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
         .getResultList();
 
     fileViews.forEach(
-        ufv -> ufv.setFileUrl(ReverseRouter.route(on(LocationDetailsDocumentsController.class).handleDownload(
+        ufv -> ufv.setFileUrl(ReverseRouter.route(on(LocationDetailsController.class).handleDownload(
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
             ufv.getFileId(),
@@ -228,7 +228,7 @@ public class PadLocationDetailFileService implements ApplicationFormSectionServi
    */
   public List<UploadedFileView> getUpdatedLocationDetailFileViewsWhenFileOnForm(
       PwaApplicationDetail pwaApplicationDetail,
-      LocationDetailDocumentsForm form) {
+      LocationDetailsForm form) {
 
     return updateFormWithSuppliedUploadedFileViews(
         form,

@@ -34,6 +34,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.location.PadLocat
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -129,7 +130,7 @@ public class PadLocationDetailFileServiceTest {
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFilesNotOnForm_thenFilesAreDeleted() {
-    var form = new LocationDetailDocumentsForm();
+    var form = new LocationDetailsForm();
     padLocationDetailFileService.updateOrDeleteLinkedFilesUsingForm(
         pwaApplicationDetail,
         form,
@@ -141,7 +142,7 @@ public class PadLocationDetailFileServiceTest {
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
-    var form = new LocationDetailDocumentsForm();
+    var form = new LocationDetailsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 
@@ -171,7 +172,7 @@ public class PadLocationDetailFileServiceTest {
         fileView
     );
 
-    var form = new LocationDetailDocumentsForm();
+    var form = new LocationDetailsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 
