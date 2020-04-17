@@ -12,7 +12,7 @@ public abstract class UploadMultipleFilesWithDescriptionForm {
   @Valid
   // Full validation implies that the list requires at least one element
   @NotEmpty(groups = {MandatoryUploadValidation.class}, message = "You must upload at least one file")
-  List<UploadFileWithDescriptionForm> uploadedFileWithDescriptionForms = new ArrayList<>();
+  List<UploadFileWithDescriptionForm> uploadedFileWithDescriptionForms;
 
   public UploadMultipleFilesWithDescriptionForm() {
     this.uploadedFileWithDescriptionForms = new ArrayList<>();
