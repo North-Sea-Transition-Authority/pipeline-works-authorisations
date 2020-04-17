@@ -9,3 +9,4 @@ CREATE TABLE ${datasource.user}.pad_median_line_crossing_files (
 ) TABLESPACE tbsdata;
 
 CREATE INDEX ${datasource.user}.pad_mlcf_pad_idx ON ${datasource.user}.pad_median_line_crossing_files (application_detail_id);
+CREATE INDEX ${datasource.user}.pad_mlcf_uf_idx ON ${datasource.user}.pad_median_line_crossing_files (file_id);

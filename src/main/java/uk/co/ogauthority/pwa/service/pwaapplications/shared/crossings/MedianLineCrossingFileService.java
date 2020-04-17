@@ -59,7 +59,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
   }
 
   /**
-   * Return linked median line crossing if it exists for application detail else throw not found exception.
+   * Return linked median line crossing file if it exists for application detail else throw not found exception.
    */
   public PadMedianLineCrossingFile getMedianLineCrossingFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
     return padMedianLineCrossingFileRepository.findByPwaApplicationDetailAndFileId(
