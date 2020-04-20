@@ -11,7 +11,7 @@
 
 
 
-<@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true>
+<@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true fullWidthColumn=true>
 
     <@blockCrossingManagement.blockCrossingManagement
     blockCrossings=blockCrossings
@@ -23,7 +23,7 @@
 
     <@cableCrossingManagement.cableCrossingManagement
     cableCrossingViews=cableCrossings
-    cableCrossingFileViews=[]
+    cableCrossingFileViews=cableCrossingFiles
     urlFactory=cableCrossingUrlFactory
     isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSINGS") />
 

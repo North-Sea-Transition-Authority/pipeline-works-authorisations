@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
+<#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
 
 <#-- NOTE: You must pass in a default value to medianLineAgreementView to stop freemarker throwing an error if null. -->
 <#macro medianLineCrossingManagement urlFactory medianLineAgreementView medianLineFileViews=[] isCompleted=false>
@@ -30,7 +31,7 @@
       </table>
     <#else>
         <@fdsInsetText.insetText>
-          You must provide information regarding median line crossing agreements
+          You must provide information regarding median line crossing agreements.
         </@fdsInsetText.insetText>
         <@fdsAction.link linkText="Provide median line agreement information" linkUrl=springUrl(urlFactory.getAddMedianLineCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
     </#if>

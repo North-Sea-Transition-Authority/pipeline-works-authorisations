@@ -14,4 +14,6 @@ public interface PadCableCrossingRepository extends CrudRepository<PadCableCross
 
   List<PadCableCrossing> findAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
+  int countAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+
 }

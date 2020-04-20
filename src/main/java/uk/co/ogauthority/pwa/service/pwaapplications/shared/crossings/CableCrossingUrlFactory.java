@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -30,6 +31,16 @@ public class CableCrossingUrlFactory {
   public String getRemoveCableCrossingUrl(Integer crossingId) {
     return ReverseRouter.route(on(CableCrossingController.class)
         .postRemoveCableCrossing(pwaApplicationType, applicationId, crossingId, null));
+  }
+
+  public String getAddDocumentsUrl() {
+    return ReverseRouter.route(on(CableCrossingDocumentsController.class)
+        .renderEditCableCrossingDocuments(pwaApplicationType, applicationId, null, null));
+  }
+
+  public String getFileDownloadUrl() {
+    return ReverseRouter.route(on(CableCrossingDocumentsController.class)
+        .handleDownload(pwaApplicationType, applicationId, null, null));
   }
 
 }

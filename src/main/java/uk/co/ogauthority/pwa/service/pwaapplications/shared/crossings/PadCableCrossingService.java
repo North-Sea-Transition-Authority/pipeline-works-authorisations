@@ -6,20 +6,26 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
 @Service
-public class PadCableCrossingService {
+public class PadCableCrossingService implements ApplicationFormSectionService {
 
   private final PadCableCrossingRepository padCableCrossingRepository;
+  private final CableCrossingFileService cableCrossingFileService;
 
   @Autowired
   public PadCableCrossingService(
-      PadCableCrossingRepository padCableCrossingRepository) {
+      PadCableCrossingRepository padCableCrossingRepository,
+      CableCrossingFileService cableCrossingFileService) {
     this.padCableCrossingRepository = padCableCrossingRepository;
+    this.cableCrossingFileService = cableCrossingFileService;
   }
 
   public PadCableCrossing getCableCrossing(PwaApplicationDetail detail, Integer id) {
@@ -68,4 +74,14 @@ public class PadCableCrossingService {
     form.setLocation(cableCrossing.getLocation());
   }
 
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    return cableCrossingFileService.isComplete(detail);
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
+    throw new AssertionError("validate doesnt make sense.");
+  }
 }

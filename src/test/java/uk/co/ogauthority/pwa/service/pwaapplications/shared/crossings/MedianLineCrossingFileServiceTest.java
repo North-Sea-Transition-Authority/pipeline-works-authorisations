@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadMedianLineCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.MedianLineCrossingDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -71,7 +71,7 @@ public class MedianLineCrossingFileServiceTest {
       Instant.now(),
       "");
 
-  private MedianLineCrossingDocumentsForm form = new MedianLineCrossingDocumentsForm();
+  private CrossingDocumentsForm form = new CrossingDocumentsForm();
 
   @Before
   public void setUp() {
@@ -130,7 +130,7 @@ public class MedianLineCrossingFileServiceTest {
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFilesNotOnForm_thenFilesAreDeleted() {
-    var form = new MedianLineCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     medianLineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
         pwaApplicationDetail,
         form,
@@ -142,7 +142,7 @@ public class MedianLineCrossingFileServiceTest {
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
-    var form = new MedianLineCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 
@@ -170,7 +170,7 @@ public class MedianLineCrossingFileServiceTest {
         fileView
     );
 
-    var form = new MedianLineCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 

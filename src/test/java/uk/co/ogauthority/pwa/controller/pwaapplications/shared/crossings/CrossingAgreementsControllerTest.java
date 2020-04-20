@@ -37,9 +37,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -67,6 +69,12 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
 
   @MockBean
   private MedianLineCrossingFileService medianLineCrossingFileService;
+
+  @MockBean
+  private PadCableCrossingService cableCrossingService;
+
+  @MockBean
+  private CableCrossingFileService cableCrossingFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaApplicationContext pwaApplicationContext;
