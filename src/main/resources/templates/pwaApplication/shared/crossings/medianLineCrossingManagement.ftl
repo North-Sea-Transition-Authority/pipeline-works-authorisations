@@ -34,7 +34,7 @@
         </@fdsInsetText.insetText>
         <@fdsAction.link linkText="Provide median line agreement information" linkUrl=springUrl(urlFactory.getAddMedianLineCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
     </#if>
-  <h3 class="govuk-heading-m">Block crossing agreement documents</h3>
+  <h3 class="govuk-heading-m">Median line agreement documents</h3>
     <@fdsAction.link linkText="Add, edit or remove median line agreement documents" linkUrl=springUrl(urlFactory.getMedianLineCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     <#if medianLineFileViews?has_content>
         <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=medianLineFileViews/>

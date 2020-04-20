@@ -5,38 +5,44 @@
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 
 <#macro cableCrossingManagement urlFactory cableCrossingViews=[] cableCrossingFileViews=[] isCompleted=false>
-  <h2 class="govuk-heading-l">Median line
-    agreement <@completedTag.completedTag isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSING")/></h2>
+  <h2 class="govuk-heading-l">Cable crossing
+    agreement <@completedTag.completedTag isCompleted=isCompleted/></h2>
     <#if cableCrossingViews?has_content>
-        <@fdsAction.link linkText="Update median line agreement" linkUrl=springUrl(urlFactory.getAddMedianLineCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
+        <@fdsAction.link linkText="Add cable crossing" linkUrl=springUrl(urlFactory.getAddCableCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
       <table class="govuk-table">
-        <tbody class="govuk-table__body">
+        <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="col">Status</th>
-          <td class="govuk-table__cell">${medianLineAgreementView.agreementStatus.displayText}</td>
+          <th class="govuk-table__header" scope="col">Cable name</th>
+          <th class="govuk-table__header" scope="col">Cable owner</th>
+          <th class="govuk-table__header" scope="col">Actions</th>
         </tr>
-        <#if medianLineAgreementView.agreementStatus != "NOT_CROSSED">
+        </thead>
+        <tbody class="govuk-table__body">
+        <#list cableCrossingViews as crossing>
           <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="col">Name of negotiator</th>
-            <td class="govuk-table__cell">${medianLineAgreementView.negotiatorName!}</td>
+            <td class="govuk-table__cell">${crossing.cableName}</td>
+            <td class="govuk-table__cell">${crossing.owner}</td>
+            <td class="govuk-table__cell">
+              <a href="${springUrl(urlFactory.getEditCableCrossingUrl(crossing.id))}" class="govuk-link">Edit</a>
+              <br/>
+              <@fdsForm.htmlForm actionUrl=springUrl(urlFactory.getRemoveCableCrossingUrl(crossing.id))>
+                <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button"/>
+              </@fdsForm.htmlForm>
+            </td>
           </tr>
-          <tr class="govuk-table__row">
-            <th class="govuk-table__header" scope="col">Contact email for negotiator</th>
-            <td class="govuk-table__cell">${medianLineAgreementView.negotiatorEmail!}</td>
-          </tr>
-        </#if>
+        </#list>
         </tbody>
       </table>
     <#else>
         <@fdsInsetText.insetText>
-          You must provide information regarding median line crossing agreements
+          There are currently no cable crossings added
         </@fdsInsetText.insetText>
-        <@fdsAction.link linkText="Provide median line agreement information" linkUrl=springUrl(urlFactory.getAddMedianLineCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
+        <@fdsAction.link linkText="Add cable crossing" linkUrl=springUrl(urlFactory.getAddCableCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
     </#if>
-  <h3 class="govuk-heading-m">Block crossing agreement documents</h3>
-    <@fdsAction.link linkText="Add, edit or remove median line agreement documents" linkUrl=springUrl(urlFactory.getMedianLineCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-    <#if medianLineFileViews?has_content>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=medianLineFileViews/>
+  <h3 class="govuk-heading-m">Cable crossing agreement documents</h3>
+    <@fdsAction.link linkText="Add, edit or remove cable crossing agreement documents" linkUrl=springUrl("#") linkClass="govuk-button govuk-button--blue"/>
+    <#if cableCrossingFileViews?has_content>
+        <@fileUpload.uploadedFileList downloadUrl=springUrl("#") existingFiles=cableCrossingFileViews/>
     <#else>
       <p class="govuk-body">No median line crossing agreement documents have been added to this application</p>
     </#if>

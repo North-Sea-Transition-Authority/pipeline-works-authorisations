@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +22,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -43,6 +46,7 @@ public class CrossingAgreementsController {
   private final BlockCrossingFileService blockCrossingFileService;
   private final CrossingAgreementsService crossingAgreementsService;
   private final MedianLineCrossingFileService medianLineCrossingFileService;
+  private final PadCableCrossingService cableCrossingService;
 
   @Autowired
   public CrossingAgreementsController(
@@ -51,13 +55,15 @@ public class CrossingAgreementsController {
       BlockCrossingService blockCrossingService,
       BlockCrossingFileService blockCrossingFileService,
       CrossingAgreementsService crossingAgreementsService,
-      MedianLineCrossingFileService medianLineCrossingFileService) {
+      MedianLineCrossingFileService medianLineCrossingFileService,
+      PadCableCrossingService cableCrossingService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingService = blockCrossingService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.crossingAgreementsService = crossingAgreementsService;
     this.medianLineCrossingFileService = medianLineCrossingFileService;
+    this.cableCrossingService = cableCrossingService;
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
@@ -66,9 +72,13 @@ public class CrossingAgreementsController {
         .addObject("medianLineFiles",
             medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("blockCrossings", blockCrossingService.getCrossedBlockViews(detail))
+        .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
         .addObject("blockCrossingFiles",
             blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
+        .addObject("cableCrossings", cableCrossingService.getCableCrossingViews(detail))
+        .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
+        // TODO: Update this
+        .addObject("cableCrossingFiles", List.of())
         .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Crossings");
     return modelAndView;

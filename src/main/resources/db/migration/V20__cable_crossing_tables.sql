@@ -8,6 +8,7 @@ CREATE TABLE ${datasource.user}.pad_cable_crossing_files (
 , CONSTRAINT pad_ccf_file_id_fk FOREIGN KEY (file_id) REFERENCES ${datasource.user}.uploaded_files (file_id)
 );
 CREATE INDEX ${datasource.user}.pad_ccf_pad_idx ON ${datasource.user}.pad_cable_crossing_files (application_detail_id);
+CREATE INDEX ${datasource.user}.pad_ccf_uf_idx ON ${datasource.user}.pad_cable_crossing_files (file_id);
 
 CREATE TABLE ${datasource.user}.pad_cable_crossings (
   id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
@@ -17,4 +18,4 @@ CREATE TABLE ${datasource.user}.pad_cable_crossings (
 , cable_owner VARCHAR2(4000)
 , CONSTRAINT pad_cable_crossings_pad_fk FOREIGN KEY (application_detail_id) REFERENCES ${datasource.user}.pwa_application_details(id)
 );
-CREATE INDEX ${datasource.user}.pad_location_details_pad_idx ON ${datasource.user}.pad_location_details (application_detail_id);
+CREATE INDEX ${datasource.user}.pad_cable_crossings_pad_idx ON ${datasource.user}.pad_cable_crossings (application_detail_id);

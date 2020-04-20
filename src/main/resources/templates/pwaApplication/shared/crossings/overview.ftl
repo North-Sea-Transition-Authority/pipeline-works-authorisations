@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import 'blockCrossingsManagement.ftl' as blockCrossingManagement>
 <#import 'medianLineCrossingManagement.ftl' as medianLineCrossingManagement>
+<#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
 
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
@@ -17,6 +18,16 @@
     blockCrossingFileViews=blockCrossingFiles
     urlFactory=blockCrossingUrlFactory
     isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
+
+    <hr class="govuk-section-break govuk-section-break--l"/>
+
+    <@cableCrossingManagement.cableCrossingManagement
+    cableCrossingViews=cableCrossings
+    cableCrossingFileViews=[]
+    urlFactory=cableCrossingUrlFactory
+    isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSINGS") />
+
+    <hr class="govuk-section-break govuk-section-break--l"/>
 
     <@medianLineCrossingManagement.medianLineCrossingManagement
     urlFactory=medianLineUrlFactory

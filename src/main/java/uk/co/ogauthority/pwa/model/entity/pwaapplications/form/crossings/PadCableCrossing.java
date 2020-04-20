@@ -9,7 +9,7 @@ import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Entity(name = "pad_cable_crossings")
-public class PadCableCrossing {
+public class PadCableCrossing implements Comparable<PadCableCrossing> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,5 +62,14 @@ public class PadCableCrossing {
 
   public void setCableOwner(String cableOwner) {
     this.cableOwner = cableOwner;
+  }
+
+  @Override
+  public int compareTo(PadCableCrossing padCableCrossing) {
+    var compareName = this.cableName.compareTo(padCableCrossing.cableName);
+    if (compareName == 0) {
+      return this.id.compareTo(padCableCrossing.id);
+    }
+    return compareName;
   }
 }

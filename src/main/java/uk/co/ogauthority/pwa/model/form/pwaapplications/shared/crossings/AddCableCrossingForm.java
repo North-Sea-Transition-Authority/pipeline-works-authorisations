@@ -1,9 +1,20 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings;
 
+import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
+
 public class AddCableCrossingForm {
 
+  @NotNull(message = "You must provide the name of the cable")
+  @Length(max = 4000, message = "Cable name must be 4000 characters or fewer")
   private String cableName;
+
+  @NotNull(message = "You must provide cable location information")
+  @Length(max = 4000, message = "Location must be 4000 characters or fewer")
   private String location;
+
+  @NotNull(message = "You must state the owner of the cable")
+  @Length(max = 4000, message = "Cable owner must be 4000 characters or fewer")
   private String cableOwner;
 
   public String getCableName() {
