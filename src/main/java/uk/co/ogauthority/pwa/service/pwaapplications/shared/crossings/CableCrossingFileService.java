@@ -253,11 +253,6 @@ public class CableCrossingFileService implements ApplicationFormSectionService {
     );
   }
 
-  public Integer getFullFileCount(PwaApplicationDetail pwaApplicationDetail) {
-    return padCableCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail,
-        ApplicationFileLinkStatus.FULL);
-  }
-
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new CrossingDocumentsForm();

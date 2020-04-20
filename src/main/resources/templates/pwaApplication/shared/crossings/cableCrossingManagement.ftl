@@ -16,6 +16,7 @@
         <tr class="govuk-table__row">
           <th class="govuk-table__header" scope="col">Cable name</th>
           <th class="govuk-table__header" scope="col">Cable owner</th>
+          <th class="govuk-table__header" scope="col">Location</th>
           <th class="govuk-table__header" scope="col">Actions</th>
         </tr>
         </thead>
@@ -24,6 +25,7 @@
           <tr class="govuk-table__row">
             <td class="govuk-table__cell">${crossing.cableName}</td>
             <td class="govuk-table__cell">${crossing.owner}</td>
+            <td class="govuk-table__cell">${crossing.location}</td>
             <td class="govuk-table__cell">
               <a href="${springUrl(urlFactory.getEditCableCrossingUrl(crossing.id))}" class="govuk-link">Edit</a>
               <br/>
