@@ -1,12 +1,13 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
+package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
-public class LocationDetailsForm {
+public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm {
 
   @Length(max = 4000, message = "Approximate project location from shore must be 4000 characters or fewer")
   private String approximateProjectLocationFromShore;
@@ -18,6 +19,14 @@ public class LocationDetailsForm {
 
   @Length(max = 4000, message = "Transportation method must be 4000 characters or fewer")
   private String transportationMethod;
+
+  private String pipelineRouteDetails;
+  private Boolean routeSurveyUndertaken;
+  private Boolean withinLimitsOfDeviation;
+
+  private Integer surveyConcludedDay;
+  private Integer surveyConcludedMonth;
+  private Integer surveyConcludedYear;
 
   public LocationDetailsForm() {
     facilitiesIfPartially = new ArrayList<>();
@@ -79,5 +88,53 @@ public class LocationDetailsForm {
 
   public void setTransportationMethod(String transportationMethod) {
     this.transportationMethod = transportationMethod;
+  }
+
+  public String getPipelineRouteDetails() {
+    return pipelineRouteDetails;
+  }
+
+  public void setPipelineRouteDetails(String pipelineRouteDetails) {
+    this.pipelineRouteDetails = pipelineRouteDetails;
+  }
+
+  public Boolean getRouteSurveyUndertaken() {
+    return routeSurveyUndertaken;
+  }
+
+  public void setRouteSurveyUndertaken(Boolean routeSurveyUndertaken) {
+    this.routeSurveyUndertaken = routeSurveyUndertaken;
+  }
+
+  public Boolean getWithinLimitsOfDeviation() {
+    return withinLimitsOfDeviation;
+  }
+
+  public void setWithinLimitsOfDeviation(Boolean withinLimitsOfDeviation) {
+    this.withinLimitsOfDeviation = withinLimitsOfDeviation;
+  }
+
+  public Integer getSurveyConcludedDay() {
+    return surveyConcludedDay;
+  }
+
+  public void setSurveyConcludedDay(Integer surveyConcludedDay) {
+    this.surveyConcludedDay = surveyConcludedDay;
+  }
+
+  public Integer getSurveyConcludedMonth() {
+    return surveyConcludedMonth;
+  }
+
+  public void setSurveyConcludedMonth(Integer surveyConcludedMonth) {
+    this.surveyConcludedMonth = surveyConcludedMonth;
+  }
+
+  public Integer getSurveyConcludedYear() {
+    return surveyConcludedYear;
+  }
+
+  public void setSurveyConcludedYear(Integer surveyConcludedYear) {
+    this.surveyConcludedYear = surveyConcludedYear;
   }
 }

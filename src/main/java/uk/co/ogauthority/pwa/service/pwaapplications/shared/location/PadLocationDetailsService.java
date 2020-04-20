@@ -1,8 +1,9 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.location;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -13,11 +14,12 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.LocationDetailsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @Service
@@ -58,6 +60,15 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     locationDetailsForm.setFacilitiesOffshore(padLocationDetails.getFacilitiesOffshore());
     locationDetailsForm.setTransportsMaterialsToShore(padLocationDetails.getTransportsMaterialsToShore());
     locationDetailsForm.setTransportationMethod(padLocationDetails.getTransportationMethod());
+    locationDetailsForm.setPipelineRouteDetails(padLocationDetails.getPipelineRouteDetails());
+    DateUtils.setYearMonthDayFromInstant(
+        locationDetailsForm::setSurveyConcludedYear,
+        locationDetailsForm::setSurveyConcludedMonth,
+        locationDetailsForm::setSurveyConcludedDay,
+        padLocationDetails.getSurveyConcludedTimestamp()
+    );
+    locationDetailsForm.setRouteSurveyUndertaken(padLocationDetails.getRouteSurveyUndertaken());
+    locationDetailsForm.setWithinLimitsOfDeviation(padLocationDetails.getWithinLimitsOfDeviation());
   }
 
   @Transactional
@@ -68,6 +79,19 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setFacilitiesOffshore(locationDetailsForm.getFacilitiesOffshore());
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
     padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());
+    padLocationDetails.setPipelineRouteDetails(locationDetailsForm.getPipelineRouteDetails());
+    if (BooleanUtils.isTrue(locationDetailsForm.getRouteSurveyUndertaken())) {
+      DateUtils.consumeInstantFromIntegersElseNull(
+          locationDetailsForm.getSurveyConcludedYear(),
+          locationDetailsForm.getSurveyConcludedMonth(),
+          locationDetailsForm.getSurveyConcludedDay(),
+          padLocationDetails::setSurveyConcludedTimestamp
+      );
+    } else {
+      padLocationDetails.setSurveyConcludedTimestamp(null);
+    }
+    padLocationDetails.setRouteSurveyUndertaken(locationDetailsForm.getRouteSurveyUndertaken());
+    padLocationDetails.setWithinLimitsOfDeviation(locationDetailsForm.getWithinLimitsOfDeviation());
     save(padLocationDetails);
   }
 
@@ -93,7 +117,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
     }
 
-    BindingResult bindingResult = new BeanPropertyBindingResult(locationDetails, "form");
+    BindingResult bindingResult = new BeanPropertyBindingResult(locationDetailsForm, "form");
     validator.validate(locationDetailsForm, bindingResult);
 
     return !bindingResult.hasErrors();
@@ -108,6 +132,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
     if (validationType.equals(ValidationType.PARTIAL)) {
       groupValidator.validate(form, bindingResult);
+      validator.validatePartial(form, bindingResult);
       return bindingResult;
     }
 

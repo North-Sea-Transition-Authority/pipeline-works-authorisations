@@ -48,7 +48,7 @@ public class ControllerUtils {
    * @return passed-in ModelAndView with validation errors added if validation failed, caller-specified ModelAndView otherwise
    */
   public static ModelAndView checkErrorsAndRedirect(BindingResult bindingResult, ModelAndView modelAndView,
-                                                    Supplier<ModelAndView> ifValid) {
+                                                     Supplier<ModelAndView> ifValid) {
 
     if (bindingResult.hasErrors()) {
       ModelAndViewUtils.addFieldValidationErrors(modelAndView, bindingResult);
