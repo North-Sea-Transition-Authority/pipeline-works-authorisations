@@ -36,7 +36,7 @@
 
         <@fdsRadio.radioGroup path="form.routeSurveyUndertaken" labelText="Has a pipeline route survey been undertaken?" hiddenContent=true>
             <@fdsRadio.radioYes path="form.routeSurveyUndertaken">
-                <@fdsDateInput.dateInput dayPath="form.surveyConcludedDay" monthPath="form.surveyConcludedMonth" yearPath="form.surveyConcludedYear" labelText="When was the pipeline route survey concluded?" formId="surveyConcludedDate"/>
+                <@fdsDateInput.dateInput dayPath="form.surveyConcludedDay" monthPath="form.surveyConcludedMonth" yearPath="form.surveyConcludedYear" labelText="When was the pipeline route survey concluded?" formId="surveyConcludedDate" nestingPath="form.routeSurveyUndertaken"/>
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.routeSurveyUndertaken"/>
         </@fdsRadio.radioGroup>

@@ -33,7 +33,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.location.PadLocationDetailFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailDocumentsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -71,7 +70,7 @@ public class PadLocationDetailFileServiceTest {
       Instant.now(),
       "");
 
-  private LocationDetailDocumentsForm form = new LocationDetailDocumentsForm();
+  private LocationDetailsForm form = new LocationDetailsForm();
 
   @Before
   public void setUp() {

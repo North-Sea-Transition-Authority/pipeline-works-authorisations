@@ -35,7 +35,6 @@ import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.LocationDetailsUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -112,9 +111,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
             .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText)))
         .addObject("facilityOptions", facilities.stream()
             .collect(
-                StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
-        .addObject("urlFactory",
-            new LocationDetailsUrlFactory(detail.getPwaApplicationType(), detail.getPwaApplication().getId()));
+                StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
   }

@@ -75,15 +75,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   @SpyBean
   private LocationDetailsValidator locationDetailsValidator;
 
-  private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
-      PwaApplicationType.INITIAL,
-      PwaApplicationType.CAT_1_VARIATION,
-      PwaApplicationType.CAT_2_VARIATION,
-      PwaApplicationType.OPTIONS_VARIATION,
-      PwaApplicationType.DECOMMISSIONING,
-      PwaApplicationType.DEPOSIT_CONSENT
-  );
-
   private WebUserAccount wua;
   private AuthenticatedUserAccount user;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -115,7 +106,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
         .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
-
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
 
@@ -127,34 +117,12 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void render_authenticated_validAppType() {
-
-    allowedApplicationTypes.forEach(validAppType -> {
-
-      try {
-        mockMvc.perform(
-            get(ReverseRouter.route(
-                on(LocationDetailsController.class).renderLocationDetails(validAppType, null, null, null),
-                Map.of("applicationId", 1)))
-                .with(authenticatedUserAndSession(user))
-                .with(csrf()))
-            .andExpect(status().isOk());
-      } catch (Exception e) {
-        throw new AssertionError(e);
-      }
-
-    });
-
-  }
-
-  @Test
-  public void testUnauthenticated() throws Exception {
+  public void postLocationDetails_fullValidationParams_unauthenticatedUser() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(LocationDetailsController.class).renderLocationDetails(PwaApplicationType.INITIAL, null, null, null),
             Map.of("applicationId", 1))))
         .andExpect(status().is3xxRedirection());
-
 
     MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
       add("Complete", "Complete");
@@ -166,6 +134,10 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             .params(completeParams))
         .andExpect(status().isForbidden());
 
+  }
+
+  @Test
+  public void postLocationDetails_partialValidationParams_unauthenticatedUser() throws Exception {
 
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "Save and complete later");
@@ -179,7 +151,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderLocationDetails() throws Exception {
+  public void renderLocationDetails_validAppId() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(LocationDetailsController.class).renderLocationDetails(PwaApplicationType.INITIAL, null, null, null),
@@ -191,7 +163,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postContinueLocationDetails() throws Exception {
+  public void postLocationDetails_partialSave_noData() throws Exception {
 
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "Save and complete later");
@@ -214,7 +186,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postContinueLocationDetails_Invalid() throws Exception {
+  public void postLocationDetails_partialSave_invalidForm() throws Exception {
 
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "Save and complete later");
@@ -237,7 +209,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postContinueLocationDetails_Valid() throws Exception {
+  public void postLocationDetails_partialSave_validForm() throws Exception {
 
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "Save and complete later");
@@ -260,7 +232,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postCompleteLocationDetails_Invalid() throws Exception {
+  public void postLocationDetails_InvalidForm() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "Complete");
@@ -283,7 +255,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postCompleteLocationDetails_Valid() throws Exception {
+  public void postLocationDetails_ValidForm() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "Complete");
@@ -312,7 +284,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderEditBlockCrossingDocuments_appTypeSmokeTest() {
+  public void renderLocationDetails_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(LocationDetailsController.class)
@@ -324,7 +296,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderEditBlockCrossingDocuments_contactRoleSmokeTest() {
+  public void renderLocationDetails_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(LocationDetailsController.class)
@@ -336,7 +308,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderEditBlockCrossingDocuments_appStatusSmokeTest() {
+  public void renderLocationDetails_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(LocationDetailsController.class)
