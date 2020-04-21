@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.util;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -36,6 +37,15 @@ public class ValidatorUtils {
     var monthValid = Range.between(1, 12).contains(month);
     var yearValid = year != null && year >= 0;
     if (dayValid && monthValid && yearValid) {
+      try {
+        LocalDate.of(year, month, day);
+      } catch (DateTimeException e) {
+        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
+            String.format("Enter a valid %s day", displayPrefix));
+        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+        return false;
+      }
       return true;
     } else {
       errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
