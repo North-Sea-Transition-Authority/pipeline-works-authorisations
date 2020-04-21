@@ -5,6 +5,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import javax.validation.Validation;
 import org.junit.Before;
@@ -16,9 +20,10 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.LocationDetailsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -38,11 +43,13 @@ public class PadLocationDetailsServiceTest {
   private PadLocationDetailsService padLocationDetailsService;
   private PwaApplicationDetail pwaApplicationDetail;
   private PadLocationDetails padLocationDetails;
+  private static final Instant SURVEY_CONCLUDED_DATE = LocalDate.of(2020, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
   @Before
   public void setUp() {
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-    padLocationDetailsService = new PadLocationDetailsService(padLocationDetailsRepository, facilityService, validator, groupValidator);
+    padLocationDetailsService = new PadLocationDetailsService(padLocationDetailsRepository, facilityService, validator,
+        groupValidator);
     pwaApplicationDetail = new PwaApplicationDetail();
     padLocationDetails = buildEntity();
   }
@@ -80,6 +87,12 @@ public class PadLocationDetailsServiceTest {
     assertThat(form.getFacilitiesOffshore()).isNull();
     assertThat(form.getTransportsMaterialsToShore()).isNull();
     assertThat(form.getTransportationMethod()).isNull();
+    assertThat(form.getPipelineRouteDetails()).isNull();
+    assertThat(form.getSurveyConcludedDay()).isNull();
+    assertThat(form.getSurveyConcludedMonth()).isNull();
+    assertThat(form.getSurveyConcludedYear()).isNull();
+    assertThat(form.getRouteSurveyUndertaken()).isNull();
+    assertThat(form.getWithinLimitsOfDeviation()).isNull();
   }
 
   @Test
@@ -93,6 +106,13 @@ public class PadLocationDetailsServiceTest {
     assertThat(form.getFacilitiesOffshore()).isEqualTo(padLocationDetails.getFacilitiesOffshore());
     assertThat(form.getTransportsMaterialsToShore()).isEqualTo(padLocationDetails.getTransportsMaterialsToShore());
     assertThat(form.getTransportationMethod()).isEqualTo(padLocationDetails.getTransportationMethod());
+    assertThat(form.getPipelineRouteDetails()).isEqualTo(padLocationDetails.getPipelineRouteDetails());
+    assertThat(form.getRouteSurveyUndertaken()).isEqualTo(padLocationDetails.getRouteSurveyUndertaken());
+    assertThat(form.getWithinLimitsOfDeviation()).isEqualTo(padLocationDetails.getWithinLimitsOfDeviation());
+    var localDate = LocalDate.ofInstant(padLocationDetails.getSurveyConcludedTimestamp(), ZoneId.systemDefault());
+    assertThat(form.getSurveyConcludedYear()).isEqualTo(localDate.getYear());
+    assertThat(form.getSurveyConcludedMonth()).isEqualTo(localDate.getMonthValue());
+    assertThat(form.getSurveyConcludedDay()).isEqualTo(localDate.getDayOfMonth());
   }
 
   @Test
@@ -105,6 +125,10 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getFacilitiesOffshore()).isNull();
     assertThat(entity.getTransportsMaterialsToShore()).isNull();
     assertThat(entity.getTransportsMaterialsToShore()).isNull();
+    assertThat(entity.getPipelineRouteDetails()).isNull();
+    assertThat(entity.getSurveyConcludedTimestamp()).isNull();
+    assertThat(entity.getRouteSurveyUndertaken()).isNull();
+    assertThat(entity.getWithinLimitsOfDeviation()).isNull();
   }
 
   @Test
@@ -118,6 +142,10 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getFacilitiesOffshore()).isEqualTo(form.getFacilitiesOffshore());
     assertThat(entity.getTransportsMaterialsToShore()).isEqualTo(form.getTransportsMaterialsToShore());
     assertThat(entity.getTransportationMethod()).isEqualTo(form.getTransportationMethod());
+    assertThat(entity.getPipelineRouteDetails()).isEqualTo(form.getPipelineRouteDetails());
+    assertThat(entity.getSurveyConcludedTimestamp()).isEqualTo(SURVEY_CONCLUDED_DATE);
+    assertThat(entity.getRouteSurveyUndertaken()).isEqualTo(form.getRouteSurveyUndertaken());
+    assertThat(entity.getWithinLimitsOfDeviation()).isEqualTo(form.getWithinLimitsOfDeviation());
   }
 
   private LocationDetailsForm buildForm() {
@@ -127,6 +155,13 @@ public class PadLocationDetailsServiceTest {
     form.setFacilitiesOffshore(true);
     form.setTransportsMaterialsToShore(true);
     form.setTransportationMethod("method");
+    form.setPipelineRouteDetails("Route details");
+    form.setRouteSurveyUndertaken(true);
+    form.setWithinLimitsOfDeviation(true);
+    var localDate = LocalDate.ofInstant(SURVEY_CONCLUDED_DATE, ZoneId.systemDefault());
+    form.setSurveyConcludedYear(localDate.getYear());
+    form.setSurveyConcludedMonth(localDate.getMonthValue());
+    form.setSurveyConcludedDay(localDate.getDayOfMonth());
     return form;
   }
 
@@ -138,6 +173,10 @@ public class PadLocationDetailsServiceTest {
     entity.setFacilitiesOffshore(true);
     entity.setTransportsMaterialsToShore(true);
     entity.setTransportationMethod("method");
+    entity.setPipelineRouteDetails("Route details");
+    entity.setRouteSurveyUndertaken(true);
+    entity.setWithinLimitsOfDeviation(true);
+    entity.setSurveyConcludedTimestamp(SURVEY_CONCLUDED_DATE);
     return entity;
   }
 }

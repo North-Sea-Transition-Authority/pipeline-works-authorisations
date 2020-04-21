@@ -5,11 +5,14 @@ import static org.assertj.core.api.Assertions.entry;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.LocationDetailsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
 public class LocationDetailsValidatorTest {
@@ -29,7 +32,10 @@ public class LocationDetailsValidatorTest {
         entry("withinSafetyZone", Set.of("withinSafetyZone.required")),
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore.required")),
-        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required"))
+        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required")),
+        entry("pipelineRouteDetails", Set.of("pipelineRouteDetails.required")),
+        entry("withinLimitsOfDeviation", Set.of("withinLimitsOfDeviation.required")),
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken.required"))
     );
   }
 
@@ -38,13 +44,17 @@ public class LocationDetailsValidatorTest {
     var form = new LocationDetailsForm();
     form.setApproximateProjectLocationFromShore("");
     form.setTransportationMethod("");
+    form.setPipelineRouteDetails("");
     form.setTransportsMaterialsToShore(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form);
     assertThat(result).containsOnly(
         entry("withinSafetyZone", Set.of("withinSafetyZone.required")),
         entry("transportationMethod", Set.of("transportationMethod.required")),
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore.required")),
-        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required"))
+        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required")),
+        entry("pipelineRouteDetails", Set.of("pipelineRouteDetails.required")),
+        entry("withinLimitsOfDeviation", Set.of("withinLimitsOfDeviation.required")),
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken.required"))
     );
   }
 
@@ -56,7 +66,10 @@ public class LocationDetailsValidatorTest {
     assertThat(result).containsOnly(
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore.required")),
-        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required"))
+        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required")),
+        entry("pipelineRouteDetails", Set.of("pipelineRouteDetails.required")),
+        entry("withinLimitsOfDeviation", Set.of("withinLimitsOfDeviation.required")),
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken.required"))
     );
   }
 
@@ -69,7 +82,10 @@ public class LocationDetailsValidatorTest {
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),
         entry("facilitiesIfPartially", Set.of("facilitiesIfPartially.required")),
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore.required")),
-        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required"))
+        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required")),
+        entry("pipelineRouteDetails", Set.of("pipelineRouteDetails.required")),
+        entry("withinLimitsOfDeviation", Set.of("withinLimitsOfDeviation.required")),
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken.required"))
     );
   }
 
@@ -82,7 +98,10 @@ public class LocationDetailsValidatorTest {
     assertThat(result).containsOnly(
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore.required")),
-        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required"))
+        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required")),
+        entry("pipelineRouteDetails", Set.of("pipelineRouteDetails.required")),
+        entry("withinLimitsOfDeviation", Set.of("withinLimitsOfDeviation.required")),
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken.required"))
     );
   }
 
@@ -95,7 +114,10 @@ public class LocationDetailsValidatorTest {
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),
         entry("facilitiesIfYes", Set.of("facilitiesIfYes.required")),
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore.required")),
-        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required"))
+        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required")),
+        entry("pipelineRouteDetails", Set.of("pipelineRouteDetails.required")),
+        entry("withinLimitsOfDeviation", Set.of("withinLimitsOfDeviation.required")),
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken.required"))
     );
   }
 
@@ -108,8 +130,34 @@ public class LocationDetailsValidatorTest {
     assertThat(result).containsOnly(
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore.required")),
-        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required"))
+        entry("facilitiesOffshore", Set.of("facilitiesOffshore.required")),
+        entry("pipelineRouteDetails", Set.of("pipelineRouteDetails.required")),
+        entry("withinLimitsOfDeviation", Set.of("withinLimitsOfDeviation.required")),
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken.required"))
     );
+  }
+
+  @Test
+  public void validate_SurveyConcludedDate_Nulls() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form);
+    assertThat(result).contains(
+        entry("surveyConcludedDay", Set.of("surveyConcludedDay.invalid")),
+        entry("surveyConcludedMonth", Set.of("surveyConcludedMonth.invalid")),
+        entry("surveyConcludedYear", Set.of("surveyConcludedYear.invalid"))
+    );
+  }
+
+  @Test
+  public void validate_SurveyConcludedDate_Valid() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedDay(1);
+    form.setSurveyConcludedMonth(1);
+    form.setSurveyConcludedYear(2020);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form);
+    assertThat(result).doesNotContainKeys("surveyConcludedDay", "surveyConcludedMonth", "surveyConcludedYear");
   }
 
   @Test
@@ -120,7 +168,52 @@ public class LocationDetailsValidatorTest {
     form.setApproximateProjectLocationFromShore("Approx");
     form.setTransportationMethod("Method");
     form.setFacilitiesOffshore(true);
+    form.setRouteSurveyUndertaken(false);
+    form.setPipelineRouteDetails("Detail text");
+    form.setWithinLimitsOfDeviation(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validatePartial_Nulls() {
+    var form = new LocationDetailsForm();
+    var errors = new BeanPropertyBindingResult(form, "form");
+    locationDetailsValidator.validatePartial(form, errors);
+    var result = errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validatePartial_InvalidDate() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedDay(1);
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+    locationDetailsValidator.validatePartial(form, errors);
+    var result = errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+    assertThat(result).contains(
+        entry("surveyConcludedDay", Set.of("surveyConcludedDay.invalid")),
+        entry("surveyConcludedMonth", Set.of("surveyConcludedMonth.invalid")),
+        entry("surveyConcludedYear", Set.of("surveyConcludedYear.invalid"))
+    );
+  }
+
+  @Test
+  public void validatePartial_Valid() {
+    var form = new LocationDetailsForm();
+    form.setRouteSurveyUndertaken(true);
+    form.setSurveyConcludedDay(1);
+    form.setSurveyConcludedMonth(1);
+    form.setSurveyConcludedYear(2020);
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+    locationDetailsValidator.validatePartial(form, errors);
+    var result = errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
     assertThat(result).isEmpty();
   }
 
