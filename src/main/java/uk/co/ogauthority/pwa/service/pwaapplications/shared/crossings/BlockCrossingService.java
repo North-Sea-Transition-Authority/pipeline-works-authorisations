@@ -57,6 +57,14 @@ public class BlockCrossingService {
             "Crossed block not found with id:" + crossedBlockId + " for appDetailId:" + pwaApplicationDetail.getId()));
   }
 
+  public BlockCrossingView getCrossedBlockView(PwaApplicationDetail pwaApplicationDetail, Integer crossingId) {
+    return getCrossedBlockViews(pwaApplicationDetail).stream()
+        .filter(blockCrossingView -> crossingId.equals(blockCrossingView.getId()))
+        .findFirst()
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Failed to find crossing view with ID: " + crossingId + " and detail ID of: " + pwaApplicationDetail.getId()));
+  }
+
   public List<BlockCrossingView> getCrossedBlockViews(PwaApplicationDetail pwaApplicationDetail) {
 
     var crossedBlocks = padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);

@@ -39,16 +39,9 @@
             </ul>
           </td>
           <td class="govuk-table__cell">
-            <ul class="govuk-list">
-              <li>
-                <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getEditBlockCrossingUrl(crossing.id)) linkClass="govuk-link govuk-link-s"/>
-              </li>
-              <li>
-                <@fdsForm.htmlForm actionUrl=springUrl(urlFactory.getRemoveBlockCrossingUrl(crossing.id)) >
-                    <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button"/>
-                </@fdsForm.htmlForm>
-              </li>
-            </ul>
+              <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getEditBlockCrossingUrl(crossing.id)) linkClass="govuk-link govuk-link-s"/>
+              <br/>
+              <@fdsAction.link linkText="Remove" linkUrl=springUrl(urlFactory.getRemoveBlockCrossingUrl(crossing.id)) linkClass="govuk-link govuk-link-s"/>
           </td>
         </tr>
       </#list>

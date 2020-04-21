@@ -8,13 +8,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityNotFoundException;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
@@ -51,7 +51,7 @@ public class PadCableCrossingServiceTest {
     assertThat(result).isEqualTo(padCableCrossing);
   }
 
-  @Test(expected = EntityNotFoundException.class)
+  @Test(expected = PwaEntityNotFoundException.class)
   public void getCableCrossing_NotFound() {
     when(padCableCrossingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
         .thenReturn(Optional.empty());

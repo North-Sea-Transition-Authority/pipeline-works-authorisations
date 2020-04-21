@@ -3,10 +3,10 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
@@ -30,7 +30,7 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
 
   public PadCableCrossing getCableCrossing(PwaApplicationDetail detail, Integer id) {
     return padCableCrossingRepository.findByPwaApplicationDetailAndId(detail, id)
-        .orElseThrow(() -> new EntityNotFoundException(
+        .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Unable to find cable crossing %d for detail %d", id, detail.getId())));
   }
 
