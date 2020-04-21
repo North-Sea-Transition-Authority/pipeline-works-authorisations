@@ -48,7 +48,7 @@
     <#if cableCrossingFileViews?has_content>
         <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=cableCrossingFileViews/>
     <#else>
-      <p class="govuk-body">No median line crossing agreement documents have been added to this application</p>
+      <p class="govuk-body">No cable crossing agreement documents have been added to this application</p>
     </#if>
 
 </#macro>

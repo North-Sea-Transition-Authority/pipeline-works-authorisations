@@ -92,6 +92,7 @@ public class CrossingAgreementsController {
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderCrossingAgreementsOverview(@PathVariable("applicationType")
                                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                       @PathVariable("applicationId") Integer applicationId,
                                                        PwaApplicationContext applicationContext,
                                                        AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();

@@ -83,7 +83,7 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
-
+    var detail = applicationContext.getApplicationDetail();
     blockCrossingFileService.validate(
         form,
         bindingResult,
@@ -98,7 +98,7 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
           form,
           applicationContext.getUser());
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, null, null));
+          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
   }
 
@@ -122,7 +122,8 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
     modelAndView.addObject("pageTitle", "Block crossing documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(), null, null)));
+            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Block crossing documents");
     return modelAndView;

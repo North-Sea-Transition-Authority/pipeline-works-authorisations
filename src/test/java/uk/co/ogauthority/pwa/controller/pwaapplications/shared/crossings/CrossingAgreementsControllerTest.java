@@ -11,7 +11,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.Before;
@@ -98,7 +97,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   public void renderCrossingAgreementsOverview_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", APP_ID)))
+            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
     ).andExpect(status().is3xxRedirection());
   }
 
@@ -113,7 +112,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
 
     var model = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", APP_ID)))
+            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())

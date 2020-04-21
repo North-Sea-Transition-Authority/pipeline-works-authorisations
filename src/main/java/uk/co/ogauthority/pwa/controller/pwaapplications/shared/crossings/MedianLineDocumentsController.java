@@ -82,7 +82,8 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
     modelAndView.addObject("pageTitle", "Median line agreement documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(), null, null)));
+            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Median line agreement documents");
     return modelAndView;
@@ -107,7 +108,7 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
-
+    var detail = applicationContext.getApplicationDetail();
     medianLineCrossingFileService.validate(
         form,
         bindingResult,
@@ -122,7 +123,7 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
           form,
           applicationContext.getUser());
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, null, null));
+          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
   }
 

@@ -63,7 +63,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
   }
 
   private ModelAndView createCableCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                            CrossingDocumentsForm form) {
+                                                       CrossingDocumentsForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
         ReverseRouter.route(on(CableCrossingDocumentsController.class)
@@ -82,7 +82,8 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
     modelAndView.addObject("pageTitle", "Cable crossing documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(), null, null)));
+            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Cable crossing documents");
     return modelAndView;
@@ -107,7 +108,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
-
+    var detail = applicationContext.getApplicationDetail();
     cableCrossingFileService.validate(
         form,
         bindingResult,
@@ -122,7 +123,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
           form,
           applicationContext.getUser());
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, null, null));
+          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
   }
 

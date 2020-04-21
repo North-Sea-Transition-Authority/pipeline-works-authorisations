@@ -167,6 +167,7 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(
             applicationContext.getApplicationDetail().getPwaApplicationType(),
+            applicationContext.getApplicationDetail().getMasterPwaApplicationId(),
             null,
             null
         ));
