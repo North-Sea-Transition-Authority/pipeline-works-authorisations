@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.validators;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -153,5 +154,98 @@ public class ProjectInformationValidatorTest {
         Set.of("latestCompletionMonth.beforeStart"),
         Set.of("latestCompletionYear.beforeStart")
     );
+  }
+
+
+  @Test
+  public void validate_licenceTransferPlanned_noDatesProvided() {
+
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).contains(
+        entry("commercialAgreementDay", Set.of("commercialAgreementDay.invalid")),
+        entry("commercialAgreementMonth", Set.of("commercialAgreementMonth.invalid")),
+        entry("commercialAgreementYear", Set.of("commercialAgreementYear.invalid")),
+
+        entry("licenceTransferDay", Set.of("licenceTransferDay.invalid")),
+        entry("licenceTransferMonth", Set.of("licenceTransferMonth.invalid")),
+        entry("licenceTransferYear", Set.of("licenceTransferYear.invalid"))
+    );
+
+  }
+
+  @Test
+  public void validate_licenceTransferPlanned_validCommercialAgreementDate() {
+
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+    form.setCommercialAgreementDay(1);
+    form.setCommercialAgreementMonth(2);
+    form.setCommercialAgreementYear(2020);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).doesNotContainKeys(
+        "commercialAgreementDay",
+        "commercialAgreementMonth",
+        "commercialAgreementYear"
+    );
+
+  }
+
+  @Test
+  public void validate_licenceTransferPlanned_invalidCommercialAgreementDate() {
+
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+    form.setCommercialAgreementDay(100);
+    form.setCommercialAgreementMonth(100);
+    form.setCommercialAgreementYear(2020);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).contains(
+        entry("commercialAgreementDay", Set.of("commercialAgreementDay.invalid")),
+        entry("commercialAgreementMonth", Set.of("commercialAgreementMonth.invalid")),
+        entry("commercialAgreementYear", Set.of("commercialAgreementYear.invalid"))
+    );
+
+  }
+
+  @Test
+  public void validate_licenceTransferPlanned_validLicenceTransferDate() {
+
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+    form.setLicenceTransferDay(1);
+    form.setLicenceTransferMonth(2);
+    form.setLicenceTransferYear(2020);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).doesNotContainKeys(
+        "licenceTransferDay",
+        "licenceTransferMonth",
+        "licenceTransferYear"
+    );
+
+  }
+
+  @Test
+  public void validate_licenceTransferPlanned_invalidLicenceTransferDate() {
+
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+    form.setLicenceTransferDay(100);
+    form.setLicenceTransferMonth(100);
+    form.setLicenceTransferYear(2020);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+
+    assertThat(errors).contains(
+        entry("licenceTransferDay", Set.of("licenceTransferDay.invalid")),
+        entry("licenceTransferMonth", Set.of("licenceTransferMonth.invalid")),
+        entry("licenceTransferYear", Set.of("licenceTransferYear.invalid"))
+    );
+
   }
 }

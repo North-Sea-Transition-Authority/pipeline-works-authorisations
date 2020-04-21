@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
@@ -17,35 +16,57 @@ public class ProjectInformationEntityMappingService {
    * Map project information stored data to form.
    */
   void mapProjectInformationDataToForm(PadProjectInformation padProjectInformation,
-                                              ProjectInformationForm form) {
+                                       ProjectInformationForm form) {
     form.setProjectOverview(padProjectInformation.getProjectOverview());
     form.setProjectName(padProjectInformation.getProjectName());
     form.setMethodOfPipelineDeployment(padProjectInformation.getMethodOfPipelineDeployment());
     form.setUsingCampaignApproach(padProjectInformation.getUsingCampaignApproach());
 
-    if (padProjectInformation.getProposedStartTimestamp() != null) {
-      var date = LocalDate.ofInstant(padProjectInformation.getProposedStartTimestamp(), ZoneId.systemDefault());
-      form.setProposedStartDay(date.getDayOfMonth());
-      form.setProposedStartMonth(date.getMonthValue());
-      form.setProposedStartYear(date.getYear());
-    }
-    if (padProjectInformation.getMobilisationTimestamp() != null) {
-      var date = LocalDate.ofInstant(padProjectInformation.getMobilisationTimestamp(), ZoneId.systemDefault());
-      form.setMobilisationDay(date.getDayOfMonth());
-      form.setMobilisationMonth(date.getMonthValue());
-      form.setMobilisationYear(date.getYear());
-    }
-    if (padProjectInformation.getEarliestCompletionTimestamp() != null) {
-      var date = LocalDate.ofInstant(padProjectInformation.getEarliestCompletionTimestamp(), ZoneId.systemDefault());
-      form.setEarliestCompletionDay(date.getDayOfMonth());
-      form.setEarliestCompletionMonth(date.getMonthValue());
-      form.setEarliestCompletionYear(date.getYear());
-    }
-    if (padProjectInformation.getLatestCompletionTimestamp() != null) {
-      var date = LocalDate.ofInstant(padProjectInformation.getLatestCompletionTimestamp(), ZoneId.systemDefault());
-      form.setLatestCompletionDay(date.getDayOfMonth());
-      form.setLatestCompletionMonth(date.getMonthValue());
-      form.setLatestCompletionYear(date.getYear());
+    DateUtils.setYearMonthDayFromInstant(
+        form::setProposedStartYear,
+        form::setProposedStartMonth,
+        form::setProposedStartDay,
+        padProjectInformation.getProposedStartTimestamp()
+    );
+
+    DateUtils.setYearMonthDayFromInstant(
+        form::setMobilisationYear,
+        form::setMobilisationMonth,
+        form::setMobilisationDay,
+        padProjectInformation.getMobilisationTimestamp()
+    );
+
+    DateUtils.setYearMonthDayFromInstant(
+        form::setEarliestCompletionYear,
+        form::setEarliestCompletionMonth,
+        form::setEarliestCompletionDay,
+        padProjectInformation.getEarliestCompletionTimestamp()
+    );
+
+    DateUtils.setYearMonthDayFromInstant(
+        form::setLatestCompletionYear,
+        form::setLatestCompletionMonth,
+        form::setLatestCompletionDay,
+        padProjectInformation.getLatestCompletionTimestamp()
+    );
+
+
+    form.setLicenceTransferPlanned(padProjectInformation.getLicenceTransferPlanned());
+    if (BooleanUtils.isTrue(padProjectInformation.getLicenceTransferPlanned())) {
+      DateUtils.setYearMonthDayFromInstant(
+          form::setLicenceTransferYear,
+          form::setLicenceTransferMonth,
+          form::setLicenceTransferDay,
+          padProjectInformation.getLicenceTransferTimestamp()
+      );
+
+      DateUtils.setYearMonthDayFromInstant(
+          form::setCommercialAgreementYear,
+          form::setCommercialAgreementMonth,
+          form::setCommercialAgreementDay,
+          padProjectInformation.getCommercialAgreementTimestamp()
+      );
+
     }
   }
 
@@ -87,6 +108,27 @@ public class ProjectInformationEntityMappingService {
         form.getLatestCompletionDay(),
         padProjectInformation::setLatestCompletionTimestamp
     );
+
+    padProjectInformation.setLicenceTransferPlanned(form.getLicenceTransferPlanned());
+    if (BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+
+      DateUtils.consumeInstantFromIntegersElseNull(
+          form.getLicenceTransferYear(),
+          form.getLicenceTransferMonth(),
+          form.getLicenceTransferDay(),
+          padProjectInformation::setLicenceTransferTimestamp
+      );
+
+      DateUtils.consumeInstantFromIntegersElseNull(
+          form.getCommercialAgreementYear(),
+          form.getCommercialAgreementMonth(),
+          form.getCommercialAgreementDay(),
+          padProjectInformation::setCommercialAgreementTimestamp
+      );
+    } else {
+      padProjectInformation.setLicenceTransferTimestamp(null);
+      padProjectInformation.setCommercialAgreementTimestamp(null);
+    }
 
   }
 

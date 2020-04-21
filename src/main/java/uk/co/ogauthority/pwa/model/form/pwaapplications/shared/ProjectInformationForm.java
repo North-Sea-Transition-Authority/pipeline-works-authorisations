@@ -40,6 +40,17 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private Integer latestCompletionMonth;
   private Integer latestCompletionYear;
 
+  @NotNull(message = "Select yes if a licence transfer is planned", groups = {FullValidation.class})
+  private Boolean licenceTransferPlanned;
+
+  private Integer licenceTransferDay;
+  private Integer licenceTransferMonth;
+  private Integer licenceTransferYear;
+
+  private Integer commercialAgreementDay;
+  private Integer commercialAgreementMonth;
+  private Integer commercialAgreementYear;
+
   @NotNull(message = "Select yes if using a campaign approach", groups = {FullValidation.class})
   private Boolean usingCampaignApproach;
 
@@ -169,5 +180,61 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   public void setUsingCampaignApproach(Boolean usingCampaignApproach) {
     this.usingCampaignApproach = usingCampaignApproach;
+  }
+
+  public Integer getLicenceTransferDay() {
+    return licenceTransferDay;
+  }
+
+  public void setLicenceTransferDay(Integer licenceTransferDay) {
+    this.licenceTransferDay = licenceTransferDay;
+  }
+
+  public Integer getLicenceTransferMonth() {
+    return licenceTransferMonth;
+  }
+
+  public void setLicenceTransferMonth(Integer licenceTransferMonth) {
+    this.licenceTransferMonth = licenceTransferMonth;
+  }
+
+  public Integer getLicenceTransferYear() {
+    return licenceTransferYear;
+  }
+
+  public void setLicenceTransferYear(Integer licenceTransferYear) {
+    this.licenceTransferYear = licenceTransferYear;
+  }
+
+  public Integer getCommercialAgreementDay() {
+    return commercialAgreementDay;
+  }
+
+  public void setCommercialAgreementDay(Integer commercialAgreementDay) {
+    this.commercialAgreementDay = commercialAgreementDay;
+  }
+
+  public Integer getCommercialAgreementMonth() {
+    return commercialAgreementMonth;
+  }
+
+  public void setCommercialAgreementMonth(Integer commercialAgreementMonth) {
+    this.commercialAgreementMonth = commercialAgreementMonth;
+  }
+
+  public Integer getCommercialAgreementYear() {
+    return commercialAgreementYear;
+  }
+
+  public void setCommercialAgreementYear(Integer commercialAgreementYear) {
+    this.commercialAgreementYear = commercialAgreementYear;
+  }
+
+  public Boolean getLicenceTransferPlanned() {
+    return licenceTransferPlanned;
+  }
+
+  public void setLicenceTransferPlanned(Boolean licenceTransferPlanned) {
+    this.licenceTransferPlanned = licenceTransferPlanned;
   }
 }
