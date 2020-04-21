@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -134,7 +135,24 @@ public class CableCrossingController {
     });
   }
 
-  @PostMapping("/{crossingId}/delete")
+  @GetMapping("/{crossingId}/remove")
+  public ModelAndView renderRemoveCableCrossing(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("crossingId") Integer crossingId,
+      PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var crossing = padCableCrossingService.getCableCrossing(detail, crossingId);
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeCableCrossing")
+        .addObject("cableCrossing", new CableCrossingView(crossing))
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(applicationType, applicationId, null, null)));
+    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Remove cable crossing");
+    return modelAndView;
+  }
+
+  @PostMapping("/{crossingId}/remove")
   public ModelAndView postRemoveCableCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,

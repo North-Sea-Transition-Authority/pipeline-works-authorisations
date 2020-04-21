@@ -30,7 +30,7 @@ public class CableCrossingUrlFactory {
 
   public String getRemoveCableCrossingUrl(Integer crossingId) {
     return ReverseRouter.route(on(CableCrossingController.class)
-        .postRemoveCableCrossing(pwaApplicationType, applicationId, crossingId, null));
+        .renderRemoveCableCrossing(pwaApplicationType, applicationId, crossingId, null));
   }
 
   public String getAddDocumentsUrl() {

@@ -117,23 +117,72 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
+  public void renderRemoveCableCrossing_authenticated_invalidAppType() {
+
+    PwaApplicationType.stream()
+        .filter(t -> !allowedApplicationTypes.contains(t))
+        .forEach(invalidAppType -> {
+          pwaApplicationDetail.getPwaApplication().setApplicationType(invalidAppType);
+          try {
+            mockMvc.perform(
+                get(ReverseRouter.route(
+                    on(CableCrossingController.class).renderRemoveCableCrossing(invalidAppType, 1, 1, null)))
+                    .with(authenticatedUserAndSession(user))
+                    .with(csrf()))
+                .andExpect(status().isForbidden());
+          } catch (Exception e) {
+
+            throw new AssertionError("Fail at: " + invalidAppType + "\n" + e.getMessage(), e);
+
+          }
+
+        });
+  }
+
+  @Test
   public void renderAddCableCrossing_authenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderAddCableCrossing(PwaApplicationType.INITIAL, 1, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/shared/crossings/addCableCrossing"));
   }
 
   @Test
   public void renderEditCableCrossing_authenticated() throws Exception {
+
+    var cableCrossing = new PadCableCrossing();
+    when(padCableCrossingService.getCableCrossing(pwaApplicationDetail, 1)).thenReturn(cableCrossing);
+
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/shared/crossings/editCableCrossing"));
+    verify(padCableCrossingService, times(1)).mapCrossingToForm(eq(cableCrossing), any());
+  }
+
+  @Test
+  public void renderRemoveCableCrossing_authenticated() throws Exception {
+
+    var cableCrossing = new PadCableCrossing();
+    cableCrossing.setCableName("name");
+    cableCrossing.setCableOwner("owner");
+    cableCrossing.setLocation("loc");
+    when(padCableCrossingService.getCableCrossing(pwaApplicationDetail, 1)).thenReturn(cableCrossing);
+
+    mockMvc.perform(
+        get(ReverseRouter.route(
+            on(CableCrossingController.class).renderRemoveCableCrossing(PwaApplicationType.INITIAL, 1, 1, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/shared/crossings/removeCableCrossing"));
+    verify(padCableCrossingService, times(1)).getCableCrossing(pwaApplicationDetail, 1);
   }
 
   @Test
@@ -178,17 +227,6 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddCableCrossing() throws Exception {
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(CableCrossingController.class).renderAddCableCrossing(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/crossings/addCableCrossing"));
-  }
-
-  @Test
   public void postAddCableCrossings_invalid() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
@@ -216,22 +254,6 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(paramMap))
         .andExpect(status().is3xxRedirection());
     verify(padCableCrossingService, times(1)).createCableCrossing(eq(pwaApplicationDetail), any());
-  }
-
-  @Test
-  public void renderEditCableCrossing() throws Exception {
-
-    var cableCrossing = new PadCableCrossing();
-    when(padCableCrossingService.getCableCrossing(pwaApplicationDetail, 1)).thenReturn(cableCrossing);
-
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(CableCrossingController.class).renderEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/crossings/editCableCrossing"));
-    verify(padCableCrossingService, times(1)).mapCrossingToForm(eq(cableCrossing), any());
   }
 
   @Test

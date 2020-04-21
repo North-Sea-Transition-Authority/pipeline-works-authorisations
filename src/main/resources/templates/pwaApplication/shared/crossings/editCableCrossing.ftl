@@ -11,6 +11,5 @@
         <@fdsTextInput.textInput path="form.cableOwner" labelText="Name of cable owner"/>
         <@fdsTextarea.textarea path="form.location" labelText="Location of the cable" hintText="Include coordinates if known" maxCharacterLength="4000" characterCount=true/>
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Save cable crossing" secondaryLinkText="Back to crossings" linkSecondaryActionUrl=springUrl(backUrl)/>
-        <@fdsAction.button buttonText="Save cable crossing" />
     </@fdsForm.htmlForm>
 </@defaultPage>

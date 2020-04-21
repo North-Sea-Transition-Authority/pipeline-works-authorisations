@@ -20,7 +20,7 @@
         <th class="govuk-table__header" scope="col">UK block reference</th>
         <th class="govuk-table__header" scope="col">Licence</th>
         <th class="govuk-table__header" scope="col">Block operator</th>
-        <th class="govuk-table__header" scope="col"></th>
+        <th class="govuk-table__header" scope="col">Actions</th>
       </tr>
       </thead>
       <tbody class="govuk-table__body">

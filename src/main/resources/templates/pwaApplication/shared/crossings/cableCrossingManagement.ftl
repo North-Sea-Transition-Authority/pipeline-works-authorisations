@@ -29,9 +29,7 @@
             <td class="govuk-table__cell">
               <a href="${springUrl(urlFactory.getEditCableCrossingUrl(crossing.id))}" class="govuk-link">Edit</a>
               <br/>
-              <@fdsForm.htmlForm actionUrl=springUrl(urlFactory.getRemoveCableCrossingUrl(crossing.id))>
-                <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button"/>
-              </@fdsForm.htmlForm>
+              <a href="${springUrl(urlFactory.getRemoveCableCrossingUrl(crossing.id))}" class="govuk-link">Remove</a>
             </td>
           </tr>
         </#list>
