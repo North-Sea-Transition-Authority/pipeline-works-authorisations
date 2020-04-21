@@ -44,8 +44,10 @@ public class ValidatorUtilsTest {
 
   @Test
   public void validateDateIsPresentOrFuture_Past() {
+    var date = LocalDate.now().minusDays(2);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start", 1, 1, 2020, errors);
+    ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start",
+        date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
             "proposedStartDay.beforeToday",
@@ -69,6 +71,40 @@ public class ValidatorUtilsTest {
     var date = LocalDate.now();
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start",
+        date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
+  }
+
+  @Test
+  public void validateDateIsPastOrPresent_Past() {
+    var date = LocalDate.now().minusDays(2);
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDateIsPastOrPresent("proposedStart", "proposed start",
+        date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
+  }
+
+  @Test
+  public void validateDateIsPastOrPresent_Future() {
+    var date = LocalDate.now().plusDays(2);
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDateIsPastOrPresent("proposedStart", "proposed start",
+        date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .containsExactlyInAnyOrder(
+            "proposedStartDay.afterToday",
+            "proposedStartMonth.afterToday",
+            "proposedStartYear.afterToday"
+        );
+  }
+
+  @Test
+  public void validateDateIsPastOrPresent_Present() {
+    var date = LocalDate.now();
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    ValidatorUtils.validateDateIsPastOrPresent("proposedStart", "proposed start",
         date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
     assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");

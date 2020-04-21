@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.util;
 
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -65,25 +64,39 @@ public class ValidatorUtils {
                                                       Integer year,
                                                       Errors errors) {
     if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
-      try {
-        var date = LocalDate.of(year, month, day);
-        if (date.isBefore(LocalDate.now())) {
-          errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()),
-              String.format("%s must not be in the past", StringUtils.capitalize(displayPrefix)));
-          errors.rejectValue(fieldPrefix + "Month",
-              String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
-          errors.rejectValue(fieldPrefix + "Year",
-              String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
-          return false;
-        }
-        return true;
-      } catch (DateTimeException dte) {
-        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-            String.format("Enter a valid %s day", displayPrefix));
-        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
-        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+      var date = LocalDate.of(year, month, day);
+      if (date.isBefore(LocalDate.now())) {
+        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()),
+            String.format("%s must not be in the past", StringUtils.capitalize(displayPrefix)));
+        errors.rejectValue(fieldPrefix + "Month",
+            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
+        errors.rejectValue(fieldPrefix + "Year",
+            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
         return false;
       }
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean validateDateIsPastOrPresent(String fieldPrefix,
+                                                      String displayPrefix,
+                                                      Integer day,
+                                                      Integer month,
+                                                      Integer year,
+                                                      Errors errors) {
+    if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
+      var date = LocalDate.of(year, month, day);
+      if (date.isAfter(LocalDate.now())) {
+        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()),
+            String.format("%s must not be in the future", StringUtils.capitalize(displayPrefix)));
+        errors.rejectValue(fieldPrefix + "Month",
+            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()), "");
+        errors.rejectValue(fieldPrefix + "Year",
+            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()), "");
+        return false;
+      }
+      return true;
     }
     return false;
   }
