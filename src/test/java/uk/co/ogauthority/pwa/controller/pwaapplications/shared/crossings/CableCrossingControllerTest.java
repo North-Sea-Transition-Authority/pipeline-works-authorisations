@@ -185,7 +185,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/crossings/cableCrossing"));
+        .andExpect(view().name("pwaApplication/shared/crossings/addCableCrossing"));
   }
 
   @Test
@@ -230,7 +230,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/crossings/cableCrossing"));
+        .andExpect(view().name("pwaApplication/shared/crossings/editCableCrossing"));
     verify(padCableCrossingService, times(1)).mapCrossingToForm(eq(cableCrossing), any());
   }
 

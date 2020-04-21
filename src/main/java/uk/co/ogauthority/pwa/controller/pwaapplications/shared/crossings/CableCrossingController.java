@@ -51,13 +51,27 @@ public class CableCrossingController {
   }
 
   private ModelAndView createRenderAddModelAndView(PwaApplicationDetail detail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/addCableCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/addCableCrossing")
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(
+                detail.getPwaApplicationType(),
+                detail.getMasterPwaApplicationId(),
+                null,
+                null
+            )));
     applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Add cable crossing");
     return modelAndView;
   }
 
   private ModelAndView createRenderEditModelAndView(PwaApplicationDetail detail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/editCableCrossing");
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/editCableCrossing")
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(
+                detail.getPwaApplicationType(),
+                detail.getMasterPwaApplicationId(),
+                null,
+                null
+            )));
     applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Edit cable crossing");
     return modelAndView;
   }
@@ -84,7 +98,7 @@ public class CableCrossingController {
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderAddModelAndView(detail), () -> {
       padCableCrossingService.createCableCrossing(detail, form);
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-              .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
   }
 
@@ -116,7 +130,7 @@ public class CableCrossingController {
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderEditModelAndView(detail), () -> {
       padCableCrossingService.updateCableCrossing(detail, crossingId, form);
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-              .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
   }
 

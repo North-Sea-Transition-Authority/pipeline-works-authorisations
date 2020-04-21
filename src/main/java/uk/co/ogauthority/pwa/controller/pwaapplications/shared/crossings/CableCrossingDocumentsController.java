@@ -79,13 +79,13 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
         cableCrossingFileService.getUpdatedCableCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
     );
 
-    modelAndView.addObject("pageTitle", "Cable crossing documents")
+    modelAndView.addObject("pageTitle", "Cable crossing agreement documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Cable crossing documents");
+        "Cable crossing agreement documents");
     return modelAndView;
   }
 

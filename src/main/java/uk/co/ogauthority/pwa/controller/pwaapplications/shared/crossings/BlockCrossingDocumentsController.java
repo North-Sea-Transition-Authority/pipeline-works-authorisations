@@ -119,13 +119,13 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
         blockCrossingFileService.getUpdatedBlockCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
     );
 
-    modelAndView.addObject("pageTitle", "Block crossing documents")
+    modelAndView.addObject("pageTitle", "Block crossing agreement documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Block crossing documents");
+        "Block crossing agreement documents");
     return modelAndView;
   }
 
