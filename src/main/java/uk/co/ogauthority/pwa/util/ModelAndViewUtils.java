@@ -31,4 +31,14 @@ public class ModelAndViewUtils {
     modelAndView.addObject("errorList", errorList);
   }
 
+  public static void addAllValidationErrors(ModelAndView modelAndView, BindingResult bindingResult) {
+    List<ErrorItem> errorList = new ArrayList<>();
+    IntStream.range(0, bindingResult.getAllErrors().size()).forEach(index -> {
+      var error = bindingResult.getAllErrors().get(index);
+      errorList.add(new ErrorItem(index, "", error.getDefaultMessage()));
+    });
+
+    modelAndView.addObject("errorList", errorList);
+  }
+
 }

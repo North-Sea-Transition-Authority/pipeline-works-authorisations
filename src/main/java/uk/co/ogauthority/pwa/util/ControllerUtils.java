@@ -58,4 +58,16 @@ public class ControllerUtils {
     return ifValid.get();
 
   }
+
+  public static ModelAndView checkSummaryErrorsAndRedirect(BindingResult bindingResult, ModelAndView modelAndView,
+                                                    Supplier<ModelAndView> ifValid) {
+
+    if (bindingResult.hasErrors()) {
+      ModelAndViewUtils.addAllValidationErrors(modelAndView, bindingResult);
+      return modelAndView;
+    }
+
+    return ifValid.get();
+
+  }
 }

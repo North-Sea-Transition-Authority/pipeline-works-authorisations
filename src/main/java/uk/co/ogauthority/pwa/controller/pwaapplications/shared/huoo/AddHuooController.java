@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -71,11 +72,10 @@ public class AddHuooController {
     this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
-  private ModelAndView getAddHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/huoo/addHuoo")
-        .addObject("huooRoles", HuooRole.stream()
-            .sorted(Comparator.comparing(HuooRole::getDisplayOrder))
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, HuooRole::getDisplayText)))
+  private void addObjectAttributes(PwaApplicationDetail detail, ModelAndView modelAndView) {
+    modelAndView.addObject("huooRoles", HuooRole.stream()
+        .sorted(Comparator.comparing(HuooRole::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, HuooRole::getDisplayText)))
         .addObject("treatyAgreements", TreatyAgreement.stream()
             .sorted(Comparator.comparing(TreatyAgreement::getCountry))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, TreatyAgreement::getCountry)))
@@ -86,8 +86,24 @@ public class AddHuooController {
             .stream()
             .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
             .collect(
-                StreamUtils.toLinkedHashMap(unit -> String.valueOf(unit.getOuId()), PortalOrganisationUnit::getName)));
+                StreamUtils.toLinkedHashMap(unit -> String.valueOf(unit.getOuId()), PortalOrganisationUnit::getName)))
+        .addObject("backUrl", ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
+  }
+
+  private ModelAndView getAddHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/huoo/addHuoo")
+        .addObject("screenActionType", ScreenActionType.ADD);
+    addObjectAttributes(pwaApplicationDetail, modelAndView);
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Add HUOO");
+    return modelAndView;
+  }
+
+  private ModelAndView getEditHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/huoo/addHuoo")
+        .addObject("screenActionType", ScreenActionType.EDIT);
+    addObjectAttributes(pwaApplicationDetail, modelAndView);
+    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Edit HUOO");
     return modelAndView;
   }
 
@@ -116,10 +132,11 @@ public class AddHuooController {
     var detail = applicationContext.getApplicationDetail();
     addHuooValidator.validate(form, bindingResult, detail);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getAddHuooModelAndView(applicationContext.getApplicationDetail()), () -> {
+        getAddHuooModelAndView(detail), () -> {
           padOrganisationRoleService.createAndSaveEntityUsingForm(detail, form);
           return ReverseRouter.redirect(
-              on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
+              on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null,
+                  null));
         });
   }
 
@@ -135,7 +152,7 @@ public class AddHuooController {
                                      AuthenticatedUserAccount user) {
     var padOrgRole = padOrganisationRoleService.getOrganisationRoleById(orgRoleId);
     padOrganisationRoleService.mapPadOrganisationRoleToForm(padOrgRole, form);
-    return getAddHuooModelAndView(applicationContext.getApplicationDetail());
+    return getEditHuooModelAndView(applicationContext.getApplicationDetail());
   }
 
   @PostMapping("/edit/{orgRoleId}")
@@ -153,10 +170,11 @@ public class AddHuooController {
     var padOrgRole = padOrganisationRoleService.getOrganisationRoleById(orgRoleId);
     editHuooValidator.validate(form, bindingResult, detail, padOrgRole);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getAddHuooModelAndView(applicationContext.getApplicationDetail()), () -> {
+        getEditHuooModelAndView(applicationContext.getApplicationDetail()), () -> {
           padOrganisationRoleService.saveEntityUsingForm(padOrgRole, form);
           return ReverseRouter.redirect(
-              on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
+              on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null,
+                  null));
         });
   }
 

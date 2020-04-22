@@ -11,6 +11,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo.AddHuooController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
@@ -24,9 +25,12 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUn
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
 @Service
-public class PadOrganisationRoleService {
+public class PadOrganisationRoleService implements ApplicationFormSectionService {
 
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -77,7 +81,8 @@ public class PadOrganisationRoleService {
     return orgRoles.stream()
         .map(orgUnitRole -> {
 
-          PortalOrganisationUnitDetail orgUnitDetail = portalOrgUnitDetails.getOrDefault(orgUnitRole.getOrganisationUnit().getOuId(), null);
+          PortalOrganisationUnitDetail orgUnitDetail = portalOrgUnitDetails.getOrDefault(
+              orgUnitRole.getOrganisationUnit().getOuId(), null);
 
           boolean canRemoveOrg = !orgUnitRole.getRoles().contains(HuooRole.HOLDER) || holderCount > 1;
 
@@ -95,12 +100,14 @@ public class PadOrganisationRoleService {
 
   private String getEditHuooUrl(PwaApplicationDetail detail, PadOrganisationRole orgRole) {
     return ReverseRouter.route(on(AddHuooController.class)
-            .renderEditHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), orgRole.getId(), null, null, null));
+        .renderEditHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), orgRole.getId(), null, null,
+            null));
   }
 
   private String getRemoveHuooUrl(PwaApplicationDetail detail, PadOrganisationRole orgRole) {
     return ReverseRouter.route(on(AddHuooController.class)
-        .postDeleteHuoo(detail.getPwaApplicationType(), detail.getPwaApplication().getId(), orgRole.getId(), null, null, null, null));
+        .postDeleteHuoo(detail.getPwaApplicationType(), detail.getPwaApplication().getId(), orgRole.getId(), null, null,
+            null, null));
   }
 
   public List<HuooTreatyAgreementView> getTreatyAgreementViews(PwaApplicationDetail detail,
@@ -151,13 +158,14 @@ public class PadOrganisationRoleService {
   @Transactional
   public void saveEntityUsingForm(PadOrganisationRole padOrganisationRole, HuooForm form) {
     padOrganisationRole.setType(form.getHuooType());
-    padOrganisationRole.setRoles(form.getHuooRoles());
     if (form.getHuooType().equals(HuooType.PORTAL_ORG)) {
       padOrganisationRole.setAgreement(null);
       padOrganisationRole.setOrganisationUnit(form.getOrganisationUnit());
+      padOrganisationRole.setRoles(form.getHuooRoles());
     } else if (form.getHuooType().equals(HuooType.TREATY_AGREEMENT)) {
       padOrganisationRole.setAgreement(form.getTreatyAgreement());
       padOrganisationRole.setOrganisationUnit(null);
+      padOrganisationRole.setRoles(Set.of(HuooRole.USER));
     }
     save(padOrganisationRole);
   }
@@ -172,5 +180,61 @@ public class PadOrganisationRoleService {
     holderRole.setOrganisationUnit(organisationUnit);
     save(holderRole);
 
+  }
+
+  private Map<HuooRole, Long> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
+    var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail);
+    var holderCount = padOrganisationRoleList.stream()
+        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.HOLDER))
+        .count();
+    var userCount = padOrganisationRoleList.stream()
+        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.USER))
+        .count();
+    var operatorCount = padOrganisationRoleList.stream()
+        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.OPERATOR))
+        .count();
+    var ownerCount = padOrganisationRoleList.stream()
+        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.OWNER))
+        .count();
+    return Map.of(
+        HuooRole.HOLDER, holderCount,
+        HuooRole.USER, userCount,
+        HuooRole.OPERATOR, operatorCount,
+        HuooRole.OWNER, ownerCount
+    );
+  }
+
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    var roleCountMap = getRoleCountMap(detail);
+    return roleCountMap.get(HuooRole.HOLDER) > 0
+        && roleCountMap.get(HuooRole.USER) > 0
+        && roleCountMap.get(HuooRole.OPERATOR) > 0
+        && roleCountMap.get(HuooRole.OWNER) > 0;
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
+    if (validationType == ValidationType.FULL) {
+      var roleCountMap = getRoleCountMap(pwaApplicationDetail);
+      if (roleCountMap.get(HuooRole.HOLDER) == 0) {
+        bindingResult.reject("holders" + FieldValidationErrorCodes.REQUIRED,
+            "At least one holder is required");
+      }
+      if (roleCountMap.get(HuooRole.USER) == 0) {
+        bindingResult.reject("users" + FieldValidationErrorCodes.REQUIRED,
+            "At least one user is required");
+      }
+      if (roleCountMap.get(HuooRole.OPERATOR) == 0) {
+        bindingResult.reject("operators" + FieldValidationErrorCodes.REQUIRED,
+            "At least one operator is required");
+      }
+      if (roleCountMap.get(HuooRole.OWNER) == 0) {
+        bindingResult.reject("owners" + FieldValidationErrorCodes.REQUIRED,
+            "At least one owner is required");
+      }
+    }
+    return bindingResult;
   }
 }
