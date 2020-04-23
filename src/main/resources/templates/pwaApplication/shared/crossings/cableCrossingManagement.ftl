@@ -42,11 +42,14 @@
         <@fdsAction.link linkText="Add cable crossing" linkUrl=springUrl(urlFactory.getAddCableCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
     </#if>
   <h3 class="govuk-heading-m">Cable crossing agreement documents</h3>
-    <@fdsAction.link linkText="Add, edit or remove cable crossing agreement documents" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     <#if cableCrossingFileViews?has_content>
+        <@fdsAction.link linkText="Add, edit or remove cable crossing agreement documents" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
         <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=cableCrossingFileViews/>
     <#else>
-      <p class="govuk-body">No cable crossing agreement documents have been added to this application</p>
+        <@fdsInsetText.insetText>
+          No cable crossing agreement documents have been added to this application.
+        </@fdsInsetText.insetText>
+        <@fdsAction.link linkText="Add, edit or remove cable crossing agreement documents" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>
 
 </#macro>
