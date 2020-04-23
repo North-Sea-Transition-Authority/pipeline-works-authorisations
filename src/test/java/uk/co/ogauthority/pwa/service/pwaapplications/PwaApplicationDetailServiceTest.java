@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -64,5 +66,17 @@ public class PwaApplicationDetailServiceTest {
     var detail = pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, true);
     assertThat(detail).isEqualTo(pwaApplicationDetail);
     assertThat(detail.getLinkedToField()).isTrue();
+    assertNull(detail.getNotLinkedDescription());
+  }
+
+  @Test
+  public void setLinkedToFieldsNoField() {
+    pwaApplicationDetail.setNotLinkedDescription("test description");
+    when(applicationDetailRepository.save(pwaApplicationDetail)).thenReturn(pwaApplicationDetail);
+
+    var detail = pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, false);
+    assertThat(detail).isEqualTo(pwaApplicationDetail);
+    assertThat(detail.getLinkedToField()).isFalse();
+    assertEquals("test description", detail.getNotLinkedDescription());
   }
 }
