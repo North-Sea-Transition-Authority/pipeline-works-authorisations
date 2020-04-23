@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +15,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformatio
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectInformationEntityMappingServiceTest {
 
-  private LocalDate date;
+  private LocalDate baseDate;
+
 
   private ProjectInformationEntityMappingService projectInformationEntityMappingService;
 
@@ -25,11 +27,13 @@ public class ProjectInformationEntityMappingServiceTest {
   @Before
   public void setUp() {
     projectInformationEntityMappingService = new ProjectInformationEntityMappingService();
-    date = LocalDate.now();
+    baseDate = LocalDate.now();
 
     form = new ProjectInformationForm();
-    expectedForm = ProjectInformationTestUtils.buildForm(date);
-    entity = ProjectInformationTestUtils.buildEntity(date);
+    expectedForm = ProjectInformationTestUtils.buildForm(baseDate);
+    entity = ProjectInformationTestUtils.buildEntity(baseDate);
+
+
   }
 
   @Test
@@ -56,23 +60,68 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(form.getLatestCompletionDay()).isEqualTo(expectedForm.getLatestCompletionDay());
     assertThat(form.getLatestCompletionMonth()).isEqualTo(expectedForm.getLatestCompletionMonth());
     assertThat(form.getLatestCompletionYear()).isEqualTo(expectedForm.getLatestCompletionYear());
+
+    assertThat(form.getLicenceTransferDay()).isEqualTo(expectedForm.getLicenceTransferDay());
+    assertThat(form.getLicenceTransferMonth()).isEqualTo(expectedForm.getLicenceTransferMonth());
+    assertThat(form.getLicenceTransferYear()).isEqualTo(expectedForm.getLicenceTransferYear());
+
+    assertThat(form.getCommercialAgreementDay()).isEqualTo(expectedForm.getCommercialAgreementDay());
+    assertThat(form.getCommercialAgreementMonth()).isEqualTo(expectedForm.getCommercialAgreementMonth());
+    assertThat(form.getCommercialAgreementYear()).isEqualTo(expectedForm.getCommercialAgreementYear());
   }
 
   @Test
   public void setEntityValuesUsingForm_whenEntityHasNoMissingData() {
 
-    var dateAsInstant = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
+    var dateAsInstant = baseDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, expectedForm);
 
     assertThat(entity.getProjectName()).isEqualTo(expectedForm.getProjectName());
     assertThat(entity.getProjectOverview()).isEqualTo(expectedForm.getProjectOverview());
     assertThat(entity.getMethodOfPipelineDeployment()).isEqualTo(expectedForm.getMethodOfPipelineDeployment());
-    assertThat(entity.getProposedStartTimestamp()).isEqualTo(dateAsInstant);
-    assertThat(entity.getMobilisationTimestamp()).isEqualTo(dateAsInstant);
-    assertThat(entity.getEarliestCompletionTimestamp()).isEqualTo(dateAsInstant);
-    assertThat(entity.getLatestCompletionTimestamp()).isEqualTo(dateAsInstant);
+    assertThat(entity.getProposedStartTimestamp()).isEqualTo(
+        dateAsInstant.plus(ProjectInformationTestUtils.PROPOSED_START_DAY_MODIFIER, ChronoUnit.DAYS));
 
+    assertThat(entity.getMobilisationTimestamp()).isEqualTo(
+        dateAsInstant.plus(ProjectInformationTestUtils.MOBILISATION_DAY_MODIFIER, ChronoUnit.DAYS));
+
+    assertThat(entity.getEarliestCompletionTimestamp()).isEqualTo(
+        dateAsInstant.plus(ProjectInformationTestUtils.EARLIEST_COMPLETION_DAY_MODIFIER, ChronoUnit.DAYS));
+
+    assertThat(entity.getLatestCompletionTimestamp()).isEqualTo(
+        dateAsInstant.plus(ProjectInformationTestUtils.LATEST_COMPLETION_DAY_MODIFIER, ChronoUnit.DAYS));
+
+    assertThat(entity.getLicenceTransferPlanned()).isEqualTo(true);
+
+    assertThat(entity.getLicenceTransferTimestamp()).isEqualTo(
+        dateAsInstant.plus(ProjectInformationTestUtils.LICENCE_TRANSFER_DAY_MODIFIER, ChronoUnit.DAYS));
+
+    assertThat(entity.getCommercialAgreementTimestamp()).isEqualTo(
+        dateAsInstant.plus(ProjectInformationTestUtils.COMMERCIAL_AGREEMENT_DAY_MODIFIER, ChronoUnit.DAYS));
+
+
+  }
+
+
+  @Test
+  public void setEntityValuesUsingForm_whenLicenceTransferIsNotPlanned() {
+
+    form.setLicenceTransferPlanned(false);
+    // below values dont matter but proves entity values are not set
+    form.setLicenceTransferDay(1);
+    form.setLicenceTransferMonth(1);
+    form.setLicenceTransferYear(2020);
+
+    form.setCommercialAgreementDay(1);
+    form.setCommercialAgreementMonth(1);
+    form.setCommercialAgreementYear(2020);
+
+    projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
+
+    assertThat(entity.getLicenceTransferPlanned()).isFalse();
+    assertThat(entity.getLicenceTransferTimestamp()).isNull();
+    assertThat(entity.getCommercialAgreementTimestamp()).isNull();
   }
 
 }

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.validators;
 
 import java.time.LocalDate;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -31,6 +32,26 @@ public class ProjectInformationValidator implements Validator {
     var latestCompletionDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
         "latestCompletion", "latest completion",
         form.getLatestCompletionDay(), form.getLatestCompletionMonth(), form.getLatestCompletionYear(), errors);
+
+    //if licence transfer and commercial agreement date required, ensure valid, else ignore.
+    if (BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+      var licenceTransferValid = ValidatorUtils.validateDate(
+          "licenceTransfer", "licence transfer",
+          form.getLicenceTransferDay(),
+          form.getLicenceTransferMonth(),
+          form.getLicenceTransferYear(),
+          errors
+      );
+
+      var commercialAgreementValid = ValidatorUtils.validateDate(
+          "commercialAgreement", "commercial agreement",
+          form.getCommercialAgreementDay(),
+          form.getCommercialAgreementMonth(),
+          form.getCommercialAgreementYear(),
+          errors
+      );
+    }
+
 
     if (earliestCompletionDateValid && latestCompletionDateValid) {
       var earliestCompletion = LocalDate.of(form.getEarliestCompletionYear(), form.getEarliestCompletionMonth(),
