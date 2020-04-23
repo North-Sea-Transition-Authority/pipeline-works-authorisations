@@ -41,6 +41,8 @@ import uk.co.ogauthority.pwa.validators.EditHuooValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/huoo")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
@@ -95,7 +97,7 @@ public class AddHuooController {
     var modelAndView = new ModelAndView("pwaApplication/shared/huoo/addHuoo")
         .addObject("screenActionType", ScreenActionType.ADD);
     addObjectAttributes(pwaApplicationDetail, modelAndView);
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Add HUOO");
+    applicationBreadcrumbService.fromHuoo(pwaApplicationDetail.getPwaApplication(), modelAndView, "Add HUOO");
     return modelAndView;
   }
 
@@ -103,13 +105,11 @@ public class AddHuooController {
     var modelAndView = new ModelAndView("pwaApplication/shared/huoo/addHuoo")
         .addObject("screenActionType", ScreenActionType.EDIT);
     addObjectAttributes(pwaApplicationDetail, modelAndView);
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Edit HUOO");
+    applicationBreadcrumbService.fromHuoo(pwaApplicationDetail.getPwaApplication(), modelAndView, "Edit HUOO");
     return modelAndView;
   }
 
   @GetMapping("/add")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderAddHuoo(@PathVariable("applicationType")
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                     @PathVariable("applicationId") Integer applicationId,
@@ -120,8 +120,6 @@ public class AddHuooController {
   }
 
   @PostMapping("/add")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postAddHuoo(@PathVariable("applicationType")
                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                   @PathVariable("applicationId") Integer applicationId,
@@ -141,8 +139,6 @@ public class AddHuooController {
   }
 
   @GetMapping("/edit/{orgRoleId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderEditHuoo(@PathVariable("applicationType")
                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                      @PathVariable("applicationId") Integer applicationId,
@@ -156,8 +152,6 @@ public class AddHuooController {
   }
 
   @PostMapping("/edit/{orgRoleId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postEditHuoo(@PathVariable("applicationType")
                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                    @PathVariable("applicationId") Integer applicationId,
@@ -179,8 +173,6 @@ public class AddHuooController {
   }
 
   @PostMapping("/remove/{orgRoleId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postDeleteHuoo(@PathVariable("applicationType")
                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                      @PathVariable("applicationId") Integer applicationId,

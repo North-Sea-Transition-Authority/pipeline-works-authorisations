@@ -2,7 +2,7 @@
 
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="${screenActionType.actionText} a holder, user, operator, or owner" pageHeading="${screenActionType.actionText} a holder, user, operator, or owner" breadcrumbs=false backLink=true>
+<@defaultPage htmlTitle="${screenActionType.actionText} a holder, user, operator, or owner" pageHeading="${screenActionType.actionText} a holder, user, operator, or owner" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>

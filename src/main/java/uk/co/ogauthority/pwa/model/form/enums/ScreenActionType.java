@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.model.form.enums;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 public enum ScreenActionType {
 
   ADD("Add", "Add"),
@@ -19,5 +22,9 @@ public enum ScreenActionType {
 
   public String getSubmitButtonText() {
     return submitButtonText;
+  }
+
+  public static Stream<ScreenActionType> stream() {
+    return Arrays.stream(ScreenActionType.values());
   }
 }

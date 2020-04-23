@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +183,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   }
 
-  private Map<HuooRole, Long> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
+  @VisibleForTesting
+  public Map<HuooRole, Long> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
     var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail);
     var holderCount = padOrganisationRoleList.stream()
         .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.HOLDER))

@@ -71,7 +71,7 @@ public class HuooController {
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Holders, users, operators and owners");
+        "Holders, users, operators, and owners");
 
     return modelAndView;
   }
@@ -94,7 +94,7 @@ public class HuooController {
                                         BindingResult bindingResult,
                                         AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
-    padOrganisationRoleService.validate(form, bindingResult, ValidationType.FULL, detail);
+    bindingResult = padOrganisationRoleService.validate(form, bindingResult, ValidationType.FULL, detail);
     return ControllerUtils.checkSummaryErrorsAndRedirect(bindingResult, getHuooModelAndView(detail), () ->
       pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication()));
   }

@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -115,7 +116,8 @@ public class TaskListServiceTest {
               "Project information",
               "Environmental and decommissioning",
               "Crossing agreements",
-              "Location details"
+              "Location details",
+                ApplicationTask.HUOO.getDisplayName()
             );
             break;
           case DECOMMISSIONING:
@@ -123,18 +125,22 @@ public class TaskListServiceTest {
           assertThat(taskNamesList).containsOnly(
               "Project information",
               "Environmental and decommissioning",
-              "Location details"
+              "Location details",
+              "Holders, users, operators, and owners"
           );
           break;
         case CAT_2_VARIATION:
           assertThat(taskNamesList).containsOnly(
               "Project information",
               "Crossing agreements",
-              "Location details"
+              "Location details",
+              "Holders, users, operators, and owners"
             );
             break;
           case HUOO_VARIATION:
-            assertThat(taskNamesList).containsOnly("No tasks");
+            assertThat(taskNamesList).containsOnly(
+                "Holders, users, operators, and owners"
+            );
             break;
         }
 

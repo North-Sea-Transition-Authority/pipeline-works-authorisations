@@ -3,10 +3,14 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,13 +27,16 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -49,7 +56,8 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   private PadOrganisationRoleService padOrganisationRoleService;
 
   private PwaApplicationDetail pwaApplicationDetail;
-  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
+  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1),
+      EnumSet.allOf(PwaUserPrivilege.class));
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -75,6 +83,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
+
   }
 
   @Test
@@ -127,5 +136,48 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
   }
+
+  @Test
+  public void postHuooSummary_Invalid() throws Exception {
+
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER));
+
+    ControllerTestUtils.failValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
+
+    mockMvc.perform(post(ReverseRouter.route(on(HuooController.class)
+        .postHuooSummary(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            null,
+            null,
+            null,
+            null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void postHuooSummary_Valid() throws Exception {
+
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER));
+
+    ControllerTestUtils.passValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
+
+    mockMvc.perform(post(ReverseRouter.route(on(HuooController.class)
+        .postHuooSummary(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            null,
+            null,
+            null,
+            null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+  }
+
 
 }

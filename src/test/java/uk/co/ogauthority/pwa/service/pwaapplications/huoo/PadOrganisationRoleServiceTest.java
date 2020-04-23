@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -307,5 +309,38 @@ public class PadOrganisationRoleServiceTest {
     assertThat(newHolderRole.getOrganisationUnit()).isEqualTo(newOrgUnit);
     assertThat(newHolderRole.getAgreement()).isNull();
 
+  }
+
+  @Test
+  public void getOrgRolesForDetail() {
+    padOrganisationRoleService.getOrgRolesForDetail(detail);
+    verify(repository, times(1)).getAllByPwaApplicationDetail(detail);
+  }
+
+  @Test
+  public void getRoleCountMap() {
+    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
+        createOrgRole(HuooRole.HOLDER),
+        createOrgRole(HuooRole.USER),
+        createOrgRole(HuooRole.USER),
+        createOrgRole(HuooRole.OPERATOR),
+        createOrgRole(HuooRole.OPERATOR),
+        createOrgRole(HuooRole.OPERATOR)
+    ));
+
+    var result = padOrganisationRoleService.getRoleCountMap(detail);
+    assertThat(result).containsExactlyInAnyOrderEntriesOf(
+        Map.ofEntries(
+            entry(HuooRole.HOLDER, 1L),
+            entry(HuooRole.USER, 2L),
+            entry(HuooRole.OPERATOR, 3L),
+            entry(HuooRole.OWNER, 0L)
+        ));
+  }
+
+  private PadOrganisationRole createOrgRole(HuooRole role) {
+    var org = new PadOrganisationRole();
+    org.setRoles(Set.of(role));
+    return org;
   }
 }
