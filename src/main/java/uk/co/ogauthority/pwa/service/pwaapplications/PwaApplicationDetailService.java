@@ -66,7 +66,9 @@ public class PwaApplicationDetailService {
   @Transactional
   public PwaApplicationDetail setLinkedToFields(PwaApplicationDetail pwaApplicationDetail, Boolean linked) {
     pwaApplicationDetail.setLinkedToField(linked);
+    if(linked) pwaApplicationDetail.setNotLinkedDescription("");
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
+
 
 }
