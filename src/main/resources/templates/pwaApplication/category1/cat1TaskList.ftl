@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="pwaInfoTasks" type="java.util.HashMap<String, String>" -->
 <#-- @ftlvariable name="appInfoTasks" type="java.util.HashMap<String, String>" -->
 <#-- @ftlvariable name="prepareAppTasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
+<#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
 <#-- @ftlvariable name="masterPwaReference" type="String" -->
 
 <@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Category 1 variation for ${masterPwaReference}" breadcrumbs=true>
@@ -29,7 +30,7 @@
             <@fdsWarning.warning>
               In order to submit this application, all sections above must have a COMPLETED label.
             </@fdsWarning.warning>
-            <@fdsTaskList.taskListItem itemUrl=springUrl("/") itemText="Submit application"/>
+            <@fdsTaskList.taskListItem itemUrl=springUrl(submissionTask.route) itemText=submissionTask.taskName/>
         </@fdsTaskList.taskListSection>
 
     </@fdsTaskList.taskList>

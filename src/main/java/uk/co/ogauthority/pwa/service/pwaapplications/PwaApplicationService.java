@@ -18,7 +18,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -95,6 +97,26 @@ public class PwaApplicationService {
                                                       PwaApplicationType pwaApplicationType) {
 
     return createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
+
+  }
+
+
+  @Transactional
+  public void submitApplication(WebUserAccount submittedByUser, PwaApplicationDetail detail) {
+    if (!detail.isTipFlag()) {
+      throw new RuntimeException(String.format("Application Detail not tip! id: %s", detail.getId()));
+    }
+
+    if (!detail.getStatus().equals(PwaApplicationStatus.DRAFT)) {
+      throw new RuntimeException(
+          String.format("Application Detail not draft! id: %s status: %s", detail.getId(), detail.getStatus()));
+    }
+
+    camundaWorkflowService.completeTask(detail.getMasterPwaApplicationId(), UserWorkflowTask.PREPARE_APPLICATION);
+    detail.setStatus(PwaApplicationStatus.SUBMITTED);
+    detail.setSubmittedByWuaId(submittedByUser.getWuaId());
+    detail.setSubmittedTimestamp(clock.instant());
+    pwaApplicationDetailRepository.save(detail);
 
   }
 
