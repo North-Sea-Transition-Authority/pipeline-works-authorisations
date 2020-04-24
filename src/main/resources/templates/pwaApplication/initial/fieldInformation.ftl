@@ -9,12 +9,11 @@
                 <@fdsSelect.select path="form.fieldId" labelText="Field name" options=fieldMap nestingPath="form.fieldId"/>
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.linkedToField">
-                <@fdsTextarea.textarea path="form.noLinkedFieldDescription" labelText="What is this PWA in relation to"/>
+                <@fdsTextarea.textarea path="form.noLinkedFieldDescription" labelText="What is this PWA in relation to?"/>
             </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
 
         <@fdsAction.submitButtons primaryButtonText="Confirm" secondaryButtonText="Save and complete later"/>
-        <#--  secondaryLinkText="Go back" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl)/>  -->
     </@fdsForm.htmlForm>
 
 </@defaultPage>
