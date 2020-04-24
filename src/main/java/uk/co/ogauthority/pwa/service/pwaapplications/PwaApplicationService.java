@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 
 /**
- * Service to retrieve and manage top level PwaApplication data
+ * Service to retrieve and manage top level PwaApplication data.
  */
 @Service
 public class PwaApplicationService {
