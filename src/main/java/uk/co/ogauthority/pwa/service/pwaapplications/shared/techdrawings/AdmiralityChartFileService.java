@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingDocumentsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.AdmiralityChartDocumentsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadAdmiralityChartFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.AdmiralityChartDocumentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadAdmiralityChartFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -45,24 +45,24 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
 
   @Autowired
   public AdmiralityChartFileService(
-      PadAdmiralityChartFileRepository padCableCrossingFileRepository,
+      PadAdmiralityChartFileRepository padAdmiralityChartFileRepository,
       FileUploadService fileUploadService, EntityManager entityManager,
       SpringValidatorAdapter groupValidator) {
-    this.padAdmiralityChartFileRepository = padCableCrossingFileRepository;
+    this.padAdmiralityChartFileRepository = padAdmiralityChartFileRepository;
     this.fileUploadService = fileUploadService;
     this.entityManager = entityManager;
     this.groupValidator = groupValidator;
   }
 
-  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, CrossingDocumentsForm form) {
+  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, AdmiralityChartDocumentForm form) {
     var fileFormViewList = getUploadedFileListAsFormList(pwaApplicationDetail, ApplicationFileLinkStatus.FULL);
     form.setUploadedFileWithDescriptionForms(fileFormViewList);
   }
 
   /**
-   * Return linked cable crossing file if it exists for application detail else throw not found exception.
+   * Return linked admirality chart file if it exists for application detail else throw not found exception.
    */
-  public PadAdmiralityChartFile getCableCrossingFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
+  public PadAdmiralityChartFile getAdmiralityChartFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
     return padAdmiralityChartFileRepository.findByPwaApplicationDetailAndFileId(
         pwaApplicationDetail,
         fileId
@@ -75,20 +75,20 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
   }
 
   /**
-   * Gets linked cable crossing files as uploaded file forms.
+   * Gets linked admirality chart files as uploaded file forms.
    */
   private List<UploadFileWithDescriptionForm> getUploadedFileListAsFormList(PwaApplicationDetail pwaApplicationDetail,
                                                                             ApplicationFileLinkStatus applicationFileLinkStatus) {
-    return getCableCrossingFileViews(pwaApplicationDetail, applicationFileLinkStatus)
+    return getAdmiralityChartFileViews(pwaApplicationDetail, applicationFileLinkStatus)
         .stream()
         .map(fileUploadService::createUploadFileWithDescriptionFormFromView)
         .collect(Collectors.toList());
   }
 
   /**
-   * Get cable crossing files with requested link status as standard uploaded file views.
+   * Get admirality chart files with requested link status as standard uploaded file views.
    */
-  public List<UploadedFileView> getCableCrossingFileViews(PwaApplicationDetail pwaApplicationDetail,
+  public List<UploadedFileView> getAdmiralityChartFileViews(PwaApplicationDetail pwaApplicationDetail,
                                                           ApplicationFileLinkStatus fileLinkStatus) {
 
     var fileViews = entityManager.createQuery("" +
@@ -112,7 +112,7 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
         .getResultList();
 
     fileViews.forEach(
-        ufv -> ufv.setFileUrl(ReverseRouter.route(on(CableCrossingDocumentsController.class).handleDownload(
+        ufv -> ufv.setFileUrl(ReverseRouter.route(on(AdmiralityChartDocumentsController.class).handleDownload(
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
             ufv.getFileId(),
@@ -125,9 +125,9 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
   }
 
   /**
-   * Create and persist a new cable crossing file linked to app detail and uploaded file id.
+   * Create and persist a new admirality chart file linked to app detail and uploaded file id.
    */
-  private PadAdmiralityChartFile createAndSaveCableCrossingFile(PwaApplicationDetail pwaApplicationDetail,
+  private PadAdmiralityChartFile createAndSaveAdmiralityChartFile(PwaApplicationDetail pwaApplicationDetail,
                                                               String uploadedFileId) {
     var newFileLink = new PadAdmiralityChartFile(
         pwaApplicationDetail,
@@ -140,10 +140,10 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
   }
 
   /**
-   * Remove cable crossing file link and delete uploaded file.
+   * Remove admirality chart file link and delete uploaded file.
    */
   @Transactional
-  void deleteCableCrossingFilesAndLinkedUploads(Iterable<PadAdmiralityChartFile> filesToBeRemoved,
+  void deleteAdmiralityChartFilesAndLinkedUploads(Iterable<PadAdmiralityChartFile> filesToBeRemoved,
                                                 WebUserAccount user) {
     for (PadAdmiralityChartFile fileToRemove : filesToBeRemoved) {
       var result = fileUploadService.deleteUploadedFile(fileToRemove.getFileId(), user);
@@ -158,7 +158,7 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
    * Delete single uploaded file link.
    */
   @Transactional
-  void deleteCableCrossingFileLink(PadAdmiralityChartFile fileToRemove) {
+  void deleteAdmiralityChartFileLink(PadAdmiralityChartFile fileToRemove) {
     padAdmiralityChartFileRepository.delete(fileToRemove);
   }
 
@@ -168,7 +168,7 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
    */
   @Transactional
   public void updateOrDeleteLinkedFilesUsingForm(PwaApplicationDetail pwaApplicationDetail,
-                                                 CrossingDocumentsForm form,
+                                                 AdmiralityChartDocumentForm form,
                                                  WebUserAccount user) {
     Map<String, UploadFileWithDescriptionForm> uploadedFilesMap = form.getUploadedFileWithDescriptionForms()
         .stream()
@@ -193,14 +193,14 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
     });
 
     padAdmiralityChartFileRepository.saveAll(filesToUpdate);
-    deleteCableCrossingFilesAndLinkedUploads(filesToBeRemoved, user);
+    deleteAdmiralityChartFilesAndLinkedUploads(filesToBeRemoved, user);
   }
 
   /**
    * Get all uploaded files as views where the file exists on form and with description as set on form.
    */
   private List<UploadedFileView> updateFormWithSuppliedUploadedFileViews(
-      CrossingDocumentsForm form,
+      AdmiralityChartDocumentForm form,
       Supplier<List<UploadedFileView>> viewListSupplier
   ) {
     Map<String, UploadFileWithDescriptionForm> formFilesMap = form.getUploadedFileWithDescriptionForms()
@@ -221,30 +221,30 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
   /**
    * Simplify api by providing pass through method to access file service.
    */
-  public List<UploadedFileView> getUpdatedCableCrossingFileViewsWhenFileOnForm(
+  public List<UploadedFileView> getUpdatedAdmiralityChartFileViewsWhenFileOnForm(
       PwaApplicationDetail pwaApplicationDetail,
-      CrossingDocumentsForm form) {
+      AdmiralityChartDocumentForm form) {
 
     return updateFormWithSuppliedUploadedFileViews(
         form,
-        () -> getCableCrossingFileViews(pwaApplicationDetail, ApplicationFileLinkStatus.ALL));
+        () -> getAdmiralityChartFileViews(pwaApplicationDetail, ApplicationFileLinkStatus.ALL));
   }
 
   @Transactional
   public void deleteUploadedFileLink(String fileId, PwaApplicationDetail pwaApplicationDetail) {
-    PadAdmiralityChartFile existingFile = getCableCrossingFile(fileId,
+    PadAdmiralityChartFile existingFile = getAdmiralityChartFile(fileId,
         pwaApplicationDetail);
-    deleteCableCrossingFileLink(existingFile);
+    deleteAdmiralityChartFileLink(existingFile);
   }
 
   /**
-   * Method which creates "temporary" link to application detail cable crossing file
+   * Method which creates "temporary" link to application detail admirality chart file
    * If form left unsaved, we know which files are deletable.
    */
   @Transactional
   public PadAdmiralityChartFile createUploadedFileLink(String uploadedFileId,
                                                      PwaApplicationDetail pwaApplicationDetail) {
-    return createAndSaveCableCrossingFile(
+    return createAndSaveAdmiralityChartFile(
         pwaApplicationDetail,
         uploadedFileId
     );
@@ -252,19 +252,15 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var form = new CrossingDocumentsForm();
+    var form = new AdmiralityChartDocumentForm();
     mapDocumentsToForm(detail, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }
 
-  private boolean requiresFullValidation(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean isUploadRequired(PwaApplicationDetail pwaApplicationDetail) {
     var appType = pwaApplicationDetail.getPwaApplicationType();
-    if (appType.equals(PwaApplicationType.INITIAL) || appType.equals(PwaApplicationType.CAT_1_VARIATION)) {
-      return true;
-    } else {
-      return false;
-    }
+    return appType.equals(PwaApplicationType.INITIAL) || appType.equals(PwaApplicationType.CAT_1_VARIATION);
   }
 
   @Override
@@ -273,13 +269,19 @@ public class AdmiralityChartFileService implements ApplicationFormSectionService
     List<Object> hints = new ArrayList<>();
     if (validationType.equals(ValidationType.FULL)) {
       hints.add(FullValidation.class);
-      if (requiresFullValidation(pwaApplicationDetail)) {
+      if (isUploadRequired(pwaApplicationDetail)) {
         hints.add(MandatoryUploadValidation.class);
       }
     } else {
       hints.add(PartialValidation.class);
     }
     groupValidator.validate(form, bindingResult, hints.toArray());
+
+    if (padAdmiralityChartFileRepository.countAllByPwaApplicationDetail(pwaApplicationDetail) > 1) {
+      bindingResult.rejectValue("uploadedFileWithDescriptionForms",
+          "uploadedFileWithDescriptionForms.exceededMaximumUpload", "You may only upload a single admirality chart");
+    }
+
     return bindingResult;
   }
   

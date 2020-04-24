@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsCo
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -148,6 +149,9 @@ public class TaskListService {
       case LOCATION_DETAILS:
         return ReverseRouter.route(on(LocationDetailsController.class)
             .renderLocationDetails(applicationType, null, null, null), Map.of("applicationId", applicationId));
+      case TECHNICAL_DRAWINGS:
+        return ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(applicationType, applicationId, null, null));
       default:
         return "";
     }

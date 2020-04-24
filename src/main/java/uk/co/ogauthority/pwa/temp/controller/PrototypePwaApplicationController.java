@@ -80,7 +80,7 @@ public class PrototypePwaApplicationController {
         new TaskListEntry("Location details",
             ReverseRouter.route(on(PrototypePwaApplicationController.class).viewLocationDetails(applicationId, null)), false),
         new TaskListEntry("Technical drawings",
-            ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)), false)
+            ReverseRouter.route(on(TechnicalDrawingsTempController.class).viewTechnicalDrawings(applicationId)), false)
     ));
   }
 

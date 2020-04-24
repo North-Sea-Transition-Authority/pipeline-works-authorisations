@@ -6,12 +6,14 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackControll
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 
 /**
  * Enumeration of all app form tasks for the PWA application task list.
@@ -46,7 +48,14 @@ public enum ApplicationTask {
       "Crossing agreements",
       CrossingAgreementsController.class,
       CrossingAgreementsService.class,
-      50);
+      50),
+
+  TECHNICAL_DRAWINGS(
+      "Technical drawings",
+      TechnicalDrawingsController.class,
+      TechnicalDrawingsService.class,
+      60
+  );
 
 
 

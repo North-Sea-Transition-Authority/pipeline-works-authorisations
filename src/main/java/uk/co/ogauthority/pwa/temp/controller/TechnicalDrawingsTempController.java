@@ -23,22 +23,23 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @Controller
 @Scope("request")
 @RequestMapping("/prototype/application/{applicationId}/technical-drawings")
-public class TechnicalDrawingsController {
+public class TechnicalDrawingsTempController {
 
   private PipelineGodObject pipelineGodObject;
   private TechnicalDrawingsGodObject technicalDrawingsGodObject;
   private PrototypeApplicationBreadcrumbService applicationBreadcrumbService;
 
   @Autowired
-  public TechnicalDrawingsController(PipelineGodObject pipelineGodObject,
-                                     TechnicalDrawingsGodObject technicalDrawingsGodObject,
-                                     PrototypeApplicationBreadcrumbService applicationBreadcrumbService) {
+  public TechnicalDrawingsTempController(PipelineGodObject pipelineGodObject,
+                                         TechnicalDrawingsGodObject technicalDrawingsGodObject,
+                                         PrototypeApplicationBreadcrumbService applicationBreadcrumbService) {
     this.pipelineGodObject = pipelineGodObject;
     this.technicalDrawingsGodObject = technicalDrawingsGodObject;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     technicalDrawingsGodObject.setTechnicalDrawingViews(List.of(
         new TechnicalDrawingView(1, "/assets/temp/images/technical_drawing_ex1.png", List.of(), "Detailed example"),
-        new TechnicalDrawingView(2, "/assets/temp/images/technical_drawing_ex2.png", pipelineGodObject.getPipelineViewList(),
+        new TechnicalDrawingView(2, "/assets/temp/images/technical_drawing_ex2.png",
+            pipelineGodObject.getPipelineViewList(),
             "Simple overview")
     ));
   }
@@ -49,7 +50,8 @@ public class TechnicalDrawingsController {
         .addObject("technicalDrawings", technicalDrawingsGodObject.getTechnicalDrawingViews()
             .stream().collect(StreamUtils.toLinkedHashMap(technicalDrawingView -> technicalDrawingView,
                 technicalDrawingView -> technicalDrawingView.getEditRoute(applicationId))))
-        .addObject("backLinkUrl", ReverseRouter.route(on(PrototypePwaApplicationController.class).viewTaskList(applicationId)));
+        .addObject("backLinkUrl",
+            ReverseRouter.route(on(PrototypePwaApplicationController.class).viewTaskList(applicationId)));
     applicationBreadcrumbService.fromTaskList(applicationId, modelAndView, "Technical drawings");
     return modelAndView;
   }
@@ -61,9 +63,12 @@ public class TechnicalDrawingsController {
     var modelAndView = new ModelAndView("pwaApplication/temporary/technicalDrawings/links")
         .addObject("pipelineViews", pipelineGodObject.getPipelineViewList()
             .stream()
-            .collect(StreamUtils.toLinkedHashMap(pipelineView -> String.valueOf(pipelineView.hashCode()), pipelineView -> pipelineView)))
-        .addObject("saveCompleteLaterUrl", ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)));
-    applicationBreadcrumbService.fromTechnicalDrawings(applicationId, modelAndView, getDrawingOrThrow(drawingId).getName());
+            .collect(StreamUtils.toLinkedHashMap(pipelineView -> String.valueOf(pipelineView.hashCode()),
+                pipelineView -> pipelineView)))
+        .addObject("saveCompleteLaterUrl",
+            ReverseRouter.route(on(TechnicalDrawingsTempController.class).viewTechnicalDrawings(applicationId)));
+    applicationBreadcrumbService.fromTechnicalDrawings(applicationId, modelAndView,
+        getDrawingOrThrow(drawingId).getName());
     return modelAndView;
   }
 
@@ -71,7 +76,7 @@ public class TechnicalDrawingsController {
   public ModelAndView postDrawingEdit(@PathVariable("applicationId") Integer applicationId,
                                       @PathVariable("drawingId") Integer drawingId,
                                       @ModelAttribute("form") DrawingLinkForm drawingLinkForm) {
-    return ReverseRouter.redirect(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId));
+    return ReverseRouter.redirect(on(TechnicalDrawingsTempController.class).viewTechnicalDrawings(applicationId));
   }
 
   private TechnicalDrawingView getDrawingOrThrow(Integer id) {

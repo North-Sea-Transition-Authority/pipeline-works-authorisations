@@ -15,6 +15,6 @@ public interface PadAdmiralityChartFileRepository extends CrudRepository<PadAdmi
   Optional<PadAdmiralityChartFile> findByPwaApplicationDetailAndFileId(PwaApplicationDetail pwaApplicationDetail,
                                                                        String fileId);
 
-  int countPadCrossedBlockByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+  int countAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
 }

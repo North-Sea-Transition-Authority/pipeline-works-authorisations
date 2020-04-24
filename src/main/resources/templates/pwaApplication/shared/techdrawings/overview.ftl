@@ -1,19 +1,19 @@
 <#include '../../../layout.ftl'>
 <#import 'admiralityChartManagement.ftl' as admiralityChartManagement>
 
-<#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
-<#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
-<#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
-<#-- @ftlvariable name="blockCrossingDocumentsUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
+<#-- @ftlvariable name="admiralityChartUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiralityChartUrlFactory" -->
+<#-- @ftlvariable name="admiralityChartFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="admiralityOptional" type="java.lang.Boolean" -->
 
+<@defaultPage htmlTitle="Technical drawings" pageHeading="Technical drawings" breadcrumbs=true fullWidthColumn=true>
 
-<@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true fullWidthColumn=true>
+    <@admiralityChartManagement.admiralityChartManagement
+    urlFactory=admiralityChartUrlFactory
+    optionalSection=admiralityOptional
+    cableCrossingFileViews=admiralityChartFileViews />
 
-    <@blockCrossingManagement.blockCrossingManagement
-    blockCrossings=blockCrossings
-    blockCrossingFileViews=blockCrossingFiles
-    urlFactory=blockCrossingUrlFactory
-    isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
+    <@fdsForm.htmlForm>
+        <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+    </@fdsForm.htmlForm>
 
 </@defaultPage>
