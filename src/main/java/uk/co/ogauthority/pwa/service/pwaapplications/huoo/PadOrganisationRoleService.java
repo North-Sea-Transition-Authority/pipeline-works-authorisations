@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -184,26 +185,18 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   }
 
   @VisibleForTesting
-  public Map<HuooRole, Long> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
+  public Map<HuooRole, Integer> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
     var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail);
-    var holderCount = padOrganisationRoleList.stream()
-        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.HOLDER))
-        .count();
-    var userCount = padOrganisationRoleList.stream()
-        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.USER))
-        .count();
-    var operatorCount = padOrganisationRoleList.stream()
-        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.OPERATOR))
-        .count();
-    var ownerCount = padOrganisationRoleList.stream()
-        .filter(padOrganisationRole -> padOrganisationRole.getRoles().contains(HuooRole.OWNER))
-        .count();
-    return Map.of(
-        HuooRole.HOLDER, holderCount,
-        HuooRole.USER, userCount,
-        HuooRole.OPERATOR, operatorCount,
-        HuooRole.OWNER, ownerCount
-    );
+
+    var map = new HashMap<HuooRole, Integer>();
+    HuooRole.stream()
+        .forEach(role -> map.put(role, 0));
+
+    padOrganisationRoleList.stream()
+        .flatMap(padOrganisationRole -> padOrganisationRole.getRoles().stream())
+        .forEach(role -> map.put(role, map.get(role) + 1));
+
+    return map;
   }
 
   @Override
@@ -221,19 +214,19 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     if (validationType == ValidationType.FULL) {
       var roleCountMap = getRoleCountMap(pwaApplicationDetail);
       if (roleCountMap.get(HuooRole.HOLDER) == 0) {
-        bindingResult.reject("holders" + FieldValidationErrorCodes.REQUIRED,
+        bindingResult.reject("holders" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "At least one holder is required");
       }
       if (roleCountMap.get(HuooRole.USER) == 0) {
-        bindingResult.reject("users" + FieldValidationErrorCodes.REQUIRED,
+        bindingResult.reject("users" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "At least one user is required");
       }
       if (roleCountMap.get(HuooRole.OPERATOR) == 0) {
-        bindingResult.reject("operators" + FieldValidationErrorCodes.REQUIRED,
+        bindingResult.reject("operators" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "At least one operator is required");
       }
       if (roleCountMap.get(HuooRole.OWNER) == 0) {
-        bindingResult.reject("owners" + FieldValidationErrorCodes.REQUIRED,
+        bindingResult.reject("owners" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "At least one owner is required");
       }
     }

@@ -331,10 +331,10 @@ public class PadOrganisationRoleServiceTest {
     var result = padOrganisationRoleService.getRoleCountMap(detail);
     assertThat(result).containsExactlyInAnyOrderEntriesOf(
         Map.ofEntries(
-            entry(HuooRole.HOLDER, 1L),
-            entry(HuooRole.USER, 2L),
-            entry(HuooRole.OPERATOR, 3L),
-            entry(HuooRole.OWNER, 0L)
+            entry(HuooRole.HOLDER, 1),
+            entry(HuooRole.USER, 2),
+            entry(HuooRole.OPERATOR, 3),
+            entry(HuooRole.OWNER, 0)
         ));
   }
 

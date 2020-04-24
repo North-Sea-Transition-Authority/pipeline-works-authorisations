@@ -78,8 +78,6 @@ public class TaskListService {
         put("Application contacts",
             ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(application.getApplicationType(), application.getId(), null)));
-        put("Holders, users, operators, and owners", ReverseRouter.route(on(HuooController.class)
-            .renderHuooSummary(application.getApplicationType(), application.getId(), null, null)));
       }
     };
   }
@@ -94,7 +92,9 @@ public class TaskListService {
         .forEachOrdered(task -> checkTaskAndAddToList(tasks, task, detail));
 
     if (tasks.isEmpty()) {
-      tasks.add(new TaskListEntry("No tasks", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()), false));
+      tasks.add(
+          new TaskListEntry("No tasks", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()),
+              false));
     }
 
     return tasks;
@@ -148,6 +148,9 @@ public class TaskListService {
       case LOCATION_DETAILS:
         return ReverseRouter.route(on(LocationDetailsController.class)
             .renderLocationDetails(applicationType, null, null, null), Map.of("applicationId", applicationId));
+      case HUOO:
+        return ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(applicationType, applicationId, null, null));
       default:
         return "";
     }
