@@ -19,12 +19,12 @@ public class AdmiralityChartUrlFactory {
 
   public String getAddDocumentsUrl() {
     return ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
-        .renderEditCableCrossingDocuments(applicationType, applicationId, null, null));
+        .renderEditAdmiralityChartDocuments(applicationType, applicationId, null, null));
   }
 
   public String getDocumentsDownloadUrl() {
     return ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
-        .renderEditCableCrossingDocuments(applicationType, applicationId, null, null));
+        .renderEditAdmiralityChartDocuments(applicationType, applicationId, null, null));
   }
 
 

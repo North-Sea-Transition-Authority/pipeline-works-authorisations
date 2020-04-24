@@ -43,8 +43,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DEPOSIT_CONSENT
+    PwaApplicationType.CAT_2_VARIATION
 })
 public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
@@ -62,7 +61,7 @@ public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUp
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
-  private ModelAndView createCableCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
+  private ModelAndView createAdmiralityChartModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                        AdmiralityChartDocumentForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
@@ -90,18 +89,18 @@ public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUp
   }
 
   @GetMapping
-  public ModelAndView renderEditCableCrossingDocuments(
+  public ModelAndView renderEditAdmiralityChartDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") AdmiralityChartDocumentForm form,
       PwaApplicationContext applicationContext) {
 
     admiralityChartFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
-    return createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    return createAdmiralityChartModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
   @PostMapping
-  public ModelAndView postCableCrossingDocuments(
+  public ModelAndView postAdmiralityChartDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") AdmiralityChartDocumentForm form,
@@ -115,7 +114,7 @@ public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUp
         ValidationType.FULL,
         applicationContext.getApplicationDetail()
     );
-    var modelAndView = createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = createAdmiralityChartModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
       admiralityChartFileService.updateOrDeleteLinkedFilesUsingForm(
