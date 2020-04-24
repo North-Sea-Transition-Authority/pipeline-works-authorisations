@@ -17,8 +17,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -39,13 +39,13 @@ public class ReviewAndSubmitController {
   private static final String PAGE_NAME = "Review and submit";
 
   private final ApplicationBreadcrumbService breadcrumbService;
-  private final PwaApplicationService pwaApplicationService;
+  private final PwaApplicationSubmissionService pwaApplicationSubmissionService;
 
   @Autowired
   public ReviewAndSubmitController(ApplicationBreadcrumbService breadcrumbService,
-                                   PwaApplicationService pwaApplicationService) {
+                                   PwaApplicationSubmissionService pwaApplicationSubmissionService) {
     this.breadcrumbService = breadcrumbService;
-    this.pwaApplicationService = pwaApplicationService;
+    this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
   }
 
 
@@ -68,7 +68,7 @@ public class ReviewAndSubmitController {
       @PathVariable("applicationId") int applicationId,
       PwaApplicationContext applicationContext) {
 
-    pwaApplicationService.submitApplication(applicationContext.getUser(), applicationContext.getApplicationDetail());
+    pwaApplicationSubmissionService.submitApplication(applicationContext.getUser(), applicationContext.getApplicationDetail());
     return ReverseRouter.redirect(
         on(SubmitConfirmationController.class).confirmation(applicationType, applicationId, null));
 

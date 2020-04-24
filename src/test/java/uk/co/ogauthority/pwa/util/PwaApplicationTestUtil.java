@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.util;
 
 import java.time.Instant;
+import java.util.function.Consumer;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -23,6 +24,7 @@ public class PwaApplicationTestUtil {
     detail.setPwaApplication(masterApp);
     detail.setId(appDetailId);
     detail.setStatus(pwaApplicationStatus);
+    detail.setTipFlag(true);
 
     return detail;
 
@@ -34,5 +36,13 @@ public class PwaApplicationTestUtil {
 
    return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, 20, 30);
 
+  }
+
+  public static void tryAssertionWithStatus(PwaApplicationStatus status, Consumer<PwaApplicationStatus> tryBlock){
+    try{
+      tryBlock.accept(status);
+    } catch(AssertionError e){
+      throw new AssertionError("Failed assertion with status:" + status + "\n" + e.getMessage(), e);
+    }
   }
 }

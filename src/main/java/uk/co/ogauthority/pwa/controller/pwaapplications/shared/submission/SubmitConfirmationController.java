@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.summary.ApplicationSummaryFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -30,28 +29,25 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.HUOO_VARIATION
 })
-@PwaApplicationStatusCheck(status = PwaApplicationStatus.SUBMITTED)
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
 public class SubmitConfirmationController {
 
-  private final PwaApplicationService pwaApplicationService;
   private final ApplicationSummaryFactory applicationSummaryFactory;
 
   @Autowired
-  public SubmitConfirmationController(PwaApplicationService pwaApplicationService,
-                                      ApplicationSummaryFactory applicationSummaryFactory) {
-
-    this.pwaApplicationService = pwaApplicationService;
+  public SubmitConfirmationController(ApplicationSummaryFactory applicationSummaryFactory) {
     this.applicationSummaryFactory = applicationSummaryFactory;
   }
 
 
   @GetMapping
-  public ModelAndView confirmation(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") int applicationId,
-      PwaApplicationContext applicationContext) {
+  public ModelAndView confirmation(@PathVariable("applicationType")
+                                   @ApplicationTypeUrl PwaApplicationType applicationType,
+                                   @PathVariable("applicationId") int applicationId,
+                                   PwaApplicationContext applicationContext) {
 
-    var submissionSummary = applicationSummaryFactory.createSubmissionSummary(applicationContext.getApplicationDetail());
+    var submissionSummary = applicationSummaryFactory.createSubmissionSummary(
+        applicationContext.getApplicationDetail());
     var modelAndView = new ModelAndView("pwaApplication/shared/submission/submitConfirmation")
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
         .addObject("submissionSummary", submissionSummary);

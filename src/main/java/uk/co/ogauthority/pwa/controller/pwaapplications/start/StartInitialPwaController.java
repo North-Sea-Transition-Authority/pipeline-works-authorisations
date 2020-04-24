@@ -13,18 +13,18 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.initial.PwaHolderControl
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.util.ApplicationTypeUtils;
 
 @Controller
 @RequestMapping("/pwa-application/initial/new")
 public class StartInitialPwaController {
 
-  private final PwaApplicationService pwaApplicationService;
+  private final PwaApplicationCreationService pwaApplicationCreationService;
 
   @Autowired
-  public StartInitialPwaController(PwaApplicationService pwaApplicationService) {
-    this.pwaApplicationService = pwaApplicationService;
+  public StartInitialPwaController(PwaApplicationCreationService pwaApplicationCreationService) {
+    this.pwaApplicationCreationService = pwaApplicationCreationService;
   }
 
   /**
@@ -42,7 +42,7 @@ public class StartInitialPwaController {
    */
   @PostMapping
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user) {
-    PwaApplication pwaApplication = pwaApplicationService.createInitialPwaApplication(user);
+    PwaApplication pwaApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
     return ReverseRouter.redirect(on(PwaHolderController.class)
         .renderHolderScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null, null));
   }
