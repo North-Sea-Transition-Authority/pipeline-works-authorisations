@@ -32,12 +32,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/median-line-documents")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/cable-crossing-documents")
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
@@ -46,62 +46,62 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DEPOSIT_CONSENT
 })
-public class MedianLineDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
+public class CableCrossingDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final PwaApplicationFileService applicationFileService;
-  private final MedianLineCrossingFileService medianLineCrossingFileService;
+  private final CableCrossingFileService cableCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @Autowired
-  public MedianLineDocumentsController(
+  public CableCrossingDocumentsController(
       PwaApplicationFileService applicationFileService,
-      MedianLineCrossingFileService medianLineCrossingFileService,
+      CableCrossingFileService cableCrossingFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService) {
     this.applicationFileService = applicationFileService;
-    this.medianLineCrossingFileService = medianLineCrossingFileService;
+    this.cableCrossingFileService = cableCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
-  private ModelAndView createMedianLineCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                            CrossingDocumentsForm form) {
+  private ModelAndView createCableCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                       CrossingDocumentsForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(MedianLineDocumentsController.class)
+        ReverseRouter.route(on(CableCrossingDocumentsController.class)
             .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(MedianLineDocumentsController.class)
+        ReverseRouter.route(on(CableCrossingDocumentsController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(MedianLineDocumentsController.class)
+        ReverseRouter.route(on(CableCrossingDocumentsController.class)
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
         // only load fully linked (saved) files
-        medianLineCrossingFileService.getUpdatedMedianLineCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+        cableCrossingFileService.getUpdatedCableCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
     );
 
-    modelAndView.addObject("pageTitle", "Median line agreement documents")
+    modelAndView.addObject("pageTitle", "Cable crossing agreement documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Median line agreement documents");
+        "Cable crossing agreement documents");
     return modelAndView;
   }
 
   @GetMapping
-  public ModelAndView renderEditMedianLineCrossingDocuments(
+  public ModelAndView renderEditCableCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") CrossingDocumentsForm form,
       PwaApplicationContext applicationContext) {
 
-    medianLineCrossingFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
-    return createMedianLineCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    cableCrossingFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
+    return createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
   @PostMapping
-  public ModelAndView postMedianLineCrossingDocuments(
+  public ModelAndView postCableCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") CrossingDocumentsForm form,
@@ -109,16 +109,16 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    medianLineCrossingFileService.validate(
+    cableCrossingFileService.validate(
         form,
         bindingResult,
         ValidationType.FULL,
         applicationContext.getApplicationDetail()
     );
-    var modelAndView = createMedianLineCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      medianLineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
+      cableCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
           applicationContext.getApplicationDetail(),
           form,
           applicationContext.getUser());
@@ -135,9 +135,9 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    var medianLineCrossingFile = medianLineCrossingFileService.getMedianLineCrossingFile(fileId,
+    var cableCrossingFile = cableCrossingFileService.getCableCrossingFile(fileId,
         applicationContext.getApplicationDetail());
-    return serveFile(applicationFileService.getUploadedFile(medianLineCrossingFile));
+    return serveFile(applicationFileService.getUploadedFile(cableCrossingFile));
   }
 
   @PostMapping("/files/upload")
@@ -153,7 +153,7 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
         file,
         applicationContext.getUser(),
         applicationContext.getApplicationDetail(),
-        medianLineCrossingFileService::createUploadedFileLink
+        cableCrossingFileService::createUploadedFileLink
     );
   }
 
@@ -168,7 +168,7 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
         fileId,
         applicationContext.getApplicationDetail(),
         applicationContext.getUser(),
-        medianLineCrossingFileService::deleteUploadedFileLink
+        cableCrossingFileService::deleteUploadedFileLink
     );
   }
 }

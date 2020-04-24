@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.Crossed
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadBlockCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.BlockCrossingDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadBlockCrossingFileRepository;
@@ -59,7 +59,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
     this.groupValidator = groupValidator;
   }
 
-  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, BlockCrossingDocumentsForm form) {
+  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, CrossingDocumentsForm form) {
     var fileFormViewList = getUploadedFileListAsFormList(pwaApplicationDetail, ApplicationFileLinkStatus.FULL);
     form.setUploadedFileWithDescriptionForms(fileFormViewList);
   }
@@ -134,7 +134,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
    */
   @Transactional
   public void updateOrDeleteLinkedFilesUsingForm(PwaApplicationDetail pwaApplicationDetail,
-                                                 BlockCrossingDocumentsForm form,
+                                                 CrossingDocumentsForm form,
                                                  WebUserAccount user) {
     Map<String, UploadFileWithDescriptionForm> uploadedFilesMap = form.getUploadedFileWithDescriptionForms()
         .stream()
@@ -168,7 +168,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
    * Get all uploaded files as views where the file exists on form and with description as set on form.
    */
   private List<UploadedFileView> updateFormWithSuppliedUploadedFileViews(
-      BlockCrossingDocumentsForm form,
+      CrossingDocumentsForm form,
       Supplier<List<UploadedFileView>> viewListSupplier
   ) {
     Map<String, UploadFileWithDescriptionForm> formFilesMap = form.getUploadedFileWithDescriptionForms()
@@ -246,7 +246,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
    */
   public List<UploadedFileView> getUpdatedBlockCrossingFileViewsWhenFileOnForm(
       PwaApplicationDetail pwaApplicationDetail,
-      BlockCrossingDocumentsForm form) {
+      CrossingDocumentsForm form) {
 
     return updateFormWithSuppliedUploadedFileViews(
         form,
@@ -277,7 +277,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var form = new BlockCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     mapDocumentsToForm(detail, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();

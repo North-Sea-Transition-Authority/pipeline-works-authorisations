@@ -144,7 +144,7 @@ public class TaskListService {
             .renderEnvDecom(applicationType, null, null, null), uriVariables);
       case CROSSING_AGREEMENTS:
         return ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(applicationType, null, null), Map.of("applicationId", applicationId));
+            .renderCrossingAgreementsOverview(applicationType, applicationId, null, null));
       case LOCATION_DETAILS:
         return ReverseRouter.route(on(LocationDetailsController.class)
             .renderLocationDetails(applicationType, null, null, null), Map.of("applicationId", applicationId));

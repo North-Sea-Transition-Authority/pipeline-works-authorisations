@@ -388,4 +388,33 @@ public class BlockCrossingServiceTest {
 
   }
 
+  @Test
+  public void getCrossedBlockView_Valid() {
+    padCrossedBlock.setBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    padCrossedBlock.setId(1);
+    var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
+    when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(padCrossedBlock));
+
+    when(padCrossedBlockOwnerRepository.findByPadCrossedBlockIn(eq(List.of(padCrossedBlock))))
+        .thenReturn(List.of(owner));
+
+    var result = blockCrossingService.getCrossedBlockView(pwaApplicationDetail, 1);
+    assertThat(result.getId()).isEqualTo(1);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getCrossedBlockView_Invalid() {
+    padCrossedBlock.setBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    padCrossedBlock.setId(1);
+    var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
+    when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(padCrossedBlock));
+
+    when(padCrossedBlockOwnerRepository.findByPadCrossedBlockIn(eq(List.of(padCrossedBlock))))
+        .thenReturn(List.of(owner));
+
+    blockCrossingService.getCrossedBlockView(pwaApplicationDetail, 2);
+  }
+
 }

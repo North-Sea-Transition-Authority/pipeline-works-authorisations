@@ -15,18 +15,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineDocumentsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingDocumentsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadMedianLineCrossingFile;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineCrossingFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -35,19 +36,22 @@ import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
-public class MedianLineCrossingFileService implements ApplicationFormSectionService {
+public class CableCrossingFileService implements ApplicationFormSectionService {
 
-  private final PadMedianLineCrossingFileRepository padMedianLineCrossingFileRepository;
+  private final PadCableCrossingFileRepository padCableCrossingFileRepository;
+  private final PadCableCrossingRepository padCableCrossingRepository;
   private final FileUploadService fileUploadService;
   private final EntityManager entityManager;
   private final SpringValidatorAdapter groupValidator;
 
   @Autowired
-  public MedianLineCrossingFileService(
-      PadMedianLineCrossingFileRepository padMedianLineCrossingFileRepository,
+  public CableCrossingFileService(
+      PadCableCrossingFileRepository padCableCrossingFileRepository,
+      PadCableCrossingRepository padCableCrossingRepository,
       FileUploadService fileUploadService, EntityManager entityManager,
       SpringValidatorAdapter groupValidator) {
-    this.padMedianLineCrossingFileRepository = padMedianLineCrossingFileRepository;
+    this.padCableCrossingFileRepository = padCableCrossingFileRepository;
+    this.padCableCrossingRepository = padCableCrossingRepository;
     this.fileUploadService = fileUploadService;
     this.entityManager = entityManager;
     this.groupValidator = groupValidator;
@@ -59,10 +63,10 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
   }
 
   /**
-   * Return linked median line crossing file if it exists for application detail else throw not found exception.
+   * Return linked cable crossing file if it exists for application detail else throw not found exception.
    */
-  public PadMedianLineCrossingFile getMedianLineCrossingFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
-    return padMedianLineCrossingFileRepository.findByPwaApplicationDetailAndFileId(
+  public PadCableCrossingFile getCableCrossingFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
+    return padCableCrossingFileRepository.findByPwaApplicationDetailAndFileId(
         pwaApplicationDetail,
         fileId
     ).orElseThrow(() -> new PwaEntityNotFoundException(String.format(
@@ -74,21 +78,21 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
   }
 
   /**
-   * Gets linked median line crossing files as uploaded file forms.
+   * Gets linked cable crossing files as uploaded file forms.
    */
   private List<UploadFileWithDescriptionForm> getUploadedFileListAsFormList(PwaApplicationDetail pwaApplicationDetail,
                                                                             ApplicationFileLinkStatus applicationFileLinkStatus) {
-    return getMedianLineCrossingFileViews(pwaApplicationDetail, applicationFileLinkStatus)
+    return getCableCrossingFileViews(pwaApplicationDetail, applicationFileLinkStatus)
         .stream()
         .map(fileUploadService::createUploadFileWithDescriptionFormFromView)
         .collect(Collectors.toList());
   }
 
   /**
-   * Get median line crossing files with requested link status as standard uploaded file views.
+   * Get cable crossing files with requested link status as standard uploaded file views.
    */
-  public List<UploadedFileView> getMedianLineCrossingFileViews(PwaApplicationDetail pwaApplicationDetail,
-                                                               ApplicationFileLinkStatus fileLinkStatus) {
+  public List<UploadedFileView> getCableCrossingFileViews(PwaApplicationDetail pwaApplicationDetail,
+                                                          ApplicationFileLinkStatus fileLinkStatus) {
 
     var fileViews = entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.form.files.UploadedFileView(" +
@@ -99,7 +103,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
             ", uf.uploadDatetime" +
             ", '#' " + //link updated after construction as requires reverse router
             ") " +
-            "FROM PadMedianLineCrossingFile pmlcf " +
+            "FROM PadCableCrossingFile pmlcf " +
             "JOIN UploadedFile uf ON pmlcf.fileId = uf.fileId " +
             "WHERE uf.status = :fileStatus " +
             "AND pmlcf.pwaApplicationDetail = :pwaAppDetail " +
@@ -111,7 +115,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
         .getResultList();
 
     fileViews.forEach(
-        ufv -> ufv.setFileUrl(ReverseRouter.route(on(MedianLineDocumentsController.class).handleDownload(
+        ufv -> ufv.setFileUrl(ReverseRouter.route(on(CableCrossingDocumentsController.class).handleDownload(
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
             ufv.getFileId(),
@@ -124,41 +128,41 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
   }
 
   /**
-   * Create and persist a new median line crossing file linked to app detail and uploaded file id.
+   * Create and persist a new cable crossing file linked to app detail and uploaded file id.
    */
-  private PadMedianLineCrossingFile createAndSaveMedianLineCrossingFile(PwaApplicationDetail pwaApplicationDetail,
-                                                                        String uploadedFileId) {
-    var newFileLink = new PadMedianLineCrossingFile(
+  private PadCableCrossingFile createAndSaveCableCrossingFile(PwaApplicationDetail pwaApplicationDetail,
+                                                              String uploadedFileId) {
+    var newFileLink = new PadCableCrossingFile(
         pwaApplicationDetail,
         uploadedFileId,
         null,
         ApplicationFileLinkStatus.TEMPORARY
     );
 
-    return padMedianLineCrossingFileRepository.save(newFileLink);
+    return padCableCrossingFileRepository.save(newFileLink);
   }
 
   /**
-   * Remove median line crossing file link and delete uploaded file.
+   * Remove cable crossing file link and delete uploaded file.
    */
   @Transactional
-  void deleteMedianLineCrossingFilesAndLinkedUploads(Iterable<PadMedianLineCrossingFile> filesToBeRemoved,
-                                                     WebUserAccount user) {
-    for (PadMedianLineCrossingFile fileToRemove : filesToBeRemoved) {
+  void deleteCableCrossingFilesAndLinkedUploads(Iterable<PadCableCrossingFile> filesToBeRemoved,
+                                                WebUserAccount user) {
+    for (PadCableCrossingFile fileToRemove : filesToBeRemoved) {
       var result = fileUploadService.deleteUploadedFile(fileToRemove.getFileId(), user);
       if (!result.isValid()) {
         throw new RuntimeException("Could not delete uploaded file with Id:" + fileToRemove.getFileId());
       }
     }
-    padMedianLineCrossingFileRepository.deleteAll(filesToBeRemoved);
+    padCableCrossingFileRepository.deleteAll(filesToBeRemoved);
   }
 
   /**
    * Delete single uploaded file link.
    */
   @Transactional
-  void deleteMedianLineCrossingFileLink(PadMedianLineCrossingFile fileToRemove) {
-    padMedianLineCrossingFileRepository.delete(fileToRemove);
+  void deleteCableCrossingFileLink(PadCableCrossingFile fileToRemove) {
+    padCableCrossingFileRepository.delete(fileToRemove);
   }
 
   /**
@@ -173,9 +177,9 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
         .stream()
         .collect(Collectors.toMap(UploadFileWithDescriptionForm::getUploadedFileId, f -> f));
 
-    var existingLinkedFiles = padMedianLineCrossingFileRepository.findAllByPwaApplicationDetail(pwaApplicationDetail);
-    var filesToBeRemoved = new HashSet<PadMedianLineCrossingFile>();
-    var filesToUpdate = new HashSet<PadMedianLineCrossingFile>();
+    var existingLinkedFiles = padCableCrossingFileRepository.findAllByPwaApplicationDetail(pwaApplicationDetail);
+    var filesToBeRemoved = new HashSet<PadCableCrossingFile>();
+    var filesToUpdate = new HashSet<PadCableCrossingFile>();
 
     // if file in uploaded set, update description and add to Save set
     // else file can be deleted so add to remove set
@@ -191,8 +195,8 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
 
     });
 
-    padMedianLineCrossingFileRepository.saveAll(filesToUpdate);
-    deleteMedianLineCrossingFilesAndLinkedUploads(filesToBeRemoved, user);
+    padCableCrossingFileRepository.saveAll(filesToUpdate);
+    deleteCableCrossingFilesAndLinkedUploads(filesToBeRemoved, user);
   }
 
   /**
@@ -220,38 +224,33 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
   /**
    * Simplify api by providing pass through method to access file service.
    */
-  public List<UploadedFileView> getUpdatedMedianLineCrossingFileViewsWhenFileOnForm(
+  public List<UploadedFileView> getUpdatedCableCrossingFileViewsWhenFileOnForm(
       PwaApplicationDetail pwaApplicationDetail,
       CrossingDocumentsForm form) {
 
     return updateFormWithSuppliedUploadedFileViews(
         form,
-        () -> getMedianLineCrossingFileViews(pwaApplicationDetail, ApplicationFileLinkStatus.ALL));
+        () -> getCableCrossingFileViews(pwaApplicationDetail, ApplicationFileLinkStatus.ALL));
   }
 
   @Transactional
   public void deleteUploadedFileLink(String fileId, PwaApplicationDetail pwaApplicationDetail) {
-    PadMedianLineCrossingFile existingFile = getMedianLineCrossingFile(fileId,
+    var existingFile = getCableCrossingFile(fileId,
         pwaApplicationDetail);
-    deleteMedianLineCrossingFileLink(existingFile);
+    deleteCableCrossingFileLink(existingFile);
   }
 
   /**
-   * Method which creates "temporary" link to application detail median line crossing file
+   * Method which creates "temporary" link to application detail cable crossing file
    * If form left unsaved, we know which files are deletable.
    */
   @Transactional
-  public PadMedianLineCrossingFile createUploadedFileLink(String uploadedFileId,
-                                                          PwaApplicationDetail pwaApplicationDetail) {
-    return createAndSaveMedianLineCrossingFile(
+  public PadCableCrossingFile createUploadedFileLink(String uploadedFileId,
+                                                     PwaApplicationDetail pwaApplicationDetail) {
+    return createAndSaveCableCrossingFile(
         pwaApplicationDetail,
         uploadedFileId
     );
-  }
-
-  public Integer getFullFileCount(PwaApplicationDetail pwaApplicationDetail) {
-    return padMedianLineCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail,
-        ApplicationFileLinkStatus.FULL);
   }
 
   @Override
@@ -262,8 +261,8 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }
 
-  public boolean requiresFullValidation(PwaApplicationDetail pwaApplicationDetail) {
-    return getFullFileCount(pwaApplicationDetail) > 0;
+  private boolean requiresFullValidation(PwaApplicationDetail pwaApplicationDetail) {
+    return padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail) > 0;
   }
 
   @Override

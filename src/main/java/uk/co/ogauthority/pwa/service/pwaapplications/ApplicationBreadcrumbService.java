@@ -31,7 +31,7 @@ public class ApplicationBreadcrumbService {
   public void fromCrossings(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(CrossingAgreementsController.class)
-        .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), null, null)),
+        .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
         "Crossings");
     addAttrs(modelAndView, map, thisPage);
   }

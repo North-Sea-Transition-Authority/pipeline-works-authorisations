@@ -13,12 +13,15 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final BlockCrossingFileService blockCrossingFileService;
+  private final PadCableCrossingService padCableCrossingService;
 
   @Autowired
   public CrossingAgreementsService(PadMedianLineAgreementService padMedianLineAgreementService,
-                                   BlockCrossingFileService blockCrossingFileService) {
+                                   BlockCrossingFileService blockCrossingFileService,
+                                   PadCableCrossingService padCableCrossingService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingFileService = blockCrossingFileService;
+    this.padCableCrossingService = padCableCrossingService;
   }
 
   public CrossingAgreementsValidationResult getValidationResult(PwaApplicationDetail detail) {
@@ -30,6 +33,10 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
 
     if (blockCrossingFileService.isComplete(detail)) {
       validSections.add(CrossingAgreementsSection.BLOCK_CROSSINGS);
+    }
+
+    if (padCableCrossingService.isComplete(detail)) {
+      validSections.add(CrossingAgreementsSection.CABLE_CROSSINGS);
     }
 
     return new CrossingAgreementsValidationResult(validSections);
