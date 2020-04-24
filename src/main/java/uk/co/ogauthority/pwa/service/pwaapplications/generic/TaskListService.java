@@ -180,7 +180,7 @@ public class TaskListService {
 
   private TaskListEntry getSubmissionTask(PwaApplicationDetail detail) {
     return new TaskListEntry(
-        "Submit application",
+        "Review and submit application",
         ReverseRouter.route(on(ReviewAndSubmitController.class)
             .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null)),
         false
