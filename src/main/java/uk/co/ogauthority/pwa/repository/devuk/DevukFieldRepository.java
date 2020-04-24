@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 public interface DevukFieldRepository extends CrudRepository<DevukField, Integer> {
 
   List<DevukField> findAllByOrganisationUnitAndStatusIn(PortalOrganisationUnit organisationUnit, List<Integer> statusCodes);
+
   List<DevukField> findAllByStatusIn(List<Integer> statusCodes);
 
 }

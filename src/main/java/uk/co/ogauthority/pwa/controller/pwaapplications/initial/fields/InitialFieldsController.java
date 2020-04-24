@@ -103,8 +103,8 @@ public class InitialFieldsController {
       if (fields.get(0).isLinkedToDevuk()) {
         form.setFieldId(fields.get(0).getDevukField().getFieldId());
       }
-    } else if(fields.size() == 0){
-        form.setNoLinkedFieldDescription(applicationContext.getApplicationDetail().getNotLinkedDescription());
+    } else if (fields.size() == 0) {
+      form.setNoLinkedFieldDescription(applicationContext.getApplicationDetail().getNotLinkedDescription());
     }
 
     return modelAndView;
