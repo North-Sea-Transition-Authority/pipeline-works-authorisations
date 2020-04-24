@@ -29,8 +29,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DEPOSIT_CONSENT
+    PwaApplicationType.CAT_2_VARIATION
 })
 public class TechnicalDrawingsController {
 

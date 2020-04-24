@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -52,6 +53,9 @@ public class TaskCompletionServiceTest {
   @MockBean
   private PadLocationDetailsService padLocationDetailsService;
 
+  @MockBean
+  private TechnicalDrawingsService technicalDrawingsService;
+
   @Test
   public void isTaskComplete() {
 
@@ -77,6 +81,9 @@ public class TaskCompletionServiceTest {
           break;
         case LOCATION_DETAILS:
           service = padLocationDetailsService;
+          break;
+        case TECHNICAL_DRAWINGS:
+          service = technicalDrawingsService;
           break;
         default:
           throw new AssertionError();
