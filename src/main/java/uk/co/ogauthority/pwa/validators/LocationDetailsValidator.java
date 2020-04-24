@@ -61,7 +61,7 @@ public class LocationDetailsValidator implements Validator {
           "Select yes if a pipeline route survey has been undertaken");
     } else {
       if (BooleanUtils.isTrue(form.getRouteSurveyUndertaken())) {
-        ValidatorUtils.validateDate(
+        ValidatorUtils.validateDateIsPastOrPresent(
             "surveyConcluded", "survey concluded",
             form.getSurveyConcludedDay(),
             form.getSurveyConcludedMonth(),
