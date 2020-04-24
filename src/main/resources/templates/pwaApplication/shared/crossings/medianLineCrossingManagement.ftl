@@ -36,11 +36,14 @@
         <@fdsAction.link linkText="Provide median line agreement information" linkUrl=springUrl(urlFactory.getAddMedianLineCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
     </#if>
   <h3 class="govuk-heading-m">Median line agreement documents</h3>
-    <@fdsAction.link linkText="Add, edit or remove median line agreement documents" linkUrl=springUrl(urlFactory.getMedianLineCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     <#if medianLineFileViews?has_content>
+        <@fdsAction.link linkText="Add, edit or remove median line agreement documents" linkUrl=springUrl(urlFactory.getMedianLineCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
         <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=medianLineFileViews/>
     <#else>
-      <p class="govuk-body">No median line crossing agreement documents have been added to this application</p>
+        <@fdsInsetText.insetText>
+          No median line crossing agreement documents have been added to this application.
+        </@fdsInsetText.insetText>
+        <@fdsAction.link linkText="Add, edit or remove median line agreement documents" linkUrl=springUrl(urlFactory.getMedianLineCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>
 
 </#macro>
