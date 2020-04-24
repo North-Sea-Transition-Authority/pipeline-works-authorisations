@@ -7,10 +7,6 @@
 
 <@defaultPage htmlTitle="Holders, users, operators, and owners" pageHeading="Holders, users, operators, and owners" fullWidthColumn=true breadcrumbs=true>
 
-  <#if errorList?has_content>
-      <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
-  </#if>
-
   <@fdsAction.link linkText="Add holder, user, operator or owner" linkUrl=springUrl(addHuooUrl) linkClass="govuk-link govuk-link--button govuk-button govuk-button--blue" role=true/>
 
   <#if huooOrgs?has_content>
@@ -76,6 +72,6 @@
     </table>
   </#if>
     <@fdsForm.htmlForm>
-      <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+      <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

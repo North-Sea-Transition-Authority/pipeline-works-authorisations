@@ -24,7 +24,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -87,16 +86,19 @@ public class HuooController {
 
   @PostMapping
   public ModelAndView postHuooSummary(@PathVariable("applicationType")
-                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                        @PathVariable("applicationId") Integer applicationId,
-                                        PwaApplicationContext applicationContext,
-                                        @ModelAttribute("form") SummaryForm form,
-                                        BindingResult bindingResult,
-                                        AuthenticatedUserAccount user) {
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      @PathVariable("applicationId") Integer applicationId,
+                                      PwaApplicationContext applicationContext,
+                                      @ModelAttribute("form") SummaryForm form,
+                                      BindingResult bindingResult,
+                                      AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
     bindingResult = padOrganisationRoleService.validate(form, bindingResult, ValidationType.FULL, detail);
-    return ControllerUtils.checkSummaryErrorsAndRedirect(bindingResult, getHuooModelAndView(detail), () ->
-      pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication()));
+    if (bindingResult.hasErrors()) {
+      return getHuooModelAndView(detail)
+          .addObject("errorMessage", "You must have at least one holder, user, operator, and owner");
+    }
+    return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
   }
 
 
