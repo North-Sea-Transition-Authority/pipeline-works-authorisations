@@ -129,7 +129,8 @@ public class InitialFieldsController {
           if (isLinkedtoField) {
             fieldList.add(devukFieldService.findById(form.getFieldId()));
           } else {
-              applicationContext.getApplicationDetail().setNotLinkedDescription(form.getNoLinkedFieldDescription());
+              pwaApplicationDetailService.setNotLinkedFieldDescription(
+                      applicationContext.getApplicationDetail(), form.getNoLinkedFieldDescription());
           }
           padFieldService.setFields(applicationContext.getApplicationDetail(), fieldList);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));

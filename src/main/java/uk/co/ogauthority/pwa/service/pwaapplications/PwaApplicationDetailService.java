@@ -72,5 +72,13 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
-
+  /**
+   * Set the description for what the PWA is in relation to, in the application details.
+   *
+   * @param pwaApplicationDetail     The current application detail.
+   * @param noLinkedFieldDescription Description for what PWA is in relation to.
+   */
+  public void setNotLinkedFieldDescription(PwaApplicationDetail pwaApplicationDetail, String noLinkedFieldDescription) {
+    pwaApplicationDetail.setNotLinkedDescription(noLinkedFieldDescription);
+  }
 }
