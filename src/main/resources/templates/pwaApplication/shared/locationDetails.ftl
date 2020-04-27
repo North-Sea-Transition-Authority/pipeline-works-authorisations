@@ -15,7 +15,8 @@
             <#list safetyZoneOptions as name, value>
                 <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name:value} isFirstItem=firstItem>
                     <#if name == "YES">
-                        <@fdsSelect.select path="form.facilitiesIfYes" options=facilityOptions labelText="Which structures are within 500m?" hintText="DEVUK facility or other structure" nestingPath="form.withinSafetyZone"/>
+                            <@fdsSearchSelector.searchSelectorRest path="form.facilitiesIfYes" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.withinSafetyZone" />
+<#--                        <@fdsSelect.select path="form.facilitiesIfYes" options=facilityOptions labelText="Which structures are within 500m?" hintText="DEVUK facility or other structure" nestingPath="form.withinSafetyZone"/>-->
                     <#elseif name == "PARTIALLY">
                         <@fdsSelect.select path="form.facilitiesIfPartially" options=facilityOptions labelText="Which structures are within 500m?" hintText="DEVUK facility or other structure" nestingPath="form.withinSafetyZone"/>
                     </#if>

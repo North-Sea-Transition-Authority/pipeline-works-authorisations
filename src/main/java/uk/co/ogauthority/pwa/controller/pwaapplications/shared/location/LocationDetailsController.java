@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
+package uk.co.ogauthority.pwa.controller.pwaapplications.shared.location;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -20,6 +20,9 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -107,11 +110,13 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
 
     var facilities = devukFacilityService.getFacilities();
     modelAndView.addObject("safetyZoneOptions", HseSafetyZone.stream()
-            .sorted()
-            .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText)))
+        .sorted()
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText)))
         .addObject("facilityOptions", facilities.stream()
             .collect(
-                StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)));
+                StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
+        .addObject("facilityRestUrl",
+            ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities(null)));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
   }
