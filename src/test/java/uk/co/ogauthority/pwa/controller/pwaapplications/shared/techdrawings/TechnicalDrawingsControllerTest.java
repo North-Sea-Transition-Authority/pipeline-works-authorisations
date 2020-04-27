@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiralityChartFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
@@ -56,7 +56,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   private TechnicalDrawingsService technicalDrawingsService;
 
   @MockBean
-  private AdmiralityChartFileService admiralityChartFileService;
+  private AdmiraltyChartFileService admiraltyChartFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1),

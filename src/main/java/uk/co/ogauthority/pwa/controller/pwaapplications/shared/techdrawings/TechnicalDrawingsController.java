@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiralityChartFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiralityChartUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -40,28 +40,28 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class TechnicalDrawingsController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final AdmiralityChartFileService admiralityChartFileService;
+  private final AdmiraltyChartFileService admiraltyChartFileService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final TechnicalDrawingsService technicalDrawingsService;
 
   @Autowired
   public TechnicalDrawingsController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      AdmiralityChartFileService admiralityChartFileService,
+      AdmiraltyChartFileService admiraltyChartFileService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
       TechnicalDrawingsService technicalDrawingsService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.admiralityChartFileService = admiralityChartFileService;
+    this.admiraltyChartFileService = admiraltyChartFileService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.technicalDrawingsService = technicalDrawingsService;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/overview")
-        .addObject("admiralityChartFileViews",
-            admiralityChartFileService.getAdmiralityChartFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("admiralityOptional", !admiralityChartFileService.isUploadRequired(detail))
-        .addObject("admiralityChartUrlFactory", new AdmiralityChartUrlFactory(detail))
+        .addObject("admiraltyChartFileViews",
+            admiraltyChartFileService.getAdmiraltyChartFileViews(detail, ApplicationFileLinkStatus.FULL))
+        .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
+        .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Technical drawings");
     return modelAndView;
@@ -88,7 +88,7 @@ public class TechnicalDrawingsController {
     bindingResult = technicalDrawingsService.validate(form, bindingResult, ValidationType.FULL, detail);
     if (bindingResult.hasErrors()) {
       return getOverviewModelAndView(detail)
-          .addObject("errorMessage", "The admirality chart section is invalid");
+          .addObject("errorMessage", "The admiralty chart section is invalid");
     }
     return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
   }

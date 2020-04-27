@@ -14,8 +14,8 @@ import uk.co.ogauthority.pwa.model.entity.files.PwaApplicationFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Entity
-@Table(name = "pad_admirality_chart_files")
-public class PadAdmiralityChartFile implements PwaApplicationFile {
+@Table(name = "pad_admiralty_chart_files")
+public class PadAdmiraltyChartFile implements PwaApplicationFile {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,10 +32,10 @@ public class PadAdmiralityChartFile implements PwaApplicationFile {
   @Enumerated(EnumType.STRING)
   private ApplicationFileLinkStatus fileLinkStatus;
 
-  public PadAdmiralityChartFile() {
+  public PadAdmiraltyChartFile() {
   }
 
-  public PadAdmiralityChartFile(
+  public PadAdmiraltyChartFile(
       PwaApplicationDetail pwaApplicationDetail, String fileId, String description, ApplicationFileLinkStatus applicationFileLinkStatus) {
     this.pwaApplicationDetail = pwaApplicationDetail;
     this.fileId = fileId;

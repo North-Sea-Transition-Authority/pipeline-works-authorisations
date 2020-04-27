@@ -28,16 +28,16 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiralityChartFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(
-    controllers = AdmiralityChartDocumentsController.class,
+    controllers = AdmiraltyChartDocumentsController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class AdmiralityChartDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+public class AdmiraltyChartDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
 
@@ -45,7 +45,7 @@ public class AdmiralityChartDocumentsControllerTest extends PwaApplicationContex
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private AdmiralityChartFileService admiralityChartFileService;
+  private AdmiraltyChartFileService admiraltyChartFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -56,7 +56,7 @@ public class AdmiralityChartDocumentsControllerTest extends PwaApplicationContex
 
   @Before
   public void setup() {
-    doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
+    doCallRealMethod().when(applicationBreadcrumbService).fromTechnicalDrawings(any(), any(), any());
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(
@@ -77,8 +77,8 @@ public class AdmiralityChartDocumentsControllerTest extends PwaApplicationContex
   public void renderEditCableCrossingDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
-                .renderEditAdmiralityChartDocuments(
+            ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
+                .renderEditAdmiraltyChartDocuments(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     null,
@@ -95,8 +95,8 @@ public class AdmiralityChartDocumentsControllerTest extends PwaApplicationContex
   public void renderEditCableCrossingDocuments_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
-                .renderEditAdmiralityChartDocuments(
+            ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
+                .renderEditAdmiraltyChartDocuments(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     null,
@@ -113,8 +113,8 @@ public class AdmiralityChartDocumentsControllerTest extends PwaApplicationContex
   public void renderEditCableCrossingDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
-                .renderEditAdmiralityChartDocuments(
+            ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
+                .renderEditAdmiraltyChartDocuments(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     null,

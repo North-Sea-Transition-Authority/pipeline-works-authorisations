@@ -5,19 +5,19 @@
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
 
-<#macro admiralityChartManagement urlFactory optionalSection=false cableCrossingFileViews=[]>
+<#macro admiraltyChartManagement urlFactory optionalSection=false admiraltyChartFileViews=[]>
   <h2 class="govuk-heading-l">
-    Admirality chart
+    Admiralty chart
     <#if optionalSection == true> (Optional) </#if>
   </h2>
-    <#if cableCrossingFileViews?has_content>
-        <@fdsAction.link linkText="Add, edit or remove admirality chart" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
-        <@fileUpload.uploadedFileList downloadUrl=springUrl("#") existingFiles=cableCrossingFileViews/>
+    <#if admiraltyChartFileViews?has_content>
+        <@fdsAction.link linkText="Add, edit or remove admiralty chart" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getDocumentsDownloadUrl()) existingFiles=admiraltyChartFileViews/>
     <#else>
         <@fdsInsetText.insetText>
-          No admirality chart has been added to this application.
+          No admiralty chart has been added to this application.
         </@fdsInsetText.insetText>
-        <@fdsAction.link linkText="Add admirality chart" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+        <@fdsAction.link linkText="Add admiralty chart" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>
 
 </#macro>

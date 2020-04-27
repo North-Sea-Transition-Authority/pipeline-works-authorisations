@@ -30,24 +30,24 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadAdmiralityChartFile;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadAdmiraltyChartFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.AdmiralityChartDocumentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadAdmiralityChartFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadAdmiraltyChartFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AdmiralityChartFileServiceTest {
+public class AdmiraltyChartFileServiceTest {
 
   private final String FILE_ID = "1234567890qwertyuiop";
 
   @Mock
-  private PadAdmiralityChartFileRepository padAdmiralityChartFileRepository;
+  private PadAdmiraltyChartFileRepository padAdmiraltyChartFileRepository;
 
   @Mock
   private FileUploadService fileUploadService;
@@ -58,11 +58,11 @@ public class AdmiralityChartFileServiceTest {
   private SpringValidatorAdapter springValidatorAdapter = new SpringValidatorAdapter(
       Validation.buildDefaultValidatorFactory().getValidator());
 
-  private AdmiralityChartFileService admiralityChartFileService;
+  private AdmiraltyChartFileService admiraltyChartFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  private PadAdmiralityChartFile file;
+  private PadAdmiraltyChartFile file;
 
   private WebUserAccount wua = new WebUserAccount(1);
 
@@ -79,84 +79,84 @@ public class AdmiralityChartFileServiceTest {
   @Before
   public void setUp() {
 
-    admiralityChartFileService = new AdmiralityChartFileService(
-        padAdmiralityChartFileRepository,
+    admiraltyChartFileService = new AdmiraltyChartFileService(
+        padAdmiraltyChartFileRepository,
         fileUploadService,
         entityManager,
         springValidatorAdapter);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    file = new PadAdmiralityChartFile();
+    file = new PadAdmiraltyChartFile();
     file.setFileId(FILE_ID);
 
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
         FileDeleteResult.generateSuccessfulFileDeleteResult(invocation.getArgument(0))
     );
 
-    when(padAdmiralityChartFileRepository.findAllByPwaApplicationDetail(pwaApplicationDetail))
+    when(padAdmiraltyChartFileRepository.findAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(file));
   }
 
   @Test
-  public void getAdmiralityChartFile_verifyServiceInteractions() {
-    when(padAdmiralityChartFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
+  public void getAdmiraltyChartFile_verifyServiceInteractions() {
+    when(padAdmiraltyChartFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
         .thenReturn(Optional.of(file));
-    admiralityChartFileService.getAdmiralityChartFile(FILE_ID, pwaApplicationDetail);
-    verify(padAdmiralityChartFileRepository, times(1))
+    admiraltyChartFileService.getAdmiraltyChartFile(FILE_ID, pwaApplicationDetail);
+    verify(padAdmiraltyChartFileRepository, times(1))
         .findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID);
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
-  public void getAdmiralityChartFile_whenNotFound() {
-    admiralityChartFileService.getAdmiralityChartFile(FILE_ID, pwaApplicationDetail);
+  public void getAdmiraltyChartFile_whenNotFound() {
+    admiraltyChartFileService.getAdmiraltyChartFile(FILE_ID, pwaApplicationDetail);
   }
 
   @Test
-  public void deleteAdmiralityChartFilesAndLinkedUploads_uploadedFileRemoveSuccessful() {
-    admiralityChartFileService.deleteAdmiralityChartFilesAndLinkedUploads(List.of(file), wua);
-    verify(padAdmiralityChartFileRepository).deleteAll(eq(List.of(file)));
+  public void deleteAdmiraltyChartFilesAndLinkedUploads_uploadedFileRemoveSuccessful() {
+    admiraltyChartFileService.deleteAdmiraltyChartFilesAndLinkedUploads(List.of(file), wua);
+    verify(padAdmiraltyChartFileRepository).deleteAll(eq(List.of(file)));
   }
 
   @Test(expected = RuntimeException.class)
-  public void deleteAdmiralityChartFilesAndLinkedUploads_uploadedFileRemoveFail() {
+  public void deleteAdmiraltyChartFilesAndLinkedUploads_uploadedFileRemoveFail() {
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
         FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
     );
-    admiralityChartFileService.deleteAdmiralityChartFilesAndLinkedUploads(List.of(file), wua);
+    admiraltyChartFileService.deleteAdmiraltyChartFilesAndLinkedUploads(List.of(file), wua);
   }
 
   @Test
-  public void deleteAdmiralityChartFileLink_verifyServiceInteraction() {
-    admiralityChartFileService.deleteAdmiralityChartFileLink(file);
-    verify(padAdmiralityChartFileRepository, times(1)).delete(file);
+  public void deleteAdmiraltyChartFileLink_verifyServiceInteraction() {
+    admiraltyChartFileService.deleteAdmiraltyChartFileLink(file);
+    verify(padAdmiraltyChartFileRepository, times(1)).delete(file);
   }
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFilesNotOnForm_thenFilesAreDeleted() {
-    var form = new AdmiralityChartDocumentForm();
-    admiralityChartFileService.updateOrDeleteLinkedFilesUsingForm(
+    var form = new AdmiraltyChartDocumentForm();
+    admiraltyChartFileService.updateOrDeleteLinkedFilesUsingForm(
         pwaApplicationDetail,
         form,
         wua
     );
     verify(fileUploadService, times(1)).deleteUploadedFile(FILE_ID, wua);
-    verify(padAdmiralityChartFileRepository, times(1)).deleteAll(Set.of(file));
+    verify(padAdmiraltyChartFileRepository, times(1)).deleteAll(Set.of(file));
   }
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
-    var form = new AdmiralityChartDocumentForm();
+    var form = new AdmiraltyChartDocumentForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 
-    ArgumentCaptor<Set<PadAdmiralityChartFile>> fileCapture = ArgumentCaptor.forClass(Set.class);
+    ArgumentCaptor<Set<PadAdmiraltyChartFile>> fileCapture = ArgumentCaptor.forClass(Set.class);
 
-    admiralityChartFileService.updateOrDeleteLinkedFilesUsingForm(
+    admiraltyChartFileService.updateOrDeleteLinkedFilesUsingForm(
         pwaApplicationDetail,
         form,
         wua
     );
-    verify(padAdmiralityChartFileRepository, times(1)).saveAll(fileCapture.capture());
+    verify(padAdmiraltyChartFileRepository, times(1)).saveAll(fileCapture.capture());
 
     var savedFiles = fileCapture.getValue();
     assertThat(savedFiles).allSatisfy(savedFile -> {
@@ -164,16 +164,16 @@ public class AdmiralityChartFileServiceTest {
       assertThat(savedFile.getFileLinkStatus()).isEqualTo(ApplicationFileLinkStatus.FULL);
     });
 
-    verify(padAdmiralityChartFileRepository, times(1)).deleteAll(Collections.emptySet());
+    verify(padAdmiraltyChartFileRepository, times(1)).deleteAll(Collections.emptySet());
   }
 
   @Test
-  public void getUpdatedAdmiralityChartFileViewsWhenFileOnForm() {
+  public void getUpdatedAdmiraltyChartFileViewsWhenFileOnForm() {
     var fileViews = List.of(
         fileView
     );
 
-    var form = new AdmiralityChartDocumentForm();
+    var form = new AdmiraltyChartDocumentForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 
@@ -183,7 +183,7 @@ public class AdmiralityChartFileServiceTest {
     when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
     when(mockQuery.getResultList()).thenReturn(fileViews);
 
-    var result = admiralityChartFileService.getUpdatedAdmiralityChartFileViewsWhenFileOnForm(pwaApplicationDetail,
+    var result = admiraltyChartFileService.getUpdatedAdmiraltyChartFileViewsWhenFileOnForm(pwaApplicationDetail,
         form);
     assertThat(result.get(0).getFileDescription()).isEqualTo("New Description");
   }
@@ -193,7 +193,7 @@ public class AdmiralityChartFileServiceTest {
 
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "2", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    admiralityChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -203,27 +203,27 @@ public class AdmiralityChartFileServiceTest {
 
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    admiralityChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isTrue();
   }
 
   @Test
   public void validate_full_whenDocumentRequired_andZeroDocuments() {
-    when(padAdmiralityChartFileRepository.countAllByPwaApplicationDetail(eq(pwaApplicationDetail))).thenReturn(1);
+    when(padAdmiraltyChartFileRepository.countAllByPwaApplicationDetail(eq(pwaApplicationDetail))).thenReturn(1);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    admiralityChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isTrue();
   }
 
   @Test
   public void validate_full_whenDocumentRequired_andDocumentWithDescriptionProvided() {
-    when(padAdmiralityChartFileRepository.countAllByPwaApplicationDetail(eq(pwaApplicationDetail))).thenReturn(1);
+    when(padAdmiraltyChartFileRepository.countAllByPwaApplicationDetail(eq(pwaApplicationDetail))).thenReturn(1);
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    admiralityChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -232,7 +232,7 @@ public class AdmiralityChartFileServiceTest {
   public void validate_partial_whenDocumentWithoutDescriptionProvided() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    admiralityChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    admiraltyChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isTrue();
   }
@@ -241,7 +241,7 @@ public class AdmiralityChartFileServiceTest {
   public void validate_partial_whenDocumentWithDescriptionProvided() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    admiralityChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    admiraltyChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }

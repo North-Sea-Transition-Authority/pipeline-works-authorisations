@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.AdmiralityChartDocumentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -32,12 +32,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiralityChartFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/admirality-chart")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/admiralty-chart")
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
@@ -45,79 +45,79 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION
 })
-public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
+public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final PwaApplicationFileService applicationFileService;
-  private final AdmiralityChartFileService admiralityChartFileService;
+  private final AdmiraltyChartFileService admiraltyChartFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @Autowired
-  public AdmiralityChartDocumentsController(
+  public AdmiraltyChartDocumentsController(
       PwaApplicationFileService applicationFileService,
-      AdmiralityChartFileService admiralityChartFileService,
+      AdmiraltyChartFileService admiraltyChartFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService) {
     this.applicationFileService = applicationFileService;
-    this.admiralityChartFileService = admiralityChartFileService;
+    this.admiraltyChartFileService = admiraltyChartFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
-  private ModelAndView createAdmiralityChartModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                       AdmiralityChartDocumentForm form) {
+  private ModelAndView createAdmiraltyChartModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                       AdmiraltyChartDocumentForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
+        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
             .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
+        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(AdmiralityChartDocumentsController.class)
+        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
         // only load fully linked (saved) files
-        admiralityChartFileService.getUpdatedAdmiralityChartFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+        admiraltyChartFileService.getUpdatedAdmiraltyChartFileViewsWhenFileOnForm(pwaApplicationDetail, form)
     );
 
-    modelAndView.addObject("pageTitle", "Admirality chart")
+    modelAndView.addObject("pageTitle", "Admiralty chart")
         .addObject("backButtonText", "Back to technical drawings")
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromTechnicalDrawings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Admirality chart");
+        "Admiralty chart");
     return modelAndView;
   }
 
   @GetMapping
-  public ModelAndView renderEditAdmiralityChartDocuments(
+  public ModelAndView renderEditAdmiraltyChartDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") AdmiralityChartDocumentForm form,
+      @ModelAttribute("form") AdmiraltyChartDocumentForm form,
       PwaApplicationContext applicationContext) {
 
-    admiralityChartFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
-    return createAdmiralityChartModelAndView(applicationContext.getApplicationDetail(), form);
+    admiraltyChartFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
+    return createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
   @PostMapping
-  public ModelAndView postAdmiralityChartDocuments(
+  public ModelAndView postAdmiraltyChartDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") AdmiralityChartDocumentForm form,
+      @ModelAttribute("form") AdmiraltyChartDocumentForm form,
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    admiralityChartFileService.validate(
+    admiraltyChartFileService.validate(
         form,
         bindingResult,
         ValidationType.FULL,
         applicationContext.getApplicationDetail()
     );
-    var modelAndView = createAdmiralityChartModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      admiralityChartFileService.updateOrDeleteLinkedFilesUsingForm(
+      admiraltyChartFileService.updateOrDeleteLinkedFilesUsingForm(
           applicationContext.getApplicationDetail(),
           form,
           applicationContext.getUser());
@@ -134,9 +134,9 @@ public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUp
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    var cableCrossingFile = admiralityChartFileService.getAdmiralityChartFile(fileId,
+    var admiraltyChartFile = admiraltyChartFileService.getAdmiraltyChartFile(fileId,
         applicationContext.getApplicationDetail());
-    return serveFile(applicationFileService.getUploadedFile(cableCrossingFile));
+    return serveFile(applicationFileService.getUploadedFile(admiraltyChartFile));
   }
 
   @PostMapping("/files/upload")
@@ -152,7 +152,7 @@ public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUp
         file,
         applicationContext.getUser(),
         applicationContext.getApplicationDetail(),
-        admiralityChartFileService::createUploadedFileLink
+        admiraltyChartFileService::createUploadedFileLink
     );
   }
 
@@ -167,7 +167,7 @@ public class AdmiralityChartDocumentsController extends PwaApplicationDataFileUp
         fileId,
         applicationContext.getApplicationDetail(),
         applicationContext.getUser(),
-        admiralityChartFileService::deleteUploadedFileLink
+        admiraltyChartFileService::deleteUploadedFileLink
     );
   }
 }
