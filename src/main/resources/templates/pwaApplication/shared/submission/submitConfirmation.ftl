@@ -2,7 +2,7 @@
 
 <#-- @ftlvariable name="submissionSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.generic.summary.ApplicationSubmissionSummary" -->
 
-<@defaultPage htmlTitle="Application submitted" pageHeading="Application submitted">
+<@defaultPage htmlTitle="Application submitted">
   <div class="govuk-panel govuk-panel--confirmation">
     <h1 class="govuk-panel__title">
       <#if submissionSummary.isFirstVersion>Application<#else>Update</#if> submitted
