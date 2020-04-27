@@ -79,6 +79,7 @@ public class PwaApplicationCreationService {
 
     MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
         MasterPwaDetailStatus.APPLICATION,
+        // TODO PWA-145 implement referencing
         "New Pwa " + RandomUtils.nextInt()
     );
 

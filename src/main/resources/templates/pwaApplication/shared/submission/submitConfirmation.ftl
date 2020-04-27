@@ -13,7 +13,7 @@
   </div>
 
   <ul class="govuk-list">
-    <li>Submitted date time: ${submissionSummary.getFormattedSubmissionTime()}</li>
+    <li>Submitted date and time: ${submissionSummary.getFormattedSubmissionTime()}</li>
     <li>Submitted by ${submissionSummary.submittedBy}</li>
   </ul>
 
