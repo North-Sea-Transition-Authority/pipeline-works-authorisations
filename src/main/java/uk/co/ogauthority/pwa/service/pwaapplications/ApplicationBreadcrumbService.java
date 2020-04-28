@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -41,6 +43,14 @@ public class ApplicationBreadcrumbService {
     map.put(ReverseRouter.route(on(LocationDetailsController.class)
             .renderLocationDetails(pwaApplication.getApplicationType(), null, null, null)),
         "Location details");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromHuoo(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
+        "Holders, users, operators, and owners");
     addAttrs(modelAndView, map, thisPage);
   }
 

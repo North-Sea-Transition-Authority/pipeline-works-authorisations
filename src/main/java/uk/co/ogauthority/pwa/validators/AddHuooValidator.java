@@ -37,15 +37,14 @@ public class AddHuooValidator implements SmartValidator {
     var form = (HuooForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
     var roles = padOrganisationRoleService.getOrgRolesForDetail(detail);
-    if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
-      errors.rejectValue("huooRoles", "huooRoles.required",
-          "You must select one or more roles");
-    }
     if (form.getHuooType() == null) {
       errors.rejectValue("huooType", "huooType.required",
           "You must select the entity type");
-    }
-    if (form.getHuooType() == HuooType.PORTAL_ORG) {
+    } else if (form.getHuooType() == HuooType.PORTAL_ORG) {
+      if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
+        errors.rejectValue("huooRoles", "huooRoles.required",
+            "You must select one or more roles");
+      }
       if (form.getOrganisationUnit() != null) {
         roles.stream()
             .filter(role -> role.getType().equals(HuooType.PORTAL_ORG))

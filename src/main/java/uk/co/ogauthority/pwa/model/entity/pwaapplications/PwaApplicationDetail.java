@@ -188,6 +188,10 @@ public class PwaApplicationDetail {
     return this.pwaApplication.getApplicationType();
   }
 
+  public boolean isFirstVersion() {
+    return this.versionNo == 1;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

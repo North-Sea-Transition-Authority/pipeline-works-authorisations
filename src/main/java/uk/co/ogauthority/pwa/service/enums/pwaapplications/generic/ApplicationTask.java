@@ -3,10 +3,13 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
@@ -42,11 +45,17 @@ public enum ApplicationTask {
       PadEnvironmentalDecommissioningService.class,
       40),
 
+  HUOO(
+      "Holders, users, operators, and owners",
+      HuooController.class,
+      PadOrganisationRoleService.class,
+      50),
+
   CROSSING_AGREEMENTS(
       "Crossing agreements",
       CrossingAgreementsController.class,
       CrossingAgreementsService.class,
-      50);
+      60);
 
 
 

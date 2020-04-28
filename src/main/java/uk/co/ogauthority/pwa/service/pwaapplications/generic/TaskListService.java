@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -78,8 +79,6 @@ public class TaskListService {
         put("Application contacts",
             ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(application.getApplicationType(), application.getId(), null)));
-        put("Holders, users, operators, and owners", ReverseRouter.route(on(HuooController.class)
-            .renderHuooSummary(application.getApplicationType(), application.getId(), null, null)));
       }
     };
   }
@@ -94,7 +93,9 @@ public class TaskListService {
         .forEachOrdered(task -> checkTaskAndAddToList(tasks, task, detail));
 
     if (tasks.isEmpty()) {
-      tasks.add(new TaskListEntry("No tasks", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()), false));
+      tasks.add(
+          new TaskListEntry("No tasks", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()),
+              false));
     }
 
     return tasks;
@@ -148,6 +149,9 @@ public class TaskListService {
       case LOCATION_DETAILS:
         return ReverseRouter.route(on(LocationDetailsController.class)
             .renderLocationDetails(applicationType, null, null, null), Map.of("applicationId", applicationId));
+      case HUOO:
+        return ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(applicationType, applicationId, null, null));
       default:
         return "";
     }
@@ -175,12 +179,22 @@ public class TaskListService {
     }
   }
 
+  private TaskListEntry getSubmissionTask(PwaApplicationDetail detail) {
+    return new TaskListEntry(
+        "Review and submit application",
+        ReverseRouter.route(on(ReviewAndSubmitController.class)
+            .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null)),
+        false
+    );
+  }
+
   public ModelAndView getTaskListModelAndView(PwaApplicationDetail pwaApplicationDetail) {
 
     var modelAndView = new ModelAndView(getTaskListTemplatePath(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("pwaInfoTasks", getPwaInfoTasks(pwaApplicationDetail.getPwaApplication()))
         .addObject("appInfoTasks", getAppInfoTasks(pwaApplicationDetail.getPwaApplication()))
-        .addObject("prepareAppTasks", getPrepareAppTasks(pwaApplicationDetail));
+        .addObject("prepareAppTasks", getPrepareAppTasks(pwaApplicationDetail))
+        .addObject("submissionTask", getSubmissionTask(pwaApplicationDetail));
 
     // TODO: PWA-361 - Remove hard-coded "PWA-Example-BP-2".
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
