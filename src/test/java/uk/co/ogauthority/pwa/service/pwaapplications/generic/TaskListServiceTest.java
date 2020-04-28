@@ -114,7 +114,8 @@ public class TaskListServiceTest {
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-                ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName()
+                ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:

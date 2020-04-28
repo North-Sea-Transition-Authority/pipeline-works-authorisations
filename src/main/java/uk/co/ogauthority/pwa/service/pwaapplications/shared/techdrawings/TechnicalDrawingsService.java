@@ -21,8 +21,7 @@ public class TechnicalDrawingsService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return admiraltyChartFileService.isUploadRequired(detail) && admiraltyChartFileService.isComplete(detail)
-        || !admiraltyChartFileService.isUploadRequired(detail) && admiraltyChartFileService.isComplete(detail);
+    return admiraltyChartFileService.isComplete(detail);
   }
 
   @Override
