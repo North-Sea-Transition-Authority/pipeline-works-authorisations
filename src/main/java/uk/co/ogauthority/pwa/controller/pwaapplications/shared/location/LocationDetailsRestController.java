@@ -30,7 +30,7 @@ public class LocationDetailsRestController {
   @GetMapping("/facilities")
   @ResponseBody
   public RestSearchResult searchFacilities(@RequestParam("term") String searchTerm) {
-    var searchableList = devukFacilityService.getFacilities();
+    var searchableList = devukFacilityService.getFacilities(searchTerm);
     var results = searchSelectorService.search(searchTerm, searchableList)
         .stream()
         .sorted(Comparator.comparing(RestSearchItem::getText))

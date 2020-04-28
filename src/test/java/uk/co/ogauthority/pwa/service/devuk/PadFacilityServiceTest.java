@@ -33,7 +33,7 @@ public class PadFacilityServiceTest {
 
   @Before
   public void setUp() {
-    padFacilityService = new PadFacilityService(padFacilityRepository);
+    padFacilityService = new PadFacilityService(padFacilityRepository, devukFacilityService);
     padFacility = new PadFacility();
     pwaApplicationDetail = new PwaApplicationDetail();
     when(padFacilityRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(padFacility));

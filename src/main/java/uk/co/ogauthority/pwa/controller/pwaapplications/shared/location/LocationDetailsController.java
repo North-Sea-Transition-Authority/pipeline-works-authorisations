@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.location;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -108,7 +109,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
         padLocationDetailFileService.getUpdatedLocationDetailFileViewsWhenFileOnForm(detail, form)
     );
 
-    var facilities = devukFacilityService.getFacilities();
+    var facilities = devukFacilityService.getFacilities("");
     modelAndView.addObject("safetyZoneOptions", HseSafetyZone.stream()
         .sorted()
         .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText)))
@@ -116,7 +117,10 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
             .collect(
                 StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
         .addObject("facilityRestUrl",
-            ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities(null)));
+            StringUtils.stripEnd(
+                ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities(null)),
+                "?term"
+            ));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
   }
@@ -132,10 +136,11 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
         applicationContext.getApplicationDetail());
     var facilities = padFacilityService.getFacilities(applicationContext.getApplicationDetail());
     padLocationDetailsService.mapEntityToForm(locationDetail, form);
-    padFacilityService.mapFacilitiesToForm(facilities, form);
 
     padLocationDetailFileService.mapDocumentsToForm(detail, form);
-    return getLocationModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = getLocationModelAndView(applicationContext.getApplicationDetail(), form);
+    padFacilityService.mapFacilitiesToView(facilities, form, modelAndView);
+    return modelAndView;
   }
 
   @PostMapping

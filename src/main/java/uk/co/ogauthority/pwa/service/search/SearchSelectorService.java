@@ -22,7 +22,7 @@ public class SearchSelectorService {
 
   public List<RestSearchItem> addManualEntry(String searchQuery, List<RestSearchItem> resultList) {
     if (!StringUtils.isBlank(searchQuery)) {
-      resultList.add(new RestSearchItem("FT_" + searchQuery, searchQuery));
+      resultList.add(0, new RestSearchItem(SearchSelectable.FREE_TEXT_PREFIX + searchQuery, searchQuery));
     }
     return resultList;
   }
