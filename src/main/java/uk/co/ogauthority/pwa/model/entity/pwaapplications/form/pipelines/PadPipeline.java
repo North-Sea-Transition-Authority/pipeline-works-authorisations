@@ -110,6 +110,8 @@ public class PadPipeline {
   @Column(name = "trenching_methods_desc")
   private String trenchingMethodsDescription;
 
+  private String pipelineRef;
+
   @Transient
   private CoordinatePair fromCoordinates;
 
@@ -210,6 +212,14 @@ public class PadPipeline {
 
   public void setTrenchingMethodsDescription(String trenchingMethodsDescription) {
     this.trenchingMethodsDescription = trenchingMethodsDescription;
+  }
+
+  public String getPipelineRef() {
+    return pipelineRef;
+  }
+
+  public void setPipelineRef(String pipelineRef) {
+    this.pipelineRef = pipelineRef;
   }
 
   public CoordinatePair getFromCoordinates() {
