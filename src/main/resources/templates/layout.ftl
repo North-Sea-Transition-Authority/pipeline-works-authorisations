@@ -6,6 +6,7 @@
 <#import 'header.ftl' as pipelinesHeader>
 <#import 'components/fileUpload/fileUpload.ftl' as fileUpload>
 <#import 'components/completedTag/completedTag.ftl' as completedTag>
+<#import 'components/coordinates/locationInput.ftl' as locationInput>
 
 <#function springUrl url>
   <#local springUrl>

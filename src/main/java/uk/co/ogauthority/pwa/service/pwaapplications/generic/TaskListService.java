@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsCo
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -143,7 +144,7 @@ public class TaskListService {
             .renderFastTrack(applicationType, applicationId, null, null, null));
       case ENVIRONMENTAL_DECOMMISSIONING:
         return ReverseRouter.route(on(EnvironmentalDecomController.class)
-            .renderEnvDecom(applicationType, null, null, null), uriVariables);
+            .renderEnvDecom(applicationType, null, null), uriVariables);
       case CROSSING_AGREEMENTS:
         return ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(applicationType, applicationId, null, null));
@@ -153,6 +154,9 @@ public class TaskListService {
       case HUOO:
         return ReverseRouter.route(on(HuooController.class)
             .renderHuooSummary(applicationType, applicationId, null, null));
+      case PIPELINES:
+        return ReverseRouter.route(on(PipelinesController.class)
+            .renderPipelinesOverview(applicationId, applicationType, null));
       case TECHNICAL_DRAWINGS:
         return ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(applicationType, applicationId, null, null));
