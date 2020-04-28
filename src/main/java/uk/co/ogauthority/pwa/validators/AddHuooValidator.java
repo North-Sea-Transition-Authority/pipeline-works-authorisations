@@ -40,8 +40,7 @@ public class AddHuooValidator implements SmartValidator {
     if (form.getHuooType() == null) {
       errors.rejectValue("huooType", "huooType.required",
           "You must select the entity type");
-    }
-    if (form.getHuooType() == HuooType.PORTAL_ORG) {
+    } else if (form.getHuooType() == HuooType.PORTAL_ORG) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
         errors.rejectValue("huooRoles", "huooRoles.required",
             "You must select one or more roles");
