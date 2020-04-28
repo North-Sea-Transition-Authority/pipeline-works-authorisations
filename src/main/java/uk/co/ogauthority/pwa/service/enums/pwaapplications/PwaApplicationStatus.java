@@ -5,6 +5,6 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications;
  */
 public enum PwaApplicationStatus {
 
-  DRAFT, SUBMITTED
+  DRAFT, INITIAL_SUBMISSION_REVIEW
 
 }

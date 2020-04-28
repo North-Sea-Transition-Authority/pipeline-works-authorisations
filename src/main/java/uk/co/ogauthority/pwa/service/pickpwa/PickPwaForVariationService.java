@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 
 /**
  * Coordinate migration of legacy PWAs into PWAs usable by the current in order to start a variation.
@@ -16,14 +16,14 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 public class PickPwaForVariationService {
 
   private final PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
-  private final PwaApplicationService pwaApplicationService;
+  private final PwaApplicationCreationService pwaApplicationCreationService;
 
   @Autowired
   public PickPwaForVariationService(
       PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService,
-      PwaApplicationService pwaApplicationService) {
+      PwaApplicationCreationService pwaApplicationCreationService) {
     this.masterPwaRetrievalAndMigrationService = masterPwaRetrievalAndMigrationService;
-    this.pwaApplicationService = pwaApplicationService;
+    this.pwaApplicationCreationService = pwaApplicationCreationService;
   }
 
   @Transactional
@@ -31,6 +31,6 @@ public class PickPwaForVariationService {
                                                                   PwaApplicationType pwaApplicationType,
                                                                   WebUserAccount user) {
     var masterPwa = masterPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, user);
-    return pwaApplicationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType);
+    return pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType);
   }
 }

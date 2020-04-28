@@ -87,7 +87,7 @@ public class PwaApplicationContextServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void createAndPerformApplicationContextChecks_statusCheck_invalid() {
-    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), PwaApplicationStatus.SUBMITTED, Set.of());
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(), PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, Set.of());
   }
 
   @Test
@@ -144,9 +144,7 @@ public class PwaApplicationContextServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void createAndPerformApplicationContextChecks_allChecks_statusInvalid() {
-    //TODO PWA-66
-   // when(detailService.getTipDetail(1)).thenThrow(PwaEntityNotFoundException.class);
-    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.SUBMITTED, Set.of(PwaApplicationType.INITIAL));
+    contextService.createAndPerformApplicationContextChecks(1, user, Set.of(PwaApplicationPermission.EDIT), PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, Set.of(PwaApplicationType.INITIAL));
   }
 
   @Test(expected = AccessDeniedException.class)

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_00r3tcx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.4.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  id="Definitions_00r3tcx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler"
+                  exporterVersion="3.7.2">
   <bpmn:collaboration id="Collaboration_1xq8xhx">
     <bpmn:participant id="Participant_0pwf8b0" name="PWA application" processRef="pwaApplication" />
   </bpmn:collaboration>
@@ -10,7 +15,9 @@
         <bpmn:flowNodeRef>prepareApplication</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_1owjdyd" />
-      <bpmn:lane id="Lane_0xuhf3w" name="PWA Manager" />
+      <bpmn:lane id="Lane_0xuhf3w" name="PWA Manager">
+        <bpmn:flowNodeRef>applicationReview</bpmn:flowNodeRef>
+      </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0on8ht1</bpmn:outgoing>
@@ -18,6 +25,11 @@
     <bpmn:sequenceFlow id="SequenceFlow_0on8ht1" sourceRef="StartEvent_1" targetRef="prepareApplication" />
     <bpmn:userTask id="prepareApplication" name="Prepare application">
       <bpmn:incoming>SequenceFlow_0on8ht1</bpmn:incoming>
+      <bpmn:outgoing>applicantSubmitApplication</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="applicantSubmitApplication" sourceRef="prepareApplication" targetRef="applicationReview" />
+    <bpmn:userTask id="applicationReview" name="Application review" camunda:candidateGroups="PWA_MANAGER">
+      <bpmn:incoming>applicantSubmitApplication</bpmn:incoming>
     </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -25,8 +37,8 @@
       <bpmndi:BPMNShape id="Participant_0pwf8b0_di" bpmnElement="Participant_0pwf8b0" isHorizontal="true">
         <dc:Bounds x="142" y="80" width="2418" height="2330" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="232" y="192" width="36" height="36" />
+      <bpmndi:BPMNShape id="Lane_0xuhf3w_di" bpmnElement="Lane_0xuhf3w" isHorizontal="true">
+        <dc:Bounds x="172" y="350" width="2388" height="210" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1owjdyd_di" bpmnElement="Lane_1owjdyd" isHorizontal="true">
         <dc:Bounds x="172" y="560" width="2388" height="1850" />
@@ -34,15 +46,22 @@
       <bpmndi:BPMNShape id="Lane_0k9ldl3_di" bpmnElement="Lane_0k9ldl3" isHorizontal="true">
         <dc:Bounds x="172" y="80" width="2388" height="270" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="UserTask_17ulwfq_di" bpmnElement="prepareApplication">
-        <dc:Bounds x="350" y="170" width="100" height="80" />
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0f5mnqs_di" bpmnElement="applicantSubmitApplication">
+        <di:waypoint x="400" y="250" />
+        <di:waypoint x="400" y="419" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0on8ht1_di" bpmnElement="SequenceFlow_0on8ht1">
         <di:waypoint x="268" y="210" />
         <di:waypoint x="350" y="210" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Lane_0xuhf3w_di" bpmnElement="Lane_0xuhf3w" isHorizontal="true">
-        <dc:Bounds x="172" y="350" width="2388" height="210" />
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="232" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="UserTask_17ulwfq_di" bpmnElement="prepareApplication">
+        <dc:Bounds x="350" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_068fx2u_di" bpmnElement="applicationReview">
+        <dc:Bounds x="350" y="419" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
