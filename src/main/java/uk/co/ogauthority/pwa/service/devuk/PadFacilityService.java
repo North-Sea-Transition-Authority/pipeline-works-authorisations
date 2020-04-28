@@ -61,6 +61,8 @@ public class PadFacilityService {
         .filter(s -> s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
         .collect(Collectors.toList());
 
+    var facilityTest = devukFacilityService.getFacilitiesInIds(linkedFacilityIds);
+
     devukFacilityService.getFacilitiesInIds(linkedFacilityIds)
         .forEach(facility -> {
           var created = createFromDevukFacility(pwaApplicationDetail, facility);
