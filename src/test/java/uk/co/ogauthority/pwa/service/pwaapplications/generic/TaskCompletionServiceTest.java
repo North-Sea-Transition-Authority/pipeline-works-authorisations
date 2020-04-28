@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
@@ -54,6 +55,9 @@ public class TaskCompletionServiceTest {
   private PadLocationDetailsService padLocationDetailsService;
 
   @MockBean
+  private PadOrganisationRoleService padOrganisationRoleService;
+
+  @MockBean
   private TechnicalDrawingsService technicalDrawingsService;
 
   @Test
@@ -81,6 +85,9 @@ public class TaskCompletionServiceTest {
           break;
         case LOCATION_DETAILS:
           service = padLocationDetailsService;
+          break;
+        case HUOO:
+          service = padOrganisationRoleService;
           break;
         case TECHNICAL_DRAWINGS:
           service = technicalDrawingsService;

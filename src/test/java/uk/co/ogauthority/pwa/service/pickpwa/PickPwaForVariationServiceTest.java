@@ -13,15 +13,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PickPwaForVariationServiceTest {
 
   @Mock
   private PickedPwaRetrievalAndMigrationService pickedPwaRetrievalAndMigrationService;
+
   @Mock
-  private PwaApplicationService pwaApplicationService;
+  private PwaApplicationCreationService pwaApplicationCreationService;
 
   @Mock
   private PickablePwa pickablePwa;
@@ -37,7 +38,7 @@ public class PickPwaForVariationServiceTest {
   public void setup() {
     pickPwaForVariationService = new PickPwaForVariationService(
         pickedPwaRetrievalAndMigrationService,
-        pwaApplicationService
+        pwaApplicationCreationService
     );
 
     when(pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(any(), any())).thenReturn(masterPwa);
@@ -48,7 +49,7 @@ public class PickPwaForVariationServiceTest {
 
     pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(pickablePwa, PwaApplicationType.CAT_1_VARIATION, webUserAccount);
     verify(pickedPwaRetrievalAndMigrationService, times(1)).getOrMigratePickedPwa(pickablePwa, webUserAccount);
-    verify(pwaApplicationService, times(1)).createVariationPwaApplication(webUserAccount, masterPwa, PwaApplicationType.CAT_1_VARIATION);
+    verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(webUserAccount, masterPwa, PwaApplicationType.CAT_1_VARIATION);
   }
 
 }

@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaSource;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalAndMigrationService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PickExistingPwaController.class)
@@ -43,7 +43,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   private PwaApplicationContextService pwaApplicationContextService;
 
   @MockBean
-  private PwaApplicationService pwaApplicationService;
+  private PwaApplicationCreationService pwaApplicationCreationService;
 
   @MockBean
   private MasterPwaAuthorisationService masterPwaAuthorisationService;
@@ -67,7 +67,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
     when(masterPwaAuthorisationService.getMasterPwaIfAuthorised(anyInt(), any())).thenReturn(masterPwa);
     // fake create application service so we get an app of the requested type back
-    when(pwaApplicationService.createVariationPwaApplication(any(), any(), any())).thenAnswer(invocation -> {
+    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any())).thenAnswer(invocation -> {
           PwaApplicationType appType = Arrays.stream(invocation.getArguments())
               .filter(arg -> arg instanceof PwaApplicationType)
               .map(o -> (PwaApplicationType) o)
