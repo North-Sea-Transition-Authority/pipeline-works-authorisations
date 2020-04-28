@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.location.PadLocat
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadLocationDetailFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
