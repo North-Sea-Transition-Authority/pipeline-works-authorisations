@@ -1,4 +1,5 @@
 <#-- @ftlvariable name="addHuooUrl" type="String" -->
+<#-- @ftlvariable name="backUrl" type="String" -->
 <#-- @ftlvariable name="huooOrgs" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUnitRoleView>" -->
 <#-- @ftlvariable name="treatyAgreements" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView>" -->
 
@@ -6,7 +7,7 @@
 
 <@defaultPage htmlTitle="Holders, users, operators, and owners" pageHeading="Holders, users, operators, and owners" fullWidthColumn=true breadcrumbs=true>
 
-  <@fdsAction.link linkText="Add holder, user, operator or owner" linkUrl=springUrl(addHuooUrl) linkClass="govuk-link govuk-link--button govuk-button" role=true/>
+  <@fdsAction.link linkText="Add holder, user, operator or owner" linkUrl=springUrl(addHuooUrl) linkClass="govuk-link govuk-link--button govuk-button govuk-button--blue" role=true/>
 
   <#if huooOrgs?has_content>
     <table class="govuk-table">
@@ -46,7 +47,7 @@
     <table class="govuk-table">
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
-        <th class="govuk_table__cell" scope="col">Country</th>
+        <th class="govuk-table__cell" scope="col">Country</th>
         <th class="govuk-table__cell" scope="col">Treaty agreement text</th>
         <th class="govuk-table__cell" scope="col">Roles</th>
         <th class="govuk-table__cell" scope="col">Actions</th>
@@ -59,9 +60,7 @@
           <td class="govuk-table__cell">${agreement.treatyAgreementText}</td>
           <td class="govuk-table__cell">${agreement.roles}</td>
           <td class="govuk-table__cell">
-              <@fdsAction.link linkText="Edit" linkUrl=springUrl(agreement.editUrl) linkClass="govuk-link"/>
               <#if agreement.removeUrl?has_content>
-                <br/>
                   <@fdsForm.htmlForm actionUrl=springUrl(agreement.removeUrl)>
                       <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button"/>
                   </@fdsForm.htmlForm>
@@ -72,4 +71,7 @@
       </tbody>
     </table>
   </#if>
+    <@fdsForm.htmlForm>
+      <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+    </@fdsForm.htmlForm>
 </@defaultPage>
