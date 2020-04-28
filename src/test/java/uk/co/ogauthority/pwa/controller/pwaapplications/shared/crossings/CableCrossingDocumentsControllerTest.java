@@ -28,25 +28,24 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
-
 @RunWith(SpringRunner.class)
 @WebMvcTest(
-    controllers = MedianLineDocumentsController.class,
+    controllers = CableCrossingDocumentsController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+public class CableCrossingDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+
   private static final int APP_ID = 100;
-  private static final String FILE_ID = "123";
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private MedianLineCrossingFileService medianLineCrossingFileService;
+  private CableCrossingFileService cableCrossingFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -54,8 +53,6 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
       EnumSet.allOf(PwaUserPrivilege.class));
 
   private PwaApplicationEndpointTestBuilder endpointTester;
-
-  private String fileContents = "Testoutput";
 
   @Before
   public void setup() {
@@ -78,11 +75,11 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void renderEditMedianLineCrossingDocuments_appTypeSmokeTest() {
+  public void renderEditCableCrossingDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(MedianLineDocumentsController.class)
-                .renderEditMedianLineCrossingDocuments(
+            ReverseRouter.route(on(CableCrossingDocumentsController.class)
+                .renderEditCableCrossingDocuments(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     null,
@@ -96,11 +93,11 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void renderEditMedianLineCrossingDocuments_contactRoleSmokeTest() {
+  public void renderEditCableCrossingDocuments_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(MedianLineDocumentsController.class)
-                .renderEditMedianLineCrossingDocuments(
+            ReverseRouter.route(on(CableCrossingDocumentsController.class)
+                .renderEditCableCrossingDocuments(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     null,
@@ -114,11 +111,11 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void renderEditMedianLineCrossingDocuments_appStatusSmokeTest() {
+  public void renderEditCableCrossingDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(MedianLineDocumentsController.class)
-                .renderEditMedianLineCrossingDocuments(
+            ReverseRouter.route(on(CableCrossingDocumentsController.class)
+                .renderEditCableCrossingDocuments(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     null,

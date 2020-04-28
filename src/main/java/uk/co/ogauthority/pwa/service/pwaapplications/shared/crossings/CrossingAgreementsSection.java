@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 public enum CrossingAgreementsSection {
 
-  BLOCK_CROSSINGS, MEDIAN_LINE;
+  BLOCK_CROSSINGS, MEDIAN_LINE, CABLE_CROSSINGS;
 
   public static Stream<CrossingAgreementsSection> stream() {
     return Arrays.stream(CrossingAgreementsSection.values());

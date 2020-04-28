@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadBlockCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.BlockCrossingDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadBlockCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -73,7 +73,7 @@ public class BlockCrossingFileServiceTest {
       Instant.now(),
       "");
 
-  private BlockCrossingDocumentsForm form = new BlockCrossingDocumentsForm();
+  private CrossingDocumentsForm form = new CrossingDocumentsForm();
 
   @Before
   public void setUp() {
@@ -134,7 +134,7 @@ public class BlockCrossingFileServiceTest {
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFilesNotOnForm_thenFilesAreDeleted() {
-    var form = new BlockCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     blockCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
         pwaApplicationDetail,
         form,
@@ -147,7 +147,7 @@ public class BlockCrossingFileServiceTest {
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
-    var form = new BlockCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 
@@ -178,7 +178,7 @@ public class BlockCrossingFileServiceTest {
         fileView
     );
 
-    var form = new BlockCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 

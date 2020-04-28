@@ -41,7 +41,7 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.AddBloc
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.EditBlockCrossingFormValidator;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/block")
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
@@ -75,7 +75,39 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     this.blockCrossingService = blockCrossingService;
   }
 
-  @GetMapping("/edit-block-crossing/{blockCrossingId}")
+  @GetMapping
+  public ModelAndView renderAddBlockCrossing(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddBlockCrossingForm form,
+      PwaApplicationContext applicationContext) {
+
+    return createAddBlockCrossingFormModelAndView(applicationContext);
+  }
+
+  @PostMapping
+  public ModelAndView addBlockCrossingFormSave(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @Valid @ModelAttribute("form") AddBlockCrossingForm form,
+      BindingResult bindingResult,
+      PwaApplicationContext applicationContext) {
+
+    addBlockCrossingFormValidator.validate(form, bindingResult);
+
+    return ControllerUtils.checkErrorsAndRedirect(
+        bindingResult,
+        createAddBlockCrossingFormModelAndView(applicationContext),
+        () -> {
+          blockCrossingService.createAndSaveBlockCrossingAndOwnersFromForm(applicationContext.getApplicationDetail(),
+              form);
+          return redirectToCrossingOverview(applicationContext);
+        }
+    );
+
+  }
+
+  @GetMapping("/{blockCrossingId}/edit")
   public ModelAndView renderEditBlockCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -90,7 +122,7 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     return createEditBlockCrossingFormModelAndView(applicationContext, crossedBlock);
   }
 
-  @PostMapping("/edit-block-crossing/{blockCrossingId}")
+  @PostMapping("/{blockCrossingId}/edit")
   public ModelAndView editBlockCrossingFormSave(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -117,7 +149,23 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     );
   }
 
-  @PostMapping("/remove-block-crossing/{blockCrossingId}")
+  @GetMapping("/{blockCrossingId}/remove")
+  public ModelAndView renderRemoveBlockCrossing(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("blockCrossingId") Integer blockCrossingId,
+      PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var crossedBlock = blockCrossingService.getCrossedBlockByIdAndApplicationDetail(blockCrossingId, detail);
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeBlockCrossing")
+        .addObject("crossing", blockCrossingService.getCrossedBlockView(detail, blockCrossingId))
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(applicationType, applicationId, null, null)));
+    breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Remove block crossing");
+    return modelAndView;
+  }
+
+  @PostMapping("/{blockCrossingId}/remove")
   public ModelAndView removeBlockCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -131,42 +179,11 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     return redirectToCrossingOverview(applicationContext);
   }
 
-  @GetMapping("/add-block-crossing")
-  public ModelAndView renderAddBlockCrossing(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") AddBlockCrossingForm form,
-      PwaApplicationContext applicationContext) {
-
-    return createAddBlockCrossingFormModelAndView(applicationContext);
-  }
-
-  @PostMapping("/add-block-crossing")
-  public ModelAndView addBlockCrossingFormSave(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @Valid @ModelAttribute("form") AddBlockCrossingForm form,
-      BindingResult bindingResult,
-      PwaApplicationContext applicationContext) {
-
-    addBlockCrossingFormValidator.validate(form, bindingResult);
-
-    return ControllerUtils.checkErrorsAndRedirect(
-        bindingResult,
-        createAddBlockCrossingFormModelAndView(applicationContext),
-        () -> {
-          blockCrossingService.createAndSaveBlockCrossingAndOwnersFromForm(applicationContext.getApplicationDetail(),
-              form);
-          return redirectToCrossingOverview(applicationContext);
-        }
-    );
-
-  }
-
   private ModelAndView redirectToCrossingOverview(PwaApplicationContext applicationContext) {
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(
             applicationContext.getApplicationDetail().getPwaApplicationType(),
+            applicationContext.getApplicationDetail().getMasterPwaApplicationId(),
             null,
             null
         ));
