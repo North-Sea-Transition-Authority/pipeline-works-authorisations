@@ -109,6 +109,15 @@ public class TaskListServiceTest {
         switch (appType) {
           case INITIAL:
           case CAT_1_VARIATION:
+            assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+                ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PIPELINES.getDisplayName()
+            );
+            break;
           case DEPOSIT_CONSENT:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
@@ -120,23 +129,25 @@ public class TaskListServiceTest {
             break;
           case DECOMMISSIONING:
           case OPTIONS_VARIATION:
-            assertThat(taskNamesList).containsOnly(
-                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
-                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
-                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-                ApplicationTask.HUOO.getDisplayName()
-            );
-            break;
-          case CAT_2_VARIATION:
-            assertThat(taskNamesList).containsOnly(
-                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
-                ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
-                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-                ApplicationTask.HUOO.getDisplayName()
+          assertThat(taskNamesList).containsOnly(
+              ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+              ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+              ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+              ApplicationTask.HUOO.getDisplayName()
+          );
+          break;
+        case CAT_2_VARIATION:
+          assertThat(taskNamesList).containsOnly(
+              ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+              ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+              ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+              ApplicationTask.HUOO.getDisplayName(),
+              ApplicationTask.PIPELINES.getDisplayName()
             );
             break;
           case HUOO_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName()
             );
             break;
