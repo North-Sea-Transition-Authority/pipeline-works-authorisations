@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchItem;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 
+/**
+ * A generic service to provide a list of RestSearchItems for any entities implementing SearchSelectable.
+ * An optional {@link #addManualEntry} method is provided if the endpoint requires manually entered text.
+ */
 @Service
 public class SearchSelectorService {
 
