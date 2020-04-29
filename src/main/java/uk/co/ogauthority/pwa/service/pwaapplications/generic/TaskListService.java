@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -164,6 +165,9 @@ public class TaskListService {
       case PIPELINES:
         return ReverseRouter.route(on(PipelinesController.class)
             .renderPipelinesOverview(applicationId, applicationType, null));
+      case TECHNICAL_DRAWINGS:
+        return ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(applicationType, applicationId, null, null));
       default:
         return "";
     }

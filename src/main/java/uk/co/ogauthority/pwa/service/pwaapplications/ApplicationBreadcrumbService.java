@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -43,6 +44,14 @@ public class ApplicationBreadcrumbService {
     map.put(ReverseRouter.route(on(LocationDetailsController.class)
             .renderLocationDetails(pwaApplication.getApplicationType(), null, null, null)),
         "Location details");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromTechnicalDrawings(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
+        "Technical drawings");
     addAttrs(modelAndView, map, thisPage);
   }
 

@@ -119,6 +119,7 @@ public class TaskListServiceTest {
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
                 ApplicationTask.PIPELINES.getDisplayName()
             );
             break;
@@ -146,7 +147,8 @@ public class TaskListServiceTest {
               ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
               ApplicationTask.LOCATION_DETAILS.getDisplayName(),
               ApplicationTask.HUOO.getDisplayName(),
-              ApplicationTask.PIPELINES.getDisplayName()
+              ApplicationTask.PIPELINES.getDisplayName(),
+              ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:

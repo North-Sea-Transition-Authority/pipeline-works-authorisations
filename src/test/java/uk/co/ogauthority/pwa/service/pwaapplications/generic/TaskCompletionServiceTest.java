@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -56,6 +57,9 @@ public class TaskCompletionServiceTest {
 
   @MockBean
   private PadOrganisationRoleService padOrganisationRoleService;
+
+  @MockBean
+  private TechnicalDrawingsService technicalDrawingsService;
 
   @MockBean
   private PadPipelinesService padPipelinesService;
@@ -91,6 +95,9 @@ public class TaskCompletionServiceTest {
           break;
         case PIPELINES:
           service = padPipelinesService;
+          break;
+        case TECHNICAL_DRAWINGS:
+          service = technicalDrawingsService;
           break;
         default:
           throw new AssertionError();
