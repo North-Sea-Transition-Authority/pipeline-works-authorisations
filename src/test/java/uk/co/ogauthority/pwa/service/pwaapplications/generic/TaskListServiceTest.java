@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,12 +41,15 @@ public class TaskListServiceTest {
   @Mock
   private TaskCompletionService taskCompletionService;
 
+  @Mock
+  private PwaContactService pwaContactService;
+
   private TaskListService taskListService;
 
   @Before
   public void setUp() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        padFastTrackService, taskCompletionService);
+        padFastTrackService, taskCompletionService, pwaContactService);
   }
 
   @Test
@@ -87,7 +91,7 @@ public class TaskListServiceTest {
 
       pwaApplication.setApplicationType(applicationType);
 
-      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys("Application contacts");
+      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys("Application contacts", "Holders, users, operators, and owners");
 
     });
 

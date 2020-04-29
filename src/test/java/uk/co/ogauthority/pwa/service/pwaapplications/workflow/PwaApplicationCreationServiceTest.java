@@ -97,7 +97,7 @@ public class PwaApplicationCreationServiceTest {
     PwaApplicationDetail detail = detailArgumentCaptor.getValue();
 
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER));
+        Set.of(PwaContactRole.ACCESS_MANAGER));
 
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
@@ -156,7 +156,7 @@ public class PwaApplicationCreationServiceTest {
     PwaApplicationDetail detail = detailArgumentCaptor.getValue();
 
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER));
+        Set.of(PwaContactRole.ACCESS_MANAGER));
 
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);

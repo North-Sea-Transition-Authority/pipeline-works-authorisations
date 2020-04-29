@@ -36,7 +36,7 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.CAT_1_VARIATION)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT)
         .setPreTestSetupMethod((detail) -> {
           when(taskListService.getTaskListModelAndView(detail)).thenCallRealMethod();

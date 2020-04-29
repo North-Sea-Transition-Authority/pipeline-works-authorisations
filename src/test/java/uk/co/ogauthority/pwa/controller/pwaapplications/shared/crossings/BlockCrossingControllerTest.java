@@ -99,7 +99,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     when(padCrossedBlock.getBlockReference()).thenReturn("some block");

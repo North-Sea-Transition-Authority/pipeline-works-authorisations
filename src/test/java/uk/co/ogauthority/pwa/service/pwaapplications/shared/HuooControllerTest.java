@@ -77,7 +77,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
             PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.HUOO_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -141,7 +141,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   @Test
   public void postHuooSummary_Invalid() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER));
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
     ControllerTestUtils.failValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
 
@@ -163,7 +163,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   @Test
   public void postHuooSummary_Valid() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER));
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
     ControllerTestUtils.passValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
 

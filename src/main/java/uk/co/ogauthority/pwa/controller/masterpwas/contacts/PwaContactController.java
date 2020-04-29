@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -85,13 +86,17 @@ public class PwaContactController {
           .collect(Collectors.toList());
 
       var modelAndView = new ModelAndView("teamManagement/teamMembers")
-          .addObject("teamName", pwaApplication.getAppReference() + " contacts")
+          .addObject("teamName", "Application contacts")
           .addObject("teamMemberViews", teamMemberViews)
           .addObject("addUserUrl", ReverseRouter.route(on(PwaContactController.class)
               .renderAddContact(pwaApplication.getApplicationType(), applicationId, null, user)))
           .addObject("showBreadcrumbs", true)
           .addObject("userCanManageAccess", pwaContactService
-              .personHasContactRoleForPwaApplication(pwaApplication, user.getLinkedPerson(), PwaContactRole.ACCESS_MANAGER));
+              .personHasContactRoleForPwaApplication(pwaApplication, user.getLinkedPerson(), PwaContactRole.ACCESS_MANAGER))
+          .addObject("allRoles", rolesMap)
+          .addObject("backUrl",
+                  ReverseRouter.route(on(InitialTaskListController.class)
+                          .viewTaskList(pwaApplication.getId(), null)));
 
       applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, "Application contacts");
 
