@@ -26,4 +26,9 @@ public class PipelineCrossingUrlFactory {
     return ReverseRouter.route(on(PipelineCrossingController.class)
         .renderEditCrossing(applicationType, applicationId, crossingId, null, null));
   }
+
+  public String getRemoveCrossingUrl(Integer crossingId) {
+    return ReverseRouter.route(on(PipelineCrossingController.class)
+        .renderRemoveCrossing(applicationType, applicationId, crossingId, null));
+  }
 }

@@ -49,8 +49,7 @@ public class PadPipelineCrossingOwnerService {
   }
 
   public void createOwners(PadPipelineCrossing pipelineCrossing, PipelineCrossingForm form) {
-    var existingOwners = padPipelineCrossingOwnerRepository.findAllByPadPipelineCrossing(pipelineCrossing);
-    padPipelineCrossingOwnerRepository.deleteAll(existingOwners);
+    removeAllForCrossing(pipelineCrossing);
     if (!BooleanUtils.isTrue(form.getPipelineFullyOwnedByOrganisation())) {
       var owners = form.getPipelineOwners();
       var linkedEntries = owners.stream()
@@ -85,6 +84,11 @@ public class PadPipelineCrossingOwnerService {
       owner.setManualOrganisationEntry(StringUtils.stripStart(s, SearchSelectable.FREE_TEXT_PREFIX));
       padPipelineCrossingOwnerRepository.save(owner);
     });
+  }
+
+  public void removeAllForCrossing(PadPipelineCrossing padPipelineCrossing) {
+    var existingOwners = padPipelineCrossingOwnerRepository.findAllByPadPipelineCrossing(padPipelineCrossing);
+    padPipelineCrossingOwnerRepository.deleteAll(existingOwners);
   }
 
 }

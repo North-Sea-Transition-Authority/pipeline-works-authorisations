@@ -24,7 +24,9 @@
             <td class="govuk-table__cell">${crossing.reference}</td>
             <td class="govuk-table__cell">${crossing.owners}</td>
             <td class="govuk-table__cell">
-              <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getEditCrossingUrl(crossing.id)) linkClass="govuk-link"/>
+                <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getEditCrossingUrl(crossing.id)) linkClass="govuk-link"/>
+              <br/>
+                <@fdsAction.link linkText="Remove" linkUrl=springUrl(urlFactory.getRemoveCrossingUrl(crossing.id)) linkClass="govuk-link"/>
             </td>
           </tr>
         </#list>

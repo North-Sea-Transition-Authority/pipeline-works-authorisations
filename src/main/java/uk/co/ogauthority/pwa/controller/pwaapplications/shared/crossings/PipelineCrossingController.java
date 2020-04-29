@@ -123,7 +123,7 @@ public class PipelineCrossingController {
                                          @ModelAttribute("form") PipelineCrossingForm form,
                                          PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
-    var crossing = padPipelineCrossingService.getPipelineCrossingById(crossingId);
+    var crossing = padPipelineCrossingService.getPipelineCrossing(detail, crossingId);
     form.setPipelineCrossed(crossing.getPipelineCrossed());
     form.setPipelineFullyOwnedByOrganisation(crossing.getPipelineFullyOwnedByOrganisation());
     return getCrossingModelAndView(detail, ScreenActionType.EDIT)
@@ -139,7 +139,7 @@ public class PipelineCrossingController {
                                        BindingResult bindingResult,
                                        PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
-    var crossing = padPipelineCrossingService.getPipelineCrossingById(crossingId);
+    var crossing = padPipelineCrossingService.getPipelineCrossing(detail, crossingId);
     pipelineCrossingFormValidator.validate(form, bindingResult);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, repopulateOnError(detail, ScreenActionType.EDIT, form),
         () -> {
@@ -148,5 +148,35 @@ public class PipelineCrossingController {
               .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
                   null, null));
         });
+  }
+
+  @GetMapping("/{crossingId}/remove")
+  public ModelAndView renderRemoveCrossing(@PathVariable("applicationType")
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           @PathVariable("applicationId") Integer applicationId,
+                                           @PathVariable("crossingId") Integer crossingId,
+                                           PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var crossing = padPipelineCrossingService.getPipelineCrossing(detail, crossingId);
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/pipeline/removePipelineCrossing")
+        .addObject("view", padPipelineCrossingService.getPipelineCrossingView(crossing))
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), applicationId, null, null)));
+    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Remove cable crossing");
+    return modelAndView;
+  }
+
+  @PostMapping("/{crossingId}/remove")
+  public ModelAndView postRemoveCrossing(@PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable("applicationId") Integer applicationId,
+                                         @PathVariable("crossingId") Integer crossingId,
+                                         PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var crossing = padPipelineCrossingService.getPipelineCrossing(detail, crossingId);
+    padPipelineCrossingService.deleteCascade(crossing);
+    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
+            null, null));
   }
 }

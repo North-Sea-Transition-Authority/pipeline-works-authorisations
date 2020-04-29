@@ -39,9 +39,14 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
   }
 
-  public PadPipelineCrossing getPipelineCrossingById(Integer id) {
-    return padPipelineCrossingRepository.findById(id)
+  public PadPipelineCrossing getPipelineCrossing(PwaApplicationDetail detail, Integer id) {
+    return padPipelineCrossingRepository.getByPwaApplicationDetailAndId(detail, id)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find pipeline crossing with ID: " + id));
+  }
+
+  public void deleteCascade(PadPipelineCrossing padPipelineCrossing) {
+    padPipelineCrossingOwnerService.removeAllForCrossing(padPipelineCrossing);
+    padPipelineCrossingRepository.delete(padPipelineCrossing);
   }
 
   public List<PipelineCrossingView> getPipelineCrossingViews(PwaApplicationDetail pwaApplicationDetail) {
@@ -52,6 +57,11 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
           return new PipelineCrossingView(padPipelineCrossing, owners);
         })
         .collect(Collectors.toList());
+  }
+
+  public PipelineCrossingView getPipelineCrossingView(PadPipelineCrossing padPipelineCrossing) {
+    var owners = padPipelineCrossingOwnerService.getOwnersForCrossing(padPipelineCrossing);
+    return new PipelineCrossingView(padPipelineCrossing, owners);
   }
 
   public void createPipelineCrossings(PwaApplicationDetail pwaApplicationDetail, PipelineCrossingForm form) {
