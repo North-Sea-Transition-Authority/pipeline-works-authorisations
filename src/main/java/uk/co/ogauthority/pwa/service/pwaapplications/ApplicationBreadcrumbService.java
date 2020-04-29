@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -50,6 +51,13 @@ public class ApplicationBreadcrumbService {
     map.put(ReverseRouter.route(on(HuooController.class)
             .renderHuooSummary(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
         "Holders, users, operators, and owners");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromPipelinesOverview(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(PipelinesController.class)
+        .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
     addAttrs(modelAndView, map, thisPage);
   }
 

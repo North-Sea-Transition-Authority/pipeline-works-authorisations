@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
@@ -37,6 +36,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.DEPOSIT_CONSENT
 })
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class EnvironmentalDecomController {
 
   private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
@@ -70,13 +71,10 @@ public class EnvironmentalDecomController {
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderEnvDecom(@PathVariable("applicationType")
                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                      PwaApplicationContext applicationContext,
-                                     @ModelAttribute("form") EnvironmentalDecommissioningForm form,
-                                     AuthenticatedUserAccount user) {
+                                     @ModelAttribute("form") EnvironmentalDecommissioningForm form) {
     var detail = applicationContext.getApplicationDetail();
     var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
     var modelAndView = getEnvDecomModelAndView(detail);
@@ -85,14 +83,11 @@ public class EnvironmentalDecomController {
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postEnvDecom(@PathVariable("applicationType")
                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                    PwaApplicationContext applicationContext,
                                    @ModelAttribute("form") EnvironmentalDecommissioningForm form,
                                    BindingResult bindingResult,
-                                   AuthenticatedUserAccount user,
                                    ValidationType validationType) {
 
     var detail = applicationContext.getApplicationDetail();

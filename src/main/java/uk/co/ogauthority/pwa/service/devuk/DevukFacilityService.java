@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.devuk;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,15 @@ public class DevukFacilityService {
     this.devukFacilityRepository = devukFacilityRepository;
   }
 
-  // TODO: PWA-385 Change method to take a string, passing in to repository call.
-  public List<DevukFacility> getFacilities() {
-    return devukFacilityRepository.findAllByFacilityNameContainsIgnoreCase(PageRequest.of(0, 15), "");
+  public List<DevukFacility> getFacilities(String searchTerm) {
+    return devukFacilityRepository.findAllByFacilityNameContainsIgnoreCase(PageRequest.of(0, 15), searchTerm);
+  }
+
+  public List<DevukFacility> getFacilitiesInIds(List<String> ids) {
+    var intIds = ids.stream()
+        .map(Integer::parseInt)
+        .collect(Collectors.toList());
+    return devukFacilityRepository.findAllByIdIn(intIds);
   }
 
 }

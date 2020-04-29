@@ -19,10 +19,11 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.InitialFi
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -142,7 +143,7 @@ public class TaskListService {
             .renderFastTrack(applicationType, applicationId, null, null, null));
       case ENVIRONMENTAL_DECOMMISSIONING:
         return ReverseRouter.route(on(EnvironmentalDecomController.class)
-            .renderEnvDecom(applicationType, null, null, null), uriVariables);
+            .renderEnvDecom(applicationType, null, null), uriVariables);
       case CROSSING_AGREEMENTS:
         return ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(applicationType, applicationId, null, null));
@@ -152,6 +153,9 @@ public class TaskListService {
       case HUOO:
         return ReverseRouter.route(on(HuooController.class)
             .renderHuooSummary(applicationType, applicationId, null, null));
+      case PIPELINES:
+        return ReverseRouter.route(on(PipelinesController.class)
+            .renderPipelinesOverview(applicationId, applicationType, null));
       default:
         return "";
     }

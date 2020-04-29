@@ -13,7 +13,7 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
