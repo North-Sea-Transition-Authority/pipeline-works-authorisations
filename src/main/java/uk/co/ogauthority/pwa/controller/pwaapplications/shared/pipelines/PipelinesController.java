@@ -60,12 +60,18 @@ public class PipelinesController {
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
-    return new ModelAndView("pwaApplication/shared/pipelines/overview")
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
         .addObject("pipelineOverviews", padPipelinesService.getPipelineOverviews(detail).stream()
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("addPipelineUrl", ReverseRouter.route(on(PipelinesController.class)
             .renderAddPipeline(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)));
+
+    breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
+
+    return modelAndView;
+
   }
 
   @GetMapping
