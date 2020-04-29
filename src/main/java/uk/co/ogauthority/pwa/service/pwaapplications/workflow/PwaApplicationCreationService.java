@@ -63,7 +63,7 @@ public class PwaApplicationCreationService {
     pwaContactService.addContact(
         application,
         createdByUser.getLinkedPerson(),
-        Set.of(PwaContactRole.ACCESS_MANAGER));
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
 
     var detail = new PwaApplicationDetail(application, 1, createdByUser.getWuaId(), Instant.now(clock));
     pwaApplicationDetailRepository.save(detail);
