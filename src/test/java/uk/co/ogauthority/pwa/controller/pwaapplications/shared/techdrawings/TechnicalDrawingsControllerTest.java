@@ -75,7 +75,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -139,7 +139,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   @Test
   public void postHuooSummary_Invalid() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER));
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
     ControllerTestUtils.failValidationWhenPost(technicalDrawingsService, new SummaryForm(), ValidationType.FULL);
 
@@ -160,7 +160,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   @Test
   public void postHuooSummary_Valid() throws Exception {
 
-    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER));
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
     ControllerTestUtils.passValidationWhenPost(technicalDrawingsService, new SummaryForm(), ValidationType.FULL);
 

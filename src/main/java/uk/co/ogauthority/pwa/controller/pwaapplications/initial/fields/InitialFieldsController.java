@@ -78,7 +78,7 @@ public class InitialFieldsController {
 
     modelAndView.addObject("fields",
         padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
-    modelAndView.addObject("fieldMap", getDevukFieldMap(holders));
+    modelAndView.addObject("fieldMap", getDevukFieldMap());
 
     breadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Field information");
 
@@ -103,6 +103,8 @@ public class InitialFieldsController {
       if (fields.get(0).isLinkedToDevuk()) {
         form.setFieldId(fields.get(0).getDevukField().getFieldId());
       }
+    } else if (fields.size() == 0) {
+      form.setNoLinkedFieldDescription(applicationContext.getApplicationDetail().getNotLinkedDescription());
     }
 
     return modelAndView;
@@ -126,6 +128,9 @@ public class InitialFieldsController {
           var fieldList = new ArrayList<DevukField>();
           if (isLinkedtoField) {
             fieldList.add(devukFieldService.findById(form.getFieldId()));
+          } else {
+              pwaApplicationDetailService.setNotLinkedFieldDescription(
+                      applicationContext.getApplicationDetail(), form.getNoLinkedFieldDescription());
           }
           padFieldService.setFields(applicationContext.getApplicationDetail(), fieldList);
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
@@ -133,15 +138,13 @@ public class InitialFieldsController {
 
   }
 
-  private Map<String, String> getDevukFieldMap(List<ApplicationHolderOrganisation> holders) {
-    return holders.stream()
-        .flatMap(
-            org -> devukFieldService.getByOrganisationUnitWithStatusCodes(org.getOrganisationUnit(),
-                List.of(500, 600, 700))
-                .stream())
-        .sorted(Comparator.comparing(DevukField::getFieldName))
-        .collect(
-            StreamUtils.toLinkedHashMap(devukField -> devukField.getFieldId().toString(), DevukField::getFieldName));
+
+  private Map<String, String> getDevukFieldMap() {
+    return devukFieldService.getByStatusCodes(List.of(500, 600, 700))
+            .stream()
+            .sorted(Comparator.comparing(DevukField::getFieldName))
+            .collect(
+                    StreamUtils.toLinkedHashMap(devukField -> devukField.getFieldId().toString(), DevukField::getFieldName));
   }
 
 }
