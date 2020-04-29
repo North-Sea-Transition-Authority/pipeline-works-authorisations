@@ -244,7 +244,8 @@ public class PadProjectInformationServiceTest {
         entry("projectOverview", Set.of("Length")),
         entry("projectName", Set.of("Length")),
         entry("methodOfPipelineDeployment", Set.of("Length")),
-        entry("usingCampaignApproach", Set.of("NotNull")) // only required when full
+        entry("usingCampaignApproach", Set.of("NotNull")), // only required when full
+        entry("licenceTransferPlanned", Set.of("NotNull")) // only required when full
     );
 
   }
@@ -258,6 +259,7 @@ public class PadProjectInformationServiceTest {
     form.setProjectName(ok);
     form.setMethodOfPipelineDeployment(ok);
     form.setUsingCampaignApproach(false);
+    form.setLicenceTransferPlanned(false);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);

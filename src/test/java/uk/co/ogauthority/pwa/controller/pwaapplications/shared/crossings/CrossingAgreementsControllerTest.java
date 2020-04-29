@@ -11,7 +11,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.Before;
@@ -37,9 +36,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -68,6 +69,12 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   @MockBean
   private MedianLineCrossingFileService medianLineCrossingFileService;
 
+  @MockBean
+  private PadCableCrossingService cableCrossingService;
+
+  @MockBean
+  private CableCrossingFileService cableCrossingFileService;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaApplicationContext pwaApplicationContext;
   private AuthenticatedUserAccount user;
@@ -90,7 +97,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   public void renderCrossingAgreementsOverview_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", APP_ID)))
+            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
     ).andExpect(status().is3xxRedirection());
   }
 
@@ -105,7 +112,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
 
     var model = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", APP_ID)))
+            .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())

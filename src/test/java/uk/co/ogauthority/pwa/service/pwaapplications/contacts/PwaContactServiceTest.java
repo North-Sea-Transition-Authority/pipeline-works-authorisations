@@ -7,10 +7,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Collections;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -160,7 +162,7 @@ public class PwaContactServiceTest {
 
     var pwaApplication = new PwaApplication();
     var person = new Person();
-    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER));
+    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
 
@@ -187,7 +189,7 @@ public class PwaContactServiceTest {
 
     var pwaApplication = new PwaApplication();
     var person = new Person();
-    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER));
+    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
     var additionalAccessManager = new PwaContact(pwaApplication, new Person(), Set.of(PwaContactRole.ACCESS_MANAGER));
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
@@ -204,7 +206,7 @@ public class PwaContactServiceTest {
 
     var pwaApplication = new PwaApplication();
     var person = new Person();
-    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER));
+    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
     var nonAccessManagerContact = new PwaContact(pwaApplication, new Person(), Set.of(PwaContactRole.VIEWER));
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
@@ -223,7 +225,7 @@ public class PwaContactServiceTest {
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
 
-    var newRoles = Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER, PwaContactRole.PREPARER);
+    var newRoles = Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER);
     pwaContactService.updateContact(pwaApplication, person, newRoles);
 
     verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
@@ -232,7 +234,7 @@ public class PwaContactServiceTest {
 
     assertThat(updatedContact.getPwaApplication()).isEqualTo(pwaApplication);
     assertThat(updatedContact.getPerson()).isEqualTo(person);
-    assertThat(updatedContact.getRoles()).containsExactlyInAnyOrder(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER, PwaContactRole.PREPARER);
+    assertThat(updatedContact.getRoles()).containsExactlyInAnyOrder(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER);
 
   }
 
@@ -244,8 +246,7 @@ public class PwaContactServiceTest {
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
 
-    var newRoles = Set.of(PwaContactRole.SUBMITTER);
-    pwaContactService.updateContact(pwaApplication, person, newRoles);
+    pwaContactService.updateContact(pwaApplication, person, Collections.<PwaContactRole>emptySet());
 
     verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
 
@@ -253,7 +254,6 @@ public class PwaContactServiceTest {
 
     assertThat(newContact.getPwaApplication()).isEqualTo(pwaApplication);
     assertThat(newContact.getPerson()).isEqualTo(person);
-    assertThat(newContact.getRoles()).containsExactly(PwaContactRole.SUBMITTER);
 
   }
 
@@ -276,7 +276,7 @@ public class PwaContactServiceTest {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
     when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact, additionalAccessManager));
 
-    var newRoles = Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER);
+    var newRoles = Set.of(PwaContactRole.PREPARER);
     pwaContactService.updateContact(pwaApplication, person, newRoles);
 
     verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
@@ -285,7 +285,7 @@ public class PwaContactServiceTest {
 
     assertThat(updatedContact.getPwaApplication()).isEqualTo(pwaApplication);
     assertThat(updatedContact.getPerson()).isEqualTo(person);
-    assertThat(updatedContact.getRoles()).containsExactlyInAnyOrder(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER);
+    assertThat(updatedContact.getRoles()).containsExactlyInAnyOrder(PwaContactRole.PREPARER);
 
   }
 
@@ -299,7 +299,7 @@ public class PwaContactServiceTest {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
     when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact));
 
-    var newRoles = Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER);
+    var newRoles = Set.of(PwaContactRole.PREPARER);
     pwaContactService.updateContact(pwaApplication, person, newRoles);
 
   }
@@ -312,7 +312,7 @@ public class PwaContactServiceTest {
     pwaApplication.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
 
     var person = new Person(1, "forename", "surname", "a@b.com", "020 123 4567");
-    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.SUBMITTER));
+    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
 
     var teamMemberView = pwaContactService.getTeamMemberView(pwaApplication, contact);
 
@@ -329,7 +329,7 @@ public class PwaContactServiceTest {
         ReverseRouter.route(on(PwaContactController.class)
             .renderRemoveContactScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), person.getId().asInt(), null)));
 
-    assertThat(teamMemberView.getRoleViews().size()).isEqualTo(2);
+    assertThat(teamMemberView.getRoleViews().size()).isEqualTo(1);
 
     teamMemberView.getRoleViews().stream()
         .map(TeamRoleView::getRoleName)
@@ -337,7 +337,6 @@ public class PwaContactServiceTest {
           try {
             assertThat(roleName).isEqualTo(PwaContactRole.ACCESS_MANAGER.getRoleName());
           } catch (AssertionError e) {
-            assertThat(roleName).isEqualTo(PwaContactRole.SUBMITTER.getRoleName());
           }
         });
 

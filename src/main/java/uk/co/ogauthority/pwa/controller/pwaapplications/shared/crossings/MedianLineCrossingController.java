@@ -123,7 +123,7 @@ public class MedianLineCrossingController {
       var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
       padMedianLineAgreementService.saveEntityUsingForm(entity, form);
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), null, null));
+          .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
     });
   }
 

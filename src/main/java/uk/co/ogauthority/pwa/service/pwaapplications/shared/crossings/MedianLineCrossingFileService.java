@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadMedianLineCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.MedianLineCrossingDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -53,7 +53,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
     this.groupValidator = groupValidator;
   }
 
-  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, MedianLineCrossingDocumentsForm form) {
+  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, CrossingDocumentsForm form) {
     var fileFormViewList = getUploadedFileListAsFormList(pwaApplicationDetail, ApplicationFileLinkStatus.FULL);
     form.setUploadedFileWithDescriptionForms(fileFormViewList);
   }
@@ -167,7 +167,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
    */
   @Transactional
   public void updateOrDeleteLinkedFilesUsingForm(PwaApplicationDetail pwaApplicationDetail,
-                                                 MedianLineCrossingDocumentsForm form,
+                                                 CrossingDocumentsForm form,
                                                  WebUserAccount user) {
     Map<String, UploadFileWithDescriptionForm> uploadedFilesMap = form.getUploadedFileWithDescriptionForms()
         .stream()
@@ -199,7 +199,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
    * Get all uploaded files as views where the file exists on form and with description as set on form.
    */
   private List<UploadedFileView> updateFormWithSuppliedUploadedFileViews(
-      MedianLineCrossingDocumentsForm form,
+      CrossingDocumentsForm form,
       Supplier<List<UploadedFileView>> viewListSupplier
   ) {
     Map<String, UploadFileWithDescriptionForm> formFilesMap = form.getUploadedFileWithDescriptionForms()
@@ -222,7 +222,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
    */
   public List<UploadedFileView> getUpdatedMedianLineCrossingFileViewsWhenFileOnForm(
       PwaApplicationDetail pwaApplicationDetail,
-      MedianLineCrossingDocumentsForm form) {
+      CrossingDocumentsForm form) {
 
     return updateFormWithSuppliedUploadedFileViews(
         form,
@@ -256,7 +256,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var form = new MedianLineCrossingDocumentsForm();
+    var form = new CrossingDocumentsForm();
     mapDocumentsToForm(detail, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();

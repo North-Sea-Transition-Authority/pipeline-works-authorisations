@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.BlockCrossingDocumentsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -66,7 +66,7 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   public ModelAndView renderEditBlockCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") BlockCrossingDocumentsForm form,
+      @ModelAttribute("form") CrossingDocumentsForm form,
       PwaApplicationContext applicationContext) {
 
     blockCrossingFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
@@ -79,11 +79,11 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   public ModelAndView postBlockCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") BlockCrossingDocumentsForm form,
+      @ModelAttribute("form") CrossingDocumentsForm form,
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
-
+    var detail = applicationContext.getApplicationDetail();
     blockCrossingFileService.validate(
         form,
         bindingResult,
@@ -98,12 +98,12 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
           form,
           applicationContext.getUser());
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, null, null));
+          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
   }
 
   private ModelAndView createBlockCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                       BlockCrossingDocumentsForm form) {
+                                                       CrossingDocumentsForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
         ReverseRouter.route(on(BlockCrossingDocumentsController.class)
@@ -119,12 +119,13 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
         blockCrossingFileService.getUpdatedBlockCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
     );
 
-    modelAndView.addObject("pageTitle", "Block crossing documents")
+    modelAndView.addObject("pageTitle", "Block crossing agreement documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(), null, null)));
+            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Block crossing documents");
+        "Block crossing agreement documents");
     return modelAndView;
   }
 

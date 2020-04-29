@@ -3,13 +3,32 @@
 <#-- @ftlvariable name="addUserUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="showBreadcrumbs" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="userCanManageAccess" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="allRoles" type="java.util.Map<String,String>" -->
 
 <#include "../layout.ftl">
 
-<@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=true twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
+<@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=false twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
+
+    <#if allRoles??>
+      <@fdsDetails.summaryDetails summaryTitle="What can each role do?" >
+        <table class="govuk-table">                 
+            <tbody class="govuk-table__body">
+            <#list allRoles as propName, propValue>
+              <#assign name = propName?lower_case?cap_first?replace("_"," ") >
+              <#assign description = propValue?keep_before("(") > 
+                  <tr class="govuk-table__row">
+                      <td class="govuk-table__cell"> ${name} </td>
+                      <td class="govuk-table__cell"> ${description} </td>          
+                  </tr>
+            </#list>
+            </tbody>
+        </table>
+      </@fdsDetails.summaryDetails>
+    </#if>
+
 
     <#if userCanManageAccess>
-        <@fdsAction.link linkText="Add user" linkUrl=springUrl(addUserUrl) linkClass="govuk-button" role=true/>
+        <@fdsAction.link linkText="Add user" linkUrl=springUrl(addUserUrl) linkClass="govuk-button govuk-button--blue" role=true/>
     </#if>
 
     <#list teamMemberViews>
@@ -58,5 +77,9 @@
         </tbody>
       </table>
     </#list>
+
+    <#if backUrl??>
+      <@fdsAction.link linkText="Complete section" linkClass="govuk-button"  linkUrl=springUrl(backUrl)/>
+    </#if>
 
 </@defaultPage>

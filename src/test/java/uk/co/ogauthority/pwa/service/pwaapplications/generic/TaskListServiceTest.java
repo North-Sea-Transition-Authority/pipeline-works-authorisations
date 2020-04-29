@@ -16,9 +16,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,12 +41,15 @@ public class TaskListServiceTest {
   @Mock
   private TaskCompletionService taskCompletionService;
 
+  @Mock
+  private PwaContactService pwaContactService;
+
   private TaskListService taskListService;
 
   @Before
   public void setUp() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        padFastTrackService, taskCompletionService);
+        padFastTrackService, taskCompletionService, pwaContactService);
   }
 
   @Test
@@ -65,7 +70,7 @@ public class TaskListServiceTest {
 
     PwaApplicationType.stream().forEach(appType -> {
 
-      if(appType != PwaApplicationType.INITIAL) {
+      if (appType != PwaApplicationType.INITIAL) {
 
         pwaApplication.setApplicationType(appType);
 
@@ -86,9 +91,7 @@ public class TaskListServiceTest {
 
       pwaApplication.setApplicationType(applicationType);
 
-      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys(
-          "Application contacts",
-          "Holders, users, operators, and owners");
+      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys("Application contacts", "Holders, users, operators, and owners");
 
     });
 
@@ -107,38 +110,56 @@ public class TaskListServiceTest {
         pwaApplication.setApplicationType(appType);
         var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(detail));
 
-        switch(appType) {
+        switch (appType) {
           case INITIAL:
           case CAT_1_VARIATION:
+            assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+                ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
+                ApplicationTask.PIPELINES.getDisplayName()
+            );
+            break;
           case DEPOSIT_CONSENT:
             assertThat(taskNamesList).containsOnly(
-              "Project information",
-              "Environmental and decommissioning",
-              "Crossing agreements",
-              "Location details"
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+                ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName()
             );
             break;
           case DECOMMISSIONING:
           case OPTIONS_VARIATION:
           assertThat(taskNamesList).containsOnly(
-              "Project information",
-              "Environmental and decommissioning",
-              "Location details"
+              ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+              ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+              ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+              ApplicationTask.HUOO.getDisplayName()
           );
           break;
         case CAT_2_VARIATION:
           assertThat(taskNamesList).containsOnly(
-              "Project information",
-              "Crossing agreements",
-              "Location details"
+              ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+              ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+              ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+              ApplicationTask.HUOO.getDisplayName(),
+              ApplicationTask.PIPELINES.getDisplayName(),
+              ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:
-            assertThat(taskNamesList).containsOnly("No tasks");
+            assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName()
+            );
             break;
         }
 
-      } catch (AssertionError e){
+      } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
       }
 
@@ -185,25 +206,32 @@ public class TaskListServiceTest {
 
       switch (applicationType) {
         case INITIAL:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/initial/initialTaskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo(
+              "pwaApplication/initial/initialTaskList");
           break;
         case CAT_1_VARIATION:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/category1/cat1TaskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo(
+              "pwaApplication/category1/cat1TaskList");
           break;
         case CAT_2_VARIATION:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/category2/cat2TaskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo(
+              "pwaApplication/category2/cat2TaskList");
           break;
         case HUOO_VARIATION:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/huooVariation/huooTaskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo(
+              "pwaApplication/huooVariation/huooTaskList");
           break;
         case DEPOSIT_CONSENT:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/depositConsent/depositConsentTaskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo(
+              "pwaApplication/depositConsent/depositConsentTaskList");
           break;
         case DECOMMISSIONING:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/decommissioning/decommissioningTaskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo(
+              "pwaApplication/decommissioning/decommissioningTaskList");
           break;
         case OPTIONS_VARIATION:
-          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo("pwaApplication/optionsVariation/optionsVariationTaskList");
+          assertThat(taskListService.getTaskListTemplatePath(applicationType)).isEqualTo(
+              "pwaApplication/optionsVariation/optionsVariationTaskList");
           break;
         default:
           throw new AssertionError();
@@ -234,7 +262,7 @@ public class TaskListServiceTest {
       assertThat(modelAndView.getModel().get("prepareAppTasks")).isNotNull();
 
       // TODO: PWA-361 - Remove hard-coded "PWA-Example-BP-2".
-      if(applicationType != PwaApplicationType.INITIAL) {
+      if (applicationType != PwaApplicationType.INITIAL) {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example-BP-2");
       } else {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isNull();

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.enums.validation;
 public enum FieldValidationErrorCodes {
 
   BEFORE_TODAY(".beforeToday"),
+  AFTER_TODAY(".afterToday"),
   INVALID(".invalid"),
   MAX_LENGTH_EXCEEDED(".maxLengthExceeded"),
   REQUIRED(".required");

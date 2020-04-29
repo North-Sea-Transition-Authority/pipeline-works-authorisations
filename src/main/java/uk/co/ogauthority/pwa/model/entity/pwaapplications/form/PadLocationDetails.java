@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form;
 
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -32,6 +33,10 @@ public class PadLocationDetails {
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
   private String transportationMethod;
+  private String pipelineRouteDetails;
+  private Instant surveyConcludedTimestamp;
+  private Boolean routeSurveyUndertaken;
+  private Boolean withinLimitsOfDeviation;
 
   public Integer getId() {
     return id;
@@ -88,5 +93,37 @@ public class PadLocationDetails {
 
   public void setTransportationMethod(String transportationMethod) {
     this.transportationMethod = transportationMethod;
+  }
+
+  public String getPipelineRouteDetails() {
+    return pipelineRouteDetails;
+  }
+
+  public void setPipelineRouteDetails(String pipelineRouteDetails) {
+    this.pipelineRouteDetails = pipelineRouteDetails;
+  }
+
+  public Instant getSurveyConcludedTimestamp() {
+    return surveyConcludedTimestamp;
+  }
+
+  public void setSurveyConcludedTimestamp(Instant surveyConcludedTimestamp) {
+    this.surveyConcludedTimestamp = surveyConcludedTimestamp;
+  }
+
+  public Boolean getRouteSurveyUndertaken() {
+    return routeSurveyUndertaken;
+  }
+
+  public void setRouteSurveyUndertaken(Boolean routeSurveyUndertaken) {
+    this.routeSurveyUndertaken = routeSurveyUndertaken;
+  }
+
+  public Boolean getWithinLimitsOfDeviation() {
+    return withinLimitsOfDeviation;
+  }
+
+  public void setWithinLimitsOfDeviation(Boolean withinLimitsOfDeviation) {
+    this.withinLimitsOfDeviation = withinLimitsOfDeviation;
   }
 }

@@ -8,7 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -30,8 +34,39 @@ public class ApplicationBreadcrumbService {
   public void fromCrossings(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(CrossingAgreementsController.class)
-        .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), null, null)),
+        .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
         "Crossings");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromLocationDetails(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(LocationDetailsController.class)
+            .renderLocationDetails(pwaApplication.getApplicationType(), null, null, null)),
+        "Location details");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromTechnicalDrawings(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
+        "Technical drawings");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromHuoo(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
+        "Holders, users, operators, and owners");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromPipelinesOverview(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(PipelinesController.class)
+        .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
     addAttrs(modelAndView, map, thisPage);
   }
 

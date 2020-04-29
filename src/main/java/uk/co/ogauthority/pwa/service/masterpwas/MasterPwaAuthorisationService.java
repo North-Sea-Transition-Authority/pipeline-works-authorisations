@@ -32,7 +32,7 @@ public class MasterPwaAuthorisationService {
    * Skeleton implementation until we have the authorisation model done
    * */
   public MasterPwa getMasterPwaIfAuthorised(int masterPwaId, WebUserAccount requestingWebUserAccount) {
-    // TODO actual authorisation
+    // TODO PWA-456 actual authorisation
     MasterPwa masterPwa = masterPwaRepository.findById(masterPwaId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find master pwa with id:" + masterPwaId));
     return masterPwa;
@@ -43,7 +43,7 @@ public class MasterPwaAuthorisationService {
    * Skeleton implementation until we have the authorisation model done
    * */
   public List<MasterPwaDetail> getMasterPwasWhereUserIsAuthorised(WebUserAccount requestingWebUserAccount) {
-    // TODO authorisation
+    // TODO PWA-456 authorisation
     return masterPwaDetailRepository.findByEndInstantIsNullAndMasterPwaDetailStatus(MasterPwaDetailStatus.CONSENTED);
 
   }

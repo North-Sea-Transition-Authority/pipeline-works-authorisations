@@ -32,6 +32,10 @@ public class PadProjectInformation {
   private Instant latestCompletionTimestamp;
   private Boolean usingCampaignApproach;
 
+  private Boolean licenceTransferPlanned;
+  private Instant licenceTransferTimestamp;
+  private Instant commercialAgreementTimestamp;
+
   public Integer getId() {
     return id;
   }
@@ -119,5 +123,29 @@ public class PadProjectInformation {
 
   public void setUsingCampaignApproach(Boolean usingCampaignApproach) {
     this.usingCampaignApproach = usingCampaignApproach;
+  }
+
+  public Boolean getLicenceTransferPlanned() {
+    return licenceTransferPlanned;
+  }
+
+  public void setLicenceTransferPlanned(Boolean licenceTransferPlanned) {
+    this.licenceTransferPlanned = licenceTransferPlanned;
+  }
+
+  public Instant getLicenceTransferTimestamp() {
+    return licenceTransferTimestamp;
+  }
+
+  public void setLicenceTransferTimestamp(Instant licenceTransferTimestamp) {
+    this.licenceTransferTimestamp = licenceTransferTimestamp;
+  }
+
+  public Instant getCommercialAgreementTimestamp() {
+    return commercialAgreementTimestamp;
+  }
+
+  public void setCommercialAgreementTimestamp(Instant commercialAgreementTimestamp) {
+    this.commercialAgreementTimestamp = commercialAgreementTimestamp;
   }
 }

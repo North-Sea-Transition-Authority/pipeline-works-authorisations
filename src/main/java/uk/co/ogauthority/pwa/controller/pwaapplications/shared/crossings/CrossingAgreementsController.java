@@ -21,9 +21,12 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -43,6 +46,8 @@ public class CrossingAgreementsController {
   private final BlockCrossingFileService blockCrossingFileService;
   private final CrossingAgreementsService crossingAgreementsService;
   private final MedianLineCrossingFileService medianLineCrossingFileService;
+  private final PadCableCrossingService cableCrossingService;
+  private final CableCrossingFileService cableCrossingFileService;
 
   @Autowired
   public CrossingAgreementsController(
@@ -51,13 +56,17 @@ public class CrossingAgreementsController {
       BlockCrossingService blockCrossingService,
       BlockCrossingFileService blockCrossingFileService,
       CrossingAgreementsService crossingAgreementsService,
-      MedianLineCrossingFileService medianLineCrossingFileService) {
+      MedianLineCrossingFileService medianLineCrossingFileService,
+      PadCableCrossingService cableCrossingService,
+      CableCrossingFileService cableCrossingFileService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingService = blockCrossingService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.crossingAgreementsService = crossingAgreementsService;
     this.medianLineCrossingFileService = medianLineCrossingFileService;
+    this.cableCrossingService = cableCrossingService;
+    this.cableCrossingFileService = cableCrossingFileService;
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
@@ -66,9 +75,13 @@ public class CrossingAgreementsController {
         .addObject("medianLineFiles",
             medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("blockCrossings", blockCrossingService.getCrossedBlockViews(detail))
+        .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
         .addObject("blockCrossingFiles",
             blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
+        .addObject("cableCrossings", cableCrossingService.getCableCrossingViews(detail))
+        .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
+        .addObject("cableCrossingFiles",
+            cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Crossings");
     return modelAndView;
@@ -79,6 +92,7 @@ public class CrossingAgreementsController {
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderCrossingAgreementsOverview(@PathVariable("applicationType")
                                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                       @PathVariable("applicationId") Integer applicationId,
                                                        PwaApplicationContext applicationContext,
                                                        AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();

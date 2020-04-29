@@ -14,8 +14,7 @@
         path="form.crossedBlockOwner"
         labelText="Who owns the block?"
         hintText="If the block owner is not the PWA holder(s) you will be expected to provide a block crossing agreement document"
-        hiddenContent=true
-        >
+        hiddenContent=true>
             <#assign firstItem=true/>
             <#list crossedBlockOwnerOptions as crossedBlock>
                 <@fdsRadio.radioItem path="form.crossedBlockOwner" itemMap={crossedBlock : crossedBlock.getDisplayName()} isFirstItem=firstItem>

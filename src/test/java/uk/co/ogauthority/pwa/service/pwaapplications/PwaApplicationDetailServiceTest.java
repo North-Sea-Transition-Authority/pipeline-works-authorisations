@@ -59,7 +59,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setLinkedToFields() {
+  public void setLinkedToFields_isLinked() {
 
     when(applicationDetailRepository.save(pwaApplicationDetail)).thenReturn(pwaApplicationDetail);
 
@@ -70,7 +70,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setLinkedToFieldsNoField() {
+  public void setLinkedToFields_notLinked() {
     pwaApplicationDetail.setNotLinkedDescription("test description");
     when(applicationDetailRepository.save(pwaApplicationDetail)).thenReturn(pwaApplicationDetail);
 

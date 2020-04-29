@@ -190,6 +190,10 @@ public class PwaApplicationDetail {
     return this.pwaApplication.getApplicationType();
   }
 
+  public boolean isFirstVersion() {
+    return this.versionNo == 1;
+  }
+
   public String getNotLinkedDescription() {
     return notLinkedDescription;
   }

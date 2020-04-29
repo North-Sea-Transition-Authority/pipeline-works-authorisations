@@ -9,8 +9,6 @@ public enum PwaContactRole {
 
   ACCESS_MANAGER("Access manager", "Can add, update and remove contacts for this application (Access manager)", 10),
 
-  SUBMITTER("Submitter", "Can submit this application (Submitter)", 20),
-
   PREPARER("Preparer", "Can edit this application (Preparer)", 30),
 
   VIEWER("Viewer", "Can view this application (Viewer)", 40);

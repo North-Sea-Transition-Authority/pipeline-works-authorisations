@@ -14,6 +14,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +44,7 @@ import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.AddBlockCrossingFormValidator;
@@ -97,7 +99,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     when(padCrossedBlock.getBlockReference()).thenReturn("some block");
@@ -111,6 +113,9 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
         pwaApplicationDetail);
     when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    when(blockCrossingService.getCrossedBlockView(any(), any())).thenReturn(
+        new BlockCrossingView(BLOCK_CROSSING_ID, "ref", "ref", List.of(), true));
   }
 
   @Test
@@ -493,6 +498,55 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                 applicationDetail.getMasterPwaApplicationId(),
                 BLOCK_CROSSING_ID,
                 null,
+                null))
+    )
+        .setRequestMethod(HttpMethod.GET);
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void renderRemoveBlockCrossing_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .renderRemoveBlockCrossing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    BLOCK_CROSSING_ID,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void renderRemoveBlockCrossing_appStatusSmokeTest() {
+
+    endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
+        ReverseRouter.route(on(BlockCrossingController.class)
+            .renderRemoveBlockCrossing(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                BLOCK_CROSSING_ID,
+                null))
+    )
+        .setRequestMethod(HttpMethod.GET);
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+  }
+
+  @Test
+  public void renderRemoveBlockCrossing_contactRoleSmokeTest() {
+
+    endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
+        ReverseRouter.route(on(BlockCrossingController.class)
+            .renderRemoveBlockCrossing(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                BLOCK_CROSSING_ID,
                 null))
     )
         .setRequestMethod(HttpMethod.GET);
