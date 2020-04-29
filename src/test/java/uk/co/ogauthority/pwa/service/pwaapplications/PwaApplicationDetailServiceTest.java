@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,10 +28,11 @@ public class PwaApplicationDetailServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private WebUserAccount webUserAccount;
   private AuthenticatedUserAccount user;
+  private Clock clock = Clock.systemUTC();
 
   @Before
   public void setUp() {
-    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository);
+    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock);
     pwaApplicationDetail = new PwaApplicationDetail();
     webUserAccount = new WebUserAccount();
     user = new AuthenticatedUserAccount(webUserAccount, List.of());

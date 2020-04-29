@@ -83,7 +83,7 @@ public class ApplicationBreadcrumbService {
 
   private Map<String, String> workArea() {
     Map<String, String> breadcrumbs = new LinkedHashMap<>();
-    breadcrumbs.put(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()), "Work area");
+    breadcrumbs.put(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)), "Work area");
     return breadcrumbs;
   }
 

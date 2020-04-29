@@ -6,7 +6,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -29,6 +28,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
@@ -63,15 +63,17 @@ public class PwaApplicationCreationServiceTest {
   @Mock
   private MasterPwa masterPwa;
 
+  @Mock
+  private PwaApplicationDetailService pwaApplicationDetailService;
+
   @Before
   public void setUp() {
     pwaApplicationCreationService = new PwaApplicationCreationService(
         masterPwaManagementService,
         pwaApplicationRepository,
-        pwaApplicationDetailRepository,
         camundaWorkflowService,
         pwaContactService,
-        Clock.fixed(fixedInstant, ZoneId.systemDefault()));
+        pwaApplicationDetailService);
   }
 
 
@@ -119,8 +121,8 @@ public class PwaApplicationCreationServiceTest {
     assertThat(detail.getCreatedTimestamp()).isEqualTo(fixedInstant);
     assertThat(detail.getSubmittedByWuaId()).isNull();
     assertThat(detail.getSubmittedTimestamp()).isNull();
-    assertThat(detail.getLastUpdatedByWuaId()).isNull();
-    assertThat(detail.getLastUpdatedTimestamp()).isNull();
+    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(user.getWuaId());
+    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(fixedInstant);
 
   }
 
@@ -178,8 +180,8 @@ public class PwaApplicationCreationServiceTest {
     assertThat(detail.getCreatedTimestamp()).isEqualTo(fixedInstant);
     assertThat(detail.getSubmittedByWuaId()).isNull();
     assertThat(detail.getSubmittedTimestamp()).isNull();
-    assertThat(detail.getLastUpdatedByWuaId()).isNull();
-    assertThat(detail.getLastUpdatedTimestamp()).isNull();
+    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(user.getWuaId());
+    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(fixedInstant);
 
   }
 }

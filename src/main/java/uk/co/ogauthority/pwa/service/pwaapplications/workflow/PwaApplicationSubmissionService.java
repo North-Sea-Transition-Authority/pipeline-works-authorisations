@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 /**
@@ -18,12 +18,12 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 @Service
 public class PwaApplicationSubmissionService {
 
-  private final PwaApplicationDetailRepository pwaApplicationDetailRepository;
+  private final PwaApplicationDetailService pwaApplicationDetailRepository;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
 
   @Autowired
-  public PwaApplicationSubmissionService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
+  public PwaApplicationSubmissionService(PwaApplicationDetailService pwaApplicationDetailRepository,
                                          CamundaWorkflowService camundaWorkflowService,
                                          @Qualifier("utcClock") Clock clock) {
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
@@ -43,10 +43,7 @@ public class PwaApplicationSubmissionService {
     }
 
     camundaWorkflowService.completeTask(detail.getMasterPwaApplicationId(), UserWorkflowTask.PREPARE_APPLICATION);
-    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-    detail.setSubmittedByWuaId(submittedByUser.getWuaId());
-    detail.setSubmittedTimestamp(clock.instant());
-    pwaApplicationDetailRepository.save(detail);
+    pwaApplicationDetailRepository.setSubmitted(detail, submittedByUser);
 
   }
 

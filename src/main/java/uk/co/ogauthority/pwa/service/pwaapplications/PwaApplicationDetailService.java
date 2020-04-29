@@ -1,12 +1,17 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.function.Function;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -15,10 +20,13 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 public class PwaApplicationDetailService {
 
   private final PwaApplicationDetailRepository pwaApplicationDetailRepository;
+  private final Clock clock;
 
   @Autowired
-  public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository) {
+  public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
+                                     @Qualifier("utcClock") Clock clock) {
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
+    this.clock = clock;
   }
 
   /**
@@ -68,5 +76,50 @@ public class PwaApplicationDetailService {
     pwaApplicationDetail.setLinkedToField(linked);
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
+
+  /**
+   * Update the status of the application being linked to fields.
+   *
+   * @return Saved app detail.
+   */
+  @Transactional
+  public PwaApplicationDetail updateStatus(PwaApplicationDetail pwaApplicationDetail, PwaApplicationStatus status,
+                                           WebUserAccount webUserAccount) {
+    pwaApplicationDetail.setStatus(status);
+    pwaApplicationDetail.setStatusLastModifiedTimestamp(Instant.now(clock));
+    pwaApplicationDetail.setStatusLastModifiedByWuaId(webUserAccount.getWuaId());
+    return pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
+
+  /**
+   * Update the all app detail fields required when application detail is submitted.
+   *
+   * @return Saved app detail.
+   */
+  @Transactional
+  public PwaApplicationDetail setSubmitted(PwaApplicationDetail pwaApplicationDetail, WebUserAccount webUserAccount) {
+
+    pwaApplicationDetail.setSubmittedByWuaId(webUserAccount.getWuaId());
+    pwaApplicationDetail.setSubmittedTimestamp(clock.instant());
+
+    return updateStatus(
+        pwaApplicationDetail,
+        PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
+        webUserAccount
+    );
+  }
+
+  /**
+   * Update the all app detail fields required when application detail is submitted.
+   *
+   * @return Saved app detail.
+   */
+  @Transactional
+  public PwaApplicationDetail createFirstDetail(PwaApplication application, WebUserAccount webUserAccount) {
+    var pwaApplicationDetail = new PwaApplicationDetail(application, 1, webUserAccount.getWuaId(), clock.instant());
+    return pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
 
 }
