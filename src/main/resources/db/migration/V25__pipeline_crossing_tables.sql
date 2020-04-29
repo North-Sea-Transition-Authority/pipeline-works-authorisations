@@ -22,7 +22,12 @@ CREATE INDEX ${datasource.user}.pad_pipeline_crossings_pad_idx ON ${datasource.u
 CREATE TABLE ${datasource.user}.pad_pipeline_crossing_owners (
   id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
 , ppc_id NUMBER NOT NULL
-, ou_id NUMBER NOT NULL
+, ou_id NUMBER
+, org_manual_entry VARCHAR2(4000)
+, CONSTRAINT pad_pco_ou_org_check CHECK (
+    (ou_id IS NOT NULL AND org_manual_entry IS NULL)
+    OR (ou_id IS NULL AND org_manual_entry IS NOT NULL)
+  )
 , CONSTRAINT pad_pco_ppc_fk FOREIGN KEY (ppc_id) REFERENCES ${datasource.user}.pad_pipeline_crossings(id)
 );
 CREATE INDEX ${datasource.user}.pad_pco_pad_ppc_idx ON ${datasource.user}.pad_pipeline_crossing_owners(ppc_id);

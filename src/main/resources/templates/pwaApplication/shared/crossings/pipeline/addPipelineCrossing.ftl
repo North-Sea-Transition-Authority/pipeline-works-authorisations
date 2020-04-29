@@ -11,7 +11,7 @@
         <@fdsRadio.radioGroup path="form.pipelineFullyOwnedByOrganisation" labelText="Is the pipeline being crossed fully owned by your organisation?" hiddenContent=true>
           <@fdsRadio.radioYes path="form.pipelineFullyOwnedByOrganisation"/>
           <@fdsRadio.radioNo path="form.pipelineFullyOwnedByOrganisation">
-            <@fdsSearchSelector.searchSelectorRest path="form.pipelineOwners" labelText="Who are the owners of the pipeline being crossed?" restUrl=springUrl("#") multiSelect=true nestingPath="form.pipelineFullyOwnedByOrganisation"/>
+            <@fdsSearchSelector.searchSelectorRest path="form.pipelineOwners" labelText="Who are the owners of the pipeline being crossed?" restUrl=springUrl(orgsRestUrl) multiSelect=true preselectedItems=preselectedOwners nestingPath="form.pipelineFullyOwnedByOrganisation"/>
           </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} cable crossing" secondaryLinkText="Back to crossings" linkSecondaryActionUrl=springUrl(backUrl)/>

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared.location;
+package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -20,5 +20,10 @@ public class PipelineCrossingUrlFactory {
   public String getAddCrossingUrl() {
     return ReverseRouter.route(on(PipelineCrossingController.class)
         .renderAddCrossing(applicationType, applicationId, null, null));
+  }
+
+  public String getEditCrossingUrl(Integer crossingId) {
+    return ReverseRouter.route(on(PipelineCrossingController.class)
+        .renderEditCrossing(applicationType, applicationId, crossingId, null, null));
   }
 }
