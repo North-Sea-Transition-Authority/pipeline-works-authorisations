@@ -9,6 +9,8 @@ public class PwaFieldForm {
 
   private Integer fieldId;
 
+  private String noLinkedFieldDescription;
+
   public Boolean getLinkedToField() {
     return linkedToField;
   }
@@ -23,5 +25,13 @@ public class PwaFieldForm {
 
   public void setFieldId(Integer fieldId) {
     this.fieldId = fieldId;
+  }
+
+  public String getNoLinkedFieldDescription() {
+    return noLinkedFieldDescription;
+  }
+
+  public void setNoLinkedFieldDescription(String noLinkedFieldDescription) {
+    this.noLinkedFieldDescription = noLinkedFieldDescription;
   }
 }

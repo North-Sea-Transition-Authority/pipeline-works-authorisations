@@ -105,6 +105,8 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
 
     when(devukFieldService.getByOrganisationUnitWithStatusCodes(applicationHolderOrganisation.getOrganisationUnit(),
         List.of(500, 600, 700))).thenReturn(List.of(devukField));
+
+    when(devukFieldService.getByStatusCodes(List.of(500, 600, 700))).thenReturn(List.of(devukField));
   }
 
   @Test
