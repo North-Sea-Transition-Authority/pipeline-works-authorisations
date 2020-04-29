@@ -2,6 +2,7 @@
 <#import 'blockCrossingsManagement.ftl' as blockCrossingManagement>
 <#import 'medianLineCrossingManagement.ftl' as medianLineCrossingManagement>
 <#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
+<#import 'pipeline/pipelineCrossingManagement.ftl' as pipelineCrossingManagement>
 
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
@@ -29,9 +30,18 @@
 
     <hr class="govuk-section-break govuk-section-break--l"/>
 
+    <@pipelineCrossingManagement.pipelineCrossingManagement
+    urlFactory=pipelineCrossingUrlFactory
+    pipelineCrossingFileViews=pipelineCrossingFiles
+    pipelineCrossings=pipelineCrossings
+    isCompleted=false/>
+
+    <hr class="govuk-section-break govuk-section-break--l"/>
+
     <@medianLineCrossingManagement.medianLineCrossingManagement
     urlFactory=medianLineUrlFactory
     medianLineAgreementView=medianLineAgreementView!""
     medianLineFileViews=medianLineFiles />
+
 
 </@defaultPage>

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLine
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PipelineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -82,6 +84,9 @@ public class CrossingAgreementsController {
         .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
         .addObject("cableCrossingFiles",
             cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+        .addObject("pipelineCrossings", List.of())
+        .addObject("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(detail))
+        .addObject("pipelineCrossingFiles", List.of())
         .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Crossings");
     return modelAndView;

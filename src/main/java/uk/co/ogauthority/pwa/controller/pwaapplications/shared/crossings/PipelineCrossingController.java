@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +13,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -47,10 +51,15 @@ public class PipelineCrossingController {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
-  private ModelAndView getCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var modelAndView = new ModelAndView("");
+  private ModelAndView getCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                               ScreenActionType screenActionType) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/pipeline/addPipelineCrossing")
+        .addObject("screenActionType", screenActionType)
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Pipeline crossings");
+        screenActionType.getActionText() + " pipeline crossing");
     return modelAndView;
   }
 
@@ -61,7 +70,7 @@ public class PipelineCrossingController {
                                         @ModelAttribute("form") PipelineCrossingForm form,
                                         PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
-    return getCrossingModelAndView(detail);
+    return getCrossingModelAndView(detail, ScreenActionType.ADD);
   }
 
 }
