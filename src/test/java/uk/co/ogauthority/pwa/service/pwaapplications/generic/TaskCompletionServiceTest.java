@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDeco
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 @RunWith(SpringRunner.class)
@@ -56,6 +57,9 @@ public class TaskCompletionServiceTest {
   @MockBean
   private PadOrganisationRoleService padOrganisationRoleService;
 
+  @MockBean
+  private PadPipelinesService padPipelinesService;
+
   @Test
   public void isTaskComplete() {
 
@@ -84,6 +88,9 @@ public class TaskCompletionServiceTest {
           break;
         case HUOO:
           service = padOrganisationRoleService;
+          break;
+        case PIPELINES:
+          service = padPipelinesService;
           break;
         default:
           throw new AssertionError();

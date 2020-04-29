@@ -1,8 +1,12 @@
 package uk.co.ogauthority.pwa.util;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -10,6 +14,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 public class ValidatorUtilsTest {
 
@@ -121,7 +127,7 @@ public class ValidatorUtilsTest {
   @Test
   public void validateBoolean_Null() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateBoolean(errors, projectInformationForm.getUsingCampaignApproach(), "usingCampaignApproach", "Err");
+    ValidatorUtils.validateBooleanTrue(errors, projectInformationForm.getUsingCampaignApproach(), "usingCampaignApproach", "Err");
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .contains("usingCampaignApproach.required");
   }
@@ -130,7 +136,7 @@ public class ValidatorUtilsTest {
   public void validateBoolean_False() {
     projectInformationForm.setUsingCampaignApproach(false);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateBoolean(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
+    ValidatorUtils.validateBooleanTrue(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .contains("usingCampaignApproach.required");
   }
@@ -139,8 +145,116 @@ public class ValidatorUtilsTest {
   public void validateBoolean_True() {
     projectInformationForm.setUsingCampaignApproach(true);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    ValidatorUtils.validateBoolean(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
+    ValidatorUtils.validateBooleanTrue(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .doesNotContain("usingCampaignApproach.required");
   }
+
+  @Test
+  public void validateLatitude_valid() {
+
+    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    ValidatorUtils.validateLatitude(
+        bindingResult,
+        Pair.of("latDeg", 55),
+        Pair.of("latMin", 30),
+        Pair.of("latSec", BigDecimal.valueOf(44.44)));
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+
+  }
+
+  @Test
+  public void validateLatitude_invalid() {
+
+    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    ValidatorUtils.validateLatitude(
+        bindingResult,
+        Pair.of("fromLatDeg", 44),
+        Pair.of("fromLatMin", -1),
+        Pair.of("fromLatSec", BigDecimal.valueOf(61)));
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("fromLatDeg", Set.of("fromLatDeg.invalid")),
+        entry("fromLatMin", Set.of("fromLatMin.invalid")),
+        entry("fromLatSec", Set.of("fromLatSec.invalid"))
+    );
+
+  }
+
+  @Test
+  public void validateLatitude_invalidSecondPrecision() {
+
+    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    ValidatorUtils.validateLatitude(
+        bindingResult,
+        Pair.of("fromLatDeg", 55),
+        Pair.of("fromLatMin", 30),
+        Pair.of("fromLatSec", BigDecimal.valueOf(45.555)));
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("fromLatSec", Set.of("fromLatSec.invalid"))
+    );
+
+  }
+
+  @Test
+  public void validateLongitude_valid() {
+
+    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    ValidatorUtils.validateLongitude(
+        bindingResult,
+        Pair.of("fromLongDeg", 29),
+        Pair.of("fromLongMin", 30),
+        Pair.of("fromLongSec", BigDecimal.valueOf(44.44)),
+        Pair.of("fromLongDirection", LongitudeDirection.EAST));
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+
+  }
+
+  @Test
+  public void validateLongitude_invalid() {
+
+    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    ValidatorUtils.validateLongitude(
+        bindingResult,
+        Pair.of("fromLongDeg", 31),
+        Pair.of("fromLongMin", 61),
+        Pair.of("fromLongSec", BigDecimal.valueOf(-1)),
+        Pair.of("fromLongDirection", LongitudeDirection.EAST));
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("fromLongDeg", Set.of("fromLongDeg.invalid")),
+        entry("fromLongMin", Set.of("fromLongMin.invalid")),
+        entry("fromLongSec", Set.of("fromLongSec.invalid"))
+    );
+
+  }
+
+  @Test
+  public void validateLongitude_invalidSecondPrecision() {
+
+    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    ValidatorUtils.validateLongitude(
+        bindingResult,
+        Pair.of("fromLongDeg", 22),
+        Pair.of("fromLongMin", 30),
+        Pair.of("fromLongSec", BigDecimal.valueOf(33.333)),
+        Pair.of("fromLongDirection", LongitudeDirection.WEST));
+
+    var errors = ValidatorTestUtils.extractErrors(bindingResult);
+
+    assertThat(errors).containsOnly(
+        entry("fromLongSec", Set.of("fromLongSec.invalid"))
+    );
+
+  }
+
 }

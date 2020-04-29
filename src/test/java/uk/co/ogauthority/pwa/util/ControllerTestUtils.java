@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.SmartValidator;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -32,6 +33,22 @@ public class ControllerTestUtils {
           result.rejectValue(field, "fake.code", "fake message"));
       return result;
     }).when(validator).validate(any(), any());
+
+  }
+
+  /**
+   * Use in controller tests to force a smart validator to return pre-defined errors during a request
+   * @param validator that should return errors
+   * @param fieldsWithErrors list of field ids that the validator should return errors for
+   */
+  public static void mockSmartValidatorErrors(SmartValidator validator, List<String> fieldsWithErrors) {
+
+    doAnswer(invocation -> {
+      BindingResult result = invocation.getArgument(1);
+      fieldsWithErrors.forEach(field ->
+          result.rejectValue(field, "fake.code", "fake message"));
+      return result;
+    }).when(validator).validate(any(), any(), any());
 
   }
 
