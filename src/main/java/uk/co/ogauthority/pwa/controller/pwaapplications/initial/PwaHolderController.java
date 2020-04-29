@@ -136,8 +136,14 @@ public class PwaHolderController {
         .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
         .collect(StreamUtils.toLinkedHashMap(ou -> String.valueOf(ou.getOuId()), PortalOrganisationUnit::getName));
 
+    List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
+            .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
+            .map(e -> e.getName())
+            .collect(Collectors.toList());
+
     var modelAndView = new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
+        .addObject("ogList", ogList)
         .addObject("taskListUrl",
             ReverseRouter.route(
                 on(InitialTaskListController.class).viewTaskList(detail.getMasterPwaApplicationId(), null))
@@ -151,16 +157,16 @@ public class PwaHolderController {
     return modelAndView;
   }
 
+  private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
+    return teamService.getOrganisationTeamListIfPersonInRole(
+            user.getLinkedPerson(),
+            List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
+            .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+            .collect(Collectors.toList());
+  }
+
   private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
-
-    List<PortalOrganisationGroup> userOrgGroups = teamService.getOrganisationTeamListIfPersonInRole(
-        user.getLinkedPerson(),
-        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(Collectors.toList());
-
-    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(userOrgGroups);
-
+    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
   }
 
 }
