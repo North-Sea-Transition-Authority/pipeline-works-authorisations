@@ -86,8 +86,6 @@ public class TaskListService {
                 new TaskInfo(ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(application.getApplicationType(), application.getId(), null)),
                         "CONTACT", pwaContactService.countContactsByPwaApplication(application)));
-        put("Holders, users, operators, and owners", new TaskInfo(ReverseRouter.route(on(HuooController.class)
-            .renderHuooSummary(application.getApplicationType(), application.getId(), null, null))));
 
       }
     };
