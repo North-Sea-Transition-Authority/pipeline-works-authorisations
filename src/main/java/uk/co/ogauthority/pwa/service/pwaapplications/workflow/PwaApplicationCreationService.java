@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class PwaApplicationCreationService {
                                            WebUserAccount createdByUser) {
 
     var application = new PwaApplication(masterPwa, applicationType, variationNo);
-    application.setAppReference("APP/" + RandomUtils.nextInt());
+    application.setAppReference(createAppReference());
     pwaApplicationRepository.save(application);
 
     pwaContactService.addContact(
@@ -78,9 +79,7 @@ public class PwaApplicationCreationService {
   public PwaApplication createInitialPwaApplication(WebUserAccount createdByUser) {
 
     MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
-        MasterPwaDetailStatus.APPLICATION,
-        // TODO PWA-145 implement referencing
-        "New Pwa " + RandomUtils.nextInt()
+        MasterPwaDetailStatus.APPLICATION, createAppReference()
     );
 
     var masterPwa = masterPwaDetail.getMasterPwa();
@@ -96,6 +95,14 @@ public class PwaApplicationCreationService {
     return createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
 
   }
+
+  private String createAppReference() {
+    long refSeq = pwaApplicationRepository.getNextRefNum();
+    String appRef = "PA/" + String.format("%03d", refSeq) + "/001";
+    return appRef;
+  }
+
+
 
 
 }
