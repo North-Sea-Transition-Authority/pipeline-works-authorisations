@@ -45,7 +45,7 @@ public class InitialTaskListControllerTest extends TaskListControllerTest {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.INITIAL)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 

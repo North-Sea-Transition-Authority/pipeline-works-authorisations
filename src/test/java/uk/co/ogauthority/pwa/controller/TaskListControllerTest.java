@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskCompletionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
@@ -31,10 +32,14 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @MockBean
   protected TaskCompletionService taskCompletionService;
 
+  @MockBean(name = "contactServiceForTaskListService")
+  protected PwaContactService pwaContactService;
+
+
   @Before
   public void taskListControllerTestSetup() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        padFastTrackService, taskCompletionService);
+        padFastTrackService, taskCompletionService, pwaContactService);
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
 
   }

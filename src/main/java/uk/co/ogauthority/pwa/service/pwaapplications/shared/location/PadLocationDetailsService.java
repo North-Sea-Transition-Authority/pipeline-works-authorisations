@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.location;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -10,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
@@ -104,20 +101,15 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
     var facilities = padFacilityService.getFacilities(detail);
 
-    List<String> linkedFacilities = facilities.stream()
-        .filter(PadFacility::isLinkedToDevukFacility)
-        .map(PadFacility::getId)
-        .map(String::valueOf)
+    var formFacilities = facilities.stream()
+        .map(padFacility -> {
+          if (padFacility.isLinkedToDevukFacility()) {
+            return String.valueOf(padFacility.getFacility().getId());
+          } else {
+            return padFacility.getFacilityNameManualEntry();
+          }
+        })
         .collect(Collectors.toList());
-
-    List<String> manualFacilities = facilities.stream()
-        .filter(facility -> !facility.isLinkedToDevukFacility())
-        .map(PadFacility::getFacilityNameManualEntry)
-        .collect(Collectors.toList());
-
-    var formFacilities = new ArrayList<String>();
-    formFacilities.addAll(linkedFacilities);
-    formFacilities.addAll(manualFacilities);
 
     // if facilities exist and we're near a safety zone, add to form
     if (!facilities.isEmpty() && !locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO)) {

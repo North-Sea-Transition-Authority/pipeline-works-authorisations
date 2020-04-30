@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 @Service
@@ -42,16 +44,19 @@ public class TaskListService {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PadFastTrackService padFastTrackService;
   private final TaskCompletionService taskCompletionService;
+  private final PwaContactService pwaContactService;
 
   @Autowired
   public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService,
                          ApplicationBreadcrumbService breadcrumbService,
                          PadFastTrackService padFastTrackService,
-                         TaskCompletionService taskCompletionService) {
+                         TaskCompletionService taskCompletionService,
+                         PwaContactService pwaContactService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
     this.padFastTrackService = padFastTrackService;
     this.taskCompletionService = taskCompletionService;
+    this.pwaContactService = pwaContactService;
   }
 
   @VisibleForTesting
@@ -74,12 +79,16 @@ public class TaskListService {
   }
 
   @VisibleForTesting
-  public LinkedHashMap<String, String> getAppInfoTasks(PwaApplication application) {
+  public LinkedHashMap<String, TaskInfo> getAppInfoTasks(PwaApplication application) {
     return new LinkedHashMap<>() {
       {
         put("Application contacts",
-            ReverseRouter.route(on(PwaContactController.class)
-                .renderContactsScreen(application.getApplicationType(), application.getId(), null)));
+                new TaskInfo(ReverseRouter.route(on(PwaContactController.class)
+                .renderContactsScreen(application.getApplicationType(), application.getId(), null)),
+                        "CONTACT", pwaContactService.countContactsByPwaApplication(application)));
+        put("Holders, users, operators, and owners", new TaskInfo(ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(application.getApplicationType(), application.getId(), null, null))));
+
       }
     };
   }
@@ -156,6 +165,9 @@ public class TaskListService {
       case PIPELINES:
         return ReverseRouter.route(on(PipelinesController.class)
             .renderPipelinesOverview(applicationId, applicationType, null));
+      case TECHNICAL_DRAWINGS:
+        return ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(applicationType, applicationId, null, null));
       default:
         return "";
     }

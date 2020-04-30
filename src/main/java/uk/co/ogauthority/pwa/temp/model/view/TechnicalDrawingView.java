@@ -5,7 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.io.Serializable;
 import java.util.List;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.temp.controller.TechnicalDrawingsController;
+import uk.co.ogauthority.pwa.temp.controller.TechnicalDrawingsTempController;
 
 public class TechnicalDrawingView implements Serializable {
 
@@ -35,7 +35,7 @@ public class TechnicalDrawingView implements Serializable {
   }
 
   public String getEditRoute(Integer applicationId) {
-    return ReverseRouter.route(on(TechnicalDrawingsController.class).viewDrawingEdit(applicationId, drawingId, null));
+    return ReverseRouter.route(on(TechnicalDrawingsTempController.class).viewDrawingEdit(applicationId, drawingId, null));
   }
 
   public String getName() {

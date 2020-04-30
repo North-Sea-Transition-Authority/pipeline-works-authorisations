@@ -22,6 +22,10 @@ public class DevukFieldService {
     return devukFieldRepository.findAllByOrganisationUnitAndStatusIn(organisationUnit, statusCodes);
   }
 
+  public List<DevukField> getByStatusCodes(List<Integer> statusCodes) {
+    return devukFieldRepository.findAllByStatusIn(statusCodes);
+  }
+
   public DevukField findById(int id) {
     return devukFieldRepository.findById(id)
         .orElseThrow(() -> new PwaEntityNotFoundException("Couldn't find DEVUK field with ID: " + id));
