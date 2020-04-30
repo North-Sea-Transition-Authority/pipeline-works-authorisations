@@ -85,7 +85,7 @@ public class PadPipelineCrossingOwnerServiceTest {
   @Test
   public void createOwners_FullyOwned() {
     var form = new PipelineCrossingForm();
-    form.setPipelineFullyOwnedByOrganisation(false);
+    form.setPipelineFullyOwnedByOrganisation(true);
     padPipelineCrossingOwnerService.createOwners(padPipelineCrossing, form);
     verify(padPipelineCrossingOwnerRepository, times(1)).deleteAll(any());
     verify(padPipelineCrossingOwnerRepository, never()).save(any());
