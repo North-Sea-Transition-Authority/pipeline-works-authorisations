@@ -73,7 +73,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

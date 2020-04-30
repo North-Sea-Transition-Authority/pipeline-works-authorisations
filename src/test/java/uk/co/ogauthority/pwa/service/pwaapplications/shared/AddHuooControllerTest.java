@@ -81,7 +81,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
             PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.HUOO_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT)
-        .setAllowedRoles(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

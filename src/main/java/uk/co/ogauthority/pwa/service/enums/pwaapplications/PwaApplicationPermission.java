@@ -11,9 +11,9 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
  */
 public enum PwaApplicationPermission {
 
-  EDIT(Set.of(PwaContactRole.SUBMITTER, PwaContactRole.PREPARER)),
+  SUBMIT(Set.of(PwaContactRole.PREPARER)),
 
-  SUBMIT(Set.of(PwaContactRole.SUBMITTER)),
+  EDIT(Set.of(PwaContactRole.PREPARER)),
 
   MANAGE_CONTACTS(Set.of(PwaContactRole.ACCESS_MANAGER)),
 

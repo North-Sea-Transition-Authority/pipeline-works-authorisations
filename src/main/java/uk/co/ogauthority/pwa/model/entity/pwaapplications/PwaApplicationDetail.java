@@ -49,6 +49,8 @@ public class PwaApplicationDetail {
 
   private Boolean isLinkedToField;
 
+  private String notLinkedDescription;
+
   public PwaApplicationDetail() {
   }
 
@@ -190,6 +192,14 @@ public class PwaApplicationDetail {
 
   public boolean isFirstVersion() {
     return this.versionNo == 1;
+  }
+
+  public String getNotLinkedDescription() {
+    return notLinkedDescription;
+  }
+
+  public void setNotLinkedDescription(String notLinkedDescription) {
+    this.notLinkedDescription = notLinkedDescription;
   }
 
   @Override

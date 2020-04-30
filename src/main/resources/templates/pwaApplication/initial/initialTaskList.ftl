@@ -1,9 +1,10 @@
 <#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="pwaInfoTasks" type="java.util.HashMap<String, String>" -->
-<#-- @ftlvariable name="appInfoTasks" type="java.util.HashMap<String, String>" -->
+<#-- @ftlvariable name="appInfoTasks" type="java.util.HashMap<String, uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo>" -->
 <#-- @ftlvariable name="prepareAppTasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
 <#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
+
 
 <@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Pipeline Works Authorisation" breadcrumbs=true>
 
@@ -15,8 +16,17 @@
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="2" sectionHeadingText="Application information">
-            <#list appInfoTasks as task, link>
-                <@fdsTaskList.taskListItem itemUrl=springUrl(link) itemText=task/>
+            <#list appInfoTasks as task, taskInfo>
+                <li class="fds-task-list__item">
+                    <span class="fds-task-list__task-name">
+                        <a class="govuk-link" href="${springUrl(taskInfo.link)}">
+                            ${task}
+                        </a>
+                    </span>
+                    <#if taskInfo.count gt 0> 
+                        <strong class="govuk-tag fds-task-list__task-completed">${taskInfo.count + ' ' + taskInfo.countType}</strong>
+                    </#if>
+                </li>
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="3" sectionHeadingText="Prepare application">

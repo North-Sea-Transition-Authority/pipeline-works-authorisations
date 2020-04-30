@@ -72,7 +72,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
         PwaApplicationType.OPTIONS_VARIATION,
         PwaApplicationType.HUOO_VARIATION
     )
-        .setAllowedRoles(PwaContactRole.SUBMITTER)
+        .setAllowedRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID);

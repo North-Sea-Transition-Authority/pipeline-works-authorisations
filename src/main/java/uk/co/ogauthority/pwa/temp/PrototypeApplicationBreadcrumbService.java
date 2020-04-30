@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.temp.controller.PrototypePipelinesController;
 import uk.co.ogauthority.pwa.temp.controller.PrototypePwaApplicationController;
-import uk.co.ogauthority.pwa.temp.controller.TechnicalDrawingsController;
+import uk.co.ogauthority.pwa.temp.controller.TechnicalDrawingsTempController;
 
 @Service
 public class PrototypeApplicationBreadcrumbService {
@@ -87,7 +87,7 @@ public class PrototypeApplicationBreadcrumbService {
   public void fromTechnicalDrawings(Integer applicationId, ModelAndView modelAndView, String thisPage) {
     Map<String, String> breadcrumbs = taskList(applicationId);
     breadcrumbs.put(
-        ReverseRouter.route(on(TechnicalDrawingsController.class).viewTechnicalDrawings(applicationId)),
+        ReverseRouter.route(on(TechnicalDrawingsTempController.class).viewTechnicalDrawings(applicationId)),
         "Technical drawings"
     );
     addAttrs(modelAndView, breadcrumbs, thisPage);

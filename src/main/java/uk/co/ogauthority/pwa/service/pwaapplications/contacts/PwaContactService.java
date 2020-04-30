@@ -148,4 +148,8 @@ public class PwaContactService {
     );
 
   }
+
+  public Long countContactsByPwaApplication(PwaApplication pwaApplication) {
+    return pwaContactRepository.countByPwaApplication(pwaApplication);
+  }
 }

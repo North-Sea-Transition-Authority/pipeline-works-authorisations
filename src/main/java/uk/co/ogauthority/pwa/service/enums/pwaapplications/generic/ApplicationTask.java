@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.location.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 
 /**
  * Enumeration of all app form tasks for the PWA application task list.
@@ -63,6 +65,13 @@ public enum ApplicationTask {
       PipelinesController.class,
       PadPipelinesService.class,
       70
+  ),
+
+  TECHNICAL_DRAWINGS(
+      "Technical drawings",
+      TechnicalDrawingsController.class,
+      TechnicalDrawingsService.class,
+      80
   );
 
 

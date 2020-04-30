@@ -42,6 +42,16 @@ public class DevukFieldServiceTest {
   }
 
   @Test
+  public void getByStatusRange() {
+    var field = new DevukField();
+    var statusCodes = List.of(100, 200, 300);
+    when(devukFieldRepository.findAllByStatusIn(statusCodes)).thenReturn(
+            List.of(field));
+    assertThat(devukFieldService.getByStatusCodes(statusCodes)).containsExactly(field);
+    verify(devukFieldRepository, times(1)).findAllByStatusIn(statusCodes);
+  }
+
+  @Test
   public void findById() {
     var field = new DevukField();
     when(devukFieldRepository.findById(1)).thenReturn(Optional.of(field));

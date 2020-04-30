@@ -46,6 +46,7 @@ public class PwaApplicationServiceTest {
     verify(pwaApplicationRepository, times(1)).findById(1);
   }
 
+
   @Test(expected = PwaEntityNotFoundException.class)
   public void getApplicationFromId_noApplicationFound() {
     when(pwaApplicationRepository.findById(any())).thenReturn(Optional.empty());
