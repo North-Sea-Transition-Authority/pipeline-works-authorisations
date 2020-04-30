@@ -91,7 +91,7 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
     return selectedItems.stream()
         .collect(StreamUtils.toLinkedHashMap(s -> s, s -> {
           if (s.startsWith(SearchSelectable.FREE_TEXT_PREFIX)) {
-            return StringUtils.stripStart(s, SearchSelectable.FREE_TEXT_PREFIX);
+            return StringUtils.substring(s, SearchSelectable.FREE_TEXT_PREFIX.length());
           } else {
             return orgs.stream()
                 .filter(portalOrganisationUnit -> String.valueOf(portalOrganisationUnit.getOuId()).equals(s))

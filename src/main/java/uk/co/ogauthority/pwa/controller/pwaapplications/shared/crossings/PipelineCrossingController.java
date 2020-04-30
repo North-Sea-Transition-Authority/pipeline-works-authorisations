@@ -127,7 +127,7 @@ public class PipelineCrossingController {
     form.setPipelineCrossed(crossing.getPipelineCrossed());
     form.setPipelineFullyOwnedByOrganisation(crossing.getPipelineFullyOwnedByOrganisation());
     return getCrossingModelAndView(detail, ScreenActionType.EDIT)
-        .addObject("preselectedOwners", padPipelineCrossingOwnerService.getOwnerPrepopulationAttribute(crossing));
+        .addObject("preselectedOwners", padPipelineCrossingOwnerService.getOwnerPrepopulationFormAttribute(crossing));
   }
 
   @PostMapping("/{crossingId}/edit")

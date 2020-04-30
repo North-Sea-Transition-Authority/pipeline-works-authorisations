@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ public class PadPipelineCrossingOwnerService {
     return padPipelineCrossingOwnerRepository.findAllByPadPipelineCrossing(padPipelineCrossing);
   }
 
-  public Map<String, String> getOwnerPrepopulationAttribute(PadPipelineCrossing padPipelineCrossing) {
+  public Map<String, String> getOwnerPrepopulationFormAttribute(PadPipelineCrossing padPipelineCrossing) {
     var owners = getOwnersForCrossing(padPipelineCrossing);
     return owners.stream()
         .collect(StreamUtils.toLinkedHashMap((PadPipelineCrossingOwner owner) -> {
@@ -65,8 +64,7 @@ public class PadPipelineCrossingOwnerService {
     }
   }
 
-  @VisibleForTesting
-  public void createLinkedOwner(PadPipelineCrossing padPipelineCrossing, List<Integer> owners) {
+  private void createLinkedOwner(PadPipelineCrossing padPipelineCrossing, List<Integer> owners) {
     var orgUnits = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(owners);
     orgUnits.forEach(portalOrganisationUnit -> {
       var owner = new PadPipelineCrossingOwner();
@@ -76,12 +74,11 @@ public class PadPipelineCrossingOwnerService {
     });
   }
 
-  @VisibleForTesting
-  public void createManualOwner(PadPipelineCrossing padPipelineCrossing, List<String> owners) {
+  private void createManualOwner(PadPipelineCrossing padPipelineCrossing, List<String> owners) {
     owners.forEach(s -> {
       var owner = new PadPipelineCrossingOwner();
       owner.setPadPipelineCrossing(padPipelineCrossing);
-      owner.setManualOrganisationEntry(StringUtils.stripStart(s, SearchSelectable.FREE_TEXT_PREFIX));
+      owner.setManualOrganisationEntry(StringUtils.substring(s, SearchSelectable.FREE_TEXT_PREFIX.length()));
       padPipelineCrossingOwnerRepository.save(owner);
     });
   }

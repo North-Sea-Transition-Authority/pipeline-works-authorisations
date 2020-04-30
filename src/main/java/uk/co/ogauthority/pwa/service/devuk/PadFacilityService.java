@@ -73,7 +73,7 @@ public class PadFacilityService {
   private void createFacilityFromManualEntry(PwaApplicationDetail pwaApplicationDetail, String id) {
     var facility = new PadFacility();
     facility.setPwaApplicationDetail(pwaApplicationDetail);
-    facility.setFacilityNameManualEntry(StringUtils.stripStart(id, SearchSelectable.FREE_TEXT_PREFIX));
+    facility.setFacilityNameManualEntry(StringUtils.substring(id, SearchSelectable.FREE_TEXT_PREFIX.length()));
     padFacilityRepository.save(facility);
   }
 
