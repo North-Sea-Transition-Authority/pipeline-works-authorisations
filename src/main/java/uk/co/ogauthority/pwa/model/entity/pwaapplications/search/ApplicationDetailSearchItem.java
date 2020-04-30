@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.search;
 
 import java.time.Instant;
-import java.util.Set;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -35,7 +35,7 @@ public class ApplicationDetailSearchItem {
 
   @Convert(converter = SemiColonSeperatedListConverter.class)
   @Column(name = "pad_field_name_list")
-  private Set<String> padFields;
+  private List<String> padFields;
 
   private String padProjectName;
 
@@ -152,11 +152,11 @@ public class ApplicationDetailSearchItem {
     this.tipFlag = tipFlag;
   }
 
-  public Set<String> getPadFields() {
+  public List<String> getPadFields() {
     return padFields;
   }
 
-  public void setPadFields(Set<String> padFields) {
+  public void setPadFields(List<String> padFields) {
     this.padFields = padFields;
   }
 

@@ -93,13 +93,6 @@ public class PwaApplicationSubmissionServiceTest {
     pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
 
     verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
-    // TODO PWA-65 move into specific unit test
-//    assertThat(detailCapture.getValue()).satisfies((detail) -> {
-//      assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-//      assertThat(detail.getSubmittedByWuaId()).isEqualTo(user.getWuaId());
-//      assertThat(detail.getSubmittedTimestamp()).isEqualTo(fixedInstant);
-//    });
-
     verify(camundaWorkflowService, times(1)).completeTask(pwaApplicationDetail.getMasterPwaApplicationId(), UserWorkflowTask.PREPARE_APPLICATION);
 
   }

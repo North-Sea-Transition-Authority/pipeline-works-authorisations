@@ -18,15 +18,15 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 @Service
 public class PwaApplicationSubmissionService {
 
-  private final PwaApplicationDetailService pwaApplicationDetailRepository;
+  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
 
   @Autowired
-  public PwaApplicationSubmissionService(PwaApplicationDetailService pwaApplicationDetailRepository,
+  public PwaApplicationSubmissionService(PwaApplicationDetailService pwaApplicationDetailService,
                                          CamundaWorkflowService camundaWorkflowService,
                                          @Qualifier("utcClock") Clock clock) {
-    this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
   }
@@ -43,7 +43,7 @@ public class PwaApplicationSubmissionService {
     }
 
     camundaWorkflowService.completeTask(detail.getMasterPwaApplicationId(), UserWorkflowTask.PREPARE_APPLICATION);
-    pwaApplicationDetailRepository.setSubmitted(detail, submittedByUser);
+    pwaApplicationDetailService.setSubmitted(detail, submittedByUser);
 
   }
 

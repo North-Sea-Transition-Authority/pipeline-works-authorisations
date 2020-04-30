@@ -31,20 +31,4 @@ public class EnumUtils {
     }
   }
 
-  /**
-   * Check to see whether the passed-in enum contains a value matching the passed-in String value.
-   * This method uses Enum.valueOf but throws an exception with a {@link ResponseStatus} mapping.
-   *
-   * @return the corresponding enum value if matched
-   * @throws ValueNotFoundException if no values matched
-   */
-  public static <E extends Enum<E>> E getEnumValueDefault(Class<E> enumClass, String value,
-                                                          E defaultValue) throws ValueNotFoundException {
-    try {
-      return getEnumValue(enumClass, value);
-    } catch (ValueNotFoundException | IllegalArgumentException e) {
-      return defaultValue;
-    }
-
-  }
 }

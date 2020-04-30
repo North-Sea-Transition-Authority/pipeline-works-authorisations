@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 public class PageViewTest {
 
@@ -22,6 +23,7 @@ public class PageViewTest {
     when(page.stream()).then(a -> pageContent.stream());
     when(page.getNumber()).thenReturn(1);
     when(page.getTotalPages()).thenReturn(3);
+    when(page.getPageable()).thenReturn(PageRequest.of(1, 20));
   }
 
   @Test

@@ -20,11 +20,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
@@ -42,20 +39,10 @@ public class PwaApplicationCreationServiceTest {
   private PwaApplicationRepository pwaApplicationRepository;
 
   @Mock
-  private PwaApplicationDetailRepository pwaApplicationDetailRepository;
-
-  @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
   private PwaContactService pwaContactService;
-
-  private PwaApplicationCreationService pwaApplicationCreationService;
-
-  private Instant fixedInstant = LocalDate
-      .of(2020, 2, 6)
-      .atStartOfDay(ZoneId.systemDefault())
-      .toInstant();
 
   @Mock
   private MasterPwaDetail masterPwaDetail;
@@ -65,6 +52,13 @@ public class PwaApplicationCreationServiceTest {
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
+
+  private PwaApplicationCreationService pwaApplicationCreationService;
+
+  private Instant fixedInstant = LocalDate
+      .of(2020, 2, 6)
+      .atStartOfDay(ZoneId.systemDefault())
+      .toInstant();
 
   @Before
   public void setUp() {
@@ -88,15 +82,13 @@ public class PwaApplicationCreationServiceTest {
     PwaApplication createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
-    ArgumentCaptor<PwaApplicationDetail> detailArgumentCaptor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailRepository, times(1)).save(detailArgumentCaptor.capture());
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication, user);
     verify(camundaWorkflowService, times(1)).startWorkflow(WorkflowType.PWA_APPLICATION,
         applicationArgumentCaptor.getValue().getId());
 
     PwaApplication application = applicationArgumentCaptor.getValue();
-    PwaApplicationDetail detail = detailArgumentCaptor.getValue();
 
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
@@ -111,18 +103,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication).isEqualTo(application);
-
-    // check detail set up correctly
-    assertThat(detail.getPwaApplication()).isEqualTo(application);
-    assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.DRAFT);
-    assertThat(detail.isTipFlag()).isTrue();
-    assertThat(detail.getVersionNo()).isEqualTo(1);
-    assertThat(detail.getCreatedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(detail.getCreatedTimestamp()).isEqualTo(fixedInstant);
-    assertThat(detail.getSubmittedByWuaId()).isNull();
-    assertThat(detail.getSubmittedTimestamp()).isNull();
-    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(fixedInstant);
 
   }
 
@@ -145,17 +125,15 @@ public class PwaApplicationCreationServiceTest {
     );
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
-    ArgumentCaptor<PwaApplicationDetail> detailArgumentCaptor = ArgumentCaptor.forClass(PwaApplicationDetail.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailRepository, times(1)).save(detailArgumentCaptor.capture());
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication, user);
     verify(camundaWorkflowService, times(1)).startWorkflow(
         WorkflowType.PWA_APPLICATION,
         applicationArgumentCaptor.getValue().getId()
     );
 
     PwaApplication application = applicationArgumentCaptor.getValue();
-    PwaApplicationDetail detail = detailArgumentCaptor.getValue();
 
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
@@ -170,18 +148,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication).isEqualTo(application);
-
-    // check detail set up correctly
-    assertThat(detail.getPwaApplication()).isEqualTo(application);
-    assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.DRAFT);
-    assertThat(detail.isTipFlag()).isTrue();
-    assertThat(detail.getVersionNo()).isEqualTo(1);
-    assertThat(detail.getCreatedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(detail.getCreatedTimestamp()).isEqualTo(fixedInstant);
-    assertThat(detail.getSubmittedByWuaId()).isNull();
-    assertThat(detail.getSubmittedTimestamp()).isNull();
-    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(detail.getStatusLastModifiedByWuaId()).isEqualTo(fixedInstant);
 
   }
 }

@@ -49,7 +49,7 @@
                     </td>
                     <td class="govuk-table__cell">
                       <ul class="govuk-list">
-                        <li><span class="govuk-tag">${item.padStatus}</span></li>
+                        <li><span class="govuk-tag">${item.padDisplayStatus}</span></li>
                         <li>Status set: ${item.getFormattedStatusSetDatetime()}</li>
                       </ul>
                     </td>

@@ -82,7 +82,8 @@ public class PwaApplicationCreationService {
   }
 
   @Transactional
-  public PwaApplication createVariationPwaApplication(WebUserAccount createdByUser, MasterPwa masterPwa,
+  public PwaApplication createVariationPwaApplication(WebUserAccount createdByUser,
+                                                      MasterPwa masterPwa,
                                                       PwaApplicationType pwaApplicationType) {
 
     return createApplication(masterPwa, pwaApplicationType, 0, createdByUser);

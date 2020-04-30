@@ -7,11 +7,11 @@ import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 
 @Repository
-public class CustomPwaContactRepositoryImpl implements PwaContactDtoRepository {
+public class PwaContactDtoRepositoryImpl implements PwaContactDtoRepository {
   private final EntityManager entityManager;
 
   @Autowired
-  public CustomPwaContactRepositoryImpl(EntityManager entityManager) {
+  public PwaContactDtoRepositoryImpl(EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 

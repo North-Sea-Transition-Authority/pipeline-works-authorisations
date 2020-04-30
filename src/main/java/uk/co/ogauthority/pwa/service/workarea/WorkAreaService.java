@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSea
 @Service
 public class WorkAreaService {
 
-  private static final int PAGE_SIZE = 2;
+  public static final int PAGE_SIZE = 2;
 
   private final PwaContactService pwaContactService;
   private final ApplicationDetailSearcher applicationDetailSearcher;

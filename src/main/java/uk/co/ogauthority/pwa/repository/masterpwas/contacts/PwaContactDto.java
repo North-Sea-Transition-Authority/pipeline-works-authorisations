@@ -4,16 +4,14 @@ import java.util.Set;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 /**
- * Basic details of a PWA contact that intends to avoid loading the whole object graph associated with the entity.
+ * Basic details of a PWA contact intended to avoid loading the whole object graph associated with the actual entity.
  */
 public class PwaContactDto {
 
-  //  @Value("#{target.pwaApplication.id}")
   private int pwaApplicationId;
 
   private Set<PwaContactRole> roles;
 
-  //@Value("#{target.person.id}")
   private Integer personId;
 
   public PwaContactDto(int pwaApplicationId,

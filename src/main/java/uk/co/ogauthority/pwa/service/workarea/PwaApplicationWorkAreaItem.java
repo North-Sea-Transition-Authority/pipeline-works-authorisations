@@ -22,7 +22,7 @@ public class PwaApplicationWorkAreaItem {
 
   private final String applicationType;
 
-  private final String padStatus;
+  private final String padDisplayStatus;
 
   private final Instant padStatusSetInstant;
 
@@ -45,7 +45,7 @@ public class PwaApplicationWorkAreaItem {
     this.pwaApplicationId = applicationDetailSearchItem.getPwaApplicationId();
     this.padReference = applicationDetailSearchItem.getPadReference();
     this.masterPwaReference = applicationDetailSearchItem.getPwaReference();
-    this.padStatus = applicationDetailSearchItem.getPadStatus().getDisplayName();
+    this.padDisplayStatus = applicationDetailSearchItem.getPadStatus().getDisplayName();
     this.applicationType = applicationDetailSearchItem.getApplicationType().getDisplayName();
     this.padStatusSetInstant = applicationDetailSearchItem.getPadStatusTimestamp();
     this.tipFlag = applicationDetailSearchItem.isTipFlag();
@@ -75,8 +75,8 @@ public class PwaApplicationWorkAreaItem {
     return applicationType;
   }
 
-  public String getPadStatus() {
-    return padStatus;
+  public String getPadDisplayStatus() {
+    return padDisplayStatus;
   }
 
   public boolean getIsTipFlag() {

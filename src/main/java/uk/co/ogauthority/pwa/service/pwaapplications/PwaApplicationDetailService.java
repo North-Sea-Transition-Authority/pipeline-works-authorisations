@@ -124,7 +124,7 @@ public class PwaApplicationDetailService {
   }
 
   /**
-   * Update the all app detail fields required when application detail is submitted.
+   * Create and persist the first detail associated with an application.
    *
    * @return Saved app detail.
    */

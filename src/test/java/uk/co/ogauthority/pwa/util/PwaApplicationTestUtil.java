@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -54,4 +55,14 @@ public class PwaApplicationTestUtil {
       throw new AssertionError("Failed assertion with status:" + status + "\n" + e.getMessage(), e);
     }
   }
+
+  public static void tryAssertionWithPwaContactRole(PwaContactRole role, Consumer<PwaContactRole> tryBlock){
+    try{
+      tryBlock.accept(role);
+    } catch(AssertionError e){
+      throw new AssertionError("Failed assertion with role:" + role + "\n" + e.getMessage(), e);
+    }
+  }
+
+
 }
