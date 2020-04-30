@@ -20,10 +20,13 @@ import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
@@ -35,6 +38,14 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/pipeline-documents")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
+@PwaApplicationTypeCheck(types = {
+    PwaApplicationType.INITIAL,
+    PwaApplicationType.CAT_1_VARIATION,
+    PwaApplicationType.CAT_2_VARIATION,
+    PwaApplicationType.DEPOSIT_CONSENT
+})
 public class PipelineCrossingDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
   private final PwaApplicationFileService applicationFileService;
@@ -51,46 +62,46 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
-  private ModelAndView createCableCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
+  private ModelAndView createPipelineCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                        CrossingDocumentsForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(CableCrossingDocumentsController.class)
+        ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
             .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(CableCrossingDocumentsController.class)
+        ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(CableCrossingDocumentsController.class)
+        ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
         // only load fully linked (saved) files
         pipelineCrossingFileService.getUpdatedPipelineCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
     );
 
-    modelAndView.addObject("pageTitle", "Cable crossing agreement documents")
+    modelAndView.addObject("pageTitle", "Pipeline crossing agreement documents")
         .addObject("backButtonText", "Back to crossing agreements")
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Cable crossing agreement documents");
+        "Pipeline crossing agreement documents");
     return modelAndView;
   }
 
   @GetMapping
-  public ModelAndView renderEditCableCrossingDocuments(
+  public ModelAndView renderEditPipelineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") CrossingDocumentsForm form,
       PwaApplicationContext applicationContext) {
 
     pipelineCrossingFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
-    return createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    return createPipelineCrossingModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
   @PostMapping
-  public ModelAndView postCableCrossingDocuments(
+  public ModelAndView postPipelineCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") CrossingDocumentsForm form,
@@ -104,7 +115,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
         ValidationType.FULL,
         applicationContext.getApplicationDetail()
     );
-    var modelAndView = createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = createPipelineCrossingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
       pipelineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(

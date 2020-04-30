@@ -1,15 +1,14 @@
 <#include '../../../../layout.ftl'>
 
-<#-- @ftlvariable name="pipelineCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
+<#-- @ftlvariable name="pipelineCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingView>" -->
 <#-- @ftlvariable name="pipelineCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
-<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory" -->
 
 <#macro pipelineCrossingManagement urlFactory pipelineCrossings=[] pipelineCrossingFileViews=[] isCompleted=false>
-  <h2 class="govuk-heading-l">Pipeline crossings <@completedTag.completedTag isCompleted/></h2>
-
-    <@fdsAction.link linkText="Add pipeline crossing" linkUrl=springUrl(urlFactory.getAddCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
+  <h2 class="govuk-heading-l">Pipeline crossings (Optional) <@completedTag.completedTag isCompleted/></h2>
 
     <#if pipelineCrossings?has_content>
+        <@fdsAction.link linkText="Add pipeline crossing" linkUrl=springUrl(urlFactory.getAddCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
       <table class="govuk-table">
         <thead class="govuk-table__head">
         <tr class="govuk-table__row">
@@ -32,6 +31,22 @@
         </#list>
         </tbody>
       </table>
+    <#else>
+        <@fdsInsetText.insetText>
+          There are currently no pipeline crossings added.
+        </@fdsInsetText.insetText>
+        <@fdsAction.link linkText="Add pipeline crossing" linkUrl=springUrl(urlFactory.getAddCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
+    </#if>
+
+  <h3 class="govuk-heading-m">Pipeline crossing agreement documents</h3>
+    <#if pipelineCrossingFileViews?has_content>
+        <@fdsAction.link linkText="Add, edit or remove pipeline crossing agreement documents" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
+        <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=pipelineCrossingFileViews/>
+    <#else>
+        <@fdsInsetText.insetText>
+          No pipeline crossing agreement documents have been added to this application.
+        </@fdsInsetText.insetText>
+        <@fdsAction.link linkText="Add, edit or remove pipeline crossing agreement documents" linkUrl=springUrl(urlFactory.getAddDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>
 
 </#macro>

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -30,5 +31,15 @@ public class PipelineCrossingUrlFactory {
   public String getRemoveCrossingUrl(Integer crossingId) {
     return ReverseRouter.route(on(PipelineCrossingController.class)
         .renderRemoveCrossing(applicationType, applicationId, crossingId, null));
+  }
+
+  public String getAddDocumentsUrl() {
+    return ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
+        .renderEditPipelineCrossingDocuments(applicationType, applicationId, null, null));
+  }
+
+  public String getFileDownloadUrl() {
+    return ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
+        .handleDownload(applicationType, applicationId, null, null));
   }
 }

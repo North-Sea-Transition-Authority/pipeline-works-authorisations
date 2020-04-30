@@ -34,7 +34,7 @@
     urlFactory=pipelineCrossingUrlFactory
     pipelineCrossingFileViews=pipelineCrossingFiles
     pipelineCrossings=pipelineCrossings
-    isCompleted=false/>
+    isCompleted=crossingAgreementValidationResult.isSectionValid("PIPELINE_CROSSINGS")/>
 
     <hr class="govuk-section-break govuk-section-break--l"/>
 

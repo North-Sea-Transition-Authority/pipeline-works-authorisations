@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +29,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLine
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -52,6 +52,7 @@ public class CrossingAgreementsController {
   private final PadCableCrossingService cableCrossingService;
   private final CableCrossingFileService cableCrossingFileService;
   private final PadPipelineCrossingService padPipelineCrossingService;
+  private final PipelineCrossingFileService pipelineCrossingFileService;
 
   @Autowired
   public CrossingAgreementsController(
@@ -63,7 +64,8 @@ public class CrossingAgreementsController {
       MedianLineCrossingFileService medianLineCrossingFileService,
       PadCableCrossingService cableCrossingService,
       CableCrossingFileService cableCrossingFileService,
-      PadPipelineCrossingService padPipelineCrossingService) {
+      PadPipelineCrossingService padPipelineCrossingService,
+      PipelineCrossingFileService pipelineCrossingFileService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingService = blockCrossingService;
@@ -73,6 +75,7 @@ public class CrossingAgreementsController {
     this.cableCrossingService = cableCrossingService;
     this.cableCrossingFileService = cableCrossingFileService;
     this.padPipelineCrossingService = padPipelineCrossingService;
+    this.pipelineCrossingFileService = pipelineCrossingFileService;
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
@@ -90,7 +93,8 @@ public class CrossingAgreementsController {
             cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("pipelineCrossings", padPipelineCrossingService.getPipelineCrossingViews(detail))
         .addObject("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(detail))
-        .addObject("pipelineCrossingFiles", List.of())
+        .addObject("pipelineCrossingFiles",
+            pipelineCrossingFileService.getPipelineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Crossings");
     return modelAndView;

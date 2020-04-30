@@ -104,8 +104,7 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return padPipelineCrossingRepository.countAllByPwaApplicationDetail(detail) > 0
-        && pipelineCrossingFileService.isComplete(detail);
+    return pipelineCrossingFileService.isComplete(detail);
   }
 
   @Override
