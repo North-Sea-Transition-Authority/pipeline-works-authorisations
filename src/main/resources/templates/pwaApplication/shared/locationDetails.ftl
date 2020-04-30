@@ -15,9 +15,9 @@
             <#list safetyZoneOptions as name, value>
                 <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name:value} isFirstItem=firstItem>
                     <#if name == "YES">
-                        <@fdsSelect.select path="form.facilitiesIfYes" options=facilityOptions labelText="Which structures are within 500m?" hintText="DEVUK facility or other structure" nestingPath="form.withinSafetyZone"/>
+                        <@fdsSelect.select path="form.facilitiesIfYes" options=facilityOptions labelText="Which structures are within 500m?" hintText="For example: platforms, FPSOs, boats, or storage units" nestingPath="form.withinSafetyZone"/>
                     <#elseif name == "PARTIALLY">
-                        <@fdsSelect.select path="form.facilitiesIfPartially" options=facilityOptions labelText="Which structures are within 500m?" hintText="DEVUK facility or other structure" nestingPath="form.withinSafetyZone"/>
+                        <@fdsSelect.select path="form.facilitiesIfPartially" options=facilityOptions labelText="Which structures are within 500m?" hintText="For example: platforms, FPSOs, boats, or storage units" nestingPath="form.withinSafetyZone"/>
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem = false/>
@@ -31,7 +31,9 @@
             <@fdsRadio.radioYes path="form.transportsMaterialsToShore">
                 <@fdsTextInput.textInput path="form.transportationMethod" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore"/>
             </@fdsRadio.radioYes>
-            <@fdsRadio.radioNo path="form.transportsMaterialsToShore"/>
+            <@fdsRadio.radioNo path="form.transportsMaterialsToShore">
+                <@fdsTextarea.textarea path="form.pipelineAshoreLocation" labelText="Where do the pipelines come ashore?" nestingPath="form.transportsMaterialsToShore"/>
+            </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
 
         <@fdsRadio.radioGroup path="form.routeSurveyUndertaken" labelText="Has a pipeline route survey been undertaken?" hiddenContent=true>
@@ -43,7 +45,7 @@
         <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details"/>
         <@fdsCheckbox.checkbox path="form.withinLimitsOfDeviation" labelText="I confirm that the limit of deviation during construction will be ±100m"/>
 
-        <#-- TODO: PWA-432 Update guidance text with correct supporting documents. -->
+    <#-- TODO: PWA-432 Update guidance text with correct supporting documents. -->
         <@fdsFieldset.fieldset legendHeading="Pipeline route documents" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" optionalLabel=true hintText="You may attach supporting documents, such as bathymetric data">
             <@fileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="project-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
         </@fdsFieldset.fieldset>

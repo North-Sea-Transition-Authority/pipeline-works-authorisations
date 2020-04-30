@@ -28,6 +28,9 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   private Integer surveyConcludedMonth;
   private Integer surveyConcludedYear;
 
+  @Length(max = 4000, message = "Transportation method must be 4000 characters or fewer")
+  private String pipelineAshoreLocation;
+
   public LocationDetailsForm() {
     facilitiesIfPartially = new ArrayList<>();
     facilitiesIfYes = new ArrayList<>();
@@ -136,5 +139,13 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   public void setSurveyConcludedYear(Integer surveyConcludedYear) {
     this.surveyConcludedYear = surveyConcludedYear;
+  }
+
+  public String getPipelineAshoreLocation() {
+    return pipelineAshoreLocation;
+  }
+
+  public void setPipelineAshoreLocation(String pipelineAshoreLocation) {
+    this.pipelineAshoreLocation = pipelineAshoreLocation;
   }
 }

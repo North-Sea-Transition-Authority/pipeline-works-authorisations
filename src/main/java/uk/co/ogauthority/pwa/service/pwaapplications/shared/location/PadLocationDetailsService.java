@@ -61,6 +61,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     locationDetailsForm.setTransportsMaterialsToShore(padLocationDetails.getTransportsMaterialsToShore());
     locationDetailsForm.setTransportationMethod(padLocationDetails.getTransportationMethod());
     locationDetailsForm.setPipelineRouteDetails(padLocationDetails.getPipelineRouteDetails());
+    if (!BooleanUtils.isTrue(locationDetailsForm.getTransportsMaterialsToShore())) {
+      locationDetailsForm.setPipelineAshoreLocation(padLocationDetails.getPipelineAshoreLocation());
+    }
     DateUtils.setYearMonthDayFromInstant(
         locationDetailsForm::setSurveyConcludedYear,
         locationDetailsForm::setSurveyConcludedMonth,
@@ -80,6 +83,12 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
     padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());
     padLocationDetails.setPipelineRouteDetails(locationDetailsForm.getPipelineRouteDetails());
+    if (!BooleanUtils.isTrue(padLocationDetails.getTransportsMaterialsToShore())) {
+      padLocationDetails.setPipelineAshoreLocation(padLocationDetails.getPipelineAshoreLocation());
+    } else {
+      padLocationDetails.setPipelineAshoreLocation(null);
+    }
+    padLocationDetails.setPipelineAshoreLocation(locationDetailsForm.getPipelineAshoreLocation());
     if (BooleanUtils.isTrue(locationDetailsForm.getRouteSurveyUndertaken())) {
       DateUtils.consumeInstantFromIntegersElseNull(
           locationDetailsForm.getSurveyConcludedYear(),
