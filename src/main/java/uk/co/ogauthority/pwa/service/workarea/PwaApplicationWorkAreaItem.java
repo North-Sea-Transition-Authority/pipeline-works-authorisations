@@ -11,8 +11,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDeta
 
 public class PwaApplicationWorkAreaItem {
 
-  private static final DateTimeFormatter WORK_AREA_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/YYYY");
-  private static final DateTimeFormatter WORK_AREA_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm");
+  private static final DateTimeFormatter WORK_AREA_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+  private static final DateTimeFormatter WORK_AREA_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
   private final int pwaApplicationId;
 
@@ -115,7 +115,7 @@ public class PwaApplicationWorkAreaItem {
     if (instant == null) {
       return null;
     }
-    return instant.atZone(ZoneId.systemDefault()).toLocalDateTime().format(formatter);
+    return instant.atZone(ZoneId.systemDefault()).format(formatter);
   }
 
 }

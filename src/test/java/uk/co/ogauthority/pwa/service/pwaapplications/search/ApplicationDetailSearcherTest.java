@@ -46,14 +46,14 @@ public class ApplicationDetailSearcherTest {
 
 
   @Test
-  public void search_whenNoContactRoles() {
-    var resultPage = applicationDetailSearcher.search(PageRequest.of(PAGE_REQUESTED, PAGE_SIZE), Set.of());
+  public void searchByPwaContacts_whenNoContactRoles() {
+    var resultPage = applicationDetailSearcher.searchByPwaContacts(PageRequest.of(PAGE_REQUESTED, PAGE_SIZE), Set.of());
     assertThat(resultPage).isEqualTo(Page.empty());
 
   }
 
   @Test
-  public void search_whenContactRolesProvided() {
+  public void searchByPwaContacts_whenContactRolesProvided() {
     var result = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
 
     var fakePageResult = ApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(
@@ -65,7 +65,7 @@ public class ApplicationDetailSearcherTest {
     when(applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPwaApplicationIdIn(any(), eq(Set.of(APP_ID))))
         .thenReturn(fakePageResult);
 
-    var resultPage = applicationDetailSearcher.search(pageable, contactRoles);
+    var resultPage = applicationDetailSearcher.searchByPwaContacts(pageable, contactRoles);
 
 
     verify(applicationDetailSearchItemRepository, times(1))
