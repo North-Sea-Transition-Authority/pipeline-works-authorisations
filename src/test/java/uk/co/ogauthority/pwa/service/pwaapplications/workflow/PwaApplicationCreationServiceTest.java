@@ -103,7 +103,7 @@ public class PwaApplicationCreationServiceTest {
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(PwaApplicationType.INITIAL);
-    assertThat(application.getAppReference()).isEqualTo("PA/001/001");
+    assertThat(application.getAppReference()).isEqualTo("PA/1/1");
     assertThat(application.getConsentReference()).isNull();
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
@@ -164,7 +164,7 @@ public class PwaApplicationCreationServiceTest {
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(pwaApplicationType);
-    assertThat(application.getAppReference()).startsWith("PA/001/001");
+    assertThat(application.getAppReference()).isEqualTo("PA/1/1");
     assertThat(application.getConsentReference()).isNull();
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();

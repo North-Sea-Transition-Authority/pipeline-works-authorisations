@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Set;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,9 @@ public class PwaApplicationCreationService {
   public PwaApplication createInitialPwaApplication(WebUserAccount createdByUser) {
 
     MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
-        MasterPwaDetailStatus.APPLICATION, createAppReference()
+            MasterPwaDetailStatus.APPLICATION,
+            // TODO PWA-145 implement referencing
+             "New Pwa " + RandomUtils.nextInt()
     );
 
     var masterPwa = masterPwaDetail.getMasterPwa();
@@ -96,7 +99,7 @@ public class PwaApplicationCreationService {
 
   private String createAppReference() {
     long refSeq = pwaApplicationRepository.getNextRefNum();
-    String appRef = "PA/" + String.format("%03d", refSeq) + "/001";
+    String appRef = "PA/" + refSeq + "/1";
     return appRef;
   }
 
