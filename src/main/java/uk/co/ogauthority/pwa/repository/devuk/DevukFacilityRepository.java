@@ -13,4 +13,6 @@ public interface DevukFacilityRepository extends CrudRepository<DevukFacility, I
   // Pagination is required to prevent extremely long request duration, and memory usage.
   List<DevukFacility> findAllByFacilityNameContainsIgnoreCase(Pageable pageRequest, String facilityName);
 
+  List<DevukFacility> findAllByIdIn(List<Integer> ids);
+
 }
