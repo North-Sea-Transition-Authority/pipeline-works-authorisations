@@ -21,15 +21,15 @@ SELECT
 , ppi.proposed_start_timestamp pad_proposed_start_timestamp
 , (
     SELECT LISTAGG(COALESCE(df.field_name, pf.field_name_manual_entry), ';;;;') WITHIN GROUP(ORDER BY 1) -- this will do for now. might need to change as requirements become more specific.
-    FROM pwa_mh.pad_fields pf
-    LEFT JOIN pwa_mh.devuk_fields df ON pf.field_id = df.field_id
+    FROM ${datasource.user}.pad_fields pf
+    LEFT JOIN ${datasource.user}.devuk_fields df ON pf.field_id = df.field_id
     WHERE pf.application_detail_id = pad.id
   ) pad_field_name_list
-FROM pwa_mh.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
+FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
 JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
 
-LEFT JOIN pwa_mh.pad_project_information ppi ON ppi.application_detail_id = pad.id
+LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
 WHERE pd.end_timestamp IS NULL; 
 
