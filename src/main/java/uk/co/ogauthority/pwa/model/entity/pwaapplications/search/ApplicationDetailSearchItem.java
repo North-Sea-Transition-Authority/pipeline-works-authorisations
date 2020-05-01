@@ -9,12 +9,14 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.model.entity.converters.SemiColonSeperatedListConverter;
+import org.hibernate.annotations.Immutable;
+import uk.co.ogauthority.pwa.model.entity.converters.SemiColonSeparatedListConverter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Entity
 @Table(name = "pad_search_items")
+@Immutable
 public class ApplicationDetailSearchItem {
 
   @Id
@@ -33,7 +35,7 @@ public class ApplicationDetailSearchItem {
   @Enumerated(EnumType.STRING)
   private PwaApplicationType applicationType;
 
-  @Convert(converter = SemiColonSeperatedListConverter.class)
+  @Convert(converter = SemiColonSeparatedListConverter.class)
   @Column(name = "pad_field_name_list")
   private List<String> padFields;
 

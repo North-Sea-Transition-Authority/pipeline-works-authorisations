@@ -28,7 +28,6 @@
                   <th class="govuk-table__header" scope="col">Master PWA reference</th>
                   <th class="govuk-table__header" scope="col">Summary</th>
                   <th class="govuk-table__header" scope="col">Application status</th>
-                  <th class="govuk-table__header" scope="col"></th>
 
                 </tr>
                 </thead>
@@ -36,31 +35,28 @@
                 <#list workAreaPageView.getPageContent() as item>
 
                   <tr class="govuk-table__row">
-                    <td class="govuk-table__cell"> ${item.padReference}</td>
+                    <td class="govuk-table__cell">
+                      <#assign viewLinkText=item.padReference?has_content?then(item.padReference, "Resume draft PWA") />
+                      <@fdsAction.link linkText=viewLinkText
+                      linkUrl=springUrl(item.viewApplicationUrl)
+                      linkClass="govuk-link govuk-link--no-visited-state"
+                      />
+                    </td>
                     <td class="govuk-table__cell"> ${item.applicationType}</td>
                     <td class="govuk-table__cell"> ${item.masterPwaReference}</td>
                     <td class="govuk-table__cell">
                       <ul class="govuk-list">
                         <li>Project Name: ${item.projectName!""}</li>
-                        <li>Field: ${item.orderedFieldList?join(", ")}</li>
                         <li>Proposed start date: ${item.getFormattedProposedStartDate()!""}</li>
-                        <li></li>
+                        <#if item.orderedFieldList?has_content>
+                          <li>Field: ${item.orderedFieldList?join(", ")}</li>
+                        </#if>
                       </ul>
                     </td>
                     <td class="govuk-table__cell">
                       <ul class="govuk-list">
                         <li><span class="govuk-tag">${item.padDisplayStatus}</span></li>
                         <li>Status set: ${item.getFormattedStatusSetDatetime()}</li>
-                      </ul>
-                    </td>
-                    <td class="govuk-table__cell">
-                      <ul class="govuk-list">
-                        <li>
-                          <@fdsAction.link linkText="View"
-                          linkUrl=springUrl(item.viewApplicationUrl)
-                          linkClass="govuk-link govuk-link--no-visited-state"
-                          />
-                        </li>
                       </ul>
                     </td>
                   </tr>

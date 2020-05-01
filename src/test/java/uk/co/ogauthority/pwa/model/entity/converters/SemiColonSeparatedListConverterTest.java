@@ -9,52 +9,52 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SemiColonSeperatedListConverterTest {
+public class SemiColonSeparatedListConverterTest {
 
-  private SemiColonSeperatedListConverter semiColonSeperatedListConverter;
+  private SemiColonSeparatedListConverter semiColonSeparatedListConverter;
 
   @Before
   public void setup() {
 
-    semiColonSeperatedListConverter = new SemiColonSeperatedListConverter();
+    semiColonSeparatedListConverter = new SemiColonSeparatedListConverter();
 
   }
 
 
   @Test
   public void convertToDatabaseColumn_whenNull() {
-    var result = semiColonSeperatedListConverter.convertToDatabaseColumn(null);
+    var result = semiColonSeparatedListConverter.convertToDatabaseColumn(null);
         assertThat(result).isNull();
   }
 
   @Test
   public void convertToDatabaseColumn_whenEmptySet() {
-    var result = semiColonSeperatedListConverter.convertToDatabaseColumn(List.of());
+    var result = semiColonSeparatedListConverter.convertToDatabaseColumn(List.of());
     assertThat(result).isNull();
   }
 
   @Test
   public void convertToDatabaseColumn_whenPopulatedSet() {
-    var result = semiColonSeperatedListConverter.convertToDatabaseColumn(List.of("ONE", "TWO", "THREE"));
+    var result = semiColonSeparatedListConverter.convertToDatabaseColumn(List.of("ONE", "TWO", "THREE"));
     assertThat(result).isEqualTo("ONE;;;;TWO;;;;THREE");
   }
 
 
   @Test
   public void convertToEntityAttribute_whenNull() {
-    var result = semiColonSeperatedListConverter.convertToEntityAttribute(null);
+    var result = semiColonSeparatedListConverter.convertToEntityAttribute(null);
     assertThat(result).isEmpty();
   }
 
   @Test
   public void convertToEntityAttribute_whenEmptyString() {
-    var result = semiColonSeperatedListConverter.convertToEntityAttribute("");
+    var result = semiColonSeparatedListConverter.convertToEntityAttribute("");
     assertThat(result).isEmpty();
   }
 
   @Test
   public void convertToEntityAttribute_whenDelimitedString() {
-    var result = semiColonSeperatedListConverter.convertToEntityAttribute("ONE;;;;TWO;;;;THREE");
+    var result = semiColonSeparatedListConverter.convertToEntityAttribute("ONE;;;;TWO;;;;THREE");
     assertThat(result).containsExactly("ONE", "TWO", "THREE");
   }
 

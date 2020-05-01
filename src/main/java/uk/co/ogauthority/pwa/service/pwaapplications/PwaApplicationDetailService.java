@@ -65,7 +65,7 @@ public class PwaApplicationDetailService {
   }
 
   /**
-   * Update the status of the application being linked to fields.
+   * Set attributes related to application being linked to fields.
    *
    * @param pwaApplicationDetail The current application detail.
    * @param linked               True/False. If linked, requires fields to be added.
@@ -91,7 +91,7 @@ public class PwaApplicationDetailService {
   }
 
   /**
-   * Update the status of the application being linked to fields.
+   * Update the status of the application.
    *
    * @return Saved app detail.
    */
@@ -106,7 +106,7 @@ public class PwaApplicationDetailService {
 
 
   /**
-   * Update the all app detail fields required when application detail is submitted.
+   * Update all app detail fields required when application detail is submitted.
    *
    * @return Saved app detail.
    */

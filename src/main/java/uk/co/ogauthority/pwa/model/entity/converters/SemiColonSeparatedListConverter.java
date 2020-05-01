@@ -9,7 +9,7 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 @Converter
-public class SemiColonSeperatedListConverter implements AttributeConverter<List<String>, String> {
+public class SemiColonSeparatedListConverter implements AttributeConverter<List<String>, String> {
   private static final String DELIMITER = ";;;;";
 
   @Override
