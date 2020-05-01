@@ -74,8 +74,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .getOrganisationUnitDetails(portalOrgUnits).stream()
         .collect(Collectors.toMap(PortalOrganisationUnitDetail::getOuId, orgUnitDetail -> orgUnitDetail));
 
-    var roleCount = getRoleCountMap(detail);
-
     return orgRoles.keySet()
         .stream()
         .map(orgUnit -> {
@@ -278,7 +276,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .forEach(role -> map.put(role, 0));
 
     padOrganisationRoleList.stream()
-        .flatMap(padOrganisationRole -> padOrganisationRole.getRole().stream())
+        .map(PadOrganisationRole::getRole)
         .forEach(role -> map.put(role, map.get(role) + 1));
 
     return map;
