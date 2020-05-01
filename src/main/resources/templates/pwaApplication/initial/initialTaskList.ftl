@@ -17,16 +17,7 @@
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="2" sectionHeadingText="Application information">
             <#list appInfoTasks as task, taskInfo>
-                <li class="fds-task-list__item">
-                    <span class="fds-task-list__task-name">
-                        <a class="govuk-link" href="${springUrl(taskInfo.link)}">
-                            ${task}
-                        </a>
-                    </span>
-                    <#if taskInfo.count gt 0> 
-                        <strong class="govuk-tag fds-task-list__task-completed">${taskInfo.count + ' ' + taskInfo.countType}</strong>
-                    </#if>
-                </li>
+                <@pwaTaskListItem.taskInfoItem taskName=task taskInfo=taskInfo/>
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="3" sectionHeadingText="Prepare application">
