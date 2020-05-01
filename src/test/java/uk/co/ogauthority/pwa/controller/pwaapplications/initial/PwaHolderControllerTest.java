@@ -36,7 +36,6 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.TeamTestingUtils;
@@ -50,9 +49,6 @@ public class PwaHolderControllerTest extends PwaApplicationContextAbstractContro
 
   @MockBean
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
-
-  @MockBean
-  private ApplicationHolderService applicationHolderService;
 
   @SpyBean
   private ApplicationBreadcrumbService breadcrumbService;

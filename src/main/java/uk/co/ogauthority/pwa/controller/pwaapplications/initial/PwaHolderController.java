@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -56,7 +56,7 @@ public class PwaHolderController {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaHolderFormValidator pwaHolderFormValidator;
-  private final ApplicationHolderService applicationHolderService;
+  private final PadOrganisationRoleService padOrganisationRoleService;
   private final ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
@@ -65,14 +65,14 @@ public class PwaHolderController {
                              PwaApplicationDetailService pwaApplicationDetailService,
                              PwaApplicationRedirectService pwaApplicationRedirectService,
                              PwaHolderFormValidator pwaHolderFormValidator,
-                             ApplicationHolderService applicationHolderService,
+                             PadOrganisationRoleService padOrganisationRoleService,
                              ApplicationBreadcrumbService breadcrumbService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaHolderFormValidator = pwaHolderFormValidator;
-    this.applicationHolderService = applicationHolderService;
+    this.padOrganisationRoleService = padOrganisationRoleService;
     this.breadcrumbService = breadcrumbService;
   }
 
@@ -87,7 +87,6 @@ public class PwaHolderController {
       AuthenticatedUserAccount user,
       PwaApplicationContext applicationContext) {
 
-    applicationHolderService.mapHolderDetailsToForm(applicationContext.getApplicationDetail(), form);
     return getHolderModelAndView(user, applicationContext.getApplicationDetail(), form);
 
   }
@@ -122,7 +121,7 @@ public class PwaHolderController {
                           form.getHolderOuId(),
                           user.getWuaId())));
 
-          applicationHolderService.updateHolderDetails(applicationContext.getApplicationDetail(), organisationUnit);
+          padOrganisationRoleService.addHolder(applicationContext.getApplicationDetail(), organisationUnit);
 
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
 

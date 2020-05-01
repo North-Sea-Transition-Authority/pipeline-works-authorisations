@@ -40,7 +40,6 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -65,7 +64,6 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   private WebUserAccount wua;
   private AuthenticatedUserAccount user;
   private PwaApplicationDetail appDetail;
-  private ApplicationHolderOrganisation holderOrganisation;
   private Instant instant;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
@@ -87,7 +85,6 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
     instant = Instant.now();
 
     var holderOrg = new PortalOrganisationUnit(1, "HOLDER");
-    holderOrganisation = new ApplicationHolderOrganisation(appDetail, holderOrg);
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(appDetail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
