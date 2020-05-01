@@ -44,7 +44,7 @@ public class StartPrototypePwaApplicationController {
 
   private ModelAndView getStartAppModelAndView() {
     return new ModelAndView("pwaApplication/temporary/selectApplication")
-      .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
+      .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
       .addObject("applicationTypes", Arrays.stream(PwaApplicationType.values())
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName)))
       .addObject("errorList", List.of());
