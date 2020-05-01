@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.AddHuooValidator;
-import uk.co.ogauthority.pwa.validators.EditHuooValidator;
+import uk.co.ogauthority.pwa.validators.huoo.AddHuooValidator;
+import uk.co.ogauthority.pwa.validators.huoo.EditHuooValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(

@@ -1,8 +1,5 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo;
 
-import java.util.Set;
-import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,7 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.model.entity.converters.HuooRoleConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -33,9 +29,8 @@ public class PadOrganisationRole {
   @ManyToOne
   private PortalOrganisationUnit organisationUnit;
 
-  @Column(name = "role")
-  @Convert(converter = HuooRoleConverter.class)
-  private Set<HuooRole> roles;
+  @Enumerated(EnumType.STRING)
+  private HuooRole role;
 
   @Enumerated(EnumType.STRING)
   private HuooType type;
@@ -69,12 +64,12 @@ public class PadOrganisationRole {
     this.organisationUnit = organisationUnit;
   }
 
-  public Set<HuooRole> getRoles() {
-    return roles;
+  public HuooRole getRole() {
+    return role;
   }
 
-  public void setRoles(Set<HuooRole> roles) {
-    this.roles = roles;
+  public void setRole(HuooRole role) {
+    this.role = role;
   }
 
   public HuooType getType() {
