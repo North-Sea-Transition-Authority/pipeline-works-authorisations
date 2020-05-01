@@ -320,6 +320,45 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
+  public void updateEntityUsingForm_org() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.OPERATOR));
+    form.setOrganisationUnit(org2.getOrganisationUnit());
+
+    padOrganisationRoleService.updateEntityUsingForm(detail, org1.getOrganisationUnit(), form);
+
+    verify(repository, times(1)).deleteAll(any());
+    verify(repository, times(1)).saveAll(roleListCaptor.capture());
+
+    var capture = roleListCaptor.getValue().get(0);
+
+    assertThat(capture.getType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(capture.getOrganisationUnit()).isEqualTo(org2.getOrganisationUnit());
+    assertThat(capture.getAgreement()).isNull();
+    assertThat(capture.getRole()).isEqualTo(HuooRole.OPERATOR);
+  }
+
+  @Test
+  public void updateEntityUsingForm_treaty() {
+    var form = new HuooForm();
+    form.setTreatyAgreement(TreatyAgreement.NETHERLANDS);
+
+    var org = new PadOrganisationRole();
+    org.setType(HuooType.TREATY_AGREEMENT);
+    org.setRole(HuooRole.USER);
+
+    padOrganisationRoleService.updateEntityUsingForm(detail, org, form);
+
+    verify(repository, times(1)).save(org);
+
+    assertThat(org.getType()).isEqualTo(HuooType.TREATY_AGREEMENT);
+    assertThat(org.getOrganisationUnit()).isNull();
+    assertThat(org.getAgreement()).isEqualTo(TreatyAgreement.NETHERLANDS);
+    assertThat(org.getRole()).isEqualTo(HuooRole.USER);
+  }
+
+  @Test
   public void addHolder() {
 
     var newOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
@@ -365,9 +404,18 @@ public class PadOrganisationRoleServiceTest {
         ));
   }
 
+  @Test
+  public void removeRolesOfUnit() {
+    when(repository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, org1.getOrganisationUnit()))
+        .thenReturn(List.of(org1, org2));
+    padOrganisationRoleService.removeRolesOfUnit(detail, org1.getOrganisationUnit());
+    verify(repository, times(1)).deleteAll(any());
+  }
+
   private PadOrganisationRole createOrgRole(HuooRole role) {
     var org = new PadOrganisationRole();
     org.setRole(role);
     return org;
   }
+
 }
