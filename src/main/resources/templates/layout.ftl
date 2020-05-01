@@ -7,6 +7,7 @@
 <#import 'components/fileUpload/fileUpload.ftl' as fileUpload>
 <#import 'components/completedTag/completedTag.ftl' as completedTag>
 <#import 'components/coordinates/locationInput.ftl' as locationInput>
+<#import 'components/taskList/pwaTaskListItem.ftl' as pwaTaskListItem>
 
 <#function springUrl url>
   <#local springUrl>
