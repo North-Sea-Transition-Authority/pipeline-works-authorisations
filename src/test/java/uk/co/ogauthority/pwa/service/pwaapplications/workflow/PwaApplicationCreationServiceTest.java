@@ -78,6 +78,7 @@ public class PwaApplicationCreationServiceTest {
 
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
+    when(pwaApplicationRepository.getNextRefNum()).thenReturn((long) 1);
 
     PwaApplication createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
 
@@ -96,7 +97,7 @@ public class PwaApplicationCreationServiceTest {
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(PwaApplicationType.INITIAL);
-    assertThat(application.getAppReference()).startsWith("APP/");
+    assertThat(application.getAppReference()).isEqualTo("PA/1/1");
     assertThat(application.getConsentReference()).isNull();
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
@@ -117,6 +118,8 @@ public class PwaApplicationCreationServiceTest {
 
     MasterPwa masterPwa = new MasterPwa(fixedInstant);
     masterPwa.setId(1);
+
+    when(pwaApplicationRepository.getNextRefNum()).thenReturn((long) 1);
 
     PwaApplication createdApplication = pwaApplicationCreationService.createVariationPwaApplication(
         user,
@@ -141,7 +144,7 @@ public class PwaApplicationCreationServiceTest {
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(pwaApplicationType);
-    assertThat(application.getAppReference()).startsWith("APP/");
+    assertThat(application.getAppReference()).isEqualTo("PA/1/1");
     assertThat(application.getConsentReference()).isNull();
     assertThat(application.getVariationNo()).isEqualTo(0);
     assertThat(application.getDecision()).isEmpty();
@@ -150,4 +153,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(createdApplication).isEqualTo(application);
 
   }
+
+
 }

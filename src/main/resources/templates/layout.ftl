@@ -8,6 +8,7 @@
 <#import 'components/completedTag/completedTag.ftl' as completedTag>
 <#import 'components/coordinates/locationInput.ftl' as locationInput>
 <#import 'components/taskList/pwaTaskListItem.ftl' as pwaTaskListItem>
+<#import 'components/cartographic/maps.ftl' as maps>
 
 <#function springUrl url>
   <#local springUrl>
