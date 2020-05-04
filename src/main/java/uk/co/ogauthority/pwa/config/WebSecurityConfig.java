@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/portal-team-management", "/portal-team-management/**")
           .hasAnyAuthority(systemAreaAccessService.getValidTeamManagementGrantedAuthorities())
 
-        .antMatchers("/session-info")
+        .antMatchers("/session-info", "/maps-test")
           .permitAll()
 
         .anyRequest()
