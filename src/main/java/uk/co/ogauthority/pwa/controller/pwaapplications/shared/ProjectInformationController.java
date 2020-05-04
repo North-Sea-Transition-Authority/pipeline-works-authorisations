@@ -176,7 +176,11 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
             null, null
         )),
         padProjectInformationService.getUpdatedProjectInformationFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+
     );
+    modelAndView.addObject("isPermDepQuestionRequired",
+                    padProjectInformationService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail))
+            .addObject("isAnyDepQuestionRequired", padProjectInformationService.getIsAnyDepositQuestionRequired(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");

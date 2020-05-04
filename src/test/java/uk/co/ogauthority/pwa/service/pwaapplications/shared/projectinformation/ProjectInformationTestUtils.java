@@ -56,6 +56,12 @@ public class ProjectInformationTestUtils {
 
     form.setUploadedFileWithDescriptionForms(new ArrayList<>());
 
+    form.setIsPermanentDepositsMade(true);
+    form.setFutureAppSubmissionMonth(07);
+    form.setFutureAppSubmissionYear(2020);
+    form.setIsTemporaryDepositsMade(true);
+    form.setTemporaryDepDescription("some description..");
+
     return form;
   }
 

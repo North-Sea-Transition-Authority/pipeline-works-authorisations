@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
@@ -160,4 +161,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return bindingResult;
 
   }
+
+  public boolean getIsPermanentDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
+    return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT) ? false : true;
+  }
+
+  public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
+    return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION) ? false : true;
+  }
+
+
 }

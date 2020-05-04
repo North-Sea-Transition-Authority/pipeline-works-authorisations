@@ -54,6 +54,14 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   @NotNull(message = "Select yes if using a campaign approach", groups = {FullValidation.class})
   private Boolean usingCampaignApproach;
 
+  private Boolean isPermanentDepositsMade;
+  private Integer futureAppSubmissionMonth;
+  private Integer futureAppSubmissionYear;
+
+  private Boolean isTemporaryDepositsMade;
+  private String temporaryDepDescription;
+
+
   public String getProjectName() {
     return projectName;
   }
@@ -236,5 +244,46 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   public void setLicenceTransferPlanned(Boolean licenceTransferPlanned) {
     this.licenceTransferPlanned = licenceTransferPlanned;
+  }
+
+
+  public Boolean getIsPermanentDepositsMade() {
+    return isPermanentDepositsMade;
+  }
+
+  public void setIsPermanentDepositsMade(Boolean permanentDepositsMade) {
+    isPermanentDepositsMade = permanentDepositsMade;
+  }
+
+  public Integer getFutureAppSubmissionMonth() {
+    return futureAppSubmissionMonth;
+  }
+
+  public void setFutureAppSubmissionMonth(Integer futureAppSubmissionMonth) {
+    this.futureAppSubmissionMonth = futureAppSubmissionMonth;
+  }
+
+  public Integer getFutureAppSubmissionYear() {
+    return futureAppSubmissionYear;
+  }
+
+  public void setFutureAppSubmissionYear(Integer futureAppSubmissionYear) {
+    this.futureAppSubmissionYear = futureAppSubmissionYear;
+  }
+
+  public Boolean getIsTemporaryDepositsMade() {
+    return isTemporaryDepositsMade;
+  }
+
+  public void setIsTemporaryDepositsMade(Boolean temporaryDepositsMade) {
+    isTemporaryDepositsMade = temporaryDepositsMade;
+  }
+
+  public String getTemporaryDepDescription() {
+    return temporaryDepDescription;
+  }
+
+  public void setTemporaryDepDescription(String temporaryDepDescription) {
+    this.temporaryDepDescription = temporaryDepDescription;
   }
 }

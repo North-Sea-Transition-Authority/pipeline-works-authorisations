@@ -130,6 +130,12 @@ public class ProjectInformationEntityMappingService {
       padProjectInformation.setCommercialAgreementTimestamp(null);
     }
 
+    padProjectInformation.setPermanentDepositsMade(form.getIsPermanentDepositsMade());
+    padProjectInformation.setFutureAppSubmissionMonth(form.getFutureAppSubmissionMonth());
+    padProjectInformation.setFutureAppSubmissionYear(form.getFutureAppSubmissionYear());
+    padProjectInformation.setTemporaryDepositsMade(form.getIsTemporaryDepositsMade());
+    padProjectInformation.setTemporaryDepDescription(form.getTemporaryDepDescription());
+
   }
 
 }

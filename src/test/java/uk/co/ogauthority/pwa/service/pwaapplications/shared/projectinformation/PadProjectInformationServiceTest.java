@@ -23,12 +23,14 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformationFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
@@ -270,6 +272,35 @@ public class PadProjectInformationServiceTest {
 
     assertThat(errors).isEmpty();
 
+  }
+
+  public PwaApplicationDetail getAppDetailForDepositTest(PwaApplicationType pwaApplicationType){
+    PwaApplication pwaApplication = new PwaApplication(null, pwaApplicationType, null);
+    return new PwaApplicationDetail(pwaApplication, null, null, null);
+  }
+
+  @Test
+  public void getIsPermanentDepositRequired_depCon(){
+    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT);
+    assertThat(service.getIsPermanentDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(false);
+  }
+
+  @Test
+  public void getIsPermanentDepositRequired_init(){
+    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.INITIAL);
+    assertThat(service.getIsPermanentDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(true);
+  }
+
+  @Test
+  public void getIsAnyDepositQuestionRequired_HUOO(){
+    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION);
+    assertThat(service.getIsAnyDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(false);
+  }
+
+  @Test
+  public void getIsAnyDepositQuestionRequired_init(){
+    PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.INITIAL);
+    assertThat(service.getIsAnyDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(true);
   }
 
 }

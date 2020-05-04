@@ -1,6 +1,8 @@
 <#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="isPermDepQuestionRequired" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="isAnyDepQuestionRequired" type="java.lang.Boolean" -->
 
 <@defaultPage htmlTitle="Project information" pageHeading="Project information" breadcrumbs=true>
 
@@ -31,6 +33,34 @@
         <@fdsFieldset.fieldset legendHeadingClass="govuk-fieldset__legend--l" legendHeading="Project documents" legendHeadingSize="h2" hintText="Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)." nestingPath="" caption="" captionClass="govuk-caption-l">
             <@fileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="project-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
         </@fdsFieldset.fieldset>
+
+        <#if isAnyDepQuestionRequired == true>
+            <#if isPermDepQuestionRequired == true>
+                <@fdsRadio.radioGroup path="form.isPermanentDepositsMade" labelText="Are permanent deposits being made?" hiddenContent=true>
+                    <#assign firstItem=true/>
+                    <#assign options={"true": "Yes, as part of this application", "true": "Yes, as part of a later application", "false": "No"}/>
+                    <#list options as  propName, propValue>
+                        <@fdsRadio.radioItem path="form.isPermanentDepositsMade" itemMap={propName : propValue} isFirstItem=firstItem>
+                            <#if propValue == "Yes, as part of a later application">
+                                <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month" formId="date-of-future-app"/>
+                                <@fdsTextInput.textInput path="form.futureAppSubmissionMonth" labelText="Month" maxCharacterLength="2"/>
+                                <@fdsTextInput.textInput path="form.futureAppSubmissionYear" labelText="Year" maxCharacterLength="4"/>
+                            </#if>
+                        </@fdsRadio.radioItem>
+                        <#assign firstItem=false/>
+                    </#list>
+                </@fdsRadio.radioGroup>
+            </#if>
+
+            <@fdsRadio.radioGroup path="form.isTemporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.isTemporaryDepositsMade">
+                    <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description" characterCount=true maxCharacterLength="4000"/>
+                </@fdsRadio.radioYes>
+                <@fdsRadio.radioNo path="form.isTemporaryDepositsMade"/>
+            </@fdsRadio.radioGroup>
+        </#if>
+
+
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
     </@fdsForm.htmlForm>
 

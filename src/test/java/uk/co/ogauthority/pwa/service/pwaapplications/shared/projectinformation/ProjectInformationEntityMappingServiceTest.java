@@ -100,7 +100,20 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(entity.getCommercialAgreementTimestamp()).isEqualTo(
         dateAsInstant.plus(ProjectInformationTestUtils.COMMERCIAL_AGREEMENT_DAY_MODIFIER, ChronoUnit.DAYS));
 
+    assertThat(entity.getPermanentDepositsMade()).isEqualTo(
+            expectedForm.getIsPermanentDepositsMade());
 
+    assertThat(entity.getFutureAppSubmissionMonth()).isEqualTo(
+            expectedForm.getFutureAppSubmissionMonth());
+
+    assertThat(entity.getFutureAppSubmissionYear()).isEqualTo(
+            expectedForm.getFutureAppSubmissionYear());
+
+    assertThat(entity.getTemporaryDepositsMade()).isEqualTo(
+            expectedForm.getIsTemporaryDepositsMade());
+
+    assertThat(entity.getTemporaryDepDescription()).isEqualTo(
+            expectedForm.getTemporaryDepDescription());
   }
 
 
