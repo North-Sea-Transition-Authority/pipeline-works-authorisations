@@ -1,0 +1,19 @@
+.map-wrapper {
+  display: flex;
+}
+
+.map {
+  flex-grow: 1;
+  margin-right: govuk-spacing(2);
+  height: 600px;
+  @include govuk-font($size: 14);
+}
+
+#map-overlay {
+  background-color: white;
+  @include govuk-font($size: 14);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+}

@@ -50,7 +50,7 @@ public class PwaApplicationCreationService {
                                            WebUserAccount createdByUser) {
 
     var application = new PwaApplication(masterPwa, applicationType, variationNo);
-    application.setAppReference("APP/" + RandomUtils.nextInt());
+    application.setAppReference(createAppReference());
     pwaApplicationRepository.save(application);
 
     pwaContactService.addContact(
@@ -70,9 +70,9 @@ public class PwaApplicationCreationService {
   public PwaApplication createInitialPwaApplication(WebUserAccount createdByUser) {
 
     MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
-        MasterPwaDetailStatus.APPLICATION,
-        // TODO PWA-145 implement referencing
-        "New Pwa " + RandomUtils.nextInt()
+            MasterPwaDetailStatus.APPLICATION,
+             // TODO PWA-480 implement referencing
+             "New Pwa " + RandomUtils.nextInt()
     );
 
     var masterPwa = masterPwaDetail.getMasterPwa();
@@ -89,6 +89,14 @@ public class PwaApplicationCreationService {
     return createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
 
   }
+
+  private String createAppReference() {
+    long refSeq = pwaApplicationRepository.getNextRefNum();
+    String appRef = "PA/" + refSeq + "/1";
+    return appRef;
+  }
+
+
 
 
 }
