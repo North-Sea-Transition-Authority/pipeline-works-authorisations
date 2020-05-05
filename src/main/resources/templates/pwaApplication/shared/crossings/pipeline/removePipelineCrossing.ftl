@@ -1,10 +1,9 @@
 <#include '../../../../layout.ftl'>
 
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
-<@defaultPage htmlTitle="Remove pipeline crossing" pageHeading="Remove pipeline crossing" breadcrumbs=true>
+<@defaultPage htmlTitle="Remove pipeline crossing" pageHeading="Are you sure you want to remove this pipeline crossing?" breadcrumbs=true>
 
     <table class="govuk-table">
-        <caption class="govuk-table__caption govuk-visually-hidden">Are you sure you want to remove this pipeline crossing?</caption>
         <tbody class="govuk-table__body">
         <tr class="govuk-table__row">
             <th class="govuk-table__header" scope="row">Pipeline reference</th>
