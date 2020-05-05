@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchItem;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 /**
  * A generic service to provide a list of RestSearchItems for any entities implementing SearchSelectable.
@@ -29,6 +30,10 @@ public class SearchSelectorService {
       resultList.add(0, new RestSearchItem(SearchSelectable.FREE_TEXT_PREFIX + searchQuery, searchQuery));
     }
     return resultList;
+  }
+
+  public static String route(Object methodCall) {
+    return StringUtils.stripEnd(ReverseRouter.route(methodCall), "?term");
   }
 
 }

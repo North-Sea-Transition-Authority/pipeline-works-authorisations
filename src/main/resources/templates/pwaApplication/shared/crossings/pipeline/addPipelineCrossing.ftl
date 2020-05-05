@@ -7,7 +7,7 @@
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsTextarea.textarea path="form.pipelineCrossed" labelText="Which pipeline will be crossed?" hintText="This may be the pipeline number, or other reference"/>
+        <@fdsTextInput.textInput path="form.pipelineCrossed" labelText="Which pipeline will be crossed?" hintText="This will be the PL number or other reference if not part of the PWA regime"/>
         <@fdsRadio.radioGroup path="form.pipelineFullyOwnedByOrganisation" labelText="Is the pipeline being crossed fully owned by your organisation?" hiddenContent=true>
           <@fdsRadio.radioYes path="form.pipelineFullyOwnedByOrganisation"/>
           <@fdsRadio.radioNo path="form.pipelineFullyOwnedByOrganisation">

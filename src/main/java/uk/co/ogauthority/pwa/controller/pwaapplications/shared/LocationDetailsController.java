@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +38,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -115,10 +115,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
             .collect(
                 StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
         .addObject("facilityRestUrl",
-            StringUtils.stripEnd(
-                ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities(null)),
-                "?term"
-            ));
+            SearchSelectorService.route(on(LocationDetailsRestController.class).searchFacilities(null)));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
   }

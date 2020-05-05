@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import javax.validation.Valid;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -29,6 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingOwnerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.PipelineCrossingFormValidator;
@@ -72,8 +72,8 @@ public class PipelineCrossingController {
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)))
-        .addObject("orgsRestUrl", StringUtils.stripEnd(
-            ReverseRouter.route(on(PortalOrganisationUnitRestController.class).searchPortalOrgUnits(null)), "?term"));
+        .addObject("orgsRestUrl", SearchSelectorService.route(on(PortalOrganisationUnitRestController.class)
+            .searchPortalOrgUnits(null)));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         screenActionType.getActionText() + " pipeline crossing");
     return modelAndView;
@@ -81,7 +81,8 @@ public class PipelineCrossingController {
 
   private ModelAndView repopulateOnError(PwaApplicationDetail pwaApplicationDetail, ScreenActionType screenActionType,
                                          PipelineCrossingForm pipelineCrossingForm) {
-    var owners = padPipelineCrossingService.getPreselectedItems(pipelineCrossingForm.getPipelineOwners());
+    var owners = padPipelineCrossingService.getPrepopulatedSearchSelectorItems(
+        pipelineCrossingForm.getPipelineOwners());
     return getCrossingModelAndView(pwaApplicationDetail, screenActionType)
         .addObject("preselectedOwners", owners);
 

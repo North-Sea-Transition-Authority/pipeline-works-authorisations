@@ -51,11 +51,11 @@ public class PadPipelineCrossingOwnerService {
     removeAllForCrossing(pipelineCrossing);
     if (!BooleanUtils.isTrue(form.getPipelineFullyOwnedByOrganisation())) {
       var owners = form.getPipelineOwners();
-      var linkedEntries = owners.stream()
+      List<Integer> linkedEntries = owners.stream()
           .filter(s -> !s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
           .map(Integer::parseInt)
           .collect(Collectors.toList());
-      var manualEntries = owners.stream()
+      List<String> manualEntries = owners.stream()
           .filter(s -> s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
           .collect(Collectors.toList());
 

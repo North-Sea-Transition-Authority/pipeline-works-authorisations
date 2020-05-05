@@ -81,7 +81,7 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
 
   }
 
-  public Map<String, String> getPreselectedItems(List<String> selection) {
+  public Map<String, String> getPrepopulatedSearchSelectorItems(List<String> selection) {
     var selectedItems = ListUtils.emptyIfNull(selection);
     var orgIds = selectedItems.stream()
         .filter(s -> !s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))

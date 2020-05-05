@@ -183,19 +183,19 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void getPreselectedItems_Empty() {
+  public void getPrepopulatedSearchSelectorItems_Empty() {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of());
-    var result = padPipelineCrossingService.getPreselectedItems(List.of());
+    var result = padPipelineCrossingService.getPrepopulatedSearchSelectorItems(List.of());
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void getPreselectedItems_NotEmpty() {
+  public void getPrepopulatedSearchSelectorItems_NotEmpty() {
     var selectionIds = List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "Test");
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(
         new PortalOrganisationUnit(1, "Test")
     ));
-    var result = padPipelineCrossingService.getPreselectedItems(selectionIds);
+    var result = padPipelineCrossingService.getPrepopulatedSearchSelectorItems(selectionIds);
     assertThat(result).containsExactly(
         entry("1", "Test"),
         entry(SearchSelectable.FREE_TEXT_PREFIX + "Test", "Test")
