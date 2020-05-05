@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -169,7 +170,8 @@ public class PadPipelineIdent {
   }
 
   @PrePersist
-  public void prePersist() {
+  @PreUpdate
+  public void prePersistUpdate() {
 
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();

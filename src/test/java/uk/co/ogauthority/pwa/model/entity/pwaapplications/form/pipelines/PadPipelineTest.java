@@ -31,7 +31,7 @@ public class PadPipelineTest {
         new LongitudeCoordinate(12, 15, BigDecimal.valueOf(45.5), LongitudeDirection.WEST)
     ));
 
-    pipeline.prePersist();
+    pipeline.prePersistUpdate();
 
     assertThat(FieldUtils.getFieldValue(pipeline, "fromLatitudeDegrees")).isEqualTo(50);
     assertThat(FieldUtils.getFieldValue(pipeline, "fromLatitudeMinutes")).isEqualTo(30);

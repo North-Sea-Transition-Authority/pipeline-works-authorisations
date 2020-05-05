@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -239,7 +240,8 @@ public class PadPipeline {
   }
 
   @PrePersist
-  public void prePersist() {
+  @PreUpdate
+  public void prePersistUpdate() {
 
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();

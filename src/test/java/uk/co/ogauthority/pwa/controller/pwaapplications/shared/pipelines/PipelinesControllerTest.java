@@ -162,7 +162,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/addPipeline"))
+        .andExpect(view().name("pwaApplication/shared/pipelines/addEditPipeline"))
         .andExpect(model().attributeHasErrors("form"));
 
     verifyNoInteractions(padPipelinesService);

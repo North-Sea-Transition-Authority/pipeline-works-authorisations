@@ -237,7 +237,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/addIdent"))
+        .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
         .andExpect(model().attributeHasErrors("form"));
 
     verifyNoInteractions(pipelineIdentService);

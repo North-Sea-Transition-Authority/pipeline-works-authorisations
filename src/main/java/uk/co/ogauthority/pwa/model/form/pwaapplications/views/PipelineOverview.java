@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import java.math.BigDecimal;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 
@@ -28,23 +29,16 @@ public class PipelineOverview {
 
   private List<TaskListEntry> tasks;
 
-  public PipelineOverview() {
-  }
-
-  public PipelineOverview(String fromLocation, CoordinatePair fromCoordinates, String toLocation,
-                          CoordinatePair toCoordinates, String pipelineNumber,
-                          PipelineType pipelineType, String componentParts, BigDecimal length,
-                          String productsToBeConveyed,
-                          List<TaskListEntry> tasks) {
-    this.fromLocation = fromLocation;
-    this.fromCoordinates = fromCoordinates;
-    this.toLocation = toLocation;
-    this.toCoordinates = toCoordinates;
-    this.pipelineNumber = pipelineNumber;
-    this.pipelineType = pipelineType;
-    this.componentParts = componentParts;
-    this.length = length;
-    this.productsToBeConveyed = productsToBeConveyed;
+  public PipelineOverview(PadPipeline pipeline, List<TaskListEntry> tasks) {
+    this.fromLocation = pipeline.getFromLocation();
+    this.fromCoordinates = pipeline.getFromCoordinates();
+    this.toLocation = pipeline.getToLocation();
+    this.toCoordinates = pipeline.getToCoordinates();
+    this.pipelineNumber = pipeline.getPipelineRef();
+    this.pipelineType = pipeline.getPipelineType();
+    this.componentParts = pipeline.getComponentPartsDescription();
+    this.length = pipeline.getLength();
+    this.productsToBeConveyed = pipeline.getProductsToBeConveyed();
     this.tasks = tasks;
   }
 

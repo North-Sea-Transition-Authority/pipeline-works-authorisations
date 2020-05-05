@@ -9,16 +9,14 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
@@ -45,23 +43,18 @@ public class PadPipelinesService implements ApplicationFormSectionService {
 
   }
 
-  private PipelineOverview getPipelineOverview(PadPipeline pipeline) {
-    return new PipelineOverview(
-        pipeline.getFromLocation(),
-        pipeline.getFromCoordinates(),
-        pipeline.getToLocation(),
-        pipeline.getToCoordinates(),
-        pipeline.getPipelineRef(),
-        pipeline.getPipelineType(),
-        pipeline.getComponentPartsDescription(),
-        pipeline.getLength(),
-        pipeline.getProductsToBeConveyed(),
+  public PipelineOverview getPipelineOverview(PadPipeline pipeline) {
+    return new PipelineOverview(pipeline,
         List.of(
             new TaskListEntry("Header information", getEditPipelineHeaderUrl(
                 pipeline.getPwaApplicationDetail().getMasterPwaApplicationId(),
                 pipeline.getPwaApplicationDetail().getPwaApplicationType(),
                 pipeline.getId()), true),
-            new TaskListEntry("Idents", "#", false)
+            new TaskListEntry("Idents", getPipelineIdentOverviewUrl(
+                pipeline.getPwaApplicationDetail().getMasterPwaApplicationId(),
+                pipeline.getPwaApplicationDetail().getPwaApplicationType(),
+                pipeline.getId()
+            ), false)
         ));
   }
 
@@ -69,7 +62,16 @@ public class PadPipelinesService implements ApplicationFormSectionService {
     return ReverseRouter.route(on(PipelinesController.class).renderEditPipeline(
         applicationId,
         applicationType,
+        pipelineId,
         null,
+        null
+    ));
+  }
+
+  private String getPipelineIdentOverviewUrl(int applicationId, PwaApplicationType applicationType, int pipelineId) {
+    return ReverseRouter.route(on(PipelineIdentsController.class).renderIdentOverview(
+        applicationId,
+        applicationType,
         pipelineId,
         null
     ));
@@ -80,7 +82,7 @@ public class PadPipelinesService implements ApplicationFormSectionService {
 
     var newPipeline = new PadPipeline(pwaApplicationDetail);
     Long numberOfPipesForDetail = padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    newPipeline.setPipelineRef("TEMP-" + (numberOfPipesForDetail.intValue() + 1));
+    newPipeline.setPipelineRef("TEMPORARY_" + (numberOfPipesForDetail.intValue() + 1));
 
     saveEntityUsingForm(newPipeline, form);
 
@@ -111,26 +113,14 @@ public class PadPipelinesService implements ApplicationFormSectionService {
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {
 
     form.setPipelineType(pipeline.getPipelineType());
+
     form.setFromLocation(pipeline.getFromLocation());
+    form.setFromCoordinateForm(new CoordinateForm());
+    CoordinateUtils.mapCoordinatePairToForm(pipeline.getFromCoordinates(), form.getFromCoordinateForm());
+
     form.setToLocation(pipeline.getToLocation());
-
-    form.setFromLatDeg(pipeline.getFromCoordinates().getLatitude().getDegrees());
-    form.setFromLatMin(pipeline.getFromCoordinates().getLatitude().getMinutes());
-    form.setFromLatSec(pipeline.getFromCoordinates().getLatitude().getSeconds());
-    form.setFromLatDirection(pipeline.getFromCoordinates().getLatitude().getDirection());
-    form.setFromLongDeg(pipeline.getFromCoordinates().getLongitude().getDegrees());
-    form.setFromLongMin(pipeline.getFromCoordinates().getLongitude().getMinutes());
-    form.setFromLongSec(pipeline.getFromCoordinates().getLongitude().getSeconds());
-    form.setFromLongDirection(pipeline.getFromCoordinates().getLongitude().getDirection());
-
-    form.setToLatDeg(pipeline.getToCoordinates().getLatitude().getDegrees());
-    form.setToLatMin(pipeline.getToCoordinates().getLatitude().getMinutes());
-    form.setToLatSec(pipeline.getToCoordinates().getLatitude().getSeconds());
-    form.setToLatDirection(pipeline.getToCoordinates().getLatitude().getDirection());
-    form.setToLongDeg(pipeline.getToCoordinates().getLongitude().getDegrees());
-    form.setToLongMin(pipeline.getToCoordinates().getLongitude().getMinutes());
-    form.setToLongSec(pipeline.getToCoordinates().getLongitude().getSeconds());
-    form.setToLongDirection(pipeline.getToCoordinates().getLongitude().getDirection());
+    form.setToCoordinateForm(new CoordinateForm());
+    CoordinateUtils.mapCoordinatePairToForm(pipeline.getToCoordinates(), form.getToCoordinateForm());
 
     form.setProductsToBeConveyed(pipeline.getProductsToBeConveyed());
     form.setLength(pipeline.getLength());

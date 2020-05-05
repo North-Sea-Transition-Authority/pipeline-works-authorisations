@@ -80,7 +80,7 @@ public class PadPipelinesServiceTest {
     verify(repository, times(1)).save(pipelineCaptor.capture());
 
     var newPipeline = pipelineCaptor.getValue();
-    newPipeline.prePersist();
+    newPipeline.prePersistUpdate();
 
     assertThat(newPipeline.getFromLocation()).isEqualTo(form.getFromLocation());
     assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLatitudeDegrees());

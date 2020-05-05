@@ -137,14 +137,14 @@ public class PipelinesController {
   public ModelAndView renderEditPipeline(@PathVariable("applicationId") Integer applicationId,
                                          @PathVariable("applicationType")
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                         PwaApplicationContext applicationContext,
                                          @PathVariable("padPipelineId") Integer padPipelineId,
+                                         PwaApplicationContext applicationContext,
                                          @ModelAttribute("form") PipelineHeaderForm form) {
 
-    var pipeline = padPipelinesService.getPipeline(padPipelineId);
-    padPipelinesService.mapEntityToForm(form, pipeline);
+    padPipelinesService.mapEntityToForm(form, applicationContext.getPadPipeline());
 
-    return getAddEditPipelineMav(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline)
+    return getAddEditPipelineMav(applicationContext.getApplicationDetail(), ScreenActionType.EDIT,
+        applicationContext.getPadPipeline())
         .addObject("form", form);
 
   }
@@ -153,14 +153,14 @@ public class PipelinesController {
   public ModelAndView postEditPipeline(@PathVariable("applicationId") Integer applicationId,
                                        @PathVariable("applicationType")
                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                       PwaApplicationContext applicationContext,
                                        @PathVariable("padPipelineId") Integer padPipelineId,
+                                       PwaApplicationContext applicationContext,
                                        @ModelAttribute("form") PipelineHeaderForm form,
                                        BindingResult bindingResult) {
 
-    var pipeline = padPipelinesService.getPipeline(padPipelineId);
-
     validator.validate(form, bindingResult, applicationContext);
+
+    var pipeline = applicationContext.getPadPipeline();
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineMav(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline), () -> {

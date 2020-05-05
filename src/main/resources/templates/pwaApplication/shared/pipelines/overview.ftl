@@ -3,15 +3,19 @@
 <#-- @ftlvariable name="pipelineOverviews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 <#-- @ftlvariable name="addPipelineUrl" type="String" -->
 
-<@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true>
+<#assign addPipeButton>
+    <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addPipelineUrl) linkClass="govuk-button govuk-button--blue" />
+</#assign>
+
+<@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true breadcrumbs=true>
+
+    ${addPipeButton}
 
     <#list pipelineOverviews as pipeline>
 
         <@fdsCard.card>
 
-            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber} ${pipeline.pipelineType.displayName}">
-                <@fdsCard.cardAction cardLinkText="View pipeline summary" cardLinkUrl=springUrl("#") />
-            </@fdsCard.cardHeader>
+            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber} ${pipeline.pipelineType.displayName}" />
 
             <@fdsDataItems.dataItem>
                 <@fdsDataItems.dataValues key="Length" value="${pipeline.length}m" />
@@ -30,6 +34,12 @@
 
     </#list>
 
-    <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addPipelineUrl) linkClass="govuk-button govuk-button--blue" />
+    <#if pipelineOverviews?size gt 4>
+      ${addPipeButton}
+    </#if>
+
+    <#if !pipelineOverviews?has_content>
+      <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
+    </#if>
 
 </@defaultPage>

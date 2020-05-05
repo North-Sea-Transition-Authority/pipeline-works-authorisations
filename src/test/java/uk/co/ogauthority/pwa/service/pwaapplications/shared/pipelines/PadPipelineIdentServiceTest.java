@@ -94,7 +94,7 @@ public class PadPipelineIdentServiceTest {
 
     verify(identDataService, times(1)).addIdentData(newIdent, form.getDataForm());
 
-    newIdent.prePersist();
+    newIdent.prePersistUpdate();
 
     assertThat(newIdent.getPadPipeline()).isEqualTo(pipeline);
     assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());

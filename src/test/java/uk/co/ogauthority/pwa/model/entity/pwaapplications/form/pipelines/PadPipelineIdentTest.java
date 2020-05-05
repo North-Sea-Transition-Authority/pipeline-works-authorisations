@@ -28,7 +28,7 @@ public class PadPipelineIdentTest {
         new LongitudeCoordinate(12, 15, BigDecimal.valueOf(45.5), LongitudeDirection.WEST)
     ));
 
-    ident.prePersist();
+    ident.prePersistUpdate();
 
     assertThat(FieldUtils.getFieldValue(ident, "fromLatitudeDegrees")).isEqualTo(50);
     assertThat(FieldUtils.getFieldValue(ident, "fromLatitudeMinutes")).isEqualTo(30);
