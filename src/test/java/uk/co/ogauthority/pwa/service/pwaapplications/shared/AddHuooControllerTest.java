@@ -1,12 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo.AddHuooController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -88,6 +91,9 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
+
+    var portalOrgUnit = new PortalOrganisationUnit();
+    when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(portalOrgUnit));
   }
 
   @Test
@@ -152,6 +158,160 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
                 .postAddHuoo(
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
+                    null,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditOrgHuoo_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderEditOrgHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditOrgHuoo_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderEditOrgHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderEditOrgHuoo_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderEditOrgHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditOrgHuoo_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .postEditOrgHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null,
+                    user)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditTreatyHuoo_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderEditTreatyHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditTreatyHuoo_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderEditTreatyHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderEditTreatyHuoo_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .renderEditTreatyHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditTreatyHuoo_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AddHuooController.class)
+                .postEditTreatyHuoo(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
                     null,
                     null,
                     null,
