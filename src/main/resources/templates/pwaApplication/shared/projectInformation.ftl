@@ -36,19 +36,14 @@
 
         <#if isAnyDepQuestionRequired == true>
             <#if isPermDepQuestionRequired == true>
-                <@fdsRadio.radioGroup path="form.isPermanentDepositsMade" labelText="Are permanent deposits being made?" hiddenContent=true>
-                    <#assign firstItem=true/>
-                    <#assign options={"true": "Yes, as part of this application", "true": "Yes, as part of a later application", "false": "No"}/>
-                    <#list options as  propName, propValue>
-                        <@fdsRadio.radioItem path="form.isPermanentDepositsMade" itemMap={propName : propValue} isFirstItem=firstItem>
-                            <#if propValue == "Yes, as part of a later application">
-                                <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month" formId="date-of-future-app"/>
-                                <@fdsTextInput.textInput path="form.futureAppSubmissionMonth" labelText="Month" maxCharacterLength="2"/>
-                                <@fdsTextInput.textInput path="form.futureAppSubmissionYear" labelText="Year" maxCharacterLength="4"/>
-                            </#if>
-                        </@fdsRadio.radioItem>
-                        <#assign firstItem=false/>
-                    </#list>
+                <@fdsRadio.radioGroup path="form.permanentDepositsMadeType" labelText="Are permanent deposits being made?" hiddenContent=true>
+                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"THIS_APP" : "Yes, as part of this application"} isFirstItem=true/>
+                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"LATER_APP" : "Yes, as part of a later application"} >
+                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year" formId="date-of-future-app"/>
+                            <@fdsTextInput.textInput path="form.futureAppSubmissionMonth" labelText="Month" maxCharacterLength="2" inputClass="govuk-input--width-2"/>
+                            <@fdsTextInput.textInput path="form.futureAppSubmissionYear" labelText="Year" maxCharacterLength="4" inputClass="govuk-input--width-4"/>
+                        </@fdsRadio.radioItem>                        
+                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"NONE" : "No"}/>
                 </@fdsRadio.radioGroup>
             </#if>
 

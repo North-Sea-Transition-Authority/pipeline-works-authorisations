@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
 
 public class ProjectInformationTestUtils {
 
@@ -56,7 +57,7 @@ public class ProjectInformationTestUtils {
 
     form.setUploadedFileWithDescriptionForms(new ArrayList<>());
 
-    form.setIsPermanentDepositsMade(true);
+    form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
     form.setFutureAppSubmissionMonth(07);
     form.setFutureAppSubmissionYear(2020);
     form.setIsTemporaryDepositsMade(true);
@@ -84,6 +85,11 @@ public class ProjectInformationTestUtils {
     entity.setLicenceTransferTimestamp(instant.plus(LICENCE_TRANSFER_DAY_MODIFIER, ChronoUnit.DAYS));
     entity.setCommercialAgreementTimestamp(instant.plus(COMMERCIAL_AGREEMENT_DAY_MODIFIER, ChronoUnit.DAYS));
 
+    entity.setPermanentDepositsMade(true);
+    entity.setFutureAppSubmissionMonth(07);
+    entity.setFutureAppSubmissionYear(2020);
+    entity.setTemporaryDepositsMade(true);
+    entity.setTemporaryDepDescription("some description..");
     return entity;
   }
 

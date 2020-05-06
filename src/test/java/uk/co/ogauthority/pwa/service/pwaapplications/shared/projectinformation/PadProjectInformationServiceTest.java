@@ -77,7 +77,8 @@ public class PadProjectInformationServiceTest {
 
     date = LocalDate.now();
 
-    pwaApplicationDetail = new PwaApplicationDetail();
+    var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
+    pwaApplicationDetail = new PwaApplicationDetail(pwaApplication, null, null, null);
     padProjectInformation = ProjectInformationTestUtils.buildEntity(date);
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
     form = ProjectInformationTestUtils.buildForm(date);

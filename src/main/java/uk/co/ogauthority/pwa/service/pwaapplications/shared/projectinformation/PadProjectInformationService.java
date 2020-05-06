@@ -156,6 +156,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     } else {
       groupValidator.validate(form, bindingResult, FullValidation.class);
       projectInformationValidator.validate(form, bindingResult);
+
+      if (getIsAnyDepositQuestionRequired(pwaApplicationDetail)) {
+        projectInformationValidator.validateDepositQuestions(form, bindingResult, pwaApplicationDetail);
+      }
     }
 
     return bindingResult;

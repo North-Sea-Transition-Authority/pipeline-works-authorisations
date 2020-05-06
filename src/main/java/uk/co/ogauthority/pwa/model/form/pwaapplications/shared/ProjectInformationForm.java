@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
@@ -54,7 +55,7 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   @NotNull(message = "Select yes if using a campaign approach", groups = {FullValidation.class})
   private Boolean usingCampaignApproach;
 
-  private Boolean isPermanentDepositsMade;
+  private PermanentDeposits permanentDepositsMadeType;
   private Integer futureAppSubmissionMonth;
   private Integer futureAppSubmissionYear;
 
@@ -246,13 +247,12 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.licenceTransferPlanned = licenceTransferPlanned;
   }
 
-
-  public Boolean getIsPermanentDepositsMade() {
-    return isPermanentDepositsMade;
+  public PermanentDeposits getPermanentDepositsMadeType() {
+    return permanentDepositsMadeType;
   }
 
-  public void setIsPermanentDepositsMade(Boolean permanentDepositsMade) {
-    isPermanentDepositsMade = permanentDepositsMade;
+  public void setPermanentDepositsMadeType(PermanentDeposits permanentDepositsMadeType) {
+    this.permanentDepositsMadeType = permanentDepositsMadeType;
   }
 
   public Integer getFutureAppSubmissionMonth() {
@@ -286,4 +286,6 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   public void setTemporaryDepDescription(String temporaryDepDescription) {
     this.temporaryDepDescription = temporaryDepDescription;
   }
+
+
 }

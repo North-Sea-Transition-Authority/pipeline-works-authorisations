@@ -4,10 +4,19 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
 public class ProjectInformationValidatorTest {
@@ -248,4 +257,68 @@ public class ProjectInformationValidatorTest {
     );
 
   }
+
+
+  public PwaApplicationDetail getAppDetailForDepositTest(PwaApplicationType pwaApplicationType){
+    PwaApplication pwaApplication = new PwaApplication(null, pwaApplicationType, null);
+    return new PwaApplicationDetail(pwaApplication, null, null, null);
+  }
+
+  public Map<String, Set<String>> getErrorMap(ProjectInformationForm form, PwaApplicationDetail pwaApplicationDetail){
+    var errors = new BeanPropertyBindingResult(form, "form");
+    validator.validateDepositQuestions(form, errors, pwaApplicationDetail);
+    return errors.getFieldErrors().stream()
+            .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+  }
+
+  @Test
+  public void validate_permanentDepositType_noValidationRequired() {
+    var form = new ProjectInformationForm();
+    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT));
+    assertThat(errorsMap).doesNotContainKey("permanentDepositsMadeType");
+  }
+
+  @Test
+  public void validate_permanentDepositType_Null() {
+    var form = new ProjectInformationForm();
+    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    assertThat(errorsMap).contains(
+            entry("permanentDepositsMadeType", Set.of("permanentDepositsMadeType.notSelected"))
+    );
+  }
+
+  @Test
+  public void validate_permanentDepositType_LaterApp_noDate() {
+    var form = new ProjectInformationForm();
+    form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
+    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    assertThat(errorsMap).contains(
+            entry("futureAppSubmissionMonth", Set.of("futureAppSubmissionMonth.invalid")),
+            entry("futureAppSubmissionYear", Set.of("futureAppSubmissionYear.invalid"))
+    );
+  }
+
+  @Test
+  public void validate_permanentDepositType_LaterApp_pastDate() {
+    var form = new ProjectInformationForm();
+    form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
+    form.setFutureAppSubmissionMonth(2);
+    form.setFutureAppSubmissionYear(2020);
+    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    assertThat(errorsMap).contains(
+            entry("futureAppSubmissionMonth", Set.of("futureAppSubmissionMonth.beforeToday")),
+            entry("futureAppSubmissionYear", Set.of("futureAppSubmissionYear.beforeToday"))
+    );
+  }
+
+  @Test
+  public void validate_temporaryDepositType_Null() {
+    var form = new ProjectInformationForm();
+    form.setIsTemporaryDepositsMade(true);
+    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    assertThat(errorsMap).contains(
+            entry("temporaryDepDescription", Set.of("temporaryDepDescription.empty"))
+    );
+  }
+
 }
