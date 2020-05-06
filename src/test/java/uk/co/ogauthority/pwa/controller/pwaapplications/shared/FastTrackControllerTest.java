@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
+import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = FastTrackController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -67,12 +68,10 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
 
   @Before
   public void setUp() {
-    pwaApplication = new PwaApplication();
-    pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
-    pwaApplicationDetail = new PwaApplicationDetail();
-    pwaApplicationDetail.setId(1);
-    pwaApplicationDetail.setPwaApplication(pwaApplication);
-    pwaApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
+
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
+    pwaApplication = pwaApplicationDetail.getPwaApplication();
+
     var wua = new WebUserAccount(1);
     user = new AuthenticatedUserAccount(wua, Set.of());
     padProjectInformation = new PadProjectInformation();

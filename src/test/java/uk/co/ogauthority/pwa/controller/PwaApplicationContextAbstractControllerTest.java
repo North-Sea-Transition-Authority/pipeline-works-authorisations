@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -79,6 +80,7 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
+    when(pwaApplicationRedirectService.getTaskListRoute(anyInt(), any())).thenCallRealMethod();
 
   }
 

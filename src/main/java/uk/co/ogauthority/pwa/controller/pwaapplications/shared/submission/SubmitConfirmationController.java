@@ -52,7 +52,7 @@ public class SubmitConfirmationController {
     var submissionSummary = applicationSummaryFactory.createSubmissionSummary(
         applicationContext.getApplicationDetail());
     var modelAndView = new ModelAndView("pwaApplication/shared/submission/submitConfirmation")
-        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
+        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("submissionSummary", submissionSummary);
 
     return modelAndView;

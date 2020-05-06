@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,10 +17,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -29,7 +28,7 @@ import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 public class PwaApplicationSubmissionServiceTest {
 
   @Mock
-  private PwaApplicationDetailRepository pwaApplicationDetailRepository;
+  private PwaApplicationDetailService pwaApplicationDetailService;
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
@@ -47,7 +46,7 @@ public class PwaApplicationSubmissionServiceTest {
   @Before
   public void setup() {
     pwaApplicationSubmissionService = new PwaApplicationSubmissionService(
-        pwaApplicationDetailRepository,
+        pwaApplicationDetailService,
         camundaWorkflowService,
         Clock.fixed(fixedInstant, ZoneId.systemDefault())
     );
@@ -93,15 +92,8 @@ public class PwaApplicationSubmissionServiceTest {
     ArgumentCaptor<PwaApplicationDetail> detailCapture = ArgumentCaptor.forClass(PwaApplicationDetail.class);
     pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
 
-    verify(pwaApplicationDetailRepository, times(1)).save(detailCapture.capture());
-    assertThat(detailCapture.getValue()).satisfies((detail) -> {
-      assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-      assertThat(detail.getSubmittedByWuaId()).isEqualTo(user.getWuaId());
-      assertThat(detail.getSubmittedTimestamp()).isEqualTo(fixedInstant);
-    });
-
+    verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
     verify(camundaWorkflowService, times(1)).completeTask(pwaApplicationDetail.getMasterPwaApplicationId(), UserWorkflowTask.PREPARE_APPLICATION);
-
 
   }
 

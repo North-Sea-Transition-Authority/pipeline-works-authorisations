@@ -15,6 +15,7 @@ public class EnumUtils {
   /**
    * Check to see whether the passed-in enum contains a value matching the passed-in String value.
    * This method uses Enum.valueOf but throws an exception with a {@link ResponseStatus} mapping.
+   *
    * @return the corresponding enum value if matched
    * @throws ValueNotFoundException if no values matched
    */
@@ -25,7 +26,8 @@ public class EnumUtils {
     if (isValidEnumValue) {
       return Enum.valueOf(enumClass, value);
     } else {
-      throw new ValueNotFoundException(String.format("Enum value '%s' is not a valid value of enum '%s'", value, enumClass.getName()));
+      throw new ValueNotFoundException(
+          String.format("Enum value '%s' is not a valid value of enum '%s'", value, enumClass.getName()));
     }
   }
 

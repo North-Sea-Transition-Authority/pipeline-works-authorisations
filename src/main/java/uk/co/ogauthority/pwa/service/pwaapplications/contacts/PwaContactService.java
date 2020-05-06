@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.contacts;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,12 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactDto;
 import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
@@ -55,10 +58,12 @@ public class PwaContactService {
   public PwaContact getContactOrError(PwaApplication pwaApplication, Person person) {
     return getContact(pwaApplication, person)
         .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("Couldn't find contact for pwa application ID: %s and person ID: %s", pwaApplication.getId(), person.getId())));
+            String.format("Couldn't find contact for pwa application ID: %s and person ID: %s", pwaApplication.getId(),
+                person.getId())));
   }
 
-  public boolean personHasContactRoleForPwaApplication(PwaApplication pwaApplication, Person person, PwaContactRole role) {
+  public boolean personHasContactRoleForPwaApplication(PwaApplication pwaApplication, Person person,
+                                                       PwaContactRole role) {
     return getContact(pwaApplication, person)
         .map(contact -> contact.getRoles().contains(role))
         .orElse(false);
@@ -113,9 +118,10 @@ public class PwaContactService {
 
   /**
    * If person is already a contact on the application, update their roles, otherwise add them as a new contact.
+   *
    * @param pwaApplication contacts being updated for
-   * @param person being added to contacts/whose roles are being updated
-   * @param roles new roles for person
+   * @param person         being added to contacts/whose roles are being updated
+   * @param roles          new roles for person
    */
   public void updateContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
     getContact(pwaApplication, person).ifPresentOrElse(
@@ -151,5 +157,29 @@ public class PwaContactService {
 
   public Long countContactsByPwaApplication(PwaApplication pwaApplication) {
     return pwaContactRepository.countByPwaApplication(pwaApplication);
+  }
+
+  /**
+   * get a collection of the Application contact roles for a given webUserAccount where each distinct role is an element.
+   */
+  public Set<PwaApplicationContactRoleDto> getPwaContactRolesForWebUserAccount(WebUserAccount webUserAccount,
+                                                                               Set<PwaContactRole> roleFilter) {
+
+    var appContactRoles = new HashSet<PwaApplicationContactRoleDto>();
+
+    var contacts = pwaContactRepository.findAllAsDtoByPerson(webUserAccount.getLinkedPerson());
+    for (PwaContactDto contact : contacts) {
+      for (PwaContactRole pwaContactRole : contact.getRoles()) {
+        if (roleFilter.contains(pwaContactRole)) {
+          appContactRoles.add(new PwaApplicationContactRoleDto(
+              contact.getPersonId(),
+              contact.getPwaApplicationId(),
+              pwaContactRole
+          ));
+        }
+      }
+    }
+
+    return appContactRoles;
   }
 }

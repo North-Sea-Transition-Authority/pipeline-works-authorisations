@@ -8,8 +8,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 
-
-public interface PwaContactRepository  extends CrudRepository<PwaContact, Integer> {
+public interface PwaContactRepository extends CrudRepository<PwaContact, Integer>, PwaContactDtoRepository {
 
   List<PwaContact> findAllByPwaApplication(PwaApplication pwaApplication);
 
