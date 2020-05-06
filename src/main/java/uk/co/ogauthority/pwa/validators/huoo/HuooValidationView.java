@@ -21,12 +21,11 @@ public class HuooValidationView {
     roles = padOrganisationRoles.stream()
         .map(PadOrganisationRole::getRole)
         .collect(Collectors.toSet());
-    padOrganisationRoles.forEach(padOrganisationRole -> {
-      huooType = padOrganisationRole.getType();
-      pwaApplicationDetail = padOrganisationRole.getPwaApplicationDetail();
-      treatyAgreement = padOrganisationRole.getAgreement();
-      portalOrganisationUnit = padOrganisationRole.getOrganisationUnit();
-    });
+    var role = padOrganisationRoles.iterator().next();
+    huooType = role.getType();
+    pwaApplicationDetail = role.getPwaApplicationDetail();
+    treatyAgreement = role.getAgreement();
+    portalOrganisationUnit = role.getOrganisationUnit();
   }
 
   public HuooType getHuooType() {

@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +62,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
                                                                              List<PadOrganisationRole> padOrganisationRoleList) {
 
     // filter so we are only looking at portal organisation roles
-    var orgRoles = padOrganisationRoleList.stream()
+    Map<PortalOrganisationUnit, List<PadOrganisationRole>> orgRoles = padOrganisationRoleList.stream()
         .filter(orgRole -> orgRole.getType().equals(HuooType.PORTAL_ORG))
         .collect(Collectors.groupingBy(PadOrganisationRole::getOrganisationUnit));
 
@@ -144,7 +143,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     var units = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, orgUnit);
     var roles = units.stream()
         .map(PadOrganisationRole::getRole)
-        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
 
     var countMap = getRoleCountMap(detail);
@@ -157,9 +155,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Transactional
   public void removeRolesOfUnit(PwaApplicationDetail pwaApplicationDetail, PortalOrganisationUnit organisationUnit) {
-    var units = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
+    var roles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
         organisationUnit);
-    padOrganisationRolesRepository.deleteAll(units);
+    padOrganisationRolesRepository.deleteAll(roles);
   }
 
   @Transactional
@@ -168,20 +166,18 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   }
 
   public void mapPortalOrgUnitRoleToForm(PwaApplicationDetail detail, PortalOrganisationUnit orgUnit, HuooForm form) {
-    var units = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, orgUnit);
-    var roles = units.stream()
+    var roles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, orgUnit);
+    var roleSet = roles.stream()
         .map(PadOrganisationRole::getRole)
-        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
 
-    var unit = units.stream()
+    var role = roles.stream()
         .findFirst()
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "No organisation unit roles found for org unit with ID: " + orgUnit.getOuId()));
     form.setHuooType(HuooType.PORTAL_ORG);
-    form.setHuooRoles(roles);
-    form.setOrganisationUnit(unit.getOrganisationUnit());
-    form.setTreatyAgreement(unit.getAgreement());
+    form.setHuooRoles(roleSet);
+    form.setOrganisationUnit(role.getOrganisationUnit());
   }
 
   public void mapTreatyAgreementToForm(PwaApplicationDetail pwaApplicationDetail, PadOrganisationRole organisationRole,
@@ -192,7 +188,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     }
     form.setHuooType(organisationRole.getType());
     form.setHuooRoles(Set.of(organisationRole.getRole()));
-    form.setOrganisationUnit(organisationRole.getOrganisationUnit());
     form.setTreatyAgreement(organisationRole.getAgreement());
   }
 
@@ -230,9 +225,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   @Transactional
   public void updateEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, PortalOrganisationUnit organisationUnit,
                                     HuooForm form) {
-    var units = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
+    var roles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
         organisationUnit);
-    padOrganisationRolesRepository.deleteAll(units);
+    padOrganisationRolesRepository.deleteAll(roles);
     saveEntityUsingForm(pwaApplicationDetail, form);
   }
 
@@ -257,9 +252,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   public HuooValidationView getValidationViewForOrg(PwaApplicationDetail pwaApplicationDetail,
                                                     PortalOrganisationUnit portalOrganisationUnit) {
-    var units = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
+    var roles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
         portalOrganisationUnit);
-    return new HuooValidationView(new HashSet<>(units));
+    return new HuooValidationView(new HashSet<>(roles));
   }
 
   public HuooValidationView getValidationViewForTreaty(PwaApplicationDetail pwaApplicationDetail,
@@ -267,6 +262,11 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return new HuooValidationView(Set.of(padOrganisationRole));
   }
 
+  /**
+   * Return a count of all organisation roles currently on the application.
+   * @param pwaApplicationDetail The application detail.
+   * @return A map with the role as key, and count as value.
+   */
   @VisibleForTesting
   public Map<HuooRole, Integer> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
     var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail);

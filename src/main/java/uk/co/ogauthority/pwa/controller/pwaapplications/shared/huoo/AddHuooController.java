@@ -103,7 +103,7 @@ public class AddHuooController {
   }
 
   private ModelAndView getEditHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/huoo/addHuoo")
+    var modelAndView = new ModelAndView("pwaApplication/shared/huoo/editHuoo")
         .addObject("screenActionType", ScreenActionType.EDIT);
     addObjectAttributes(pwaApplicationDetail, modelAndView);
     applicationBreadcrumbService.fromHuoo(pwaApplicationDetail.getPwaApplication(), modelAndView, "Edit HUOO");
@@ -151,7 +151,8 @@ public class AddHuooController {
     var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
     padOrganisationRoleService.mapPortalOrgUnitRoleToForm(detail, orgUnit, form);
-    return getEditHuooModelAndView(applicationContext.getApplicationDetail());
+    return getEditHuooModelAndView(applicationContext.getApplicationDetail())
+        .addObject("huooType", HuooType.PORTAL_ORG);
   }
 
   @PostMapping("/edit/org/{orgUnitId}")
@@ -188,20 +189,21 @@ public class AddHuooController {
     var detail = applicationContext.getApplicationDetail();
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     padOrganisationRoleService.mapTreatyAgreementToForm(detail, orgRole, form);
-    return getEditHuooModelAndView(applicationContext.getApplicationDetail());
+    return getEditHuooModelAndView(applicationContext.getApplicationDetail())
+        .addObject("huooType", HuooType.TREATY_AGREEMENT);
   }
 
   @PostMapping("/edit/treaty-agreement/{orgRoleId}")
   public ModelAndView postEditTreatyHuoo(@PathVariable("applicationType")
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                          @PathVariable("applicationId") Integer applicationId,
-                                         @PathVariable("orgRoleId") Integer orgUnitId,
+                                         @PathVariable("orgRoleId") Integer orgRoleId,
                                          PwaApplicationContext applicationContext,
                                          @Valid @ModelAttribute("form") HuooForm form,
                                          BindingResult bindingResult,
                                          AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
-    var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgUnitId);
+    var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     editHuooValidator.validate(form, bindingResult, detail,
         padOrganisationRoleService.getValidationViewForTreaty(detail, orgRole));
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,

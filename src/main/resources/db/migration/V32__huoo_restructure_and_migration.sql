@@ -7,7 +7,7 @@ BEGIN
     , por.application_detail_id
     , por.agreement
     , por.type
-    FROM pwa_ca.pad_organisation_roles por
+    FROM ${datasource.user}.pad_organisation_roles por
   ) LOOP
 
       -- Iterate four times (Holder, User, Operator, Owner)
@@ -21,10 +21,10 @@ BEGIN
         -- role can be null if all four iterations were not CSV'd on the row.
         IF role_table.role IS NOT NULL THEN
 
-          DELETE FROM pwa_ca.pad_organisation_roles por
+          DELETE FROM ${datasource.user}.pad_organisation_roles por
           WHERE por.id = huoo_row.id;
 
-          INSERT INTO pwa_ca.pad_organisation_roles (
+          INSERT INTO ${datasource.user}.pad_organisation_roles (
             ou_id
           , application_detail_id
           , agreement
@@ -45,5 +45,7 @@ BEGIN
     END LOOP;
 
   END LOOP;
+
+  COMMIT;
 
 END;
