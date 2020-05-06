@@ -4,10 +4,11 @@ import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import org.hibernate.annotations.Immutable;
+import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 
 @Entity(name = "devuk_facilities")
 @Immutable
-public class DevukFacility {
+public class DevukFacility implements SearchSelectable {
 
   @Id
   private Integer id;
@@ -27,6 +28,16 @@ public class DevukFacility {
   }
 
   public String getFacilityName() {
+    return facilityName;
+  }
+
+  @Override
+  public String getSelectionId() {
+    return String.valueOf(id);
+  }
+
+  @Override
+  public String getSelectionText() {
     return facilityName;
   }
 }

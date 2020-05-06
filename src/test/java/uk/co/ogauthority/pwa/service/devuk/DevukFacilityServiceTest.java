@@ -30,7 +30,7 @@ public class DevukFacilityServiceTest {
   public void getFacilities() {
     var facility = new DevukFacility();
     when(devukFacilityRepository.findAllByFacilityNameContainsIgnoreCase(any(), any())).thenReturn(List.of(facility));
-    var result = devukFacilityService.getFacilities();
+    var result = devukFacilityService.getFacilities("");
     assertThat(result).containsExactly(facility);
   }
 }

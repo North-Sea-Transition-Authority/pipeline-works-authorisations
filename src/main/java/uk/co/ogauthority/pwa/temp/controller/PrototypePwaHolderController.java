@@ -27,8 +27,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -42,20 +41,19 @@ public class PrototypePwaHolderController {
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaHolderFormValidator pwaHolderFormValidator;
-  private final ApplicationHolderService applicationHolderService;
+  private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
   public PrototypePwaHolderController(TeamService teamService,
                                       PortalOrganisationsAccessor portalOrganisationsAccessor,
                                       PwaApplicationDetailService pwaApplicationDetailService,
-                                      PwaApplicationRedirectService pwaApplicationRedirectService,
                                       PwaHolderFormValidator pwaHolderFormValidator,
-                                      ApplicationHolderService applicationHolderService) {
+                                      PadOrganisationRoleService padOrganisationRoleService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaHolderFormValidator = pwaHolderFormValidator;
-    this.applicationHolderService = applicationHolderService;
+    this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
   /**
@@ -95,7 +93,7 @@ public class PrototypePwaHolderController {
                         form.getHolderOuId(),
                         user.getWuaId())));
 
-        applicationHolderService.updateHolderDetails(detail, organisationUnit);
+        padOrganisationRoleService.addHolder(detail, organisationUnit);
 
         // Not using redirect service so it stays for the actual application
         switch (detail.getPwaApplicationType()) {
@@ -109,7 +107,7 @@ public class PrototypePwaHolderController {
           case HUOO_VARIATION:
           case OPTIONS_VARIATION:
           default:
-            return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea());
+            return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
         }
 
       });
@@ -126,7 +124,7 @@ public class PrototypePwaHolderController {
 
     return new ModelAndView("pwaApplication/temporary/holder")
         .addObject("ouMap", ouMap)
-        .addObject("backUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea()))
+        .addObject("backUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("errorList", List.of());
   }
 

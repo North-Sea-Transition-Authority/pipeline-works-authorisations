@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
@@ -93,7 +92,7 @@ public class LocationDetailsValidatorTest {
   public void validate_WithinSafetyZone_Partially_With_Facilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
-    form.setFacilitiesIfPartially(List.of(new DevukFacility()));
+    form.setFacilitiesIfPartially(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form);
     assertThat(result).containsOnly(
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),
@@ -125,7 +124,7 @@ public class LocationDetailsValidatorTest {
   public void validate_WithinSafetyZone_Yes_With_Facilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
-    form.setFacilitiesIfYes(List.of(new DevukFacility()));
+    form.setFacilitiesIfYes(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form);
     assertThat(result).containsOnly(
         entry("transportsMaterialsToShore", Set.of("transportsMaterialsToShore.required")),

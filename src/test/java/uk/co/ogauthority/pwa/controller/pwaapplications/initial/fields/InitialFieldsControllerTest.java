@@ -38,7 +38,6 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
@@ -47,7 +46,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
@@ -65,9 +63,6 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
   private PwaApplicationService pwaApplicationService;
 
   @MockBean
-  private ApplicationHolderService applicationHolderService;
-
-  @MockBean
   private PadFieldService padFieldService;
 
   @SpyBean
@@ -77,7 +72,6 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
   private PwaApplicationDetail pwaApplicationDetail;
   private PadField padField;
   private DevukField devukField;
-  private ApplicationHolderOrganisation applicationHolderOrganisation;
   private PortalOrganisationUnit portalOrganisationUnit;
 
   @Before
@@ -90,8 +84,6 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
     padField.setId(1);
     padField.setDevukField(devukField);
     portalOrganisationUnit = new PortalOrganisationUnit();
-    applicationHolderOrganisation = new ApplicationHolderOrganisation();
-    applicationHolderOrganisation.setOrganisationUnit(portalOrganisationUnit);
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
@@ -99,12 +91,6 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
 
     when(padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(
         padField));
-
-    when(applicationHolderService.getHoldersFromApplicationDetail(pwaApplicationDetail)).thenReturn(
-        List.of(applicationHolderOrganisation));
-
-    when(devukFieldService.getByOrganisationUnitWithStatusCodes(applicationHolderOrganisation.getOrganisationUnit(),
-        List.of(500, 600, 700))).thenReturn(List.of(devukField));
 
     when(devukFieldService.getByStatusCodes(List.of(500, 600, 700))).thenReturn(List.of(devukField));
   }

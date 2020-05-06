@@ -1,0 +1,1 @@
+DROP TABLE ${datasource.user}.PAD_HOLDERS;
