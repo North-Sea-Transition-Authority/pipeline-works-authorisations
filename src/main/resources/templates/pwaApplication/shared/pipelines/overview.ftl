@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#import 'pipelineOverview.ftl' as pipelineOverview>
 
 <#-- @ftlvariable name="pipelineOverviews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 <#-- @ftlvariable name="addPipelineUrl" type="String" -->
@@ -17,13 +18,7 @@
 
             <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber} ${pipeline.pipelineType.displayName}" />
 
-            <@fdsDataItems.dataItem>
-                <@fdsDataItems.dataValues key="Length" value="${pipeline.length}m" />
-                <@fdsDataItems.dataValues key="From" value="${pipeline.fromLocation}" />
-                <@fdsDataItems.dataValues key="To" value="${pipeline.toLocation}" />
-                <@fdsDataItems.dataValues key="Component parts" value="${pipeline.componentParts}" />
-                <@fdsDataItems.dataValues key="Products to be conveyed" value=pipeline.productsToBeConveyed />
-            </@fdsDataItems.dataItem>
+            <@pipelineOverview.header pipeline=pipeline />
 
             <@fdsTaskList.taskList>
                 <#list pipeline.tasks as task>
