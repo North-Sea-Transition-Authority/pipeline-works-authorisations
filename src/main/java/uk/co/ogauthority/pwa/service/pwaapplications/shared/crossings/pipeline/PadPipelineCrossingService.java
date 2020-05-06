@@ -4,19 +4,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
-import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -26,17 +27,20 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   private final PipelineCrossingFileService pipelineCrossingFileService;
   private final PadPipelineCrossingOwnerService padPipelineCrossingOwnerService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final SearchSelectorService searchSelectorService;
 
   @Autowired
   public PadPipelineCrossingService(
       PadPipelineCrossingRepository padPipelineCrossingRepository,
       PipelineCrossingFileService pipelineCrossingFileService,
       PadPipelineCrossingOwnerService padPipelineCrossingOwnerService,
-      PortalOrganisationsAccessor portalOrganisationsAccessor) {
+      PortalOrganisationsAccessor portalOrganisationsAccessor,
+      SearchSelectorService searchSelectorService) {
     this.padPipelineCrossingRepository = padPipelineCrossingRepository;
     this.pipelineCrossingFileService = pipelineCrossingFileService;
     this.padPipelineCrossingOwnerService = padPipelineCrossingOwnerService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.searchSelectorService = searchSelectorService;
   }
 
   public PadPipelineCrossing getPipelineCrossing(PwaApplicationDetail detail, Integer id) {
@@ -82,24 +86,16 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   }
 
   public Map<String, String> getPrepopulatedSearchSelectorItems(List<String> selection) {
+
     var selectedItems = ListUtils.emptyIfNull(selection);
-    var orgIds = selectedItems.stream()
-        .filter(s -> !s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
-        .map(Integer::parseInt)
-        .collect(Collectors.toList());
-    var orgs = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(orgIds);
-    return selectedItems.stream()
-        .collect(StreamUtils.toLinkedHashMap(s -> s, s -> {
-          if (s.startsWith(SearchSelectable.FREE_TEXT_PREFIX)) {
-            return StringUtils.substring(s, SearchSelectable.FREE_TEXT_PREFIX.length());
-          } else {
-            return orgs.stream()
-                .filter(portalOrganisationUnit -> String.valueOf(portalOrganisationUnit.getOuId()).equals(s))
-                .findAny()
-                .orElseThrow(() -> new PwaEntityNotFoundException("Failed to find portal org unit with ID of: " + s))
-                .getName();
-          }
-        }));
+    var selectionView = new SearchSelectionView<>(selectedItems, Integer::parseInt);
+
+    var orgMap = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(selectionView.getLinkedEntries())
+        .stream()
+        .collect(StreamUtils.toLinkedHashMap(orgUnit -> String.valueOf(orgUnit.getOuId()),
+            PortalOrganisationUnit::getName));
+
+    return searchSelectorService.buildPrepopulatedSelections(selectedItems, orgMap);
   }
 
   @Override

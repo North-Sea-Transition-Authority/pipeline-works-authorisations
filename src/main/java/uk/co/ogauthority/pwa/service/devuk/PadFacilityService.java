@@ -2,9 +2,7 @@ package uk.co.ogauthority.pwa.service.devuk;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,7 +12,9 @@ import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFacilityRepository;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -22,12 +22,15 @@ public class PadFacilityService {
 
   private final PadFacilityRepository padFacilityRepository;
   private final DevukFacilityService devukFacilityService;
+  private final SearchSelectorService searchSelectorService;
 
   @Autowired
   public PadFacilityService(PadFacilityRepository padFacilityRepository,
-                            DevukFacilityService devukFacilityService) {
+                            DevukFacilityService devukFacilityService,
+                            SearchSelectorService searchSelectorService) {
     this.padFacilityRepository = padFacilityRepository;
     this.devukFacilityService = devukFacilityService;
+    this.searchSelectorService = searchSelectorService;
   }
 
   public List<PadFacility> getFacilities(PwaApplicationDetail pwaApplicationDetail) {
@@ -53,27 +56,22 @@ public class PadFacilityService {
       return;
     }
 
-    var linkedFacilityIds = facilities.stream()
-        .filter(s -> !s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
-        .collect(Collectors.toList());
+    var selectionView = new SearchSelectionView<>(facilities, s -> s);
 
-    var manualFacilityIds = facilities.stream()
-        .filter(s -> s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
-        .collect(Collectors.toList());
-
-    devukFacilityService.getFacilitiesInIds(linkedFacilityIds)
+    devukFacilityService.getFacilitiesInIds(selectionView.getLinkedEntries())
         .forEach(facility -> {
           var created = createFromDevukFacility(pwaApplicationDetail, facility);
           padFacilityRepository.save(created);
         });
 
-    manualFacilityIds.forEach(s -> createFacilityFromManualEntry(pwaApplicationDetail, s));
+    selectionView.getManualEntries()
+        .forEach(s -> createFacilityFromManualEntry(pwaApplicationDetail, s));
   }
 
   private void createFacilityFromManualEntry(PwaApplicationDetail pwaApplicationDetail, String id) {
     var facility = new PadFacility();
     facility.setPwaApplicationDetail(pwaApplicationDetail);
-    facility.setFacilityNameManualEntry(StringUtils.substring(id, SearchSelectable.FREE_TEXT_PREFIX.length()));
+    facility.setFacilityNameManualEntry(searchSelectorService.removePrefix(id));
     padFacilityRepository.save(facility);
   }
 

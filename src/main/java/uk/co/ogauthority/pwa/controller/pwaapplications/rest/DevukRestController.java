@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,15 +15,15 @@ import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 
 @RestController
-@RequestMapping("/api/location-details")
-public class LocationDetailsRestController {
+@RequestMapping("/api/devuk")
+public class DevukRestController {
 
   private final DevukFacilityService devukFacilityService;
   private final SearchSelectorService searchSelectorService;
 
   @Autowired
-  public LocationDetailsRestController(DevukFacilityService devukFacilityService,
-                                       SearchSelectorService searchSelectorService) {
+  public DevukRestController(DevukFacilityService devukFacilityService,
+                             SearchSelectorService searchSelectorService) {
     this.devukFacilityService = devukFacilityService;
     this.searchSelectorService = searchSelectorService;
   }
@@ -31,7 +32,7 @@ public class LocationDetailsRestController {
   @ResponseBody
   public RestSearchResult searchFacilities(@RequestParam("term") String searchTerm) {
     var searchableList = devukFacilityService.getFacilities(searchTerm);
-    var results = searchSelectorService.search(searchTerm, searchableList)
+    List<RestSearchItem> results = searchSelectorService.search(searchTerm, searchableList)
         .stream()
         .sorted(Comparator.comparing(RestSearchItem::getText))
         .collect(Collectors.toList());

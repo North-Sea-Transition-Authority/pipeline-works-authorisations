@@ -20,7 +20,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.pwaapplications.rest.LocationDetailsRestController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.rest.DevukRestController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = LocationDetailsRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class LocationDetailsRestControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = DevukRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class DevukRestControllerTest extends AbstractControllerTest {
 
   @MockBean
   private DevukFacilityService devukFacilityService;
@@ -47,14 +47,14 @@ public class LocationDetailsRestControllerTest extends AbstractControllerTest {
 
   @Test
   public void searchFacilities_unauthenticated() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities("Test"))))
+    mockMvc.perform(get(ReverseRouter.route(on(DevukRestController.class).searchFacilities("Test"))))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
   public void searchFacilities_authenticated() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities("Test")))
+        get(ReverseRouter.route(on(DevukRestController.class).searchFacilities("Test")))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
     ).andExpect(status().isOk());

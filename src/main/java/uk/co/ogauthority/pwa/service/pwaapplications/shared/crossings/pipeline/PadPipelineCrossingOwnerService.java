@@ -1,10 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
@@ -12,21 +11,25 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingOwnerRepository;
-import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 
 @Service
 public class PadPipelineCrossingOwnerService {
 
   private final PadPipelineCrossingOwnerRepository padPipelineCrossingOwnerRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final SearchSelectorService searchSelectorService;
 
   @Autowired
   public PadPipelineCrossingOwnerService(
       PadPipelineCrossingOwnerRepository padPipelineCrossingOwnerRepository,
-      PortalOrganisationsAccessor portalOrganisationsAccessor) {
+      PortalOrganisationsAccessor portalOrganisationsAccessor,
+      SearchSelectorService searchSelectorService) {
     this.padPipelineCrossingOwnerRepository = padPipelineCrossingOwnerRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.searchSelectorService = searchSelectorService;
   }
 
   public List<PadPipelineCrossingOwner> getOwnersForCrossing(PadPipelineCrossing padPipelineCrossing) {
@@ -35,32 +38,27 @@ public class PadPipelineCrossingOwnerService {
 
   public Map<String, String> getOwnerPrepopulationFormAttribute(PadPipelineCrossing padPipelineCrossing) {
     var owners = getOwnersForCrossing(padPipelineCrossing);
-    return owners.stream()
-        .collect(StreamUtils.toLinkedHashMap((PadPipelineCrossingOwner owner) -> {
-              if (owner.isManualEntry()) {
-                return SearchSelectable.FREE_TEXT_PREFIX + owner.getManualOrganisationEntry();
-              }
-              return String.valueOf(owner.getOrganisationUnit().getOuId());
-            }, owner -> owner.isManualEntry()
-                ? owner.getManualOrganisationEntry()
-                : owner.getOrganisationUnit().getName()
-        ));
+    var result = new LinkedHashMap<String, String>();
+    for (var owner : owners) {
+      if (owner.isManualEntry()) {
+        String manualId = SearchSelectable.FREE_TEXT_PREFIX + owner.getManualOrganisationEntry();
+        result.put(manualId, owner.getManualOrganisationEntry());
+      } else {
+        String linkedId = String.valueOf(owner.getOrganisationUnit().getOuId());
+        result.put(linkedId, owner.getOrganisationUnit().getName());
+      }
+    }
+    return result;
   }
 
   public void createOwners(PadPipelineCrossing pipelineCrossing, PipelineCrossingForm form) {
     removeAllForCrossing(pipelineCrossing);
     if (!BooleanUtils.isTrue(form.getPipelineFullyOwnedByOrganisation())) {
-      var owners = form.getPipelineOwners();
-      List<Integer> linkedEntries = owners.stream()
-          .filter(s -> !s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
-          .map(Integer::parseInt)
-          .collect(Collectors.toList());
-      List<String> manualEntries = owners.stream()
-          .filter(s -> s.startsWith(SearchSelectable.FREE_TEXT_PREFIX))
-          .collect(Collectors.toList());
 
-      createLinkedOwner(pipelineCrossing, linkedEntries);
-      createManualOwner(pipelineCrossing, manualEntries);
+      var selectionView = new SearchSelectionView<>(form.getPipelineOwners(), Integer::parseInt);
+
+      createLinkedOwner(pipelineCrossing, selectionView.getLinkedEntries());
+      createManualOwner(pipelineCrossing, selectionView.getManualEntries());
     }
   }
 
@@ -78,7 +76,7 @@ public class PadPipelineCrossingOwnerService {
     owners.forEach(s -> {
       var owner = new PadPipelineCrossingOwner();
       owner.setPadPipelineCrossing(padPipelineCrossing);
-      owner.setManualOrganisationEntry(StringUtils.substring(s, SearchSelectable.FREE_TEXT_PREFIX.length()));
+      owner.setManualOrganisationEntry(searchSelectorService.removePrefix(s));
       padPipelineCrossingOwnerRepository.save(owner);
     });
   }

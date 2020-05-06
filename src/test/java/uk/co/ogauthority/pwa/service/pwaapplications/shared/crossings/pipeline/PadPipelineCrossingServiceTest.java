@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.Pipelin
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,6 +45,9 @@ public class PadPipelineCrossingServiceTest {
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
+  @Spy
+  private SearchSelectorService searchSelectorService;
+
   private PadPipelineCrossingService padPipelineCrossingService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -51,7 +56,8 @@ public class PadPipelineCrossingServiceTest {
   @Before
   public void setUp() {
     padPipelineCrossingService = new PadPipelineCrossingService(padPipelineCrossingRepository,
-        pipelineCrossingFileService, padPipelineCrossingOwnerService, portalOrganisationsAccessor);
+        pipelineCrossingFileService, padPipelineCrossingOwnerService, portalOrganisationsAccessor,
+        searchSelectorService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     padPipelineCrossing = new PadPipelineCrossing();
   }

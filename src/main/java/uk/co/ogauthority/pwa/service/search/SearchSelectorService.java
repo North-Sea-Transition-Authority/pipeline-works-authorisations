@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.search;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,29 @@ public class SearchSelectorService {
 
   public static String route(Object methodCall) {
     return StringUtils.stripEnd(ReverseRouter.route(methodCall), "?term");
+  }
+
+  /**
+   * Build a map of manual entries and linked entries, with the linked entry display text.
+   * @param selections All selected items from a form field.
+   * @param resolvedLinkedEntryMap A map of ID (String) -> DisplayText (String).
+   * @return A map of selection results to pre-populate the search selector.
+   */
+  public Map<String, String> buildPrepopulatedSelections(List<String> selections,
+                                                         Map<String, String> resolvedLinkedEntryMap) {
+    var results = new LinkedHashMap<String, String>();
+    for (String s : selections) {
+      if (s.startsWith(SearchSelectable.FREE_TEXT_PREFIX)) {
+        results.put(s, StringUtils.removeStart(s, SearchSelectable.FREE_TEXT_PREFIX));
+      } else {
+        results.put(s, resolvedLinkedEntryMap.get(s));
+      }
+    }
+    return results;
+  }
+
+  public String removePrefix(String s) {
+    return StringUtils.substring(s, SearchSelectable.FREE_TEXT_PREFIX.length());
   }
 
 }
