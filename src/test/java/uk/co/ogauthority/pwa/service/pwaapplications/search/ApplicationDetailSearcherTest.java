@@ -48,7 +48,7 @@ public class ApplicationDetailSearcherTest {
   @Test
   public void search_whenNoContactRoles() {
     var resultPage = applicationDetailSearcher.search(PageRequest.of(PAGE_REQUESTED, PAGE_SIZE), Set.of());
-    assertThat(resultPage).isEqualTo(Page.empty());
+    assertThat(resultPage).isEqualTo(Page.empty(pageable));
 
   }
 

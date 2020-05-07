@@ -23,7 +23,7 @@ public class ApplicationDetailSearcher {
   public Page<ApplicationDetailSearchItem> search(Pageable pageable,
                                                   Set<PwaApplicationContactRoleDto> contactFilter) {
     if (contactFilter.isEmpty()) {
-      return Page.empty();
+      return Page.empty(pageable);
     }
 
     var filterApplicationIds = contactFilter.stream()

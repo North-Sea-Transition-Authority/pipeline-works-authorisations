@@ -13,8 +13,8 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 public class ValidatorUtilsTest {
@@ -153,12 +153,12 @@ public class ValidatorUtilsTest {
   @Test
   public void validateLatitude_valid() {
 
-    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
         bindingResult,
-        Pair.of("latDeg", 55),
-        Pair.of("latMin", 30),
-        Pair.of("latSec", BigDecimal.valueOf(44.44)));
+        Pair.of("latitudeDegrees", 55),
+        Pair.of("latitudeMinutes", 30),
+        Pair.of("latitudeSeconds", BigDecimal.valueOf(44.44)));
 
     assertThat(bindingResult.hasErrors()).isFalse();
 
@@ -167,19 +167,19 @@ public class ValidatorUtilsTest {
   @Test
   public void validateLatitude_invalid() {
 
-    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
         bindingResult,
-        Pair.of("fromLatDeg", 44),
-        Pair.of("fromLatMin", -1),
-        Pair.of("fromLatSec", BigDecimal.valueOf(61)));
+        Pair.of("latitudeDegrees", 44),
+        Pair.of("latitudeMinutes", -1),
+        Pair.of("latitudeSeconds", BigDecimal.valueOf(61)));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
-        entry("fromLatDeg", Set.of("fromLatDeg.invalid")),
-        entry("fromLatMin", Set.of("fromLatMin.invalid")),
-        entry("fromLatSec", Set.of("fromLatSec.invalid"))
+        entry("latitudeDegrees", Set.of("latitudeDegrees.invalid")),
+        entry("latitudeMinutes", Set.of("latitudeMinutes.invalid")),
+        entry("latitudeSeconds", Set.of("latitudeSeconds.invalid"))
     );
 
   }
@@ -187,17 +187,17 @@ public class ValidatorUtilsTest {
   @Test
   public void validateLatitude_invalidSecondPrecision() {
 
-    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
         bindingResult,
-        Pair.of("fromLatDeg", 55),
-        Pair.of("fromLatMin", 30),
-        Pair.of("fromLatSec", BigDecimal.valueOf(45.555)));
+        Pair.of("latitudeDegrees", 55),
+        Pair.of("latitideMinutes", 30),
+        Pair.of("latitudeSeconds", BigDecimal.valueOf(45.555)));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
-        entry("fromLatSec", Set.of("fromLatSec.invalid"))
+        entry("latitudeSeconds", Set.of("latitudeSeconds.invalid"))
     );
 
   }
@@ -205,13 +205,13 @@ public class ValidatorUtilsTest {
   @Test
   public void validateLongitude_valid() {
 
-    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
         bindingResult,
-        Pair.of("fromLongDeg", 29),
-        Pair.of("fromLongMin", 30),
-        Pair.of("fromLongSec", BigDecimal.valueOf(44.44)),
-        Pair.of("fromLongDirection", LongitudeDirection.EAST));
+        Pair.of("longitudeDegrees", 29),
+        Pair.of("longitudeMinutes", 30),
+        Pair.of("longitudeSeconds", BigDecimal.valueOf(44.44)),
+        Pair.of("longitudeDirection", LongitudeDirection.EAST));
 
     assertThat(bindingResult.hasErrors()).isFalse();
 
@@ -220,20 +220,20 @@ public class ValidatorUtilsTest {
   @Test
   public void validateLongitude_invalid() {
 
-    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
         bindingResult,
-        Pair.of("fromLongDeg", 31),
-        Pair.of("fromLongMin", 61),
-        Pair.of("fromLongSec", BigDecimal.valueOf(-1)),
-        Pair.of("fromLongDirection", LongitudeDirection.EAST));
+        Pair.of("longitudeDegrees", 31),
+        Pair.of("longitudeMinutes", 61),
+        Pair.of("longitudeSeconds", BigDecimal.valueOf(-1)),
+        Pair.of("longitudeDirection", LongitudeDirection.EAST));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
-        entry("fromLongDeg", Set.of("fromLongDeg.invalid")),
-        entry("fromLongMin", Set.of("fromLongMin.invalid")),
-        entry("fromLongSec", Set.of("fromLongSec.invalid"))
+        entry("longitudeDegrees", Set.of("longitudeDegrees.invalid")),
+        entry("longitudeMinutes", Set.of("longitudeMinutes.invalid")),
+        entry("longitudeSeconds", Set.of("longitudeSeconds.invalid"))
     );
 
   }
@@ -241,18 +241,18 @@ public class ValidatorUtilsTest {
   @Test
   public void validateLongitude_invalidSecondPrecision() {
 
-    var bindingResult = new BeanPropertyBindingResult(new PipelineHeaderForm(), "form");
+    var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
         bindingResult,
-        Pair.of("fromLongDeg", 22),
-        Pair.of("fromLongMin", 30),
-        Pair.of("fromLongSec", BigDecimal.valueOf(33.333)),
-        Pair.of("fromLongDirection", LongitudeDirection.WEST));
+        Pair.of("longitudeDegrees", 22),
+        Pair.of("longitudeMinutes", 30),
+        Pair.of("longitudeSeconds", BigDecimal.valueOf(33.333)),
+        Pair.of("longitudeDirection", LongitudeDirection.WEST));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
     assertThat(errors).containsOnly(
-        entry("fromLongSec", Set.of("fromLongSec.invalid"))
+        entry("longitudeSeconds", Set.of("longitudeSeconds.invalid"))
     );
 
   }
