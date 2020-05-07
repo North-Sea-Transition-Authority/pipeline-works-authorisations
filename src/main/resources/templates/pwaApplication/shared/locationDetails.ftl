@@ -15,9 +15,9 @@
             <#list safetyZoneOptions as name, value>
                 <@fdsRadio.radioItem path="form.withinSafetyZone" itemMap={name:value} isFirstItem=firstItem>
                     <#if name == "YES">
-                        <@fdsSelect.select path="form.facilitiesIfYes" options=facilityOptions labelText="Which structures are within 500m?" hintText="For example: platforms, FPSOs, boats, or storage units" nestingPath="form.withinSafetyZone"/>
+                        <@fdsSearchSelector.searchSelectorRest path="form.facilitiesIfYes" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.withinSafetyZone" preselectedItems=preselectedFacilitiesIfYes!{}/>
                     <#elseif name == "PARTIALLY">
-                        <@fdsSelect.select path="form.facilitiesIfPartially" options=facilityOptions labelText="Which structures are within 500m?" hintText="For example: platforms, FPSOs, boats, or storage units" nestingPath="form.withinSafetyZone"/>
+                        <@fdsSearchSelector.searchSelectorRest path="form.facilitiesIfPartially" labelText="Which structures are within 500m?" multiSelect=true restUrl=springUrl(facilityRestUrl) nestingPath="form.withinSafetyZone" preselectedItems=preselectedFacilitiesIfPartially!{}/>
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem = false/>
@@ -27,13 +27,11 @@
             <@fdsRadio.radioYes path="form.facilitiesOffshore"/>
             <@fdsRadio.radioNo path="form.facilitiesOffshore"/>
         </@fdsRadio.radioGroup>
-        <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline be used to transport products / facilitate the transportation of products to shore?" hiddenContent=true>
+        <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline be used to transport materials / facilitate the transportation of materials to shore?" hiddenContent=true>
             <@fdsRadio.radioYes path="form.transportsMaterialsToShore">
                 <@fdsTextInput.textInput path="form.transportationMethod" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore"/>
             </@fdsRadio.radioYes>
-            <@fdsRadio.radioNo path="form.transportsMaterialsToShore">
-                <@fdsTextarea.textarea path="form.pipelineAshoreLocation" labelText="Where do the pipelines come ashore?" nestingPath="form.transportsMaterialsToShore"/>
-            </@fdsRadio.radioNo>
+            <@fdsRadio.radioNo path="form.transportsMaterialsToShore"/>
         </@fdsRadio.radioGroup>
 
         <@fdsRadio.radioGroup path="form.routeSurveyUndertaken" labelText="Has a pipeline route survey been undertaken?" hiddenContent=true>

@@ -4,15 +4,14 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Service
 public class PadPipelinesService implements ApplicationFormSectionService {
@@ -33,8 +32,12 @@ public class PadPipelinesService implements ApplicationFormSectionService {
   public void saveEntityUsingForm(PadPipeline padPipeline, PipelineHeaderForm form) {
 
     padPipeline.setPipelineType(form.getPipelineType());
+
     padPipeline.setFromLocation(form.getFromLocation());
+    padPipeline.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
     padPipeline.setToLocation(form.getToLocation());
+    padPipeline.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
+
     padPipeline.setComponentPartsDescription(form.getComponentPartsDescription());
     padPipeline.setLength(form.getLength());
     padPipeline.setProductsToBeConveyed(form.getProductsToBeConveyed());
@@ -44,17 +47,12 @@ public class PadPipelinesService implements ApplicationFormSectionService {
       padPipeline.setTrenchingMethodsDescription(form.getTrenchingMethods());
     }
 
-    padPipeline.setFromCoordinates(new CoordinatePair(
-        new LatitudeCoordinate(form.getFromLatDeg(), form.getFromLatMin(), form.getFromLatSec(), form.getFromLatDirection()),
-        new LongitudeCoordinate(form.getFromLongDeg(), form.getFromLongMin(), form.getFromLongSec(), form.getFromLongDirection())
-    ));
-
-    padPipeline.setToCoordinates(new CoordinatePair(
-        new LatitudeCoordinate(form.getToLatDeg(), form.getToLatMin(), form.getToLatSec(), form.getToLatDirection()),
-        new LongitudeCoordinate(form.getToLongDeg(), form.getToLongMin(), form.getToLongSec(), form.getToLongDirection())
-    ));
-
     padPipelineRepository.save(padPipeline);
+  }
+
+  public PadPipeline getById(Integer padPipelineId) {
+    return padPipelineRepository.findById(padPipelineId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find PadPipeline with ID: %s", padPipelineId)));
   }
 
   @Override

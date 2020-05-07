@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.validator.constraints.Length;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
@@ -12,8 +11,8 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   @Length(max = 4000, message = "Approximate project location from shore must be 4000 characters or fewer")
   private String approximateProjectLocationFromShore;
   private HseSafetyZone withinSafetyZone;
-  private List<DevukFacility> facilitiesIfYes;
-  private List<DevukFacility> facilitiesIfPartially;
+  private List<String> facilitiesIfYes;
+  private List<String> facilitiesIfPartially;
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
 
@@ -52,20 +51,19 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.withinSafetyZone = withinSafetyZone;
   }
 
-  public List<DevukFacility> getFacilitiesIfYes() {
+  public List<String> getFacilitiesIfYes() {
     return facilitiesIfYes;
   }
 
-  public void setFacilitiesIfYes(List<DevukFacility> facilitiesIfYes) {
+  public void setFacilitiesIfYes(List<String> facilitiesIfYes) {
     this.facilitiesIfYes = facilitiesIfYes;
   }
 
-  public List<DevukFacility> getFacilitiesIfPartially() {
+  public List<String> getFacilitiesIfPartially() {
     return facilitiesIfPartially;
   }
 
-  public void setFacilitiesIfPartially(
-      List<DevukFacility> facilitiesIfPartially) {
+  public void setFacilitiesIfPartially(List<String> facilitiesIfPartially) {
     this.facilitiesIfPartially = facilitiesIfPartially;
   }
 

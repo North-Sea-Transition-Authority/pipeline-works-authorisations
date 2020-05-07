@@ -8,9 +8,16 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
 public class PipelineHeaderFormValidatorTest {
@@ -19,7 +26,7 @@ public class PipelineHeaderFormValidatorTest {
 
   @Before
   public void setUp() {
-    validator = new PipelineHeaderFormValidator();
+    validator = new PipelineHeaderFormValidator(new CoordinateFormValidator());
   }
 
   @Test
@@ -31,24 +38,27 @@ public class PipelineHeaderFormValidatorTest {
   @Test
   public void failed_mandatory() {
     var form = new PipelineHeaderForm();
+    form.setFromCoordinateForm(new CoordinateForm());
+    form.setToCoordinateForm(new CoordinateForm());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
 
     assertThat(result).contains(
         entry("fromLocation", Set.of("fromLocation.required")),
-        entry("fromLatDeg", Set.of("fromLatDeg.required")),
-        entry("fromLatMin", Set.of("fromLatMin.required")),
-        entry("fromLatSec", Set.of("fromLatSec.required")),
-        entry("fromLongDeg", Set.of("fromLongDeg.required")),
-        entry("fromLongMin", Set.of("fromLongMin.required")),
-        entry("fromLongSec", Set.of("fromLongSec.required")),
-        entry("fromLongDirection", Set.of("fromLongDirection.required")),
-        entry("toLatDeg", Set.of("toLatDeg.required")),
-        entry("toLatMin", Set.of("toLatMin.required")),
-        entry("toLatSec", Set.of("toLatSec.required")),
-        entry("toLongDeg", Set.of("toLongDeg.required")),
-        entry("toLongMin", Set.of("toLongMin.required")),
-        entry("toLongSec", Set.of("toLongSec.required")),
-        entry("toLongDirection", Set.of("toLongDirection.required")),
+        entry("toLocation", Set.of("toLocation.required")),
+        entry("fromCoordinateForm.latitudeDegrees", Set.of("fromCoordinateForm.latitudeDegrees.required")),
+        entry("fromCoordinateForm.latitudeMinutes", Set.of("fromCoordinateForm.latitudeMinutes.required")),
+        entry("fromCoordinateForm.latitudeSeconds", Set.of("fromCoordinateForm.latitudeSeconds.required")),
+        entry("fromCoordinateForm.longitudeDegrees", Set.of("fromCoordinateForm.longitudeDegrees.required")),
+        entry("fromCoordinateForm.longitudeMinutes", Set.of("fromCoordinateForm.longitudeMinutes.required")),
+        entry("fromCoordinateForm.longitudeSeconds", Set.of("fromCoordinateForm.longitudeSeconds.required")),
+        entry("fromCoordinateForm.longitudeDirection", Set.of("fromCoordinateForm.longitudeDirection.required")),
+        entry("toCoordinateForm.latitudeDegrees", Set.of("toCoordinateForm.latitudeDegrees.required")),
+        entry("toCoordinateForm.latitudeMinutes", Set.of("toCoordinateForm.latitudeMinutes.required")),
+        entry("toCoordinateForm.latitudeSeconds", Set.of("toCoordinateForm.latitudeSeconds.required")),
+        entry("toCoordinateForm.longitudeDegrees", Set.of("toCoordinateForm.longitudeDegrees.required")),
+        entry("toCoordinateForm.longitudeMinutes", Set.of("toCoordinateForm.longitudeMinutes.required")),
+        entry("toCoordinateForm.longitudeSeconds", Set.of("toCoordinateForm.longitudeSeconds.required")),
+        entry("toCoordinateForm.longitudeDirection", Set.of("toCoordinateForm.longitudeDirection.required")),
         entry("pipelineType", Set.of("pipelineType.required")),
         entry("length", Set.of("length.required")),
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -86,21 +96,24 @@ public class PipelineHeaderFormValidatorTest {
     var form = new PipelineHeaderForm();
 
     form.setFromLocation("from");
-    form.setFromLatDeg(55);
-    form.setFromLatMin(30);
-    form.setFromLatSec(BigDecimal.valueOf(22.22));
-    form.setFromLongDeg(13);
-    form.setFromLongMin(22);
-    form.setFromLongSec(BigDecimal.valueOf(12.1));
-    form.setFromLongDirection(LongitudeDirection.EAST);
+    var fromCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
+            new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
+        ), fromCoordinateForm
+    );
+    form.setFromCoordinateForm(fromCoordinateForm);
+
     form.setToLocation("to");
-    form.setToLatDeg(54);
-    form.setToLatMin(22);
-    form.setToLatSec(BigDecimal.valueOf(25));
-    form.setToLongDeg(22);
-    form.setToLongMin(21);
-    form.setToLongSec(BigDecimal.valueOf(1));
-    form.setToLongDirection(LongitudeDirection.WEST);
+    var toCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(46, 46, BigDecimal.valueOf(46), LatitudeDirection.SOUTH),
+            new LongitudeCoordinate(6, 6, BigDecimal.valueOf(6.66), LongitudeDirection.WEST)
+        ), toCoordinateForm
+    );
+    form.setToCoordinateForm(toCoordinateForm);
 
     form.setLength(BigDecimal.valueOf(65.66));
     form.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);

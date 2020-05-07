@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Import(PwaApplicationContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
@@ -64,6 +66,8 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   @MockBean
   protected PwaApplicationFileService pwaApplicationFileService;
 
+  @MockBean
+  protected PadPipelinesService padPipelinesService;
 
   @Before
   public void abstractControllerTestSetup() {
@@ -79,6 +83,7 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
+    when(pwaApplicationRedirectService.getTaskListRoute(anyInt(), any())).thenCallRealMethod();
 
   }
 

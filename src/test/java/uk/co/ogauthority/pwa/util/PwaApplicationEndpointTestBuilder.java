@@ -25,11 +25,13 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 
 public class PwaApplicationEndpointTestBuilder {
 
@@ -40,6 +42,7 @@ public class PwaApplicationEndpointTestBuilder {
 
   private PwaContactService pwaContactService;
   private PwaApplicationDetailService pwaApplicationDetailService;
+  private PadPipelinesService padPipelinesService;
 
   private BiFunction<PwaApplicationDetail, PwaApplicationType, String> endpointUrlProducer;
 
@@ -50,6 +53,7 @@ public class PwaApplicationEndpointTestBuilder {
   private WebUserAccount userWua;
   private AuthenticatedUserAccount user;
   private PwaApplicationDetail detail;
+  private PadPipeline pipeline;
 
   private HttpMethod requestMethod;
 
@@ -64,6 +68,22 @@ public class PwaApplicationEndpointTestBuilder {
     setupTestObjects();
     // do nothing by default
     this.preTestSetup = (detail) -> {};
+  }
+
+  public PwaApplicationEndpointTestBuilder(MockMvc mockMvc,
+                                           PwaContactService pwaContactService,
+                                           PwaApplicationDetailService pwaApplicationDetailService,
+                                           PadPipelinesService padPipelinesService) {
+
+    this.mockMvc = mockMvc;
+    this.pwaContactService = pwaContactService;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.padPipelinesService = padPipelinesService;
+
+    setupTestObjects();
+    // do nothing by default
+    this.preTestSetup = (detail) -> {};
+
   }
 
   public PwaApplicationEndpointTestBuilder setPreTestSetupMethod(Consumer<PwaApplicationDetail> setup){
@@ -170,6 +190,9 @@ public class PwaApplicationEndpointTestBuilder {
     this.userWua = new WebUserAccount(1);
     this.user = new AuthenticatedUserAccount(userWua, EnumSet.allOf(PwaUserPrivilege.class));
     this.detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    this.pipeline = new PadPipeline();
+    pipeline.setId(99);
+    pipeline.setPwaApplicationDetail(detail);
 
     var defaultRoles = EnumSet.allOf(PwaContactRole.class);
 
@@ -177,6 +200,10 @@ public class PwaApplicationEndpointTestBuilder {
     detail.getPwaApplication().setApplicationType(defaultType);
     when(pwaContactService.getContactRoles(eq(detail.getPwaApplication()), any())).thenReturn(defaultRoles);
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+
+    if(padPipelinesService != null) {
+      when(padPipelinesService.getById(pipeline.getId())).thenReturn(pipeline);
+    }
 
   }
 

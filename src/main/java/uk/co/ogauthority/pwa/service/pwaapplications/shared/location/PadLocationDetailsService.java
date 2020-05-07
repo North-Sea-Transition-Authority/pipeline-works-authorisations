@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.location;
 
-import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -9,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
@@ -111,17 +108,25 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     var locationDetailsForm = new LocationDetailsForm();
     mapEntityToForm(locationDetails, locationDetailsForm);
 
-    List<DevukFacility> facilities = padFacilityService.getFacilities(detail).stream()
-        .map(PadFacility::getFacility)
+    var facilities = padFacilityService.getFacilities(detail);
+
+    var formFacilities = facilities.stream()
+        .map(padFacility -> {
+          if (padFacility.isLinkedToDevukFacility()) {
+            return String.valueOf(padFacility.getFacility().getId());
+          } else {
+            return padFacility.getFacilityNameManualEntry();
+          }
+        })
         .collect(Collectors.toList());
 
     // if facilities exist and we're near a safety zone, add to form
     if (!facilities.isEmpty() && !locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO)) {
 
       if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.YES)) {
-        locationDetailsForm.setFacilitiesIfYes(facilities);
+        locationDetailsForm.setFacilitiesIfYes(formFacilities);
       } else if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.PARTIALLY)) {
-        locationDetailsForm.setFacilitiesIfPartially(facilities);
+        locationDetailsForm.setFacilitiesIfPartially(formFacilities);
       }
 
     }

@@ -11,4 +11,5 @@ public interface PadFacilityRepository extends CrudRepository<PadFacility, Integ
 
   List<PadFacility> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
+
 }

@@ -1,17 +1,24 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
-import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 
 @Service
 public class PipelineHeaderFormValidator implements SmartValidator {
 
+  private final CoordinateFormValidator coordinateFormValidator;
+
+  @Autowired
+  public PipelineHeaderFormValidator(CoordinateFormValidator coordinateFormValidator) {
+    this.coordinateFormValidator = coordinateFormValidator;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -19,7 +26,6 @@ public class PipelineHeaderFormValidator implements SmartValidator {
   }
 
   @Override
-  @Deprecated
   public void validate(Object target, Errors errors) {
     throw new AssertionError(); /* required by the SmartValidator. Not actually used. */
   }
@@ -32,34 +38,14 @@ public class PipelineHeaderFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fromLocation", "fromLocation.required",
         "Enter the pipeline's start point");
 
-    ValidatorUtils.validateLatitude(
-        errors,
-        Pair.of("fromLatDeg", form.getFromLatDeg()),
-        Pair.of("fromLatMin", form.getFromLatMin()),
-        Pair.of("fromLatSec", form.getFromLatSec()));
-
-    ValidatorUtils.validateLongitude(
-        errors,
-        Pair.of("fromLongDeg", form.getFromLongDeg()),
-        Pair.of("fromLongMin", form.getFromLongMin()),
-        Pair.of("fromLongSec", form.getFromLongSec()),
-        Pair.of("fromLongDirection", form.getFromLongDirection()));
+    ValidationUtils.invokeValidator(coordinateFormValidator, form.getFromCoordinateForm(), errors,
+        "fromCoordinateForm", ValueRequirement.MANDATORY);
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "toLocation", "toLocation.required",
         "Enter the pipeline's finish point");
 
-    ValidatorUtils.validateLatitude(
-        errors,
-        Pair.of("toLatDeg", form.getToLatDeg()),
-        Pair.of("toLatMin", form.getToLatMin()),
-        Pair.of("toLatSec", form.getToLatSec()));
-
-    ValidatorUtils.validateLongitude(
-        errors,
-        Pair.of("toLongDeg", form.getToLongDeg()),
-        Pair.of("toLongMin", form.getToLongMin()),
-        Pair.of("toLongSec", form.getToLongSec()),
-        Pair.of("toLongDirection", form.getToLongDirection()));
+    ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
+        "toCoordinateForm", ValueRequirement.MANDATORY);
 
     ValidationUtils.rejectIfEmpty(errors, "pipelineType", "pipelineType.required",
         "Select the pipeline type");
