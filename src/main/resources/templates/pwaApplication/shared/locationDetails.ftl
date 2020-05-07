@@ -27,7 +27,7 @@
             <@fdsRadio.radioYes path="form.facilitiesOffshore"/>
             <@fdsRadio.radioNo path="form.facilitiesOffshore"/>
         </@fdsRadio.radioGroup>
-        <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline be used to transport materials / facilitate the transportation of materials to shore?" hiddenContent=true>
+        <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline be used to transport products / facilitate the transportation of products to shore?" hiddenContent=true>
             <@fdsRadio.radioYes path="form.transportsMaterialsToShore">
                 <@fdsTextInput.textInput path="form.transportationMethod" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore"/>
             </@fdsRadio.radioYes>
