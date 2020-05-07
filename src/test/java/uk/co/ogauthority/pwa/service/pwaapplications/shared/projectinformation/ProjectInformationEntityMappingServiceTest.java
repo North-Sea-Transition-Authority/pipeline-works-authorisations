@@ -73,7 +73,7 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDeposits.LATER_APP);
     assertThat(form.getFutureAppSubmissionMonth()).isEqualTo(expectedForm.getFutureAppSubmissionMonth());
     assertThat(form.getFutureAppSubmissionYear()).isEqualTo(expectedForm.getFutureAppSubmissionYear());
-    assertThat(form.getIsTemporaryDepositsMade()).isEqualTo(expectedForm.getIsTemporaryDepositsMade());
+    assertThat(form.getTemporaryDepositsMade()).isEqualTo(expectedForm.getTemporaryDepositsMade());
     assertThat(form.getTemporaryDepDescription()).isEqualTo(expectedForm.getTemporaryDepDescription());
   }
 
@@ -117,7 +117,7 @@ public class ProjectInformationEntityMappingServiceTest {
             expectedForm.getFutureAppSubmissionYear());
 
     assertThat(entity.getTemporaryDepositsMade()).isEqualTo(
-            expectedForm.getIsTemporaryDepositsMade());
+            expectedForm.getTemporaryDepositsMade());
 
     assertThat(entity.getTemporaryDepDescription()).isEqualTo(
             expectedForm.getTemporaryDepDescription());
@@ -164,7 +164,7 @@ public class ProjectInformationEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_TemporaryDeposits(){
-    form.setIsTemporaryDepositsMade(false);
+    form.setTemporaryDepositsMade(false);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
     assertThat(entity.getTemporaryDepDescription()).isNull();
   }
@@ -183,6 +183,16 @@ public class ProjectInformationEntityMappingServiceTest {
     entity.setFutureAppSubmissionYear(null);
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
     assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDeposits.THIS_APP);
+  }
+
+
+  @Test
+  public void mapProjectInformationDataToForm_TemporaryDeposits() {
+    entity.setTemporaryDepositsMade(true);
+    entity.setTemporaryDepDescription("foo");
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
+    assertThat(form.getTemporaryDepositsMade()).isTrue();
+    assertThat(form.getTemporaryDepDescription()).isEqualTo(entity.getTemporaryDepDescription());
   }
 
 }

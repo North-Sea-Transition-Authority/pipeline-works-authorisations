@@ -36,11 +36,11 @@ public class PadProjectInformation {
   private Instant licenceTransferTimestamp;
   private Instant commercialAgreementTimestamp;
 
-  private Boolean isPermanentDepositsMade;
+  private Boolean permanentDepositsMade;
   private Integer futureAppSubmissionMonth;
   private Integer futureAppSubmissionYear;
 
-  private Boolean isTemporaryDepositsMade;
+  private Boolean temporaryDepositsMade;
   private String temporaryDepDescription;
 
 
@@ -159,11 +159,11 @@ public class PadProjectInformation {
   }
 
   public Boolean getPermanentDepositsMade() {
-    return isPermanentDepositsMade;
+    return permanentDepositsMade;
   }
 
   public void setPermanentDepositsMade(Boolean permanentDepositsMade) {
-    isPermanentDepositsMade = permanentDepositsMade;
+    this.permanentDepositsMade = permanentDepositsMade;
   }
 
   public Integer getFutureAppSubmissionMonth() {
@@ -183,11 +183,11 @@ public class PadProjectInformation {
   }
 
   public Boolean getTemporaryDepositsMade() {
-    return isTemporaryDepositsMade;
+    return temporaryDepositsMade;
   }
 
   public void setTemporaryDepositsMade(Boolean temporaryDepositsMade) {
-    isTemporaryDepositsMade = temporaryDepositsMade;
+    this.temporaryDepositsMade = temporaryDepositsMade;
   }
 
   public String getTemporaryDepDescription() {

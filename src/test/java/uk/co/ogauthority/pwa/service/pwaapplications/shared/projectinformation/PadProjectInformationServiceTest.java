@@ -77,7 +77,7 @@ public class PadProjectInformationServiceTest {
 
     date = LocalDate.now();
 
-    var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
+    var pwaApplication = new PwaApplication(null, PwaApplicationType.HUOO_VARIATION, null);
     pwaApplicationDetail = new PwaApplicationDetail(pwaApplication, null, null, null);
     padProjectInformation = ProjectInformationTestUtils.buildEntity(date);
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
@@ -239,7 +239,7 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult);
+    verify(validator, times(1)).validate(form, bindingResult, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -267,7 +267,7 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult);
+    verify(validator, times(1)).validate(form, bindingResult, pwaApplicationDetail);
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 

@@ -34,24 +34,25 @@
             <@fileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="project-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
         </@fdsFieldset.fieldset>
 
-        <#if isAnyDepQuestionRequired == true>
-            <#if isPermDepQuestionRequired == true>
+        <#if isAnyDepQuestionRequired>
+            <#if isPermDepQuestionRequired>
                 <@fdsRadio.radioGroup path="form.permanentDepositsMadeType" labelText="Are permanent deposits being made?" hiddenContent=true>
                         <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"THIS_APP" : "Yes, as part of this application"} isFirstItem=true/>
                         <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"LATER_APP" : "Yes, as part of a later application"} >
-                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year" formId="date-of-future-app"/>
-                            <@fdsTextInput.textInput path="form.futureAppSubmissionMonth" labelText="Month" maxCharacterLength="2" inputClass="govuk-input--width-2"/>
-                            <@fdsTextInput.textInput path="form.futureAppSubmissionYear" labelText="Year" maxCharacterLength="4" inputClass="govuk-input--width-4"/>
+                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year" formId="date-of-future-app">
+                                <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionMonth" labelText="Month" inputClass="govuk-input--width-2"/>
+                                <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionYear" labelText="Year" inputClass="govuk-input--width-4"/>
+                            </@fdsNumberInput.twoNumberInputs>
                         </@fdsRadio.radioItem>                        
                         <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"NONE" : "No"}/>
                 </@fdsRadio.radioGroup>
             </#if>
 
-            <@fdsRadio.radioGroup path="form.isTemporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true>
-                <@fdsRadio.radioYes path="form.isTemporaryDepositsMade">
+            <@fdsRadio.radioGroup path="form.temporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.temporaryDepositsMade">
                     <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>
-                <@fdsRadio.radioNo path="form.isTemporaryDepositsMade"/>
+                <@fdsRadio.radioNo path="form.temporaryDepositsMade"/>
             </@fdsRadio.radioGroup>
         </#if>
 

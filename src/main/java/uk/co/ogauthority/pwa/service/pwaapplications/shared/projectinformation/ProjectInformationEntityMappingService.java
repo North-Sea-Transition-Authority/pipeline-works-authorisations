@@ -69,20 +69,18 @@ public class ProjectInformationEntityMappingService {
       );
     }
 
-    if (padProjectInformation.getPermanentDepositsMade() != null) {
-      if (padProjectInformation.getPermanentDepositsMade() == false) {
-        form.setPermanentDepositsMadeType(PermanentDeposits.NONE);
-      } else if (padProjectInformation.getFutureAppSubmissionMonth() != null
-              && padProjectInformation.getFutureAppSubmissionYear() != null) {
-        form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
-        form.setFutureAppSubmissionMonth(padProjectInformation.getFutureAppSubmissionMonth());
-        form.setFutureAppSubmissionYear(padProjectInformation.getFutureAppSubmissionYear());
-      } else {
-        form.setPermanentDepositsMadeType(PermanentDeposits.THIS_APP);
-      }
+    if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
+      form.setPermanentDepositsMadeType(PermanentDeposits.NONE);
+    } else if (padProjectInformation.getFutureAppSubmissionMonth() != null
+            && padProjectInformation.getFutureAppSubmissionYear() != null) {
+      form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
+      form.setFutureAppSubmissionMonth(padProjectInformation.getFutureAppSubmissionMonth());
+      form.setFutureAppSubmissionYear(padProjectInformation.getFutureAppSubmissionYear());
+    } else {
+      form.setPermanentDepositsMadeType(PermanentDeposits.THIS_APP);
     }
     if (padProjectInformation.getTemporaryDepositsMade() != null) {
-      form.setIsTemporaryDepositsMade(padProjectInformation.getTemporaryDepositsMade());
+      form.setTemporaryDepositsMade(padProjectInformation.getTemporaryDepositsMade());
       form.setTemporaryDepDescription(padProjectInformation.getTemporaryDepDescription());
     }
   }
@@ -154,15 +152,15 @@ public class ProjectInformationEntityMappingService {
       if (form.getPermanentDepositsMadeType().equals(PermanentDeposits.LATER_APP)) {
         padProjectInformation.setFutureAppSubmissionMonth(form.getFutureAppSubmissionMonth());
         padProjectInformation.setFutureAppSubmissionYear(form.getFutureAppSubmissionYear());
-      } else {
+      } else if (form.getPermanentDepositsMadeType().equals(PermanentDeposits.NONE)) {
         padProjectInformation.setPermanentDepositsMade(false);
       }
     }
 
-    if (form.getIsTemporaryDepositsMade() != null) {
-      padProjectInformation.setTemporaryDepositsMade(form.getIsTemporaryDepositsMade());
+    if (form.getTemporaryDepositsMade() != null) {
+      padProjectInformation.setTemporaryDepositsMade(form.getTemporaryDepositsMade());
       padProjectInformation.setTemporaryDepDescription(
-              form.getIsTemporaryDepositsMade() == false ? null : form.getTemporaryDepDescription());
+              form.getTemporaryDepositsMade() == false ? null : form.getTemporaryDepDescription());
     }
 
 

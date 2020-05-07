@@ -31,6 +31,10 @@ public class PwaApplicationDetail {
   @Enumerated(EnumType.STRING)
   private PwaApplicationStatus status;
 
+  private Instant statusLastModifiedTimestamp;
+
+  private Integer statusLastModifiedByWuaId;
+
   private Integer createdByWuaId;
 
   private Instant createdTimestamp;
@@ -43,9 +47,6 @@ public class PwaApplicationDetail {
 
   private Instant approvedTimestamp;
 
-  private Integer lastUpdatedByWuaId;
-
-  private Instant lastUpdatedTimestamp;
 
   private Boolean isLinkedToField;
 
@@ -64,6 +65,8 @@ public class PwaApplicationDetail {
     this.versionNo = versionNo;
     this.createdByWuaId = createdByWuaId;
     this.createdTimestamp = createdTimestamp;
+    this.statusLastModifiedByWuaId = createdByWuaId;
+    this.statusLastModifiedTimestamp = createdTimestamp;
   }
 
   public Integer getId() {
@@ -154,22 +157,6 @@ public class PwaApplicationDetail {
     this.approvedTimestamp = approvedTimestamp;
   }
 
-  public Integer getLastUpdatedByWuaId() {
-    return lastUpdatedByWuaId;
-  }
-
-  public void setLastUpdatedByWuaId(Integer lastUpdatedByWuaId) {
-    this.lastUpdatedByWuaId = lastUpdatedByWuaId;
-  }
-
-  public Instant getLastUpdatedTimestamp() {
-    return lastUpdatedTimestamp;
-  }
-
-  public void setLastUpdatedTimestamp(Instant lastUpdatedTimestamp) {
-    this.lastUpdatedTimestamp = lastUpdatedTimestamp;
-  }
-
   public Boolean getLinkedToField() {
     return isLinkedToField;
   }
@@ -190,8 +177,20 @@ public class PwaApplicationDetail {
     return this.pwaApplication.getApplicationType();
   }
 
+  public Instant getStatusLastModifiedTimestamp() {
+    return statusLastModifiedTimestamp;
+  }
+
+  public void setStatusLastModifiedTimestamp(Instant statusLastModifiedTimestamp) {
+    this.statusLastModifiedTimestamp = statusLastModifiedTimestamp;
+  }
+
   public boolean isFirstVersion() {
     return this.versionNo == 1;
+  }
+
+  public Integer getStatusLastModifiedByWuaId() {
+    return statusLastModifiedByWuaId;
   }
 
   public String getNotLinkedDescription() {
@@ -200,6 +199,10 @@ public class PwaApplicationDetail {
 
   public void setNotLinkedDescription(String notLinkedDescription) {
     this.notLinkedDescription = notLinkedDescription;
+  }
+
+  public void setStatusLastModifiedByWuaId(Integer statusLastModifiedByWuaId) {
+    this.statusLastModifiedByWuaId = statusLastModifiedByWuaId;
   }
 
   @Override
@@ -212,25 +215,26 @@ public class PwaApplicationDetail {
     }
     PwaApplicationDetail that = (PwaApplicationDetail) o;
     return tipFlag == that.tipFlag
-        && id.equals(that.id)
-        && pwaApplication.equals(that.pwaApplication)
-        && Objects.equals(versionNo, that.versionNo)
-        && status == that.status
-        && Objects.equals(createdByWuaId, that.createdByWuaId)
-        && Objects.equals(createdTimestamp, that.createdTimestamp)
-        && Objects.equals(submittedByWuaId, that.submittedByWuaId)
-        && Objects.equals(submittedTimestamp, that.submittedTimestamp)
-        && Objects.equals(approvedByWuaId, that.approvedByWuaId)
-        && Objects.equals(approvedTimestamp, that.approvedTimestamp)
-        && Objects.equals(lastUpdatedByWuaId, that.lastUpdatedByWuaId)
-        && Objects.equals(lastUpdatedTimestamp, that.lastUpdatedTimestamp)
-        && Objects.equals(isLinkedToField, that.isLinkedToField);
+            && Objects.equals(id, that.id)
+            && Objects.equals(pwaApplication, that.pwaApplication)
+            && Objects.equals(versionNo, that.versionNo)
+            && status == that.status
+            && Objects.equals(statusLastModifiedTimestamp, that.statusLastModifiedTimestamp)
+            && Objects.equals(statusLastModifiedByWuaId, that.statusLastModifiedByWuaId)
+            && Objects.equals(createdByWuaId, that.createdByWuaId)
+            && Objects.equals(createdTimestamp, that.createdTimestamp)
+            && Objects.equals(submittedByWuaId, that.submittedByWuaId)
+            && Objects.equals(submittedTimestamp, that.submittedTimestamp)
+            && Objects.equals(approvedByWuaId, that.approvedByWuaId)
+            && Objects.equals(approvedTimestamp, that.approvedTimestamp)
+            && Objects.equals(isLinkedToField, that.isLinkedToField)
+            && Objects.equals(notLinkedDescription, that.notLinkedDescription);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, createdByWuaId, createdTimestamp,
-        submittedByWuaId, submittedTimestamp, approvedByWuaId, approvedTimestamp, lastUpdatedByWuaId,
-        lastUpdatedTimestamp, isLinkedToField);
+    return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
+            statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
+            approvedByWuaId, approvedTimestamp, isLinkedToField, notLinkedDescription);
   }
 }

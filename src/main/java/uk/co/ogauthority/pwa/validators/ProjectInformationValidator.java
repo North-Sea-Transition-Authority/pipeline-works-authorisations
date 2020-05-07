@@ -3,9 +3,8 @@ package uk.co.ogauthority.pwa.validators;
 import java.time.LocalDate;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
@@ -13,7 +12,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
-public class ProjectInformationValidator implements Validator {
+public class ProjectInformationValidator implements SmartValidator {
 
 
   @Override
@@ -22,7 +21,12 @@ public class ProjectInformationValidator implements Validator {
   }
 
   @Override
-  public void validate(Object o, Errors errors) {
+  public void validate(Object target, Errors errors) {
+
+  }
+
+  @Override
+  public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (ProjectInformationForm) o;
     ValidatorUtils.validateDateIsPresentOrFuture(
         "proposedStart", "proposed start",
@@ -69,27 +73,28 @@ public class ProjectInformationValidator implements Validator {
         errors.rejectValue("latestCompletionYear", "latestCompletionYear.beforeStart", "");
       }
     }
-  }
 
-  public void validateDepositQuestions(Object o, Errors errors, PwaApplicationDetail pwaApplicationDetail) {
-    var form = (ProjectInformationForm) o;
-    if (!pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)) {
-      if (form.getPermanentDepositsMadeType() == null) {
-        errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
-                "Select 'Yes' if permanent deposits are being made.");
-      } else if (form.getPermanentDepositsMadeType().equals(PermanentDeposits.LATER_APP)) {
-        ValidatorUtils.validateDateIsPresentOrFuture(
-                "futureAppSubmission", "future application submission date",
-                form.getFutureAppSubmissionMonth(), form.getFutureAppSubmissionYear(), errors);
+
+    PwaApplicationDetail pwaApplicationDetail = (PwaApplicationDetail) validationHints[0];
+    if (!pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION)) {
+      if (!pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)) {
+        if (form.getPermanentDepositsMadeType() == null) {
+          errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
+                  "Select 'Yes' if permanent deposits are being made.");
+        } else if (form.getPermanentDepositsMadeType().equals(PermanentDeposits.LATER_APP)) {
+          ValidatorUtils.validateDateIsPresentOrFuture(
+                  "futureAppSubmission", "future application submission date",
+                  form.getFutureAppSubmissionMonth(), form.getFutureAppSubmissionYear(), errors);
+        }
       }
-    }
 
-    if (form.getIsTemporaryDepositsMade() == null) {
-      errors.rejectValue("isTemporaryDepositsMade", "isTemporaryDepositsMade.notSelected",
-              "Select 'Yes' if temporary deposits are being made.");
-    } else if (form.getIsTemporaryDepositsMade() == true && form.getTemporaryDepDescription() == null) {
-      errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
-              "Please explain why temporary deposits are being made.");
+      if (form.getTemporaryDepositsMade() == null) {
+        errors.rejectValue("temporaryDepositsMade", "temporaryDepositsMade.notSelected",
+                "Select 'Yes' if temporary deposits are being made.");
+      } else if (form.getTemporaryDepositsMade() == true && form.getTemporaryDepDescription() == null) {
+        errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
+                "Please explain why temporary deposits are being made.");
+      }
     }
   }
 

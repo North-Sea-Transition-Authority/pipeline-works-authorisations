@@ -131,7 +131,7 @@ public class ValidatorUtils {
       var date = LocalDate.of(year, month, 1);
       if (date.isBefore(LocalDate.now())) {
         errors.rejectValue(fieldPrefix + "Month",
-                String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()),
+                String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode(), "Month must not be in the past"),
                 "Month must not be in the past.");
         errors.rejectValue(fieldPrefix + "Year",
                 String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "Year must not be in the past");

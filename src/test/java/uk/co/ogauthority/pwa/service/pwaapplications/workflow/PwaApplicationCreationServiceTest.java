@@ -119,9 +119,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(detail.getCreatedTimestamp()).isEqualTo(fixedInstant);
     assertThat(detail.getSubmittedByWuaId()).isNull();
     assertThat(detail.getSubmittedTimestamp()).isNull();
-    assertThat(detail.getLastUpdatedByWuaId()).isNull();
-    assertThat(detail.getLastUpdatedTimestamp()).isNull();
-
   }
 
 
@@ -178,8 +175,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(detail.getCreatedTimestamp()).isEqualTo(fixedInstant);
     assertThat(detail.getSubmittedByWuaId()).isNull();
     assertThat(detail.getSubmittedTimestamp()).isNull();
-    assertThat(detail.getLastUpdatedByWuaId()).isNull();
-    assertThat(detail.getLastUpdatedTimestamp()).isNull();
 
   }
 }

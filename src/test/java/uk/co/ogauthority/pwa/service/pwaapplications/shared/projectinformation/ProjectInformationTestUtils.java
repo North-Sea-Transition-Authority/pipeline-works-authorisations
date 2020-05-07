@@ -60,7 +60,7 @@ public class ProjectInformationTestUtils {
     form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
     form.setFutureAppSubmissionMonth(07);
     form.setFutureAppSubmissionYear(2020);
-    form.setIsTemporaryDepositsMade(true);
+    form.setTemporaryDepositsMade(true);
     form.setTemporaryDepDescription("some description..");
 
     return form;

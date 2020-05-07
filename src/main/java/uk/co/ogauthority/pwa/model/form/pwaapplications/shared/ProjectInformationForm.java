@@ -59,7 +59,7 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private Integer futureAppSubmissionMonth;
   private Integer futureAppSubmissionYear;
 
-  private Boolean isTemporaryDepositsMade;
+  private Boolean temporaryDepositsMade;
   private String temporaryDepDescription;
 
 
@@ -271,12 +271,12 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.futureAppSubmissionYear = futureAppSubmissionYear;
   }
 
-  public Boolean getIsTemporaryDepositsMade() {
-    return isTemporaryDepositsMade;
+  public Boolean getTemporaryDepositsMade() {
+    return temporaryDepositsMade;
   }
 
-  public void setIsTemporaryDepositsMade(Boolean temporaryDepositsMade) {
-    isTemporaryDepositsMade = temporaryDepositsMade;
+  public void setTemporaryDepositsMade(Boolean temporaryDepositsMade) {
+    this.temporaryDepositsMade = temporaryDepositsMade;
   }
 
   public String getTemporaryDepDescription() {
