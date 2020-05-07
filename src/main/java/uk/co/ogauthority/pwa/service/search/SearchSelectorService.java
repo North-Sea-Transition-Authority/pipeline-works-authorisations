@@ -29,7 +29,11 @@ public class SearchSelectorService {
 
   public List<RestSearchItem> addManualEntry(String searchQuery, List<RestSearchItem> resultList) {
     if (!StringUtils.isBlank(searchQuery)) {
-      resultList.add(0, new RestSearchItem(SearchSelectable.FREE_TEXT_PREFIX + searchQuery, searchQuery));
+      var entryExists = resultList.stream()
+          .anyMatch(restSearchItem -> restSearchItem.getText().toLowerCase().equals(searchQuery.toLowerCase()));
+      if (!entryExists) {
+        resultList.add(0, new RestSearchItem(SearchSelectable.FREE_TEXT_PREFIX + searchQuery, searchQuery));
+      }
     }
     return resultList;
   }
