@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskCompletionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 
 public abstract class TaskListControllerTest extends AbstractControllerTest {
 
@@ -35,6 +36,8 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @MockBean(name = "contactServiceForTaskListService")
   protected PwaContactService pwaContactService;
 
+  @MockBean
+  protected PadPipelinesService padPipelinesService;
 
   @Before
   public void taskListControllerTestSetup() {
