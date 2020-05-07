@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.ApplicationHolderOrganisation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
@@ -33,7 +32,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.ApplicationHolderService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -48,7 +46,6 @@ public class InitialFieldsController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final DevukFieldService devukFieldService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
-  private final ApplicationHolderService applicationHolderService;
   private final PadFieldService padFieldService;
   private final PwaFieldFormValidator pwaFieldFormValidator;
 
@@ -56,13 +53,11 @@ public class InitialFieldsController {
   public InitialFieldsController(ApplicationBreadcrumbService breadcrumbService,
                                  DevukFieldService devukFieldService,
                                  PwaApplicationDetailService pwaApplicationDetailService,
-                                 ApplicationHolderService applicationHolderService,
                                  PadFieldService padFieldService,
                                  PwaFieldFormValidator pwaFieldFormValidator) {
     this.breadcrumbService = breadcrumbService;
     this.devukFieldService = devukFieldService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
-    this.applicationHolderService = applicationHolderService;
     this.padFieldService = padFieldService;
     this.pwaFieldFormValidator = pwaFieldFormValidator;
   }
@@ -73,8 +68,6 @@ public class InitialFieldsController {
         .addObject("backUrl",
             ReverseRouter.route(on(InitialTaskListController.class)
                 .viewTaskList(pwaApplicationDetail.getMasterPwaApplicationId(), null)));
-
-    var holders = applicationHolderService.getHoldersFromApplicationDetail(pwaApplicationDetail);
 
     modelAndView.addObject("fields",
         padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));

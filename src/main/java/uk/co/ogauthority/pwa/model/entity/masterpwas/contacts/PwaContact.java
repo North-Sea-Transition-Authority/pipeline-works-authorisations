@@ -9,12 +9,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.converters.PwaContactRoleConverter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
-@Entity(name = "pwa_application_contacts")
+@Entity
+@Table(name = "pwa_application_contacts")
 public class PwaContact {
 
   @Id

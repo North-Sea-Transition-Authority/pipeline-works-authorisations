@@ -29,7 +29,7 @@ public class TopMenuService {
     List<TopMenuItem> menuItems = new ArrayList<>();
 
     if (systemAreaAccessService.canAccessWorkArea(user)) {
-      menuItems.add(new TopMenuItem(WORK_AREA_TITLE, ReverseRouter.route(on(WorkAreaController.class).renderWorkArea())));
+      menuItems.add(new TopMenuItem(WORK_AREA_TITLE, ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null))));
     }
 
     if (systemAreaAccessService.canAccessTeamManagement(user)) {

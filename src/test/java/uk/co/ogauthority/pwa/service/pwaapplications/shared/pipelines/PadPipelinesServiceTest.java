@@ -16,9 +16,15 @@ import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelinesServiceTest {
@@ -43,21 +49,24 @@ public class PadPipelinesServiceTest {
     var form = new PipelineHeaderForm();
 
     form.setFromLocation("from");
-    form.setFromLatDeg(55);
-    form.setFromLatMin(30);
-    form.setFromLatSec(BigDecimal.valueOf(22.22));
-    form.setFromLongDeg(13);
-    form.setFromLongMin(22);
-    form.setFromLongSec(BigDecimal.valueOf(12.1));
-    form.setFromLongDirection(LongitudeDirection.EAST);
+    var fromCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
+            new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
+        ), fromCoordinateForm
+    );
+    form.setFromCoordinateForm(fromCoordinateForm);
+
     form.setToLocation("to");
-    form.setToLatDeg(54);
-    form.setToLatMin(22);
-    form.setToLatSec(BigDecimal.valueOf(25));
-    form.setToLongDeg(22);
-    form.setToLongMin(21);
-    form.setToLongSec(BigDecimal.valueOf(1));
-    form.setToLongDirection(LongitudeDirection.WEST);
+    var toCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(46, 46, BigDecimal.valueOf(46), LatitudeDirection.SOUTH),
+            new LongitudeCoordinate(6, 6, BigDecimal.valueOf(6.66), LongitudeDirection.WEST)
+        ), toCoordinateForm
+    );
+    form.setToCoordinateForm(toCoordinateForm);
 
     form.setLength(BigDecimal.valueOf(65.66));
     form.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
@@ -74,23 +83,24 @@ public class PadPipelinesServiceTest {
     newPipeline.prePersist();
 
     assertThat(newPipeline.getFromLocation()).isEqualTo(form.getFromLocation());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDegrees")).isEqualTo(form.getFromLatDeg());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeMinutes")).isEqualTo(form.getFromLatMin());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeSeconds")).isEqualTo(form.getFromLatSec());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDirection")).isEqualTo(form.getFromLatDirection());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeDegrees")).isEqualTo(form.getFromLongDeg());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeMinutes")).isEqualTo(form.getFromLongMin());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeSeconds")).isEqualTo(form.getFromLongSec());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeDirection")).isEqualTo(form.getFromLongDirection());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLongitudeDirection());
 
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeDegrees")).isEqualTo(form.getToLatDeg());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeMinutes")).isEqualTo(form.getToLatMin());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeSeconds")).isEqualTo(form.getToLatSec());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeDirection")).isEqualTo(form.getToLatDirection());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeDegrees")).isEqualTo(form.getToLongDeg());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeMinutes")).isEqualTo(form.getToLongMin());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeSeconds")).isEqualTo(form.getToLongSec());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeDirection")).isEqualTo(form.getToLongDirection());
+    assertThat(newPipeline.getToLocation()).isEqualTo(form.getToLocation());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeDirection")).isEqualTo(form.getToCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeDirection")).isEqualTo(form.getToCoordinateForm().getLongitudeDirection());
 
     assertThat(newPipeline.getLength()).isEqualTo(form.getLength());
     assertThat(newPipeline.getPipelineType()).isEqualTo(form.getPipelineType());

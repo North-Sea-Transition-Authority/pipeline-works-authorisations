@@ -37,7 +37,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
@@ -49,9 +48,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
-
-  @MockBean
-  private PadPipelinesService padPipelinesService;
 
   @MockBean
   private PipelineHeaderFormValidator validator;

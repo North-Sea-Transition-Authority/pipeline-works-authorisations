@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextParams;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
 
@@ -52,7 +53,7 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
                                 NativeWebRequest nativeWebRequest,
                                 WebDataBinderFactory webDataBinderFactory) throws Exception {
 
-    var applicationId = resolveApplicationIdFromRequest(nativeWebRequest);
+    int applicationId = resolveIdFromRequest(nativeWebRequest, applicationIdParam);
 
     var authenticatedUser = SecurityUtils.getAuthenticatedUserFromSecurityContext()
         .orElseThrow(
@@ -60,7 +61,7 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
 
     if (ignoreAllChecks(methodParameter)) {
       LOGGER.debug("Ignoring all application context checks");
-      return pwaApplicationContextService.getApplicationContext(applicationId, authenticatedUser);
+      return pwaApplicationContextService.validateAndCreate(new PwaApplicationContextParams(applicationId, authenticatedUser));
     }
 
     Set<PwaApplicationPermission> requiredPermissions = getApplicationPermissionsCheck(methodParameter);
@@ -73,26 +74,48 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
           methodParameter.getContainingClass().getName()));
     }
 
-    return pwaApplicationContextService.createAndPerformApplicationContextChecks(
-        applicationId,
-        authenticatedUser,
-        requiredPermissions,
-        appStatus,
-        applicationTypes);
+    var contextParams = new PwaApplicationContextParams(applicationId, authenticatedUser)
+        .requiredAppStatus(appStatus)
+        .requiredAppTypes(applicationTypes)
+        .requiredUserPermissions(requiredPermissions)
+        .withPadPipelineId(resolveIdFromRequestOrNull(nativeWebRequest, "padPipelineId"));
+
+    return pwaApplicationContextService.validateAndCreate(contextParams);
 
   }
 
-  private int resolveApplicationIdFromRequest(NativeWebRequest nativeWebRequest) {
+  /**
+   * Return ID parameter in the URI, throw exception if any issues encountered.
+   */
+  private Integer resolveIdFromRequest(NativeWebRequest nativeWebRequest, String requestParam) {
     @SuppressWarnings("unchecked")
     var pathVariables = (Map<String, String>) Objects.requireNonNull(
         nativeWebRequest.getNativeRequest(HttpServletRequest.class))
         .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
-    try {
-      return Integer.parseInt(pathVariables.get(applicationIdParam));
-    } catch (NumberFormatException e) {
-      throw new PwaEntityNotFoundException("PWA applications must have numeric IDs");
+    if (pathVariables.get(requestParam) == null) {
+      throw new NullPointerException(String.format("%s not found in URI", requestParam));
     }
+
+    try {
+      return Integer.parseInt(pathVariables.get(requestParam));
+    } catch (NumberFormatException e) {
+      throw new PwaEntityNotFoundException(String.format("PWA requests must have numeric IDs: %s - %s",
+          requestParam, pathVariables.get(requestParam)));
+    }
+  }
+
+  /**
+   * If ID parameter exists in the URI, return the integer, otherwise return null.
+   */
+  private Integer resolveIdFromRequestOrNull(NativeWebRequest nativeWebRequest, String requestParam) {
+
+    try {
+      return resolveIdFromRequest(nativeWebRequest, requestParam);
+    } catch (NullPointerException e) {
+      return null;
+    }
+
   }
 
   /**

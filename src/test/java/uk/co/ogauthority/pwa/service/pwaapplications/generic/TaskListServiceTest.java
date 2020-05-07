@@ -91,7 +91,7 @@ public class TaskListServiceTest {
 
       pwaApplication.setApplicationType(applicationType);
 
-      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys("Application contacts", "Holders, users, operators, and owners");
+      assertThat(taskListService.getAppInfoTasks(pwaApplication)).containsOnlyKeys("Application contacts");
 
     });
 
