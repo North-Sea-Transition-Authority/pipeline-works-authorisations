@@ -29,4 +29,8 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Serializ
   public Collection<PwaUserPrivilege> getUserPrivileges() {
     return userPrivileges;
   }
+
+  public boolean hasPrivilege(PwaUserPrivilege pwaUserPrivilege) {
+    return userPrivileges.contains(pwaUserPrivilege);
+  }
 }

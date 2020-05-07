@@ -20,6 +20,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -32,6 +34,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTes
 @RunWith(MockitoJUnitRunner.class)
 public class WorkAreaServiceTest {
 
+  private static final int REQUESTED_PAGE = 0;
+
   @Mock
   private PwaContactService pwaContactService;
   @Mock
@@ -41,7 +45,13 @@ public class WorkAreaServiceTest {
 
   private WorkAreaService workAreaService;
 
-  private WebUserAccount wua = new WebUserAccount(10);
+  private AuthenticatedUserAccount workAreaUser = new AuthenticatedUserAccount(
+      new WebUserAccount(10),
+      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
+
+  private AuthenticatedUserAccount adminWorkAreUser = new AuthenticatedUserAccount(
+      new WebUserAccount(10),
+      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
   @Before
   public void setup() {
@@ -54,22 +64,20 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResultPage_zeroResults() {
+  public void getWorkAreaResultPage_zeroResults_userIsWorkAreaUser() {
 
-    var requestedPage = 0;
+    var fakePage = new PageImpl<ApplicationDetailSearchItem>(List.of(), getDefaultWorkAreaViewPageable(REQUESTED_PAGE), 0);
+    when(applicationDetailSearcher.searchByPwaContacts(any(), any())).thenReturn(fakePage);
 
-    var fakePage = new PageImpl<ApplicationDetailSearchItem>(List.of(), getDefaultWorkAreaPageable(requestedPage), 0);
-    when(applicationDetailSearcher.search(any(), any())).thenReturn(fakePage);
-
-    var workareaPage = workAreaService.getWorkAreaResultPage(wua, WorkAreaTab.OPEN, requestedPage);
+    var workareaPage = workAreaService.getWorkAreaResultPage(workAreaUser, WorkAreaTab.OPEN, REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(0);
     verify(pwaContactService, times(1)).getPwaContactRolesForWebUserAccount(
-        wua,
+        workAreaUser,
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).search(
-        getDefaultWorkAreaPageable(requestedPage),
+    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
+        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
         Set.of()
     );
 
@@ -77,22 +85,36 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusDraft() {
+  public void getWorkAreaResultPage_zeroResults_userIsAdmin() {
+    setupFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
 
-    var requestedPage = 0;
+    var workareaPage = workAreaService.getWorkAreaResultPage(adminWorkAreUser, WorkAreaTab.OPEN, REQUESTED_PAGE);
+    assertThat(workareaPage.getTotalElements()).isEqualTo(0);
+
+    verify(applicationDetailSearcher, times(1)).searchByStatus(
+        getAdminWorkAreViewPageable(REQUESTED_PAGE),
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+    );
+
+    verifyNoInteractions(pwaApplicationRedirectService);
+  }
+
+  @Test
+  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusDraft_userIsWorkAreaUser() {
+
     var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
 
-    setupFakeApplicationSearchResultPage(List.of(searchItem), requestedPage);
+    setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
 
-    var workareaPage = workAreaService.getWorkAreaResultPage(wua, WorkAreaTab.OPEN, requestedPage);
+    var workareaPage = workAreaService.getWorkAreaResultPage(workAreaUser, WorkAreaTab.OPEN, REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(1);
     verify(pwaContactService, times(1)).getPwaContactRolesForWebUserAccount(
-        wua,
+        workAreaUser,
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).search(
-        getDefaultWorkAreaPageable(requestedPage),
+    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
+        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
         Set.of()
     );
 
@@ -102,22 +124,39 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusInitialSubmission() {
+  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusInitialSubmission_userIsAdminUser() {
 
-    var requestedPage = 0;
     var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    setupFakeApplicationSearchResultPage(List.of(searchItem), requestedPage);
+    setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
 
-    var workareaPage = workAreaService.getWorkAreaResultPage(wua, WorkAreaTab.OPEN, requestedPage);
+    var workareaPage = workAreaService.getWorkAreaResultPage(adminWorkAreUser, WorkAreaTab.OPEN, REQUESTED_PAGE);
+    assertThat(workareaPage.getTotalElements()).isEqualTo(1);
+
+    verify(applicationDetailSearcher, times(1)).searchByStatus(
+        getAdminWorkAreViewPageable(REQUESTED_PAGE),
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+    );
+
+    verifyNoInteractions(pwaApplicationRedirectService);
+
+  }
+
+  @Test
+  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusInitialSubmission_userIsWorkAreaUser() {
+    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
+
+    var workareaPage = workAreaService.getWorkAreaResultPage(workAreaUser, WorkAreaTab.OPEN, REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(1);
     verify(pwaContactService, times(1)).getPwaContactRolesForWebUserAccount(
-        wua,
+        workAreaUser,
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).search(
-        getDefaultWorkAreaPageable(requestedPage),
+    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
+        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
         Set.of()
     );
 
@@ -125,18 +164,25 @@ public class WorkAreaServiceTest {
 
   }
 
-  private Pageable getDefaultWorkAreaPageable(int requestedPage) {
+  private Pageable getDefaultWorkAreaViewPageable(int requestedPage) {
     return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
         Sort.by(Sort.Direction.DESC, "padCreatedTimestamp"));
   }
 
-  private Page<ApplicationDetailSearchItem> setupFakeApplicationSearchResultPage(List<ApplicationDetailSearchItem> results, int page){
+  private Pageable getAdminWorkAreViewPageable(int requestedPage) {
+    return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
+        Sort.by(Sort.Direction.ASC, "padProposedStart"));
+  }
+
+  private Page<ApplicationDetailSearchItem> setupFakeApplicationSearchResultPage(
+      List<ApplicationDetailSearchItem> results, int page) {
     var fakePage = new PageImpl<>(
         results,
-        getDefaultWorkAreaPageable(page),
+        getDefaultWorkAreaViewPageable(page),
         results.size());
 
-    when(applicationDetailSearcher.search(any(), any())).thenReturn(fakePage);
+    when(applicationDetailSearcher.searchByPwaContacts(any(), any())).thenReturn(fakePage);
+    when(applicationDetailSearcher.searchByStatus(any(), any())).thenReturn(fakePage);
 
     return fakePage;
   }
