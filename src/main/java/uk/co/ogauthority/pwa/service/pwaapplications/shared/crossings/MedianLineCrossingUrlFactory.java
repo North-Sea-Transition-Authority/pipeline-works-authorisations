@@ -20,7 +20,7 @@ public class MedianLineCrossingUrlFactory {
 
   public String getAddMedianLineCrossingUrl() {
     return ReverseRouter.route(on(MedianLineCrossingController.class)
-        .renderMedianLineForm(applicationType, pwaApplicationId, null, null));
+        .renderAddMedianLineForm(applicationType, pwaApplicationId, null, null));
   }
 
   public String getMedianLineCrossingDocumentsUrl() {

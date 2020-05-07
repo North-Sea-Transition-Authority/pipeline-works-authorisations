@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadBlockCrossingFile;
 
@@ -12,5 +13,8 @@ public interface PadBlockCrossingFileRepository extends CrudRepository<PadBlockC
 
   Optional<PadBlockCrossingFile> findByPwaApplicationDetailAndFileId(PwaApplicationDetail pwaApplicationDetail,
                                                                      String fileId);
+
+  int countAllByPwaApplicationDetailAndFileLinkStatus(PwaApplicationDetail pwaApplicationDetail,
+                                                      ApplicationFileLinkStatus status);
 
 }

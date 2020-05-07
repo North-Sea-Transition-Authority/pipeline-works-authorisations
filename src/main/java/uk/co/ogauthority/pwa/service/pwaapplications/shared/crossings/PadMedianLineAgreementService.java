@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
+import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -16,7 +19,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
 @Service
-public class PadMedianLineAgreementService implements ApplicationFormSectionService {
+public class PadMedianLineAgreementService implements ApplicationFormSectionService, TaskListSection {
 
   private final PadMedianLineAgreementRepository padMedianLineAgreementRepository;
   private final MedianLineAgreementValidator medianLineAgreementValidator;
@@ -99,5 +102,20 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
       medianLineAgreementValidator.validate(form, bindingResult);
     }
     return bindingResult;
+  }
+
+  @Override
+  public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
+    return false;
+  }
+
+  @Override
+  public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return true;
+  }
+
+  @Override
+  public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
+    return List.of();
   }
 }

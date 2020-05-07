@@ -238,5 +238,4 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     breadcrumbService.fromCrossings(applicationContext.getPwaApplication(), modelAndView, "Edit block crossing");
     return modelAndView;
   }
-
 }

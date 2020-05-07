@@ -22,17 +22,21 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCros
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
+import uk.co.ogauthority.pwa.model.tasklist.TagColour;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 
 @Service
-public class BlockCrossingService {
+public class BlockCrossingService implements TaskListSection {
 
   private final PadCrossedBlockRepository padCrossedBlockRepository;
   private final PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository;
   private final PearsBlockService pearsBlockService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final BlockCrossingFileService blockCrossingFileService;
   private final Clock clock;
 
   @Autowired
@@ -40,12 +44,14 @@ public class BlockCrossingService {
                               PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository,
                               PearsBlockService pearsBlockService,
                               PortalOrganisationsAccessor portalOrganisationsAccessor,
+                              BlockCrossingFileService blockCrossingFileService,
                               @Qualifier("utcClock") Clock clock) {
 
     this.padCrossedBlockRepository = padCrossedBlockRepository;
     this.padCrossedBlockOwnerRepository = padCrossedBlockOwnerRepository;
     this.pearsBlockService = pearsBlockService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.blockCrossingFileService = blockCrossingFileService;
     this.clock = clock;
   }
 
@@ -221,4 +227,23 @@ public class BlockCrossingService {
   }
 
 
+  @Override
+  public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
+    return false;
+  }
+
+  @Override
+  public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return true;
+  }
+
+  @Override
+  public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
+    var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
+    var documentUploadCount = blockCrossingFileService.getDocumentUploadCount(pwaApplicationDetail);
+    return List.of(
+        new TaskListLabel(String.format("%d blocks", blockCount), TagColour.MULTIPLE),
+        new TaskListLabel(String.format("%d documents", documentUploadCount), TagColour.MULTIPLE)
+    );
+  }
 }

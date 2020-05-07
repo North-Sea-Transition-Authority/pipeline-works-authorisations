@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -34,6 +35,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/median-line")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
@@ -54,7 +57,7 @@ public class MedianLineCrossingController {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
   }
 
-  private ModelAndView getMedianLineModelAndView(PwaApplicationDetail detail) {
+  private ModelAndView getAddMedianLineModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/medianLine")
         .addObject("errorList", List.of())
         .addObject("crossingOptions", MedianLineStatus.stream()
@@ -64,9 +67,17 @@ public class MedianLineCrossingController {
     return modelAndView;
   }
 
+  private ModelAndView getMedianLineOverviewModelAndView(PwaApplicationDetail detail) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/medianLineOverview")
+        .addObject("errorList", List.of())
+        .addObject("crossingOptions", MedianLineStatus.stream()
+            .sorted(Comparator.comparing(MedianLineStatus::getDisplayOrder))
+            .collect(StreamUtils.toLinkedHashMap(Enum::name, MedianLineStatus::getDisplayText)));
+    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Median line");
+    return modelAndView;
+  }
+
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderMedianLineForm(@PathVariable("applicationType")
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            @PathVariable("applicationId") Integer applicationId,
@@ -75,18 +86,37 @@ public class MedianLineCrossingController {
     var detail = applicationContext.getApplicationDetail();
     var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
     padMedianLineAgreementService.mapEntityToForm(entity, form);
-    return getMedianLineModelAndView(detail);
+    var modelAndView = getAddMedianLineModelAndView(detail);
+    if (entity.getAgreementStatus() != null) {
+      modelAndView.addObject("medianLineAgreementView", new MedianLineAgreementView(
+          entity.getAgreementStatus(),
+          entity.getNegotiatorName(),
+          entity.getNegotiatorEmail()
+      ));
+    }
+    return modelAndView;
   }
 
-  @PostMapping(params = "Save and complete later")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  public ModelAndView postContinueMedianLine(@PathVariable("applicationType")
+
+  @GetMapping("/add")
+  public ModelAndView renderAddMedianLineForm(@PathVariable("applicationType")
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                              @PathVariable("applicationId") Integer applicationId,
+                                              @ModelAttribute("form") MedianLineAgreementsForm form,
+                                              PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
+    padMedianLineAgreementService.mapEntityToForm(entity, form);
+    return getAddMedianLineModelAndView(detail);
+  }
+
+  @PostMapping(path = "/add", params = "Save and complete later")
+  public ModelAndView postAddContinueMedianLine(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                             @PathVariable("applicationId") Integer applicationId,
-                                             @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
-                                             BindingResult bindingResult,
-                                             PwaApplicationContext applicationContext) {
+                                                @PathVariable("applicationId") Integer applicationId,
+                                                @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
+                                                BindingResult bindingResult,
+                                                PwaApplicationContext applicationContext) {
     padMedianLineAgreementService.validate(
         form,
         bindingResult,
@@ -97,15 +127,13 @@ public class MedianLineCrossingController {
     return postValidateSaveAndRedirect(applicationContext, form, bindingResult);
   }
 
-  @PostMapping(params = "Complete")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  public ModelAndView postCompleteMedianLine(@PathVariable("applicationType")
+  @PostMapping(path = "/add", params = "Complete")
+  public ModelAndView postAddCompleteMedianLine(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                             @PathVariable("applicationId") Integer applicationId,
-                                             @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
-                                             BindingResult bindingResult,
-                                             PwaApplicationContext applicationContext) {
+                                                @PathVariable("applicationId") Integer applicationId,
+                                                @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
+                                                BindingResult bindingResult,
+                                                PwaApplicationContext applicationContext) {
     padMedianLineAgreementService.validate(
         form,
         bindingResult,
@@ -119,7 +147,7 @@ public class MedianLineCrossingController {
                                                    MedianLineAgreementsForm form, BindingResult bindingResult) {
     // TODO: PWA-393 Add file uploads
     var detail = applicationContext.getApplicationDetail();
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getMedianLineModelAndView(detail), () -> {
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getAddMedianLineModelAndView(detail), () -> {
       var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
       padMedianLineAgreementService.saveEntityUsingForm(entity, form);
       return ReverseRouter.redirect(on(CrossingAgreementsController.class)

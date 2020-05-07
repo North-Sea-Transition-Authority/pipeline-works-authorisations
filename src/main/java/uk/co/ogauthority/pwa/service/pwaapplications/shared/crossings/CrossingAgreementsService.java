@@ -1,12 +1,19 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 
 @Service
 public class CrossingAgreementsService implements ApplicationFormSectionService {
@@ -14,14 +21,17 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final BlockCrossingFileService blockCrossingFileService;
   private final PadCableCrossingService padCableCrossingService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public CrossingAgreementsService(PadMedianLineAgreementService padMedianLineAgreementService,
                                    BlockCrossingFileService blockCrossingFileService,
-                                   PadCableCrossingService padCableCrossingService) {
+                                   PadCableCrossingService padCableCrossingService,
+                                   CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.padCableCrossingService = padCableCrossingService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
   public CrossingAgreementsValidationResult getValidationResult(PwaApplicationDetail detail) {
@@ -41,6 +51,28 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
 
     return new CrossingAgreementsValidationResult(validSections);
 
+  }
+
+  public List<TaskListEntry> getTaskListItems(PwaApplicationDetail pwaApplicationDetail) {
+    var list = new ArrayList<TaskListEntry>();
+
+    var sortedTasks = CrossingAgreementTask.stream()
+        .sorted(Comparator.comparing(CrossingAgreementTask::getDisplayOrder))
+        .collect(Collectors.toList());
+
+    for (var task : sortedTasks) {
+      var service = crossingAgreementsTaskListService.getServiceBean(task);
+      if (service.getCanShowInTaskList(pwaApplicationDetail)) {
+        list.add(new TaskListEntry(
+            task.getDisplayText(),
+            crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, task),
+            service.isTaskListEntryCompleted(pwaApplicationDetail),
+            service.getTaskListLabels(pwaApplicationDetail)
+        ));
+      }
+    }
+
+    return list;
   }
 
   @Override

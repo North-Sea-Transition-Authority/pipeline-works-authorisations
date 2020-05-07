@@ -274,6 +274,11 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
     );
   }
 
+  public int getDocumentUploadCount(PwaApplicationDetail pwaApplicationDetail) {
+    return padBlockCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail,
+        ApplicationFileLinkStatus.FULL);
+  }
+
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {

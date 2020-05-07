@@ -55,7 +55,7 @@ public enum ApplicationTask {
       50),
 
   CROSSING_AGREEMENTS(
-      "Crossing agreements",
+      "Blocks and crossing agreements",
       CrossingAgreementsController.class,
       CrossingAgreementsService.class,
       60),

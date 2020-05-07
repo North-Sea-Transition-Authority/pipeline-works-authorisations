@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -70,7 +69,7 @@ public class CrossingAgreementsController {
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/overview")
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/taskList")
         .addObject("medianLineUrlFactory", new MedianLineCrossingUrlFactory(detail))
         .addObject("medianLineFiles",
             medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
@@ -83,6 +82,8 @@ public class CrossingAgreementsController {
         .addObject("cableCrossingFiles",
             cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
+
+    modelAndView.addObject("tasks", crossingAgreementsService.getTaskListItems(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Crossings");
     return modelAndView;
   }
@@ -97,14 +98,6 @@ public class CrossingAgreementsController {
                                                        AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
     var modelAndView = getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail());
-    var entity = padMedianLineAgreementService.getMedianLineAgreement(detail);
-    if (entity.getAgreementStatus() != null) {
-      modelAndView.addObject("medianLineAgreementView", new MedianLineAgreementView(
-          entity.getAgreementStatus(),
-          entity.getNegotiatorName(),
-          entity.getNegotiatorEmail()
-      ));
-    }
     return modelAndView;
   }
 
