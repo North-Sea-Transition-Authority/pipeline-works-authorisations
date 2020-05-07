@@ -215,26 +215,26 @@ public class PwaApplicationDetail {
     }
     PwaApplicationDetail that = (PwaApplicationDetail) o;
     return tipFlag == that.tipFlag
-            && Objects.equals(id, that.id)
-            && Objects.equals(pwaApplication, that.pwaApplication)
-            && Objects.equals(versionNo, that.versionNo)
-            && status == that.status
-            && Objects.equals(statusLastModifiedTimestamp, that.statusLastModifiedTimestamp)
-            && Objects.equals(statusLastModifiedByWuaId, that.statusLastModifiedByWuaId)
-            && Objects.equals(createdByWuaId, that.createdByWuaId)
-            && Objects.equals(createdTimestamp, that.createdTimestamp)
-            && Objects.equals(submittedByWuaId, that.submittedByWuaId)
-            && Objects.equals(submittedTimestamp, that.submittedTimestamp)
-            && Objects.equals(approvedByWuaId, that.approvedByWuaId)
-            && Objects.equals(approvedTimestamp, that.approvedTimestamp)
-            && Objects.equals(isLinkedToField, that.isLinkedToField)
-            && Objects.equals(notLinkedDescription, that.notLinkedDescription);
+        && Objects.equals(id, that.id)
+        && Objects.equals(pwaApplication, that.pwaApplication)
+        && Objects.equals(versionNo, that.versionNo)
+        && status == that.status
+        && Objects.equals(statusLastModifiedTimestamp, that.statusLastModifiedTimestamp)
+        && Objects.equals(statusLastModifiedByWuaId, that.statusLastModifiedByWuaId)
+        && Objects.equals(createdByWuaId, that.createdByWuaId)
+        && Objects.equals(createdTimestamp, that.createdTimestamp)
+        && Objects.equals(submittedByWuaId, that.submittedByWuaId)
+        && Objects.equals(submittedTimestamp, that.submittedTimestamp)
+        && Objects.equals(approvedByWuaId, that.approvedByWuaId)
+        && Objects.equals(approvedTimestamp, that.approvedTimestamp)
+        && Objects.equals(isLinkedToField, that.isLinkedToField)
+        && Objects.equals(notLinkedDescription, that.notLinkedDescription);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
-            statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
-            approvedByWuaId, approvedTimestamp, isLinkedToField, notLinkedDescription);
+        statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
+        approvedByWuaId, approvedTimestamp, isLinkedToField, notLinkedDescription);
   }
 }

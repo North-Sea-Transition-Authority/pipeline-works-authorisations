@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.context;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,42 +15,44 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 
 @Service
 public class PwaApplicationContextService {
 
   private final PwaApplicationDetailService detailService;
   private final PwaContactService pwaContactService;
+  private final PadPipelinesService padPipelinesService;
 
   @Autowired
   public PwaApplicationContextService(PwaApplicationDetailService detailService,
-                                      PwaContactService pwaContactService) {
+                                      PwaContactService pwaContactService,
+                                      PadPipelinesService padPipelinesService) {
     this.detailService = detailService;
     this.pwaContactService = pwaContactService;
+    this.padPipelinesService = padPipelinesService;
   }
 
   /**
    * Construct an application context to provide common objects associated with a PWA application and perform standard permission checks.
-   * @param applicationId for the PWA application
-   * @param authenticatedUser trying to access the PWA application
-   * @param requiredPermissions user must have to be able to access the PWA application
-   * @param appStatus that the PWA application must be in
-   * @param applicationTypes the application must be one of
    * @return application context if app is in right state and user has right privileges, throw relevant exceptions otherwise
    */
-  public PwaApplicationContext createAndPerformApplicationContextChecks(Integer applicationId,
-                                                                        AuthenticatedUserAccount authenticatedUser,
-                                                                        Set<PwaApplicationPermission> requiredPermissions,
-                                                                        PwaApplicationStatus appStatus,
-                                                                        Set<PwaApplicationType> applicationTypes) {
+  public PwaApplicationContext validateAndCreate(PwaApplicationContextParams contextParams) {
 
-    var context = getApplicationContext(applicationId, authenticatedUser);
+    var applicationId = contextParams.getApplicationId();
+    var context = getApplicationContext(applicationId, contextParams.getAuthenticatedUserAccount());
 
-    performAppStatusCheck(appStatus, context.getApplicationDetail());
+    performAppStatusCheck(contextParams.getStatus(), context.getApplicationDetail());
+    performApplicationTypeCheck(contextParams.getTypes(), context.getApplicationType(), applicationId);
+    performPrivilegeCheck(
+        contextParams.getPermissions(),
+        context.getUserRoles(),
+        contextParams.getAuthenticatedUserAccount(),
+        applicationId);
 
-    performApplicationTypeCheck(applicationTypes, context.getApplicationType(), applicationId);
-
-    performPrivilegeCheck(requiredPermissions, context.getUserRoles(), authenticatedUser, applicationId);
+    if (contextParams.getPadPipelineId() != null) {
+      getAndSetPipeline(context, contextParams.getPadPipelineId());
+    }
 
     return context;
 
@@ -69,6 +72,9 @@ public class PwaApplicationContextService {
   }
 
 
+  /**
+   * If the application status matches the required one, pass, otherwise throw relevant exception.
+   */
   private void performAppStatusCheck(PwaApplicationStatus expectedStatus,
                                      PwaApplicationDetail pwaApplicationDetail) {
 
@@ -84,6 +90,9 @@ public class PwaApplicationContextService {
 
   }
 
+  /**
+   * If the application type matches the required one, pass, otherwise throw relevant exception.
+   */
   private void performApplicationTypeCheck(Set<PwaApplicationType> applicationTypes,
                                            PwaApplicationType applicationType,
                                            int applicationId) {
@@ -98,6 +107,9 @@ public class PwaApplicationContextService {
     }
   }
 
+  /**
+   * If the user has ALL of the required permissions then pass, otherwise throw a relevant exception.
+   */
   private void performPrivilegeCheck(Set<PwaApplicationPermission> requiredPermissions,
                                      Set<PwaContactRole> usersRoles,
                                      AuthenticatedUserAccount user,
@@ -129,6 +141,24 @@ public class PwaApplicationContextService {
             requiredPermissions
         )
     );
+  }
+
+  /**
+   * If a pipeline is found for the requested ID (and it's on the same app as the context), then add to the context.
+   * Otherwise throw a relevant exception.
+   */
+  private void getAndSetPipeline(PwaApplicationContext context, int padPipelineId) {
+
+    var pipeline = padPipelinesService.getById(padPipelineId);
+
+    if (!Objects.equals(pipeline.getPwaApplicationDetail(), context.getApplicationDetail())) {
+      throw new AccessDeniedException(String.format("PadPipeline app detail (%s) didn't match the app context's app detail (%s)",
+          pipeline.getPwaApplicationDetail().getId(),
+          context.getApplicationDetail().getId()));
+    }
+
+    context.setPadPipeline(pipeline);
+
   }
 
 }

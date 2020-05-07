@@ -13,7 +13,7 @@ public class Pipeline {
   private Integer id;
 
   @ManyToOne
-  @JoinColumn(name = "master_pwa_id")
+  @JoinColumn(name = "pwa_id")
   private MasterPwa masterPwa;
 
   private String pipelineNumber;

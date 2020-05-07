@@ -41,7 +41,7 @@ public class ApplicationSubmissionSummary {
   }
 
   public String getFormattedSubmissionTime() {
-    var stringFormat = DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm:ss");
+    var stringFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     return this.submissionDateTime.format(stringFormat);
   }
 }

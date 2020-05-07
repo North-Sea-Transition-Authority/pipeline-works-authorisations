@@ -22,4 +22,9 @@ public class TestController {
     return new ModelAndView("testTemplates/requiresAuth", "user", userAccount);
   }
 
+  @GetMapping("/maps-test")
+  public ModelAndView maps() {
+    return new ModelAndView("testTemplates/mapsTest");
+  }
+
 }

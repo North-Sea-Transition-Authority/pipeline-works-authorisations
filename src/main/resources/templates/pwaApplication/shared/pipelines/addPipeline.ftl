@@ -19,8 +19,20 @@
 
             <@fdsTextInput.textInput path="form.fromLocation" labelText="Structure" />
 
-            <@locationInput.locationInput degreesLocationPath="form.fromLatDeg" minutesLocationPath="form.fromLatMin" secondsLocationPath="form.fromLatSec" />
-            <@locationInput.locationInput degreesLocationPath="form.fromLongDeg" minutesLocationPath="form.fromLongMin" secondsLocationPath="form.fromLongSec" direction="EW_MANUAL" directionPath="form.fromLongDirection" directionList=longDirections />
+            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
+                                          minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
+                                          secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
+                                          formId="fromLatitude"
+                                          labelText="Start point latitude"/>
+
+            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.longitudeDegrees"
+                                          minutesLocationPath="form.fromCoordinateForm.longitudeMinutes"
+                                          secondsLocationPath="form.fromCoordinateForm.longitudeSeconds"
+                                          direction="EW"
+                                          directionPath="form.fromCoordinateForm.longitudeDirection"
+                                          directionList=longDirections
+                                          formId="fromLongitude"
+                                          labelText="Start point longitude"/>
 
         </@fdsFieldset.fieldset>
 
@@ -28,8 +40,20 @@
 
             <@fdsTextInput.textInput path="form.toLocation" labelText="Structure" />
 
-            <@locationInput.locationInput degreesLocationPath="form.toLatDeg" minutesLocationPath="form.toLatMin" secondsLocationPath="form.toLatSec" />
-            <@locationInput.locationInput degreesLocationPath="form.toLongDeg" minutesLocationPath="form.toLongMin" secondsLocationPath="form.toLongSec" direction="EW_MANUAL" directionPath="form.toLongDirection" directionList=longDirections />
+            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
+                                          minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
+                                          secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
+                                          formId="toLatitude"
+                                          labelText="Finish point latitude"/>
+
+            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.longitudeDegrees"
+                                          minutesLocationPath="form.toCoordinateForm.longitudeMinutes"
+                                          secondsLocationPath="form.toCoordinateForm.longitudeSeconds"
+                                          direction="EW"
+                                          directionPath="form.toCoordinateForm.longitudeDirection"
+                                          directionList=longDirections
+                                          formId="toLongitude"
+                                          labelText="Finish point longitude"/>
 
         </@fdsFieldset.fieldset>
 

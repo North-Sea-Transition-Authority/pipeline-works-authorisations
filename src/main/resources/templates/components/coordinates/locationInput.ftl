@@ -1,64 +1,47 @@
+<#--PWA Coordinate input-->
 <#import '/spring.ftl' as spring>
 <#include '../../layout.ftl'>
 
 <#macro locationInput
-  degreesLocationPath
-  minutesLocationPath
-  secondsLocationPath
-  label=""
-  direction="NS"
-  directionList=[]
-  directionPath=""
-  fieldsetHeadingSize="h3"
-  fieldsetHeadingClass="govuk-fieldset__legend--m"
-  caption=""
-  captionClass="govuk-caption-xl">
-
+degreesLocationPath
+minutesLocationPath
+secondsLocationPath
+formId
+directionList=[]
+direction="NS"
+directionPath=""
+labelText=""
+hintText=""
+optionalLabel="fromInterceptor"
+nestingPath=""
+fieldsetHeadingSize="h2"
+fieldsetHeadingClass="govuk-fieldset__legend--m"
+formGroupClass=""
+caption=""
+captionClass="govuk-caption-m">
     <@spring.bind degreesLocationPath/>
-
-    <#local id=spring.status.expression?replace('[','')?replace(']','')>
-    <#local hasError=(spring.status.errorMessages?size > 0)>
-
-  <div class="govuk-form-group <#if hasError>govuk-form-group--error</#if>">
-      <@fdsNumberInput.numberFieldset.fieldset legendHeading=label legendHeadingSize=fieldsetHeadingSize legendHeadingClass=fieldsetHeadingClass caption=caption captionClass=captionClass>
+    <#local hasErrorDegrees=(spring.status.errorMessages?size > 0)>
+    <#if optionalLabel=="true">
+        <#local optionalFlag=true>
+    <#elseif optionalLabel=="false">
+        <#local optionalFlag=false>
+    <#elseif optionalLabel=="fromInterceptor">
+        <#local optionalFlag=(!(validation[spring.status.path].mandatory)!true)>
+    </#if>
+    <@spring.bind minutesLocationPath/>
+    <#local hasErrorMinutes=(spring.status.errorMessages?size > 0)>
+    <@spring.bind secondsLocationPath/>
+    <#local hasErrorSeconds=(spring.status.errorMessages?size > 0)>
+    <#local hasError=hasErrorDegrees || hasErrorMinutes || hasErrorSeconds>
+  <div class="govuk-form-group ${formGroupClass}<#if hasError>govuk-form-group--error</#if>">
+      <@fdsFieldset.fieldset legendHeading=labelText legendHeadingSize=fieldsetHeadingSize legendHeadingClass=fieldsetHeadingClass caption=caption captionClass=captionClass optionalLabel=optionalFlag hintText=hintText>
           <#if hasError>
-            <span id="${id}-error" class="govuk-error-message">
-          <#list spring.status.errorMessages as errorMessage>
-              <#if errorMessage?has_content>
-                  ${errorMessage}<br/>
-              </#if>
-          </#list>
-        </span>
+              <@fdsError.inputError inputId="${formId}"/>
           </#if>
-        <div class="govuk-date-input" id="${id}-location-input">
-          <div class="govuk-date-input__item">
-            <div class="govuk-form-group">
-              <label class="govuk-label govuk-date-input__label" for="${id}">
-                Degrees
-              </label>
-              <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-2" id="${id}" name="${spring.status.expression}" type="text" value="${spring.stringStatusValue}">
-            </div>
-          </div>
-            <@spring.bind minutesLocationPath/>
-            <#local id=spring.status.expression?replace('[','')?replace(']','')>
-          <div class="govuk-date-input__item">
-            <div class="govuk-form-group">
-              <label class="govuk-label govuk-date-input__label" for="${id}">
-                Minutes
-              </label>
-              <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-2" id="${id}" name="${spring.status.expression}" type="text" value="${spring.stringStatusValue}">
-            </div>
-          </div>
-            <@spring.bind secondsLocationPath/>
-            <#local id=spring.status.expression?replace('[','')?replace(']','')>
-          <div class="govuk-date-input__item govuk-width">
-            <div class="govuk-form-group">
-              <label class="govuk-label govuk-date-input__label" for="${id}">
-                Seconds
-              </label>
-              <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-4" id="${id}" name="${spring.status.expression}" type="text" value="${spring.stringStatusValue}">
-            </div>
-          </div>
+        <div class="govuk-date-input" id="${formId}-number-input">
+            <@fdsNumberInput.numberInputItem path=degreesLocationPath labelText="Degrees"/>
+            <@fdsNumberInput.numberInputItem path=minutesLocationPath labelText="Minutes"/>
+            <@fdsNumberInput.numberInputItem path=secondsLocationPath labelText="Seconds"/>
           <div class="govuk-date-input__item">
             <div class="govuk-form-group">
                 <#if direction=="NS">
@@ -71,22 +54,17 @@
                     </div>
                   </div>
                 <#elseif direction=="NS_MANUAL">
-                    <@fdsSelect.select path="${directionPath}" options=directionList labelText="Hemisphere (north / south)"></@fdsSelect.select>
-                <#elseif direction=="EW">
-                  <div class="govuk-date-input__item">
-                    <div class="govuk-form-group">
-                      <label class="govuk-label govuk-date-input__label" for="hemisphere-east">
-                        Hemisphere (east / west)
-                      </label>
-                      <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-3 govuk-input--read-only" id="hemisphere-east" name="hemisphere-east" type="text" disabled value="East">
-                    </div>
-                  </div>
-                <#elseif direction=="EW_MANUAL">
-                    <@fdsSelect.select path="${directionPath}" options=directionList labelText="Hemisphere (east / west)"></@fdsSelect.select>
+                    <@fdsSelect.select path=directionPath options=directionList labelText="Hemisphere (north / south)"/>
+                <#else>
+                    <@fdsSelect.select path=directionPath options=directionList labelText="Hemisphere (east / west)"/>
                 </#if>
             </div>
           </div>
         </div>
-      </@fdsNumberInput.numberFieldset.fieldset>
+      </@fdsFieldset.fieldset>
   </div>
+  <#--Rebind your form when a component is used inside show/hide radio groups-->
+  <#if nestingPath?has_content>
+    <@spring.bind nestingPath/>
+  </#if>
 </#macro>
