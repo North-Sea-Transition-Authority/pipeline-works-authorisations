@@ -31,6 +31,7 @@ public class PwaConsentService {
                                                        Instant consentedInstant,
                                                        Integer variationNumber,
                                                        boolean isMigrated) {
+    // Changing this code? has you changed the migration script?
     var pwaConsent = new PwaConsent();
     pwaConsent.setMasterPwa(masterPwa);
     pwaConsent.setConsentType(pwaConsentType);

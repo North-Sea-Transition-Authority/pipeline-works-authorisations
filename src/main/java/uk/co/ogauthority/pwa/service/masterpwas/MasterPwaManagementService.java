@@ -32,7 +32,7 @@ public class MasterPwaManagementService {
 
   @Transactional
   public MasterPwaDetail createMasterPwa(MasterPwaDetailStatus masterPwaDetailStatus, String reference) {
-
+    // Changing this code? has you changed the migration script?
     var creationInstant = clock.instant();
     var masterPwa = new MasterPwa(creationInstant);
     var masterPwaDetail = new MasterPwaDetail(creationInstant);
