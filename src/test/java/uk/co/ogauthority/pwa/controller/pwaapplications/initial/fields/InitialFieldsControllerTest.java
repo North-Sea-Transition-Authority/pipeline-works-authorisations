@@ -195,7 +195,8 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
         .postFields(PwaApplicationType.INITIAL, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param("linkedToField", "false"))
+        .param("linkedToField", "false")
+        .param("noLinkedFieldDescription", "foo"))
         .andExpect(status().is3xxRedirection());
 
     verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), any());
