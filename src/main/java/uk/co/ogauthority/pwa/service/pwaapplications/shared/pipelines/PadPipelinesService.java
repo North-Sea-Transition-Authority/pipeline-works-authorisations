@@ -19,42 +19,52 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineOverviewDto;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Service
 public class PadPipelinesService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
+  private final PadPipelineIdentService padPipelineIdentService;
 
   @Autowired
-  public PadPipelinesService(PadPipelineRepository padPipelineRepository) {
+  public PadPipelinesService(PadPipelineRepository padPipelineRepository,
+                             PadPipelineIdentService padPipelineIdentService) {
     this.padPipelineRepository = padPipelineRepository;
+    this.padPipelineIdentService = padPipelineIdentService;
   }
 
   public List<PipelineOverview> getPipelineOverviews(PwaApplicationDetail detail) {
 
-    return padPipelineRepository.getAllByPwaApplicationDetail(detail).stream()
+    return padPipelineRepository.findAllAsOverviewDtoByPwaApplicationDetail(detail).stream()
         .map(this::getPipelineOverview)
         .collect(Collectors.toList());
 
   }
 
-  public PipelineOverview getPipelineOverview(PadPipeline pipeline) {
-    return new PipelineOverview(pipeline,
+  public PipelineOverview getPipelineOverview(PadPipelineOverviewDto pipelineOverviewDto) {
+
+    var identTaskUrl = getPipelineIdentOverviewUrl(
+        pipelineOverviewDto.getDetail().getMasterPwaApplicationId(),
+        pipelineOverviewDto.getDetail().getPwaApplicationType(),
+        pipelineOverviewDto.getPadPipeline().getId()
+    );
+
+    return new PipelineOverview(pipelineOverviewDto.getPadPipeline(),
         List.of(
             new TaskListEntry("Header information", getEditPipelineHeaderUrl(
-                pipeline.getPwaApplicationDetail().getMasterPwaApplicationId(),
-                pipeline.getPwaApplicationDetail().getPwaApplicationType(),
-                pipeline.getId()), true),
-            new TaskListEntry("Idents", getPipelineIdentOverviewUrl(
-                pipeline.getPwaApplicationDetail().getMasterPwaApplicationId(),
-                pipeline.getPwaApplicationDetail().getPwaApplicationType(),
-                pipeline.getId()
-            ), false)
+                pipelineOverviewDto.getDetail().getMasterPwaApplicationId(),
+                pipelineOverviewDto.getDetail().getPwaApplicationType(),
+                pipelineOverviewDto.getDetail().getId()), true),
+            new TaskListEntry("Idents", identTaskUrl, false,
+                 new TaskInfo(identTaskUrl, "IDENT", pipelineOverviewDto.getNumberOfIdents())
+            )
         ));
   }
 
@@ -146,13 +156,15 @@ public class PadPipelinesService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return false;
+    return padPipelineRepository.countAllByPwaApplicationDetail(detail).intValue() > 0
+        && padPipelineRepository.getAllByPwaApplicationDetail(detail).stream()
+            .noneMatch(pipe -> padPipelineIdentService.getMaxIdent(pipe).isEmpty());
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    return null;
+    throw new AssertionError("Doesn't make sense to implement this.");
   }
 
 }

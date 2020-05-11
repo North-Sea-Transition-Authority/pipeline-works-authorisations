@@ -4,7 +4,7 @@ import java.util.List;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 
 /**
- * Interface used to enhance the default repository so DTO's can be produced easily.
+ * Interface used to enhance the default repository so DTOs can be produced easily.
  */
 public interface PwaContactDtoRepository {
 

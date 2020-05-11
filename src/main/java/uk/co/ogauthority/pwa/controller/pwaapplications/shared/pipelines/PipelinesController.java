@@ -27,7 +27,9 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
@@ -49,14 +51,17 @@ public class PipelinesController {
   private final PadPipelinesService padPipelinesService;
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineHeaderFormValidator validator;
+  private final PwaApplicationRedirectService applicationRedirectService;
 
   @Autowired
   public PipelinesController(PadPipelinesService padPipelinesService,
                              ApplicationBreadcrumbService breadcrumbService,
-                             PipelineHeaderFormValidator validator) {
+                             PipelineHeaderFormValidator validator,
+                             PwaApplicationRedirectService applicationRedirectService) {
     this.padPipelinesService = padPipelinesService;
     this.breadcrumbService = breadcrumbService;
     this.validator = validator;
+    this.applicationRedirectService = applicationRedirectService;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
@@ -80,6 +85,28 @@ public class PipelinesController {
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                               PwaApplicationContext applicationContext) {
     return getOverviewModelAndView(applicationContext.getApplicationDetail());
+  }
+
+  @PostMapping
+  public ModelAndView postPipelinesOverview(@PathVariable("applicationId") Integer applicationId,
+                                            @PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            PwaApplicationContext applicationContext,
+                                            ValidationType validationType) {
+
+    // data is already saved so if we're completing later, don't bother validating
+    if (validationType.equals(ValidationType.PARTIAL)) {
+      return applicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+    }
+
+    // otherwise, make sure that all pipelines have header info and idents
+    if (!padPipelinesService.isComplete(applicationContext.getApplicationDetail())) {
+      return getOverviewModelAndView(applicationContext.getApplicationDetail())
+          .addObject("errorMessage", "One or more pipelines must be added. Each pipeline must have at least one ident.");
+    }
+
+    return applicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+
   }
 
   private ModelAndView getAddEditPipelineMav(PwaApplicationDetail detail, ScreenActionType type, PadPipeline pipeline) {
