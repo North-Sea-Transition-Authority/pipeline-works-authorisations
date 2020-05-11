@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.search;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import org.apache.commons.collections4.ListUtils;
@@ -24,7 +25,7 @@ public class SearchSelectionView<T> {
   }
 
   public List<String> getManualEntries() {
-    return ListUtils.unmodifiableList(manualEntries);
+    return Collections.unmodifiableList(manualEntries);
   }
 
   public List<T> getLinkedEntries() {
