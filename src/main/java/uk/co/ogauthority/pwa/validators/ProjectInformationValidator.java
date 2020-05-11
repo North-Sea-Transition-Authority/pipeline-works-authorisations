@@ -7,13 +7,16 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class ProjectInformationValidator implements SmartValidator {
 
+
+  PadProjectInformationService padProjectInformationService;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -76,12 +79,12 @@ public class ProjectInformationValidator implements SmartValidator {
 
 
     PwaApplicationDetail pwaApplicationDetail = (PwaApplicationDetail) validationHints[0];
-    if (!pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION)) {
-      if (!pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)) {
+    if (padProjectInformationService.getIsAnyDepositQuestionRequired(pwaApplicationDetail)) {
+      if (padProjectInformationService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail)) {
         if (form.getPermanentDepositsMadeType() == null) {
           errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
                   "Select 'Yes' if permanent deposits are being made.");
-        } else if (form.getPermanentDepositsMadeType().equals(PermanentDeposits.LATER_APP)) {
+        } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
           ValidatorUtils.validateDateIsPresentOrFuture(
                   "futureAppSubmission", "future application submission date",
                   form.getFutureAppSubmissionMonth(), form.getFutureAppSubmissionYear(), errors);
@@ -93,9 +96,14 @@ public class ProjectInformationValidator implements SmartValidator {
                 "Select 'Yes' if temporary deposits are being made.");
       } else if (form.getTemporaryDepositsMade() == true && form.getTemporaryDepDescription() == null) {
         errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
-                "Please explain why temporary deposits are being made.");
+                "Enter why temporary deposits are being made.");
       }
     }
+  }
+
+
+  public void setPadProjectInformationService(PadProjectInformationService padProjectInformationService) {
+    this.padProjectInformationService = padProjectInformationService;
   }
 
 }

@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
@@ -55,7 +55,7 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   @NotNull(message = "Select yes if using a campaign approach", groups = {FullValidation.class})
   private Boolean usingCampaignApproach;
 
-  private PermanentDeposits permanentDepositsMadeType;
+  private PermanentDepositRadioOption permanentDepositsMadeType;
   private Integer futureAppSubmissionMonth;
   private Integer futureAppSubmissionYear;
 
@@ -247,11 +247,11 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.licenceTransferPlanned = licenceTransferPlanned;
   }
 
-  public PermanentDeposits getPermanentDepositsMadeType() {
+  public PermanentDepositRadioOption getPermanentDepositsMadeType() {
     return permanentDepositsMadeType;
   }
 
-  public void setPermanentDepositsMadeType(PermanentDeposits permanentDepositsMadeType) {
+  public void setPermanentDepositsMadeType(PermanentDepositRadioOption permanentDepositsMadeType) {
     this.permanentDepositsMadeType = permanentDepositsMadeType;
   }
 

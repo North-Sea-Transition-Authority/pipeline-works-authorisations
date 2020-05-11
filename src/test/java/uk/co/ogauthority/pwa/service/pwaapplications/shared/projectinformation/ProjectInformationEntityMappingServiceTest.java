@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectInformationEntityMappingServiceTest {
@@ -70,7 +70,7 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(form.getCommercialAgreementMonth()).isEqualTo(expectedForm.getCommercialAgreementMonth());
     assertThat(form.getCommercialAgreementYear()).isEqualTo(expectedForm.getCommercialAgreementYear());
 
-    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDeposits.LATER_APP);
+    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositRadioOption.LATER_APP);
     assertThat(form.getFutureAppSubmissionMonth()).isEqualTo(expectedForm.getFutureAppSubmissionMonth());
     assertThat(form.getFutureAppSubmissionYear()).isEqualTo(expectedForm.getFutureAppSubmissionYear());
     assertThat(form.getTemporaryDepositsMade()).isEqualTo(expectedForm.getTemporaryDepositsMade());
@@ -146,18 +146,18 @@ public class ProjectInformationEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_permanentDepositsTypeIsThisApp(){
-    form.setPermanentDepositsMadeType(PermanentDeposits.THIS_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
-    assertThat(entity.getPermanentDepositsMade().equals(PermanentDeposits.THIS_APP));
+    assertThat(entity.getPermanentDepositsMade().equals(PermanentDepositRadioOption.THIS_APP));
     assertThat(entity.getFutureAppSubmissionMonth()).isNull();
     assertThat(entity.getFutureAppSubmissionYear()).isNull();
   }
 
   @Test
   public void setEntityValuesUsingForm_noPermanentDeposits(){
-    form.setPermanentDepositsMadeType(PermanentDeposits.NONE);
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
-    assertThat(entity.getPermanentDepositsMade().equals(PermanentDeposits.NONE));
+    assertThat(entity.getPermanentDepositsMade().equals(PermanentDepositRadioOption.NONE));
     assertThat(entity.getFutureAppSubmissionMonth()).isNull();
     assertThat(entity.getFutureAppSubmissionYear()).isNull();
   }
@@ -173,7 +173,7 @@ public class ProjectInformationEntityMappingServiceTest {
   public void mapProjectInformationDataToForm_noPermanentDeposits() {
     entity.setPermanentDepositsMade(false);
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
-    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDeposits.NONE);
+    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositRadioOption.NONE);
   }
 
   @Test
@@ -182,7 +182,7 @@ public class ProjectInformationEntityMappingServiceTest {
     entity.setFutureAppSubmissionMonth(null);
     entity.setFutureAppSubmissionYear(null);
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
-    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDeposits.THIS_APP);
+    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositRadioOption.THIS_APP);
   }
 
 

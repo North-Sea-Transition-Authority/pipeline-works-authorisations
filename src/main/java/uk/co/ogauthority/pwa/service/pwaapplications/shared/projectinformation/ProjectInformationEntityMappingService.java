@@ -4,7 +4,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 /**
@@ -69,15 +69,16 @@ public class ProjectInformationEntityMappingService {
       );
     }
 
+
     if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
-      form.setPermanentDepositsMadeType(PermanentDeposits.NONE);
+      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
     } else if (padProjectInformation.getFutureAppSubmissionMonth() != null
             && padProjectInformation.getFutureAppSubmissionYear() != null) {
-      form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
+      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
       form.setFutureAppSubmissionMonth(padProjectInformation.getFutureAppSubmissionMonth());
       form.setFutureAppSubmissionYear(padProjectInformation.getFutureAppSubmissionYear());
     } else {
-      form.setPermanentDepositsMadeType(PermanentDeposits.THIS_APP);
+      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
     }
     if (padProjectInformation.getTemporaryDepositsMade() != null) {
       form.setTemporaryDepositsMade(padProjectInformation.getTemporaryDepositsMade());
@@ -149,10 +150,10 @@ public class ProjectInformationEntityMappingService {
       padProjectInformation.setFutureAppSubmissionMonth(null);
       padProjectInformation.setFutureAppSubmissionYear(null);
       padProjectInformation.setPermanentDepositsMade(true);
-      if (form.getPermanentDepositsMadeType().equals(PermanentDeposits.LATER_APP)) {
+      if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
         padProjectInformation.setFutureAppSubmissionMonth(form.getFutureAppSubmissionMonth());
         padProjectInformation.setFutureAppSubmissionYear(form.getFutureAppSubmissionYear());
-      } else if (form.getPermanentDepositsMadeType().equals(PermanentDeposits.NONE)) {
+      } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.NONE)) {
         padProjectInformation.setPermanentDepositsMade(false);
       }
     }

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.validators;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -10,22 +11,30 @@ import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDeposits;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ProjectInformationValidatorTest {
 
+  @Mock
+  private PadProjectInformationService projectInformationService;
   private ProjectInformationValidator validator;
 
   @Before
   public void setUp() {
     validator = new ProjectInformationValidator();
+    validator.setPadProjectInformationService(projectInformationService);
   }
 
   @Test
@@ -265,6 +274,12 @@ public class ProjectInformationValidatorTest {
   }
 
   public Map<String, Set<String>> getErrorMap(ProjectInformationForm form, PwaApplicationDetail pwaApplicationDetail) {
+    when(projectInformationService.getIsAnyDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT))).thenReturn(true);
+    when(projectInformationService.getIsAnyDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.INITIAL))).thenReturn(true);
+    when(projectInformationService.getIsAnyDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT))).thenReturn(true);
+    when(projectInformationService.getIsPermanentDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT))).thenReturn(false);
+    when(projectInformationService.getIsPermanentDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.INITIAL))).thenReturn(true);
+
     var errors = new BeanPropertyBindingResult(form, "form");
     validator.validate(form, errors, pwaApplicationDetail);
     return errors.getFieldErrors().stream()
@@ -290,7 +305,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_LaterApp_noDate() {
     var form = new ProjectInformationForm();
-    form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
     assertThat(errorsMap).contains(
             entry("futureAppSubmissionMonth", Set.of("futureAppSubmissionMonth.invalid")),
@@ -301,7 +316,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_LaterApp_pastDate() {
     var form = new ProjectInformationForm();
-    form.setPermanentDepositsMadeType(PermanentDeposits.LATER_APP);
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureAppSubmissionMonth(2);
     form.setFutureAppSubmissionYear(2020);
     Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));

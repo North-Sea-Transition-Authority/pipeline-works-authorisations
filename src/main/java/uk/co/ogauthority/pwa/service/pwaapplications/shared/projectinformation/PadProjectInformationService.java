@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         .orElse(new PadProjectInformation());
     projectInformation.setPwaApplicationDetail(pwaApplicationDetail);
     return projectInformation;
+  }
+
+  @PostConstruct
+  public void init() {
+    projectInformationValidator.setPadProjectInformationService(this);
   }
 
   /**

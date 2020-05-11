@@ -36,21 +36,25 @@
 
         <#if isAnyDepQuestionRequired>
             <#if isPermDepQuestionRequired>
-                <@fdsRadio.radioGroup path="form.permanentDepositsMadeType" labelText="Are permanent deposits being made?" hiddenContent=true>
-                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"THIS_APP" : "Yes, as part of this application"} isFirstItem=true/>
-                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"LATER_APP" : "Yes, as part of a later application"} >
-                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year" formId="date-of-future-app">
+                <@fdsRadio.radioGroup path="form.permanentDepositsMadeType" labelText="Are permanent deposits being made?" hiddenContent=true>                
+                    <#assign firstItem=true/>
+                    <#list permanentDepositsMadeOptions as  depositOption>
+                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={depositOption : depositOption.getDisplayText()} isFirstItem=firstItem>
+                        <#if depositOption == "LATER_APP">
+                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="“Month and year that later application will be submitted" formId="date-of-future-app">
                                 <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionMonth" labelText="Month" inputClass="govuk-input--width-2"/>
                                 <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionYear" labelText="Year" inputClass="govuk-input--width-4"/>
                             </@fdsNumberInput.twoNumberInputs>
-                        </@fdsRadio.radioItem>                        
-                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={"NONE" : "No"}/>
+                        </#if>                   
+                        </@fdsRadio.radioItem>
+                    </#list>
+                    <#assign firstItem=false/>
                 </@fdsRadio.radioGroup>
             </#if>
 
             <@fdsRadio.radioGroup path="form.temporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.temporaryDepositsMade">
-                    <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description of temporary deposits" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.temporaryDepositsMade"/>
             </@fdsRadio.radioGroup>
