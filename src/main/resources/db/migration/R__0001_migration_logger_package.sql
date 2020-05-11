@@ -24,7 +24,7 @@ AS
     RETURN VARCHAR2 AS
   BEGIN
     -- microseconds to 4 decimal places
-    RETURN TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:mm:ssXFF4') || '; ' || p_old_status || ' -> ' || p_new_status || '; ';
+    RETURN TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:MI:SSXFF4') || '; ' || p_old_status || ' -> ' || p_new_status || '; ';
   END formatted_log_prefix;
 
   FUNCTION updated_log_message(p_old_status VARCHAR2
