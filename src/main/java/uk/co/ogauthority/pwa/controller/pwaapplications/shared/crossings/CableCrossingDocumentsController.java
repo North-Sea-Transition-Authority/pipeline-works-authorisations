@@ -34,6 +34,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -52,15 +53,18 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
   private final PwaApplicationFileService applicationFileService;
   private final CableCrossingFileService cableCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public CableCrossingDocumentsController(
       PwaApplicationFileService applicationFileService,
       CableCrossingFileService cableCrossingFileService,
-      ApplicationBreadcrumbService applicationBreadcrumbService) {
+      ApplicationBreadcrumbService applicationBreadcrumbService,
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.applicationFileService = applicationFileService;
     this.cableCrossingFileService = cableCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
   private ModelAndView createCableCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
@@ -123,8 +127,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
           applicationContext.getApplicationDetail(),
           form,
           applicationContext.getUser());
-      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+      return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
   }
 

@@ -10,7 +10,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -22,7 +21,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -68,12 +66,9 @@ public class CrossingAgreementsController {
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/taskList")
-        .addObject("medianLineUrlFactory", new MedianLineCrossingUrlFactory(detail))
-        .addObject("medianLineFiles",
-            medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL));
-
-    modelAndView.addObject("tasks", crossingAgreementsService.getTaskListItems(detail));
-    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Blocks and crossing agreements");
+        .addObject("tasks", crossingAgreementsService.getTaskListItems(detail));
+    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
+        "Blocks and crossing agreements");
     return modelAndView;
   }
 

@@ -85,7 +85,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
           try {
             mockMvc.perform(
                 get(ReverseRouter.route(
-                    on(MedianLineCrossingController.class).renderAddMedianLineForm(invalidAppType, 1, null, null)))
+                    on(MedianLineCrossingController.class).renderMedianLineForm(invalidAppType, 1, null, null)))
                     .with(authenticatedUserAndSession(user))
                     .with(csrf()))
                 .andExpect(status().isForbidden());
@@ -103,7 +103,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         get(ReverseRouter.route(
-            on(MedianLineCrossingController.class).renderAddMedianLineForm(PwaApplicationType.INITIAL, 1, null, null)))
+            on(MedianLineCrossingController.class).renderMedianLineForm(PwaApplicationType.INITIAL, 1, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk());
@@ -114,7 +114,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         get(ReverseRouter.route(
-            on(MedianLineCrossingController.class).renderAddMedianLineForm(PwaApplicationType.INITIAL, 1, null, null))))
+            on(MedianLineCrossingController.class).renderMedianLineForm(PwaApplicationType.INITIAL, 1, null, null))))
         .andExpect(status().is3xxRedirection());
   }
 
@@ -128,7 +128,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(
             on(MedianLineCrossingController.class)
-                .postAddContinueMedianLine(PwaApplicationType.INITIAL, 1, null, null, null)))
+                .postAddContinueMedianLine(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .params(paramMap))
         .andExpect(status().isForbidden());
   }
@@ -143,7 +143,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(
             on(MedianLineCrossingController.class)
-                .postAddCompleteMedianLine(PwaApplicationType.INITIAL, 1, null, null, null)))
+                .postAddContinueMedianLine(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .params(paramMap))
         .andExpect(status().isForbidden());
   }
@@ -166,7 +166,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(
             on(MedianLineCrossingController.class)
-                .postAddContinueMedianLine(PwaApplicationType.INITIAL, 1, null, null, null),
+                .postAddContinueMedianLine(PwaApplicationType.INITIAL, 1, null, null, null, null),
             Map.of("applicationId", 1)))
             .params(paramMap)
             .with(authenticatedUserAndSession(user))
@@ -195,7 +195,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(
             on(MedianLineCrossingController.class)
-                .postAddContinueMedianLine(PwaApplicationType.INITIAL, 1, null, null, null),
+                .postAddContinueMedianLine(PwaApplicationType.INITIAL, 1, null, null, null, null),
             Map.of("applicationId", 1)))
             .params(paramMap)
             .with(authenticatedUserAndSession(user))

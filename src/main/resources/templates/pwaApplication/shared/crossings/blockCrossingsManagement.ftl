@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 
 <#macro blockCrossingManagement urlFactory blockCrossings=[] blockCrossingFileViews=[] isCompleted=false>
-  <h2 class="govuk-heading-l">Block crossings (Optional) <@completedTag.completedTag isCompleted/></h2>
+  <h2 class="govuk-heading-l">Block crossings (Optional)</h2>
     <@fdsInsetText.insetText>
       <span>Any crossed block not 100% owned by the PWA holder(s) requires a block crossing agreement document to be uploaded.</span>
         <#if !blockCrossings?has_content>

@@ -118,14 +118,35 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
   }
 
   @Override
+  public boolean getShowNotCompletedLabel() {
+    return false;
+  }
+
+  @Override
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
-    var crossingCount = padMedianLineAgreementRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+    TagColour agreementColour = TagColour.BLUE;
+    TagColour documentColour = TagColour.BLUE;
+    String agreementText;
     var documentUploadCount = medianLineCrossingFileService.getFullFileCount(pwaApplicationDetail);
-    String crossingsText = StringDisplayUtils.pluralise("crossing", crossingCount);
+    var agreement = getMedianLineAgreement(pwaApplicationDetail);
+    if (agreement.getAgreementStatus() != null) {
+      agreementText = agreement.getAgreementStatus().getLabelText();
+      if (agreement.getAgreementStatus().equals(
+          MedianLineStatus.NEGOTIATIONS_ONGOING) || agreement.getAgreementStatus().equals(
+          MedianLineStatus.NEGOTIATIONS_COMPLETED)) {
+        if (documentUploadCount == 0) {
+          documentColour = TagColour.RED;
+        }
+      }
+    } else {
+      agreementText = "Requires information";
+      agreementColour = TagColour.RED;
+      documentColour = TagColour.GREY;
+    }
     String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
     return List.of(
-        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), TagColour.BLUE),
-        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), TagColour.BLUE)
+        new TaskListLabel(agreementText, agreementColour),
+        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), documentColour)
     );
   }
 }

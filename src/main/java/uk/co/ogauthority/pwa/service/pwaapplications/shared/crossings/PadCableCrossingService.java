@@ -101,14 +101,21 @@ public class PadCableCrossingService implements ApplicationFormSectionService, T
   }
 
   @Override
+  public boolean getShowNotCompletedLabel() {
+    return false;
+  }
+
+  @Override
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
     var crossingCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
     var documentUploadCount = cableCrossingFileService.getDocumentUploadCount(pwaApplicationDetail);
     String crossingsText = StringDisplayUtils.pluralise("crossing", crossingCount);
     String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
+    TagColour crossingColour = crossingCount == 0 ? TagColour.RED : TagColour.BLUE;
+    TagColour documentsColour = documentUploadCount == 0 ? TagColour.RED : TagColour.BLUE;
     return List.of(
-        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), TagColour.BLUE),
-        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), TagColour.BLUE)
+        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), crossingColour),
+        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), documentsColour)
     );
   }
 }

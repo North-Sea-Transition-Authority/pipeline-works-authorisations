@@ -67,7 +67,8 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
             task.getDisplayText(),
             crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, task),
             service.isTaskListEntryCompleted(pwaApplicationDetail),
-            service.getTaskListLabels(pwaApplicationDetail)
+            service.getTaskListLabels(pwaApplicationDetail),
+            service.getShowNotCompletedLabel()
         ));
       }
     }

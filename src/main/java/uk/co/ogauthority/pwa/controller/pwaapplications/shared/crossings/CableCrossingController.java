@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -50,17 +51,20 @@ public class CableCrossingController {
   private final PadCableCrossingService padCableCrossingService;
   private final CableCrossingFileService cableCrossingFileService;
   private final CrossingAgreementsService crossingAgreementsService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public CableCrossingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadCableCrossingService padCableCrossingService,
       CableCrossingFileService cableCrossingFileService,
-      CrossingAgreementsService crossingAgreementsService) {
+      CrossingAgreementsService crossingAgreementsService,
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padCableCrossingService = padCableCrossingService;
     this.cableCrossingFileService = cableCrossingFileService;
     this.crossingAgreementsService = crossingAgreementsService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
   private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail) {
@@ -133,8 +137,7 @@ public class CableCrossingController {
     var detail = applicationContext.getApplicationDetail();
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderAddModelAndView(detail), () -> {
       padCableCrossingService.createCableCrossing(detail, form);
-      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+      return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
   }
 
@@ -165,8 +168,7 @@ public class CableCrossingController {
     var detail = applicationContext.getApplicationDetail();
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderEditModelAndView(detail), () -> {
       padCableCrossingService.updateCableCrossing(detail, crossingId, form);
-      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+      return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
   }
 
@@ -197,8 +199,7 @@ public class CableCrossingController {
 
     var detail = applicationContext.getApplicationDetail();
     padCableCrossingService.removeCableCrossing(detail, crossingId);
-    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-        .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+    return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
   }
 
 }

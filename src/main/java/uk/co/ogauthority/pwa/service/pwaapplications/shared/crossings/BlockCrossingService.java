@@ -239,6 +239,11 @@ public class BlockCrossingService implements TaskListSection {
   }
 
   @Override
+  public boolean getShowNotCompletedLabel() {
+    return false;
+  }
+
+  @Override
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
     var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
     var documentUploadCount = blockCrossingFileService.getDocumentUploadCount(pwaApplicationDetail);

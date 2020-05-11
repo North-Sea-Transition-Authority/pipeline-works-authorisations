@@ -20,6 +20,8 @@ public interface TaskListSection {
    */
   boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail);
 
+  boolean getShowNotCompletedLabel();
+
   /**
    * Use to retrieve a list of extra labels to add to the task list entry.
    * @return List of TaskListLabels.
