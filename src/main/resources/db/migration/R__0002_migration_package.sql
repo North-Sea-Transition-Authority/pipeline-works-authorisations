@@ -6,80 +6,11 @@ CREATE OR REPLACE PACKAGE ${datasource.user}.migration AS
 
   PROCEDURE migrate_master(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE);
 
-  FUNCTION updated_log_message(p_old_status VARCHAR2
-                              , p_new_status VARCHAR2
-                              , p_message VARCHAR2
-                              , p_clob_log CLOB)
-    RETURN CLOB;
-
-  FUNCTION formatted_log_prefix(p_old_status VARCHAR2
-                               , p_new_status VARCHAR2)
-    RETURN VARCHAR2;
-
 END migration;
 /
 
 CREATE OR REPLACE PACKAGE BODY ${datasource.user}.migration
 AS
-  FUNCTION formatted_log_prefix(p_old_status VARCHAR2
-                               , p_new_status VARCHAR2)
-    RETURN VARCHAR2 AS
-  BEGIN
-    -- microseconds to 4 decimal places
-    RETURN TO_CHAR(SYSTIMESTAMP, 'YYYY-MM-DD HH24:mm:ssXFF4') || '; ' || p_old_status || ' -> ' || p_new_status || '; ';
-  END formatted_log_prefix;
-
-  FUNCTION updated_log_message(p_old_status VARCHAR2
-                              , p_new_status VARCHAR2
-                              , p_message VARCHAR2
-                              , p_clob_log CLOB)
-    RETURN CLOB
-  AS
-    l_log_prefix VARCHAR2(4000) := CHR(10) || CHR(10) || formatted_log_prefix(p_old_status, p_new_status);
-  BEGIN
-
-    RETURN p_clob_log || l_log_prefix || p_message;
-
-  END updated_log_message;
-
-  PROCEDURE log(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE
-               , p_status VARCHAR2
-               , p_message VARCHAR2)
-  AS
-    PRAGMA AUTONOMOUS_TRANSACTION;
-    l_log_id      NUMBER;
-  BEGIN
-
-    BEGIN
-      SELECT mml.id
-      INTO l_log_id
-      FROM ${datasource.user}.migration_master_logs mml
-      WHERE mml.mig_master_pa_id = p_mig_master_pwa.pa_id;
-    EXCEPTION
-      WHEN no_data_found THEN
-        INSERT INTO ${datasource.user}.migration_master_logs ( mig_master_pa_id
-                                                 , status
-                                                 , log_messages)
-        VALUES ( p_mig_master_pwa.pa_id
-               , 'CREATED'
-               , formatted_log_prefix('NONE', 'CREATED') || ' ')
-        RETURNING id INTO l_log_id;
-    END;
-
-    UPDATE ${datasource.user}.migration_master_logs mml
-    SET mml.last_updated = SYSTIMESTAMP
-      , mml.status       = p_status
-      , mml.log_messages = updated_log_message(
-        p_old_status => mml.status
-      , p_new_status => p_status
-      , p_message => p_message
-      , p_clob_log => mml.log_messages
-      )
-    WHERE mml.id = l_log_id;
-
-    COMMIT;
-
-  END log;
 
   PROCEDURE pad_already_migrated_check(p_mig_consent ${datasource.user}.mig_pwa_consents%ROWTYPE)
   AS
@@ -146,7 +77,7 @@ AS
     */
 
     l_master_mig_pwa_consent := get_mig_pwa_consent(p_mig_master_pwa.pad_id);
-    log(p_mig_master_pwa, 'STARTING',
+    ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'STARTING',
         'Starting migration. Initial PWA reference: ' || l_master_mig_pwa_consent.reference);
     pad_already_migrated_check(p_mig_master_pwa);
 
@@ -162,22 +93,22 @@ AS
     VALUES (SYSTIMESTAMP)
     RETURNING id INTO l_master_pwa_id;
 
-    log(p_mig_master_pwa, 'IN_PROGRESS', 'Master pwa inserted. MASTER_PWA_ID:' || l_master_pwa_id);
+    ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'IN_PROGRESS', 'Master pwa inserted. MASTER_PWA_ID:' || l_master_pwa_id);
 
     INSERT INTO ${datasource.user}.pwa_details (pwa_id, pwa_status, reference, start_timestamp)
     VALUES (l_master_pwa_id, 'CONSENTED', l_master_mig_pwa_consent.reference, SYSTIMESTAMP)
     RETURNING id INTO l_master_pwa_detail_id;
 
-    log(p_mig_master_pwa, 'IN_PROGRESS',
+    ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'IN_PROGRESS',
         'Master pwa detail inserted. MASTER_PWA_DETAIL_ID:' || l_master_pwa_detail_id);
 
     COMMIT;
-    log(p_mig_master_pwa, 'SUCCESS', 'All migration steps completed and committed');
+    ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'SUCCESS', 'All migration steps completed and committed');
 
   EXCEPTION
     WHEN OTHERS THEN
       ROLLBACK;
-      log(p_mig_master_pwa, 'FAILED', SQLERRM || CHR(10) || dbms_utility.format_error_backtrace());
+      ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'FAILED', SQLERRM || CHR(10) || dbms_utility.format_error_backtrace());
 
   END migrate_master;
 
