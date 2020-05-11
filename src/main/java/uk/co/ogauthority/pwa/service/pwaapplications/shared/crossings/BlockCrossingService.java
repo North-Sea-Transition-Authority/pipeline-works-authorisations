@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class BlockCrossingService implements TaskListSection {
@@ -200,9 +201,9 @@ public class BlockCrossingService implements TaskListSection {
     // Each ouId will have been validated so we can assume everything is good for db persistence
     // only create owners when the owner type is not holder
     if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(form.getCrossedBlockOwner())) {
-      form.getBlockOwnersOuIdList().forEach(ouId -> {
-        createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null));
-      });
+      form.getBlockOwnersOuIdList().forEach(ouId ->
+          createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null))
+      );
     }
 
     if (CrossedBlockOwner.OTHER_ORGANISATION.equals(form.getCrossedBlockOwner())
@@ -241,9 +242,11 @@ public class BlockCrossingService implements TaskListSection {
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
     var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
     var documentUploadCount = blockCrossingFileService.getDocumentUploadCount(pwaApplicationDetail);
+    String blocksText = StringDisplayUtils.pluralise("block", blockCount);
+    String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
     return List.of(
-        new TaskListLabel(String.format("%d blocks", blockCount), TagColour.MULTIPLE),
-        new TaskListLabel(String.format("%d documents", documentUploadCount), TagColour.MULTIPLE)
+        new TaskListLabel(String.format("%d %s", blockCount, blocksText), TagColour.BLUE),
+        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), TagColour.BLUE)
     );
   }
 }

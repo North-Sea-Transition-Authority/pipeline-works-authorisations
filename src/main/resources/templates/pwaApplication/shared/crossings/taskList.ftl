@@ -10,8 +10,7 @@
             <#list tasks as entry>
                 <@fdsTaskList.taskListItem itemUrl=springUrl(entry.route) itemText=entry.taskName completed=entry.completed>
                   <#list entry.labels as label>
-                    <span class="govuk-tag govuk-tag--${label.colour}">${label.displayText}</span>
-                      &nbsp;
+                    <span class="govuk-tag govuk-tag--${label.colour.cssName}">${label.displayText}</span>&nbsp;
                   </#list>
                 </@fdsTaskList.taskListItem>
             </#list>

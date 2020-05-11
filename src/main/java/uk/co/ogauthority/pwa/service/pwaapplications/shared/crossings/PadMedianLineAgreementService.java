@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import java.util.List;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -10,11 +11,13 @@ import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
+import uk.co.ogauthority.pwa.model.tasklist.TagColour;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
@@ -111,11 +114,18 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
 
   @Override
   public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
+    return BooleanUtils.isTrue(pwaApplicationDetail.getMedianLineCrossed());
   }
 
   @Override
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
-    return List.of();
+    var crossingCount = padMedianLineAgreementRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+    var documentUploadCount = medianLineCrossingFileService.getFullFileCount(pwaApplicationDetail);
+    String crossingsText = StringDisplayUtils.pluralise("crossing", crossingCount);
+    String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
+    return List.of(
+        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), TagColour.BLUE),
+        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), TagColour.BLUE)
+    );
   }
 }

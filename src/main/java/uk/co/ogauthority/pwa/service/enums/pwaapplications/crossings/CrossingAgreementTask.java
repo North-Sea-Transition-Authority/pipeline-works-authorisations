@@ -6,7 +6,8 @@ import java.util.stream.Stream;
 public enum CrossingAgreementTask {
 
   LICENCE_AND_BLOCK_NUMBERS("Licence and block numbers", 10),
-  CROSSING_TYPES("Type of crossings", 20),
+  CROSSING_TYPES("Types of crossings", 20),
+  CABLE_CROSSINGS("Cable crossings", 40),
   MEDIAN_LINE("Median line crossings", 50);
 
   private String displayText;

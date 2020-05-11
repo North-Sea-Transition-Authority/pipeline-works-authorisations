@@ -28,11 +28,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -49,14 +51,17 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationFileService applicationFileService;
   private final BlockCrossingFileService blockCrossingFileService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public BlockCrossingDocumentsController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                           PwaApplicationFileService applicationFileService,
-                                          BlockCrossingFileService blockCrossingFileService) {
+                                          BlockCrossingFileService blockCrossingFileService,
+                                          CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.applicationFileService = applicationFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.blockCrossingFileService = blockCrossingFileService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
 
@@ -97,8 +102,8 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
           applicationContext.getApplicationDetail(),
           form,
           applicationContext.getUser());
-      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+      return crossingAgreementsTaskListService.getOverviewRedirect(detail,
+          CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS);
     });
   }
 
@@ -124,7 +129,8 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
-    applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
+    applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,
+        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS,
         "Block crossing agreement documents");
     return modelAndView;
   }

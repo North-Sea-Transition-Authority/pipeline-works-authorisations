@@ -13,25 +13,25 @@
 
 <@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true fullWidthColumn=true>
 
-    <@blockCrossingManagement.blockCrossingManagement
-    blockCrossings=blockCrossings
-    blockCrossingFileViews=blockCrossingFiles
-    urlFactory=blockCrossingUrlFactory
-    isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
+    <#if overview == "LICENCE_AND_BLOCKS">
+        <@blockCrossingManagement.blockCrossingManagement
+        blockCrossings=blockCrossings
+        blockCrossingFileViews=blockCrossingFiles
+        urlFactory=blockCrossingUrlFactory
+        isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
+    <#elseif overview == "PIPELINE_CROSSINGS">
 
-    <hr class="govuk-section-break govuk-section-break--l"/>
-
-    <@cableCrossingManagement.cableCrossingManagement
-    cableCrossingViews=cableCrossings
-    cableCrossingFileViews=cableCrossingFiles
-    urlFactory=cableCrossingUrlFactory
-    isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSINGS") />
-
-    <hr class="govuk-section-break govuk-section-break--l"/>
-
-    <@medianLineCrossingManagement.medianLineCrossingManagement
-    urlFactory=medianLineUrlFactory
-    medianLineAgreementView=medianLineAgreementView!""
-    medianLineFileViews=medianLineFiles />
+    <#elseif overview == "CABLE_CROSSINGS">
+        <@cableCrossingManagement.cableCrossingManagement
+        cableCrossingViews=cableCrossings
+        cableCrossingFileViews=cableCrossingFiles
+        urlFactory=cableCrossingUrlFactory
+        isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSINGS") />
+    <#elseif overview == "MEDIAN_LINE_CROSSING">
+        <@medianLineCrossingManagement.medianLineCrossingManagement
+        urlFactory=medianLineUrlFactory
+        medianLineAgreementView=medianLineAgreementView!""
+        medianLineFileViews=medianLineFiles />
+    </#if>
 
 </@defaultPage>

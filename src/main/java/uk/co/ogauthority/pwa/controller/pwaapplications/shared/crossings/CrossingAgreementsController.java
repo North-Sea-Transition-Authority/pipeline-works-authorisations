@@ -19,9 +19,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory;
@@ -72,19 +70,10 @@ public class CrossingAgreementsController {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/taskList")
         .addObject("medianLineUrlFactory", new MedianLineCrossingUrlFactory(detail))
         .addObject("medianLineFiles",
-            medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("blockCrossings", blockCrossingService.getCrossedBlockViews(detail))
-        .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
-        .addObject("blockCrossingFiles",
-            blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("cableCrossings", cableCrossingService.getCableCrossingViews(detail))
-        .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
-        .addObject("cableCrossingFiles",
-            cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
+            medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL));
 
     modelAndView.addObject("tasks", crossingAgreementsService.getTaskListItems(detail));
-    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Crossings");
+    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Blocks and crossing agreements");
     return modelAndView;
   }
 
@@ -96,9 +85,7 @@ public class CrossingAgreementsController {
                                                        @PathVariable("applicationId") Integer applicationId,
                                                        PwaApplicationContext applicationContext,
                                                        AuthenticatedUserAccount user) {
-    var detail = applicationContext.getApplicationDetail();
-    var modelAndView = getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail());
-    return modelAndView;
+    return getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail());
   }
 
 

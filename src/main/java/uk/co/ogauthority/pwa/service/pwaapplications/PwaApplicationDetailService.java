@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -134,5 +135,17 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
-
+  /**
+   * Updates the crossing related values on the detail.
+   *
+   * @param detail The current application detail.
+   * @param form   A CrossingTypesForm.
+   */
+  @Transactional
+  public void updateCrossingStatus(PwaApplicationDetail detail, CrossingTypesForm form) {
+    detail.setCablesCrossed(form.getCablesCrossed());
+    detail.setPipelinesCrossed(form.getPipelinesCrossed());
+    detail.setMedianLineCrossed(form.getMedianLineCrossed());
+    pwaApplicationDetailRepository.save(detail);
+  }
 }

@@ -15,15 +15,21 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -42,13 +48,31 @@ public class CableCrossingController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadCableCrossingService padCableCrossingService;
+  private final CableCrossingFileService cableCrossingFileService;
+  private final CrossingAgreementsService crossingAgreementsService;
 
   @Autowired
   public CableCrossingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadCableCrossingService padCableCrossingService) {
+      PadCableCrossingService padCableCrossingService,
+      CableCrossingFileService cableCrossingFileService,
+      CrossingAgreementsService crossingAgreementsService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padCableCrossingService = padCableCrossingService;
+    this.cableCrossingFileService = cableCrossingFileService;
+    this.crossingAgreementsService = crossingAgreementsService;
+  }
+
+  private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/overview")
+        .addObject("overview", CrossingOverview.CABLE_CROSSINGS)
+        .addObject("cableCrossings", padCableCrossingService.getCableCrossingViews(detail))
+        .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
+        .addObject("cableCrossingFiles",
+            cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
+    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Cable crossings");
+    return modelAndView;
   }
 
   private ModelAndView createRenderAddModelAndView(PwaApplicationDetail detail) {
@@ -60,7 +84,8 @@ public class CableCrossingController {
                 null,
                 null
             )));
-    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Add cable crossing");
+    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
+        CrossingAgreementTask.CABLE_CROSSINGS, "Add cable crossing");
     return modelAndView;
   }
 
@@ -73,11 +98,21 @@ public class CableCrossingController {
                 null,
                 null
             )));
-    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Edit cable crossing");
+    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
+        CrossingAgreementTask.CABLE_CROSSINGS, "Edit cable crossing");
     return modelAndView;
   }
 
   @GetMapping
+  public ModelAndView renderOverview(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddCableCrossingForm form,
+      PwaApplicationContext applicationContext) {
+    return createOverviewModelAndView(applicationContext.getApplicationDetail());
+  }
+
+  @GetMapping("/new")
   public ModelAndView renderAddCableCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -87,7 +122,7 @@ public class CableCrossingController {
     return createRenderAddModelAndView(applicationContext.getApplicationDetail());
   }
 
-  @PostMapping
+  @PostMapping("/new")
   public ModelAndView postAddCableCrossings(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -148,7 +183,8 @@ public class CableCrossingController {
         .addObject("cableCrossing", new CableCrossingView(crossing))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(applicationType, applicationId, null, null)));
-    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Remove cable crossing");
+    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
+        CrossingAgreementTask.CABLE_CROSSINGS, "Remove cable crossing");
     return modelAndView;
   }
 

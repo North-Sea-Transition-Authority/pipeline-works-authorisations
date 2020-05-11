@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -10,12 +11,16 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
+import uk.co.ogauthority.pwa.model.tasklist.TagColour;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
-public class PadCableCrossingService implements ApplicationFormSectionService {
+public class PadCableCrossingService implements ApplicationFormSectionService, TaskListSection {
 
   private final PadCableCrossingRepository padCableCrossingRepository;
   private final CableCrossingFileService cableCrossingFileService;
@@ -83,5 +88,27 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     throw new AssertionError("validate doesnt make sense.");
+  }
+
+  @Override
+  public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
+    return false;
+  }
+
+  @Override
+  public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return BooleanUtils.isTrue(pwaApplicationDetail.getCablesCrossed());
+  }
+
+  @Override
+  public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
+    var crossingCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+    var documentUploadCount = cableCrossingFileService.getDocumentUploadCount(pwaApplicationDetail);
+    String crossingsText = StringDisplayUtils.pluralise("crossing", crossingCount);
+    String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
+    return List.of(
+        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), TagColour.BLUE),
+        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), TagColour.BLUE)
+    );
   }
 }

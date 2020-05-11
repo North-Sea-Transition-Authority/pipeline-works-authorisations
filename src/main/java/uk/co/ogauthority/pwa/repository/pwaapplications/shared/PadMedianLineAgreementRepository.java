@@ -11,4 +11,6 @@ public interface PadMedianLineAgreementRepository extends CrudRepository<PadMedi
 
   Optional<PadMedianLineAgreement> findByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
+  int countAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+
 }
