@@ -77,7 +77,7 @@ public class EditHuooValidator implements SmartValidator {
         .filter(
             padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() != editingPadOrg.getOrganisationUnit().getOuId())
         .count();
-    // TODO: PWA-407 Change hard-coded 1 to match number of potential holders on an application.
+    // TODO: PWA-386 Change hard-coded 1 to match number of potential holders on an application.
     if (holderCount >= 1) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
         errors.rejectValue("huooRoles", "huooRoles.alreadyUsed",
