@@ -48,7 +48,7 @@ public class ApplicationDetailSearcherTest {
   @Test
   public void searchByPwaContacts_whenNoContactRoles() {
     var resultPage = applicationDetailSearcher.searchByPwaContacts(pageable, Set.of());
-    assertThat(resultPage).isEqualTo(Page.empty(pageable));
+    assertThat(resultPage).isEqualTo(Page.empty(PageRequest.of(PAGE_REQUESTED, PAGE_SIZE)));
 
   }
 
