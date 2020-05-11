@@ -53,7 +53,7 @@ public class SearchSelectorService {
     var results = new LinkedHashMap<String, String>();
     for (String s : selections) {
       if (s.startsWith(SearchSelectable.FREE_TEXT_PREFIX)) {
-        results.put(s, StringUtils.removeStart(s, SearchSelectable.FREE_TEXT_PREFIX));
+        results.put(s, removePrefix(s));
       } else {
         results.put(s, resolvedLinkedEntryMap.get(s));
       }
