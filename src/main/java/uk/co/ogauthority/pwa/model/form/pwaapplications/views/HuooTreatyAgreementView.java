@@ -11,9 +11,9 @@ public class HuooTreatyAgreementView {
   private final String removeUrl;
 
   public HuooTreatyAgreementView(PadOrganisationRole padOrganisationRole, String editUrl, String removeUrl) {
-    country = padOrganisationRole.getAgreement().getCountry();
-    treatyAgreementText = padOrganisationRole.getAgreement().getAgreementText();
-    roles = padOrganisationRole.getRole().getDisplayText();
+    this.country = padOrganisationRole.getAgreement().getCountry();
+    this.treatyAgreementText = padOrganisationRole.getAgreement().getAgreementText();
+    this.roles = padOrganisationRole.getRole().getDisplayText();
     this.editUrl = editUrl;
     this.removeUrl = removeUrl;
   }
