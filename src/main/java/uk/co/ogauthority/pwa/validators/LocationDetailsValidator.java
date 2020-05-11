@@ -45,6 +45,10 @@ public class LocationDetailsValidator implements Validator {
     if (form.getFacilitiesOffshore() == null) {
       errors.rejectValue("facilitiesOffshore", "facilitiesOffshore.required",
           "Select yes if facilities are wholly offshore and subsea");
+    } else if (form.getFacilitiesOffshore().equals(false)) {
+      ValidationUtils.rejectIfEmpty(errors, "pipelineAshoreLocation",
+          "pipelineAshoreLocation" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "You must provide the location information detailing where the pipeline comes ashore");
     }
     if (form.getTransportsMaterialsToShore() == null) {
       errors.rejectValue("transportsMaterialsToShore", "transportsMaterialsToShore.required",
@@ -52,10 +56,6 @@ public class LocationDetailsValidator implements Validator {
     } else if (form.getTransportsMaterialsToShore().equals(true)) {
       ValidationUtils.rejectIfEmpty(errors, "transportationMethod", "transportationMethod.required",
           "You must provide the method of transportation to shore");
-    } else if (form.getTransportsMaterialsToShore().equals(false)) {
-      ValidationUtils.rejectIfEmpty(errors, "pipelineAshoreLocation",
-          "pipelineAshoreLocation" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "You must provide the location information detailing where the pipeline comes ashore");
     }
     ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",
         "pipelineRouteDetails.required", "You must provide pipeline route details");

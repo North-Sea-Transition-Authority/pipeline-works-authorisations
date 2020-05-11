@@ -27,7 +27,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   private Integer surveyConcludedMonth;
   private Integer surveyConcludedYear;
 
-  @Length(max = 4000, message = "Transportation method must be 4000 characters or fewer")
+  @Length(max = 4000, message = "Pipeline ashore location must be 4000 characters or fewer")
   private String pipelineAshoreLocation;
 
   public LocationDetailsForm() {
