@@ -19,7 +19,7 @@ public class DevukFieldService {
   }
 
   public List<DevukField> getByOrganisationUnitWithStatusCodes(PortalOrganisationUnit organisationUnit, List<Integer> statusCodes) {
-    return devukFieldRepository.findAllByOrganisationUnitAndStatusIn(organisationUnit, statusCodes);
+    return devukFieldRepository.findAllByOperatorOuIdAndStatusIn(organisationUnit.getOuId(), statusCodes);
   }
 
   public List<DevukField> getByStatusCodes(List<Integer> statusCodes) {
