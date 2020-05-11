@@ -32,4 +32,17 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .setParameter("detail", detail)
         .getResultList();
   }
+
+  @Override
+  public Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return entityManager.createQuery("" +
+        "SELECT COUNT(pp) " +
+        "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
+        "LEFT JOIN uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent ppi " +
+          "ON pp.id = ppi.padPipeline.id " +
+        "WHERE pp.pwaApplicationDetail = :detail " +
+        "AND ppi IS NULL", Long.class)
+        .setParameter("detail", pwaApplicationDetail)
+        .getSingleResult();
+  }
 }

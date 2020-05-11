@@ -42,6 +42,8 @@
       <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
     </#if>
 
+    <hr class="govuk-section-break govuk-section-break--l"/>
+
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later" errorMessage=errorMessage!/>
     </@fdsForm.htmlForm>

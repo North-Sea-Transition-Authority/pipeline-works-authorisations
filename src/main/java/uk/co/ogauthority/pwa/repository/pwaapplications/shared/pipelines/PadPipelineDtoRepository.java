@@ -10,4 +10,6 @@ public interface PadPipelineDtoRepository {
 
   List<PadPipelineOverviewDto> findAllAsOverviewDtoByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
+  Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+
 }

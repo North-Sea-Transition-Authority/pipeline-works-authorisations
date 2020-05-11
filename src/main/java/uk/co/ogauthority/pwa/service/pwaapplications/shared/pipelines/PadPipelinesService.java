@@ -31,13 +31,10 @@ import uk.co.ogauthority.pwa.util.CoordinateUtils;
 public class PadPipelinesService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
-  private final PadPipelineIdentService padPipelineIdentService;
 
   @Autowired
-  public PadPipelinesService(PadPipelineRepository padPipelineRepository,
-                             PadPipelineIdentService padPipelineIdentService) {
+  public PadPipelinesService(PadPipelineRepository padPipelineRepository) {
     this.padPipelineRepository = padPipelineRepository;
-    this.padPipelineIdentService = padPipelineIdentService;
   }
 
   public List<PipelineOverview> getPipelineOverviews(PwaApplicationDetail detail) {
@@ -157,8 +154,7 @@ public class PadPipelinesService implements ApplicationFormSectionService {
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(detail).intValue() > 0
-        && padPipelineRepository.getAllByPwaApplicationDetail(detail).stream()
-            .noneMatch(pipe -> padPipelineIdentService.getMaxIdent(pipe).isEmpty());
+        && padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail) == 0L;
   }
 
   @Override
