@@ -3,10 +3,11 @@
 <#-- @ftlvariable name="userName" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="error" type="String" -->
+<#-- @ftlvariable name="showTopNav" type="java.lang.Boolean" -->
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle=teamName twoThirdsColumn=false backLink=true topNavigation=true>
+<@defaultPage htmlTitle=teamName twoThirdsColumn=false backLink=true topNavigation=showTopNav>
 
     <#if error?has_content>
         <@fdsError.singleErrorSummary errorMessage=error/>
