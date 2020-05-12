@@ -41,14 +41,14 @@
                     <#list permanentDepositsMadeOptions as  depositOption>
                         <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={depositOption : depositOption.getDisplayText()} isFirstItem=firstItem>
                         <#if depositOption == "LATER_APP">
-                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="“Month and year that later application will be submitted" formId="date-of-future-app">
+                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year that later application will be submitted" formId="date-of-future-app">
                                 <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionMonth" labelText="Month" inputClass="govuk-input--width-2"/>
                                 <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionYear" labelText="Year" inputClass="govuk-input--width-4"/>
                             </@fdsNumberInput.twoNumberInputs>
                         </#if>                   
                         </@fdsRadio.radioItem>
-                    </#list>
                     <#assign firstItem=false/>
+                    </#list>
                 </@fdsRadio.radioGroup>
             </#if>
 
