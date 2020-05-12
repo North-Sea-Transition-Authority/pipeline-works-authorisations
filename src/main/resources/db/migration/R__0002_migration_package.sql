@@ -91,7 +91,7 @@ AS
       RETURN deposit_consent;
     END IF;
 
-    IF (p_mig_consent.variation_number IS NOT NULL AND NOT(is_initial_pwa_consent(p_mig_consent)) ) THEN
+    IF (p_mig_consent.variation_number IS NOT NULL) THEN
       RETURN variation;
     END IF;
 
