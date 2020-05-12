@@ -19,6 +19,9 @@ public class PwaFieldFormValidator implements Validator {
     var fieldForm = (PwaFieldForm) target;
     if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldId() == null) {
       errors.rejectValue("fieldId", "fieldId.required", "Field must be selected");
+    } else if (BooleanUtils.isFalse(fieldForm.getLinkedToField())
+            && (fieldForm.getNoLinkedFieldDescription() == null || fieldForm.getNoLinkedFieldDescription() == "")) {
+      errors.rejectValue("noLinkedFieldDescription", "noLinkedFieldDescription.required", "Description must not be empty");
     }
   }
 }

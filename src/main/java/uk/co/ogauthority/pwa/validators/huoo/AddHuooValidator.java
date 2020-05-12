@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.validators.huoo;
 
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,28 +8,26 @@ import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 
 @Service
-public class EditHuooValidator implements SmartValidator {
+public class AddHuooValidator implements SmartValidator {
 
   private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
-  public EditHuooValidator(
+  public AddHuooValidator(
       PadOrganisationRoleService padOrganisationRoleService) {
     this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return clazz.equals(EditHuooValidator.class);
+    return clazz.equals(AddHuooValidator.class);
   }
 
   @Override
-  @Deprecated
   public void validate(Object target, Errors errors) {
     throw new AssertionError(); /* required by the SmartValidator. Not actually used. */
   }
@@ -38,14 +36,11 @@ public class EditHuooValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (HuooForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
-    var editingPadOrg = (PadOrganisationRole) validationHints[1];
     var roles = padOrganisationRoleService.getOrgRolesForDetail(detail);
     if (form.getHuooType() == null) {
       errors.rejectValue("huooType", "huooType.required",
           "You must select the entity type");
-    }
-
-    if (form.getHuooType() == HuooType.PORTAL_ORG) {
+    } else if (form.getHuooType() == HuooType.PORTAL_ORG) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
         errors.rejectValue("huooRoles", "huooRoles.required",
             "You must select one or more roles");
@@ -53,9 +48,6 @@ public class EditHuooValidator implements SmartValidator {
       if (form.getOrganisationUnit() != null) {
         roles.stream()
             .filter(role -> role.getType().equals(HuooType.PORTAL_ORG))
-            .filter(
-                padOrganisationRole -> editingPadOrg.getOrganisationUnit() == null // we aren't editing an org at all, but a treaty
-                    || (padOrganisationRole.getOrganisationUnit().getOuId() != editingPadOrg.getOrganisationUnit().getOuId()))
             .filter(padOrganisationRole ->
                 padOrganisationRole.getOrganisationUnit().getOuId() == form.getOrganisationUnit().getOuId())
             .findAny()
@@ -69,42 +61,17 @@ public class EditHuooValidator implements SmartValidator {
       errors.rejectValue("treatyAgreement", "treatyAgreement.required",
           "You must select a treaty agreement");
     }
-
     var holderCount = roles.stream()
-        .filter(padOrgRole -> padOrgRole.getType().equals(editingPadOrg.getType()))
-        .filter(padOrgRole -> padOrgRole.getType().equals(HuooType.PORTAL_ORG))
-        .filter(padOrgRole -> padOrgRole.getRoles().contains(HuooRole.HOLDER))
-        .filter(
-            padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() != editingPadOrg.getOrganisationUnit().getOuId())
+        .filter(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER))
         .count();
     // TODO: PWA-407 Change hard-coded 1 to match number of potential holders on an application.
     if (holderCount >= 1) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
-        errors.rejectValue("huooRoles", "huooRoles.alreadyUsed",
+        errors.rejectValue("huooRoles", "huooRoles.holderNotAllowed",
             "You may only have one holder on an application");
       }
     }
-
-    if (editingPadOrg.getType() != form.getHuooType()) {
-      errors.rejectValue("huooType", "huooType.differentType",
-          "Entity cannot have a different type");
-    }
-
-    var orgWasHolder = roles.stream()
-        .filter(padOrgRole -> padOrgRole.getType().equals(editingPadOrg.getType()))
-        .filter(padOrgRole -> padOrgRole.getType().equals(HuooType.PORTAL_ORG))
-        .filter(
-            padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() == editingPadOrg.getOrganisationUnit().getOuId())
-        .anyMatch(padOrgRole -> padOrgRole.getRoles().contains(HuooRole.HOLDER));
-
-    if (orgWasHolder) {
-      if (!SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER) && holderCount == 0) {
-        errors.rejectValue("huooRoles", "huooRoles.requiresOneHolder",
-            "You can't remove the final holder on an application");
-      }
-    }
-
-    if (form.getHuooType() == HuooType.TREATY_AGREEMENT && form.getHuooRoles().contains(HuooRole.HOLDER)) {
+    if (form.getHuooType() == HuooType.TREATY_AGREEMENT && SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
       errors.rejectValue("huooRoles", "huooRoles.treatyHolderNotAllowed",
           "A treaty agreement cannot be an application holder");
     }
@@ -112,7 +79,7 @@ public class EditHuooValidator implements SmartValidator {
     if (form.getHuooType() == HuooType.TREATY_AGREEMENT) {
       var alreadyAddedTreaty = roles.stream()
           .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
-          .anyMatch(padOrganisationRole -> padOrganisationRole.getAgreement().equals(editingPadOrg.getAgreement()));
+          .anyMatch(padOrganisationRole -> padOrganisationRole.getAgreement().equals(form.getTreatyAgreement()));
       if (alreadyAddedTreaty) {
         errors.rejectValue("treatyAgreement", "treatyAgreement.duplicate",
             "The treaty agreement is already added to the application");

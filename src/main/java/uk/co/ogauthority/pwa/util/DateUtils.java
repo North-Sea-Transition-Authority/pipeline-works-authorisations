@@ -13,7 +13,7 @@ public class DateUtils {
     throw new AssertionError();
   }
 
-  private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM YYYY");
+  private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
   public static String formatDate(LocalDate localDate) {
     return localDate.format(dateTimeFormatter);
