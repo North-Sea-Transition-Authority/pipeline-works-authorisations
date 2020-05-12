@@ -58,7 +58,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
             new TaskListEntry("Header information", getEditPipelineHeaderUrl(
                 pipelineOverviewDto.getDetail().getMasterPwaApplicationId(),
                 pipelineOverviewDto.getDetail().getPwaApplicationType(),
-                pipelineOverviewDto.getDetail().getId()), true),
+                pipelineOverviewDto.getPadPipeline().getId()), true),
             new TaskListEntry("Idents", identTaskUrl, false,
                  new TaskInfo(identTaskUrl, "IDENT", pipelineOverviewDto.getNumberOfIdents())
             )
