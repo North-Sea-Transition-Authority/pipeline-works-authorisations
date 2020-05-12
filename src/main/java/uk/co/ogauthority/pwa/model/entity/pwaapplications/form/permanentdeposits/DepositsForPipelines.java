@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 
 @Entity(name = "deposits_for_pipelines")
 public class DepositsForPipelines {
@@ -11,8 +12,9 @@ public class DepositsForPipelines {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
-  private Integer padProjectInfoId;
+  @NotNull
   private Integer permanentDepositInfoId;
+  @NotNull
   private Integer padPipelineId;
 
 
@@ -22,14 +24,6 @@ public class DepositsForPipelines {
 
   public void setId(Integer id) {
     this.id = id;
-  }
-
-  public Integer getPadProjectInfoId() {
-    return padProjectInfoId;
-  }
-
-  public void setPadProjectInfoId(Integer padProjectInfoId) {
-    this.padProjectInfoId = padProjectInfoId;
   }
 
   public Integer getPermanentDepositInfoId() {

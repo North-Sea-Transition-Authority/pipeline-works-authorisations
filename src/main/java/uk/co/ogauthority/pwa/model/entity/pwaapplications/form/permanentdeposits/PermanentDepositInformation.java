@@ -1,15 +1,18 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
 
+import java.math.BigDecimal;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Enumerated;
-import javax.persistence.EnumType;
-import javax.persistence.Column;
-import java.math.BigDecimal;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialUnitType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
@@ -21,6 +24,10 @@ public class PermanentDepositInformation {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
+  @JoinColumn(name = "application_detail_id")
+  @OneToOne
+  private PwaApplicationDetail pwaApplicationDetail;
+
   private Integer fromMonth;
   private Integer fromYear;
 
@@ -30,7 +37,7 @@ public class PermanentDepositInformation {
   private MaterialUnitType materialUnitType;
 
   private Boolean groutBagsBioDegradable;
-  private String bioGroutBagsNotUsedDescription;
+  private String bagsNotUsedDescription;
 
   private double quantity;
   private String contingencyAmount;
@@ -99,6 +106,14 @@ public class PermanentDepositInformation {
     this.id = id;
   }
 
+  public PwaApplicationDetail getPwaApplicationDetail() {
+    return pwaApplicationDetail;
+  }
+
+  public void setPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    this.pwaApplicationDetail = pwaApplicationDetail;
+  }
+
   public Integer getFromMonth() {
     return fromMonth;
   }
@@ -139,12 +154,12 @@ public class PermanentDepositInformation {
     this.groutBagsBioDegradable = groutBagsBioDegradable;
   }
 
-  public String getBioGroutBagsNotUsedDescription() {
-    return bioGroutBagsNotUsedDescription;
+  public String getBagsNotUsedDescription() {
+    return bagsNotUsedDescription;
   }
 
-  public void setBioGroutBagsNotUsedDescription(String bioGroutBagsNotUsedDescription) {
-    this.bioGroutBagsNotUsedDescription = bioGroutBagsNotUsedDescription;
+  public void setBagsNotUsedDescription(String bagsNotUsedDescription) {
+    this.bagsNotUsedDescription = bagsNotUsedDescription;
   }
 
   public double getQuantity() {

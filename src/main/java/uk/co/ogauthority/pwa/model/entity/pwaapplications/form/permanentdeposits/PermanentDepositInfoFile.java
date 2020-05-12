@@ -1,10 +1,17 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.PwaApplicationFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "permanent_deposit_info_files")
