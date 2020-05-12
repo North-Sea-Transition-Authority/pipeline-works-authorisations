@@ -7,12 +7,13 @@ public class TaskListEntry {
   private final String taskName;
   private final String route;
   private final boolean completed;
-  private TaskInfo taskInfo;
+  private final TaskInfo taskInfo;
 
   public TaskListEntry(String taskName, String route, boolean completed) {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
+    this.taskInfo = null;
   }
 
   public TaskListEntry(String taskName, String route, boolean completed,

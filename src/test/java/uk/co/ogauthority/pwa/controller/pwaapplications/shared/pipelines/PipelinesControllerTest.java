@@ -221,11 +221,12 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postPipelinesOverview_contactSmokeTest() {
 
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelinesController.class)
-                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)))
-        .addRequestParam("Save and complete later", "Save and complete later");
+                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -234,11 +235,12 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postPipelinesOverview_appTypeSmokeTest() {
 
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelinesController.class)
-                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)))
-        .addRequestParam("Save and complete later", "Save and complete later");
+                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -247,27 +249,14 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postPipelinesOverview_appStatusSmokeTest() {
 
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelinesController.class)
-                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)))
-        .addRequestParam("Save and complete later", "Save and complete later");
+                .postPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
-
-  }
-
-  @Test
-  public void postPipelinesOverview_saveCompleteLater_notComplete() throws Exception {
-
-    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
-
-    mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
-        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .param("Save and complete later", "Save and complete later")
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(status().is3xxRedirection());
 
   }
 
@@ -277,8 +266,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
-        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .param("Complete", "Complete")
+        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -292,8 +280,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
-        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .param("Complete", "Complete")
+        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());

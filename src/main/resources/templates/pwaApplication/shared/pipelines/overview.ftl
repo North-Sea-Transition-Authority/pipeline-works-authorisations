@@ -4,6 +4,7 @@
 <#-- @ftlvariable name="pipelineOverviews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 <#-- @ftlvariable name="addPipelineUrl" type="String" -->
 <#-- @ftlvariable name="errorMessage" type="String" -->
+<#-- @ftlvariable name="taskListUrl" type="String" -->
 
 <#assign addPipeButton>
     <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addPipelineUrl) linkClass="govuk-button govuk-button--blue" />
@@ -45,7 +46,7 @@
     <hr class="govuk-section-break govuk-section-break--l"/>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later" errorMessage=errorMessage!/>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl) errorMessage=errorMessage!/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>
