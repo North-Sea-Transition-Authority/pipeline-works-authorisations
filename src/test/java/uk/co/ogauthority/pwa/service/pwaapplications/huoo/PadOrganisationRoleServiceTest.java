@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,6 +49,9 @@ public class PadOrganisationRoleServiceTest {
   @Captor
   private ArgumentCaptor<PadOrganisationRole> roleCaptor;
 
+  @Captor
+  private ArgumentCaptor<List<PadOrganisationRole>> roleListCaptor;
+
   @Before
   public void setUp() {
 
@@ -62,24 +67,24 @@ public class PadOrganisationRoleServiceTest {
     org1 = new PadOrganisationRole();
     org1.setOrganisationUnit(PortalOrganisationTestUtils.generateOrganisationUnit(1, "ZZZ", orgGroup1));
     org1.setPwaApplicationDetail(detail);
-    org1.setRoles(Set.of(HuooRole.HOLDER, HuooRole.USER));
+    org1.setRole(HuooRole.USER);
     org1.setType(HuooType.PORTAL_ORG);
 
     org2 = new PadOrganisationRole();
     org2.setOrganisationUnit(PortalOrganisationTestUtils.generateOrganisationUnit(2, "AAA", orgGroup2));
     org2.setPwaApplicationDetail(detail);
-    org2.setRoles(Set.of(HuooRole.OWNER));
+    org2.setRole(HuooRole.OWNER);
     org2.setType(HuooType.PORTAL_ORG);
 
     treaty1 = new PadOrganisationRole();
     treaty1.setAgreement(TreatyAgreement.NORWAY);
-    treaty1.setRoles(Set.of(HuooRole.USER));
+    treaty1.setRole(HuooRole.USER);
     treaty1.setPwaApplicationDetail(detail);
     treaty1.setType(HuooType.TREATY_AGREEMENT);
 
     treaty2 = new PadOrganisationRole();
     treaty2.setAgreement(TreatyAgreement.BELGIUM);
-    treaty2.setRoles(Set.of(HuooRole.USER));
+    treaty2.setRole(HuooRole.USER);
     treaty2.setPwaApplicationDetail(detail);
     treaty2.setType(HuooType.TREATY_AGREEMENT);
 
@@ -88,15 +93,20 @@ public class PadOrganisationRoleServiceTest {
     org1Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(org1.getOrganisationUnit(), "add1", "111");
     org2Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(org2.getOrganisationUnit(), "add2", "222");
 
-    when(portalOrganisationsAccessor.getOrganisationUnitDetails(List.of(org1.getOrganisationUnit(), org2.getOrganisationUnit())))
-        .thenReturn(List.of(org1Detail, org2Detail));
-
   }
 
   @Test
   public void getHuooOrganisationUnitRoleViews() {
 
     var rolesList = List.of(org1, org2, treaty1, treaty2);
+
+    org1.setRole(HuooRole.USER);
+    org2.setRole(HuooRole.OWNER);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
+        org1Detail,
+        org2Detail
+    ));
 
     var viewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, rolesList);
 
@@ -107,18 +117,23 @@ public class PadOrganisationRoleServiceTest {
 
     assertThat(org1View.getCompanyAddress()).isEqualTo(org1Detail.getLegalAddress());
     assertThat(org1View.getRegisteredNumber()).isEqualTo(org1Detail.getRegisteredNumber());
-    assertThat(org1View.getRoleSet()).containsExactlyInAnyOrderElementsOf(org1.getRoles());
-    assertThat(org1View.getRoles()).isEqualTo("Holder, User");
+    assertThat(org1View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(org1.getRole()));
+    assertThat(org1View.getRoles()).isEqualTo("User");
 
     assertThat(org2View.getCompanyAddress()).isEqualTo(org2Detail.getLegalAddress());
     assertThat(org2View.getRegisteredNumber()).isEqualTo(org2Detail.getRegisteredNumber());
-    assertThat(org2View.getRoleSet()).containsExactlyInAnyOrderElementsOf(org2.getRoles());
+    assertThat(org2View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(org2.getRole()));
     assertThat(org2View.getRoles()).isEqualTo("Owner");
 
   }
 
   @Test
   public void getHuooOrganisationUnitRoleViews_sorting_holderTakesPrecedence() {
+
+    when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
+        org1Detail,
+        org2Detail
+    ));
 
     var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(org1, org2));
 
@@ -140,7 +155,12 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void getHuooOrganisationUnitRoleViews_sorting_orgNameBreaksTie() {
 
-    org1.setRoles(org2.getRoles()); // equalise the roles between the two orgs
+    when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
+        org1Detail,
+        org2Detail
+    ));
+
+    org1.setRole(org2.getRole()); // equalise the roles between the two orgs
 
     var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(org1, org2));
 
@@ -171,12 +191,12 @@ public class PadOrganisationRoleServiceTest {
     var belgium = viewList.stream().filter(r -> r.getCountry().equals(TreatyAgreement.BELGIUM.getCountry())).findFirst().orElseThrow();
 
     assertThat(norway.getTreatyAgreementText()).isEqualTo(TreatyAgreement.NORWAY.getAgreementText());
-    assertThat(norway.getRoleSet()).containsExactlyInAnyOrderElementsOf(treaty1.getRoles());
+    assertThat(norway.getRoles()).isEqualTo(treaty1.getRole().getDisplayText());
     assertThat(norway.getRoles()).isEqualTo("User");
     assertThat(viewList.indexOf(norway)).isEqualTo(1); // sorted alphabetically
 
     assertThat(belgium.getTreatyAgreementText()).isEqualTo(TreatyAgreement.BELGIUM.getAgreementText());
-    assertThat(belgium.getRoleSet()).containsExactlyInAnyOrderElementsOf(treaty2.getRoles());
+    assertThat(belgium.getRoles()).isEqualTo(treaty2.getRole().getDisplayText());
     assertThat(belgium.getRoles()).isEqualTo("User");
     assertThat(viewList.indexOf(belgium)).isEqualTo(0); // sorted alphabetically
 
@@ -185,10 +205,11 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void canRemoveOrganisationRole_multipleHolders() {
 
-    assertThat(org1.getRoles()).contains(HuooRole.HOLDER);
-    org2.setRoles(Set.of(HuooRole.HOLDER));
 
-    boolean canRemove = padOrganisationRoleService.canRemoveOrganisationRole(detail, org1);
+    org1.setRole(HuooRole.HOLDER);
+    org2.setRole(HuooRole.HOLDER);
+
+    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, org1.getOrganisationUnit());
 
     assertThat(canRemove).isTrue();
 
@@ -197,10 +218,13 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void canRemoveOrganisationRole_singleHolder() {
 
-    assertThat(org1.getRoles()).contains(HuooRole.HOLDER);
-    assertThat(org2.getRoles()).doesNotContain(HuooRole.HOLDER);
+    org1.setRole(HuooRole.HOLDER);
+    org2.setRole(HuooRole.OWNER);
 
-    boolean canRemove = padOrganisationRoleService.canRemoveOrganisationRole(detail, org1);
+    when(repository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, org1.getOrganisationUnit()))
+        .thenReturn(List.of(org1, org2));
+
+    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, org1.getOrganisationUnit());
 
     assertThat(canRemove).isFalse();
 
@@ -209,9 +233,9 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void canRemoveOrganisationRole_removingNonHolder() {
 
-    assertThat(org2.getRoles()).doesNotContain(HuooRole.HOLDER);
+    org2.setRole(HuooRole.OWNER);
 
-    boolean canRemove = padOrganisationRoleService.canRemoveOrganisationRole(detail, org2);
+    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, org2.getOrganisationUnit());
 
     assertThat(canRemove).isTrue();
 
@@ -220,12 +244,15 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void mapPadOrganisationRoleToForm_org() {
 
+    when(repository.getAllByPwaApplicationDetailAndOrganisationUnit(eq(detail), any()))
+        .thenReturn(List.of(org1));
+
     var form = new HuooForm();
 
-    padOrganisationRoleService.mapPadOrganisationRoleToForm(org1, form);
+    padOrganisationRoleService.mapPortalOrgUnitRoleToForm(detail, org1.getOrganisationUnit(), form);
 
     assertThat(form.getHuooType()).isEqualTo(org1.getType());
-    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(org1.getRoles());
+    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(org1.getRole()));
     assertThat(form.getOrganisationUnit()).isEqualTo(org1.getOrganisationUnit());
     assertThat(form.getTreatyAgreement()).isNull();
 
@@ -236,10 +263,10 @@ public class PadOrganisationRoleServiceTest {
 
     var form = new HuooForm();
 
-    padOrganisationRoleService.mapPadOrganisationRoleToForm(treaty1, form);
+    padOrganisationRoleService.mapTreatyAgreementToForm(detail, treaty1, form);
 
     assertThat(form.getHuooType()).isEqualTo(treaty1.getType());
-    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(treaty1.getRoles());
+    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(treaty1.getRole()));
     assertThat(form.getOrganisationUnit()).isNull();
     assertThat(form.getTreatyAgreement()).isEqualTo(treaty1.getAgreement());
 
@@ -255,17 +282,17 @@ public class PadOrganisationRoleServiceTest {
     form.setOrganisationUnit(newOrgUnit);
     form.setHuooRoles(Set.of(HuooRole.OPERATOR));
 
-    padOrganisationRoleService.createAndSaveEntityUsingForm(detail, form);
+    padOrganisationRoleService.saveEntityUsingForm(detail, form);
 
-    verify(repository, times(1)).save(roleCaptor.capture());
+    verify(repository, times(1)).saveAll(roleListCaptor.capture());
 
-    var newRole = roleCaptor.getValue();
+    var newRole = roleListCaptor.getValue().get(0);
 
     assertThat(newRole.getPwaApplicationDetail()).isEqualTo(detail);
     assertThat(newRole.getType()).isEqualTo(HuooType.PORTAL_ORG);
     assertThat(newRole.getAgreement()).isNull();
     assertThat(newRole.getOrganisationUnit()).isEqualTo(newOrgUnit);
-    assertThat(newRole.getRoles()).containsExactlyInAnyOrder(HuooRole.OPERATOR);
+    assertThat(newRole.getRole()).isEqualTo(HuooRole.OPERATOR);
 
   }
 
@@ -278,18 +305,57 @@ public class PadOrganisationRoleServiceTest {
     form.setTreatyAgreement(TreatyAgreement.NETHERLANDS);
     form.setHuooRoles(Set.of(HuooRole.USER));
 
-    padOrganisationRoleService.createAndSaveEntityUsingForm(detail, form);
+    padOrganisationRoleService.saveEntityUsingForm(detail, form);
 
-    verify(repository, times(1)).save(roleCaptor.capture());
+    verify(repository, times(1)).saveAll(roleListCaptor.capture());
 
-    var newRole = roleCaptor.getValue();
+    var newRole = roleListCaptor.getValue().get(0);
 
     assertThat(newRole.getPwaApplicationDetail()).isEqualTo(detail);
     assertThat(newRole.getType()).isEqualTo(HuooType.TREATY_AGREEMENT);
     assertThat(newRole.getOrganisationUnit()).isNull();
     assertThat(newRole.getAgreement()).isEqualTo(TreatyAgreement.NETHERLANDS);
-    assertThat(newRole.getRoles()).containsExactlyInAnyOrder(HuooRole.USER);
+    assertThat(newRole.getRole()).isEqualTo(HuooRole.USER);
 
+  }
+
+  @Test
+  public void updateEntityUsingForm_org() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.OPERATOR));
+    form.setOrganisationUnit(org2.getOrganisationUnit());
+
+    padOrganisationRoleService.updateEntityUsingForm(detail, org1.getOrganisationUnit(), form);
+
+    verify(repository, times(1)).deleteAll(any());
+    verify(repository, times(1)).saveAll(roleListCaptor.capture());
+
+    var capture = roleListCaptor.getValue().get(0);
+
+    assertThat(capture.getType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(capture.getOrganisationUnit()).isEqualTo(org2.getOrganisationUnit());
+    assertThat(capture.getAgreement()).isNull();
+    assertThat(capture.getRole()).isEqualTo(HuooRole.OPERATOR);
+  }
+
+  @Test
+  public void updateEntityUsingForm_treaty() {
+    var form = new HuooForm();
+    form.setTreatyAgreement(TreatyAgreement.NETHERLANDS);
+
+    var org = new PadOrganisationRole();
+    org.setType(HuooType.TREATY_AGREEMENT);
+    org.setRole(HuooRole.USER);
+
+    padOrganisationRoleService.updateEntityUsingForm(detail, org, form);
+
+    verify(repository, times(1)).save(org);
+
+    assertThat(org.getType()).isEqualTo(HuooType.TREATY_AGREEMENT);
+    assertThat(org.getOrganisationUnit()).isNull();
+    assertThat(org.getAgreement()).isEqualTo(TreatyAgreement.NETHERLANDS);
+    assertThat(org.getRole()).isEqualTo(HuooRole.USER);
   }
 
   @Test
@@ -305,7 +371,7 @@ public class PadOrganisationRoleServiceTest {
 
     assertThat(newHolderRole.getPwaApplicationDetail()).isEqualTo(detail);
     assertThat(newHolderRole.getType()).isEqualTo(HuooType.PORTAL_ORG);
-    assertThat(newHolderRole.getRoles()).containsExactly(HuooRole.HOLDER);
+    assertThat(newHolderRole.getRole()).isEqualTo(HuooRole.HOLDER);
     assertThat(newHolderRole.getOrganisationUnit()).isEqualTo(newOrgUnit);
     assertThat(newHolderRole.getAgreement()).isNull();
 
@@ -338,9 +404,18 @@ public class PadOrganisationRoleServiceTest {
         ));
   }
 
+  @Test
+  public void removeRolesOfUnit() {
+    when(repository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, org1.getOrganisationUnit()))
+        .thenReturn(List.of(org1, org2));
+    padOrganisationRoleService.removeRolesOfUnit(detail, org1.getOrganisationUnit());
+    verify(repository, times(1)).deleteAll(any());
+  }
+
   private PadOrganisationRole createOrgRole(HuooRole role) {
     var org = new PadOrganisationRole();
-    org.setRoles(Set.of(role));
+    org.setRole(role);
     return org;
   }
+
 }
