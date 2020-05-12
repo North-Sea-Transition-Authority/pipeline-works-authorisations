@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
+import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 /* Service providing simplified API for project information app form */
@@ -54,10 +55,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return projectInformation;
   }
 
-  @PostConstruct
-  public void init() {
-    projectInformationValidator.setPadProjectInformationService(this);
-  }
+  //  @PostConstruct
+  //  public void init() {
+  //    projectInformationValidator.setPadProjectInformationService(this);
+  //  }
 
   /**
    * Map stored data to form including uploaded files depending on requested link status.
@@ -161,7 +162,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       groupValidator.validate(form, bindingResult, PartialValidation.class);
     } else {
       groupValidator.validate(form, bindingResult, FullValidation.class);
-      projectInformationValidator.validate(form, bindingResult, pwaApplicationDetail);
+      var projectInfoValidationHints = new ProjectInformationFormValidationHints(getIsAnyDepositQuestionRequired(pwaApplicationDetail),
+          getIsPermanentDepositQuestionRequired(pwaApplicationDetail));
+      projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
     }
 
     return bindingResult;
@@ -169,7 +172,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   public boolean getIsPermanentDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT) ? false : true;
+    return (!pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)
+        && !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION)) ? true : false;
   }
 
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {

@@ -27,20 +27,19 @@ import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectInformationValidatorTest {
 
-  @Mock
-  private PadProjectInformationService projectInformationService;
   private ProjectInformationValidator validator;
+  private ProjectInformationFormValidationHints projectInformationFormValidationHints;
 
   @Before
   public void setUp() {
     validator = new ProjectInformationValidator();
-    validator.setPadProjectInformationService(projectInformationService);
+    projectInformationFormValidationHints = new ProjectInformationFormValidationHints(false, false);
   }
 
   @Test
   public void validate_ProposedStartNull() {
     var form = new ProjectInformationForm();
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
 
@@ -51,7 +50,7 @@ public class ProjectInformationValidatorTest {
     form.setProposedStartDay(date.getDayOfMonth());
     form.setProposedStartMonth(date.getMonthValue());
     form.setProposedStartYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
 
@@ -62,14 +61,14 @@ public class ProjectInformationValidatorTest {
     form.setProposedStartDay(date.getDayOfMonth());
     form.setProposedStartMonth(date.getMonthValue());
     form.setProposedStartYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).doesNotContainKeys("proposedStartDay", "proposedStartMonth", "proposedStartYear");
   }
 
   @Test
   public void validate_MobilisationNull() {
     var form = new ProjectInformationForm();
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("mobilisationDay", "mobilisationMonth", "mobilisationYear");
   }
 
@@ -80,7 +79,7 @@ public class ProjectInformationValidatorTest {
     form.setMobilisationDay(date.getDayOfMonth());
     form.setMobilisationMonth(date.getMonthValue());
     form.setMobilisationYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("mobilisationDay", "mobilisationMonth", "mobilisationYear");
   }
 
@@ -91,14 +90,14 @@ public class ProjectInformationValidatorTest {
     form.setMobilisationDay(date.getDayOfMonth());
     form.setMobilisationMonth(date.getMonthValue());
     form.setMobilisationYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).doesNotContainKeys("mobilisationDay", "mobilisationMonth", "mobilisationYear");
   }
 
   @Test
   public void validate_EarliestCompletionNull() {
     var form = new ProjectInformationForm();
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("earliestCompletionDay", "earliestCompletionMonth", "earliestCompletionYear");
   }
 
@@ -109,7 +108,7 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionDay(date.getDayOfMonth());
     form.setEarliestCompletionMonth(date.getMonthValue());
     form.setEarliestCompletionYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("earliestCompletionDay", "earliestCompletionMonth", "earliestCompletionYear");
   }
 
@@ -120,14 +119,14 @@ public class ProjectInformationValidatorTest {
     form.setEarliestCompletionDay(date.getDayOfMonth());
     form.setEarliestCompletionMonth(date.getMonthValue());
     form.setEarliestCompletionYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).doesNotContainKeys("earliestCompletionDay", "earliestCompletionMonth", "earliestCompletionYear");
   }
 
   @Test
   public void validate_LatestCompletionNull() {
     var form = new ProjectInformationForm();
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("latestCompletionDay", "latestCompletionMonth", "latestCompletionYear");
   }
 
@@ -138,7 +137,7 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionDay(date.getDayOfMonth());
     form.setLatestCompletionMonth(date.getMonthValue());
     form.setLatestCompletionYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsKeys("latestCompletionDay", "latestCompletionMonth", "latestCompletionYear");
   }
 
@@ -149,7 +148,7 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionDay(date.getDayOfMonth());
     form.setLatestCompletionMonth(date.getMonthValue());
     form.setLatestCompletionYear(date.getYear());
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).doesNotContainKeys("latestCompletionDay", "latestCompletionMonth", "latestCompletionYear");
   }
 
@@ -166,7 +165,7 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionMonth(date.getMonthValue());
     form.setLatestCompletionYear(date.getYear());
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
     assertThat(errors).containsValues(
             Set.of("latestCompletionDay.beforeStart"),
             Set.of("latestCompletionMonth.beforeStart"),
@@ -181,7 +180,7 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
 
     assertThat(errors).contains(
             entry("commercialAgreementDay", Set.of("commercialAgreementDay.invalid")),
@@ -203,7 +202,7 @@ public class ProjectInformationValidatorTest {
     form.setCommercialAgreementDay(1);
     form.setCommercialAgreementMonth(2);
     form.setCommercialAgreementYear(2020);
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
 
     assertThat(errors).doesNotContainKeys(
             "commercialAgreementDay",
@@ -221,7 +220,7 @@ public class ProjectInformationValidatorTest {
     form.setCommercialAgreementDay(100);
     form.setCommercialAgreementMonth(100);
     form.setCommercialAgreementYear(2020);
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
 
     assertThat(errors).contains(
             entry("commercialAgreementDay", Set.of("commercialAgreementDay.invalid")),
@@ -239,7 +238,7 @@ public class ProjectInformationValidatorTest {
     form.setLicenceTransferDay(1);
     form.setLicenceTransferMonth(2);
     form.setLicenceTransferYear(2020);
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
 
     assertThat(errors).doesNotContainKeys(
             "licenceTransferDay",
@@ -257,7 +256,7 @@ public class ProjectInformationValidatorTest {
     form.setLicenceTransferDay(100);
     form.setLicenceTransferMonth(100);
     form.setLicenceTransferYear(2020);
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, getAppDetailForDepositTest(PwaApplicationType.HUOO_VARIATION));
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
 
     assertThat(errors).contains(
             entry("licenceTransferDay", Set.of("licenceTransferDay.invalid")),
@@ -268,20 +267,9 @@ public class ProjectInformationValidatorTest {
   }
 
 
-  public PwaApplicationDetail getAppDetailForDepositTest(PwaApplicationType pwaApplicationType) {
-    PwaApplication pwaApplication = new PwaApplication(null, pwaApplicationType, null);
-    return new PwaApplicationDetail(pwaApplication, null, null, null);
-  }
-
-  public Map<String, Set<String>> getErrorMap(ProjectInformationForm form, PwaApplicationDetail pwaApplicationDetail) {
-    when(projectInformationService.getIsAnyDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT))).thenReturn(true);
-    when(projectInformationService.getIsAnyDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.INITIAL))).thenReturn(true);
-    when(projectInformationService.getIsAnyDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT))).thenReturn(true);
-    when(projectInformationService.getIsPermanentDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT))).thenReturn(false);
-    when(projectInformationService.getIsPermanentDepositQuestionRequired( getAppDetailForDepositTest(PwaApplicationType.INITIAL))).thenReturn(true);
-
+  public Map<String, Set<String>> getErrorMap(ProjectInformationForm form, ProjectInformationFormValidationHints projectInformationFormValidationHints) {
     var errors = new BeanPropertyBindingResult(form, "form");
-    validator.validate(form, errors, pwaApplicationDetail);
+    validator.validate(form, errors, projectInformationFormValidationHints);
     return errors.getFieldErrors().stream()
             .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
   }
@@ -289,14 +277,14 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_noValidationRequired() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.DEPOSIT_CONSENT));
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(false, false));
     assertThat(errorsMap).doesNotContainKey("permanentDepositsMadeType");
   }
 
   @Test
   public void validate_permanentDepositType_Null() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(true, true));
     assertThat(errorsMap).contains(
             entry("permanentDepositsMadeType", Set.of("permanentDepositsMadeType.notSelected"))
     );
@@ -306,7 +294,7 @@ public class ProjectInformationValidatorTest {
   public void validate_permanentDepositType_LaterApp_noDate() {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
     assertThat(errorsMap).contains(
             entry("futureAppSubmissionMonth", Set.of("futureAppSubmissionMonth.invalid")),
             entry("futureAppSubmissionYear", Set.of("futureAppSubmissionYear.invalid"))
@@ -319,7 +307,7 @@ public class ProjectInformationValidatorTest {
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureAppSubmissionMonth(2);
     form.setFutureAppSubmissionYear(2020);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
     assertThat(errorsMap).contains(
             entry("futureAppSubmissionMonth", Set.of("futureAppSubmissionMonth.beforeToday")),
             entry("futureAppSubmissionYear", Set.of("futureAppSubmissionYear.beforeToday"))
@@ -330,7 +318,7 @@ public class ProjectInformationValidatorTest {
   public void validate_temporaryDeposit_noDescription() {
     var form = new ProjectInformationForm();
     form.setTemporaryDepositsMade(true);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false));
     assertThat(errorsMap).contains(
             entry("temporaryDepDescription", Set.of("temporaryDepDescription.empty"))
     );
@@ -340,7 +328,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_temporaryDeposit_Null() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getAppDetailForDepositTest(PwaApplicationType.INITIAL));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false));
     assertThat(errorsMap).contains(
             entry("temporaryDepositsMade", Set.of("temporaryDepositsMade.notSelected"))
     );
