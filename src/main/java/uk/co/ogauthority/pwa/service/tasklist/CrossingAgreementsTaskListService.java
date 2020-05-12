@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.tasklist;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingController;
@@ -14,44 +15,19 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 
 @Service
 public class CrossingAgreementsTaskListService {
 
-  private final BlockCrossingService blockCrossingService;
-  private final PadMedianLineAgreementService padMedianLineAgreementService;
-  private final CrossingTypesService crossingTypesService;
-  private final PadCableCrossingService padCableCrossingService;
+  private final ApplicationContext applicationContext;
 
   @Autowired
-  public CrossingAgreementsTaskListService(
-      BlockCrossingService blockCrossingService,
-      PadMedianLineAgreementService padMedianLineAgreementService,
-      CrossingTypesService crossingTypesService,
-      PadCableCrossingService padCableCrossingService) {
-    this.blockCrossingService = blockCrossingService;
-    this.padMedianLineAgreementService = padMedianLineAgreementService;
-    this.crossingTypesService = crossingTypesService;
-    this.padCableCrossingService = padCableCrossingService;
+  public CrossingAgreementsTaskListService(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
   }
 
   public TaskListSection getServiceBean(CrossingAgreementTask task) {
-    switch (task) {
-      case CROSSING_TYPES:
-        return crossingTypesService;
-      case MEDIAN_LINE:
-        return padMedianLineAgreementService;
-      case LICENCE_AND_BLOCK_NUMBERS:
-        return blockCrossingService;
-      case CABLE_CROSSINGS:
-        return padCableCrossingService;
-      default:
-        throw new ActionNotAllowedException("Cannot get service bean for task: " + task.name());
-    }
+    return applicationContext.getBean(task.getSection());
   }
 
   public String getRoute(PwaApplicationDetail detail, CrossingAgreementTask task) {

@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Import(PwaApplicationContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
@@ -68,6 +70,9 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
   @MockBean
   protected PadPipelinesService padPipelinesService;
+
+  @SpyBean
+  private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Before
   public void abstractControllerTestSetup() {

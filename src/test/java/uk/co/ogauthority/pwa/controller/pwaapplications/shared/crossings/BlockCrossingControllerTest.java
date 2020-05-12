@@ -43,8 +43,10 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.AddBlockCrossingFormValidator;
@@ -81,6 +83,12 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   @Mock
   private PadCrossedBlock padCrossedBlock;
+
+  @MockBean
+  private BlockCrossingFileService blockCrossingFileService;
+
+  @MockBean
+  private CrossingAgreementsService crossingAgreementsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -174,7 +182,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   private MultiValueMap<String, String> getValidAddBlockFormAsMap() {
 
-    return new LinkedMultiValueMap<String, String>() {{
+    return new LinkedMultiValueMap<>() {{
       add("pickedBlock", "10BLOCK");
       add("crossedBlockOwner", "HOLDER");
     }};
@@ -182,7 +190,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   private MultiValueMap<String, String> getValidEditBlockFormAsMap() {
 
-    return new LinkedMultiValueMap<String, String>() {{
+    return new LinkedMultiValueMap<>() {{
       add("crossedBlockOwner", "HOLDER");
     }};
   }
@@ -222,7 +230,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(new LinkedMultiValueMap<String, String>()))
+            .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
     verify(addBlockCrossingFormValidator, times(1)).validate(any(), any());
 
@@ -386,7 +394,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(new LinkedMultiValueMap<String, String>()))
+            .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
 
     verify(editBlockCrossingFormValidator, times(1)).validate(any(), any());

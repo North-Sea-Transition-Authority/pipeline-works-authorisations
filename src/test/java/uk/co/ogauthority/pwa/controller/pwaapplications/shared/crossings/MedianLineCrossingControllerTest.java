@@ -37,6 +37,8 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
@@ -54,6 +56,12 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
+
+  @MockBean
+  private MedianLineCrossingFileService medianLineCrossingFileService;
+
+  @MockBean
+  private CrossingAgreementsService crossingAgreementsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private EnumSet<PwaApplicationType> allowedApplicationTypes;

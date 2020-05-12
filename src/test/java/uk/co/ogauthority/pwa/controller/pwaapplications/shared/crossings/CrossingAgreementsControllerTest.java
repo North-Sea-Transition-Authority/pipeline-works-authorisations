@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -11,7 +10,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
-import java.util.Objects;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,22 +101,17 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
 
   @Test
   public void renderCrossingAgreementsOverview() throws Exception {
-
     var entity = new PadMedianLineAgreement();
     entity.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_ONGOING);
     entity.setNegotiatorName("Name");
     entity.setNegotiatorEmail("Email");
     when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(entity);
 
-    var model = Objects.requireNonNull(mockMvc.perform(
+    mockMvc.perform(
         get(ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
-        .andExpect(status().isOk())
-        .andReturn()
-        .getModelAndView())
-        .getModel();
-    assertThat(model).containsKeys("medianLineAgreementView");
+        .andExpect(status().isOk());
   }
 }

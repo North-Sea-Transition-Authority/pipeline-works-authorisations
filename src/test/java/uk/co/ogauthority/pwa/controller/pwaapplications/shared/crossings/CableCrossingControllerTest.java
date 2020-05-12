@@ -38,6 +38,8 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -54,6 +56,12 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   @MockBean
   private PadCableCrossingService padCableCrossingService;
+
+  @MockBean
+  private CableCrossingFileService cableCrossingFileService;
+
+  @MockBean
+  private CrossingAgreementsService crossingAgreementsService;
 
   @Before
   public void setUp() {
