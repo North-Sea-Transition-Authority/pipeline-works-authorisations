@@ -2,7 +2,7 @@
   > The app is off, no engines connected or secondary db sessions open for the schema.
 */
 -- To run:
--- 1. replace all instances of make sure "PWA" is the correct base schema, else replace "PWA." with "PWA_XX."
+-- 1. make sure "PWA" is the correct base schema, else replace "PWA." with "PWA_XX."
 -- 2. in toad, connect as the base schema for the enviroment, e.g "PWA".
 -- 3. run first anonymous block to migrate data.
 -- 4. run the second statement to increment the pwa_sequences based on migration data.
@@ -27,6 +27,7 @@ BEGIN
    END LOOP;
 END;
 /
+
 
 /* Run this sql to get an idea of how many consents have been processed and how many still to do. */
 SELECT li.*
@@ -60,12 +61,14 @@ BEGIN
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwas_id_seq INCREMENT BY ' || l_max_pa_id;
 
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwa_consent_id_seq INCREMENT BY ' || l_max_pad_id;
-
+  
+  
   -- select next val so the sequences update
   SELECT PWA.pwas_id_seq.NEXTVAL
   INTO l_next_val
   FROM dual;
-
+  
+  
   SELECT PWA.pwa_consent_id_seq.NEXTVAL
   INTO l_next_val
   FROM dual;
@@ -85,7 +88,7 @@ SELECT xpad.*
 , (SELECT count(*) FROM DECMGR.XVIEW_PIPELINES_HISTORY xph WHERE XPH.PIPE_AUTH_DETAIL_ID = xpad.pad_id ) total_hist_pipelines_on_pad
 FROM DECMGR.XVIEW_PIPELINE_AUTH_DETAILS xpad
 JOIN DECMGR.PIPELINE_AUTHORISATIONS pa ON PA.ID = xpad.pa_id
--- find cosents which have not been migrated ie, their pad_id is not represented in the new pwa_consents table
+-- find cosents which have not been migrated ie, their id is not represented in the new pwa_consents table
 WHERE xpad.pad_id IN (
   SELECT XPAD2.PAD_ID
   FROM DECMGR.XVIEW_PIPELINE_AUTH_DETAILS xpad2
@@ -93,7 +96,7 @@ WHERE xpad.pad_id IN (
   SELECT PC.ID 
   FROM PWA.PWA_CONSENTS pc
 )
-ORDER BY xpad.pa_id, xpad.pad_id
+ORDEr BY xpad.pa_id, xpad.pad_id
 
 
 /
