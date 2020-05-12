@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,36 +30,42 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadMedianLineCrossingFile;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadMedianLineCrossingFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadPipelineCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MedianLineCrossingFileServiceTest {
+public class PipelineCrossingFileServiceTest {
 
   private final String FILE_ID = "1234567890qwertyuiop";
 
   @Mock
-  private PadMedianLineCrossingFileRepository padMedianLineCrossingFileRepository;
+  private PadPipelineCrossingFileRepository padPipelineCrossingFileRepository;
+
+  @Mock
+  private PadPipelineCrossingRepository padPipelineCrossingRepository;
+
   @Mock
   private FileUploadService fileUploadService;
+
   @Mock
   private EntityManager entityManager;
 
   private SpringValidatorAdapter springValidatorAdapter = new SpringValidatorAdapter(
       Validation.buildDefaultValidatorFactory().getValidator());
 
-  private MedianLineCrossingFileService medianLineCrossingFileService;
+  private PipelineCrossingFileService pipelineCrossingFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  private PadMedianLineCrossingFile file;
+  private PadPipelineCrossingFile file;
 
   private WebUserAccount wua = new WebUserAccount(1);
 
@@ -76,68 +82,71 @@ public class MedianLineCrossingFileServiceTest {
   @Before
   public void setUp() {
 
-    medianLineCrossingFileService = new MedianLineCrossingFileService(
-        padMedianLineCrossingFileRepository,
+    pipelineCrossingFileService = new PipelineCrossingFileService(
+        padPipelineCrossingFileRepository,
+        padPipelineCrossingRepository,
         fileUploadService,
         entityManager,
         springValidatorAdapter);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    file = new PadMedianLineCrossingFile();
+    file = new PadPipelineCrossingFile();
     file.setFileId(FILE_ID);
 
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
         FileDeleteResult.generateSuccessfulFileDeleteResult(invocation.getArgument(0))
     );
 
-    when(padMedianLineCrossingFileRepository.findAllByPwaApplicationDetail(pwaApplicationDetail))
+    when(padPipelineCrossingFileRepository.findAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(file));
   }
 
   @Test
-  public void getMedianLineCrossingFile_verifyServiceInteractions() {
-    when(padMedianLineCrossingFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
+  public void getPipelineCrossingFile_verifyServiceInteractions() {
+    when(padPipelineCrossingFileRepository.findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID))
         .thenReturn(Optional.of(file));
-    medianLineCrossingFileService.getMedianLineCrossingFile(FILE_ID, pwaApplicationDetail);
-    verify(padMedianLineCrossingFileRepository, times(1))
+    pipelineCrossingFileService.getPipelineCrossingFile(FILE_ID, pwaApplicationDetail);
+    verify(padPipelineCrossingFileRepository, times(1))
         .findByPwaApplicationDetailAndFileId(pwaApplicationDetail, FILE_ID);
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
-  public void getMedianLineCrossingFile_whenNotFound() {
-    medianLineCrossingFileService.getMedianLineCrossingFile(FILE_ID, pwaApplicationDetail);
+  public void getPipelineCrossingFile_whenNotFound() {
+    pipelineCrossingFileService.getPipelineCrossingFile(FILE_ID, pwaApplicationDetail);
   }
 
   @Test
-  public void deleteMedianLineCrossingFilesAndLinkedUploads_uploadedFileRemoveSuccessful() {
-    medianLineCrossingFileService.deleteMedianLineCrossingFilesAndLinkedUploads(List.of(file), wua);
-    verify(padMedianLineCrossingFileRepository).deleteAll(eq(List.of(file)));
+  public void deletePipelineCrossingFilesAndLinkedUploads_uploadedFileRemoveSuccessful() {
+    pipelineCrossingFileService.deletePipelineCrossingFilesAndLinkedUploads(List.of(file), wua);
+    verify(padPipelineCrossingFileRepository).deleteAll(eq(List.of(file)));
   }
 
   @Test(expected = RuntimeException.class)
-  public void deleteMedianLineCrossingFilesAndLinkedUploads_uploadedFileRemoveFail() {
+  public void deletePipelineCrossingFilesAndLinkedUploads_uploadedFileRemoveFail() {
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
         FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
     );
-    medianLineCrossingFileService.deleteMedianLineCrossingFilesAndLinkedUploads(List.of(file), wua);
+    pipelineCrossingFileService.deletePipelineCrossingFilesAndLinkedUploads(List.of(file), wua);
   }
 
   @Test
-  public void deleteMedianLineCrossingFileLink_verifyServiceInteraction() {
-    medianLineCrossingFileService.deleteMedianLineCrossingFileLink(file);
-    verify(padMedianLineCrossingFileRepository, times(1)).delete(file);
+  public void deletePipelineCrossingFileLink_verifyServiceInteraction() {
+
+    pipelineCrossingFileService.deletePipelineCrossingFileLink(file);
+    verify(padPipelineCrossingFileRepository, times(1)).delete(file);
   }
 
   @Test
   public void updateOrDeleteLinkedFilesUsingForm_whenFilesNotOnForm_thenFilesAreDeleted() {
     var form = new CrossingDocumentsForm();
-    medianLineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
+    pipelineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
         pwaApplicationDetail,
         form,
         wua
     );
     verify(fileUploadService, times(1)).deleteUploadedFile(FILE_ID, wua);
-    verify(padMedianLineCrossingFileRepository, times(1)).deleteAll(Set.of(file));
+    verify(padPipelineCrossingFileRepository, times(1)).deleteAll(Set.of(file));
+
   }
 
   @Test
@@ -146,14 +155,14 @@ public class MedianLineCrossingFileServiceTest {
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
     form.setUploadedFileWithDescriptionForms(List.of(fileForm));
 
-    ArgumentCaptor<Set<PadMedianLineCrossingFile>> fileCapture = ArgumentCaptor.forClass(Set.class);
+    ArgumentCaptor<Set<PadPipelineCrossingFile>> fileCapture = ArgumentCaptor.forClass(Set.class);
 
-    medianLineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
+    pipelineCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
         pwaApplicationDetail,
         form,
         wua
     );
-    verify(padMedianLineCrossingFileRepository, times(1)).saveAll(fileCapture.capture());
+    verify(padPipelineCrossingFileRepository, times(1)).saveAll(fileCapture.capture());
 
     var savedFiles = fileCapture.getValue();
     assertThat(savedFiles).allSatisfy(savedFile -> {
@@ -161,11 +170,14 @@ public class MedianLineCrossingFileServiceTest {
       assertThat(savedFile.getFileLinkStatus()).isEqualTo(ApplicationFileLinkStatus.FULL);
     });
 
-    verify(padMedianLineCrossingFileRepository, times(1)).deleteAll(Collections.emptySet());
+    verify(padPipelineCrossingFileRepository, times(1)).deleteAll(Collections.emptySet());
+
   }
 
+
   @Test
-  public void getUpdatedMedianLineCrossingFileViewsWhenFileOnForm() {
+  public void getUpdatedPipelineCrossingFileViewsWhenFileOnForm() {
+
     var fileViews = List.of(
         fileView
     );
@@ -180,9 +192,11 @@ public class MedianLineCrossingFileServiceTest {
     when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
     when(mockQuery.getResultList()).thenReturn(fileViews);
 
-    var result = medianLineCrossingFileService.getUpdatedMedianLineCrossingFileViewsWhenFileOnForm(pwaApplicationDetail,
+    var result = pipelineCrossingFileService.getUpdatedPipelineCrossingFileViewsWhenFileOnForm(pwaApplicationDetail,
         form);
+
     assertThat(result.get(0).getFileDescription()).isEqualTo("New Description");
+
   }
 
   @Test
@@ -190,9 +204,10 @@ public class MedianLineCrossingFileServiceTest {
 
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "2", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
+
   }
 
   @Test
@@ -200,57 +215,55 @@ public class MedianLineCrossingFileServiceTest {
 
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isTrue();
+
   }
+
 
   @Test
   public void validate_full_whenDocumentRequired_andZeroDocuments() {
-    when(padMedianLineCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(eq(pwaApplicationDetail),
-        any())).thenReturn(1);
+    when(padPipelineCrossingRepository.countAllByPwaApplicationDetailAndPipelineFullyOwnedByOrganisation(
+        eq(pwaApplicationDetail), any())).thenReturn(1);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isTrue();
+
   }
 
   @Test
   public void validate_full_whenDocumentRequired_andDocumentWithDescriptionProvided() {
-    when(padMedianLineCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(eq(pwaApplicationDetail),
-        any())).thenReturn(1);
+    when(padPipelineCrossingRepository.countAllByPwaApplicationDetailAndPipelineFullyOwnedByOrganisation(
+        eq(pwaApplicationDetail), any())).thenReturn(1);
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
+
   }
 
   @Test
   public void validate_partial_whenDocumentWithoutDescriptionProvided() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isTrue();
+
   }
 
   @Test
   public void validate_partial_whenDocumentWithDescriptionProvided() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
-  }
 
-  @Test
-  public void getFullFileCount() {
-    when(padMedianLineCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail,
-        ApplicationFileLinkStatus.FULL)).thenReturn(1);
-    var result = medianLineCrossingFileService.getFullFileCount(pwaApplicationDetail);
-    assertThat(result).isEqualTo(1);
   }
 
 }

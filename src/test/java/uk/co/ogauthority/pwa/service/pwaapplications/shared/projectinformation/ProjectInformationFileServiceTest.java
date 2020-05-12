@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadProjectInformationFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;

@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
 
 @Service
 public class CrossingAgreementsService implements ApplicationFormSectionService {
@@ -14,14 +15,17 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final BlockCrossingFileService blockCrossingFileService;
   private final PadCableCrossingService padCableCrossingService;
+  private final PadPipelineCrossingService padPipelineCrossingService;
 
   @Autowired
   public CrossingAgreementsService(PadMedianLineAgreementService padMedianLineAgreementService,
                                    BlockCrossingFileService blockCrossingFileService,
-                                   PadCableCrossingService padCableCrossingService) {
+                                   PadCableCrossingService padCableCrossingService,
+                                   PadPipelineCrossingService padPipelineCrossingService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.padCableCrossingService = padCableCrossingService;
+    this.padPipelineCrossingService = padPipelineCrossingService;
   }
 
   public CrossingAgreementsValidationResult getValidationResult(PwaApplicationDetail detail) {
@@ -37,6 +41,10 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
 
     if (padCableCrossingService.isComplete(detail)) {
       validSections.add(CrossingAgreementsSection.CABLE_CROSSINGS);
+    }
+
+    if (padPipelineCrossingService.isComplete(detail)) {
+      validSections.add(CrossingAgreementsSection.PIPELINE_CROSSINGS);
     }
 
     return new CrossingAgreementsValidationResult(validSections);
