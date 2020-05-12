@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Import(PwaApplicationContextAbstractControllerTest.AbstractControllerTestConfiguration.class)
@@ -67,7 +67,7 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   protected PwaApplicationFileService pwaApplicationFileService;
 
   @MockBean
-  protected PadPipelinesService padPipelinesService;
+  protected PadPipelineService padPipelineService;
 
   @Before
   public void abstractControllerTestSetup() {

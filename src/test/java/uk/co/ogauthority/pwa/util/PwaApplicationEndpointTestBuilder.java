@@ -38,7 +38,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 public class PwaApplicationEndpointTestBuilder {
 
@@ -49,7 +49,7 @@ public class PwaApplicationEndpointTestBuilder {
 
   private PwaContactService pwaContactService;
   private PwaApplicationDetailService pwaApplicationDetailService;
-  private PadPipelinesService padPipelinesService;
+  private PadPipelineService padPipelineService;
 
   private BiFunction<PwaApplicationDetail, PwaApplicationType, String> endpointUrlProducer;
 
@@ -80,12 +80,12 @@ public class PwaApplicationEndpointTestBuilder {
   public PwaApplicationEndpointTestBuilder(MockMvc mockMvc,
                                            PwaContactService pwaContactService,
                                            PwaApplicationDetailService pwaApplicationDetailService,
-                                           PadPipelinesService padPipelinesService) {
+                                           PadPipelineService padPipelineService) {
 
     this.mockMvc = mockMvc;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
-    this.padPipelinesService = padPipelinesService;
+    this.padPipelineService = padPipelineService;
 
     setupTestObjects();
     // do nothing by default
@@ -224,8 +224,8 @@ public class PwaApplicationEndpointTestBuilder {
     when(pwaContactService.getContactRoles(eq(detail.getPwaApplication()), any())).thenReturn(defaultRoles);
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
-    if(padPipelinesService != null) {
-      when(padPipelinesService.getById(pipeline.getId())).thenReturn(pipeline);
+    if(padPipelineService != null) {
+      when(padPipelineService.getById(pipeline.getId())).thenReturn(pipeline);
     }
 
   }

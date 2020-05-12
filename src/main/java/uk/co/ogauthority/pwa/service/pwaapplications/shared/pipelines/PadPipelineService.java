@@ -28,12 +28,12 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Service
-public class PadPipelinesService implements ApplicationFormSectionService {
+public class PadPipelineService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
 
   @Autowired
-  public PadPipelinesService(PadPipelineRepository padPipelineRepository) {
+  public PadPipelineService(PadPipelineRepository padPipelineRepository) {
     this.padPipelineRepository = padPipelineRepository;
   }
 

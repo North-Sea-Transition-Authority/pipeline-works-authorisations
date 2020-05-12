@@ -28,19 +28,19 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PadPipelinesServiceTest {
+public class PadPipelineServiceTest {
 
   @Mock
   private PadPipelineRepository repository;
 
-  private PadPipelinesService pipelinesService;
+  private PadPipelineService pipelinesService;
 
   @Captor
   private ArgumentCaptor<PadPipeline> pipelineCaptor;
 
   @Before
   public void setUp() {
-    pipelinesService = new PadPipelinesService(repository);
+    pipelinesService = new PadPipelineService(repository);
   }
 
   @Test

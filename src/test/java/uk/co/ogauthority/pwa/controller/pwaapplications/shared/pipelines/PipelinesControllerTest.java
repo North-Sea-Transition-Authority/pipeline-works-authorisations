@@ -165,7 +165,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditPipeline"))
         .andExpect(model().attributeHasErrors("form"));
 
-    verifyNoInteractions(padPipelinesService);
+    verifyNoInteractions(padPipelineService);
 
   }
 
@@ -178,7 +178,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(padPipelinesService, times(1)).addPipeline(eq(pwaApplicationDetail), any());
+    verify(padPipelineService, times(1)).addPipeline(eq(pwaApplicationDetail), any());
 
   }
 
@@ -260,7 +260,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postPipelinesOverview_saveCompleteLater_notComplete() throws Exception {
 
-    when(padPipelinesService.isComplete(pwaApplicationDetail)).thenReturn(false);
+    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
@@ -274,7 +274,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postPipelinesOverview_complete_notComplete() throws Exception {
 
-    when(padPipelinesService.isComplete(pwaApplicationDetail)).thenReturn(false);
+    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
@@ -289,7 +289,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postPipelinesOverview_complete_isComplete() throws Exception {
 
-    when(padPipelinesService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))

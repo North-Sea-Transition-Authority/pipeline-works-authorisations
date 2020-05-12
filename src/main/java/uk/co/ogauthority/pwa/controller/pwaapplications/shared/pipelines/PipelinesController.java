@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -48,17 +48,17 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
 public class PipelinesController {
 
-  private final PadPipelinesService padPipelinesService;
+  private final PadPipelineService padPipelineService;
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineHeaderFormValidator validator;
   private final PwaApplicationRedirectService applicationRedirectService;
 
   @Autowired
-  public PipelinesController(PadPipelinesService padPipelinesService,
+  public PipelinesController(PadPipelineService padPipelineService,
                              ApplicationBreadcrumbService breadcrumbService,
                              PipelineHeaderFormValidator validator,
                              PwaApplicationRedirectService applicationRedirectService) {
-    this.padPipelinesService = padPipelinesService;
+    this.padPipelineService = padPipelineService;
     this.breadcrumbService = breadcrumbService;
     this.validator = validator;
     this.applicationRedirectService = applicationRedirectService;
@@ -67,7 +67,7 @@ public class PipelinesController {
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
-        .addObject("pipelineOverviews", padPipelinesService.getPipelineOverviews(detail).stream()
+        .addObject("pipelineOverviews", padPipelineService.getPipelineOverviews(detail).stream()
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("addPipelineUrl", ReverseRouter.route(on(PipelinesController.class)
@@ -100,7 +100,7 @@ public class PipelinesController {
     }
 
     // otherwise, make sure that all pipelines have header info and idents
-    if (!padPipelinesService.isComplete(applicationContext.getApplicationDetail())) {
+    if (!padPipelineService.isComplete(applicationContext.getApplicationDetail())) {
       return getOverviewModelAndView(applicationContext.getApplicationDetail())
           .addObject("errorMessage", "One or more pipelines must be added. Each pipeline must have at least one ident.");
     }
@@ -152,7 +152,7 @@ public class PipelinesController {
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineMav(applicationContext.getApplicationDetail(), ScreenActionType.ADD, null), () -> {
 
-          padPipelinesService.addPipeline(applicationContext.getApplicationDetail(), form);
+          padPipelineService.addPipeline(applicationContext.getApplicationDetail(), form);
 
           return ReverseRouter.redirect(on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
 
@@ -168,7 +168,7 @@ public class PipelinesController {
                                          PwaApplicationContext applicationContext,
                                          @ModelAttribute("form") PipelineHeaderForm form) {
 
-    padPipelinesService.mapEntityToForm(form, applicationContext.getPadPipeline());
+    padPipelineService.mapEntityToForm(form, applicationContext.getPadPipeline());
 
     return getAddEditPipelineMav(applicationContext.getApplicationDetail(), ScreenActionType.EDIT,
         applicationContext.getPadPipeline())
@@ -192,7 +192,7 @@ public class PipelinesController {
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineMav(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline), () -> {
 
-          padPipelinesService.updatePipeline(pipeline, form);
+          padPipelineService.updatePipeline(pipeline, form);
 
           return ReverseRouter.redirect(on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
 

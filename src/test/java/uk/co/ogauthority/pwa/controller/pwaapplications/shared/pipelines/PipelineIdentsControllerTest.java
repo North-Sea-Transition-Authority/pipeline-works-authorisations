@@ -77,7 +77,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService, padPipelinesService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService,
+        padPipelineService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
@@ -94,7 +95,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(pwaApplicationDetail);
     padPipeline.setId(99);
-    when(padPipelinesService.getById(padPipeline.getId())).thenReturn(padPipeline);
+    when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
 
   }
 
