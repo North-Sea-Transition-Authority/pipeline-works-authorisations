@@ -94,8 +94,6 @@ public class PadPipelineIdentServiceTest {
 
     verify(identDataService, times(1)).addIdentData(newIdent, form.getDataForm());
 
-    newIdent.prePersistUpdate();
-
     assertThat(newIdent.getPadPipeline()).isEqualTo(pipeline);
     assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());
     assertThat(FieldUtils.getFieldValue(newIdent, "fromLatitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLatitudeDegrees());

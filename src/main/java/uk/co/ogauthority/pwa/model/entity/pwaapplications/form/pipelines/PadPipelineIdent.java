@@ -11,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -159,6 +157,7 @@ public class PadPipelineIdent {
 
   public void setFromCoordinates(CoordinatePair fromCoordinates) {
     this.fromCoordinates = fromCoordinates;
+    updateFromCoordinateValues();
   }
 
   public CoordinatePair getToCoordinates() {
@@ -167,12 +166,10 @@ public class PadPipelineIdent {
 
   public void setToCoordinates(CoordinatePair toCoordinates) {
     this.toCoordinates = toCoordinates;
+    updateToCoordinateValues();
   }
 
-  @PrePersist
-  @PreUpdate
-  public void prePersistUpdate() {
-
+  private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
     this.fromLatitudeSeconds = this.fromCoordinates.getLatitude().getSeconds();
@@ -182,7 +179,9 @@ public class PadPipelineIdent {
     this.fromLongitudeMinutes = this.fromCoordinates.getLongitude().getMinutes();
     this.fromLongitudeSeconds = this.fromCoordinates.getLongitude().getSeconds();
     this.fromLongitudeDirection = this.fromCoordinates.getLongitude().getDirection();
+  }
 
+  private void updateToCoordinateValues() {
     this.toLatitudeDegrees = this.toCoordinates.getLatitude().getDegrees();
     this.toLatitudeMinutes = this.toCoordinates.getLatitude().getMinutes();
     this.toLatitudeSeconds = this.toCoordinates.getLatitude().getSeconds();
@@ -192,7 +191,6 @@ public class PadPipelineIdent {
     this.toLongitudeMinutes = this.toCoordinates.getLongitude().getMinutes();
     this.toLongitudeSeconds = this.toCoordinates.getLongitude().getSeconds();
     this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
-
   }
 
   @PostLoad

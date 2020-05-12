@@ -215,7 +215,6 @@ public class PwaApplicationEndpointTestBuilder {
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     pipeline.setComponentPartsDescription("comp");
     pipeline.setLength(BigDecimal.valueOf(200));
-    pipeline.prePersistUpdate(); // todo REMOVE
 
     var defaultRoles = EnumSet.allOf(PwaContactRole.class);
 
