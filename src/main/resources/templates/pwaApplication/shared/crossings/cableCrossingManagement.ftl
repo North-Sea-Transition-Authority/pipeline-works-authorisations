@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
 
 <#macro cableCrossingManagement urlFactory cableCrossingViews=[] cableCrossingFileViews=[] isCompleted=false>
-  <h2 class="govuk-heading-l">Cable crossings</h2>
+  <h2 class="govuk-heading-l">Cable crossings <@completedTag.completedTag isCompleted/></h2>
     <#if cableCrossingViews?has_content>
         <@fdsAction.link linkText="Add cable crossing" linkUrl=springUrl(urlFactory.getAddCableCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
       <table class="govuk-table">

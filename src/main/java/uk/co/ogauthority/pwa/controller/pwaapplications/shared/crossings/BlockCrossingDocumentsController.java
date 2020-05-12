@@ -123,10 +123,10 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
     );
 
     modelAndView.addObject("pageTitle", "Block crossing agreement documents")
-        .addObject("backButtonText", "Back to crossing agreements")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
+        .addObject("backButtonText", "Back to overview")
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(pwaApplicationDetail,
+                CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS));
     applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,
         CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS,
         "Block crossing agreement documents");

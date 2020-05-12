@@ -28,11 +28,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -51,19 +53,22 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
   private final PwaApplicationFileService applicationFileService;
   private final PipelineCrossingFileService pipelineCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public PipelineCrossingDocumentsController(
       PwaApplicationFileService applicationFileService,
       PipelineCrossingFileService pipelineCrossingFileService,
-      ApplicationBreadcrumbService applicationBreadcrumbService) {
+      ApplicationBreadcrumbService applicationBreadcrumbService,
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.applicationFileService = applicationFileService;
     this.pipelineCrossingFileService = pipelineCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
   private ModelAndView createPipelineCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                       CrossingDocumentsForm form) {
+                                                          CrossingDocumentsForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
         ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
@@ -80,12 +85,11 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
     );
 
     modelAndView.addObject("pageTitle", "Pipeline crossing agreement documents")
-        .addObject("backButtonText", "Back to crossing agreements")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
-    applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Pipeline crossing agreement documents");
+        .addObject("backButtonText", "Back to overview")
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, CrossingAgreementTask.PIPELINE_CROSSINGS));
+    applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,
+        CrossingAgreementTask.PIPELINE_CROSSINGS, "Pipeline crossing agreement documents");
     return modelAndView;
   }
 
@@ -122,8 +126,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
           applicationContext.getApplicationDetail(),
           form,
           applicationContext.getUser());
-      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+      return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.PIPELINE_CROSSINGS);
     });
   }
 

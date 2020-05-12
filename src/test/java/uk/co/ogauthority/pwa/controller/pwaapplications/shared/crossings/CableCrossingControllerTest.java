@@ -40,6 +40,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
@@ -305,5 +306,52 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
     verify(padCableCrossingService, times(1)).removeCableCrossing(eq(pwaApplicationDetail), eq(1));
+  }
+
+  @Test
+  public void renderOverview_unauthenticated() throws Exception {
+    mockMvc.perform(
+        get(ReverseRouter.route(
+            on(CableCrossingController.class).renderOverview(PwaApplicationType.INITIAL, 1, null,
+                null))))
+        .andExpect(status().is3xxRedirection());
+  }
+
+  @Test
+  public void renderOverview_authenticated() throws Exception {
+
+    var validationResult = new CrossingAgreementsValidationResult(Set.of());
+    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+
+    mockMvc.perform(
+        get(ReverseRouter.route(
+            on(CableCrossingController.class).renderOverview(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  public void postOverview_unauthenticated() throws Exception {
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(CableCrossingController.class)
+                .postOverview(PwaApplicationType.INITIAL, 1, null, null))))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_authenticated() throws Exception {
+
+    var validationResult = new CrossingAgreementsValidationResult(Set.of());
+    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(CableCrossingController.class)
+                .postOverview(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk());
   }
 }

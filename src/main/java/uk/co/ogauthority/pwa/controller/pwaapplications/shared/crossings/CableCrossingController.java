@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -74,20 +75,18 @@ public class CableCrossingController {
         .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
         .addObject("cableCrossingFiles",
             cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
+        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail))
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+                null)));
     applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Cable crossings");
     return modelAndView;
   }
 
   private ModelAndView createRenderAddModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/addCableCrossing")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(
-                detail.getPwaApplicationType(),
-                detail.getMasterPwaApplicationId(),
-                null,
-                null
-            )));
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.CABLE_CROSSINGS));
     applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
         CrossingAgreementTask.CABLE_CROSSINGS, "Add cable crossing");
     return modelAndView;
@@ -95,25 +94,38 @@ public class CableCrossingController {
 
   private ModelAndView createRenderEditModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/editCableCrossing")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(
-                detail.getPwaApplicationType(),
-                detail.getMasterPwaApplicationId(),
-                null,
-                null
-            )));
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.CABLE_CROSSINGS));
     applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
         CrossingAgreementTask.CABLE_CROSSINGS, "Edit cable crossing");
     return modelAndView;
   }
 
   @GetMapping
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.VIEW})
   public ModelAndView renderOverview(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") AddCableCrossingForm form,
       PwaApplicationContext applicationContext) {
     return createOverviewModelAndView(applicationContext.getApplicationDetail());
+  }
+
+  @PostMapping
+  public ModelAndView postOverview(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddBlockCrossingForm form,
+      PwaApplicationContext applicationContext) {
+
+    var detail = applicationContext.getApplicationDetail();
+    if (!padCableCrossingService.isComplete(detail)) {
+      return createOverviewModelAndView(detail)
+          .addObject("errorMessage", "There are errors with this section");
+    }
+    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+            null));
   }
 
   @GetMapping("/new")
@@ -183,8 +195,8 @@ public class CableCrossingController {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeCableCrossing")
         .addObject("cableCrossing", new CableCrossingView(crossing))
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(applicationType, applicationId, null, null)));
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.CABLE_CROSSINGS));
     applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
         CrossingAgreementTask.CABLE_CROSSINGS, "Remove cable crossing");
     return modelAndView;

@@ -7,11 +7,13 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
 
 public enum CrossingAgreementTask {
 
   LICENCE_AND_BLOCK_NUMBERS("Licence and block numbers", BlockCrossingService.class, 10),
   CROSSING_TYPES("Types of crossings", CrossingTypesService.class, 20),
+  PIPELINE_CROSSINGS("Pipeline crossings", PadPipelineCrossingService.class, 30),
   CABLE_CROSSINGS("Cable crossings", PadCableCrossingService.class, 40),
   MEDIAN_LINE("Median line crossings", PadMedianLineAgreementService.class, 50);
 

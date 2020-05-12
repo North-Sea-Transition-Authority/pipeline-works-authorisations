@@ -11,13 +11,11 @@ import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
-import uk.co.ogauthority.pwa.model.tasklist.TagColour;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
@@ -109,7 +107,7 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
 
   @Override
   public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
-    return false;
+    return isComplete(pwaApplicationDetail);
   }
 
   @Override
@@ -118,35 +116,7 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
   }
 
   @Override
-  public boolean getShowNotCompletedLabel() {
-    return false;
-  }
-
-  @Override
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
-    TagColour agreementColour = TagColour.BLUE;
-    TagColour documentColour = TagColour.BLUE;
-    String agreementText;
-    var documentUploadCount = medianLineCrossingFileService.getFullFileCount(pwaApplicationDetail);
-    var agreement = getMedianLineAgreement(pwaApplicationDetail);
-    if (agreement.getAgreementStatus() != null) {
-      agreementText = agreement.getAgreementStatus().getLabelText();
-      if (agreement.getAgreementStatus().equals(
-          MedianLineStatus.NEGOTIATIONS_ONGOING) || agreement.getAgreementStatus().equals(
-          MedianLineStatus.NEGOTIATIONS_COMPLETED)) {
-        if (documentUploadCount == 0) {
-          documentColour = TagColour.RED;
-        }
-      }
-    } else {
-      agreementText = "Requires information";
-      agreementColour = TagColour.RED;
-      documentColour = TagColour.GREY;
-    }
-    String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
-    return List.of(
-        new TaskListLabel(agreementText, agreementColour),
-        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), documentColour)
-    );
+    return List.of();
   }
 }

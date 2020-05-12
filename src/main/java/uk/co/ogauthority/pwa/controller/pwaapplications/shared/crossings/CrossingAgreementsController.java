@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -15,6 +16,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
@@ -25,7 +27,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCr
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -48,6 +49,7 @@ public class CrossingAgreementsController {
   private final CableCrossingFileService cableCrossingFileService;
   private final PadPipelineCrossingService padPipelineCrossingService;
   private final PipelineCrossingFileService pipelineCrossingFileService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public CrossingAgreementsController(
@@ -60,7 +62,8 @@ public class CrossingAgreementsController {
       PadCableCrossingService cableCrossingService,
       CableCrossingFileService cableCrossingFileService,
       PadPipelineCrossingService padPipelineCrossingService,
-      PipelineCrossingFileService pipelineCrossingFileService) {
+      PipelineCrossingFileService pipelineCrossingFileService,
+      PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingService = blockCrossingService;
@@ -71,15 +74,13 @@ public class CrossingAgreementsController {
     this.cableCrossingFileService = cableCrossingFileService;
     this.padPipelineCrossingService = padPipelineCrossingService;
     this.pipelineCrossingFileService = pipelineCrossingFileService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/taskList")
         .addObject("tasks", crossingAgreementsService.getTaskListItems(detail))
-        .addObject("pipelineCrossings", padPipelineCrossingService.getPipelineCrossingViews(detail))
-        .addObject("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(detail))
-        .addObject("pipelineCrossingFiles",
-            pipelineCrossingFileService.getPipelineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL));
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
         "Blocks and crossing agreements");
     return modelAndView;
@@ -87,7 +88,7 @@ public class CrossingAgreementsController {
 
   @GetMapping
   @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.VIEW})
   public ModelAndView renderCrossingAgreementsOverview(@PathVariable("applicationType")
                                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                        @PathVariable("applicationId") Integer applicationId,
@@ -96,5 +97,18 @@ public class CrossingAgreementsController {
     return getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail());
   }
 
+  @PostMapping
+  public ModelAndView postOverview(@PathVariable("applicationType")
+                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                   @PathVariable("applicationId") Integer applicationId,
+                                   PwaApplicationContext applicationContext,
+                                   AuthenticatedUserAccount user) {
+    var isComplete = crossingAgreementsService.isComplete(applicationContext.getApplicationDetail());
+    if (!isComplete) {
+      return getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail())
+          .addObject("errorMessage", "Not all sections have been completed");
+    }
+    return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+  }
 
 }

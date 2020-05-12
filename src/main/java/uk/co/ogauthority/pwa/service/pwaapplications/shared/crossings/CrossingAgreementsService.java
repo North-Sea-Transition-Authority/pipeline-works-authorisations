@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -23,38 +24,45 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   private final BlockCrossingFileService blockCrossingFileService;
   private final PadCableCrossingService padCableCrossingService;
   private final PadPipelineCrossingService padPipelineCrossingService;
+  private final CrossingTypesService crossingTypesService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
-  public CrossingAgreementsService(PadMedianLineAgreementService padMedianLineAgreementService,
-                                   BlockCrossingFileService blockCrossingFileService,
-                                   PadCableCrossingService padCableCrossingService,
-                                   PadPipelineCrossingService padPipelineCrossingService) {
-                                   PadCableCrossingService padCableCrossingService,
-                                   CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
+  public CrossingAgreementsService(
+      PadMedianLineAgreementService padMedianLineAgreementService,
+      BlockCrossingFileService blockCrossingFileService,
+      PadCableCrossingService padCableCrossingService,
+      PadPipelineCrossingService padPipelineCrossingService,
+      CrossingTypesService crossingTypesService,
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.padCableCrossingService = padCableCrossingService;
     this.padPipelineCrossingService = padPipelineCrossingService;
+    this.crossingTypesService = crossingTypesService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
   public CrossingAgreementsValidationResult getValidationResult(PwaApplicationDetail detail) {
     var validSections = EnumSet.noneOf(CrossingAgreementsSection.class);
 
-    if (padMedianLineAgreementService.isComplete(detail)) {
-      validSections.add(CrossingAgreementsSection.MEDIAN_LINE);
+    if (crossingTypesService.isComplete(detail)) {
+      validSections.add(CrossingAgreementsSection.CROSSING_TYPES);
     }
 
     if (blockCrossingFileService.isComplete(detail)) {
       validSections.add(CrossingAgreementsSection.BLOCK_CROSSINGS);
     }
 
-    if (padCableCrossingService.isComplete(detail)) {
+    if (padMedianLineAgreementService.isComplete(detail) || !BooleanUtils.isTrue(detail.getMedianLineCrossed())) {
+      validSections.add(CrossingAgreementsSection.MEDIAN_LINE);
+    }
+
+    if (padCableCrossingService.isComplete(detail) || !BooleanUtils.isTrue(detail.getCablesCrossed())) {
       validSections.add(CrossingAgreementsSection.CABLE_CROSSINGS);
     }
 
-    if (padPipelineCrossingService.isComplete(detail)) {
+    if (padPipelineCrossingService.isComplete(detail) || !BooleanUtils.isTrue(detail.getPipelinesCrossed())) {
       validSections.add(CrossingAgreementsSection.PIPELINE_CROSSINGS);
     }
 
@@ -76,8 +84,7 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
             task.getDisplayText(),
             crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, task),
             service.isTaskListEntryCompleted(pwaApplicationDetail),
-            service.getTaskListLabels(pwaApplicationDetail),
-            service.getShowNotCompletedLabel()
+            service.getTaskListLabels(pwaApplicationDetail)
         ));
       }
     }

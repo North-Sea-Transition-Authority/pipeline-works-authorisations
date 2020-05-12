@@ -230,7 +230,7 @@ public class BlockCrossingService implements TaskListSection {
 
   @Override
   public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
-    return false;
+    return true;
   }
 
   @Override
@@ -239,19 +239,11 @@ public class BlockCrossingService implements TaskListSection {
   }
 
   @Override
-  public boolean getShowNotCompletedLabel() {
-    return false;
-  }
-
-  @Override
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
     var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
-    var documentUploadCount = blockCrossingFileService.getDocumentUploadCount(pwaApplicationDetail);
     String blocksText = StringDisplayUtils.pluralise("block", blockCount);
-    String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
     return List.of(
-        new TaskListLabel(String.format("%d %s", blockCount, blocksText), TagColour.BLUE),
-        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), TagColour.BLUE)
+        new TaskListLabel(String.format("%d %s", blockCount, blocksText), TagColour.BLUE)
     );
   }
 }

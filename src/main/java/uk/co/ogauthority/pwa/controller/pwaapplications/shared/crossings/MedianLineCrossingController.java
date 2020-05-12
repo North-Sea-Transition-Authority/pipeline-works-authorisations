@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Comparator;
 import java.util.List;
 import javax.validation.Valid;
@@ -20,7 +22,9 @@ import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -75,7 +79,8 @@ public class MedianLineCrossingController {
         .addObject("crossingOptions", MedianLineStatus.stream()
             .sorted(Comparator.comparing(MedianLineStatus::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, MedianLineStatus::getDisplayText)));
-    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView, CrossingAgreementTask.MEDIAN_LINE, "Median line");
+    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView, CrossingAgreementTask.MEDIAN_LINE,
+        "Median line");
     return modelAndView;
   }
 
@@ -85,12 +90,16 @@ public class MedianLineCrossingController {
         .addObject("medianLineUrlFactory", new MedianLineCrossingUrlFactory(detail))
         .addObject("medianLineFiles",
             medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
+        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail))
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+                null)));
     applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Median line crossing");
     return modelAndView;
   }
 
   @GetMapping
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.VIEW})
   public ModelAndView renderMedianLineOverview(@PathVariable("applicationType")
                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                @PathVariable("applicationId") Integer applicationId,
@@ -108,6 +117,23 @@ public class MedianLineCrossingController {
       ));
     }
     return modelAndView;
+  }
+
+  @PostMapping
+  public ModelAndView postOverview(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddBlockCrossingForm form,
+      PwaApplicationContext applicationContext) {
+
+    var detail = applicationContext.getApplicationDetail();
+    if (!padMedianLineAgreementService.isComplete(detail)) {
+      return getOverviewModelAndView(detail)
+          .addObject("errorMessage", "There are errors with this section");
+    }
+    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+            null));
   }
 
 

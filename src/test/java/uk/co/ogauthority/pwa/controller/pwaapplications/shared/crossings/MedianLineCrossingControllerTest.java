@@ -30,6 +30,7 @@ import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -108,7 +109,6 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
 
   @Test
   public void renderMedianLineForm_authenticated() throws Exception {
-
     mockMvc.perform(
         get(ReverseRouter.route(
             on(MedianLineCrossingController.class).renderMedianLineForm(PwaApplicationType.INITIAL, 1, null, null)))
@@ -118,8 +118,52 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderMedianLineForm_unauthenticated() throws Exception {
+  public void renderMedianLineOverview_unauthenticated() throws Exception {
+    mockMvc.perform(
+        get(ReverseRouter.route(
+            on(MedianLineCrossingController.class).renderMedianLineOverview(PwaApplicationType.INITIAL, 1, null,
+                null))))
+        .andExpect(status().is3xxRedirection());
+  }
 
+  @Test
+  public void renderMedianLineOverview_authenticated() throws Exception {
+
+    var agreement = new PadMedianLineAgreement();
+    agreement.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
+
+    when(padMedianLineAgreementService.getMedianLineAgreement(any())).thenReturn(agreement);
+
+    mockMvc.perform(
+        get(ReverseRouter.route(
+            on(MedianLineCrossingController.class).renderMedianLineOverview(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  public void postOverview_unauthenticated() throws Exception {
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(MedianLineCrossingController.class)
+                .postOverview(PwaApplicationType.INITIAL, 1, null, null))))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_authenticated() throws Exception {
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(MedianLineCrossingController.class)
+                .postOverview(PwaApplicationType.INITIAL, 1, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  public void renderMedianLineForm_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(MedianLineCrossingController.class).renderMedianLineForm(PwaApplicationType.INITIAL, 1, null, null))))

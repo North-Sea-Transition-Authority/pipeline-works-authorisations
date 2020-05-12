@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -14,14 +15,18 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
+import uk.co.ogauthority.pwa.model.tasklist.TagColour;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
-public class PadPipelineCrossingService implements ApplicationFormSectionService {
+public class PadPipelineCrossingService implements ApplicationFormSectionService, TaskListSection {
 
   private final PadPipelineCrossingRepository padPipelineCrossingRepository;
   private final PipelineCrossingFileService pipelineCrossingFileService;
@@ -100,12 +105,33 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return pipelineCrossingFileService.isComplete(detail);
+    var pipelineCount = padPipelineCrossingRepository.countAllByPwaApplicationDetail(detail);
+    return pipelineCrossingFileService.isComplete(detail) && pipelineCount > 0;
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     throw new AssertionError("validate doesnt make sense.");
+  }
+
+  @Override
+  public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
+    return isComplete(pwaApplicationDetail);
+  }
+
+  @Override
+  public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return BooleanUtils.isTrue(pwaApplicationDetail.getPipelinesCrossed());
+  }
+
+  @Override
+  public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
+    var crossingLabelColour = TagColour.BLUE;
+    var crossingCount = padPipelineCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+    var crossingPluralised = StringDisplayUtils.pluralise("crossing", crossingCount);
+    return List.of(
+        new TaskListLabel(String.format("%d %s", crossingCount, crossingPluralised), crossingLabelColour)
+    );
   }
 }

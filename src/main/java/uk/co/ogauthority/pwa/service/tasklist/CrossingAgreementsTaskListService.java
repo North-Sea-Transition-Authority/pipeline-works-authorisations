@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCr
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingTypesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingController;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
@@ -44,6 +45,9 @@ public class CrossingAgreementsTaskListService {
       case CABLE_CROSSINGS:
         return ReverseRouter.route(on(CableCrossingController.class).renderOverview(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
+      case PIPELINE_CROSSINGS:
+        return ReverseRouter.route(on(PipelineCrossingController.class).renderOverview(
+            detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       default:
         throw new ActionNotAllowedException("Cannot get route for task: " + task.name());
     }
@@ -62,6 +66,9 @@ public class CrossingAgreementsTaskListService {
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       case CABLE_CROSSINGS:
         return ReverseRouter.redirect(on(CableCrossingController.class).renderOverview(
+            detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
+      case PIPELINE_CROSSINGS:
+        return ReverseRouter.redirect(on(PipelineCrossingController.class).renderOverview(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       default:
         throw new ActionNotAllowedException("Cannot get route for task: " + task.name());

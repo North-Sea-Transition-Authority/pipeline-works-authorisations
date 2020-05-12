@@ -8,23 +8,19 @@ public class TaskListEntry {
   private String route;
   private boolean completed;
   private List<TaskListLabel> labels;
-  private boolean showNotCompletedLabel;
 
   public TaskListEntry(String taskName, String route, boolean completed) {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
     this.labels = List.of();
-    this.showNotCompletedLabel = false;
   }
 
-  public TaskListEntry(String taskName, String route, boolean completed, List<TaskListLabel> labels,
-                       boolean showNotCompletedLabel) {
+  public TaskListEntry(String taskName, String route, boolean completed, List<TaskListLabel> labels) {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
     this.labels = labels;
-    this.showNotCompletedLabel = showNotCompletedLabel;
   }
 
   public String getTaskName() {

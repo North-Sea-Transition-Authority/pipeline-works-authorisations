@@ -12,7 +12,7 @@
 
 
 
-<@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle=overview.sectionTitle pageHeading=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
 
     <#if overview == "LICENCE_AND_BLOCKS">
         <@blockCrossingManagement.blockCrossingManagement
@@ -38,5 +38,9 @@
         medianLineAgreementView=medianLineAgreementView!""
         medianLineFileViews=medianLineFiles />
     </#if>
+
+    <@fdsForm.htmlForm>
+        <@fdsAction.submitButtons errorMessage=errorMessage!"" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+    </@fdsForm.htmlForm>
 
 </@defaultPage>

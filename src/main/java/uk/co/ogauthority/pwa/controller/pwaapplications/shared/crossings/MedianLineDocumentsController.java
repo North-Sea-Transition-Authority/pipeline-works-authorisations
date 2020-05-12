@@ -85,10 +85,9 @@ public class MedianLineDocumentsController extends PwaApplicationDataFileUploadA
     );
 
     modelAndView.addObject("pageTitle", "Median line agreement documents")
-        .addObject("backButtonText", "Back to crossing agreements")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
+        .addObject("backButtonText", "Back to overview")
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, CrossingAgreementTask.MEDIAN_LINE));
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Median line agreement documents");
     return modelAndView;

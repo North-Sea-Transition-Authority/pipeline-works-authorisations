@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingFile;
 
@@ -13,6 +14,9 @@ public interface PadPipelineCrossingFileRepository extends CrudRepository<PadPip
   List<PadPipelineCrossingFile> findAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
   Optional<PadPipelineCrossingFile> findByPwaApplicationDetailAndFileId(PwaApplicationDetail pwaApplicationDetail,
-                                                                     String fileId);
+                                                                        String fileId);
+
+  int countAllByPwaApplicationDetailAndFileLinkStatus(PwaApplicationDetail pwaApplicationDetail,
+                                                      ApplicationFileLinkStatus fileLinkStatus);
 
 }

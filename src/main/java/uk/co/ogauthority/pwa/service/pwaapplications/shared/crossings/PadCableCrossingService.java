@@ -81,7 +81,8 @@ public class PadCableCrossingService implements ApplicationFormSectionService, T
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return cableCrossingFileService.isComplete(detail);
+    var cableCount = padCableCrossingRepository.countAllByPwaApplicationDetail(detail);
+    return cableCrossingFileService.isComplete(detail) && cableCount > 0;
   }
 
   @Override
@@ -92,7 +93,7 @@ public class PadCableCrossingService implements ApplicationFormSectionService, T
 
   @Override
   public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
-    return false;
+    return isComplete(pwaApplicationDetail);
   }
 
   @Override
@@ -101,21 +102,12 @@ public class PadCableCrossingService implements ApplicationFormSectionService, T
   }
 
   @Override
-  public boolean getShowNotCompletedLabel() {
-    return false;
-  }
-
-  @Override
   public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
+    var crossingLabelColour = TagColour.BLUE;
     var crossingCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    var documentUploadCount = cableCrossingFileService.getDocumentUploadCount(pwaApplicationDetail);
     String crossingsText = StringDisplayUtils.pluralise("crossing", crossingCount);
-    String documentsText = StringDisplayUtils.pluralise("document", documentUploadCount);
-    TagColour crossingColour = crossingCount == 0 ? TagColour.RED : TagColour.BLUE;
-    TagColour documentsColour = documentUploadCount == 0 ? TagColour.RED : TagColour.BLUE;
     return List.of(
-        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), crossingColour),
-        new TaskListLabel(String.format("%d %s", documentUploadCount, documentsText), documentsColour)
+        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), crossingLabelColour)
     );
   }
 }

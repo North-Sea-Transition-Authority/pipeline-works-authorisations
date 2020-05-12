@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -66,6 +67,7 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   private final BlockCrossingService blockCrossingService;
   private final BlockCrossingFileService blockCrossingFileService;
   private final CrossingAgreementsService crossingAgreementsService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
 
   @Autowired
@@ -77,7 +79,8 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
       PearsBlockService pearsBlockService,
       BlockCrossingService blockCrossingService,
       BlockCrossingFileService blockCrossingFileService,
-      CrossingAgreementsService crossingAgreementsService) {
+      CrossingAgreementsService crossingAgreementsService,
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.breadcrumbService = breadcrumbService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.addBlockCrossingFormValidator = addBlockCrossingFormValidator;
@@ -86,15 +89,34 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     this.blockCrossingService = blockCrossingService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.crossingAgreementsService = crossingAgreementsService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
   @GetMapping
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.VIEW})
   public ModelAndView renderBlockCrossingOverview(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") AddBlockCrossingForm form,
       PwaApplicationContext applicationContext) {
     return createOverviewModelAndView(applicationContext.getApplicationDetail());
+  }
+
+  @PostMapping
+  public ModelAndView postOverview(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddBlockCrossingForm form,
+      PwaApplicationContext applicationContext) {
+
+    var detail = applicationContext.getApplicationDetail();
+    if (!blockCrossingFileService.isComplete(detail)) {
+      return createOverviewModelAndView(detail)
+          .addObject("errorMessage", "There are errors with this section");
+    }
+    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+            null));
   }
 
   @GetMapping("/new")
@@ -181,8 +203,8 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     var crossedBlock = blockCrossingService.getCrossedBlockByIdAndApplicationDetail(blockCrossingId, detail);
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeBlockCrossing")
         .addObject("crossing", blockCrossingService.getCrossedBlockView(detail, blockCrossingId))
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(applicationType, applicationId, null, null)));
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.PIPELINE_CROSSINGS));
     breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Remove block crossing");
     return modelAndView;
   }
@@ -232,7 +254,10 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
         .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
         .addObject("blockCrossingFiles",
             blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail));
+        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail))
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+                null)));
     breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Licence and block numbers");
     return modelAndView;
   }
@@ -271,7 +296,7 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
 
     addGenericBlockCrossingModelAttributes(modelAndView);
     breadcrumbService.fromCrossingSection(applicationContext.getApplicationDetail(), modelAndView,
-        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS,"Edit block crossing");
+        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS, "Edit block crossing");
     return modelAndView;
   }
 }
