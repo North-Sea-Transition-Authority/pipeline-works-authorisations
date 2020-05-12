@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.devuk.PadFacilityRepository;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadFacilityServiceTest {
@@ -34,13 +36,16 @@ public class PadFacilityServiceTest {
   @Mock
   private DevukFacilityService devukFacilityService;
 
+  @Spy
+  private SearchSelectorService searchSelectorService;
+
   private PadFacilityService padFacilityService;
   private PadFacility padFacility;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
-    padFacilityService = new PadFacilityService(padFacilityRepository, devukFacilityService);
+    padFacilityService = new PadFacilityService(padFacilityRepository, devukFacilityService, searchSelectorService);
     padFacility = new PadFacility();
     pwaApplicationDetail = new PwaApplicationDetail();
     when(padFacilityRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(padFacility));

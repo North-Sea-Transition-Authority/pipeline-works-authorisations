@@ -40,6 +40,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -72,6 +74,12 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
 
   @MockBean
   private CableCrossingFileService cableCrossingFileService;
+
+  @MockBean
+  private PadPipelineCrossingService padPipelineCrossingService;
+
+  @MockBean
+  private PipelineCrossingFileService pipelineCrossingFileService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaApplicationContext pwaApplicationContext;

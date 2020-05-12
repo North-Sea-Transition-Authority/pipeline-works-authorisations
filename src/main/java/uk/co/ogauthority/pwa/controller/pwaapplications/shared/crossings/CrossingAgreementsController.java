@@ -23,6 +23,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -43,6 +46,8 @@ public class CrossingAgreementsController {
   private final MedianLineCrossingFileService medianLineCrossingFileService;
   private final PadCableCrossingService cableCrossingService;
   private final CableCrossingFileService cableCrossingFileService;
+  private final PadPipelineCrossingService padPipelineCrossingService;
+  private final PipelineCrossingFileService pipelineCrossingFileService;
 
   @Autowired
   public CrossingAgreementsController(
@@ -53,7 +58,9 @@ public class CrossingAgreementsController {
       CrossingAgreementsService crossingAgreementsService,
       MedianLineCrossingFileService medianLineCrossingFileService,
       PadCableCrossingService cableCrossingService,
-      CableCrossingFileService cableCrossingFileService) {
+      CableCrossingFileService cableCrossingFileService,
+      PadPipelineCrossingService padPipelineCrossingService,
+      PipelineCrossingFileService pipelineCrossingFileService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingService = blockCrossingService;
@@ -62,11 +69,17 @@ public class CrossingAgreementsController {
     this.medianLineCrossingFileService = medianLineCrossingFileService;
     this.cableCrossingService = cableCrossingService;
     this.cableCrossingFileService = cableCrossingFileService;
+    this.padPipelineCrossingService = padPipelineCrossingService;
+    this.pipelineCrossingFileService = pipelineCrossingFileService;
   }
 
   private ModelAndView getCrossingAgreementsModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/taskList")
-        .addObject("tasks", crossingAgreementsService.getTaskListItems(detail));
+        .addObject("tasks", crossingAgreementsService.getTaskListItems(detail))
+        .addObject("pipelineCrossings", padPipelineCrossingService.getPipelineCrossingViews(detail))
+        .addObject("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(detail))
+        .addObject("pipelineCrossingFiles",
+            pipelineCrossingFileService.getPipelineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
         "Blocks and crossing agreements");
     return modelAndView;

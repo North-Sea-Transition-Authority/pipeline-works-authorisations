@@ -34,8 +34,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCabl
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingFileRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadCableCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;

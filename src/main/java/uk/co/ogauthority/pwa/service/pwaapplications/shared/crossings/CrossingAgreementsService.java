@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 
 @Service
@@ -21,16 +22,20 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final BlockCrossingFileService blockCrossingFileService;
   private final PadCableCrossingService padCableCrossingService;
+  private final PadPipelineCrossingService padPipelineCrossingService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public CrossingAgreementsService(PadMedianLineAgreementService padMedianLineAgreementService,
                                    BlockCrossingFileService blockCrossingFileService,
                                    PadCableCrossingService padCableCrossingService,
+                                   PadPipelineCrossingService padPipelineCrossingService) {
+                                   PadCableCrossingService padCableCrossingService,
                                    CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.padCableCrossingService = padCableCrossingService;
+    this.padPipelineCrossingService = padPipelineCrossingService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
@@ -47,6 +52,10 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
 
     if (padCableCrossingService.isComplete(detail)) {
       validSections.add(CrossingAgreementsSection.CABLE_CROSSINGS);
+    }
+
+    if (padPipelineCrossingService.isComplete(detail)) {
+      validSections.add(CrossingAgreementsSection.PIPELINE_CROSSINGS);
     }
 
     return new CrossingAgreementsValidationResult(validSections);

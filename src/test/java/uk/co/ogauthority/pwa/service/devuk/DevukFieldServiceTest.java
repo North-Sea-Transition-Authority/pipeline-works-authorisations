@@ -35,10 +35,10 @@ public class DevukFieldServiceTest {
     var orgUnit = new PortalOrganisationUnit();
     var field = new DevukField();
     var statusCodes = List.of(100, 200, 300);
-    when(devukFieldRepository.findAllByOrganisationUnitAndStatusIn(orgUnit, statusCodes)).thenReturn(
+    when(devukFieldRepository.findAllByOperatorOuIdAndStatusIn(orgUnit.getOuId(), statusCodes)).thenReturn(
         List.of(field));
     assertThat(devukFieldService.getByOrganisationUnitWithStatusCodes(orgUnit, statusCodes)).containsExactly(field);
-    verify(devukFieldRepository, times(1)).findAllByOrganisationUnitAndStatusIn(orgUnit, statusCodes);
+    verify(devukFieldRepository, times(1)).findAllByOperatorOuIdAndStatusIn(orgUnit.getOuId(), statusCodes);
   }
 
   @Test

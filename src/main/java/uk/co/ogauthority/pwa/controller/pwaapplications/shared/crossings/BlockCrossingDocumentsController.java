@@ -40,6 +40,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/crossings/block-crossing-documents")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
@@ -66,8 +68,6 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
 
 
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderEditBlockCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -79,8 +79,6 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postBlockCrossingDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -136,7 +134,6 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   }
 
   @GetMapping("/files/download/{fileId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
   @ResponseBody
   public ResponseEntity<Resource> handleDownload(
@@ -150,8 +147,6 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   }
 
   @PostMapping("/files/upload")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   @ResponseBody
   public FileUploadResult handleUpload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -169,8 +164,6 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   }
 
   @PostMapping("/files/delete/{fileId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   @ResponseBody
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,

@@ -2,6 +2,7 @@
 <#import 'blockCrossingsManagement.ftl' as blockCrossingManagement>
 <#import 'medianLineCrossingManagement.ftl' as medianLineCrossingManagement>
 <#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
+<#import 'pipeline/pipelineCrossingManagement.ftl' as pipelineCrossingManagement>
 
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
@@ -20,7 +21,11 @@
         urlFactory=blockCrossingUrlFactory
         isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
     <#elseif overview == "PIPELINE_CROSSINGS">
-
+        <@pipelineCrossingManagement.pipelineCrossingManagement
+        urlFactory=pipelineCrossingUrlFactory
+        pipelineCrossingFileViews=pipelineCrossingFiles
+        pipelineCrossings=pipelineCrossings
+        isCompleted=crossingAgreementValidationResult.isSectionValid("PIPELINE_CROSSINGS")/>
     <#elseif overview == "CABLE_CROSSINGS">
         <@cableCrossingManagement.cableCrossingManagement
         cableCrossingViews=cableCrossings

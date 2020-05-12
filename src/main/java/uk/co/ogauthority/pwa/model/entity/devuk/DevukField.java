@@ -3,10 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.devuk;
 import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 
 @Entity(name = "devuk_fields")
 @Immutable
@@ -16,6 +13,7 @@ public class DevukField {
   private Integer fieldId;
   private String fieldName;
   private Integer status;
+  private Integer operatorOuId;
 
   public DevukField() {
   }
@@ -27,9 +25,6 @@ public class DevukField {
     this.status = status;
   }
 
-  @ManyToOne
-  @JoinColumn(name = "operator_ou_id")
-  private PortalOrganisationUnit organisationUnit;
 
   public Integer getFieldId() {
     return fieldId;
@@ -55,12 +50,11 @@ public class DevukField {
     this.status = status;
   }
 
-  public PortalOrganisationUnit getOrganisationUnit() {
-    return organisationUnit;
+  public Integer getOperatorOuId() {
+    return operatorOuId;
   }
 
-  public void setOrganisationUnit(
-      PortalOrganisationUnit organisationUnit) {
-    this.organisationUnit = organisationUnit;
+  public void setOperatorOuId(Integer operatorOuId) {
+    this.operatorOuId = operatorOuId;
   }
 }
