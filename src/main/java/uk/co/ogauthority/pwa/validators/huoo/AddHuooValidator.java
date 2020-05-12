@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.validators.huoo;
 
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,7 @@ public class AddHuooValidator implements SmartValidator {
           "You must select a treaty agreement");
     }
     var holderCount = roles.stream()
-        .filter(padOrgRole -> padOrgRole.getRoles().contains(HuooRole.HOLDER))
+        .filter(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER))
         .count();
     // TODO: PWA-386 Change hard-coded 1 to match number of potential holders on an application.
     if (holderCount >= 1) {

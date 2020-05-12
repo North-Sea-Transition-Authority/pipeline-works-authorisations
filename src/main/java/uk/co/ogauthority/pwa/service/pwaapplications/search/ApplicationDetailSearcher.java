@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.ApplicationDetailSearchItemRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 
 @Service
@@ -20,8 +21,8 @@ public class ApplicationDetailSearcher {
     this.applicationDetailSearchItemRepository = applicationDetailSearchItemRepository;
   }
 
-  public Page<ApplicationDetailSearchItem> search(Pageable pageable,
-                                                  Set<PwaApplicationContactRoleDto> contactFilter) {
+  public Page<ApplicationDetailSearchItem> searchByPwaContacts(Pageable pageable,
+                                                               Set<PwaApplicationContactRoleDto> contactFilter) {
     if (contactFilter.isEmpty()) {
       return Page.empty(pageable);
     }
@@ -35,4 +36,18 @@ public class ApplicationDetailSearcher {
         filterApplicationIds
     );
   }
+
+  public Page<ApplicationDetailSearchItem> searchByStatus(Pageable pageable,
+                                                          Set<PwaApplicationStatus> statusFilter) {
+    if (statusFilter.isEmpty()) {
+      return Page.empty(pageable);
+    }
+
+    return applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndAndPadStatusIn(
+        pageable,
+        statusFilter
+    );
+  }
+
+
 }

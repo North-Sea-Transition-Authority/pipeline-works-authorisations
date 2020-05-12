@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.validators;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -45,13 +45,16 @@ public class LocationDetailsValidator implements Validator {
     if (form.getFacilitiesOffshore() == null) {
       errors.rejectValue("facilitiesOffshore", "facilitiesOffshore.required",
           "Select yes if facilities are wholly offshore and subsea");
+    } else if (form.getFacilitiesOffshore().equals(false)) {
+      ValidationUtils.rejectIfEmpty(errors, "pipelineAshoreLocation",
+          "pipelineAshoreLocation" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "You must provide the location information detailing where the pipeline comes ashore");
     }
     if (form.getTransportsMaterialsToShore() == null) {
       errors.rejectValue("transportsMaterialsToShore", "transportsMaterialsToShore.required",
           "Select yes if the pipeline will be used to transport materials / facilitate the transportation of materials to shore");
-    } else if (form.getTransportsMaterialsToShore().equals(true) && StringUtils.isBlank(
-        form.getTransportationMethod())) {
-      errors.rejectValue("transportationMethod", "transportationMethod.required",
+    } else if (form.getTransportsMaterialsToShore().equals(true)) {
+      ValidationUtils.rejectIfEmpty(errors, "transportationMethod", "transportationMethod.required",
           "You must provide the method of transportation to shore");
     }
     ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.validators.huoo;
 
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,6 @@ import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 
@@ -25,7 +24,7 @@ public class EditHuooValidator implements SmartValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return clazz.equals(EditHuooValidator.class);
+    return clazz.equals(HuooForm.class);
   }
 
   @Override
@@ -38,7 +37,7 @@ public class EditHuooValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (HuooForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
-    var editingPadOrg = (PadOrganisationRole) validationHints[1];
+    var huooValidationView = (HuooValidationView) validationHints[1];
     var roles = padOrganisationRoleService.getOrgRolesForDetail(detail);
     if (form.getHuooType() == null) {
       errors.rejectValue("huooType", "huooType.required",
@@ -54,8 +53,9 @@ public class EditHuooValidator implements SmartValidator {
         roles.stream()
             .filter(role -> role.getType().equals(HuooType.PORTAL_ORG))
             .filter(
-                padOrganisationRole -> editingPadOrg.getOrganisationUnit() == null // we aren't editing an org at all, but a treaty
-                    || (padOrganisationRole.getOrganisationUnit().getOuId() != editingPadOrg.getOrganisationUnit().getOuId()))
+                // we aren't editing an org at all, but a treaty
+                padOrganisationRole -> huooValidationView.getPortalOrganisationUnit() == null
+                    || (padOrganisationRole.getOrganisationUnit().getOuId() != huooValidationView.getPortalOrganisationUnit().getOuId()))
             .filter(padOrganisationRole ->
                 padOrganisationRole.getOrganisationUnit().getOuId() == form.getOrganisationUnit().getOuId())
             .findAny()
@@ -71,11 +71,11 @@ public class EditHuooValidator implements SmartValidator {
     }
 
     var holderCount = roles.stream()
-        .filter(padOrgRole -> padOrgRole.getType().equals(editingPadOrg.getType()))
+        .filter(padOrgRole -> padOrgRole.getType().equals(huooValidationView.getHuooType()))
         .filter(padOrgRole -> padOrgRole.getType().equals(HuooType.PORTAL_ORG))
-        .filter(padOrgRole -> padOrgRole.getRoles().contains(HuooRole.HOLDER))
+        .filter(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER))
         .filter(
-            padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() != editingPadOrg.getOrganisationUnit().getOuId())
+            padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() != huooValidationView.getPortalOrganisationUnit().getOuId())
         .count();
     // TODO: PWA-386 Change hard-coded 1 to match number of potential holders on an application.
     if (holderCount >= 1) {
@@ -85,17 +85,17 @@ public class EditHuooValidator implements SmartValidator {
       }
     }
 
-    if (editingPadOrg.getType() != form.getHuooType()) {
+    if (huooValidationView.getHuooType() != form.getHuooType()) {
       errors.rejectValue("huooType", "huooType.differentType",
           "Entity cannot have a different type");
     }
 
     var orgWasHolder = roles.stream()
-        .filter(padOrgRole -> padOrgRole.getType().equals(editingPadOrg.getType()))
+        .filter(padOrgRole -> padOrgRole.getType().equals(huooValidationView.getHuooType()))
         .filter(padOrgRole -> padOrgRole.getType().equals(HuooType.PORTAL_ORG))
         .filter(
-            padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() == editingPadOrg.getOrganisationUnit().getOuId())
-        .anyMatch(padOrgRole -> padOrgRole.getRoles().contains(HuooRole.HOLDER));
+            padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() == huooValidationView.getPortalOrganisationUnit().getOuId())
+        .anyMatch(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER));
 
     if (orgWasHolder) {
       if (!SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER) && holderCount == 0) {
@@ -112,7 +112,8 @@ public class EditHuooValidator implements SmartValidator {
     if (form.getHuooType() == HuooType.TREATY_AGREEMENT) {
       var alreadyAddedTreaty = roles.stream()
           .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
-          .anyMatch(padOrganisationRole -> padOrganisationRole.getAgreement().equals(editingPadOrg.getAgreement()));
+          .filter(padOrganisationRole -> padOrganisationRole.getAgreement() != huooValidationView.getTreatyAgreement())
+          .anyMatch(padOrganisationRole -> padOrganisationRole.getAgreement().equals(form.getTreatyAgreement()));
       if (alreadyAddedTreaty) {
         errors.rejectValue("treatyAgreement", "treatyAgreement.duplicate",
             "The treaty agreement is already added to the application");

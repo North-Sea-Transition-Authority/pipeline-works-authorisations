@@ -4,11 +4,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.EnumSet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -39,24 +41,46 @@ public class WorkAreaService {
   /**
    * get workarea items for user.
    */
-  public PageView<PwaApplicationWorkAreaItem> getWorkAreaResultPage(WebUserAccount webUserAccount,
+  public PageView<PwaApplicationWorkAreaItem> getWorkAreaResultPage(AuthenticatedUserAccount authenticatedUserAccount,
                                                                     WorkAreaTab workAreaTab,
                                                                     int page) {
-    var applicationContactRoles = pwaContactService.getPwaContactRolesForWebUserAccount(
-        webUserAccount,
-        EnumSet.of(PwaContactRole.PREPARER));
 
     var workAreaUri = ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, workAreaTab, page));
-    var resultsPage = applicationDetailSearcher.search(
-        PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "padCreatedTimestamp")),
-        applicationContactRoles
-    );
+
+    var resultsPage = getUserSearchResults(authenticatedUserAccount, workAreaTab, page);
 
     return PageView.fromPage(
         resultsPage,
         workAreaUri,
         sr -> new PwaApplicationWorkAreaItem(sr, this::viewApplicationUrlProducer)
     );
+  }
+
+  private Page<ApplicationDetailSearchItem> getUserSearchResults(AuthenticatedUserAccount userAccount,
+                                                                 WorkAreaTab workAreaTab,
+                                                                 int pageRequest) {
+    if (userAccount.hasPrivilege(PwaUserPrivilege.PWA_REGULATOR_ADMIN)) {
+      var adminStatusVisibility = EnumSet.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+      return applicationDetailSearcher.searchByStatus(
+          getWorkAreaPageRequest(pageRequest, WorkAreaSort.PROPOSED_DATE_ASC),
+          adminStatusVisibility
+      );
+    } else {
+      var applicationContactRoles = pwaContactService.getPwaContactRolesForWebUserAccount(
+          userAccount,
+          EnumSet.of(PwaContactRole.PREPARER));
+
+      return applicationDetailSearcher.searchByPwaContacts(
+          getWorkAreaPageRequest(pageRequest, WorkAreaSort.CREATED_DATE_DESC),
+          applicationContactRoles
+      );
+
+    }
+  }
+
+  private Pageable getWorkAreaPageRequest(int pageRequest, WorkAreaSort workAreaSort) {
+    return PageRequest.of(pageRequest, PAGE_SIZE, workAreaSort.getSort());
   }
 
   private String viewApplicationUrlProducer(ApplicationDetailSearchItem applicationDetailSearchItem) {
