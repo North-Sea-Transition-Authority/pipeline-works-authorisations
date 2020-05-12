@@ -34,3 +34,5 @@ CREATE OR REPLACE VIEW ${datasource.user}.mig_pwa_consents AS (
   FROM decmgr.xview_pipeline_auth_details xpad
   JOIN decmgr.pipeline_authorisations pa ON xpad.pa_id = pa.id
 );
+
+
