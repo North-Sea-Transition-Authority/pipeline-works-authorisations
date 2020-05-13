@@ -39,13 +39,13 @@ public class PipelineHeaderFormValidator implements SmartValidator {
         "Enter the pipeline's start point");
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getFromCoordinateForm(), errors,
-        "fromCoordinateForm", ValueRequirement.MANDATORY);
+        "fromCoordinateForm", ValueRequirement.MANDATORY, "Start point");
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "toLocation", "toLocation.required",
         "Enter the pipeline's finish point");
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
-        "toCoordinateForm", ValueRequirement.MANDATORY);
+        "toCoordinateForm", ValueRequirement.MANDATORY, "Finish point");
 
     ValidationUtils.rejectIfEmpty(errors, "pipelineType", "pipelineType.required",
         "Select the pipeline type");

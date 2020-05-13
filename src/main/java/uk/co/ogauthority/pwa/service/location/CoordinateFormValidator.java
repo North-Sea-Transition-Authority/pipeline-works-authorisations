@@ -27,6 +27,7 @@ public class CoordinateFormValidator implements SmartValidator {
     var form = (CoordinateForm) target;
     String fieldPrefix = validationHints[0] != null ? validationHints[0] + "." : "";
     var required = (ValueRequirement) validationHints[1];
+    String errorMessagePrefix = (String) validationHints[2];
 
     if (required.equals(ValueRequirement.OPTIONAL) && (
         form.getLatitudeDegrees() != null || form.getLatitudeMinutes() != null || form.getLatitudeSeconds() != null
@@ -35,12 +36,14 @@ public class CoordinateFormValidator implements SmartValidator {
 
       ValidatorUtils.validateLatitude(
           errors,
+          errorMessagePrefix,
           Pair.of(fieldPrefix + "latitudeDegrees", form.getLatitudeDegrees()),
           Pair.of(fieldPrefix + "latitudeMinutes", form.getLatitudeMinutes()),
           Pair.of(fieldPrefix + "latitudeSeconds", form.getLatitudeSeconds()));
 
       ValidatorUtils.validateLongitude(
           errors,
+          errorMessagePrefix,
           Pair.of(fieldPrefix + "longitudeDegrees", form.getLongitudeDegrees()),
           Pair.of(fieldPrefix + "longitudeMinutes", form.getLongitudeMinutes()),
           Pair.of(fieldPrefix + "longitudeSeconds", form.getLongitudeSeconds()),

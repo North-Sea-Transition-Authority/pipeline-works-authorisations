@@ -15,22 +15,22 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 @Service
 public class PwaApplicationContextService {
 
   private final PwaApplicationDetailService detailService;
   private final PwaContactService pwaContactService;
-  private final PadPipelinesService padPipelinesService;
+  private final PadPipelineService padPipelineService;
 
   @Autowired
   public PwaApplicationContextService(PwaApplicationDetailService detailService,
                                       PwaContactService pwaContactService,
-                                      PadPipelinesService padPipelinesService) {
+                                      PadPipelineService padPipelineService) {
     this.detailService = detailService;
     this.pwaContactService = pwaContactService;
-    this.padPipelinesService = padPipelinesService;
+    this.padPipelineService = padPipelineService;
   }
 
   /**
@@ -149,7 +149,7 @@ public class PwaApplicationContextService {
    */
   private void getAndSetPipeline(PwaApplicationContext context, int padPipelineId) {
 
-    var pipeline = padPipelinesService.getById(padPipelineId);
+    var pipeline = padPipelineService.getById(padPipelineId);
 
     if (!Objects.equals(pipeline.getPwaApplicationDetail(), context.getApplicationDetail())) {
       throw new AccessDeniedException(String.format("PadPipeline app detail (%s) didn't match the app context's app detail (%s)",

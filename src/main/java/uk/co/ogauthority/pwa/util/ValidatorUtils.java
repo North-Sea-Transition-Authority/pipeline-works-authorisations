@@ -207,19 +207,20 @@ public class ValidatorUtils {
   }
 
   public static void validateLatitude(Errors errors,
+                                      String errorMessagePrefix,
                                       Pair<String, Integer> degrees,
                                       Pair<String, Integer> minutes,
                                       Pair<String, BigDecimal> seconds) {
 
     if (degrees.getValue() == null || minutes.getValue() == null || seconds.getValue() == null) {
       errors.rejectValue(degrees.getKey(), degrees.getKey() + REQUIRED.getCode(),
-          "Enter the latitude details");
+          String.format("Enter the %s latitude details", errorMessagePrefix.toLowerCase()));
       errors.rejectValue(minutes.getKey(), minutes.getKey() + REQUIRED.getCode(), "");
       errors.rejectValue(seconds.getKey(), seconds.getKey() + REQUIRED.getCode(), "");
       return;
     }
 
-    var messagePrefix = "Latitude";
+    var messagePrefix = errorMessagePrefix + " latitude";
 
     if (!Range.between(45, 64).contains(degrees.getValue())) {
       errors.rejectValue(degrees.getKey(), degrees.getKey() + INVALID.getCode(),
@@ -255,6 +256,7 @@ public class ValidatorUtils {
   }
 
   public static void validateLongitude(Errors errors,
+                                       String errorMessagePrefix,
                                        Pair<String, Integer> degrees,
                                        Pair<String, Integer> minutes,
                                        Pair<String, BigDecimal> seconds,
@@ -262,14 +264,14 @@ public class ValidatorUtils {
 
     if (degrees.getValue() == null || minutes.getValue() == null || seconds.getValue() == null || direction.getValue() == null) {
       errors.rejectValue(degrees.getKey(), degrees.getKey() + REQUIRED.getCode(),
-          "Enter the longitude details");
+          String.format("Enter the %s longitude details", errorMessagePrefix.toLowerCase()));
       errors.rejectValue(minutes.getKey(), minutes.getKey() + REQUIRED.getCode(), "");
       errors.rejectValue(seconds.getKey(), seconds.getKey() + REQUIRED.getCode(), "");
       errors.rejectValue(direction.getKey(), direction.getKey() + REQUIRED.getCode(), "");
       return;
     }
 
-    var messagePrefix = "Longitude";
+    var messagePrefix = errorMessagePrefix + " longitude";
 
     if (!Range.between(0, 30).contains(degrees.getValue())) {
       errors.rejectValue(degrees.getKey(), degrees.getKey() + INVALID.getCode(),
