@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.pad_pipelines ADD pipeline_ref VARCHAR2(50);

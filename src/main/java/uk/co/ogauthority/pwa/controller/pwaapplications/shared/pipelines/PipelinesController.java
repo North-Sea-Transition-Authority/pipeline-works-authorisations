@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -17,16 +18,19 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.enums.PipelineViewMode;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -43,23 +47,36 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
 public class PipelinesController {
 
-  private final PadPipelinesService padPipelinesService;
+  private final PadPipelineService padPipelineService;
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineHeaderFormValidator validator;
+  private final PwaApplicationRedirectService applicationRedirectService;
 
   @Autowired
-  public PipelinesController(PadPipelinesService padPipelinesService,
+  public PipelinesController(PadPipelineService padPipelineService,
                              ApplicationBreadcrumbService breadcrumbService,
-                             PipelineHeaderFormValidator validator) {
-    this.padPipelinesService = padPipelinesService;
+                             PipelineHeaderFormValidator validator,
+                             PwaApplicationRedirectService applicationRedirectService) {
+    this.padPipelineService = padPipelineService;
     this.breadcrumbService = breadcrumbService;
     this.validator = validator;
+    this.applicationRedirectService = applicationRedirectService;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
-    return new ModelAndView("pwaApplication/shared/pipelines/overview")
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
+        .addObject("pipelineOverviews", padPipelineService.getPipelineOverviews(detail).stream()
+            .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
+            .collect(Collectors.toList()))
         .addObject("addPipelineUrl", ReverseRouter.route(on(PipelinesController.class)
-            .renderAddPipeline(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)));
+            .renderAddPipeline(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)))
+        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
+
+    breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
+
+    return modelAndView;
+
   }
 
   @GetMapping
@@ -70,8 +87,25 @@ public class PipelinesController {
     return getOverviewModelAndView(applicationContext.getApplicationDetail());
   }
 
-  private ModelAndView getAddPipelineModelAndView(PwaApplicationDetail detail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/addPipeline")
+  @PostMapping
+  public ModelAndView postPipelinesOverview(@PathVariable("applicationId") Integer applicationId,
+                                            @PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            PwaApplicationContext applicationContext) {
+
+    // otherwise, make sure that all pipelines have header info and idents
+    if (!padPipelineService.isComplete(applicationContext.getApplicationDetail())) {
+      return getOverviewModelAndView(applicationContext.getApplicationDetail())
+          .addObject("errorMessage", "One or more pipelines must be added. Each pipeline must have at least one ident.");
+    }
+
+    return applicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+
+  }
+
+  private ModelAndView getAddEditPipelineModelAndView(PwaApplicationDetail detail, ScreenActionType type, PadPipeline pipeline) {
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/addEditPipeline")
         .addObject("pipelineTypes", PipelineType.stream()
             .sorted(Comparator.comparing(PipelineType::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
@@ -79,9 +113,14 @@ public class PipelinesController {
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class)
             .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
-        .addObject("viewMode", PipelineViewMode.NEW);
+        .addObject("screenActionType", type);
 
-    breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Add pipeline");
+    breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, type.getSubmitButtonText() + " pipeline");
+
+    if (pipeline != null) {
+      modelAndView.addObject("pipelineNumber", pipeline.getPipelineRef());
+    }
+
     return modelAndView;
   }
 
@@ -91,7 +130,7 @@ public class PipelinesController {
                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                         PwaApplicationContext applicationContext,
                                         @ModelAttribute("form") PipelineHeaderForm form) {
-    return getAddPipelineModelAndView(applicationContext.getApplicationDetail());
+    return getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.ADD, null);
   }
 
   @PostMapping("/add-pipeline")
@@ -105,14 +144,55 @@ public class PipelinesController {
     validator.validate(form, bindingResult, applicationContext);
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getAddPipelineModelAndView(applicationContext.getApplicationDetail()), () -> {
+        getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.ADD, null), () -> {
 
-          padPipelinesService.addPipeline(applicationContext.getApplicationDetail(), form);
+          padPipelineService.addPipeline(applicationContext.getApplicationDetail(), form);
 
           return ReverseRouter.redirect(on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
 
         });
 
   }
+
+  @GetMapping("/pipeline/{padPipelineId}")
+  public ModelAndView renderEditPipeline(@PathVariable("applicationId") Integer applicationId,
+                                         @PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable("padPipelineId") Integer padPipelineId,
+                                         PwaApplicationContext applicationContext,
+                                         @ModelAttribute("form") PipelineHeaderForm form) {
+
+    padPipelineService.mapEntityToForm(form, applicationContext.getPadPipeline());
+
+    return getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT,
+        applicationContext.getPadPipeline())
+        .addObject("form", form);
+
+  }
+
+  @PostMapping("/pipeline/{padPipelineId}")
+  public ModelAndView postEditPipeline(@PathVariable("applicationId") Integer applicationId,
+                                       @PathVariable("applicationType")
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @PathVariable("padPipelineId") Integer padPipelineId,
+                                       PwaApplicationContext applicationContext,
+                                       @ModelAttribute("form") PipelineHeaderForm form,
+                                       BindingResult bindingResult) {
+
+    validator.validate(form, bindingResult, applicationContext);
+
+    var pipeline = applicationContext.getPadPipeline();
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline), () -> {
+
+          padPipelineService.updatePipeline(pipeline, form);
+
+          return ReverseRouter.redirect(on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
+
+        });
+
+  }
+
 
 }

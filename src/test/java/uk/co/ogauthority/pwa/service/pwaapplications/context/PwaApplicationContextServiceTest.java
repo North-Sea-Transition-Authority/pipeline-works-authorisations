@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationContextServiceTest {
@@ -35,7 +35,7 @@ public class PwaApplicationContextServiceTest {
   private PwaContactService contactService;
 
   @Mock
-  private PadPipelinesService padPipelinesService;
+  private PadPipelineService padPipelineService;
 
   private PwaApplicationContextService contextService;
 
@@ -55,14 +55,14 @@ public class PwaApplicationContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
-    contextService = new PwaApplicationContextService(detailService, contactService, padPipelinesService);
+    contextService = new PwaApplicationContextService(detailService, contactService, padPipelineService);
 
     when(detailService.getTipDetail(1)).thenReturn(detail);
     when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
     var padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(detail);
-    when(padPipelinesService.getById(2)).thenReturn(padPipeline);
+    when(padPipelineService.getById(2)).thenReturn(padPipeline);
 
   }
 
@@ -215,7 +215,7 @@ public class PwaApplicationContextServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void validateAndCreate_withPadPipeline_pipeNotFound() {
 
-    when(padPipelinesService.getById(3)).thenThrow(PwaEntityNotFoundException.class);
+    when(padPipelineService.getById(3)).thenThrow(PwaEntityNotFoundException.class);
 
     var builder = new PwaApplicationContextParams(1, user)
         .withPadPipelineId(3);
@@ -230,7 +230,7 @@ public class PwaApplicationContextServiceTest {
     var otherAppPipe = new PadPipeline();
     otherAppPipe.setPwaApplicationDetail(new PwaApplicationDetail());
 
-    when(padPipelinesService.getById(4)).thenReturn(otherAppPipe);
+    when(padPipelineService.getById(4)).thenReturn(otherAppPipe);
 
     var builder = new PwaApplicationContextParams(1, user)
         .withPadPipelineId(4);

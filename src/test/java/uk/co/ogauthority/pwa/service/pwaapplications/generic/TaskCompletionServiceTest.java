@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDeco
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 
@@ -62,7 +62,7 @@ public class TaskCompletionServiceTest {
   private TechnicalDrawingsService technicalDrawingsService;
 
   @MockBean
-  private PadPipelinesService padPipelinesService;
+  private PadPipelineService padPipelineService;
 
   @Test
   public void isTaskComplete() {
@@ -94,7 +94,7 @@ public class TaskCompletionServiceTest {
           service = padOrganisationRoleService;
           break;
         case PIPELINES:
-          service = padPipelinesService;
+          service = padPipelineService;
           break;
         case TECHNICAL_DRAWINGS:
           service = technicalDrawingsService;

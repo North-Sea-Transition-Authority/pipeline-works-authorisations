@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -15,8 +16,10 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -54,10 +57,16 @@ public class PipelineIdentsController {
     this.padIdentService = padIdentService;
   }
 
-  private ModelAndView getIdentOverviewModelAndView(PwaApplicationDetail detail, int padPipelineId) {
-    return new ModelAndView("pwaApplication/shared/pipelines/identOverview")
+  private ModelAndView getIdentOverviewModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/identOverview")
+        .addObject("pipelineOverview", new PipelineOverview(padPipeline, List.of()))
         .addObject("addIdentUrl", ReverseRouter.route(on(PipelineIdentsController.class)
-            .renderAddIdent(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), padPipelineId, null, null)));
+            .renderAddIdent(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), padPipeline.getId(), null, null)));
+
+    breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, padPipeline.getPipelineRef() + " idents");
+
+    return modelAndView;
+
   }
 
   @GetMapping
@@ -66,19 +75,19 @@ public class PipelineIdentsController {
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           @PathVariable("padPipelineId") Integer padPipelineId,
                                           PwaApplicationContext applicationContext) {
-    return getIdentOverviewModelAndView(applicationContext.getApplicationDetail(), padPipelineId);
+    return getIdentOverviewModelAndView(applicationContext.getApplicationDetail(), applicationContext.getPadPipeline());
   }
 
-  private ModelAndView getAddIdentModelAndView(PwaApplicationDetail detail, PipelineIdentForm identForm) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/addIdent")
+  private ModelAndView getAddIdentModelAndView(PwaApplicationDetail detail, PipelineIdentForm identForm, PadPipeline padPipeline) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/addEditIdent")
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
-        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class)
-            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
+        .addObject("cancelUrl", ReverseRouter.route(on(PipelineIdentsController.class)
+            .renderIdentOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), padPipeline.getId(), null)))
         .addObject("screenActionType", ScreenActionType.ADD)
         .addObject("form", identForm);
 
-    breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Add ident");
+    breadcrumbService.fromPipelineIdentOverview(detail.getPwaApplication(), padPipeline, modelAndView, "Add ident");
     return modelAndView;
   }
 
@@ -94,7 +103,7 @@ public class PipelineIdentsController {
     padIdentService.getMaxIdent(applicationContext.getPadPipeline())
         .ifPresent(previousIdent -> form.setFromLocation(previousIdent.getToLocation()));
 
-    return getAddIdentModelAndView(applicationContext.getApplicationDetail(), form);
+    return getAddIdentModelAndView(applicationContext.getApplicationDetail(), form, applicationContext.getPadPipeline());
 
   }
 
@@ -110,11 +119,11 @@ public class PipelineIdentsController {
     validator.validate(form, bindingResult, applicationContext);
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getAddIdentModelAndView(applicationContext.getApplicationDetail(), form), () -> {
+        getAddIdentModelAndView(applicationContext.getApplicationDetail(), form, applicationContext.getPadPipeline()), () -> {
 
           padIdentService.addIdent(applicationContext.getPadPipeline(), form);
-          return ReverseRouter.redirect(on(PipelinesController.class).renderPipelinesOverview(
-              applicationId, pwaApplicationType, applicationContext));
+          return ReverseRouter.redirect(on(PipelineIdentsController.class).renderIdentOverview(
+              applicationId, pwaApplicationType, padPipelineId, applicationContext));
 
         });
 
