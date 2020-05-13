@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.repository.pwaapplications.shared;
+package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;

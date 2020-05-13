@@ -7,10 +7,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.Immutable;
+import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 
 @Entity(name = "portal_organisation_units")
 @Immutable
-public class PortalOrganisationUnit {
+public class PortalOrganisationUnit implements SearchSelectable {
 
   @Id
   private int ouId;
@@ -59,5 +60,15 @@ public class PortalOrganisationUnit {
   @Override
   public int hashCode() {
     return Objects.hash(ouId, name, portalOrganisationGroup);
+  }
+
+  @Override
+  public String getSelectionId() {
+    return String.valueOf(ouId);
+  }
+
+  @Override
+  public String getSelectionText() {
+    return name;
   }
 }

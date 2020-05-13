@@ -91,6 +91,7 @@ public class PwaContactController {
           .addObject("addUserUrl", ReverseRouter.route(on(PwaContactController.class)
               .renderAddContact(pwaApplication.getApplicationType(), applicationId, null, user)))
           .addObject("showBreadcrumbs", true)
+          .addObject("showTopNav", false)
           .addObject("userCanManageAccess", pwaContactService
               .personHasContactRoleForPwaApplication(pwaApplication, user.getLinkedPerson(), PwaContactRole.ACCESS_MANAGER))
           .addObject("allRoles", rolesMap)
@@ -112,6 +113,7 @@ public class PwaContactController {
 
     return new ModelAndView("teamManagement/addUserToTeam")
         .addObject("groupName", pwaApplication.getAppReference() + " contacts")
+        .addObject("showTopNav", false)
         .addObject("cancelUrl", ReverseRouter.route(
             on(PwaContactController.class).renderContactsScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null)))
         .addObject("form", form);
@@ -171,6 +173,7 @@ public class PwaContactController {
         .addObject("form", form)
         .addObject("roles", rolesMap)
         .addObject("userName", person.getFullName())
+        .addObject("showTopNav", false)
         .addObject("cancelUrl", ReverseRouter.route(
             on(PwaContactController.class)
                 .renderContactsScreen(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null)));
@@ -244,6 +247,7 @@ public class PwaContactController {
         .addObject("cancelUrl",
             ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null)))
+        .addObject("showTopNav", false)
         .addObject("teamName", detail.getPwaApplicationRef() + " contacts")
         .addObject("teamMember", pwaContactService.getTeamMemberView(detail.getPwaApplication(), contact));
 

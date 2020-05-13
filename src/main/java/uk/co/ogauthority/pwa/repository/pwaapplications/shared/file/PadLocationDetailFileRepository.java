@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.repository.pwaapplications.shared;
+package uk.co.ogauthority.pwa.repository.pwaapplications.shared.file;
 
 import java.util.List;
 import java.util.Optional;

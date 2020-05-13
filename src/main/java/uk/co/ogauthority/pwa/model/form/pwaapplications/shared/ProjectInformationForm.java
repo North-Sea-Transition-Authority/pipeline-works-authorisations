@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
@@ -53,6 +54,14 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   @NotNull(message = "Select yes if using a campaign approach", groups = {FullValidation.class})
   private Boolean usingCampaignApproach;
+
+  private PermanentDepositRadioOption permanentDepositsMadeType;
+  private Integer futureAppSubmissionMonth;
+  private Integer futureAppSubmissionYear;
+
+  private Boolean temporaryDepositsMade;
+  private String temporaryDepDescription;
+
 
   public String getProjectName() {
     return projectName;
@@ -237,4 +246,46 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   public void setLicenceTransferPlanned(Boolean licenceTransferPlanned) {
     this.licenceTransferPlanned = licenceTransferPlanned;
   }
+
+  public PermanentDepositRadioOption getPermanentDepositsMadeType() {
+    return permanentDepositsMadeType;
+  }
+
+  public void setPermanentDepositsMadeType(PermanentDepositRadioOption permanentDepositsMadeType) {
+    this.permanentDepositsMadeType = permanentDepositsMadeType;
+  }
+
+  public Integer getFutureAppSubmissionMonth() {
+    return futureAppSubmissionMonth;
+  }
+
+  public void setFutureAppSubmissionMonth(Integer futureAppSubmissionMonth) {
+    this.futureAppSubmissionMonth = futureAppSubmissionMonth;
+  }
+
+  public Integer getFutureAppSubmissionYear() {
+    return futureAppSubmissionYear;
+  }
+
+  public void setFutureAppSubmissionYear(Integer futureAppSubmissionYear) {
+    this.futureAppSubmissionYear = futureAppSubmissionYear;
+  }
+
+  public Boolean getTemporaryDepositsMade() {
+    return temporaryDepositsMade;
+  }
+
+  public void setTemporaryDepositsMade(Boolean temporaryDepositsMade) {
+    this.temporaryDepositsMade = temporaryDepositsMade;
+  }
+
+  public String getTemporaryDepDescription() {
+    return temporaryDepDescription;
+  }
+
+  public void setTemporaryDepDescription(String temporaryDepDescription) {
+    this.temporaryDepDescription = temporaryDepDescription;
+  }
+
+
 }

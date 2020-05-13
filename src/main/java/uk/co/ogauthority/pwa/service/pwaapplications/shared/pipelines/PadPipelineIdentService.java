@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineIdentRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Service

@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
 public class TaskInfo {
-  
+
   private String link;
   private String countType;
-  private Long count = Long.valueOf(0);
+  private Long count = 0L;
 
   public TaskInfo(String link) {
     this.link = link;
@@ -22,7 +22,7 @@ public class TaskInfo {
   public String getLink() {
     return link;
   }
-  
+
   public void setLink(String link) {
     this.link = link;
   }
@@ -38,7 +38,7 @@ public class TaskInfo {
   public Long getCount() {
     return count;
   }
-  
+
   public void setCount(Long count) {
     this.count = count;
   }

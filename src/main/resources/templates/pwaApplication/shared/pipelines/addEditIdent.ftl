@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 
-<@defaultPage htmlTitle="${screenActionType.submitButtonText} ident" pageHeading="${screenActionType.submitButtonText} ident" breadcrumbs=true>
+<@defaultPage htmlTitle="${screenActionType.actionText} ident" pageHeading="${screenActionType.actionText} ident" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList />

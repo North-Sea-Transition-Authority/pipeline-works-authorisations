@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared.location;
+package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -21,17 +21,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = LocationDetailsRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class LocationDetailsRestControllerTest extends PwaApplicationContextAbstractControllerTest {
+@WebMvcTest(controllers = PortalOrganisationUnitRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class PortalOrganisationUnitRestControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @MockBean
-  private DevukFacilityService devukFacilityService;
+  private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @MockBean
   private SearchSelectorService searchSelectorService;
@@ -40,23 +40,23 @@ public class LocationDetailsRestControllerTest extends PwaApplicationContextAbst
 
   @Before
   public void setUp() {
-    when(devukFacilityService.getFacilities(any())).thenReturn(List.of());
+    when(portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(any())).thenReturn(List.of());
     user = new AuthenticatedUserAccount(new WebUserAccount(), Set.of());
   }
 
   @Test
-  public void searchFacilities_unauthenticated() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities("Test"))))
+  public void searchPortalOrgUnits_unauthenticated() throws Exception {
+    mockMvc.perform(
+        get(ReverseRouter.route(on(PortalOrganisationUnitRestController.class).searchPortalOrgUnits("Test"))))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
-  public void searchFacilities_authenticated() throws Exception {
+  public void searchPortalOrgUnits_authenticated() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(LocationDetailsRestController.class).searchFacilities("Test")))
+        get(ReverseRouter.route(on(PortalOrganisationUnitRestController.class).searchPortalOrgUnits("Test")))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
     ).andExpect(status().isOk());
   }
-
 }

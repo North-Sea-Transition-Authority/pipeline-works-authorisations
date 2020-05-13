@@ -91,7 +91,8 @@ public class PortalTeamManagementController {
             on(PortalTeamManagementController.class).renderAddUserToTeam(team.getId(), null, null)
         ))
         .addObject("showBreadcrumbs", false)
-        .addObject("userCanManageAccess", true);
+        .addObject("userCanManageAccess", true)
+        .addObject("showTopNav", true);
   }
 
 
@@ -106,6 +107,7 @@ public class PortalTeamManagementController {
     return new ModelAndView("teamManagement/addUserToTeam")
         .addObject("groupName", "team")
         .addObject("teamId", team.getId())
+        .addObject("showTopNav", true)
         .addObject("cancelUrl", ReverseRouter.route(
             on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null))
         );
@@ -167,6 +169,7 @@ public class PortalTeamManagementController {
 
     return new ModelAndView("teamManagement/removeMember")
         .addObject("cancelUrl", ReverseRouter.route(on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null)))
+        .addObject("showTopNav", true)
         .addObject("teamName", team.getName())
         .addObject("teamMember", teamMemberView)
         .addObject("error", error);
@@ -217,6 +220,7 @@ public class PortalTeamManagementController {
         .addObject("roles", ControllerUtils.asCheckboxMap(roles))
         .addObject("teamName", team.getName())
         .addObject("userName", person.getFullName())
+        .addObject("showTopNav", true)
         .addObject("cancelUrl", ReverseRouter.route(
             on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null))
         );

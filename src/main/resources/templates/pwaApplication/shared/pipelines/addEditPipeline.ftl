@@ -4,10 +4,11 @@
 <#-- @ftlvariable name="longDirections" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
-<#-- @ftlvariable name="viewMode" type="uk.co.ogauthority.pwa.model.form.enums.PipelineViewMode" -->
+<#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="pipelineNumber" type="String" -->
 
-<@defaultPage htmlTitle="${viewMode.displayText} pipeline" pageHeading="${viewMode.displayText} pipeline" breadcrumbs=true>
+<@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList />
@@ -76,11 +77,7 @@
 
         </@fdsFieldset.fieldset>
 
-        <#if viewMode == "UPDATE">
-            <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Update pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
-        <#elseif viewMode == "NEW">
-            <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Add new pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
-        </#if>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
     </@fdsForm.htmlForm>
 </@defaultPage>
