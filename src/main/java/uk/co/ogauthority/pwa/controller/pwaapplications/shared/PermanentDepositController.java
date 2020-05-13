@@ -179,7 +179,8 @@ public class PermanentDepositController extends PwaApplicationDataFileUploadAndD
 
     );
     modelAndView.addObject("isPermDepositMade",
-                    permanentDepositsService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail));
+                    permanentDepositsService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail))
+    .addObject("pipelines", permanentDepositsService.getPipelines(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent Deposits");

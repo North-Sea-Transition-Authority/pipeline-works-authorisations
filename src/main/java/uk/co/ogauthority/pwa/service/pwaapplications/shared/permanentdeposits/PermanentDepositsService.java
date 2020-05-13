@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,16 +11,21 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInfoFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -31,6 +39,7 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
   private final PermanentDepositsEntityMappingService permanentDepositsEntityMappingService;
   private final PermanentDepositsValidator permanentDepositsValidator;
   private final SpringValidatorAdapter groupValidator;
+  private final PadPipelineRepository padPipelineRepository;
 
   @Autowired
   public PermanentDepositsService(
@@ -38,12 +47,14 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
       PermanentDepositsFileService permanentDepositsFileService,
       PermanentDepositsEntityMappingService permanentDepositsEntityMappingService,
       PermanentDepositsValidator permanentDepositsValidator,
-      SpringValidatorAdapter groupValidator) {
+      SpringValidatorAdapter groupValidator,
+      PadPipelineRepository padPipelineRepository) {
     this.permanentDepositInformationRepository = permanentDepositInformationRepository;
     this.permanentDepositsFileService = permanentDepositsFileService;
     this.permanentDepositsEntityMappingService = permanentDepositsEntityMappingService;
     this.permanentDepositsValidator = permanentDepositsValidator;
     this.groupValidator = groupValidator;
+    this.padPipelineRepository = padPipelineRepository;
   }
 
   public PermanentDepositInformation getPermanentDepositData(PwaApplicationDetail pwaApplicationDetail) {
@@ -165,6 +176,14 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
   public boolean getIsPermanentDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
     return true;
     //To Do: get proj info entity and check weather permanent deposit is being made.
+  }
+
+  public Map<String, String> getPipelines(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineRepository.findAllByPwaApplicationDetail(pwaApplicationDetail)
+        .stream()
+        .sorted(Comparator.comparing(PadPipeline::getId))
+        .collect(
+            StreamUtils.toLinkedHashMap(padPipeline -> padPipeline.getId().toString(), PadPipeline::getFromLocation));
   }
 
 

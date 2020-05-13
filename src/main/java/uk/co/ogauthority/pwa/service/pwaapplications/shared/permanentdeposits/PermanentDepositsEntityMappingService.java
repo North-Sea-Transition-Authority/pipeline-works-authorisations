@@ -14,7 +14,7 @@ public class PermanentDepositsEntityMappingService {
    * Map Permanent Deposits stored data to form.
    */
   void mapDepositInformationDataToForm(PermanentDepositInformation permanentDepositInformation, PermanentDepositsForm form) {
-
+    //form.setSelectedPipelines();
   }
 
 

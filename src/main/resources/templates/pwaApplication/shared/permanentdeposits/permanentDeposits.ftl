@@ -12,6 +12,9 @@
 
     <@fdsForm.htmlForm>
 
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Select Pipelines"/>
+
+
         
 
 
