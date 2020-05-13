@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
@@ -54,11 +55,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     projectInformation.setPwaApplicationDetail(pwaApplicationDetail);
     return projectInformation;
   }
-
-  //  @PostConstruct
-  //  public void init() {
-  //    projectInformationValidator.setPadProjectInformationService(this);
-  //  }
 
   /**
    * Map stored data to form including uploaded files depending on requested link status.
@@ -172,8 +168,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   public boolean getIsPermanentDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return (!pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)
-        && !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION)) ? true : false;
+    return !EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.HUOO_VARIATION)
+        .contains(pwaApplicationDetail.getPwaApplicationType());
   }
 
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
