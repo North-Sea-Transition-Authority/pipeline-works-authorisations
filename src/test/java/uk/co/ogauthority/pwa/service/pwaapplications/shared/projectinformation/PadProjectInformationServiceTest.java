@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInforma
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -239,7 +240,7 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult, pwaApplicationDetail);
+    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -267,7 +268,7 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult, pwaApplicationDetail);
+    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 

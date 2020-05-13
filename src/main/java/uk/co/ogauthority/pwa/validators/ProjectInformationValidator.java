@@ -15,9 +15,6 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 @Service
 public class ProjectInformationValidator implements SmartValidator {
 
-
-  PadProjectInformationService padProjectInformationService;
-
   @Override
   public boolean supports(Class<?> clazz) {
     return clazz.equals(ProjectInformationForm.class);
@@ -77,10 +74,9 @@ public class ProjectInformationValidator implements SmartValidator {
       }
     }
 
-
-    PwaApplicationDetail pwaApplicationDetail = (PwaApplicationDetail) validationHints[0];
-    if (padProjectInformationService.getIsAnyDepositQuestionRequired(pwaApplicationDetail)) {
-      if (padProjectInformationService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail)) {
+    var projectInfoValidationHints = (ProjectInformationFormValidationHints) validationHints[0];
+    if (projectInfoValidationHints.isAnyDepositQuestionRequired()) {
+      if (projectInfoValidationHints.isPermanentDepositQuestionRequired()) {
         if (form.getPermanentDepositsMadeType() == null) {
           errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
                   "Select 'Yes' if permanent deposits are being made.");
@@ -101,9 +97,5 @@ public class ProjectInformationValidator implements SmartValidator {
     }
   }
 
-
-  public void setPadProjectInformationService(PadProjectInformationService padProjectInformationService) {
-    this.padProjectInformationService = padProjectInformationService;
-  }
 
 }
