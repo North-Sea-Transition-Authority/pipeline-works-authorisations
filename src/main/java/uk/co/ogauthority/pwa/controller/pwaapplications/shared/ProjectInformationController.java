@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -176,7 +177,12 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
             null, null
         )),
         padProjectInformationService.getUpdatedProjectInformationFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+
     );
+    modelAndView.addObject("isPermDepQuestionRequired",
+                    padProjectInformationService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail))
+            .addObject("isAnyDepQuestionRequired", padProjectInformationService.getIsAnyDepositQuestionRequired(pwaApplicationDetail))
+            .addObject("permanentDepositsMadeOptions", PermanentDepositRadioOption.asList());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");

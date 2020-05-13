@@ -62,6 +62,33 @@ public class ValidatorUtils {
     }
   }
 
+  public static boolean validateDate(String fieldPrefix,
+                                     String displayPrefix,
+                                     @Nullable Integer month,
+                                     @Nullable Integer year,
+                                     Errors errors) {
+    var monthValid = Range.between(1, 12).contains(month);
+    var yearValid = year != null && year >= 0;
+    if (monthValid && yearValid) {
+      try {
+        LocalDate.of(year, month, 1);
+      } catch (DateTimeException e) {
+        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
+                "Enter a valid month 1-12");
+        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
+                "Enter a valid Year");
+        return false;
+      }
+      return true;
+    } else {
+      errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
+              "Enter a valid month 1-12");
+      errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
+              "Enter a valid Year");
+      return false;
+    }
+  }
+
   /**
    * Provide standardised error messages to ensure consistent date validation.
    * Ensures that the date is valid, and the date is either the current day, or is in the future.
@@ -94,6 +121,28 @@ public class ValidatorUtils {
     }
     return false;
   }
+
+  public static boolean validateDateIsPresentOrFuture(String fieldPrefix,
+                                                      String displayPrefix,
+                                                      Integer month,
+                                                      Integer year,
+                                                      Errors errors) {
+    if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
+      var date = LocalDate.of(year, month, 1);
+      if (date.isBefore(LocalDate.now())) {
+        errors.rejectValue(fieldPrefix + "Month",
+                String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode(), "Month must not be in the past"),
+                "Month must not be in the past.");
+        errors.rejectValue(fieldPrefix + "Year",
+                String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "Year must not be in the past");
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+
 
   public static boolean validateDateIsPastOrPresent(String fieldPrefix,
                                                       String displayPrefix,

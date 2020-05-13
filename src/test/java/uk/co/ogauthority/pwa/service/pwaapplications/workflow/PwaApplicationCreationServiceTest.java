@@ -104,7 +104,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication).isEqualTo(application);
-
   }
 
 
@@ -151,7 +150,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication).isEqualTo(application);
-
   }
 
 
