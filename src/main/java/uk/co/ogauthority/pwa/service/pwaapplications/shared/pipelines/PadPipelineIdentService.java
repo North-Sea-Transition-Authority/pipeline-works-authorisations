@@ -1,6 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,43 @@ public class PadPipelineIdentService {
                                  PadPipelineIdentDataService identDataService) {
     this.repository = repository;
     this.identDataService = identDataService;
+  }
+
+  public List<IdentView> getIdentViews(PadPipeline pipeline) {
+    var idents = repository.getAllByPadPipeline(pipeline);
+    var identData = identDataService.getDataFromIdentList(idents);
+    return identData.keySet()
+        .stream()
+        .sorted(Comparator.comparing(PadPipelineIdent::getIdentNo))
+        .map(ident -> new IdentView(identData.get(ident)))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public List<GroupedIdentView> getGroupedIdentViews(PadPipeline pipeline) {
+    var identViews = getIdentViews(pipeline);
+    var list = new ArrayList<List<IdentView>>();
+    var groupList = new ArrayList<IdentView>();
+
+    for (int i = 0; i < identViews.size(); i++) {
+      if (i == 0) {
+        groupList.add(identViews.get(i));
+        continue;
+      }
+      var previousView = identViews.get(i - 1);
+      var currentView = identViews.get(i);
+      if (!previousView.getToLocation().toLowerCase().equals(currentView.getFromLocation().toLowerCase())) {
+        list.add(groupList);
+        groupList = new ArrayList<>();
+      }
+      groupList.add(identViews.get(i));
+    }
+
+    list.add(groupList);
+
+    return list.stream()
+        .filter(viewList -> !viewList.isEmpty())
+        .map(GroupedIdentView::new)
+        .collect(Collectors.toUnmodifiableList());
   }
 
   public Optional<PadPipelineIdent> getMaxIdent(PadPipeline pipeline) {

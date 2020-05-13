@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.List;
+import java.util.Map;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class PadPipelineIdentDataService {
@@ -22,6 +25,12 @@ public class PadPipelineIdentDataService {
   void addIdentData(PadPipelineIdent ident, PipelineIdentDataForm dataForm) {
     var identData = new PadPipelineIdentData(ident);
     saveEntityUsingForm(identData, dataForm);
+  }
+
+  public Map<PadPipelineIdent, PadPipelineIdentData> getDataFromIdentList(List<PadPipelineIdent> identList) {
+    return repository.getAllByPadPipelineIdentIn(identList)
+        .stream()
+        .collect(StreamUtils.toLinkedHashMap(PadPipelineIdentData::getPadPipelineIdent, data -> data));
   }
 
   void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {
