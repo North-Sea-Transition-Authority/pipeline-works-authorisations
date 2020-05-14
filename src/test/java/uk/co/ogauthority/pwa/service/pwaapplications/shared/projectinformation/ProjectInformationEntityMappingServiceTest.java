@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectInformationEntityMappingServiceTest {
@@ -68,6 +69,12 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(form.getCommercialAgreementDay()).isEqualTo(expectedForm.getCommercialAgreementDay());
     assertThat(form.getCommercialAgreementMonth()).isEqualTo(expectedForm.getCommercialAgreementMonth());
     assertThat(form.getCommercialAgreementYear()).isEqualTo(expectedForm.getCommercialAgreementYear());
+
+    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositRadioOption.LATER_APP);
+    assertThat(form.getFutureAppSubmissionMonth()).isEqualTo(expectedForm.getFutureAppSubmissionMonth());
+    assertThat(form.getFutureAppSubmissionYear()).isEqualTo(expectedForm.getFutureAppSubmissionYear());
+    assertThat(form.getTemporaryDepositsMade()).isEqualTo(expectedForm.getTemporaryDepositsMade());
+    assertThat(form.getTemporaryDepDescription()).isEqualTo(expectedForm.getTemporaryDepDescription());
   }
 
   @Test
@@ -100,7 +107,20 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(entity.getCommercialAgreementTimestamp()).isEqualTo(
         dateAsInstant.plus(ProjectInformationTestUtils.COMMERCIAL_AGREEMENT_DAY_MODIFIER, ChronoUnit.DAYS));
 
+    assertThat(entity.getPermanentDepositsMade()).isEqualTo(
+            true);
 
+    assertThat(entity.getFutureAppSubmissionMonth()).isEqualTo(
+            expectedForm.getFutureAppSubmissionMonth());
+
+    assertThat(entity.getFutureAppSubmissionYear()).isEqualTo(
+            expectedForm.getFutureAppSubmissionYear());
+
+    assertThat(entity.getTemporaryDepositsMade()).isEqualTo(
+            expectedForm.getTemporaryDepositsMade());
+
+    assertThat(entity.getTemporaryDepDescription()).isEqualTo(
+            expectedForm.getTemporaryDepDescription());
   }
 
 
@@ -122,6 +142,57 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(entity.getLicenceTransferPlanned()).isFalse();
     assertThat(entity.getLicenceTransferTimestamp()).isNull();
     assertThat(entity.getCommercialAgreementTimestamp()).isNull();
+  }
+
+  @Test
+  public void setEntityValuesUsingForm_permanentDepositsTypeIsThisApp(){
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
+    projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
+    assertThat(entity.getPermanentDepositsMade().equals(PermanentDepositRadioOption.THIS_APP));
+    assertThat(entity.getFutureAppSubmissionMonth()).isNull();
+    assertThat(entity.getFutureAppSubmissionYear()).isNull();
+  }
+
+  @Test
+  public void setEntityValuesUsingForm_noPermanentDeposits(){
+    form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
+    projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
+    assertThat(entity.getPermanentDepositsMade().equals(PermanentDepositRadioOption.NONE));
+    assertThat(entity.getFutureAppSubmissionMonth()).isNull();
+    assertThat(entity.getFutureAppSubmissionYear()).isNull();
+  }
+
+  @Test
+  public void setEntityValuesUsingForm_TemporaryDeposits(){
+    form.setTemporaryDepositsMade(false);
+    projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
+    assertThat(entity.getTemporaryDepDescription()).isNull();
+  }
+
+  @Test
+  public void mapProjectInformationDataToForm_noPermanentDeposits() {
+    entity.setPermanentDepositsMade(false);
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
+    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositRadioOption.NONE);
+  }
+
+  @Test
+  public void mapProjectInformationDataToForm_permanentDepositsTypeIsThisApp() {
+    entity.setPermanentDepositsMade(true);
+    entity.setFutureAppSubmissionMonth(null);
+    entity.setFutureAppSubmissionYear(null);
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
+    assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositRadioOption.THIS_APP);
+  }
+
+
+  @Test
+  public void mapProjectInformationDataToForm_TemporaryDeposits() {
+    entity.setTemporaryDepositsMade(true);
+    entity.setTemporaryDepDescription("foo");
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
+    assertThat(form.getTemporaryDepositsMade()).isTrue();
+    assertThat(form.getTemporaryDepDescription()).isEqualTo(entity.getTemporaryDepDescription());
   }
 
 }

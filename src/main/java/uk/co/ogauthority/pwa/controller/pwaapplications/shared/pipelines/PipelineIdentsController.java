@@ -60,7 +60,6 @@ public class PipelineIdentsController {
   private ModelAndView getIdentOverviewModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/identOverview")
         .addObject("pipelineOverview", new PipelineOverview(padPipeline, List.of()))
-        .addObject("groupedIdentViews", padIdentService.getGroupedIdentViews(padPipeline))
         .addObject("addIdentUrl", ReverseRouter.route(on(PipelineIdentsController.class)
             .renderAddIdent(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), padPipeline.getId(), null, null)));
 

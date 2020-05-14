@@ -18,9 +18,7 @@
 
         <@fdsCard.card>
 
-            <@fdsCard.cardHeader
-            cardHeadingText="${pipeline.pipelineNumber}
-                ${pipeline.pipelineType.displayName}" />
+            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber} ${pipeline.pipelineType.displayName}" />
 
             <@pipelineOverview.header pipeline=pipeline />
 

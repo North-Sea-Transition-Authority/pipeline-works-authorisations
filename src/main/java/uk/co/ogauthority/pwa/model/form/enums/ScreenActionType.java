@@ -8,8 +8,8 @@ public enum ScreenActionType {
   ADD("Add", "Add"),
   EDIT("Edit", "Update");
 
-  private String actionText;
-  private String submitButtonText;
+  private final String actionText;
+  private final String submitButtonText;
 
   ScreenActionType(String actionText, String submitButtonText) {
     this.actionText = actionText;

@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineNumber" type="String" -->
 
-<@defaultPage htmlTitle="${screenActionType.submitButtonText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.submitButtonText} ${pipelineNumber!} pipeline" breadcrumbs=true>
+<@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList />

@@ -36,6 +36,15 @@ public class PadProjectInformation {
   private Instant licenceTransferTimestamp;
   private Instant commercialAgreementTimestamp;
 
+  private Boolean permanentDepositsMade;
+  private Integer futureAppSubmissionMonth;
+  private Integer futureAppSubmissionYear;
+
+  private Boolean temporaryDepositsMade;
+  private String temporaryDepDescription;
+
+
+
   public Integer getId() {
     return id;
   }
@@ -148,4 +157,45 @@ public class PadProjectInformation {
   public void setCommercialAgreementTimestamp(Instant commercialAgreementTimestamp) {
     this.commercialAgreementTimestamp = commercialAgreementTimestamp;
   }
+
+  public Boolean getPermanentDepositsMade() {
+    return permanentDepositsMade;
+  }
+
+  public void setPermanentDepositsMade(Boolean permanentDepositsMade) {
+    this.permanentDepositsMade = permanentDepositsMade;
+  }
+
+  public Integer getFutureAppSubmissionMonth() {
+    return futureAppSubmissionMonth;
+  }
+
+  public void setFutureAppSubmissionMonth(Integer futureAppSubmissionMonth) {
+    this.futureAppSubmissionMonth = futureAppSubmissionMonth;
+  }
+
+  public Integer getFutureAppSubmissionYear() {
+    return futureAppSubmissionYear;
+  }
+
+  public void setFutureAppSubmissionYear(Integer futureAppSubmissionYear) {
+    this.futureAppSubmissionYear = futureAppSubmissionYear;
+  }
+
+  public Boolean getTemporaryDepositsMade() {
+    return temporaryDepositsMade;
+  }
+
+  public void setTemporaryDepositsMade(Boolean temporaryDepositsMade) {
+    this.temporaryDepositsMade = temporaryDepositsMade;
+  }
+
+  public String getTemporaryDepDescription() {
+    return temporaryDepDescription;
+  }
+
+  public void setTemporaryDepDescription(String temporaryDepDescription) {
+    this.temporaryDepDescription = temporaryDepDescription;
+  }
+
 }

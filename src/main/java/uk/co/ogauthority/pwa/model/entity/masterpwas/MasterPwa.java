@@ -6,12 +6,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 
 @Entity(name = "pwas")
 public class MasterPwa {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "pwa_master_id_generator")
+  @SequenceGenerator(name = "pwa_master_id_generator", sequenceName = "pwas_id_seq", allocationSize = 1)
   private Integer id;
 
   private Instant createdTimestamp;

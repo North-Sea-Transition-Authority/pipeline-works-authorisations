@@ -88,6 +88,9 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public void addPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineHeaderForm form) {
 
     var newPipeline = new PadPipeline(pwaApplicationDetail);
+
+    // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
+    // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
     Long numberOfPipesForDetail = padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
     newPipeline.setPipelineRef("TEMPORARY_" + (numberOfPipesForDetail.intValue() + 1));
 
@@ -153,7 +156,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return padPipelineRepository.countAllByPwaApplicationDetail(detail).intValue() > 0
+    return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L
         && padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail) == 0L;
   }
 

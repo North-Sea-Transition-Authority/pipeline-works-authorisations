@@ -1,6 +1,8 @@
 <#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="isPermDepQuestionRequired" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="isAnyDepQuestionRequired" type="java.lang.Boolean" -->
 
 <@defaultPage htmlTitle="Project information" pageHeading="Project information" breadcrumbs=true>
 
@@ -31,6 +33,34 @@
         <@fdsFieldset.fieldset legendHeadingClass="govuk-fieldset__legend--l" legendHeading="Project documents" legendHeadingSize="h2" hintText="Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)." nestingPath="" caption="" captionClass="govuk-caption-l">
             <@fileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="project-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
         </@fdsFieldset.fieldset>
+
+        <#if isAnyDepQuestionRequired>
+            <#if isPermDepQuestionRequired>
+                <@fdsRadio.radioGroup path="form.permanentDepositsMadeType" labelText="Are permanent deposits being made?" hiddenContent=true>                
+                    <#assign firstItem=true/>
+                    <#list permanentDepositsMadeOptions as  depositOption>
+                        <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={depositOption : depositOption.getDisplayText()} isFirstItem=firstItem>
+                        <#if depositOption == "LATER_APP">
+                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year that later application will be submitted" formId="date-of-future-app">
+                                <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionMonth" labelText="Month" inputClass="govuk-input--width-2"/>
+                                <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionYear" labelText="Year" inputClass="govuk-input--width-4"/>
+                            </@fdsNumberInput.twoNumberInputs>
+                        </#if>                   
+                        </@fdsRadio.radioItem>
+                    <#assign firstItem=false/>
+                    </#list>
+                </@fdsRadio.radioGroup>
+            </#if>
+
+            <@fdsRadio.radioGroup path="form.temporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.temporaryDepositsMade">
+                    <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description of temporary deposits" characterCount=true maxCharacterLength="4000"/>
+                </@fdsRadio.radioYes>
+                <@fdsRadio.radioNo path="form.temporaryDepositsMade"/>
+            </@fdsRadio.radioGroup>
+        </#if>
+
+
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
     </@fdsForm.htmlForm>
 

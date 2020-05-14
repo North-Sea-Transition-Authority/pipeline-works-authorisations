@@ -96,7 +96,7 @@ public class PipelinesController {
     // otherwise, make sure that all pipelines have header info and idents
     if (!padPipelineService.isComplete(applicationContext.getApplicationDetail())) {
       return getOverviewModelAndView(applicationContext.getApplicationDetail())
-          .addObject("errorMessage", "One or more pipelines must be added. Each pipeline must have at least one ident.");
+          .addObject("errorMessage", "At least one pipeline must be added. Each pipeline must have at least one ident.");
     }
 
     return applicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
