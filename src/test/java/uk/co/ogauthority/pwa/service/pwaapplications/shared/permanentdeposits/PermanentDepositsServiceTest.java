@@ -48,9 +48,6 @@ public class PermanentDepositsServiceTest {
   private DepositsForPipelinesRepository depositsForPipelinesRepository;
 
   @Mock
-  private PermanentDepositsFileService permanentDepositsFileService;
-
-  @Mock
   private PermanentDepositsEntityMappingService permanentDepositsEntityMappingService;
 
   @Mock
@@ -73,7 +70,6 @@ public class PermanentDepositsServiceTest {
 
     service = new PermanentDepositsService(
         permanentDepositInformationRepository,
-        permanentDepositsFileService,
         permanentDepositsEntityMappingService,
         validator,
         groupValidator,
