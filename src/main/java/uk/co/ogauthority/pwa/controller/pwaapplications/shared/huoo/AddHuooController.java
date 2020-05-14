@@ -102,9 +102,10 @@ public class AddHuooController {
     return modelAndView;
   }
 
-  private ModelAndView getEditHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+  private ModelAndView getEditHuooModelAndView(PwaApplicationDetail pwaApplicationDetail, HuooType huooType) {
     var modelAndView = new ModelAndView("pwaApplication/shared/huoo/editHuoo")
-        .addObject("screenActionType", ScreenActionType.EDIT);
+        .addObject("screenActionType", ScreenActionType.EDIT)
+        .addObject("huooType", huooType);
     addObjectAttributes(pwaApplicationDetail, modelAndView);
     applicationBreadcrumbService.fromHuoo(pwaApplicationDetail.getPwaApplication(), modelAndView, "Edit HUOO");
     return modelAndView;
@@ -151,7 +152,7 @@ public class AddHuooController {
     var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
     padOrganisationRoleService.mapPortalOrgUnitRoleToForm(detail, orgUnit, form);
-    return getEditHuooModelAndView(applicationContext.getApplicationDetail())
+    return getEditHuooModelAndView(applicationContext.getApplicationDetail(), HuooType.PORTAL_ORG)
         .addObject("huooType", HuooType.PORTAL_ORG);
   }
 
@@ -164,13 +165,14 @@ public class AddHuooController {
                                       @Valid @ModelAttribute("form") HuooForm form,
                                       BindingResult bindingResult,
                                       AuthenticatedUserAccount user) {
+    form.setHuooType(HuooType.PORTAL_ORG);
     var detail = applicationContext.getApplicationDetail();
     var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
     editHuooValidator.validate(form, bindingResult, detail,
         padOrganisationRoleService.getValidationViewForOrg(detail, orgUnit));
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getEditHuooModelAndView(detail), () -> {
+        getEditHuooModelAndView(detail, HuooType.PORTAL_ORG), () -> {
           padOrganisationRoleService.updateEntityUsingForm(detail, orgUnit, form);
           return ReverseRouter.redirect(
               on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null,
@@ -189,7 +191,7 @@ public class AddHuooController {
     var detail = applicationContext.getApplicationDetail();
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     padOrganisationRoleService.mapTreatyAgreementToForm(detail, orgRole, form);
-    return getEditHuooModelAndView(applicationContext.getApplicationDetail())
+    return getEditHuooModelAndView(applicationContext.getApplicationDetail(), HuooType.TREATY_AGREEMENT)
         .addObject("huooType", HuooType.TREATY_AGREEMENT);
   }
 
@@ -202,12 +204,13 @@ public class AddHuooController {
                                          @Valid @ModelAttribute("form") HuooForm form,
                                          BindingResult bindingResult,
                                          AuthenticatedUserAccount user) {
+    form.setHuooType(HuooType.TREATY_AGREEMENT);
     var detail = applicationContext.getApplicationDetail();
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     editHuooValidator.validate(form, bindingResult, detail,
         padOrganisationRoleService.getValidationViewForTreaty(detail, orgRole));
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getEditHuooModelAndView(detail), () -> {
+        getEditHuooModelAndView(detail, HuooType.TREATY_AGREEMENT), () -> {
           padOrganisationRoleService.updateEntityUsingForm(detail, orgRole, form);
           return ReverseRouter.redirect(
               on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null,

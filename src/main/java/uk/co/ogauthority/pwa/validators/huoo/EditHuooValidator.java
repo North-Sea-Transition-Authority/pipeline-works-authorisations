@@ -104,11 +104,6 @@ public class EditHuooValidator implements SmartValidator {
       }
     }
 
-    if (form.getHuooType() == HuooType.TREATY_AGREEMENT && form.getHuooRoles().contains(HuooRole.HOLDER)) {
-      errors.rejectValue("huooRoles", "huooRoles.treatyHolderNotAllowed",
-          "A treaty agreement cannot be an application holder");
-    }
-
     if (form.getHuooType() == HuooType.TREATY_AGREEMENT) {
       var alreadyAddedTreaty = roles.stream()
           .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
