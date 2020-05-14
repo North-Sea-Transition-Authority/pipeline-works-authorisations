@@ -15,12 +15,12 @@
             <@fdsTimeline.timelineSection sectionHeading="">
                 <#assign pastFirstIteration = false/>
                 <#list groupedIdentViews as groupedView>
-                    <#if pastFirstIteration == true>
+                    <#if pastFirstIteration == true && lastGroup?has_content>
+                        <#-- The lastGroup error can be ignored as it is defined further below, and will not be ran if empty. -->
                         <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastGroup.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border">
                           <br/><br/>
                         </@fdsTimeline.timelineTimeStamp>
                     </#if>
-                    <#assign lastGroup = groupedView/>
                     <#list groupedView.identViews as identView>
                         <#assign timelineAction>
                             <@fdsAction.link linkText="Edit ident" linkClass="govuk-link" linkUrl=springUrl("#")/>
@@ -28,6 +28,7 @@
                         </#assign>
                         <@fdsTimeline.timelineTimeStamp timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
+                                <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.identNumber}" value="Ident number"/>
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.length}m" value="Length"/>
                                 <#assign from>
                                     <@pwaCoordinate.display coordinatePair=identView.fromCoordinates />
@@ -42,9 +43,9 @@
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.externalDiameter}mm" value="External diameter"/>
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.internalDiameter}mm" value="Internal diameter"/>
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.wallThickness}mm" value="Wall thickness"/>
+                                <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.maop}barg" value="MAOP"/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.maop}barg" value="MAOP"/>
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.insulationCoatingType}" value="Insulation coating type"/>
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.productsToBeConveyed}" value="Products to be conveyed"/>
                             </@fdsDataItems.dataItem>
@@ -53,6 +54,7 @@
                             </@fdsDataItems.dataItem>
                         </@fdsTimeline.timelineTimeStamp>
                     </#list>
+                    <#assign lastGroup = groupedView/>
                     <#assign pastFirstIteration = true/>
                 </#list>
                 <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastGroup.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>

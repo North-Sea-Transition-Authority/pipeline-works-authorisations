@@ -1,10 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +66,21 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(identData.getWallThickness()).isEqualTo(form.getWallThickness());
     assertThat(identData.getMaop()).isEqualTo(form.getMaop());
 
+  }
+
+  @Test
+  public void getDataFromIdentList() {
+    var ident = new PadPipelineIdent();
+    ident.setIdentNo(1);
+
+    var identData = new PadPipelineIdentData(ident);
+    identData.setComponentPartsDescription("parts");
+
+    when(repository.getAllByPadPipelineIdentIn(eq(List.of(ident)))).thenReturn(List.of(identData));
+    var result = identDataService.getDataFromIdentList(List.of(ident));
+    assertThat(result).containsExactly(
+        entry(ident, identData)
+    );
   }
 
 }
