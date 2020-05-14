@@ -46,6 +46,10 @@ DECLARE
   l_max_pa_id  NUMBER;
 
   l_max_pad_id NUMBER;
+
+  l_max_pipeline_id NUMBER;
+
+  l_max_pipeline_detail_id NUMBER;
   
   l_next_val NUMBER;
 BEGIN
@@ -58,18 +62,38 @@ BEGIN
   INTO l_max_pad_id
   FROM PWA.mig_pwa_consents mpc;
 
+  SELECT MAX(xph.pipeline_id) + 1
+  INTO l_max_pipeline_id
+  FROM decmgr.xview_pipelines_history xph;
+
+  SELECT MAX(xph.pd_id) + 1
+  INTO l_max_pipeline_detail_id
+  FROM decmgr.xview_pipelines_history xph;
+
+
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwas_id_seq INCREMENT BY ' || l_max_pa_id;
 
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwa_consent_id_seq INCREMENT BY ' || l_max_pad_id;
+
+  EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_id_seq INCREMENT BY ' || l_max_pipeline_id;
+
+  EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_details_id_seq INCREMENT BY ' || l_max_pipeline_detail_id;
   
   
   -- select next val so the sequences update
   SELECT PWA.pwas_id_seq.NEXTVAL
   INTO l_next_val
   FROM dual;
-  
-  
+
   SELECT PWA.pwa_consent_id_seq.NEXTVAL
+  INTO l_next_val
+  FROM dual;
+
+  SELECT PWA.pipeline_id_seq.NEXTVAL
+  INTO l_next_val
+  FROM dual;
+
+  SELECT PWA.pipeline_details_id_seq.NEXTVAL
   INTO l_next_val
   FROM dual;
   
@@ -77,6 +101,10 @@ BEGIN
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwas_id_seq INCREMENT BY 1';
 
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwa_consent_id_seq INCREMENT BY 1';
+
+  EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_id_seq INCREMENT BY 1';
+
+  EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_details_id_seq INCREMENT BY 1';
 
 END;
 
@@ -96,7 +124,15 @@ WHERE xpad.pad_id IN (
   SELECT PC.ID 
   FROM PWA.PWA_CONSENTS pc
 )
-ORDEr BY xpad.pa_id, xpad.pad_id
-
+ORDER BY xpad.pa_id, xpad.pad_id
 
 /
+/* Pipeline records not represented in the new system*/
+SELECT xph.pipeline_id, xph.pd_id
+FROM decmgr.xview_pipelines_history xph
+MINUS
+SELECT pd.pipeline_id, pd.id
+FROM pwa_mh.pipeline_details pd
+
+
+
