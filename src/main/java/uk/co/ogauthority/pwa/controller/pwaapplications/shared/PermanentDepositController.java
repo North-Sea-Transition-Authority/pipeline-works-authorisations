@@ -20,9 +20,11 @@ import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -33,6 +35,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 
@@ -46,7 +49,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.DECOMMISSIONING
 })
-public class PermanentDepositController extends PwaApplicationDataFileUploadAndDownloadController {
+public class PermanentDepositController /*extends PwaApplicationDataFileUploadAndDownloadController*/ {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -64,55 +67,55 @@ public class PermanentDepositController extends PwaApplicationDataFileUploadAndD
     this.permanentDepositsService = permanentDepositsService;
   }
 
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    var projectInfoFile = permanentDepositsService.getPermanentDepositFile(fileId,
-        applicationContext.getApplicationDetail());
-    return serveFile(applicationFileService.getUploadedFile(projectInfoFile));
-  }
-
-  @PostMapping("/files/upload")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  @ResponseBody
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    // not creating full link until Save is clicked.
-    return applicationFileService.processApplicationFileUpload(
-        file,
-        applicationContext.getUser(),
-        applicationContext.getApplicationDetail(),
-        permanentDepositsService::createUploadedFileLink
-    );
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-  @ResponseBody
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return applicationFileService.processApplicationFileDelete(
-        fileId,
-        applicationContext.getApplicationDetail(),
-        applicationContext.getUser(),
-        permanentDepositsService::deleteUploadedFileLink
-    );
-  }
+//  @GetMapping("/files/download/{fileId}")
+//  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+//  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
+//  @ResponseBody
+//  public ResponseEntity<Resource> handleDownload(
+//      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+//      @PathVariable("applicationId") Integer applicationId,
+//      @PathVariable("fileId") String fileId,
+//      PwaApplicationContext applicationContext) {
+//    var projectInfoFile = permanentDepositsService.getPermanentDepositFile(fileId,
+//        applicationContext.getApplicationDetail());
+//    return serveFile(applicationFileService.getUploadedFile(projectInfoFile));
+//  }
+//
+//  @PostMapping("/files/upload")
+//  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+//  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
+//  @ResponseBody
+//  public FileUploadResult handleUpload(
+//      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+//      @PathVariable("applicationId") Integer applicationId,
+//      @RequestParam("file") MultipartFile file,
+//      PwaApplicationContext applicationContext) {
+//
+//    // not creating full link until Save is clicked.
+//    return applicationFileService.processApplicationFileUpload(
+//        file,
+//        applicationContext.getUser(),
+//        applicationContext.getApplicationDetail(),
+//        permanentDepositsService::createUploadedFileLink
+//    );
+//  }
+//
+//  @PostMapping("/files/delete/{fileId}")
+//  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+//  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
+//  @ResponseBody
+//  public FileDeleteResult handleDelete(
+//      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+//      @PathVariable("applicationId") Integer applicationId,
+//      @PathVariable("fileId") String fileId,
+//      PwaApplicationContext applicationContext) {
+//    return applicationFileService.processApplicationFileDelete(
+//        fileId,
+//        applicationContext.getApplicationDetail(),
+//        applicationContext.getUser(),
+//        permanentDepositsService::deleteUploadedFileLink
+//    );
+//  }
 
   @GetMapping
   @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
@@ -122,8 +125,6 @@ public class PermanentDepositController extends PwaApplicationDataFileUploadAndD
                                                @PathVariable("applicationId") Integer applicationId,
                                                PwaApplicationContext applicationContext,
                                                @ModelAttribute("form") PermanentDepositsForm form) {
-    var entity = permanentDepositsService.getPermanentDepositData(applicationContext.getApplicationDetail());
-    permanentDepositsService.mapEntityToForm(entity, form, ApplicationFileLinkStatus.FULL);
     return getPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
@@ -158,29 +159,31 @@ public class PermanentDepositController extends PwaApplicationDataFileUploadAndD
 
   private ModelAndView getPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                          PermanentDepositsForm form) {
-    var modelAndView = this.createModelAndView(
-        "pwaApplication/shared/permanentdeposits/permanentDeposits",
-        ReverseRouter.route(on(PermanentDepositController.class).handleUpload(
-            pwaApplicationDetail.getPwaApplicationType(),
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            null, null
-        )),
-        ReverseRouter.route(on(PermanentDepositController.class).handleDownload(
-            pwaApplicationDetail.getPwaApplicationType(),
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            null, null
-        )),
-        ReverseRouter.route(on(PermanentDepositController.class).handleDelete(
-            pwaApplicationDetail.getPwaApplicationType(),
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            null, null
-        )),
-        permanentDepositsService.getUpdatedPermanentDepositFileViewsWhenFileOnForm(pwaApplicationDetail, form)
-
-    );
-    modelAndView.addObject("isPermDepositMade",
-                    permanentDepositsService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail))
-    .addObject("pipelines", permanentDepositsService.getPipelines(pwaApplicationDetail));
+//    var modelAndView = this.createModelAndView(
+//        "pwaApplication/shared/permanentdeposits/permanentDeposits",
+//        ReverseRouter.route(on(PermanentDepositController.class).handleUpload(
+//            pwaApplicationDetail.getPwaApplicationType(),
+//            pwaApplicationDetail.getMasterPwaApplicationId(),
+//            null, null
+//        )),
+//        ReverseRouter.route(on(PermanentDepositController.class).handleDownload(
+//            pwaApplicationDetail.getPwaApplicationType(),
+//            pwaApplicationDetail.getMasterPwaApplicationId(),
+//            null, null
+//        )),
+//        ReverseRouter.route(on(PermanentDepositController.class).handleDelete(
+//            pwaApplicationDetail.getPwaApplicationType(),
+//            pwaApplicationDetail.getMasterPwaApplicationId(),
+//            null, null
+//        )),
+//        permanentDepositsService.getUpdatedPermanentDepositFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+//
+//    );
+    var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDeposits");
+    modelAndView.addObject("pipelines", permanentDepositsService.getPipelines(pwaApplicationDetail))
+        .addObject("materialTypes", MaterialType.asList())
+        .addObject("longDirections", LongitudeDirection.stream()
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent Deposits");

@@ -17,6 +17,13 @@ public class DepositsForPipelines {
   @NotNull
   private Integer padPipelineId;
 
+  public DepositsForPipelines() {
+  }
+
+  public DepositsForPipelines(@NotNull Integer permanentDepositInfoId, @NotNull Integer padPipelineId) {
+    this.permanentDepositInfoId = permanentDepositInfoId;
+    this.padPipelineId = padPipelineId;
+  }
 
   public Integer getId() {
     return id;

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialUnitType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -30,11 +30,15 @@ public class PermanentDepositInformation {
 
   private Integer fromMonth;
   private Integer fromYear;
+  private Integer toMonth;
+  private Integer toYear;
 
   @Enumerated(EnumType.STRING)
   private MaterialType materialType;
-  @Enumerated(EnumType.STRING)
-  private MaterialUnitType materialUnitType;
+  private String materialSize;
+  private Integer concreteMattressLength;
+  private Integer concreteMattressWidth;
+  private Integer concreteMattressDepth;
 
   private Boolean groutBagsBioDegradable;
   private String bagsNotUsedDescription;
@@ -97,7 +101,6 @@ public class PermanentDepositInformation {
   private LongitudeDirection toLongitudeDirection;
 
 
-
   public Integer getId() {
     return id;
   }
@@ -130,6 +133,22 @@ public class PermanentDepositInformation {
     this.fromYear = fromYear;
   }
 
+  public Integer getToMonth() {
+    return toMonth;
+  }
+
+  public void setToMonth(Integer toMonth) {
+    this.toMonth = toMonth;
+  }
+
+  public Integer getToYear() {
+    return toYear;
+  }
+
+  public void setToYear(Integer toYear) {
+    this.toYear = toYear;
+  }
+
   public MaterialType getMaterialType() {
     return materialType;
   }
@@ -138,12 +157,36 @@ public class PermanentDepositInformation {
     this.materialType = materialType;
   }
 
-  public MaterialUnitType getMaterialUnitType() {
-    return materialUnitType;
+  public String getMaterialSize() {
+    return materialSize;
   }
 
-  public void setMaterialUnitType(MaterialUnitType materialUnitType) {
-    this.materialUnitType = materialUnitType;
+  public void setMaterialSize(String materialSize) {
+    this.materialSize = materialSize;
+  }
+
+  public Integer getConcreteMattressLength() {
+    return concreteMattressLength;
+  }
+
+  public void setConcreteMattressLength(Integer concreteMattressLength) {
+    this.concreteMattressLength = concreteMattressLength;
+  }
+
+  public Integer getConcreteMattressWidth() {
+    return concreteMattressWidth;
+  }
+
+  public void setConcreteMattressWidth(Integer concreteMattressWidth) {
+    this.concreteMattressWidth = concreteMattressWidth;
+  }
+
+  public Integer getConcreteMattressDepth() {
+    return concreteMattressDepth;
+  }
+
+  public void setConcreteMattressDepth(Integer concreteMattressDepth) {
+    this.concreteMattressDepth = concreteMattressDepth;
   }
 
   public Boolean getGroutBagsBioDegradable() {
@@ -304,5 +347,57 @@ public class PermanentDepositInformation {
 
   public void setToLongitudeDirection(LongitudeDirection toLongitudeDirection) {
     this.toLongitudeDirection = toLongitudeDirection;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PermanentDepositInformation that = (PermanentDepositInformation) o;
+    return Double.compare(that.quantity, quantity) == 0
+        && Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(fromMonth, that.fromMonth)
+        && Objects.equals(fromYear, that.fromYear)
+        && Objects.equals(toMonth, that.toMonth)
+        && Objects.equals(toYear, that.toYear)
+        && materialType == that.materialType
+        && Objects.equals(materialSize, that.materialSize)
+        && Objects.equals(concreteMattressLength, that.concreteMattressLength)
+        && Objects.equals(concreteMattressWidth, that.concreteMattressWidth)
+        && Objects.equals(concreteMattressDepth, that.concreteMattressDepth)
+        && Objects.equals(groutBagsBioDegradable, that.groutBagsBioDegradable)
+        && Objects.equals(bagsNotUsedDescription, that.bagsNotUsedDescription)
+        && Objects.equals(contingencyAmount, that.contingencyAmount)
+        && Objects.equals(fromLatitudeDegrees, that.fromLatitudeDegrees)
+        && Objects.equals(fromLatitudeMinutes, that.fromLatitudeMinutes)
+        && Objects.equals(fromLatitudeSeconds, that.fromLatitudeSeconds)
+        && fromLatitudeDirection == that.fromLatitudeDirection
+        && Objects.equals(fromLongitudeDegrees, that.fromLongitudeDegrees)
+        && Objects.equals(fromLongitudeMinutes, that.fromLongitudeMinutes)
+        && Objects.equals(fromLongitudeSeconds, that.fromLongitudeSeconds)
+        && fromLongitudeDirection == that.fromLongitudeDirection
+        && Objects.equals(toLatitudeDegrees, that.toLatitudeDegrees)
+        && Objects.equals(toLatitudeMinutes, that.toLatitudeMinutes)
+        && Objects.equals(toLatitudeSeconds, that.toLatitudeSeconds)
+        && toLatitudeDirection == that.toLatitudeDirection
+        && Objects.equals(toLongitudeDegrees, that.toLongitudeDegrees)
+        && Objects.equals(toLongitudeMinutes, that.toLongitudeMinutes)
+        && Objects.equals(toLongitudeSeconds, that.toLongitudeSeconds)
+        && toLongitudeDirection == that.toLongitudeDirection;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, fromMonth, fromYear, toMonth, toYear, materialType, materialSize,
+        concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription,
+        quantity, contingencyAmount, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds, fromLatitudeDirection,
+        fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees, toLatitudeMinutes,
+        toLatitudeSeconds, toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection);
   }
 }

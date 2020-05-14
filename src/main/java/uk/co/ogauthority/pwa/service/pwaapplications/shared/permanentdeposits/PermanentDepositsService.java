@@ -16,11 +16,13 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.DepositsForPipelines;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInfoFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.DepositsForPipelinesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -40,6 +42,7 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
   private final PermanentDepositsValidator permanentDepositsValidator;
   private final SpringValidatorAdapter groupValidator;
   private final PadPipelineRepository padPipelineRepository;
+  private final DepositsForPipelinesRepository depositsForPipelinesRepository;
 
   @Autowired
   public PermanentDepositsService(
@@ -48,13 +51,15 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
       PermanentDepositsEntityMappingService permanentDepositsEntityMappingService,
       PermanentDepositsValidator permanentDepositsValidator,
       SpringValidatorAdapter groupValidator,
-      PadPipelineRepository padPipelineRepository) {
+      PadPipelineRepository padPipelineRepository,
+      DepositsForPipelinesRepository depositsForPipelinesRepository) {
     this.permanentDepositInformationRepository = permanentDepositInformationRepository;
     this.permanentDepositsFileService = permanentDepositsFileService;
     this.permanentDepositsEntityMappingService = permanentDepositsEntityMappingService;
     this.permanentDepositsValidator = permanentDepositsValidator;
     this.groupValidator = groupValidator;
     this.padPipelineRepository = padPipelineRepository;
+    this.depositsForPipelinesRepository = depositsForPipelinesRepository;
   }
 
   public PermanentDepositInformation getPermanentDepositData(PwaApplicationDetail pwaApplicationDetail) {
@@ -63,6 +68,7 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
     permanentDepositInformation.setPwaApplicationDetail(pwaApplicationDetail);
     return permanentDepositInformation;
   }
+
 
 
   /**
@@ -102,57 +108,61 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
     //        form,
     //        user
     //    );
-    permanentDepositInformationRepository.save(permanentDepositInformation);
+    permanentDepositInformation = permanentDepositInformationRepository.save(permanentDepositInformation);
+    for (String padPipelineId : form.getSelectedPipelines().split(",")) {
+      var depositsForPipelines = new DepositsForPipelines(permanentDepositInformation.getId(), Integer.parseInt(padPipelineId));
+      depositsForPipelinesRepository.save(depositsForPipelines);
+    }
 
   }
-
-  /**
-   * Simplify api by providing pass through method to access file service.
-   */
-  public List<UploadedFileView> getUpdatedPermanentDepositFileViewsWhenFileOnForm(
-      PwaApplicationDetail pwaApplicationDetail,
-      PermanentDepositsForm form) {
-    return permanentDepositsFileService.getUpdatedPermanentDepositFileViewsWhenFileOnForm(pwaApplicationDetail,
-        form);
-
-  }
-
-  /**
-   * Simplify api by providing pass through method to access file service.
-   */
-  public PermanentDepositInfoFile getPermanentDepositFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
-    return permanentDepositsFileService.getPermanentDepositInformationFile(fileId,
-        pwaApplicationDetail);
-  }
-
-
-  @Transactional
-  public void deleteUploadedFileLink(String fileId, PwaApplicationDetail pwaApplicationDetail) {
-    PermanentDepositInfoFile existingFile = permanentDepositsFileService.getPermanentDepositInformationFile(fileId,
-        pwaApplicationDetail);
-    permanentDepositsFileService.deletePermanentDepositInfoFileLink(existingFile);
-  }
-
-  /**
-   * Method which creates "temporary" link to application detail Permanent Deposit.
-   * If form left unsaved, we know which files are deletable.
-   */
-  @Transactional
-  public void createUploadedFileLink(String uploadedFileId, PwaApplicationDetail pwaApplicationDetail) {
-    permanentDepositsFileService.createAndSavePermanentDepositInfoFile(
-        pwaApplicationDetail,
-        uploadedFileId
-    );
-  }
+//
+//  /**
+//   * Simplify api by providing pass through method to access file service.
+//   */
+//  public List<UploadedFileView> getUpdatedPermanentDepositFileViewsWhenFileOnForm(
+//      PwaApplicationDetail pwaApplicationDetail,
+//      PermanentDepositsForm form) {
+//    return permanentDepositsFileService.getUpdatedPermanentDepositFileViewsWhenFileOnForm(pwaApplicationDetail,
+//        form);
+//
+//  }
+//
+//  /**
+//   * Simplify api by providing pass through method to access file service.
+//   */
+//  public PermanentDepositInfoFile getPermanentDepositFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
+//    return permanentDepositsFileService.getPermanentDepositInformationFile(fileId,
+//        pwaApplicationDetail);
+//  }
+//
+//
+//  @Transactional
+//  public void deleteUploadedFileLink(String fileId, PwaApplicationDetail pwaApplicationDetail) {
+//    PermanentDepositInfoFile existingFile = permanentDepositsFileService.getPermanentDepositInformationFile(fileId,
+//        pwaApplicationDetail);
+//    permanentDepositsFileService.deletePermanentDepositInfoFileLink(existingFile);
+//  }
+//
+//  /**
+//   * Method which creates "temporary" link to application detail Permanent Deposit.
+//   * If form left unsaved, we know which files are deletable.
+//   */
+//  @Transactional
+//  public void createUploadedFileLink(String uploadedFileId, PwaApplicationDetail pwaApplicationDetail) {
+//    permanentDepositsFileService.createAndSavePermanentDepositInfoFile(
+//        pwaApplicationDetail,
+//        uploadedFileId
+//    );
+//  }
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
 
     PermanentDepositInformation permanentDepositInformation = getPermanentDepositData(detail);
-    var projectInformationForm = new PermanentDepositsForm();
-    mapEntityToForm(permanentDepositInformation, projectInformationForm, ApplicationFileLinkStatus.FULL);
+    var permanentDepositsForm = new PermanentDepositsForm();
+    mapEntityToForm(permanentDepositInformation, permanentDepositsForm, ApplicationFileLinkStatus.FULL);
     BindingResult bindingResult = new BeanPropertyBindingResult(permanentDepositInformation, "form");
-    permanentDepositsValidator.validate(projectInformationForm, bindingResult);
+    permanentDepositsValidator.validate(permanentDepositsForm, bindingResult);
 
     return !bindingResult.hasErrors();
   }
@@ -166,17 +176,13 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
       groupValidator.validate(form, bindingResult, PartialValidation.class);
     } else {
       groupValidator.validate(form, bindingResult, FullValidation.class);
-      permanentDepositsValidator.validate(form, bindingResult, pwaApplicationDetail);
+      permanentDepositsValidator.validate(form, bindingResult);
     }
 
     return bindingResult;
 
   }
 
-  public boolean getIsPermanentDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
-    //To Do: get proj info entity and check weather permanent deposit is being made.
-  }
 
   public Map<String, String> getPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.findAllByPwaApplicationDetail(pwaApplicationDetail)

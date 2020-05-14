@@ -120,7 +120,8 @@ public class TaskListServiceTest {
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
-                ApplicationTask.PIPELINES.getDisplayName()
+                ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:
@@ -129,7 +130,8 @@ public class TaskListServiceTest {
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-                ApplicationTask.HUOO.getDisplayName()
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
             );
             break;
           case DECOMMISSIONING:
@@ -138,7 +140,8 @@ public class TaskListServiceTest {
               ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
               ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
               ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-              ApplicationTask.HUOO.getDisplayName()
+              ApplicationTask.HUOO.getDisplayName(),
+              ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
           );
           break;
         case CAT_2_VARIATION:
@@ -148,7 +151,8 @@ public class TaskListServiceTest {
               ApplicationTask.LOCATION_DETAILS.getDisplayName(),
               ApplicationTask.HUOO.getDisplayName(),
               ApplicationTask.PIPELINES.getDisplayName(),
-              ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName()
+              ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
+              ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:
