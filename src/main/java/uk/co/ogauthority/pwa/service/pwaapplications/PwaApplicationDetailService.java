@@ -142,7 +142,7 @@ public class PwaApplicationDetailService {
    * @param form   A CrossingTypesForm.
    */
   @Transactional
-  public void updateCrossingStatus(PwaApplicationDetail detail, CrossingTypesForm form) {
+  public void updateCrossingTypes(PwaApplicationDetail detail, CrossingTypesForm form) {
     detail.setCablesCrossed(form.getCablesCrossed());
     detail.setPipelinesCrossed(form.getPipelinesCrossed());
     detail.setMedianLineCrossed(form.getMedianLineCrossed());

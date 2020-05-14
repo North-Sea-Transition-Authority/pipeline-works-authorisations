@@ -112,7 +112,7 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     var detail = applicationContext.getApplicationDetail();
     if (!blockCrossingFileService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
-          .addObject("errorMessage", "There are errors with this section");
+          .addObject("errorMessage", "You must add at least one document");
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
@@ -205,7 +205,8 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
         .addObject("crossing", blockCrossingService.getCrossedBlockView(detail, blockCrossingId))
         .addObject("backUrl",
             crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.PIPELINE_CROSSINGS));
-    breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Remove block crossing");
+    breadcrumbService.fromCrossingSection(detail, modelAndView, CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS,
+        "Remove block crossing");
     return modelAndView;
   }
 
@@ -224,13 +225,9 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   }
 
   private ModelAndView redirectToCrossingOverview(PwaApplicationContext applicationContext) {
-    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-        .renderCrossingAgreementsOverview(
-            applicationContext.getApplicationDetail().getPwaApplicationType(),
-            applicationContext.getApplicationDetail().getMasterPwaApplicationId(),
-            null,
-            null
-        ));
+    var detail = applicationContext.getApplicationDetail();
+    return crossingAgreementsTaskListService.getOverviewRedirect(detail,
+        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS);
   }
 
   private void addGenericBlockCrossingModelAttributes(ModelAndView modelAndView) {

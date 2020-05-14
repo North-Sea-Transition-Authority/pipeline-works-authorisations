@@ -1,37 +1,32 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
-import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
 @Service
-public class CrossingTypesService implements ApplicationFormSectionService, TaskListSection {
-  @Override
-  public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaApplicationDetail.getPipelinesCrossed() != null
-        && pwaApplicationDetail.getCablesCrossed() != null
-        && pwaApplicationDetail.getMedianLineCrossed() != null;
+public class CrossingTypesService implements ApplicationFormSectionService {
+
+  public void mapApplicationDetailToForm(PwaApplicationDetail detail, CrossingTypesForm form) {
+    form.setMedianLineCrossed(detail.getMedianLineCrossed());
+    form.setPipelinesCrossed(detail.getPipelinesCrossed());
+    form.setCablesCrossed(detail.getCablesCrossed());
   }
 
   @Override
-  public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return true;
   }
 
   @Override
-  public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
-    return List.of();
-  }
-
-  @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return isTaskListEntryCompleted(detail);
+    return detail.getPipelinesCrossed() != null
+        && detail.getCablesCrossed() != null
+        && detail.getMedianLineCrossed() != null;
   }
 
   @Override

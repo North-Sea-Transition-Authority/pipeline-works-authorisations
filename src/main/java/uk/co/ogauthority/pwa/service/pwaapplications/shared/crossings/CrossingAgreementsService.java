@@ -1,9 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
-import java.util.ArrayList;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,25 +72,27 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   }
 
   public List<TaskListEntry> getTaskListItems(PwaApplicationDetail pwaApplicationDetail) {
-    var list = new ArrayList<TaskListEntry>();
-
-    var sortedTasks = CrossingAgreementTask.stream()
+    return CrossingAgreementTask.stream()
         .sorted(Comparator.comparing(CrossingAgreementTask::getDisplayOrder))
+        .map(crossingAgreementTask -> createTaskListEntry(pwaApplicationDetail, crossingAgreementTask))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .collect(Collectors.toList());
+  }
 
-    for (var task : sortedTasks) {
-      var service = crossingAgreementsTaskListService.getServiceBean(task);
-      if (service.getCanShowInTaskList(pwaApplicationDetail)) {
-        list.add(new TaskListEntry(
-            task.getDisplayText(),
-            crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, task),
-            service.isTaskListEntryCompleted(pwaApplicationDetail),
-            service.getTaskListLabels(pwaApplicationDetail)
-        ));
-      }
+  @VisibleForTesting
+  public Optional<TaskListEntry> createTaskListEntry(PwaApplicationDetail detail, CrossingAgreementTask task) {
+    var service = crossingAgreementsTaskListService.getServiceBean(task);
+    if (!service.canShowInTaskList(detail)) {
+      return Optional.empty();
     }
-
-    return list;
+    var taskListEntry = new TaskListEntry(
+        task.getDisplayText(),
+        crossingAgreementsTaskListService.getRoute(detail, task),
+        service.isComplete(detail),
+        service.getTaskInfoList(detail)
+    );
+    return Optional.of(taskListEntry);
   }
 
   @Override

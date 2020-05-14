@@ -128,8 +128,14 @@ public class MedianLineCrossingController {
 
     var detail = applicationContext.getApplicationDetail();
     if (!padMedianLineAgreementService.isComplete(detail)) {
-      return getOverviewModelAndView(detail)
-          .addObject("errorMessage", "There are errors with this section");
+      var agreement = padMedianLineAgreementService.getMedianLineAgreement(detail);
+      if (agreement.getAgreementStatus() == null) {
+        return getOverviewModelAndView(detail)
+            .addObject("errorMessage", "You must select the status of the agreement");
+      } else {
+        return getOverviewModelAndView(detail)
+            .addObject("errorMessage", "At least one document is required");
+      }
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
@@ -150,14 +156,14 @@ public class MedianLineCrossingController {
   }
 
   @PostMapping("/edit")
-  public ModelAndView postAddContinueMedianLine(@PathVariable("applicationType")
-                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                                @PathVariable("applicationId") Integer applicationId,
-                                                @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
-                                                BindingResult bindingResult,
-                                                PwaApplicationContext applicationContext,
-                                                ValidationType validationType) {
-    padMedianLineAgreementService.validate(
+  public ModelAndView postEditMedianLine(@PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable("applicationId") Integer applicationId,
+                                         @Valid @ModelAttribute("form") MedianLineAgreementsForm form,
+                                         BindingResult bindingResult,
+                                         PwaApplicationContext applicationContext,
+                                         ValidationType validationType) {
+    bindingResult = padMedianLineAgreementService.validate(
         form,
         bindingResult,
         validationType,

@@ -25,6 +25,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -35,18 +36,23 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
+import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CableCrossingController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class CableCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
+
+  private int APP_ID = 100;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private EnumSet<PwaApplicationType> allowedApplicationTypes;
@@ -64,6 +70,8 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   @MockBean
   private CrossingAgreementsService crossingAgreementsService;
 
+  private PwaApplicationEndpointTestBuilder endpointTester;
+
   @Before
   public void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -77,6 +85,17 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
+
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+        .setAllowedTypes(
+            PwaApplicationType.INITIAL,
+            PwaApplicationType.CAT_1_VARIATION,
+            PwaApplicationType.CAT_2_VARIATION,
+            PwaApplicationType.DEPOSIT_CONSENT
+        )
+        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+
   }
 
   @Test
@@ -309,49 +328,89 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderOverview_unauthenticated() throws Exception {
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(CableCrossingController.class).renderOverview(PwaApplicationType.INITIAL, 1, null,
-                null))))
-        .andExpect(status().is3xxRedirection());
+  public void renderOverview_appTypeSmokeTest() {
+
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CableCrossingController.class)
+                .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
   }
 
   @Test
-  public void renderOverview_authenticated() throws Exception {
+  public void renderOverview_appStatusSmokeTest() throws Exception {
 
-    var validationResult = new CrossingAgreementsValidationResult(Set.of());
-    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
 
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(CableCrossingController.class).renderOverview(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk());
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CableCrossingController.class)
+                .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
 
   @Test
-  public void postOverview_unauthenticated() throws Exception {
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(CableCrossingController.class)
-                .postOverview(PwaApplicationType.INITIAL, 1, null, null))))
-        .andExpect(status().isForbidden());
+  public void renderOverview_appContactRoleSmokeTest() {
+
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CableCrossingController.class)
+                .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
-  public void postOverview_authenticated() throws Exception {
+  public void postOverview_appTypeSmokeTest() {
 
-    var validationResult = new CrossingAgreementsValidationResult(Set.of());
-    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+    when(padCableCrossingService.isComplete(any())).thenReturn(true);
 
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(CableCrossingController.class)
-                .postOverview(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk());
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CableCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_appStatusSmokeTest() {
+
+    when(padCableCrossingService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CableCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+  }
+
+  @Test
+  public void postOverview_appContactRoleSmokeTest() {
+
+    when(padCableCrossingService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CableCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
   }
 }

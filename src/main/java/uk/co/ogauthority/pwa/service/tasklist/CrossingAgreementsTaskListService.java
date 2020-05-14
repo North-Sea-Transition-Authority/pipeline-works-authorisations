@@ -13,9 +13,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianL
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingController;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
 @Service
 public class CrossingAgreementsTaskListService {
@@ -27,8 +27,8 @@ public class CrossingAgreementsTaskListService {
     this.applicationContext = applicationContext;
   }
 
-  public TaskListSection getServiceBean(CrossingAgreementTask task) {
-    return applicationContext.getBean(task.getSection());
+  public ApplicationFormSectionService getServiceBean(CrossingAgreementTask task) {
+    return applicationContext.getBean(task.getSectionClass());
   }
 
   public String getRoute(PwaApplicationDetail detail, CrossingAgreementTask task) {

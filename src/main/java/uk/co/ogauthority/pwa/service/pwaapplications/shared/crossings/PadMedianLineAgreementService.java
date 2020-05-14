@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
-import java.util.List;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +10,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -20,7 +17,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
 @Service
-public class PadMedianLineAgreementService implements ApplicationFormSectionService, TaskListSection {
+public class PadMedianLineAgreementService implements ApplicationFormSectionService {
 
   private final PadMedianLineAgreementRepository padMedianLineAgreementRepository;
   private final MedianLineAgreementValidator medianLineAgreementValidator;
@@ -106,17 +103,7 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
   }
 
   @Override
-  public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
-    return isComplete(pwaApplicationDetail);
-  }
-
-  @Override
-  public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return BooleanUtils.isTrue(pwaApplicationDetail.getMedianLineCrossed());
-  }
-
-  @Override
-  public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
-    return List.of();
   }
 }

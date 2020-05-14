@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -48,6 +47,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
@@ -566,50 +566,87 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderBlockCrossingOverview_unauthenticated() throws Exception {
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(BlockCrossingController.class).renderBlockCrossingOverview(PwaApplicationType.INITIAL, APP_ID, null,
-                null))))
-        .andExpect(status().is3xxRedirection());
+  public void renderBlockCrossingOverview_appTypeSmokeTest() {
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .renderBlockCrossingOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
   }
 
   @Test
-  public void renderBlockCrossingOverview_authenticated() throws Exception {
+  public void renderBlockCrossingOverview_appStatusSmokeTest() {
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
 
-    var validationResult = new CrossingAgreementsValidationResult(Set.of());
-    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .renderBlockCrossingOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(BlockCrossingController.class).renderBlockCrossingOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk());
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
 
   @Test
-  public void postOverview_unauthenticated() throws Exception {
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(BlockCrossingController.class)
-                .postOverview(PwaApplicationType.INITIAL, APP_ID, null, null))))
-        .andExpect(status().isForbidden());
+  public void renderBlockCrossingOverview_appContactRoleSmokeTest() {
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .renderBlockCrossingOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
-  public void postOverview_authenticated() throws Exception {
+  public void postOverview_appTypeSmokeTest() {
 
-    var validationResult = new CrossingAgreementsValidationResult(Set.of());
-    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+    when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(BlockCrossingController.class)
-                .postOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk());
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_appStatusSmokeTest() {
+
+    when(blockCrossingFileService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+  }
+
+  @Test
+  public void postOverview_appContactRoleSmokeTest() {
+
+    when(blockCrossingFileService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
   }
 
 }

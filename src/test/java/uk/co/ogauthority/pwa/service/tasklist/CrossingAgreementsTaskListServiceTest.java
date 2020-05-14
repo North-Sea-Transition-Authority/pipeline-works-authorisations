@@ -31,7 +31,7 @@ public class CrossingAgreementsTaskListServiceTest {
   public void getServiceBean() {
     EnumSet.allOf(CrossingAgreementTask.class).forEach(crossingAgreementTask -> {
       taskListService.getServiceBean(crossingAgreementTask);
-      verify(applicationContext, times(1)).getBean(crossingAgreementTask.getSection());
+      verify(applicationContext, times(1)).getBean(crossingAgreementTask.getSectionClass());
     });
   }
 

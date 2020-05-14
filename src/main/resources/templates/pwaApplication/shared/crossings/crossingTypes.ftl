@@ -17,7 +17,7 @@
                 <@fdsRadio.radioYes path="form.cablesCrossed"/>
                 <@fdsRadio.radioNo path="form.cablesCrossed"/>
             </@fdsRadio.radioGroup>
-            <@fdsRadio.radioGroup path="form.medianLineCrossed" labelText="Is a median line crossed?">
+            <@fdsRadio.radioGroup path="form.medianLineCrossed" labelText="Is the median line crossed?">
                 <@fdsRadio.radioYes path="form.medianLineCrossed"/>
                 <@fdsRadio.radioNo path="form.medianLineCrossed"/>
             </@fdsRadio.radioGroup>

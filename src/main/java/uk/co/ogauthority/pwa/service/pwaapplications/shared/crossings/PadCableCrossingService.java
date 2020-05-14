@@ -11,16 +11,14 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
-import uk.co.ogauthority.pwa.model.tasklist.TagColour;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListLabel;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListSection;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
-public class PadCableCrossingService implements ApplicationFormSectionService, TaskListSection {
+public class PadCableCrossingService implements ApplicationFormSectionService {
 
   private final PadCableCrossingRepository padCableCrossingRepository;
   private final CableCrossingFileService cableCrossingFileService;
@@ -92,22 +90,16 @@ public class PadCableCrossingService implements ApplicationFormSectionService, T
   }
 
   @Override
-  public boolean isTaskListEntryCompleted(PwaApplicationDetail pwaApplicationDetail) {
-    return isComplete(pwaApplicationDetail);
-  }
-
-  @Override
-  public boolean getCanShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return BooleanUtils.isTrue(pwaApplicationDetail.getCablesCrossed());
   }
 
   @Override
-  public List<TaskListLabel> getTaskListLabels(PwaApplicationDetail pwaApplicationDetail) {
-    var crossingLabelColour = TagColour.BLUE;
-    var crossingCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    String crossingsText = StringDisplayUtils.pluralise("crossing", crossingCount);
+  public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
+    var cableCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+    String crossingsText = StringDisplayUtils.pluralise("crossing", cableCount);
     return List.of(
-        new TaskListLabel(String.format("%d %s", crossingCount, crossingsText), crossingLabelColour)
+        new TaskInfo(crossingsText, (long) cableCount)
     );
   }
 }

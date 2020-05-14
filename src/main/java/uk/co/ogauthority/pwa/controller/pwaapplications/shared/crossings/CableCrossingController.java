@@ -121,7 +121,7 @@ public class CableCrossingController {
     var detail = applicationContext.getApplicationDetail();
     if (!padCableCrossingService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
-          .addObject("errorMessage", "There are errors with this section");
+          .addObject("errorMessage", "You must have at least one crossing added, with a document uploaded");
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,

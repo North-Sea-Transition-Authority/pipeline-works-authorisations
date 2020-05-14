@@ -139,8 +139,14 @@ public class PipelineCrossingController {
 
     var detail = applicationContext.getApplicationDetail();
     if (!padPipelineCrossingService.isComplete(detail)) {
-      return createOverviewModelAndView(detail)
-          .addObject("errorMessage", "There are errors with this section");
+      int pipelineCrossingCount = padPipelineCrossingService.getPipelineCrossingCount(detail);
+      if (pipelineCrossingCount > 0) {
+        return createOverviewModelAndView(detail)
+            .addObject("errorMessage", "At least one document must be uploaded");
+      } else {
+        return createOverviewModelAndView(detail)
+            .addObject("errorMessage", "You must add at least one pipeline crossing");
+      }
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,

@@ -3,12 +3,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -20,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -27,14 +24,17 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingOwnerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
+import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.PipelineCrossingFormValidator;
 
@@ -42,9 +42,12 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.Pipelin
 @WebMvcTest(controllers = PipelineCrossingController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class PipelineCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
 
+  private int APP_ID = 100;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private EnumSet<PwaApplicationType> allowedApplicationTypes;
   private AuthenticatedUserAccount user;
+  private PwaApplicationEndpointTestBuilder endpointTester;
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -77,53 +80,103 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
+
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+        .setAllowedTypes(
+            PwaApplicationType.INITIAL,
+            PwaApplicationType.CAT_1_VARIATION,
+            PwaApplicationType.CAT_2_VARIATION,
+            PwaApplicationType.DEPOSIT_CONSENT
+        )
+        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 
   @Test
-  public void renderBlockCrossingOverview_unauthenticated() throws Exception {
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(PipelineCrossingController.class).renderOverview(PwaApplicationType.INITIAL, 1, null,
-                null))))
-        .andExpect(status().is3xxRedirection());
+  public void renderOverview_appTypeSmokeTest() {
+
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineCrossingController.class)
+                .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
   }
 
   @Test
-  public void renderBlockCrossingOverview_authenticated() throws Exception {
+  public void renderOverview_appStatusSmokeTest() {
 
-    var validationResult = new CrossingAgreementsValidationResult(Set.of());
-    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
 
-    mockMvc.perform(
-        get(ReverseRouter.route(
-            on(PipelineCrossingController.class).renderOverview(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk());
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineCrossingController.class)
+                .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
 
   @Test
-  public void postOverview_unauthenticated() throws Exception {
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(PipelineCrossingController.class)
-                .postOverview(PwaApplicationType.INITIAL, 1, null, null))))
-        .andExpect(status().isForbidden());
+  public void renderOverview_appContactRoleSmokeTest() {
+
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineCrossingController.class)
+                .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
   }
 
   @Test
-  public void postOverview_authenticated() throws Exception {
+  public void postOverview_appTypeSmokeTest() {
 
-    var validationResult = new CrossingAgreementsValidationResult(Set.of());
-    when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(validationResult);
+    when(padPipelineCrossingService.isComplete(any())).thenReturn(true);
 
-    mockMvc.perform(
-        post(ReverseRouter.route(
-            on(PipelineCrossingController.class)
-                .postOverview(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk());
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_appStatusSmokeTest() {
+
+    when(padPipelineCrossingService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+  }
+
+  @Test
+  public void postOverview_appContactRoleSmokeTest() {
+
+    when(padPipelineCrossingService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
   }
 
 }

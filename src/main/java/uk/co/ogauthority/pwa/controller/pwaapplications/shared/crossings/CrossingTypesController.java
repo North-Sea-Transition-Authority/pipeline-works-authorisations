@@ -21,10 +21,12 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.CrossingTypesFormValidator;
@@ -44,21 +46,24 @@ public class CrossingTypesController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CrossingTypesFormValidator crossingTypesFormValidator;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final CrossingTypesService crossingTypesService;
 
   @Autowired
   public CrossingTypesController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       CrossingTypesFormValidator crossingTypesFormValidator,
-      PwaApplicationDetailService pwaApplicationDetailService) {
+      PwaApplicationDetailService pwaApplicationDetailService,
+      CrossingTypesService crossingTypesService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.crossingTypesFormValidator = crossingTypesFormValidator;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.crossingTypesService = crossingTypesService;
   }
 
   private ModelAndView createModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/crossingTypes");
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Crossing types");
+        CrossingAgreementTask.CROSSING_TYPES.getDisplayText());
     return modelAndView;
   }
 
@@ -69,9 +74,7 @@ public class CrossingTypesController {
       @ModelAttribute("form") CrossingTypesForm form,
       PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
-    form.setCablesCrossed(detail.getCablesCrossed());
-    form.setPipelinesCrossed(detail.getPipelinesCrossed());
-    form.setMedianLineCrossed(detail.getMedianLineCrossed());
+    crossingTypesService.mapApplicationDetailToForm(detail, form);
     return createModelAndView(applicationContext.getApplicationDetail());
   }
 
@@ -87,7 +90,7 @@ public class CrossingTypesController {
       crossingTypesFormValidator.validate(form, bindingResult);
     }
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, createModelAndView(detail), () -> {
-      pwaApplicationDetailService.updateCrossingStatus(detail, form);
+      pwaApplicationDetailService.updateCrossingTypes(detail, form);
       return ReverseRouter.redirect(on(CrossingAgreementsController.class).renderCrossingAgreementsOverview(
           detail.getPwaApplicationType(), applicationId, null, null));
     });

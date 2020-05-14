@@ -106,7 +106,7 @@ public class CrossingAgreementsController {
     var isComplete = crossingAgreementsService.isComplete(applicationContext.getApplicationDetail());
     if (!isComplete) {
       return getCrossingAgreementsModelAndView(applicationContext.getApplicationDetail())
-          .addObject("errorMessage", "Not all sections have been completed");
+          .addObject("errorMessage", "All sections must be completed");
     }
     return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
   }

@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="pwaInfoTasks" type="java.util.HashMap<String, String>" -->
-<#-- @ftlvariable name="appInfoTasks" type="java.util.HashMap<String, uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo>" -->
+<#-- @ftlvariable name="appInfoTasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
 <#-- @ftlvariable name="prepareAppTasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
 <#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
 
@@ -16,8 +16,8 @@
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="2" sectionHeadingText="Application information">
-            <#list appInfoTasks as task, taskInfo>
-                <@pwaTaskListItem.taskInfoItem taskName=task taskInfo=taskInfo/>
+            <#list appInfoTasks as task>
+                <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route/>
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="3" sectionHeadingText="Prepare application">
