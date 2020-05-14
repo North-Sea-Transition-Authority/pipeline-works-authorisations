@@ -4,7 +4,10 @@ import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
 
@@ -13,6 +16,8 @@ import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
 public class PipelineDetail {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "pipeline_detail_id_generator")
+  @SequenceGenerator(name = "pipeline_detail_id_generator", sequenceName = "pipeline_details_id_seq", allocationSize = 1)
   private Integer id;
   private String pipelineId;
   private Instant startTimestamp;
