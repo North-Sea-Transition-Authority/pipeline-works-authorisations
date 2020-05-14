@@ -4,9 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 
-@Entity(name = "pipelines")
+@Entity
+@Table(name = "pipelines")
 public class Pipeline {
 
   @Id
@@ -15,8 +17,6 @@ public class Pipeline {
   @ManyToOne
   @JoinColumn(name = "pwa_id")
   private MasterPwa masterPwa;
-
-  private String pipelineNumber;
 
   public Pipeline() {
   }
@@ -37,11 +37,4 @@ public class Pipeline {
     this.masterPwa = masterPwa;
   }
 
-  public String getPipelineNumber() {
-    return pipelineNumber;
-  }
-
-  public void setPipelineNumber(String pipelineNumber) {
-    this.pipelineNumber = pipelineNumber;
-  }
 }

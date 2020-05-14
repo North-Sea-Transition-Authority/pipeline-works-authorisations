@@ -1,9 +1,13 @@
 CREATE TABLE ${datasource.user}.pipelines(
   id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   pwa_id NUMBER NOT NULL,
-  pipeline_number VARCHAR2(50) NOT NULL,
   CONSTRAINT pipelines_master_pwa_fk FOREIGN KEY (pwa_id) REFERENCES ${datasource.user}.pwas (id)
 );
+
+CREATE SEQUENCE ${datasource.user}.pipeline_id_seq
+START WITH 1
+INCREMENT BY 1
+NOCACHE;
 
 CREATE INDEX ${datasource.user}.pipelines_master_pwa_id_idx ON ${datasource.user}.pipelines (pwa_id);
 
