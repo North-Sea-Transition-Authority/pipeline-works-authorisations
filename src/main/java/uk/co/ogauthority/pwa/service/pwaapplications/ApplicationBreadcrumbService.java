@@ -11,10 +11,12 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
@@ -84,6 +86,20 @@ public class ApplicationBreadcrumbService {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(PipelinesController.class)
         .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromPipelineIdentOverview(
+      PwaApplication pwaApplication,
+      PadPipeline padPipeline,
+      ModelAndView modelAndView,
+      String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(PipelinesController.class)
+        .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
+    map.put(ReverseRouter.route(on(PipelineIdentsController.class)
+        .renderIdentOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), padPipeline.getId(), null)),
+        padPipeline.getPipelineRef() + " idents");
     addAttrs(modelAndView, map, thisPage);
   }
 

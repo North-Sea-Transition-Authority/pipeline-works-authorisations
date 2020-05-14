@@ -1,5 +1,5 @@
 CREATE TABLE ${datasource.user}.pwas (
-  id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id NUMBER PRIMARY KEY,
   holder_ou_id NUMBER,
   created_timestamp TIMESTAMP NOT NULL
 ) TABLESPACE tbsdata;

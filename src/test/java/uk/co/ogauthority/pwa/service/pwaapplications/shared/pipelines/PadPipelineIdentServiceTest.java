@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineIdentRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -93,8 +93,6 @@ public class PadPipelineIdentServiceTest {
     var newIdent = identCaptor.getValue();
 
     verify(identDataService, times(1)).addIdentData(newIdent, form.getDataForm());
-
-    newIdent.prePersist();
 
     assertThat(newIdent.getPadPipeline()).isEqualTo(pipeline);
     assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());

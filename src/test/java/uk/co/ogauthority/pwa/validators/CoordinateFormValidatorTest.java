@@ -30,7 +30,7 @@ public class CoordinateFormValidatorTest {
   public void valid_mandatory_dataPresent() {
 
     var form = buildForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY, "Start point");
 
     assertThat(result).isEmpty();
 
@@ -40,7 +40,7 @@ public class CoordinateFormValidatorTest {
   public void failed_mandatory_dataNotPresent() {
 
     var form = new CoordinateForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY, "Start point");
 
     assertThat(result).containsOnly(
         entry("latitudeDegrees", Set.of("latitudeDegrees.required")),
@@ -58,7 +58,7 @@ public class CoordinateFormValidatorTest {
   public void valid_optional_dataNotPresent() {
 
     var form = new CoordinateForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.OPTIONAL);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.OPTIONAL, "Start point");
 
     assertThat(result).isEmpty();
 
@@ -69,7 +69,7 @@ public class CoordinateFormValidatorTest {
 
     var form = new CoordinateForm();
     form.setLatitudeDegrees(50);
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.OPTIONAL);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.OPTIONAL, "Start point");
 
     assertThat(result).containsOnly(
         entry("latitudeDegrees", Set.of("latitudeDegrees.required")),

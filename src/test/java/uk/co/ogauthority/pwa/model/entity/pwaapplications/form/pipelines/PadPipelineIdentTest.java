@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 public class PadPipelineIdentTest {
 
   @Test
-  public void prePersist() throws IllegalAccessException {
+  public void updateCoordinateValues() throws IllegalAccessException {
 
     var ident = new PadPipelineIdent();
 
@@ -27,8 +27,6 @@ public class PadPipelineIdentTest {
         new LatitudeCoordinate(47, 47, BigDecimal.valueOf(20), LatitudeDirection.SOUTH),
         new LongitudeCoordinate(12, 15, BigDecimal.valueOf(45.5), LongitudeDirection.WEST)
     ));
-
-    ident.prePersist();
 
     assertThat(FieldUtils.getFieldValue(ident, "fromLatitudeDegrees")).isEqualTo(50);
     assertThat(FieldUtils.getFieldValue(ident, "fromLatitudeMinutes")).isEqualTo(30);

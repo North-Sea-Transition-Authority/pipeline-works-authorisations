@@ -4,6 +4,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 /**
@@ -66,7 +67,22 @@ public class ProjectInformationEntityMappingService {
           form::setCommercialAgreementDay,
           padProjectInformation.getCommercialAgreementTimestamp()
       );
+    }
 
+
+    if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
+      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
+    } else if (padProjectInformation.getFutureAppSubmissionMonth() != null
+            && padProjectInformation.getFutureAppSubmissionYear() != null) {
+      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+      form.setFutureAppSubmissionMonth(padProjectInformation.getFutureAppSubmissionMonth());
+      form.setFutureAppSubmissionYear(padProjectInformation.getFutureAppSubmissionYear());
+    } else {
+      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
+    }
+    if (padProjectInformation.getTemporaryDepositsMade() != null) {
+      form.setTemporaryDepositsMade(padProjectInformation.getTemporaryDepositsMade());
+      form.setTemporaryDepDescription(padProjectInformation.getTemporaryDepDescription());
     }
   }
 
@@ -129,6 +145,25 @@ public class ProjectInformationEntityMappingService {
       padProjectInformation.setLicenceTransferTimestamp(null);
       padProjectInformation.setCommercialAgreementTimestamp(null);
     }
+
+    if (form.getPermanentDepositsMadeType() != null) {
+      padProjectInformation.setFutureAppSubmissionMonth(null);
+      padProjectInformation.setFutureAppSubmissionYear(null);
+      padProjectInformation.setPermanentDepositsMade(true);
+      if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
+        padProjectInformation.setFutureAppSubmissionMonth(form.getFutureAppSubmissionMonth());
+        padProjectInformation.setFutureAppSubmissionYear(form.getFutureAppSubmissionYear());
+      } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.NONE)) {
+        padProjectInformation.setPermanentDepositsMade(false);
+      }
+    }
+
+    if (form.getTemporaryDepositsMade() != null) {
+      padProjectInformation.setTemporaryDepositsMade(form.getTemporaryDepositsMade());
+      padProjectInformation.setTemporaryDepDescription(
+              form.getTemporaryDepositsMade() == false ? null : form.getTemporaryDepDescription());
+    }
+
 
   }
 

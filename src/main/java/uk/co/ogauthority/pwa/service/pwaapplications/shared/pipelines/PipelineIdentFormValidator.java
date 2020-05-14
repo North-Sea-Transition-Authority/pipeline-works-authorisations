@@ -41,13 +41,13 @@ public class PipelineIdentFormValidator implements SmartValidator {
         "Enter the ident's start point");
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getFromCoordinateForm(), errors,
-        "fromCoordinateForm", ValueRequirement.OPTIONAL);
+        "fromCoordinateForm", ValueRequirement.OPTIONAL, "Start point");
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "toLocation", "toLocation.required",
         "Enter the ident's finish point");
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
-        "toCoordinateForm", ValueRequirement.OPTIONAL);
+        "toCoordinateForm", ValueRequirement.OPTIONAL, "Finish point");
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length.required",
         "Enter the ident's length");

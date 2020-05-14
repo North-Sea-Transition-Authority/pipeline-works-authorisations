@@ -12,7 +12,9 @@
       </a>
     </span>
     <#if taskInfo.count gt 0>
-      <strong class="govuk-tag fds-task-list__task-completed">${taskInfo.count + ' ' + taskInfo.countType}</strong>
+      <strong class="govuk-tag fds-task-list__task-completed">
+        <@stringUtils.pluralise count=taskInfo.count word=taskInfo.countType />
+      </strong>
     </#if>
   </li>
 </#macro>

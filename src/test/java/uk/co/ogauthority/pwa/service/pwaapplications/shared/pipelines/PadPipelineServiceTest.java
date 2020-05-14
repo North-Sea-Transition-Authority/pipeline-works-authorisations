@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import org.junit.Before;
@@ -21,25 +22,25 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PadPipelinesServiceTest {
+public class PadPipelineServiceTest {
 
   @Mock
   private PadPipelineRepository repository;
 
-  private PadPipelinesService pipelinesService;
+  private PadPipelineService pipelinesService;
 
   @Captor
   private ArgumentCaptor<PadPipeline> pipelineCaptor;
 
   @Before
   public void setUp() {
-    pipelinesService = new PadPipelinesService(repository);
+    pipelinesService = new PadPipelineService(repository);
   }
 
   @Test
@@ -80,7 +81,6 @@ public class PadPipelinesServiceTest {
     verify(repository, times(1)).save(pipelineCaptor.capture());
 
     var newPipeline = pipelineCaptor.getValue();
-    newPipeline.prePersist();
 
     assertThat(newPipeline.getFromLocation()).isEqualTo(form.getFromLocation());
     assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLatitudeDegrees());
@@ -108,6 +108,38 @@ public class PadPipelinesServiceTest {
     assertThat(newPipeline.getComponentPartsDescription()).isEqualTo(form.getComponentPartsDescription());
     assertThat(form.getTrenchedBuriedBackfilled()).isEqualTo(form.getTrenchedBuriedBackfilled());
     assertThat(form.getTrenchingMethods()).isEqualTo(form.getTrenchingMethods());
+
+  }
+
+  @Test
+  public void isComplete_noPipes() {
+
+    var detail = new PwaApplicationDetail();
+    when(repository.countAllByPwaApplicationDetail(detail)).thenReturn(0L);
+
+    assertThat(pipelinesService.isComplete(detail)).isFalse();
+
+  }
+
+  @Test
+  public void isComplete_notAllPipesHaveIdents() {
+
+    var detail = new PwaApplicationDetail();
+    when(repository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
+    when(repository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(1L);
+
+    assertThat(pipelinesService.isComplete(detail)).isFalse();
+
+  }
+
+  @Test
+  public void isComplete_allPipesHaveIdents() {
+
+    var detail = new PwaApplicationDetail();
+    when(repository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
+    when(repository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(0L);
+
+    assertThat(pipelinesService.isComplete(detail)).isTrue();
 
   }
 
