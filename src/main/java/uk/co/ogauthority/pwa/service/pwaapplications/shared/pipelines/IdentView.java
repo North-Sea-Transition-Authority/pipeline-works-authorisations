@@ -6,22 +6,22 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 public class IdentView {
 
-  private CoordinatePair fromCoordinates;
-  private CoordinatePair toCoordinates;
+  private final CoordinatePair fromCoordinates;
+  private final CoordinatePair toCoordinates;
 
-  private String fromLocation;
-  private String toLocation;
+  private final String fromLocation;
+  private final String toLocation;
 
-  private Integer identNumber;
-  private BigDecimal length;
+  private final Integer identNumber;
+  private final BigDecimal length;
 
-  private String componentPartsDescription;
-  private BigDecimal externalDiameter;
-  private String insulationCoatingType;
-  private BigDecimal maop;
-  private String productsToBeConveyed;
-  private BigDecimal internalDiameter;
-  private BigDecimal wallThickness;
+  private final String componentPartsDescription;
+  private final BigDecimal externalDiameter;
+  private final String insulationCoatingType;
+  private final BigDecimal maop;
+  private final String productsToBeConveyed;
+  private final BigDecimal internalDiameter;
+  private final BigDecimal wallThickness;
 
   public IdentView(PadPipelineIdentData identData) {
     var ident = identData.getPadPipelineIdent();

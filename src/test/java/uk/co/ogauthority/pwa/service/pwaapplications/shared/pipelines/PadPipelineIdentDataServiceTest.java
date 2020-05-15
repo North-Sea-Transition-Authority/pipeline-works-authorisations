@@ -69,7 +69,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void getDataFromIdentList() {
+  public void getDataFromIdentList_valid() {
     var ident = new PadPipelineIdent();
     ident.setIdentNo(1);
 
@@ -81,6 +81,19 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(result).containsExactly(
         entry(ident, identData)
     );
+  }
+
+  @Test
+  public void getDataFromIdentList_emptyList() {
+    var ident = new PadPipelineIdent();
+    ident.setIdentNo(1);
+
+    var identData = new PadPipelineIdentData(ident);
+    identData.setComponentPartsDescription("parts");
+
+    when(repository.getAllByPadPipelineIdentIn(eq(List.of()))).thenReturn(List.of());
+    var result = identDataService.getDataFromIdentList(List.of());
+    assertThat(result).isEmpty();
   }
 
 }

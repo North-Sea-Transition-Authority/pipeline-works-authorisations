@@ -3,13 +3,13 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import java.util.Collections;
 import java.util.List;
 
-public class GroupedIdentView {
+public class ConnectedPipelineIdentsView {
 
-  private List<IdentView> identViews;
-  private IdentView endIdent;
+  private final List<IdentView> identViews;
+  private final IdentView endIdent;
 
 
-  public GroupedIdentView(List<IdentView> identViews) {
+  public ConnectedPipelineIdentsView(List<IdentView> identViews) {
     this.identViews = Collections.unmodifiableList(identViews);
     this.endIdent = identViews.get(identViews.size() - 1);
   }

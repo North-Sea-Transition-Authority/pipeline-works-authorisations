@@ -37,8 +37,8 @@ public class PadPipelineIdentService {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  public List<GroupedIdentView> getGroupedIdentViews(PadPipeline pipeline) {
-    var identViews = getIdentViews(pipeline);
+  public ConnectedPipelineIdentSummaryView getConnectedPipelineIdentSummaryView(PadPipeline pipeline) {
+    List<IdentView> identViews = getIdentViews(pipeline);
     var list = new ArrayList<List<IdentView>>();
     var groupList = new ArrayList<IdentView>();
 
@@ -58,10 +58,12 @@ public class PadPipelineIdentService {
 
     list.add(groupList);
 
-    return list.stream()
+    List<ConnectedPipelineIdentsView> connectedIdents = list.stream()
         .filter(viewList -> !viewList.isEmpty())
-        .map(GroupedIdentView::new)
+        .map(ConnectedPipelineIdentsView::new)
         .collect(Collectors.toUnmodifiableList());
+
+    return new ConnectedPipelineIdentSummaryView(connectedIdents);
   }
 
   public Optional<PadPipelineIdent> getMaxIdent(PadPipeline pipeline) {

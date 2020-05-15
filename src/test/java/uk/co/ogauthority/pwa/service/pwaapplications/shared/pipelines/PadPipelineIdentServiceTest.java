@@ -173,11 +173,7 @@ public class PadPipelineIdentServiceTest {
   }
 
   @Test
-  public void getGroupedIdentViews() {
-    var coordinatePair = new CoordinatePair(
-        new LatitudeCoordinate(1, 1, BigDecimal.ONE, LatitudeDirection.NORTH),
-        new LongitudeCoordinate(1, 1, BigDecimal.ONE, LongitudeDirection.EAST)
-    );
+  public void getConnectedPipelineIdentSummaryView_valid() {
 
     var identA_Start = makeIdent(1, "from", "to");
     var identA_End = makeIdent(2, "to", "other");
@@ -196,10 +192,25 @@ public class PadPipelineIdentServiceTest {
           put(identA_End, identDataA_End);
           put(identB, identDataB);
         }});
-    List<GroupedIdentView> groupedViews = identService.getGroupedIdentViews(pipeline);
-    assertThat(groupedViews.size()).isEqualTo(2);
-    assertThat(groupedViews.get(0).getIdentViews()).extracting(IdentView::getIdentNumber).containsExactly(1, 2);
-    assertThat(groupedViews.get(1).getIdentViews()).extracting(IdentView::getIdentNumber).containsExactly(3);
+    ConnectedPipelineIdentSummaryView summaryView = identService.getConnectedPipelineIdentSummaryView(pipeline);
+    assertThat(summaryView.getConnectedPipelineIdents().size()).isEqualTo(2);
+    assertThat(summaryView.getConnectedPipelineIdents().get(0).getIdentViews())
+        .extracting(IdentView::getIdentNumber)
+        .containsExactly(1, 2);
+    assertThat(summaryView.getConnectedPipelineIdents().get(1).getIdentViews())
+        .extracting(IdentView::getIdentNumber)
+        .containsExactly(3);
+  }
+
+  @Test
+  public void getConnectedPipelineIdentSummaryView_noIdents() {
+
+    var pipeline = new PadPipeline();
+    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of());
+    when(identDataService.getDataFromIdentList(eq(List.of())))
+        .thenReturn(new LinkedHashMap<>());
+    ConnectedPipelineIdentSummaryView summaryView = identService.getConnectedPipelineIdentSummaryView(pipeline);
+    assertThat(summaryView.getConnectedPipelineIdents()).isEmpty();
   }
 
   private PadPipelineIdent makeIdent(int id, String fromLocation, String toLocation) {
