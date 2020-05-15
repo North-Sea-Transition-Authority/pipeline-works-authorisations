@@ -125,7 +125,7 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var pipelineCrossingCount = padPipelineCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    var crossingPluralised = StringDisplayUtils.pluralise("crossing", pipelineCrossingCount);
+    var crossingPluralised = StringDisplayUtils.pluralise("pipeline", pipelineCrossingCount);
     return List.of(
         new TaskInfo(crossingPluralised, (long) pipelineCrossingCount)
     );

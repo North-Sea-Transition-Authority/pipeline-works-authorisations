@@ -87,7 +87,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appTypeSmokeTest() {
+  public void postForm_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -99,7 +99,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appStatusSmokeTest() {
+  public void postForm_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -111,7 +111,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appContactRoleSmokeTest() {
+  public void postForm_appContactRoleSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->

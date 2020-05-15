@@ -18,11 +18,6 @@ public class CrossingTypesService implements ApplicationFormSectionService {
   }
 
   @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
-  }
-
-  @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return detail.getPipelinesCrossed() != null
         && detail.getCablesCrossed() != null

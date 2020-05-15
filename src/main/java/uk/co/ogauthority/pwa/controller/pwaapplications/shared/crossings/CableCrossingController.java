@@ -102,7 +102,6 @@ public class CableCrossingController {
   }
 
   @GetMapping
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.VIEW})
   public ModelAndView renderOverview(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -121,7 +120,7 @@ public class CableCrossingController {
     var detail = applicationContext.getApplicationDetail();
     if (!padCableCrossingService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
-          .addObject("errorMessage", "You must have at least one crossing added, with a document uploaded");
+          .addObject("errorMessage", "You must have added at least one crossing, and uploaded a document");
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,

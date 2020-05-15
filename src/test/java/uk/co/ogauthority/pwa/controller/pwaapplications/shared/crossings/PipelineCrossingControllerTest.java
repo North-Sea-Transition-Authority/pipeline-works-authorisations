@@ -96,7 +96,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   public void renderOverview_appTypeSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
-        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+        Set.of(CrossingAgreementsSection.PIPELINE_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
         .thenReturn(crossingAgreementsValidationResult);
 
@@ -112,7 +112,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   public void renderOverview_appStatusSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
-        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+        Set.of(CrossingAgreementsSection.PIPELINE_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
         .thenReturn(crossingAgreementsValidationResult);
 
@@ -128,7 +128,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   public void renderOverview_appContactRoleSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
-        Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
+        Set.of(CrossingAgreementsSection.PIPELINE_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
         .thenReturn(crossingAgreementsValidationResult);
 

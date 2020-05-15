@@ -93,7 +93,6 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
   }
 
   @GetMapping
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT, PwaApplicationPermission.VIEW})
   public ModelAndView renderBlockCrossingOverview(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -204,7 +203,7 @@ public class BlockCrossingController extends PwaApplicationDataFileUploadAndDown
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeBlockCrossing")
         .addObject("crossing", blockCrossingService.getCrossedBlockView(detail, blockCrossingId))
         .addObject("backUrl",
-            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.PIPELINE_CROSSINGS));
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS));
     breadcrumbService.fromCrossingSection(detail, modelAndView, CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS,
         "Remove block crossing");
     return modelAndView;

@@ -230,11 +230,6 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   }
 
   @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
-  }
-
-  @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
     String blocksText = StringDisplayUtils.pluralise("block", blockCount);

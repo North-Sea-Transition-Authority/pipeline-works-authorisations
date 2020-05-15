@@ -97,7 +97,7 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
   @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var cableCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    String crossingsText = StringDisplayUtils.pluralise("crossing", cableCount);
+    String crossingsText = StringDisplayUtils.pluralise("cable", cableCount);
     return List.of(
         new TaskInfo(crossingsText, (long) cableCount)
     );
