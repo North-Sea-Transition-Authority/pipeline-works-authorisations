@@ -9,6 +9,8 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
  */
 public class IdentView {
 
+  private final Integer identId;
+
   private final CoordinatePair fromCoordinates;
   private final CoordinatePair toCoordinates;
 
@@ -28,6 +30,7 @@ public class IdentView {
 
   public IdentView(PadPipelineIdentData identData) {
     var ident = identData.getPadPipelineIdent();
+    this.identId = ident.getId();
     this.fromCoordinates = ident.getFromCoordinates();
     this.toCoordinates = ident.getToCoordinates();
     this.fromLocation = ident.getFromLocation();
@@ -41,6 +44,10 @@ public class IdentView {
     this.productsToBeConveyed = identData.getProductsToBeConveyed();
     this.internalDiameter = identData.getInternalDiameter();
     this.wallThickness = identData.getWallThickness();
+  }
+
+  public Integer getIdentId() {
+    return identId;
   }
 
   public CoordinatePair getFromCoordinates() {

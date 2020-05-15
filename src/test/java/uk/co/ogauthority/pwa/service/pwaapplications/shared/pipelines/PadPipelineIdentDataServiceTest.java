@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
@@ -94,6 +96,38 @@ public class PadPipelineIdentDataServiceTest {
     when(repository.getAllByPadPipelineIdentIn(eq(List.of()))).thenReturn(List.of());
     var result = identDataService.getDataFromIdentList(List.of());
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getIdentData_valid() {
+    var ident = new PadPipelineIdent();
+    var data = new PadPipelineIdentData();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(data));
+    var result = identDataService.getIdentData(ident);
+    assertThat(result).isEqualTo(data);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getIdentData_invalid() {
+    var ident = new PadPipelineIdent();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.empty());
+    identDataService.getIdentData(ident);
+  }
+
+  @Test
+  public void removeIdentData_validData() {
+    var ident = new PadPipelineIdent();
+    var identData = new PadPipelineIdentData();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(identData));
+    identDataService.removeIdentData(ident);
+    verify(repository, times(1)).delete(identData);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void removeIdentData_noData() {
+    var ident = new PadPipelineIdent();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.empty());
+    identDataService.removeIdentData(ident);
   }
 
 }

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
@@ -25,6 +26,19 @@ public class PadPipelineIdentService {
                                  PadPipelineIdentDataService identDataService) {
     this.repository = repository;
     this.identDataService = identDataService;
+  }
+
+  public PadPipelineIdent getIdent(PadPipeline pipeline, Integer identId) {
+    return repository.getPadPipelineIdentByPadPipelineAndId(pipeline, identId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find ident with id '%d' linked to pipeline with id '%d'", identId,
+                pipeline.getId())));
+  }
+
+  public IdentView getIdentView(PadPipeline pipeline, Integer identId) {
+    var padIdent = getIdent(pipeline, identId);
+    var identData = identDataService.getIdentData(padIdent);
+    return new IdentView(identData);
   }
 
   public List<IdentView> getIdentViews(PadPipeline pipeline) {
@@ -96,6 +110,19 @@ public class PadPipelineIdentService {
 
     repository.save(ident);
 
+  }
+
+  @Transactional
+  public void removeIdent(PadPipelineIdent pipelineIdent) {
+    identDataService.removeIdentData(pipelineIdent);
+    repository.delete(pipelineIdent);
+    var remainingIdents = repository.getAllByPadPipeline(pipelineIdent.getPadPipeline());
+
+    remainingIdents.stream()
+        .filter(ident -> ident.getIdentNo() > pipelineIdent.getIdentNo())
+        .forEachOrdered(ident -> ident.setIdentNo(ident.getIdentNo() - 1));
+
+    repository.saveAll(remainingIdents);
   }
 
 }
