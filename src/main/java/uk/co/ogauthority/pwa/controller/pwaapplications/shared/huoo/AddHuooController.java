@@ -191,8 +191,7 @@ public class AddHuooController {
     var detail = applicationContext.getApplicationDetail();
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     padOrganisationRoleService.mapTreatyAgreementToForm(detail, orgRole, form);
-    return getEditHuooModelAndView(applicationContext.getApplicationDetail(), HuooType.TREATY_AGREEMENT)
-        .addObject("huooType", HuooType.TREATY_AGREEMENT);
+    return getEditHuooModelAndView(applicationContext.getApplicationDetail(), HuooType.TREATY_AGREEMENT);
   }
 
   @PostMapping("/edit/treaty-agreement/{orgRoleId}")
