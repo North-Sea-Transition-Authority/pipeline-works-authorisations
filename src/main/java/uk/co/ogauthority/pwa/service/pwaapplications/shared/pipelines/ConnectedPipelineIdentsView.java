@@ -3,6 +3,10 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This stores a list of idents related to a continuous portion of a pipeline without gaps.
+ * The endIdent is used on the pipeline overview to provide the final node heading of each view.
+ */
 public class ConnectedPipelineIdentsView {
 
   private final List<IdentView> identViews;

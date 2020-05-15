@@ -41,22 +41,25 @@ public class PadPipelineIdentService {
     List<IdentView> identViews = getIdentViews(pipeline);
     var list = new ArrayList<List<IdentView>>();
     var groupList = new ArrayList<IdentView>();
+    list.add(groupList);
 
     for (int i = 0; i < identViews.size(); i++) {
       if (i == 0) {
+        // If first ident, there's nothing to compare to.
         groupList.add(identViews.get(i));
         continue;
       }
       var previousView = identViews.get(i - 1);
       var currentView = identViews.get(i);
-      if (!previousView.getToLocation().toLowerCase().equals(currentView.getFromLocation().toLowerCase())) {
+      // Compare "fromLocation" to the previous ident's "toLocation".
+      // If locations are different, add to a new group. If locations are the same, add to the existing group.
+      if (!previousView.getToLocation().equalsIgnoreCase(currentView.getFromLocation())) {
         list.add(groupList);
         groupList = new ArrayList<>();
+        list.add(groupList);
       }
       groupList.add(identViews.get(i));
     }
-
-    list.add(groupList);
 
     List<ConnectedPipelineIdentsView> connectedIdents = list.stream()
         .filter(viewList -> !viewList.isEmpty())

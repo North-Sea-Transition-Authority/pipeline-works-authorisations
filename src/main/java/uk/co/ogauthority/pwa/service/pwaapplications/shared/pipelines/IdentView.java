@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
+/**
+ * A view that combines both PadPipelineIdent and PadPipelineIdentData information.
+ */
 public class IdentView {
 
   private final CoordinatePair fromCoordinates;

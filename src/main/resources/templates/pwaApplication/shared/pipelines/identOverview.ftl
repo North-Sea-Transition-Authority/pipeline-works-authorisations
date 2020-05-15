@@ -16,13 +16,13 @@
         <@fdsTimeline.timeline>
             <@fdsTimeline.timelineSection sectionHeading="">
                 <#assign pastFirstIteration = false/>
-                <#list summaryView.connectedPipelineIdents as conectedPipelineIdentView>
+                <#list summaryView.connectedPipelineIdents as connectedPipelineIdentView>
                     <#if pastFirstIteration == true && lastConnectedPipelineIdentView?has_content>
                         <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border">
                           <br/><br/>
                         </@fdsTimeline.timelineTimeStamp>
                     </#if>
-                    <#list conectedPipelineIdentView.identViews as identView>
+                    <#list connectedPipelineIdentView.identViews as identView>
                         <#assign timelineAction>
                             <@fdsAction.link linkText="Edit ident" linkClass="govuk-link" linkUrl=springUrl("#")/>
                             <@fdsAction.link linkText="Remove ident" linkClass="govuk-link" linkUrl=springUrl("#")/>
@@ -47,15 +47,15 @@
                                 <@fdsDataItems.dataValues key="MAOP" value="${identView.maop}barg"/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@fdsDataItems.dataValues key="Insulation coating type" value="${identView.insulationCoatingType}"/>
+                                <@fdsDataItems.dataValues key="Insulation / coating type" value="${identView.insulationCoatingType}"/>
                                 <@fdsDataItems.dataValues key="Products to be conveyed" value="${identView.productsToBeConveyed}"/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@fdsDataItems.dataValues key="Component part description" value="${identView.componentPartsDescription}"/>
+                                <@fdsDataItems.dataValues key="Description of component parts" value="${identView.componentPartsDescription}"/>
                             </@fdsDataItems.dataItem>
                         </@fdsTimeline.timelineTimeStamp>
                     </#list>
-                    <#assign lastConnectedPipelineIdentView = conectedPipelineIdentView/>
+                    <#assign lastConnectedPipelineIdentView = connectedPipelineIdentView/>
                     <#assign pastFirstIteration = true/>
                 </#list>
                 <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
