@@ -54,7 +54,6 @@ public class PadPipelineIdentService {
       // Compare "fromLocation" to the previous ident's "toLocation".
       // If locations are different, add to a new group. If locations are the same, add to the existing group.
       if (!previousView.getToLocation().equalsIgnoreCase(currentView.getFromLocation())) {
-        list.add(groupList);
         groupList = new ArrayList<>();
         list.add(groupList);
       }
