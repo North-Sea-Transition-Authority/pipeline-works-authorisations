@@ -1,5 +1,5 @@
 CREATE TABLE ${datasource.user}.pipelines(
-  id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id NUMBER PRIMARY KEY,
   pwa_id NUMBER NOT NULL,
   CONSTRAINT pipelines_master_pwa_fk FOREIGN KEY (pwa_id) REFERENCES ${datasource.user}.pwas (id)
 );

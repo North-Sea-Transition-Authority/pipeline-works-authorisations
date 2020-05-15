@@ -2,8 +2,10 @@ CREATE TABLE ${datasource.user}.pipeline_details (
   id NUMBER PRIMARY KEY
 , pipeline_id NUMBER NOT NULL
     CONSTRAINT pd_pipeline_fk REFERENCES ${datasource.user}.pipelines(id)
+, pwa_consent_id NUMBER CONSTRAINT pd_pwa_consent_fk REFERENCES ${datasource.user}.pwa_consents(id)
 , start_timestamp TIMESTAMP NOT NULL
 , end_timestamp TIMESTAMP
+, created_by_wua_id NUMBER
 , tip_flag INTEGER
 , CONSTRAINT pd_tip_flag_ck CHECK(tip_flag IN (0, 1) OR tip_flag IS NULL)
 , pipeline_status VARCHAR2(100)
@@ -50,9 +52,9 @@ CREATE TABLE ${datasource.user}.pipeline_details (
     (to_long_deg IS NULL AND to_long_min IS NULL AND to_long_sec IS NULL AND to_long_dir IS NULL)
   )
 , component_parts_desc VARCHAR2(4000)
-, length NUMBER,
-  products_to_be_conveyed VARCHAR2(4000)
-, trenched_buried_filled_flag NUMBER
+, length NUMBER
+, products_to_be_conveyed VARCHAR2(4000)
+, trenched_buried_filled_flag NUMBER(1)
 , CONSTRAINT pd_trench_flag_ck CHECK (trenched_buried_filled_flag IN (0, 1) OR trenched_buried_filled_flag IS NULL)
 , trenching_methods_desc VARCHAR2(4000)
 );
@@ -131,6 +133,7 @@ CREATE TABLE ${datasource.user}.pipeline_detail_migration_data (
   id NUMBER GENERATED AS IDENTITY PRIMARY KEY
 , pipeline_detail_id NUMBER NOT NULL
   CONSTRAINT pdmd_ident_fk REFERENCES ${datasource.user}.pipeline_details(id)
+, brown_book_pipeline_type VARCHAR2(4000)
 , commissioned_date DATE
 , abandoned_date DATE
 , file_reference VARCHAR2(4000)

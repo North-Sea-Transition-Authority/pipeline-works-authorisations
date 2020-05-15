@@ -7,8 +7,11 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
 
 @Entity
@@ -22,10 +25,14 @@ public class PipelineDetail {
   private String pipelineId;
   private Instant startTimestamp;
   private Instant endTimestamp;
-  private String tipFlag;
+  private Boolean tipFlag;
   private String pipelineStatus;
   private String detailStatus;
   private String pipelineReference;
+
+  @ManyToOne
+  @JoinColumn(name = "pwa_consent_id")
+  private PwaConsent pwaConsent;
 
   @Enumerated(EnumType.STRING)
   private PipelineType pipelineType;
@@ -90,11 +97,11 @@ public class PipelineDetail {
   }
 
 
-  public String getTipFlag() {
+  public Boolean getTipFlag() {
     return tipFlag;
   }
 
-  public void setTipFlag(String tipFlag) {
+  public void setTipFlag(Boolean tipFlag) {
     this.tipFlag = tipFlag;
   }
 
@@ -341,4 +348,12 @@ public class PipelineDetail {
     this.trenchingMethodsDesc = trenchingMethodsDesc;
   }
 
+
+  public PwaConsent getPwaConsent() {
+    return pwaConsent;
+  }
+
+  public void setPwaConsent(PwaConsent pwaConsent) {
+    this.pwaConsent = pwaConsent;
+  }
 }

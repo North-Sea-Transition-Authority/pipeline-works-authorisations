@@ -1,6 +1,9 @@
-CREATE OR REPLACE PACKAGE ${datasource.user}.migration_logger AS
+CREATE OR REPLACE PACKAGE ${datasource.user}.migration_logger
+AS
 
-   FUNCTION updated_log_message(p_old_status VARCHAR2
+  MASTER_PIPELINE_CREATED_STATUS VARCHAR2(400) := 'MASTER_RECORD_CREATE';
+
+  FUNCTION updated_log_message(p_old_status VARCHAR2
                               , p_new_status VARCHAR2
                               , p_message VARCHAR2
                               , p_clob_log CLOB)
@@ -10,9 +13,13 @@ CREATE OR REPLACE PACKAGE ${datasource.user}.migration_logger AS
                                , p_new_status VARCHAR2)
     RETURN VARCHAR2;
 
-   PROCEDURE log(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE
-                , p_status VARCHAR2
-                , p_message VARCHAR2);
+  PROCEDURE log(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE
+               , p_status VARCHAR2
+               , p_message VARCHAR2);
+
+  PROCEDURE log_pipeline(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE
+                        , p_status VARCHAR2
+                        , p_message VARCHAR2);
 
 END migration_logger;
 /
@@ -79,6 +86,53 @@ AS
 
   END log;
 
+
+  PROCEDURE log_pipeline(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE
+                        , p_status VARCHAR2
+                        , p_message VARCHAR2)
+  AS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+    l_log_id NUMBER;
+    l_master_created VARCHAR2(1) := CASE WHEN p_status = 'MASTER_RECORD_CREATE' THEN 'Y' ELSE NULL END;
+
+  BEGIN
+    BEGIN
+      SELECT mpl.id
+      INTO l_log_id
+      FROM ${datasource.user}.migration_pipeline_logs mpl
+      WHERE mpl.pipeline_id = p_mig_pipeline_history.pipeline_id AND
+            mpl.pipeline_detail_id = p_mig_pipeline_history.pd_id AND
+            mpl.pad_id = p_mig_pipeline_history.pipe_auth_detail_id;
+    EXCEPTION
+      WHEN no_data_found THEN
+        INSERT INTO ${datasource.user}.migration_pipeline_logs ( pipeline_id
+                                                               , pipeline_detail_id
+                                                               , pad_id
+                                                               , status
+                                                               , log_messages)
+        VALUES ( p_mig_pipeline_history.pipeline_id
+               , p_mig_pipeline_history.pd_id
+               , p_mig_pipeline_history.pipe_auth_detail_id
+               , 'CREATED'
+               , formatted_log_prefix('NONE', 'CREATED') || ' ')
+        RETURNING id INTO l_log_id;
+    END;
+
+    UPDATE ${datasource.user}.migration_pipeline_logs mpl
+    SET mpl.last_updated = SYSTIMESTAMP
+      , mpl.status       = p_status
+      , mpl.master_pipeline_created_flag = COALESCE(l_master_created, mpl.master_pipeline_created_flag)
+      , mpl.log_messages = updated_log_message(
+        p_old_status => mpl.status
+      , p_new_status => p_status
+      , p_message => p_message
+      , p_clob_log => mpl.log_messages
+      )
+    WHERE mpl.id = l_log_id;
+
+    COMMIT;
+
+  END log_pipeline;
 
 END migration_logger;
 /
