@@ -101,7 +101,7 @@ public class PermanentDepositsEntityMappingService {
       entity.setMaterialSize(String.valueOf(form.getGroutBagsSize()));
       entity.setQuantity(Double.parseDouble(form.getQuantityGroutBags()));
       entity.setContingencyAmount(form.getContingencyGroutBagsAmount());
-      entity.setGroutBagsBioDegradable(form.isGroutBagsBioDegradable());
+      entity.setGroutBagsBioDegradable(form.getGroutBagsBioDegradable());
       entity.setBagsNotUsedDescription(form.getBioGroutBagsNotUsedDescription());
 
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {

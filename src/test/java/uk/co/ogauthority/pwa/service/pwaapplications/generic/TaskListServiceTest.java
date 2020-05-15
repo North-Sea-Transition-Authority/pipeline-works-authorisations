@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListServiceTest {
@@ -44,12 +45,15 @@ public class TaskListServiceTest {
   @Mock
   private PwaContactService pwaContactService;
 
+  @Mock
+  private PermanentDepositsService permanentDepositsService;
+
   private TaskListService taskListService;
 
   @Before
   public void setUp() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        padFastTrackService, taskCompletionService, pwaContactService);
+        padFastTrackService, taskCompletionService, pwaContactService, permanentDepositsService);
   }
 
   @Test
@@ -105,6 +109,7 @@ public class TaskListServiceTest {
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
 
+    when(permanentDepositsService.isPermanentDepositMade(detail)).thenReturn(true);
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);

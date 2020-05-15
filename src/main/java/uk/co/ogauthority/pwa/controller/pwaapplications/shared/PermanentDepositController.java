@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -85,9 +86,8 @@ public class PermanentDepositController {
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
             // if invalid form, get all files, including not yet saved ones as they may have errored.
             getPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form), () -> {
-          var entity = permanentDepositsService.getPermanentDepositData(
-              applicationContext.getApplicationDetail()
-          );
+          var entity = new PermanentDepositInformation();
+          entity.setPwaApplicationDetail(applicationContext.getApplicationDetail());
           permanentDepositsService.saveEntityUsingForm(entity, form, applicationContext.getUser());
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
         });

@@ -4,11 +4,12 @@ import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
 
-
+  @NotNull(message = "Select at least one pipeline", groups = {FullValidation.class})
   private String selectedPipelines;
   private Integer fromMonth;
   private Integer fromYear;
@@ -24,7 +25,7 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private Integer concreteMattressWidth;
   private Integer concreteMattressDepth;
 
-  private boolean groutBagsBioDegradable;
+  private Boolean groutBagsBioDegradable;
   private String bioGroutBagsNotUsedDescription;
 
   private String quantityConcrete;
@@ -38,7 +39,6 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private String contingencyOtherAmount;
 
 
-  @NotNull
   private String fromLatitudeDegrees;
   @NotNull
   private String fromLatitudeMinutes;
@@ -167,11 +167,11 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.concreteMattressDepth = concreteMattressDepth;
   }
 
-  public boolean isGroutBagsBioDegradable() {
+  public Boolean getGroutBagsBioDegradable() {
     return groutBagsBioDegradable;
   }
 
-  public void setGroutBagsBioDegradable(boolean groutBagsBioDegradable) {
+  public void setGroutBagsBioDegradable(Boolean groutBagsBioDegradable) {
     this.groutBagsBioDegradable = groutBagsBioDegradable;
   }
 

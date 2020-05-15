@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
 
 @Service
 public class TaskListService {
@@ -46,18 +47,21 @@ public class TaskListService {
   private final PadFastTrackService padFastTrackService;
   private final TaskCompletionService taskCompletionService;
   private final PwaContactService pwaContactService;
+  private final PermanentDepositsService permanentDepositsService;
 
   @Autowired
   public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService,
                          ApplicationBreadcrumbService breadcrumbService,
                          PadFastTrackService padFastTrackService,
                          TaskCompletionService taskCompletionService,
-                         PwaContactService pwaContactService) {
+                         PwaContactService pwaContactService,
+                         PermanentDepositsService permanentDepositsService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
     this.padFastTrackService = padFastTrackService;
     this.taskCompletionService = taskCompletionService;
     this.pwaContactService = pwaContactService;
+    this.permanentDepositsService = permanentDepositsService;
   }
 
   @VisibleForTesting
@@ -116,7 +120,10 @@ public class TaskListService {
     Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
         typeCheck -> {
           if (Arrays.asList(typeCheck.types()).contains(detail.getPwaApplicationType())) {
-            addTask(tasks, task, detail);
+            if (!task.equals(ApplicationTask.PERMANENT_DEPOSITS)
+                || (task.equals(ApplicationTask.PERMANENT_DEPOSITS) && permanentDepositsService.isPermanentDepositMade(detail))) {
+              addTask(tasks, task, detail);
+            }
           }
         },
         () -> addTask(tasks, task, detail)

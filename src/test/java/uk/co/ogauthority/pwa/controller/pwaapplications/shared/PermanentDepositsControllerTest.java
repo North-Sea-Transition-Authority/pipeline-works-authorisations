@@ -244,7 +244,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             .with(csrf())
             .params(params))
         .andExpect(status().is3xxRedirection());
-    verify(permanentDepositsService, times(1)).getPermanentDepositData(pwaApplicationDetail);
     verify(permanentDepositsService, times(1)).saveEntityUsingForm(any(), any(), any());
   }
 
@@ -309,7 +308,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             .params(params))
         .andExpect(status().is3xxRedirection());
 
-    verify(permanentDepositsService, times(1)).getPermanentDepositData(pwaApplicationDetail);
     verify(permanentDepositsService, times(1)).saveEntityUsingForm(any(), any(), any());
     verify(permanentDepositsService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
