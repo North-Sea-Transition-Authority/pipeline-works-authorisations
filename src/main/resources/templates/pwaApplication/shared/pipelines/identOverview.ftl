@@ -18,9 +18,7 @@
                 <#assign pastFirstIteration = false/>
                 <#list summaryView.connectedPipelineIdents as connectedPipelineIdentView>
                     <#if pastFirstIteration == true && lastConnectedPipelineIdentView?has_content>
-                        <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border">
-                          <br/><br/>
-                        </@fdsTimeline.timelineTimeStamp>
+                        <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
                     </#if>
                     <#list connectedPipelineIdentView.identViews as identView>
                         <#assign timelineAction>
