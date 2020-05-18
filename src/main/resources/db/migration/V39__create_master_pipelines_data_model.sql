@@ -5,7 +5,7 @@ CREATE TABLE ${datasource.user}.pipeline_details (
 , pwa_consent_id NUMBER CONSTRAINT pd_pwa_consent_fk REFERENCES ${datasource.user}.pwa_consents(id)
 , start_timestamp TIMESTAMP NOT NULL
 , end_timestamp TIMESTAMP
-, created_by_wua_id NUMBER NOT NULL
+, created_by_wua_id NUMBER
 , tip_flag INTEGER
 , CONSTRAINT pd_tip_flag_ck CHECK(tip_flag IN (0, 1) OR tip_flag IS NULL)
 , pipeline_status VARCHAR2(100)
