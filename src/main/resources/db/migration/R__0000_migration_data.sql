@@ -4,6 +4,10 @@ GRANT SELECT ON decmgr.xview_pipeline_auth_details TO ${datasource.user};
 
 GRANT SELECT ON decmgr.pipeline_authorisation_details TO ${datasource.user};
 
+GRANT SELECT ON decmgr.xview_pipelines_history TO ${datasource.user};
+
+GRANT SELECT ON envmgr.xview_env_mapsets TO ${datasource.user};
+
 CREATE OR REPLACE VIEW ${datasource.user}.mig_master_pwas AS (
   SELECT
     xpad.pad_id
@@ -34,4 +38,7 @@ CREATE OR REPLACE VIEW ${datasource.user}.mig_pwa_consents AS (
   JOIN decmgr.pipeline_authorisations pa ON xpad.pa_id = pa.id
 );
 
+CREATE OR REPLACE VIEW ${datasource.user}.mig_pipeline_history AS
+SELECT *
+FROM decmgr.xview_pipelines_history;
 

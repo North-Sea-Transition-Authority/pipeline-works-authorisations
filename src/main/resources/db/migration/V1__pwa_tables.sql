@@ -1,6 +1,5 @@
 CREATE TABLE ${datasource.user}.pwas (
   id NUMBER PRIMARY KEY,
-  holder_ou_id NUMBER,
   created_timestamp TIMESTAMP NOT NULL
 ) TABLESPACE tbsdata;
 

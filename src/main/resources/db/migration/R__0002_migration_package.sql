@@ -1,4 +1,5 @@
-CREATE OR REPLACE PACKAGE ${datasource.user}.migration AS
+CREATE OR REPLACE PACKAGE ${datasource.user}.migration
+AS
 
   initial_pwa VARCHAR2(4000) := 'INITIAL_PWA';
   variation VARCHAR2(4000) := 'VARIATION';
@@ -6,10 +7,11 @@ CREATE OR REPLACE PACKAGE ${datasource.user}.migration AS
 
   e_migration_found EXCEPTION;
   e_num_migration_found NUMBER := -20999;
-  PRAGMA EXCEPTION_INIT(e_migration_found, -20999);
-
+  PRAGMA EXCEPTION_INIT (e_migration_found, -20999);
 
   PROCEDURE migrate_master(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE);
+
+  PROCEDURE migrate_pipeline_history(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE);
 
 END migration;
 /
@@ -26,7 +28,7 @@ AS
     FROM ${datasource.user}.migrated_pipeline_auths mpa
     WHERE mpa.pad_id = p_mig_master_pwa.pad_id;
 
-    IF(l_count !=0) THEN
+    IF (l_count != 0) THEN
       RAISE_APPLICATION_ERROR(e_num_migration_found, 'Master pwa with padId:' || p_mig_master_pwa.pad_id || ' already migrated');
     END IF;
   END previous_migration_check;
@@ -79,7 +81,6 @@ AS
     RETURN p_mig_pwa_consent.variation_number = 0 AND p_mig_pwa_consent.first_pad_id = p_mig_pwa_consent.pad_id;
   END is_initial_pwa_consent;
 
-
   FUNCTION determine_consent_type(p_mig_consent ${datasource.user}.mig_pwa_consents%ROWTYPE)
   RETURN VARCHAR2 AS
   BEGIN
@@ -98,6 +99,196 @@ AS
     RETURN NULL;
 
   END determine_consent_type;
+
+  FUNCTION get_or_create_pipeline(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE)
+    RETURN ${datasource.user}.pipelines%ROWTYPE
+  AS
+    l_pipeline_row             ${datasource.user}.pipelines%ROWTYPE;
+    l_current_pipeline_auth_id NUMBER;
+
+    l_count                    NUMBER;
+  BEGIN
+    /**
+      When creating the main pipeline, we need to just use the status control = 'C' consent.
+      Assumption is that the consent already exists at the point pipelines start getting migrated.
+     */
+    SELECT COUNT(*)
+    INTO l_count
+    FROM ${datasource.user}.pipelines p
+    WHERE p.id = p_mig_pipeline_history.pipeline_id;
+
+    IF (l_count = 0) THEN
+      -- pa_id of consents is the master pwa in new system is mapped to
+      SELECT mpa.pa_id
+      INTO l_current_pipeline_auth_id
+      FROM ${datasource.user}.mig_pipeline_history mph
+      JOIN ${datasource.user}.migrated_pipeline_auths mpa ON mph.pipe_auth_detail_id = mpa.pad_id
+      WHERE mph.status_control = 'C'
+      AND mph.pipeline_id = p_mig_pipeline_history.pipeline_id;
+
+      INSERT INTO ${datasource.user}.pipelines(id, pwa_id)
+      VALUES (p_mig_pipeline_history.pipeline_id, l_current_pipeline_auth_id);
+
+      ${datasource.user}.migration_logger.log_pipeline(
+          p_mig_pipeline_history => p_mig_pipeline_history
+        , p_status => ${datasource.user}.migration_logger.master_pipeline_created_status
+        , p_message => 'Master pipeline created. pipeline_id:' || p_mig_pipeline_history.pipeline_id);
+
+    END IF;
+
+    SELECT *
+    INTO l_pipeline_row
+    FROM ${datasource.user}.pipelines p
+    WHERE p.id = p_mig_pipeline_history.pipeline_id;
+
+    RETURN l_pipeline_row;
+
+  END get_or_create_pipeline;
+
+  PROCEDURE migrate_pipeline_history(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE)
+  AS
+    l_master_pipeline_row      ${datasource.user}.pipelines%ROWTYPE;
+    l_detail_id                NUMBER;
+    l_detail_ident_id          NUMBER;
+    l_detail_ident_data_id     NUMBER;
+    l_detail_migration_data_id NUMBER;
+
+  BEGIN
+    ${datasource.user}.migration_logger.log_pipeline(
+        p_mig_pipeline_history => p_mig_pipeline_history
+      , p_status => 'START'
+      , p_message => 'pipeline record migration started pd_id: ' || p_mig_pipeline_history.pd_id
+      );
+
+    l_master_pipeline_row := get_or_create_pipeline(p_mig_pipeline_history);
+
+    /*
+      1. create detail
+      2. create ident
+      3. create ident data
+      4. create detail migration data
+
+      TODO: HUOO migration. seperate step?
+      */
+
+    INSERT INTO ${datasource.user}.pipeline_details ( id
+                                        , pipeline_id
+                                        , pwa_consent_id
+                                        , start_timestamp
+                                        , end_timestamp
+                                        , tip_flag
+                                        , pipeline_status
+                                        , detail_status
+                                        , pipeline_number
+                                        , created_by_wua_id
+                                        , from_location
+                                        , to_location
+                                        , length
+                                        , products_to_be_conveyed
+                                        , trenched_buried_filled_flag
+                                        )
+    VALUES ( p_mig_pipeline_history.pd_id
+           , l_master_pipeline_row.id
+           , p_mig_pipeline_history.pipe_auth_detail_id
+           , p_mig_pipeline_history.start_date
+           , p_mig_pipeline_history.end_date
+           , CASE WHEN p_mig_pipeline_history.status_control = 'C' THEN 1 ELSE NULL END
+           , p_mig_pipeline_history.pipeline_status
+           , p_mig_pipeline_history.status
+           , p_mig_pipeline_history.pipeline_number
+           , p_mig_pipeline_history.created_by_wua_id
+
+           , p_mig_pipeline_history.position_from
+           , p_mig_pipeline_history.position_to
+           , TO_NUMBER(p_mig_pipeline_history.length)
+           , (  -- agreed we can use imperfect existing data as free-text values at the pipeline header level
+               SELECT xem.key
+               FROM envmgr.xview_env_mapsets xem
+               WHERE xem.ms_domain ='PIPELINE_PROD_CODE'
+               AND xem.data = p_mig_pipeline_history.product_code
+             )
+           ,  CASE
+                WHEN p_mig_pipeline_history.trenched_y_n = 'Y' THEN 1
+                WHEN p_mig_pipeline_history.trenched_y_n = 'N' THEN 0
+                -- explicit mapping to null so we can blow up on unexpected values
+                WHEN p_mig_pipeline_history.trenched_y_n = 'U' THEN NULL
+                WHEN p_mig_pipeline_history.trenched_y_n IS NULL THEN NULL
+                ELSE 2 -- check constraint prevents insert in this case
+              END
+           )
+    RETURNING id INTO l_detail_id;
+
+    -- identity column
+    INSERT INTO ${datasource.user}.pipeline_detail_idents ( pipeline_detail_id
+                                              , ident_no
+                                              , from_location
+                                              , to_location
+                                              , length)
+    VALUES ( l_detail_id
+            , 1 -- default ident number
+            -- repeat pipeline header info so it can corrected "in app"
+            , p_mig_pipeline_history.position_from
+            , p_mig_pipeline_history.position_to
+            , p_mig_pipeline_history.length)
+    RETURNING id INTO l_detail_ident_id;
+
+    INSERT INTO ${datasource.user}.pipeline_detail_ident_data ( pipeline_detail_ident_id
+                                              , external_diameter
+                                              , wall_thickness
+                                              , maop)
+    VALUES ( l_detail_ident_id
+           , p_mig_pipeline_history.diameter
+           , p_mig_pipeline_history.wall_thickness_mm
+           , p_mig_pipeline_history.maop)
+    RETURNING id INTO l_detail_ident_data_id;
+
+    INSERT INTO ${datasource.user}.pipeline_detail_migration_data ( pipeline_detail_id
+                                                      , brown_book_pipeline_type
+                                                      , commissioned_date
+                                                      , abandoned_date
+                                                      , file_reference
+                                                      , pipe_material
+                                                      , material_grade
+                                                      , trench_depth
+                                                      , system_identifier
+                                                      , psig
+                                                      , notes)
+    VALUES ( l_detail_id
+           , p_mig_pipeline_history.type
+           , p_mig_pipeline_history.commissioned_date
+           , p_mig_pipeline_history.abandoned_date
+           , p_mig_pipeline_history.file_reference
+           , p_mig_pipeline_history.pipe_material
+           , p_mig_pipeline_history.material_grade
+           , p_mig_pipeline_history.trench_depth
+           , p_mig_pipeline_history.system_identifier
+           , p_mig_pipeline_history.psig
+           , p_mig_pipeline_history.notes)
+    RETURNING id INTO l_detail_migration_data_id;
+
+    COMMIT;
+
+    ${datasource.user}.migration_logger.log_pipeline(
+        p_mig_pipeline_history => p_mig_pipeline_history
+      , p_status => 'COMPLETE'
+      , p_message => ' pipeline record migration FINISHED ' ||
+                     ' pwa_id: ' || l_master_pipeline_row.pwa_id ||
+                     ' pipeline_id: ' || l_master_pipeline_row.id ||
+                     ' pipeline_detail_id: ' || l_detail_id ||
+                     ' pipeline_detail_ident_id: ' || l_detail_ident_id ||
+                     ' pipeline_detail_ident_data_id: ' || l_detail_ident_data_id ||
+                     ' pipeline_detail_migration_data_id: ' || l_detail_migration_data_id
+      );
+  EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK;
+      ${datasource.user}.migration_logger.log_pipeline(
+          p_mig_pipeline_history => p_mig_pipeline_history
+        , p_status => 'FAILED'
+        , p_message => SQLERRM || CHR(10) || dbms_utility.format_error_backtrace()
+        );
+
+  END migrate_pipeline_history;
 
 
   FUNCTION create_consent_migration(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE
@@ -146,7 +337,7 @@ AS
     SELECT *
     INTO l_new_migrated_consent_auth
     FROM ${datasource.user}.migrated_pipeline_auths mpa
-    WHERE  mpa.id = l_mig_auth_id;
+    WHERE mpa.id = l_mig_auth_id;
 
     ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'IN_PROGRESS',
                                 'Completed migration of consent pad_id:' || p_mig_consent.pad_id || 'Type:' || l_consent_type);
