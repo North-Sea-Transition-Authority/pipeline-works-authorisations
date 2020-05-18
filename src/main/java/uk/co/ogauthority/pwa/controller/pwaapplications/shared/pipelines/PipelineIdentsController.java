@@ -76,12 +76,15 @@ public class PipelineIdentsController {
     return modelAndView;
   }
 
-  private ModelAndView getRemoveIdentModelAndView(PwaApplicationDetail detail, IdentView identView) {
+  private ModelAndView getRemoveIdentModelAndView(PwaApplicationDetail detail, IdentView identView,
+                                                  PadPipeline pipeline) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/removeIdent")
         .addObject("identView", identView)
-        .addObject("backUrl", "#");
+        .addObject("backUrl", ReverseRouter.route(on(PipelineIdentsController.class)
+            .renderIdentOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), pipeline.getId(),
+                null)));
 
-    breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Remove ident");
+    breadcrumbService.fromPipelineIdentOverview(detail.getPwaApplication(), pipeline, modelAndView, "Remove ident");
     return modelAndView;
   }
 
@@ -157,16 +160,17 @@ public class PipelineIdentsController {
                                         PwaApplicationContext applicationContext,
                                         @PathVariable("identId") Integer identId) {
     var identView = padIdentService.getIdentView(applicationContext.getPadPipeline(), identId);
-    return getRemoveIdentModelAndView(applicationContext.getApplicationDetail(), identView);
+    return getRemoveIdentModelAndView(applicationContext.getApplicationDetail(), identView,
+        applicationContext.getPadPipeline());
   }
 
   @PostMapping("/{identId}/remove")
   public ModelAndView postRemoveIdent(@PathVariable("applicationId") Integer applicationId,
-                                        @PathVariable("applicationType")
-                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                        @PathVariable("padPipelineId") Integer padPipelineId,
-                                        PwaApplicationContext applicationContext,
-                                        @PathVariable("identId") Integer identId) {
+                                      @PathVariable("applicationType")
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      @PathVariable("padPipelineId") Integer padPipelineId,
+                                      PwaApplicationContext applicationContext,
+                                      @PathVariable("identId") Integer identId) {
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
     padIdentService.removeIdent(ident);
     return ReverseRouter.redirect(on(PipelineIdentsController.class)
