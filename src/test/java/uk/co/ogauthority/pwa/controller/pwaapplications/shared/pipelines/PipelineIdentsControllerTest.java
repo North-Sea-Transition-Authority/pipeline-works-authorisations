@@ -107,7 +107,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     var ident = new PadPipelineIdent();
     ident.setId(1);
     ident.setIdentNo(1);
-    ident.setFromLocation("");
+    ident.setFromLocation("from");
+    ident.setToLocation("to");
     ident.setLength(BigDecimal.ONE);
     ident.setFromCoordinates(new CoordinatePair(
         new LatitudeCoordinate(null, null, null, null),
@@ -402,6 +403,24 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 .postRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postRemoveIdent_verifyRemove() throws Exception {
+
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    var ident = new PadPipelineIdent();
+    when(pipelineIdentService.getIdent(any(), any())).thenReturn(ident);
+
+    mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
+        .postRemoveIdent(APP_ID, PwaApplicationType.INITIAL, padPipeline.getId(), null, 1)))
+    .with(authenticatedUserAndSession(user))
+    .with(csrf()))
+    .andExpect(status().is3xxRedirection());
+
+    verify(pipelineIdentService, times(1)).removeIdent(ident);
 
   }
 

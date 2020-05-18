@@ -11,54 +11,60 @@
         <@pwaCoordinate.display coordinatePair=identView.toCoordinates />
     </#assign>
 
-  <table class="govuk-table">
-    <tbody class="govuk-table__body">
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">Ident number</th>
-      <td class="govuk-table__cell">${identView.identNumber}</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">Length</th>
-      <td class="govuk-table__cell">${identView.length}m</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">From (coordinates)</th>
-      <td class="govuk-table__cell">${from}</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">To (coordinates)</th>
-      <td class="govuk-table__cell">${to}</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">External diameter</th>
-      <td class="govuk-table__cell">${identView.externalDiameter}mm</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">Internal diameter</th>
-      <td class="govuk-table__cell">${identView.internalDiameter}mm</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">Wall thickness</th>
-      <td class="govuk-table__cell">${identView.wallThickness}mm</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">MAOP</th>
-      <td class="govuk-table__cell">${identView.maop}barg</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">Insulation / coating type</th>
-      <td class="govuk-table__cell">${identView.insulationCoatingType}</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">Products to be conveyed</th>
-      <td class="govuk-table__cell">${identView.productsToBeConveyed}</td>
-    </tr>
-    <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">Description of component parts</th>
-      <td class="govuk-table__cell">${identView.componentPartsDescription}</td>
-    </tr>
-    </tbody>
-  </table>
+  <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Ident number</dt>
+      <dd class="govuk-summary-list__value">${identView.identNumber}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Length</dt>
+      <dd class="govuk-summary-list__value">${identView.length}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">From</dt>
+      <dd class="govuk-summary-list__value">${identView.fromLocation}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">From (coordinates)</dt>
+      <dd class="govuk-summary-list__value">${from}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">To</dt>
+      <dd class="govuk-summary-list__value">${identView.toLocation}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">To (coordinates)</dt>
+      <dd class="govuk-summary-list__value">${to}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">External diameter</dt>
+      <dd class="govuk-summary-list__value">${identView.externalDiameter}mm</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Internal diameter</dt>
+      <dd class="govuk-summary-list__value">${identView.internalDiameter}mm</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Wall thickness</dt>
+      <dd class="govuk-summary-list__value">${identView.wallThickness}mm</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">MAOP</dt>
+      <dd class="govuk-summary-list__value">${identView.maop}barg</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Insulation / coating type</dt>
+      <dd class="govuk-summary-list__value">${identView.insulationCoatingType}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Products to be conveyed</dt>
+      <dd class="govuk-summary-list__value">${identView.productsToBeConveyed}</dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Description of component parts</dt>
+      <dd class="govuk-summary-list__value">${identView.componentPartsDescription}</dd>
+    </div>
+  </dl>
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove ident" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
