@@ -4,8 +4,10 @@
 
 <#macro display coordinatePair>
 
-    ${coordinatePair.latitude.degrees} &deg; ${coordinatePair.latitude.minutes}' ${coordinatePair.latitude.seconds}" ${coordinatePair.latitude.direction?substring(0,1)}
-    <br/>
-    ${coordinatePair.longitude.degrees} &deg; ${coordinatePair.longitude.minutes}' ${coordinatePair.longitude.seconds}" ${coordinatePair.longitude.direction?substring(0,1)}
+    <#if coordinatePair.latitude.degrees?has_content>
+        ${coordinatePair.latitude.degrees} &deg; ${coordinatePair.latitude.minutes}' ${coordinatePair.latitude.seconds}" ${coordinatePair.latitude.direction?substring(0,1)}
+      <br/>
+        ${coordinatePair.longitude.degrees} &deg; ${coordinatePair.longitude.minutes}' ${coordinatePair.longitude.seconds}" ${coordinatePair.longitude.direction?substring(0,1)}
+    </#if>
 
 </#macro>

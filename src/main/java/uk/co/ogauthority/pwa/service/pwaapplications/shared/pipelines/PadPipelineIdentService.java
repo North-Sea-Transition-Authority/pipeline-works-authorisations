@@ -1,6 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,47 @@ public class PadPipelineIdentService {
                                  PadPipelineIdentDataService identDataService) {
     this.repository = repository;
     this.identDataService = identDataService;
+  }
+
+  public List<IdentView> getIdentViews(PadPipeline pipeline) {
+    var idents = repository.getAllByPadPipeline(pipeline);
+    var identData = identDataService.getDataFromIdentList(idents);
+    return identData.keySet()
+        .stream()
+        .sorted(Comparator.comparing(PadPipelineIdent::getIdentNo))
+        .map(ident -> new IdentView(identData.get(ident)))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public ConnectedPipelineIdentSummaryView getConnectedPipelineIdentSummaryView(PadPipeline pipeline) {
+    List<IdentView> identViews = getIdentViews(pipeline);
+    var list = new ArrayList<List<IdentView>>();
+    var groupList = new ArrayList<IdentView>();
+    list.add(groupList);
+
+    for (int i = 0; i < identViews.size(); i++) {
+      if (i == 0) {
+        // If first ident, there's nothing to compare to.
+        groupList.add(identViews.get(i));
+        continue;
+      }
+      var previousView = identViews.get(i - 1);
+      var currentView = identViews.get(i);
+      // Compare "fromLocation" to the previous ident's "toLocation".
+      // If locations are different, add to a new group. If locations are the same, add to the existing group.
+      if (!previousView.getToLocation().equalsIgnoreCase(currentView.getFromLocation())) {
+        groupList = new ArrayList<>();
+        list.add(groupList);
+      }
+      groupList.add(identViews.get(i));
+    }
+
+    List<ConnectedPipelineIdentsView> connectedIdents = list.stream()
+        .filter(viewList -> !viewList.isEmpty())
+        .map(ConnectedPipelineIdentsView::new)
+        .collect(Collectors.toUnmodifiableList());
+
+    return new ConnectedPipelineIdentSummaryView(connectedIdents);
   }
 
   public Optional<PadPipelineIdent> getMaxIdent(PadPipeline pipeline) {
