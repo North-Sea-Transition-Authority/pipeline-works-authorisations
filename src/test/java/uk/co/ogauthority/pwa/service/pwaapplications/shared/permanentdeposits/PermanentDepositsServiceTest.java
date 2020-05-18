@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.DepositsForPipelines;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
@@ -242,6 +243,46 @@ public class PermanentDepositsServiceTest {
     var pwaApplicationDetail = PwaApplicationTestUtil.createApplicationDetail(null, PwaApplicationType.DEPOSIT_CONSENT, null, 0, 0);
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
     assertThat(service.isPermanentDepositMade(pwaApplicationDetail)).isEqualTo(true);
+  }
+
+
+  @Test
+  public void getPermanentDepositData() {
+    var expectedForms = new ArrayList<PermanentDepositsForm>();
+    var expectedForm = new PermanentDepositsForm();
+    expectedForm.setSelectedPipelines("1,2");
+    expectedForms.add(expectedForm);
+    expectedForm = new PermanentDepositsForm();
+    expectedForm.setSelectedPipelines("3");
+    expectedForms.add(expectedForm);
+
+    List<PermanentDepositInformation> permanentDepositInfoMockList = new ArrayList<>();
+    var permanentDepositInfoMock = new PermanentDepositInformation();
+    permanentDepositInfoMock.setId(10);
+    permanentDepositInfoMockList.add(permanentDepositInfoMock);
+    permanentDepositInfoMock = new PermanentDepositInformation();
+    permanentDepositInfoMock.setId(11);
+    permanentDepositInfoMockList.add(permanentDepositInfoMock);
+    when(permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(permanentDepositInfoMockList);
+
+    List<DepositsForPipelines> depositsForPipelinesList = new ArrayList<>();
+    DepositsForPipelines depositsForPipelines = new DepositsForPipelines();
+    depositsForPipelines.setPadPipelineId(1);
+    depositsForPipelinesList.add(depositsForPipelines);
+    depositsForPipelines = new DepositsForPipelines();
+    depositsForPipelines.setPadPipelineId(2);
+    depositsForPipelinesList.add(depositsForPipelines);
+    when(depositsForPipelinesRepository.findAllByPermanentDepositInfoId(10)).thenReturn(depositsForPipelinesList);
+
+    depositsForPipelinesList = new ArrayList<>();
+    depositsForPipelines = new DepositsForPipelines();
+    depositsForPipelines.setPadPipelineId(3);
+    depositsForPipelinesList.add(depositsForPipelines);
+    when(depositsForPipelinesRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
+
+    List<PermanentDepositsForm> actualForms = service.getPermanentDepositForm(pwaApplicationDetail);
+
+    assertThat(actualForms).isEqualTo(expectedForms);
   }
 
 

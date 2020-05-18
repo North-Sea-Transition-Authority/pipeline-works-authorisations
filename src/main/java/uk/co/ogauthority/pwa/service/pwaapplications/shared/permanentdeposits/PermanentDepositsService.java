@@ -1,8 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,4 +147,22 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
   }
 
 
+  public List<PermanentDepositsForm> getPermanentDepositForm(PwaApplicationDetail pwaApplicationDetail) {
+    List<PermanentDepositsForm> forms = new ArrayList<>();
+
+    var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+    for (PermanentDepositInformation permanentDeposit: permanentDeposits) {
+      PermanentDepositsForm form = new PermanentDepositsForm();
+      mapEntityToForm(permanentDeposit, form);
+
+      var depositsForPipelines = depositsForPipelinesRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId());
+      var pipelineIds = depositsForPipelines.stream().map(depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId()))
+          .collect(Collectors.joining(","));
+
+      form.setSelectedPipelines(pipelineIds);
+      forms.add(form);
+    }
+
+    return forms;
+  }
 }

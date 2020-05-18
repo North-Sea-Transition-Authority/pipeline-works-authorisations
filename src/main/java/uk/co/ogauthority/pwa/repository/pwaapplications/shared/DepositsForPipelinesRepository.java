@@ -8,6 +8,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 
 public interface DepositsForPipelinesRepository extends CrudRepository<DepositsForPipelines, Integer> {
 
-  List<PermanentDepositInformation> findAllPermanentDepositInformationByPadPipelineId(Integer padPipelineId);
+  List<DepositsForPipelines> findAllByPermanentDepositInfoId(Integer permanentDepositInfoId);
 
 }
