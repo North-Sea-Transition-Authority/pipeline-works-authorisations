@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
 import java.util.Objects;
+import java.util.Set;
 import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
@@ -10,7 +11,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
 
   @NotNull(message = "Select at least one pipeline", groups = {FullValidation.class})
-  private String selectedPipelines;
+  private Set<String> selectedPipelines;
   private Integer fromMonth;
   private Integer fromYear;
   private Integer toMonth;
@@ -71,11 +72,11 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private String toLongitudeDirection;
 
 
-  public String getSelectedPipelines() {
+  public Set<String> getSelectedPipelines() {
     return selectedPipelines;
   }
 
-  public void setSelectedPipelines(String selectedPipelines) {
+  public void setSelectedPipelines(Set<String> selectedPipelines) {
     this.selectedPipelines = selectedPipelines;
   }
 

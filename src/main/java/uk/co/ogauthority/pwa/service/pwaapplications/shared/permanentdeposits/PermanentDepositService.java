@@ -13,8 +13,8 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.DepositsForPipelines;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipelines;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.DepositsForPipelinesRepository;
@@ -31,10 +31,10 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
 
 /* Service providing simplified API for Permanent Deposit app form */
 @Service
-public class PermanentDepositsService implements ApplicationFormSectionService {
+public class PermanentDepositService implements ApplicationFormSectionService {
 
   private final PermanentDepositInformationRepository permanentDepositInformationRepository;
-  private final PermanentDepositsEntityMappingService permanentDepositsEntityMappingService;
+  private final PermanentDepositEntityMappingService permanentDepositEntityMappingService;
   private final PermanentDepositsValidator permanentDepositsValidator;
   private final SpringValidatorAdapter groupValidator;
   private final PadPipelineRepository padPipelineRepository;
@@ -42,16 +42,16 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
   private final PadProjectInformationRepository padProjectInformationRepository;
 
   @Autowired
-  public PermanentDepositsService(
+  public PermanentDepositService(
       PermanentDepositInformationRepository permanentDepositInformationRepository,
-      PermanentDepositsEntityMappingService permanentDepositsEntityMappingService,
+      PermanentDepositEntityMappingService permanentDepositEntityMappingService,
       PermanentDepositsValidator permanentDepositsValidator,
       SpringValidatorAdapter groupValidator,
       PadPipelineRepository padPipelineRepository,
       DepositsForPipelinesRepository depositsForPipelinesRepository,
       PadProjectInformationRepository padProjectInformationRepository) {
     this.permanentDepositInformationRepository = permanentDepositInformationRepository;
-    this.permanentDepositsEntityMappingService = permanentDepositsEntityMappingService;
+    this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
     this.permanentDepositsValidator = permanentDepositsValidator;
     this.groupValidator = groupValidator;
     this.padPipelineRepository = padPipelineRepository;
@@ -59,41 +59,34 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
     this.padProjectInformationRepository = padProjectInformationRepository;
   }
 
-  public PermanentDepositInformation getPermanentDepositData(PwaApplicationDetail pwaApplicationDetail) {
-    var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
-    if (permanentDeposits.size() > 0) {
-      return permanentDeposits.get(0);
-    }
-    var permanentDepositInformation = new PermanentDepositInformation();
-    permanentDepositInformation.setPwaApplicationDetail(pwaApplicationDetail);
-    return permanentDepositInformation;
-  }
-
-
 
   /**
-   * Map stored data to form including uploaded files depending on requested link status.
+   * Map stored data to form.
    *
-   * @param permanentDepositInformation     stored data
+   * @param padPermanentDeposit     stored data
    * @param form                      form to map to
    */
-  public void mapEntityToForm(PermanentDepositInformation permanentDepositInformation,
+  public void mapEntityToForm(PadPermanentDeposit padPermanentDeposit,
                               PermanentDepositsForm form) {
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(permanentDepositInformation, form);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(padPermanentDeposit, form);
   }
 
 
   /**
-   * From the form extract form data and file data which should be persisted.
+   * From the form extract form data which should be persisted.
    */
   @Transactional
-  public void saveEntityUsingForm(PermanentDepositInformation permanentDepositInformation,
+  public void saveEntityUsingForm(PwaApplicationDetail detail,
                                   PermanentDepositsForm form,
                                   WebUserAccount user) {
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(permanentDepositInformation, form);
+    var permanentDepositInformation = new PadPermanentDeposit();
+    permanentDepositInformation.setPwaApplicationDetail(detail);
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(permanentDepositInformation, form);
     permanentDepositInformation = permanentDepositInformationRepository.save(permanentDepositInformation);
-    for (String padPipelineId : form.getSelectedPipelines().split(",")) {
-      var depositsForPipelines = new DepositsForPipelines(permanentDepositInformation.getId(), Integer.parseInt(padPipelineId));
+    for (String padPipelineId : form.getSelectedPipelines()) {
+      var padPipeline = padPipelineRepository.findById(Integer.valueOf(padPipelineId))
+          .orElse(new PadPipeline());
+      var depositsForPipelines = new PadDepositPipelines(permanentDepositInformation, padPipeline);
       depositsForPipelinesRepository.save(depositsForPipelines);
     }
   }
@@ -101,13 +94,17 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    PermanentDepositInformation permanentDepositInformation = getPermanentDepositData(detail);
-    var permanentDepositsForm = new PermanentDepositsForm();
-    mapEntityToForm(permanentDepositInformation, permanentDepositsForm);
-    BindingResult bindingResult = new BeanPropertyBindingResult(permanentDepositInformation, "form");
-    permanentDepositsValidator.validate(permanentDepositsForm, bindingResult);
+    var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetail(detail);
+    if (permanentDeposits.size() > 0) {
+      PadPermanentDeposit padPermanentDeposit = permanentDeposits.get(0);
+      var permanentDepositsForm = new PermanentDepositsForm();
+      mapEntityToForm(padPermanentDeposit, permanentDepositsForm);
+      BindingResult bindingResult = new BeanPropertyBindingResult(padPermanentDeposit, "form");
+      permanentDepositsValidator.validate(permanentDepositsForm, bindingResult);
 
-    return !bindingResult.hasErrors();
+      return !bindingResult.hasErrors();
+    }
+    return false;
   }
 
   @Override
@@ -125,15 +122,6 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
 
     return bindingResult;
 
-  }
-
-
-  public Map<String, String> getPipelines(PwaApplicationDetail pwaApplicationDetail) {
-    return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
-        .stream()
-        .sorted(Comparator.comparing(PadPipeline::getId))
-        .collect(
-            StreamUtils.toLinkedHashMap(padPipeline -> padPipeline.getId().toString(), PadPipeline::getFromLocation));
   }
 
   public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {

@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 
 @Service
 public class TaskListService {
@@ -47,7 +47,7 @@ public class TaskListService {
   private final PadFastTrackService padFastTrackService;
   private final TaskCompletionService taskCompletionService;
   private final PwaContactService pwaContactService;
-  private final PermanentDepositsService permanentDepositsService;
+  private final PermanentDepositService permanentDepositService;
 
   @Autowired
   public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService,
@@ -55,13 +55,13 @@ public class TaskListService {
                          PadFastTrackService padFastTrackService,
                          TaskCompletionService taskCompletionService,
                          PwaContactService pwaContactService,
-                         PermanentDepositsService permanentDepositsService) {
+                         PermanentDepositService permanentDepositService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
     this.padFastTrackService = padFastTrackService;
     this.taskCompletionService = taskCompletionService;
     this.pwaContactService = pwaContactService;
-    this.permanentDepositsService = permanentDepositsService;
+    this.permanentDepositService = permanentDepositService;
   }
 
   @VisibleForTesting
@@ -120,10 +120,7 @@ public class TaskListService {
     Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
         typeCheck -> {
           if (Arrays.asList(typeCheck.types()).contains(detail.getPwaApplicationType())) {
-            if (!task.equals(ApplicationTask.PERMANENT_DEPOSITS)
-                || (task.equals(ApplicationTask.PERMANENT_DEPOSITS) && permanentDepositsService.isPermanentDepositMade(detail))) {
-              addTask(tasks, task, detail);
-            }
+            addTask(tasks, task, detail);
           }
         },
         () -> addTask(tasks, task, detail)
@@ -136,7 +133,9 @@ public class TaskListService {
     var applicationId = detail.getPwaApplication().getId();
     var applicationType = detail.getPwaApplicationType();
 
-    if (task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail)) {
+    if ((task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail))
+        && (!task.equals(ApplicationTask.PERMANENT_DEPOSITS)
+        || (task.equals(ApplicationTask.PERMANENT_DEPOSITS) && permanentDepositService.isPermanentDepositMade(detail)))) {
       tasks.add(new TaskListEntry(
           task.getDisplayName(),
           getRouteForTask(task, applicationType, applicationId),

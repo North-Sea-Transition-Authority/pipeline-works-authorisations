@@ -12,8 +12,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.DepositsForPipelinesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
@@ -48,7 +47,7 @@ public class PermanentDepositsServiceTest {
   private DepositsForPipelinesRepository depositsForPipelinesRepository;
 
   @Mock
-  private PermanentDepositsEntityMappingService permanentDepositsEntityMappingService;
+  private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
 
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
@@ -59,8 +58,8 @@ public class PermanentDepositsServiceTest {
   private SpringValidatorAdapter groupValidator;
 
 
-  private PermanentDepositsService service;
-  private PermanentDepositInformation permanentDepositInformation = new PermanentDepositInformation();
+  private PermanentDepositService service;
+  private PadPermanentDeposit padPermanentDeposit = new PadPermanentDeposit();
   private PermanentDepositsForm form = new PermanentDepositsForm();
   private PwaApplicationDetail pwaApplicationDetail;
   private LocalDate date;
@@ -71,9 +70,9 @@ public class PermanentDepositsServiceTest {
 
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
 
-    service = new PermanentDepositsService(
+    service = new PermanentDepositService(
         permanentDepositInformationRepository,
-        permanentDepositsEntityMappingService,
+        permanentDepositEntityMappingService,
         validator,
         groupValidator,
         padPipelineRepository,
@@ -88,35 +87,18 @@ public class PermanentDepositsServiceTest {
   }
 
 
-  @Test
-  public void getPermanentDepositInformationData_WithExisting() {
-    List<PermanentDepositInformation> permanentDeposits = new ArrayList<>();
-    permanentDeposits.add(permanentDepositInformation);
-    when(permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
-        permanentDeposits);
-    var result = service.getPermanentDepositData(pwaApplicationDetail);
-    assertThat(result).isEqualTo(permanentDepositInformation);
-  }
-
-  @Test
-  public void getPermanentDepositInformationData_NoExisting() {
-    when(permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(new ArrayList<>());
-    var result = service.getPermanentDepositData(pwaApplicationDetail);
-    assertThat(result).isNotEqualTo(permanentDepositInformation);
-    assertThat(result.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
-  }
-
 
   @Test
   public void saveEntityUsingForm_verifyServiceInteractions() {
 
-    form.setSelectedPipelines("1,2");
-    permanentDepositInformation.setId(1);
-    when(permanentDepositInformationRepository.save(permanentDepositInformation)).thenReturn(permanentDepositInformation);
-    service.saveEntityUsingForm(permanentDepositInformation, form, user);
+    form.setSelectedPipelines(Set.of("1","2"));
+    pwaApplicationDetail.setId(1);
+    padPermanentDeposit.setPwaApplicationDetail(pwaApplicationDetail);
+    when(permanentDepositInformationRepository.save(padPermanentDeposit)).thenReturn(padPermanentDeposit);
+    service.saveEntityUsingForm(pwaApplicationDetail, form, user);
 
-    verify(permanentDepositsEntityMappingService, times(1)).setEntityValuesUsingForm(permanentDepositInformation, form);
-    verify(permanentDepositInformationRepository, times(1)).save(permanentDepositInformation);
+    verify(permanentDepositEntityMappingService, times(1)).setEntityValuesUsingForm(padPermanentDeposit, form);
+    verify(permanentDepositInformationRepository, times(1)).save(padPermanentDeposit);
 
   }
 
@@ -186,28 +168,6 @@ public class PermanentDepositsServiceTest {
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
     verify(validator, times(1)).validate(form, bindingResult, padProjectInformation);
-  }
-
-
-  @Test
-  public void getPipelines() {
-    var pipelinesMocked = new ArrayList<PadPipeline>();
-    var PadPipeline = new PadPipeline();
-    PadPipeline.setId(1);
-    PadPipeline.setFromLocation("l1");
-    pipelinesMocked.add(PadPipeline);
-    PadPipeline = new PadPipeline();
-    PadPipeline.setId(2);
-    PadPipeline.setFromLocation("l2");
-    pipelinesMocked.add(PadPipeline);
-
-    var pipeLinesExpected = new HashMap<String, String >();
-    pipeLinesExpected.put("1", "l1");
-    pipeLinesExpected.put("2", "l2");
-
-    when(padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(pipelinesMocked);
-
-    assertThat(service.getPipelines(pwaApplicationDetail)).isEqualTo(pipeLinesExpected);
   }
 
 

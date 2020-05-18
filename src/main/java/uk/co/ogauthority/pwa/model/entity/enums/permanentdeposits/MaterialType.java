@@ -5,9 +5,9 @@ import java.util.List;
 
 public enum MaterialType {
 
-    CONCRETE_MATTRESSES("Concrete Mattresses"),
+    CONCRETE_MATTRESSES("Concrete mattresses"),
     ROCK("Rock"),
-    GROUT_BAGS("Grout Bags"),
+    GROUT_BAGS("Grout bags"),
     OTHER("Other");
 
   private final String displayText;

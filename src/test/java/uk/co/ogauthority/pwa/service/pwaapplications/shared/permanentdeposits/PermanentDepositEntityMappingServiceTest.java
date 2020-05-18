@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
@@ -14,17 +14,17 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PermanentDepositsEntityMappingServiceTest {
+public class PermanentDepositEntityMappingServiceTest {
 
-  private PermanentDepositsEntityMappingService permanentDepositsEntityMappingService;
+  private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
 
   @Before
   public void setUp() {
-    permanentDepositsEntityMappingService = new PermanentDepositsEntityMappingService();
+    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
   }
 
-  public PermanentDepositInformation buildBaseEntity() {
-    PermanentDepositInformation baseEntity = new PermanentDepositInformation();
+  public PadPermanentDeposit buildBaseEntity() {
+    PadPermanentDeposit baseEntity = new PadPermanentDeposit();
     baseEntity.setFromMonth(2);
     baseEntity.setFromYear(2020);
     baseEntity.setToMonth(3);
@@ -51,7 +51,7 @@ public class PermanentDepositsEntityMappingServiceTest {
     return baseEntity;
   }
 
-  public PermanentDepositsForm buildBaseForm(PermanentDepositInformation baseEntity) {
+  public PermanentDepositsForm buildBaseForm(PadPermanentDeposit baseEntity) {
     PermanentDepositsForm baseForm = new PermanentDepositsForm();
     baseForm.setFromMonth(baseEntity.getFromMonth());
     baseForm.setFromYear(baseEntity.getFromYear());
@@ -77,26 +77,26 @@ public class PermanentDepositsEntityMappingServiceTest {
   }
 
 
-  public void setEntityConcreteProperties(PermanentDepositInformation entity){
+  public void setEntityConcreteProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
     entity.setConcreteMattressLength(13);
     entity.setConcreteMattressWidth(22);
     entity.setConcreteMattressDepth(32);
   }
 
-  public void setEntityGroutBagProperties(PermanentDepositInformation entity){
+  public void setEntityGroutBagProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.GROUT_BAGS);
     entity.setMaterialSize("43");
     entity.setGroutBagsBioDegradable(true);
     entity.setBagsNotUsedDescription("...");
   }
 
-  public void setEntityRockProperties(PermanentDepositInformation entity){
+  public void setEntityRockProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.ROCK);
     entity.setMaterialSize("43");
   }
 
-  public void setEntityOtherProperties(PermanentDepositInformation entity){
+  public void setEntityOtherProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.OTHER);
     entity.setMaterialSize("43");
   }
@@ -146,10 +146,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeConcrete() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityConcreteProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormConcreteProperties(expectedForm);
@@ -158,10 +158,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeRocks() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityRockProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormRocksProperties(expectedForm);
@@ -170,10 +170,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeGroutBags() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityGroutBagProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormGroutBagsProperties(expectedForm);
@@ -182,10 +182,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeOther() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityOtherProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormOtherMaterialProperties(expectedForm);
@@ -196,12 +196,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeConcrete() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormConcreteProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityConcreteProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);
@@ -209,12 +209,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeRocks() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormRocksProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityRockProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);
@@ -222,12 +222,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeGroutBags() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormGroutBagsProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityGroutBagProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);
@@ -235,12 +235,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeOther() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormOtherMaterialProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityOtherProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);

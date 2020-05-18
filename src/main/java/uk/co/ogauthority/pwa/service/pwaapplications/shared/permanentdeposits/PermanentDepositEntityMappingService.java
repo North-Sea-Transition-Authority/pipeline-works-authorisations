@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
@@ -12,12 +12,12 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
  * Mapping of form data to entity and entity to form data for Permanent Deposits application form.
  */
 @Service
-public class PermanentDepositsEntityMappingService {
+public class PermanentDepositEntityMappingService {
 
   /**
    * Map Permanent Deposits stored data to form.
    */
-  void mapDepositInformationDataToForm(PermanentDepositInformation entity, PermanentDepositsForm form) {
+  void mapDepositInformationDataToForm(PadPermanentDeposit entity, PermanentDepositsForm form) {
 
     form.setFromMonth(entity.getFromMonth());
     form.setFromYear(entity.getFromYear());
@@ -76,7 +76,7 @@ public class PermanentDepositsEntityMappingService {
   /**
    * Map Permanent Deposits form data to entity.
    */
-  void setEntityValuesUsingForm(PermanentDepositInformation entity, PermanentDepositsForm form) {
+  void setEntityValuesUsingForm(PadPermanentDeposit entity, PermanentDepositsForm form) {
 
     entity.setFromMonth(form.getFromMonth());
     entity.setFromYear(form.getFromYear());

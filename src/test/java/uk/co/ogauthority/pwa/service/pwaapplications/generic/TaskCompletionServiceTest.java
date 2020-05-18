@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDeco
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
@@ -66,7 +66,7 @@ public class TaskCompletionServiceTest {
   private PadPipelineService padPipelineService;
 
   @MockBean
-  private PermanentDepositsService permanentDepositsService;
+  private PermanentDepositService permanentDepositService;
 
   @Test
   public void isTaskComplete() {
@@ -104,7 +104,7 @@ public class TaskCompletionServiceTest {
           service = technicalDrawingsService;
           break;
         case PERMANENT_DEPOSITS:
-          service = permanentDepositsService;
+          service = permanentDepositService;
           break;
         default:
           throw new AssertionError();

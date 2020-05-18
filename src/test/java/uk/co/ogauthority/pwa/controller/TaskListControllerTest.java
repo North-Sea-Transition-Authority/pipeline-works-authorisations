@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskCompletionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 public abstract class TaskListControllerTest extends AbstractControllerTest {
@@ -42,12 +42,12 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   protected PadPipelineService padPipelineService;
 
   @Mock
-  private PermanentDepositsService permanentDepositsService;
+  private PermanentDepositService permanentDepositService;
 
   @Before
   public void taskListControllerTestSetup() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        padFastTrackService, taskCompletionService, pwaContactService, permanentDepositsService);
+        padFastTrackService, taskCompletionService, pwaContactService, permanentDepositService);
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
 
   }

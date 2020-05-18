@@ -11,14 +11,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
-
-@Entity(name = "permanent_deposit_information")
-public class PermanentDepositInformation {
+@Entity
+@Table(name = "permanent_deposit_information")
+public class PadPermanentDeposit {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -358,7 +359,7 @@ public class PermanentDepositInformation {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PermanentDepositInformation that = (PermanentDepositInformation) o;
+    PadPermanentDeposit that = (PadPermanentDeposit) o;
     return Double.compare(that.quantity, quantity) == 0
         && Objects.equals(id, that.id)
         && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)

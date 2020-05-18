@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -22,7 +21,9 @@ import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -30,6 +31,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/permanent-deposits")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.DEPOSIT_CONSENT,
@@ -42,23 +45,27 @@ public class PermanentDepositController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final PermanentDepositsService permanentDepositsService;
+  private final PermanentDepositService permanentDepositService;
   private final PwaApplicationFileService applicationFileService;
+  private final PadPipelineService padPipelineService;
+  private final PadProjectInformationService padProjectInformationService;
 
   @Autowired
   public PermanentDepositController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                     PwaApplicationRedirectService pwaApplicationRedirectService,
-                                    PermanentDepositsService permanentDepositsService,
-                                    PwaApplicationFileService applicationFileService) {
+                                    PermanentDepositService permanentDepositService,
+                                    PwaApplicationFileService applicationFileService,
+                                    PadPipelineService padPipelineService,
+                                    PadProjectInformationService padProjectInformationService) {
     this.applicationFileService = applicationFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.permanentDepositsService = permanentDepositsService;
+    this.permanentDepositService = permanentDepositService;
+    this.padPipelineService = padPipelineService;
+    this.padProjectInformationService = padProjectInformationService;
   }
 
   @GetMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView renderPermanentDeposits(@PathVariable("applicationType")
                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                @PathVariable("applicationId") Integer applicationId,
@@ -68,8 +75,6 @@ public class PermanentDepositController {
   }
 
   @PostMapping
-  @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
   public ModelAndView postPermanentDeposits(@PathVariable("applicationType")
                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                              @PathVariable("applicationId") Integer applicationId,
@@ -78,17 +83,14 @@ public class PermanentDepositController {
                                              BindingResult bindingResult,
                                              ValidationType validationType) {
 
-    bindingResult = permanentDepositsService.validate(form,
+    bindingResult = permanentDepositService.validate(form,
         bindingResult,
         validationType,
         applicationContext.getApplicationDetail());
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-            // if invalid form, get all files, including not yet saved ones as they may have errored.
             getPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form), () -> {
-          var entity = new PermanentDepositInformation();
-          entity.setPwaApplicationDetail(applicationContext.getApplicationDetail());
-          permanentDepositsService.saveEntityUsingForm(entity, form, applicationContext.getUser());
+          permanentDepositService.saveEntityUsingForm(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
         });
 
@@ -98,13 +100,14 @@ public class PermanentDepositController {
   private ModelAndView getPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                          PermanentDepositsForm form) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDeposits");
-    modelAndView.addObject("pipelines", permanentDepositsService.getPipelines(pwaApplicationDetail))
+    modelAndView.addObject("pipelines", padPipelineService.getPipelines(pwaApplicationDetail))
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
-        .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)));
+          .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
+        .addObject("proposedStartDate", padProjectInformationService.getProposedStartDate(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Permanent Deposits");
+        "Permanent deposits");
     return modelAndView;
   }
 

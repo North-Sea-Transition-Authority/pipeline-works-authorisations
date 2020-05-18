@@ -4,6 +4,7 @@
 <#-- @ftlvariable name="pipelines" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="materialTypes" type="java.util.List<MaterialType>" -->
 <#-- @ftlvariable name="longDirections" type="java.util.List<LongitudeDirection>" --> 
+<#-- @ftlvariable name="proposedStartDate" type="java.lang.String" --> 
 
 <@defaultPage htmlTitle="Permanent Deposits" pageHeading="Permanent Deposits" breadcrumbs=true>
 
@@ -18,7 +19,7 @@
             Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed.
         </@fdsInsetText.insetText>
 
-        <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start" formId="from-month-year">
+        <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start (must be on/after proposed start date of " + proposedStartDate + ")" formId="from-month-year">
             <@fdsNumberInput.numberInputItem path="form.fromMonth" labelText="Month" inputClass="govuk-input--width-2"/>
             <@fdsNumberInput.numberInputItem path="form.fromYear" labelText="Year" inputClass="govuk-input--width-4"/>
         </@fdsNumberInput.twoNumberInputs>

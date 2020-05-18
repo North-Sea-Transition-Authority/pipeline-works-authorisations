@@ -38,7 +38,8 @@ public class PermanentDepositsValidator implements SmartValidator {
       LocalDateTime proposedStartDate = LocalDateTime.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneOffset.UTC);
       ValidatorUtils.validateDateIsPresentOrFutureOfTarget(
           "from", "deposit from month / year",
-          form.getFromMonth(), form.getFromYear(), proposedStartDate.getMonthValue(), proposedStartDate.getYear(), errors);
+          form.getFromMonth(), form.getFromYear(), proposedStartDate.getMonthValue(), proposedStartDate.getYear(),
+          "proposed start date", errors);
 
       ValidatorUtils.validateDateIsWithinRangeOfTarget(
           "to", "deposit to month / year",
@@ -98,41 +99,41 @@ public class PermanentDepositsValidator implements SmartValidator {
     if (form.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
       if (form.getConcreteMattressLength() == null) {
         errors.rejectValue("concreteMattressLength", "concreteMattressLength.invalid",
-            "Enter a valid length for the 'Concrete Mattresses' material type");
+            "Enter a valid length for the material type");
       }
       if (form.getConcreteMattressWidth() == null) {
         errors.rejectValue("concreteMattressWidth", "concreteMattressWidth.invalid",
-            "Enter a valid width for the 'Concrete Mattresses' material type");
+            "Enter a valid width for the material type");
       }
       if (form.getConcreteMattressDepth() == null) {
         errors.rejectValue("concreteMattressDepth", "concreteMattressDepth.invalid",
-            "Enter a valid depth for the 'Concrete Mattresses' material type");
+            "Enter a valid depth for the material type");
       }
       if (!NumberUtils.isCreatable(form.getQuantityConcrete())) {
         errors.rejectValue("quantityConcrete", "quantityConcrete.invalid",
-            "Enter a valid quantity for the 'Concrete Mattresses' material type");
+            "Enter a valid quantity for the material type");
       }
 
 
     } else if (form.getMaterialType().equals(MaterialType.ROCK)) {
       if (form.getRocksSize() == null) {
         errors.rejectValue("rocksSize", "rocksSize.invalid",
-            "Enter a valid size for the 'Rocks' material type");
+            "Enter a valid size for the material type");
       }
       if (!NumberUtils.isCreatable(form.getQuantityRocks())) {
         errors.rejectValue("quantityRocks", "quantityRocks.invalid",
-            "Enter a valid quantity for the 'Rocks' material type");
+            "Enter a valid quantity for the material type");
       }
 
 
     } else if (form.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
       if (form.getGroutBagsSize() == null) {
         errors.rejectValue("groutBagsSize", "groutBagsSize.invalid",
-            "Enter a valid size for the 'Grout Bags' material type");
+            "Enter a valid size for the material type");
       }
       if (!NumberUtils.isCreatable(form.getQuantityGroutBags())) {
         errors.rejectValue("quantityGroutBags", "quantityGroutBags.invalid",
-            "Enter a valid quantity for the 'Grout Bags' material type");
+            "Enter a valid quantity for the material type");
       }
       if (form.getGroutBagsBioDegradable() == null) {
         errors.rejectValue("groutBagsBioDegradable", "groutBagsBioDegradable.required",
@@ -147,11 +148,11 @@ public class PermanentDepositsValidator implements SmartValidator {
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
       if (form.getOtherMaterialSize() == null) {
         errors.rejectValue("otherMaterialSize", "otherMaterialSize.invalid",
-            "Enter a valid size for other material types");
+            "Enter a valid size for the material type");
       }
       if (!NumberUtils.isCreatable(form.getQuantityOther())) {
         errors.rejectValue("quantityOther", "quantityOther.invalid",
-            "Enter a valid quantity for other material types");
+            "Enter a valid quantity for the material type");
       }
     }
   }
