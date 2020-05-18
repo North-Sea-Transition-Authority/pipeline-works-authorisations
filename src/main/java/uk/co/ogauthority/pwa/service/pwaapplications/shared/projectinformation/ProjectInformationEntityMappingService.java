@@ -69,21 +69,30 @@ public class ProjectInformationEntityMappingService {
       );
     }
 
+    if (padProjectInformation.getPermanentDepositsMade() != null) {
 
-    if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
-      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
-    } else if (padProjectInformation.getFutureAppSubmissionMonth() != null
+      if (BooleanUtils.isFalse(padProjectInformation.getPermanentDepositsMade())) {
+        form.setPermanentDepositsMadeType(PermanentDepositRadioOption.NONE);
+      } else {
+
+        if (padProjectInformation.getFutureAppSubmissionMonth() != null
             && padProjectInformation.getFutureAppSubmissionYear() != null) {
-      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-      form.setFutureAppSubmissionMonth(padProjectInformation.getFutureAppSubmissionMonth());
-      form.setFutureAppSubmissionYear(padProjectInformation.getFutureAppSubmissionYear());
-    } else {
-      form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
+          form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+          form.setFutureAppSubmissionMonth(padProjectInformation.getFutureAppSubmissionMonth());
+          form.setFutureAppSubmissionYear(padProjectInformation.getFutureAppSubmissionYear());
+        } else {
+          form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
+        }
+
+      }
+
     }
+
     if (padProjectInformation.getTemporaryDepositsMade() != null) {
       form.setTemporaryDepositsMade(padProjectInformation.getTemporaryDepositsMade());
       form.setTemporaryDepDescription(padProjectInformation.getTemporaryDepDescription());
     }
+
   }
 
 
@@ -158,12 +167,9 @@ public class ProjectInformationEntityMappingService {
       }
     }
 
-    if (form.getTemporaryDepositsMade() != null) {
-      padProjectInformation.setTemporaryDepositsMade(form.getTemporaryDepositsMade());
-      padProjectInformation.setTemporaryDepDescription(
-              form.getTemporaryDepositsMade() == false ? null : form.getTemporaryDepDescription());
-    }
-
+    padProjectInformation.setTemporaryDepositsMade(form.getTemporaryDepositsMade());
+    String tempDescription = BooleanUtils.isTrue(form.getTemporaryDepositsMade()) ? form.getTemporaryDepDescription() : null;
+    padProjectInformation.setTemporaryDepDescription(tempDescription);
 
   }
 

@@ -76,7 +76,7 @@ public class ValidatorUtils {
         errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
                 "Enter a valid month 1-12");
         errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-                "Enter a valid Year");
+                "Enter a valid year");
         return false;
       }
       return true;
@@ -84,7 +84,7 @@ public class ValidatorUtils {
       errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
               "Enter a valid month 1-12");
       errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-              "Enter a valid Year");
+              "Enter a valid year");
       return false;
     }
   }
