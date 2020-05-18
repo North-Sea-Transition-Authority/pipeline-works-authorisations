@@ -18,9 +18,7 @@
                 <#assign pastFirstIteration = false/>
                 <#list summaryView.connectedPipelineIdents as connectedPipelineIdentView>
                     <#if pastFirstIteration == true && lastConnectedPipelineIdentView?has_content>
-                        <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border">
-                          <br/><br/>
-                        </@fdsTimeline.timelineTimeStamp>
+                        <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
                     </#if>
                     <#list connectedPipelineIdentView.identViews as identView>
                         <#assign timelineAction>
@@ -37,8 +35,8 @@
                                 <#assign to>
                                     <@pwaCoordinate.display coordinatePair=identView.toCoordinates />
                                 </#assign>
-                                <@fdsDataItems.dataValues key="From" value=from/>
-                                <@fdsDataItems.dataValues key="To" value=to/>
+                                <@fdsDataItems.dataValues key="From (coordinates)" value=from/>
+                                <@fdsDataItems.dataValues key="To (coordinates)" value=to/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                                 <@fdsDataItems.dataValues key="External diameter" value="${identView.externalDiameter}mm"/>

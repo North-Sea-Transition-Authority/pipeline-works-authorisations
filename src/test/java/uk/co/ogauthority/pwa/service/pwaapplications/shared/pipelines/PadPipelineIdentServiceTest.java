@@ -175,21 +175,21 @@ public class PadPipelineIdentServiceTest {
   @Test
   public void getConnectedPipelineIdentSummaryView_valid() {
 
-    var identA_Start = makeIdent(1, "from", "to");
-    var identA_End = makeIdent(2, "to", "other");
-    var identDataA_Start = makeIdentData(identA_Start);
-    var identDataA_End = makeIdentData(identA_End);
+    var identAStart = makeIdent(1, "from", "to");
+    var identAEnd = makeIdent(2, "to", "other");
+    var identDataAStart = makeIdentData(identAStart);
+    var identDataAEnd = makeIdentData(identAEnd);
 
     var identB = makeIdent(3, "from2", "to2");
     var identDataB = makeIdentData(identB);
 
 
     var pipeline = new PadPipeline();
-    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(identA_Start, identA_End, identB));
-    when(identDataService.getDataFromIdentList(eq(List.of(identA_Start, identA_End, identB))))
+    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(identAStart, identAEnd, identB));
+    when(identDataService.getDataFromIdentList(eq(List.of(identAStart, identAEnd, identB))))
         .thenReturn(new LinkedHashMap<>() {{
-          put(identA_Start, identDataA_Start);
-          put(identA_End, identDataA_End);
+          put(identAStart, identDataAStart);
+          put(identAEnd, identDataAEnd);
           put(identB, identDataB);
         }});
     ConnectedPipelineIdentSummaryView summaryView = identService.getConnectedPipelineIdentSummaryView(pipeline);
