@@ -240,4 +240,34 @@ public class PadPipelineIdentServiceTest {
     return identData;
   }
 
+  @Test
+  public void removeIdent() {
+
+    var pipeline = new PadPipeline();
+
+    var ident = new PadPipelineIdent();
+    ident.setPadPipeline(pipeline);
+    ident.setIdentNo(1);
+
+    var ident2 = new PadPipelineIdent();
+    ident2.setPadPipeline(pipeline);
+    ident2.setIdentNo(2);
+
+    var ident3 = new PadPipelineIdent();
+    ident3.setPadPipeline(pipeline);
+    ident3.setIdentNo(3);
+
+    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident, ident3));
+
+    identService.removeIdent(ident2);
+
+    verify(identDataService, times(1)).removeIdentData(ident2);
+
+    var captor = ArgumentCaptor.forClass(Iterable.class);
+    verify(repository, times(1)).saveAll(captor.capture());
+
+    assertThat((List<PadPipelineIdent>) captor.getValue()).extracting(PadPipelineIdent::getIdentNo)
+        .containsExactly(1, 2);
+  }
+
 }
