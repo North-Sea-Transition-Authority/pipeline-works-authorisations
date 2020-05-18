@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskCompletionServi
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 public abstract class TaskListControllerTest extends AbstractControllerTest {
 
@@ -39,7 +39,7 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   protected PwaContactService pwaContactService;
 
   @MockBean
-  protected PadPipelinesService padPipelinesService;
+  protected PadPipelineService padPipelineService;
 
   @Mock
   private PermanentDepositsService permanentDepositsService;

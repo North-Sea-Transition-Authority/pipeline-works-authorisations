@@ -77,7 +77,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService, padPipelinesService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService,
+        padPipelineService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
@@ -94,7 +95,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(pwaApplicationDetail);
     padPipeline.setId(99);
-    when(padPipelinesService.getById(padPipeline.getId())).thenReturn(padPipeline);
+    when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
 
   }
 
@@ -151,7 +152,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             null)))
         .with(authenticatedUserAndSession(user)))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/addIdent"))
+        .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
         .andReturn()
         .getModelAndView())
         .getModel()
@@ -175,7 +176,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             null)))
         .with(authenticatedUserAndSession(user)))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/addIdent"))
+        .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
         .andReturn()
         .getModelAndView())
         .getModel()
@@ -237,7 +238,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/addIdent"))
+        .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
         .andExpect(model().attributeHasErrors("form"));
 
     verifyNoInteractions(pipelineIdentService);
@@ -260,6 +261,42 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .andExpect(status().is3xxRedirection());
 
     verify(pipelineIdentService, times(1)).addIdent(eq(padPipeline), any());
+
+  }
+
+  @Test
+  public void renderIdentOverview_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99,null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderIdentOverview_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99,null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderIdentOverview_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99,null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 

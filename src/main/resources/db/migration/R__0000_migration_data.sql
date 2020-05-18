@@ -16,8 +16,7 @@ CREATE OR REPLACE VIEW ${datasource.user}.mig_master_pwas AS (
   , xpad.pwa_status
   FROM decmgr.xview_pipeline_auth_details xpad
   JOIN decmgr.pipeline_authorisations pa ON xpad.pa_id = pa.id
-  WHERE xpad.variation_number = 0
-  AND xpad.consent_date IS NOT NULL
+  WHERE pa.first_pad_id = xpad.pad_id
 );
 
 
@@ -34,3 +33,5 @@ CREATE OR REPLACE VIEW ${datasource.user}.mig_pwa_consents AS (
   FROM decmgr.xview_pipeline_auth_details xpad
   JOIN decmgr.pipeline_authorisations pa ON xpad.pa_id = pa.id
 );
+
+

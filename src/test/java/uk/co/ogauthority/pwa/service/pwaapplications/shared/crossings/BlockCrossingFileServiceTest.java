@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadBlockCrossingFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadBlockCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
@@ -45,6 +45,7 @@ import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 public class BlockCrossingFileServiceTest {
 
   private final String FILE_ID = "1234567890qwertyuiop";
+
   @Mock
   private PadBlockCrossingFileRepository padBlockCrossingFileRepository;
   @Mock

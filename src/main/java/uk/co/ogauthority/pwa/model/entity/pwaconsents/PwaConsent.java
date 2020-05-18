@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -21,7 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 public class PwaConsent {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "pwa_consent_id_generator")
+  @SequenceGenerator(name = "pwa_consent_id_generator", sequenceName = "pwa_consent_id_seq", allocationSize = 1)
   private int id;
 
   @ManyToOne

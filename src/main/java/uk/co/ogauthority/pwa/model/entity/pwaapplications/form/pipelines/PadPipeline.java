@@ -12,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
 import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -109,6 +108,8 @@ public class PadPipeline {
 
   @Column(name = "trenching_methods_desc")
   private String trenchingMethodsDescription;
+
+  private String pipelineRef;
 
   @Transient
   private CoordinatePair fromCoordinates;
@@ -212,12 +213,21 @@ public class PadPipeline {
     this.trenchingMethodsDescription = trenchingMethodsDescription;
   }
 
+  public String getPipelineRef() {
+    return pipelineRef;
+  }
+
+  public void setPipelineRef(String pipelineRef) {
+    this.pipelineRef = pipelineRef;
+  }
+
   public CoordinatePair getFromCoordinates() {
     return fromCoordinates;
   }
 
   public void setFromCoordinates(CoordinatePair fromCoordinates) {
     this.fromCoordinates = fromCoordinates;
+    updateFromCoordinateValues();
   }
 
   public CoordinatePair getToCoordinates() {
@@ -226,11 +236,10 @@ public class PadPipeline {
 
   public void setToCoordinates(CoordinatePair toCoordinates) {
     this.toCoordinates = toCoordinates;
+    updateToCoordinateValues();
   }
 
-  @PrePersist
-  public void prePersist() {
-
+  private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
     this.fromLatitudeSeconds = this.fromCoordinates.getLatitude().getSeconds();
@@ -240,7 +249,9 @@ public class PadPipeline {
     this.fromLongitudeMinutes = this.fromCoordinates.getLongitude().getMinutes();
     this.fromLongitudeSeconds = this.fromCoordinates.getLongitude().getSeconds();
     this.fromLongitudeDirection = this.fromCoordinates.getLongitude().getDirection();
+  }
 
+  private void updateToCoordinateValues() {
     this.toLatitudeDegrees = this.toCoordinates.getLatitude().getDegrees();
     this.toLatitudeMinutes = this.toCoordinates.getLatitude().getMinutes();
     this.toLatitudeSeconds = this.toCoordinates.getLatitude().getSeconds();
@@ -250,7 +261,6 @@ public class PadPipeline {
     this.toLongitudeMinutes = this.toCoordinates.getLongitude().getMinutes();
     this.toLongitudeSeconds = this.toCoordinates.getLongitude().getSeconds();
     this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
-
   }
 
   @PostLoad

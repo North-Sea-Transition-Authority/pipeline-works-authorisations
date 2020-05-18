@@ -3,22 +3,23 @@
 <#-- @ftlvariable name="addUserUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="showBreadcrumbs" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="userCanManageAccess" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="showTopNav" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="allRoles" type="java.util.Map<String,String>" -->
 
 <#include "../layout.ftl">
 
-<@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=false twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
+<@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=showTopNav twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
 
     <#if allRoles??>
       <@fdsDetails.summaryDetails summaryTitle="What can each role do?" >
-        <table class="govuk-table">                 
+        <table class="govuk-table">
             <tbody class="govuk-table__body">
             <#list allRoles as propName, propValue>
               <#assign name = propName?lower_case?cap_first?replace("_"," ") >
-              <#assign description = propValue?keep_before("(") > 
+              <#assign description = propValue?keep_before("(") >
                   <tr class="govuk-table__row">
                       <td class="govuk-table__cell"> ${name} </td>
-                      <td class="govuk-table__cell"> ${description} </td>          
+                      <td class="govuk-table__cell"> ${description} </td>
                   </tr>
             </#list>
             </tbody>

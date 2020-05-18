@@ -38,4 +38,12 @@ public class PadFieldFormValidatorTest {
     assertThat(errors.get("fieldId")).isNull();
   }
 
+  @Test
+  public void validate_RadioNo_EmptyDescription() {
+    pwaFieldForm.setLinkedToField(false);
+    pwaFieldForm.setNoLinkedFieldDescription(null);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, pwaFieldForm);
+    assertThat(errors.get("noLinkedFieldDescription")).containsExactly("noLinkedFieldDescription.required");
+  }
+
 }

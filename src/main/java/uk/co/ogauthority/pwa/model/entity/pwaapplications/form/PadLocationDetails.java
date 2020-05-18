@@ -37,6 +37,7 @@ public class PadLocationDetails {
   private Instant surveyConcludedTimestamp;
   private Boolean routeSurveyUndertaken;
   private Boolean withinLimitsOfDeviation;
+  private String pipelineAshoreLocation;
 
   public Integer getId() {
     return id;
@@ -125,5 +126,13 @@ public class PadLocationDetails {
 
   public void setWithinLimitsOfDeviation(Boolean withinLimitsOfDeviation) {
     this.withinLimitsOfDeviation = withinLimitsOfDeviation;
+  }
+
+  public String getPipelineAshoreLocation() {
+    return pipelineAshoreLocation;
+  }
+
+  public void setPipelineAshoreLocation(String pipelineAshoreLocation) {
+    this.pipelineAshoreLocation = pipelineAshoreLocation;
   }
 }

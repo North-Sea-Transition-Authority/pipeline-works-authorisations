@@ -15,7 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineIdentDataRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineIdentDataServiceTest {

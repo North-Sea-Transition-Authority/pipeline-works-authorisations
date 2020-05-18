@@ -1,5 +1,5 @@
 CREATE TABLE ${datasource.user}.pwa_consents(
-  id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+  id NUMBER PRIMARY KEY
 , pwa_id NUMBER NOT NULL
 , source_pwa_application_id NUMBER
 , created_timestamp TIMESTAMP NOT NULL

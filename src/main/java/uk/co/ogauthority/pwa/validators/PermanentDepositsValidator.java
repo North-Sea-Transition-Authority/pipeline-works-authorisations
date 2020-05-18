@@ -58,6 +58,7 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidatorUtils.validateLatitude(
         errors,
+        "fromLatitude",
         Pair.of("fromLatitudeDegrees", NumberUtils.createInteger(form.getFromLatitudeDegrees())),
         Pair.of("fromLatitudeMinutes", NumberUtils.createInteger(form.getFromLatitudeMinutes())),
         Pair.of("fromLatitudeSeconds", NumberUtils.createBigDecimal(form.getFromLatitudeSeconds()))
@@ -65,6 +66,7 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidatorUtils.validateLongitude(
         errors,
+        "fromLongitude",
         Pair.of("fromLongitudeDegrees", NumberUtils.createInteger(form.getFromLongitudeDegrees())),
         Pair.of("fromLongitudeMinutes", NumberUtils.createInteger(form.getFromLongitudeMinutes())),
         Pair.of("fromLongitudeSeconds", NumberUtils.createBigDecimal(form.getFromLongitudeSeconds())),
@@ -74,6 +76,7 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidatorUtils.validateLatitude(
         errors,
+        "toLatitude",
         Pair.of("toLatitudeDegrees", NumberUtils.createInteger(form.getToLatitudeDegrees())),
         Pair.of("toLatitudeMinutes", NumberUtils.createInteger(form.getToLatitudeMinutes())),
         Pair.of("toLatitudeSeconds", NumberUtils.createBigDecimal(form.getToLatitudeSeconds()))
@@ -81,6 +84,7 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidatorUtils.validateLongitude(
         errors,
+        "toLongitude",
         Pair.of("toLongitudeDegrees", NumberUtils.createInteger(form.getToLongitudeDegrees())),
         Pair.of("toLongitudeMinutes", NumberUtils.createInteger(form.getToLongitudeMinutes())),
         Pair.of("toLongitudeSeconds", NumberUtils.createBigDecimal(form.getToLongitudeSeconds())),

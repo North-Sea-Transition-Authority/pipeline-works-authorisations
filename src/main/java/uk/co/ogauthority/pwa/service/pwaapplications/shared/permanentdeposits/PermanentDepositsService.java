@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.DepositsForPipelinesRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -129,7 +129,7 @@ public class PermanentDepositsService implements ApplicationFormSectionService {
 
 
   public Map<String, String> getPipelines(PwaApplicationDetail pwaApplicationDetail) {
-    return padPipelineRepository.findAllByPwaApplicationDetail(pwaApplicationDetail)
+    return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
         .sorted(Comparator.comparing(PadPipeline::getId))
         .collect(

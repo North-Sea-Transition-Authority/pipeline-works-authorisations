@@ -226,6 +226,7 @@ public class ValidatorUtilsTest {
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
         bindingResult,
+        "Start point",
         Pair.of("latitudeDegrees", 55),
         Pair.of("latitudeMinutes", 30),
         Pair.of("latitudeSeconds", BigDecimal.valueOf(44.44)));
@@ -240,6 +241,7 @@ public class ValidatorUtilsTest {
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
         bindingResult,
+        "Start point",
         Pair.of("latitudeDegrees", 44),
         Pair.of("latitudeMinutes", -1),
         Pair.of("latitudeSeconds", BigDecimal.valueOf(61)));
@@ -260,6 +262,7 @@ public class ValidatorUtilsTest {
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
         bindingResult,
+        "Start point",
         Pair.of("latitudeDegrees", 55),
         Pair.of("latitideMinutes", 30),
         Pair.of("latitudeSeconds", BigDecimal.valueOf(45.555)));
@@ -278,6 +281,7 @@ public class ValidatorUtilsTest {
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
         bindingResult,
+        "Start point",
         Pair.of("longitudeDegrees", 29),
         Pair.of("longitudeMinutes", 30),
         Pair.of("longitudeSeconds", BigDecimal.valueOf(44.44)),
@@ -293,6 +297,7 @@ public class ValidatorUtilsTest {
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
         bindingResult,
+        "Start point",
         Pair.of("longitudeDegrees", 31),
         Pair.of("longitudeMinutes", 61),
         Pair.of("longitudeSeconds", BigDecimal.valueOf(-1)),
@@ -314,6 +319,7 @@ public class ValidatorUtilsTest {
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
         bindingResult,
+        "Start point",
         Pair.of("longitudeDegrees", 22),
         Pair.of("longitudeMinutes", 30),
         Pair.of("longitudeSeconds", BigDecimal.valueOf(33.333)),

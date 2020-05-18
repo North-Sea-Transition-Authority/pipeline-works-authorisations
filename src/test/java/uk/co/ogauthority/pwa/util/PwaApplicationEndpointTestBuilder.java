@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,14 +25,20 @@ import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelinesService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 public class PwaApplicationEndpointTestBuilder {
 
@@ -42,7 +49,7 @@ public class PwaApplicationEndpointTestBuilder {
 
   private PwaContactService pwaContactService;
   private PwaApplicationDetailService pwaApplicationDetailService;
-  private PadPipelinesService padPipelinesService;
+  private PadPipelineService padPipelineService;
 
   private BiFunction<PwaApplicationDetail, PwaApplicationType, String> endpointUrlProducer;
 
@@ -73,12 +80,12 @@ public class PwaApplicationEndpointTestBuilder {
   public PwaApplicationEndpointTestBuilder(MockMvc mockMvc,
                                            PwaContactService pwaContactService,
                                            PwaApplicationDetailService pwaApplicationDetailService,
-                                           PadPipelinesService padPipelinesService) {
+                                           PadPipelineService padPipelineService) {
 
     this.mockMvc = mockMvc;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
-    this.padPipelinesService = padPipelinesService;
+    this.padPipelineService = padPipelineService;
 
     setupTestObjects();
     // do nothing by default
@@ -193,6 +200,21 @@ public class PwaApplicationEndpointTestBuilder {
     this.pipeline = new PadPipeline();
     pipeline.setId(99);
     pipeline.setPwaApplicationDetail(detail);
+    pipeline.setPipelineRef("TEMPORARY_1");
+    pipeline.setFromLocation("from");
+    pipeline.setToLocation("to");
+    pipeline.setFromCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(45, 2, BigDecimal.valueOf(2.2), LatitudeDirection.NORTH),
+        new LongitudeCoordinate(12, 1, BigDecimal.valueOf(1), LongitudeDirection.EAST)
+    ));
+    pipeline.setToCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(46, 2, BigDecimal.valueOf(2.2), LatitudeDirection.NORTH),
+        new LongitudeCoordinate(12, 1, BigDecimal.valueOf(1), LongitudeDirection.EAST)
+    ));
+    pipeline.setProductsToBeConveyed("prod");
+    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setComponentPartsDescription("comp");
+    pipeline.setLength(BigDecimal.valueOf(200));
 
     var defaultRoles = EnumSet.allOf(PwaContactRole.class);
 
@@ -201,8 +223,8 @@ public class PwaApplicationEndpointTestBuilder {
     when(pwaContactService.getContactRoles(eq(detail.getPwaApplication()), any())).thenReturn(defaultRoles);
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
-    if(padPipelinesService != null) {
-      when(padPipelinesService.getById(pipeline.getId())).thenReturn(pipeline);
+    if(padPipelineService != null) {
+      when(padPipelineService.getById(pipeline.getId())).thenReturn(pipeline);
     }
 
   }
