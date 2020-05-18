@@ -13,8 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
@@ -24,15 +26,20 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBloc
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
-public class BlockCrossingService {
+public class BlockCrossingService implements ApplicationFormSectionService {
 
   private final PadCrossedBlockRepository padCrossedBlockRepository;
   private final PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository;
   private final PearsBlockService pearsBlockService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final BlockCrossingFileService blockCrossingFileService;
   private final Clock clock;
 
   @Autowired
@@ -40,12 +47,14 @@ public class BlockCrossingService {
                               PadCrossedBlockOwnerRepository padCrossedBlockOwnerRepository,
                               PearsBlockService pearsBlockService,
                               PortalOrganisationsAccessor portalOrganisationsAccessor,
+                              BlockCrossingFileService blockCrossingFileService,
                               @Qualifier("utcClock") Clock clock) {
 
     this.padCrossedBlockRepository = padCrossedBlockRepository;
     this.padCrossedBlockOwnerRepository = padCrossedBlockOwnerRepository;
     this.pearsBlockService = pearsBlockService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.blockCrossingFileService = blockCrossingFileService;
     this.clock = clock;
   }
 
@@ -194,9 +203,9 @@ public class BlockCrossingService {
     // Each ouId will have been validated so we can assume everything is good for db persistence
     // only create owners when the owner type is not holder
     if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(form.getCrossedBlockOwner())) {
-      form.getBlockOwnersOuIdList().forEach(ouId -> {
-        createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null));
-      });
+      form.getBlockOwnersOuIdList().forEach(ouId ->
+          createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null))
+      );
     }
 
     if (CrossedBlockOwner.OTHER_ORGANISATION.equals(form.getCrossedBlockOwner())
@@ -220,5 +229,24 @@ public class BlockCrossingService {
     padCrossedBlockOwnerRepository.deleteAll(existingBlockCrossingOwners);
   }
 
+  @Override
+  public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
+    var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
+    String blocksText = StringDisplayUtils.pluralise("block", blockCount);
+    return List.of(
+        new TaskInfo(blocksText, (long) blockCount)
+    );
+  }
 
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    return true;
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
+    // TODO: PWA-502 - Ensure validation works on this service.
+    throw new ActionNotAllowedException("This service shouldn't be validated against yet");
+  }
 }

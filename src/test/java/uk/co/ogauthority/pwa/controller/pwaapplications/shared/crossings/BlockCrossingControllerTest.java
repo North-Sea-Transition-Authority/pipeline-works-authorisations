@@ -15,6 +15,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,8 +44,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsSection;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.AddBlockCrossingFormValidator;
@@ -81,6 +86,12 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   @Mock
   private PadCrossedBlock padCrossedBlock;
+
+  @MockBean
+  private BlockCrossingFileService blockCrossingFileService;
+
+  @MockBean
+  private CrossingAgreementsService crossingAgreementsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -174,7 +185,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   private MultiValueMap<String, String> getValidAddBlockFormAsMap() {
 
-    return new LinkedMultiValueMap<String, String>() {{
+    return new LinkedMultiValueMap<>() {{
       add("pickedBlock", "10BLOCK");
       add("crossedBlockOwner", "HOLDER");
     }};
@@ -182,7 +193,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   private MultiValueMap<String, String> getValidEditBlockFormAsMap() {
 
-    return new LinkedMultiValueMap<String, String>() {{
+    return new LinkedMultiValueMap<>() {{
       add("crossedBlockOwner", "HOLDER");
     }};
   }
@@ -222,7 +233,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(new LinkedMultiValueMap<String, String>()))
+            .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
     verify(addBlockCrossingFormValidator, times(1)).validate(any(), any());
 
@@ -386,7 +397,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(new LinkedMultiValueMap<String, String>()))
+            .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
 
     verify(editBlockCrossingFormValidator, times(1)).validate(any(), any());
@@ -554,5 +565,88 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
   }
 
+  @Test
+  public void renderBlockCrossingOverview_appTypeSmokeTest() {
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .renderBlockCrossingOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void renderBlockCrossingOverview_appStatusSmokeTest() {
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .renderBlockCrossingOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+  }
+
+  @Test
+  public void renderBlockCrossingOverview_appContactRoleSmokeTest() {
+    var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
+        Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
+    when(crossingAgreementsService.getValidationResult(any()))
+        .thenReturn(crossingAgreementsValidationResult);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .renderBlockCrossingOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_appTypeSmokeTest() {
+
+    when(blockCrossingFileService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+  }
+
+  @Test
+  public void postOverview_appStatusSmokeTest() {
+
+    when(blockCrossingFileService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+  }
+
+  @Test
+  public void postOverview_appContactRoleSmokeTest() {
+
+    when(blockCrossingFileService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(BlockCrossingController.class)
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+  }
 
 }

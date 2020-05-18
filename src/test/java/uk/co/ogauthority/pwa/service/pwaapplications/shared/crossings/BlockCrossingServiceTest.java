@@ -63,6 +63,9 @@ public class BlockCrossingServiceTest {
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
+  @Mock
+  private BlockCrossingFileService blockCrossingFileService;
+
   private Clock clock = Clock.systemDefaultZone();
 
   private BlockCrossingService blockCrossingService;
@@ -87,7 +90,7 @@ public class BlockCrossingServiceTest {
         padCrossedBlockOwnerRepository,
         pearsBlockService,
         portalOrganisationsAccessor,
-        clock
+        blockCrossingFileService, clock
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

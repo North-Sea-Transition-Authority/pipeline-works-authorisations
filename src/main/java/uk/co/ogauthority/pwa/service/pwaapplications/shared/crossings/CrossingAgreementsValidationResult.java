@@ -21,7 +21,7 @@ public class CrossingAgreementsValidationResult {
   }
 
   public boolean isSectionValid(String crossingAgreementsSection) {
-    return sectionValidity.get(CrossingAgreementsSection.valueOf(crossingAgreementsSection));
+    return isSectionValid(CrossingAgreementsSection.valueOf(crossingAgreementsSection));
   }
 
   public boolean isCrossingAgreementsValid() {

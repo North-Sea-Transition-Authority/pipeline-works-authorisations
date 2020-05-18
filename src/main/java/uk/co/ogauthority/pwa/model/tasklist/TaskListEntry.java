@@ -1,27 +1,28 @@
 package uk.co.ogauthority.pwa.model.tasklist;
 
+import java.util.List;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 
 public class TaskListEntry {
 
-  private final String taskName;
-  private final String route;
-  private final boolean completed;
-  private final TaskInfo taskInfo;
+  private String taskName;
+  private String route;
+  private boolean completed;
+  private final List<TaskInfo> taskInfoList;
 
   public TaskListEntry(String taskName, String route, boolean completed) {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
-    this.taskInfo = null;
+    this.taskInfoList = List.of();
   }
 
   public TaskListEntry(String taskName, String route, boolean completed,
-                       TaskInfo taskInfo) {
+                       List<TaskInfo> taskInfoList) {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
-    this.taskInfo = taskInfo;
+    this.taskInfoList = taskInfoList;
   }
 
   public String getTaskName() {
@@ -36,7 +37,7 @@ public class TaskListEntry {
     return completed;
   }
 
-  public TaskInfo getTaskInfo() {
-    return taskInfo;
+  public List<TaskInfo> getTaskInfoList() {
+    return taskInfoList;
   }
 }

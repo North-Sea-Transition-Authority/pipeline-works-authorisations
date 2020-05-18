@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -17,8 +18,10 @@ import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class PadPipelineCrossingService implements ApplicationFormSectionService {
@@ -98,14 +101,33 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
     return searchSelectorService.buildPrepopulatedSelections(selectedItems, orgMap);
   }
 
+  public int getPipelineCrossingCount(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+  }
+
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return pipelineCrossingFileService.isComplete(detail);
+    var pipelineCount = getPipelineCrossingCount(detail);
+    return pipelineCrossingFileService.isComplete(detail) && pipelineCount > 0;
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     throw new AssertionError("validate doesnt make sense.");
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return BooleanUtils.isTrue(pwaApplicationDetail.getPipelinesCrossed());
+  }
+
+  @Override
+  public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
+    var pipelineCrossingCount = padPipelineCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+    var crossingPluralised = StringDisplayUtils.pluralise("pipeline", pipelineCrossingCount);
+    return List.of(
+        new TaskInfo(crossingPluralised, (long) pipelineCrossingCount)
+    );
   }
 }

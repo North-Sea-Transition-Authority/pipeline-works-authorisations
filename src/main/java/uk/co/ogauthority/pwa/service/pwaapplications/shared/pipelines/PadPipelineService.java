@@ -60,7 +60,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
                 pipelineOverviewDto.getDetail().getPwaApplicationType(),
                 pipelineOverviewDto.getPadPipeline().getId()), true),
             new TaskListEntry("Idents", identTaskUrl, false,
-                 new TaskInfo(identTaskUrl, "IDENT", pipelineOverviewDto.getNumberOfIdents())
+                 List.of(new TaskInfo("IDENT", pipelineOverviewDto.getNumberOfIdents()))
             )
         ));
   }

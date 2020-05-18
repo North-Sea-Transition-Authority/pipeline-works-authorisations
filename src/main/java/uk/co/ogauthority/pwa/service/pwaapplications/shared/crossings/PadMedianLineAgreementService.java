@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -99,5 +100,10 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
       medianLineAgreementValidator.validate(form, bindingResult);
     }
     return bindingResult;
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return BooleanUtils.isTrue(pwaApplicationDetail.getMedianLineCrossed());
   }
 }

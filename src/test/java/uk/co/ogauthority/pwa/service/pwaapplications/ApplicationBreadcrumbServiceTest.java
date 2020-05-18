@@ -12,6 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationBreadcrumbServiceTest {
@@ -21,9 +22,13 @@ public class ApplicationBreadcrumbServiceTest {
   @Mock
   private PwaApplicationRedirectService pwaApplicationRedirectService;
 
+  @Mock
+  private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+
   @Before
   public void setUp() {
-    applicationBreadcrumbService = new ApplicationBreadcrumbService(pwaApplicationRedirectService);
+    applicationBreadcrumbService = new ApplicationBreadcrumbService(pwaApplicationRedirectService,
+        crossingAgreementsTaskListService);
   }
 
   @Test
