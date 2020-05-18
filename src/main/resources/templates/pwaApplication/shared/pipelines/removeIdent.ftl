@@ -22,11 +22,11 @@
       <td class="govuk-table__cell">${identView.length}m</td>
     </tr>
     <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">From</th>
+      <th class="govuk-table__header" scope="row">From (coordinates)</th>
       <td class="govuk-table__cell">${from}</td>
     </tr>
     <tr class="govuk-table__row">
-      <th class="govuk-table__header" scope="row">To</th>
+      <th class="govuk-table__header" scope="row">To (coordinates)</th>
       <td class="govuk-table__cell">${to}</td>
     </tr>
     <tr class="govuk-table__row">
