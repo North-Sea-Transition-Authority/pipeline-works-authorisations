@@ -100,7 +100,7 @@ AS
 
   END determine_consent_type;
 
-  FUNCTION getOrCreatePipeline(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE)
+  FUNCTION get_or_create_pipeline(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE)
     RETURN ${datasource.user}.pipelines%ROWTYPE
   AS
     l_pipeline_row             ${datasource.user}.pipelines%ROWTYPE;
@@ -143,7 +143,7 @@ AS
 
     RETURN l_pipeline_row;
 
-  END getorcreatepipeline;
+  END get_or_create_pipeline;
 
   PROCEDURE migrate_pipeline_history(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE)
   AS
@@ -160,7 +160,7 @@ AS
       , p_message => 'pipeline record migration started pd_id: ' || p_mig_pipeline_history.pd_id
       );
 
-    l_master_pipeline_row := getOrCreatePipeline(p_mig_pipeline_history);
+    l_master_pipeline_row := get_or_create_pipeline(p_mig_pipeline_history);
 
     /*
       1. create detail
@@ -179,9 +179,8 @@ AS
                                         , tip_flag
                                         , pipeline_status
                                         , detail_status
-                                        , pipeline_reference
+                                        , pipeline_number
                                         , created_by_wua_id
-
                                         , from_location
                                         , to_location
                                         , length

@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,6 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
 
 @Entity
@@ -22,13 +26,16 @@ public class PipelineDetail {
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "pipeline_detail_id_generator")
   @SequenceGenerator(name = "pipeline_detail_id_generator", sequenceName = "pipeline_details_id_seq", allocationSize = 1)
   private Integer id;
-  private String pipelineId;
+
+  @ManyToOne(optional = false)
+  private Pipeline pipeline;
+
   private Instant startTimestamp;
   private Instant endTimestamp;
   private Boolean tipFlag;
   private String pipelineStatus;
   private String detailStatus;
-  private String pipelineReference;
+  private String pipelineNumber;
 
   @ManyToOne
   @JoinColumn(name = "pwa_consent_id")
@@ -36,30 +43,68 @@ public class PipelineDetail {
 
   @Enumerated(EnumType.STRING)
   private PipelineType pipelineType;
-  private String fromLocation;
-  private String fromLatDeg;
-  private String fromLatMin;
-  private String fromLatSec;
-  private String fromLatDir;
-  private String fromLongDeg;
-  private String fromLongMin;
-  private String fromLongSec;
-  private String fromLongDir;
-  private String toLocation;
-  private String toLatDeg;
-  private String toLatMin;
-  private String toLatSec;
-  private String toLatDir;
-  private String toLongDeg;
-  private String toLongMin;
-  private String toLongSec;
-  private String toLongDir;
-  private String componentPartsDesc;
-  private String length;
-  private String productsToBeConveyed;
-  private String trenchedBuriedFilledFlag;
-  private String trenchingMethodsDesc;
 
+  private String fromLocation;
+
+  @Column(name = "from_lat_deg")
+  private Integer fromLatitudeDegrees;
+
+  @Column(name = "from_lat_min")
+  private Integer fromLatitudeMinutes;
+
+  @Column(name = "from_lat_sec")
+  private BigDecimal fromLatitudeSeconds;
+
+  @Column(name = "from_lat_dir")
+  @Enumerated(EnumType.STRING)
+  private LatitudeDirection fromLatitudeDirection;
+
+  @Column(name = "from_long_deg")
+  private Integer fromLongitudeDegrees;
+
+  @Column(name = "from_long_min")
+  private Integer fromLongitudeMinutes;
+
+  @Column(name = "from_long_sec")
+  private BigDecimal fromLongitudeSeconds;
+
+  @Column(name = "from_long_dir")
+  @Enumerated(EnumType.STRING)
+  private LongitudeDirection fromLongitudeDirection;
+
+  private String toLocation;
+
+  @Column(name = "to_lat_deg")
+  private Integer toLatitudeDegrees;
+
+  @Column(name = "to_lat_min")
+  private Integer toLatitudeMinutes;
+
+  @Column(name = "to_lat_sec")
+  private BigDecimal toLatitudeSeconds;
+
+  @Column(name = "to_lat_dir")
+  @Enumerated(EnumType.STRING)
+  private LatitudeDirection toLatitudeDirection;
+
+  @Column(name = "to_long_deg")
+  private Integer toLongitudeDegrees;
+
+  @Column(name = "to_long_min")
+  private Integer toLongitudeMinutes;
+
+  @Column(name = "to_long_sec")
+  private BigDecimal toLongitudeSeconds;
+
+  @Column(name = "to_long_dir")
+  @Enumerated(EnumType.STRING)
+  private LongitudeDirection toLongitudeDirection;
+
+  private String componentPartsDesc;
+  private BigDecimal length;
+  private String productsToBeConveyed;
+  private Boolean trenchedBuriedFilledFlag;
+  private String trenchingMethodsDesc;
 
   public Integer getId() {
     return id;
@@ -69,15 +114,13 @@ public class PipelineDetail {
     this.id = id;
   }
 
-
-  public String getPipelineId() {
-    return pipelineId;
+  public Pipeline getPipeline() {
+    return pipeline;
   }
 
-  public void setPipelineId(String pipelineId) {
-    this.pipelineId = pipelineId;
+  public void setPipeline(Pipeline pipeline) {
+    this.pipeline = pipeline;
   }
-
 
   public Instant getStartTimestamp() {
     return startTimestamp;
@@ -87,7 +130,6 @@ public class PipelineDetail {
     this.startTimestamp = startTimestamp;
   }
 
-
   public Instant getEndTimestamp() {
     return endTimestamp;
   }
@@ -95,7 +137,6 @@ public class PipelineDetail {
   public void setEndTimestamp(Instant endTimestamp) {
     this.endTimestamp = endTimestamp;
   }
-
 
   public Boolean getTipFlag() {
     return tipFlag;
@@ -105,7 +146,6 @@ public class PipelineDetail {
     this.tipFlag = tipFlag;
   }
 
-
   public String getPipelineStatus() {
     return pipelineStatus;
   }
@@ -113,7 +153,6 @@ public class PipelineDetail {
   public void setPipelineStatus(String pipelineStatus) {
     this.pipelineStatus = pipelineStatus;
   }
-
 
   public String getDetailStatus() {
     return detailStatus;
@@ -123,15 +162,21 @@ public class PipelineDetail {
     this.detailStatus = detailStatus;
   }
 
-
-  public String getPipelineReference() {
-    return pipelineReference;
+  public String getPipelineNumber() {
+    return pipelineNumber;
   }
 
-  public void setPipelineReference(String pipelineReference) {
-    this.pipelineReference = pipelineReference;
+  public void setPipelineNumber(String pipelineNumber) {
+    this.pipelineNumber = pipelineNumber;
   }
 
+  public PwaConsent getPwaConsent() {
+    return pwaConsent;
+  }
+
+  public void setPwaConsent(PwaConsent pwaConsent) {
+    this.pwaConsent = pwaConsent;
+  }
 
   public PipelineType getPipelineType() {
     return pipelineType;
@@ -141,7 +186,6 @@ public class PipelineDetail {
     this.pipelineType = pipelineType;
   }
 
-
   public String getFromLocation() {
     return fromLocation;
   }
@@ -150,78 +194,69 @@ public class PipelineDetail {
     this.fromLocation = fromLocation;
   }
 
-
-  public String getFromLatDeg() {
-    return fromLatDeg;
+  public Integer getFromLatitudeDegrees() {
+    return fromLatitudeDegrees;
   }
 
-  public void setFromLatDeg(String fromLatDeg) {
-    this.fromLatDeg = fromLatDeg;
+  public void setFromLatitudeDegrees(Integer fromLatitudeDegrees) {
+    this.fromLatitudeDegrees = fromLatitudeDegrees;
   }
 
-
-  public String getFromLatMin() {
-    return fromLatMin;
+  public Integer getFromLatitudeMinutes() {
+    return fromLatitudeMinutes;
   }
 
-  public void setFromLatMin(String fromLatMin) {
-    this.fromLatMin = fromLatMin;
+  public void setFromLatitudeMinutes(Integer fromLatitudeMinutes) {
+    this.fromLatitudeMinutes = fromLatitudeMinutes;
   }
 
-
-  public String getFromLatSec() {
-    return fromLatSec;
+  public BigDecimal getFromLatitudeSeconds() {
+    return fromLatitudeSeconds;
   }
 
-  public void setFromLatSec(String fromLatSec) {
-    this.fromLatSec = fromLatSec;
+  public void setFromLatitudeSeconds(BigDecimal fromLatitudeSeconds) {
+    this.fromLatitudeSeconds = fromLatitudeSeconds;
   }
 
-
-  public String getFromLatDir() {
-    return fromLatDir;
+  public LatitudeDirection getFromLatitudeDirection() {
+    return fromLatitudeDirection;
   }
 
-  public void setFromLatDir(String fromLatDir) {
-    this.fromLatDir = fromLatDir;
+  public void setFromLatitudeDirection(LatitudeDirection fromLatitudeDirection) {
+    this.fromLatitudeDirection = fromLatitudeDirection;
   }
 
-
-  public String getFromLongDeg() {
-    return fromLongDeg;
+  public Integer getFromLongitudeDegrees() {
+    return fromLongitudeDegrees;
   }
 
-  public void setFromLongDeg(String fromLongDeg) {
-    this.fromLongDeg = fromLongDeg;
+  public void setFromLongitudeDegrees(Integer fromLongitudeDegrees) {
+    this.fromLongitudeDegrees = fromLongitudeDegrees;
   }
 
-
-  public String getFromLongMin() {
-    return fromLongMin;
+  public Integer getFromLongitudeMinutes() {
+    return fromLongitudeMinutes;
   }
 
-  public void setFromLongMin(String fromLongMin) {
-    this.fromLongMin = fromLongMin;
+  public void setFromLongitudeMinutes(Integer fromLongitudeMinutes) {
+    this.fromLongitudeMinutes = fromLongitudeMinutes;
   }
 
-
-  public String getFromLongSec() {
-    return fromLongSec;
+  public BigDecimal getFromLongitudeSeconds() {
+    return fromLongitudeSeconds;
   }
 
-  public void setFromLongSec(String fromLongSec) {
-    this.fromLongSec = fromLongSec;
+  public void setFromLongitudeSeconds(BigDecimal fromLongitudeSeconds) {
+    this.fromLongitudeSeconds = fromLongitudeSeconds;
   }
 
-
-  public String getFromLongDir() {
-    return fromLongDir;
+  public LongitudeDirection getFromLongitudeDirection() {
+    return fromLongitudeDirection;
   }
 
-  public void setFromLongDir(String fromLongDir) {
-    this.fromLongDir = fromLongDir;
+  public void setFromLongitudeDirection(LongitudeDirection fromLongitudeDirection) {
+    this.fromLongitudeDirection = fromLongitudeDirection;
   }
-
 
   public String getToLocation() {
     return toLocation;
@@ -231,78 +266,69 @@ public class PipelineDetail {
     this.toLocation = toLocation;
   }
 
-
-  public String getToLatDeg() {
-    return toLatDeg;
+  public Integer getToLatitudeDegrees() {
+    return toLatitudeDegrees;
   }
 
-  public void setToLatDeg(String toLatDeg) {
-    this.toLatDeg = toLatDeg;
+  public void setToLatitudeDegrees(Integer toLatitudeDegrees) {
+    this.toLatitudeDegrees = toLatitudeDegrees;
   }
 
-
-  public String getToLatMin() {
-    return toLatMin;
+  public Integer getToLatitudeMinutes() {
+    return toLatitudeMinutes;
   }
 
-  public void setToLatMin(String toLatMin) {
-    this.toLatMin = toLatMin;
+  public void setToLatitudeMinutes(Integer toLatitudeMinutes) {
+    this.toLatitudeMinutes = toLatitudeMinutes;
   }
 
-
-  public String getToLatSec() {
-    return toLatSec;
+  public BigDecimal getToLatitudeSeconds() {
+    return toLatitudeSeconds;
   }
 
-  public void setToLatSec(String toLatSec) {
-    this.toLatSec = toLatSec;
+  public void setToLatitudeSeconds(BigDecimal toLatitudeSeconds) {
+    this.toLatitudeSeconds = toLatitudeSeconds;
   }
 
-
-  public String getToLatDir() {
-    return toLatDir;
+  public LatitudeDirection getToLatitudeDirection() {
+    return toLatitudeDirection;
   }
 
-  public void setToLatDir(String toLatDir) {
-    this.toLatDir = toLatDir;
+  public void setToLatitudeDirection(LatitudeDirection toLatitudeDirection) {
+    this.toLatitudeDirection = toLatitudeDirection;
   }
 
-
-  public String getToLongDeg() {
-    return toLongDeg;
+  public Integer getToLongitudeDegrees() {
+    return toLongitudeDegrees;
   }
 
-  public void setToLongDeg(String toLongDeg) {
-    this.toLongDeg = toLongDeg;
+  public void setToLongitudeDegrees(Integer toLongitudeDegrees) {
+    this.toLongitudeDegrees = toLongitudeDegrees;
   }
 
-
-  public String getToLongMin() {
-    return toLongMin;
+  public Integer getToLongitudeMinutes() {
+    return toLongitudeMinutes;
   }
 
-  public void setToLongMin(String toLongMin) {
-    this.toLongMin = toLongMin;
+  public void setToLongitudeMinutes(Integer toLongitudeMinutes) {
+    this.toLongitudeMinutes = toLongitudeMinutes;
   }
 
-
-  public String getToLongSec() {
-    return toLongSec;
+  public BigDecimal getToLongitudeSeconds() {
+    return toLongitudeSeconds;
   }
 
-  public void setToLongSec(String toLongSec) {
-    this.toLongSec = toLongSec;
+  public void setToLongitudeSeconds(BigDecimal toLongitudeSeconds) {
+    this.toLongitudeSeconds = toLongitudeSeconds;
   }
 
-
-  public String getToLongDir() {
-    return toLongDir;
+  public LongitudeDirection getToLongitudeDirection() {
+    return toLongitudeDirection;
   }
 
-  public void setToLongDir(String toLongDir) {
-    this.toLongDir = toLongDir;
+  public void setToLongitudeDirection(LongitudeDirection toLongitudeDirection) {
+    this.toLongitudeDirection = toLongitudeDirection;
   }
-
 
   public String getComponentPartsDesc() {
     return componentPartsDesc;
@@ -312,15 +338,13 @@ public class PipelineDetail {
     this.componentPartsDesc = componentPartsDesc;
   }
 
-
-  public String getLength() {
+  public BigDecimal getLength() {
     return length;
   }
 
-  public void setLength(String length) {
+  public void setLength(BigDecimal length) {
     this.length = length;
   }
-
 
   public String getProductsToBeConveyed() {
     return productsToBeConveyed;
@@ -330,15 +354,13 @@ public class PipelineDetail {
     this.productsToBeConveyed = productsToBeConveyed;
   }
 
-
-  public String getTrenchedBuriedFilledFlag() {
+  public Boolean getTrenchedBuriedFilledFlag() {
     return trenchedBuriedFilledFlag;
   }
 
-  public void setTrenchedBuriedFilledFlag(String trenchedBuriedFilledFlag) {
+  public void setTrenchedBuriedFilledFlag(Boolean trenchedBuriedFilledFlag) {
     this.trenchedBuriedFilledFlag = trenchedBuriedFilledFlag;
   }
-
 
   public String getTrenchingMethodsDesc() {
     return trenchingMethodsDesc;
@@ -346,14 +368,5 @@ public class PipelineDetail {
 
   public void setTrenchingMethodsDesc(String trenchingMethodsDesc) {
     this.trenchingMethodsDesc = trenchingMethodsDesc;
-  }
-
-
-  public PwaConsent getPwaConsent() {
-    return pwaConsent;
-  }
-
-  public void setPwaConsent(PwaConsent pwaConsent) {
-    this.pwaConsent = pwaConsent;
   }
 }
