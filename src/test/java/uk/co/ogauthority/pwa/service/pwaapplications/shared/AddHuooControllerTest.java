@@ -4,11 +4,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +23,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -26,7 +32,10 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo.AddHuooContr
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -320,6 +329,57 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
         );
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditOrgHuoo_notIncludingCutoffFields() throws Exception {
+
+    when(pwaContactService.getContactRoles(any(), any()))
+        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    MultiValueMap parameters = new LinkedMultiValueMap<String, String>() {{
+      add("organisationUnit", "12");
+      add("huooRoles", HuooRole.USER.name());
+    }};
+
+    var form = new HuooForm();
+    form.setHuooRoles(Set.of(HuooRole.USER));
+    form.setOrganisationUnit(new PortalOrganisationUnit());
+
+    var orgRole = new PadOrganisationRole();
+    when(padOrganisationRoleService.getOrganisationRole(pwaApplicationDetail, 1)).thenReturn(orgRole);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(AddHuooController.class)
+            .postEditOrgHuoo(PwaApplicationType.INITIAL, APP_ID, 1, null, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(parameters)
+    ).andExpect(status().is3xxRedirection());
+
+  }
+
+  @Test
+  public void postEditTreatyHuoo_notIncludingCutoffFields() throws Exception {
+
+    when(pwaContactService.getContactRoles(any(), any()))
+        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    MultiValueMap parameters = new LinkedMultiValueMap<String, String>() {{
+      add("treatyAgreement", "");
+    }};
+
+    var orgRole = new PadOrganisationRole();
+    when(padOrganisationRoleService.getOrganisationRole(pwaApplicationDetail, 1)).thenReturn(orgRole);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(AddHuooController.class)
+            .postEditTreatyHuoo(PwaApplicationType.INITIAL, APP_ID, 1, null, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(parameters)
+    ).andExpect(status().is3xxRedirection());
 
   }
 

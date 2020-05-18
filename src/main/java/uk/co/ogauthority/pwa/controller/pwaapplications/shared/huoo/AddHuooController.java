@@ -162,7 +162,7 @@ public class AddHuooController {
                                       @PathVariable("applicationId") Integer applicationId,
                                       @PathVariable("orgUnitId") Integer orgUnitId,
                                       PwaApplicationContext applicationContext,
-                                      @Valid @ModelAttribute("form") HuooForm form,
+                                      @ModelAttribute("form") HuooForm form,
                                       BindingResult bindingResult,
                                       AuthenticatedUserAccount user) {
     form.setHuooType(HuooType.PORTAL_ORG);
@@ -200,7 +200,7 @@ public class AddHuooController {
                                          @PathVariable("applicationId") Integer applicationId,
                                          @PathVariable("orgRoleId") Integer orgRoleId,
                                          PwaApplicationContext applicationContext,
-                                         @Valid @ModelAttribute("form") HuooForm form,
+                                         @ModelAttribute("form") HuooForm form,
                                          BindingResult bindingResult,
                                          AuthenticatedUserAccount user) {
     form.setHuooType(HuooType.TREATY_AGREEMENT);
