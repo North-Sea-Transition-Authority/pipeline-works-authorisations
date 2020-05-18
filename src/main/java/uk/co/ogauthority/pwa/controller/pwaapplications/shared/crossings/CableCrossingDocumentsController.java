@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
@@ -60,7 +61,9 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
       PwaApplicationFileService applicationFileService,
       CableCrossingFileService cableCrossingFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService,
+      PadFileService padFileService) {
+    super(padFileService);
     this.applicationFileService = applicationFileService;
     this.cableCrossingFileService = cableCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;

@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -73,6 +74,9 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+
+  @MockBean
+  protected PadFileService padFileService;
 
   @Before
   public void abstractControllerTestSetup() {

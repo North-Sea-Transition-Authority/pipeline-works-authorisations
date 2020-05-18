@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -58,7 +57,7 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.EditBlo
 })
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-public class BlockCrossingController extends PwaApplicationDataFileUploadAndDownloadController {
+public class BlockCrossingController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final AddBlockCrossingFormValidator addBlockCrossingFormValidator;

@@ -46,7 +46,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
@@ -68,9 +67,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
 
   @MockBean
   private PadFacilityService padFacilityService;
-
-  @MockBean
-  private PadLocationDetailFileService padLocationDetailFileService;
 
   @SpyBean
   private LocationDetailsValidator locationDetailsValidator;
@@ -171,8 +167,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
 
     ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.PARTIAL);
-    ControllerTestUtils.passValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
-        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
@@ -183,6 +177,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
     verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
+
   }
 
   @Test
@@ -195,8 +190,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
 
     ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.PARTIAL);
-    ControllerTestUtils.failValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
-        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
@@ -217,8 +210,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
 
     ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.PARTIAL);
-    ControllerTestUtils.passValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
-        ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(
@@ -229,6 +220,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
     verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
+
   }
 
   @Test
@@ -239,8 +231,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
     }};
 
     ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
-        ValidationType.FULL);
-    ControllerTestUtils.failValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
         ValidationType.FULL);
 
     mockMvc.perform(
@@ -267,8 +257,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
     }};
 
     ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
-        ValidationType.FULL);
-    ControllerTestUtils.passValidationWhenPost(padLocationDetailFileService, new LocationDetailsForm(),
         ValidationType.FULL);
 
     mockMvc.perform(

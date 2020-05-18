@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.context;
 
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -19,6 +20,7 @@ public class PwaApplicationContext {
   private Set<PwaContactRole> userRoles;
 
   private PadPipeline padPipeline;
+  private PadFile padFile;
 
   public PwaApplicationContext(PwaApplicationDetail applicationDetail,
                                WebUserAccount user,
@@ -54,5 +56,13 @@ public class PwaApplicationContext {
 
   public PadPipeline getPadPipeline() {
     return padPipeline;
+  }
+
+  public PadFile getPadFile() {
+    return padFile;
+  }
+
+  public void setPadFile(PadFile padFile) {
+    this.padFile = padFile;
   }
 }
