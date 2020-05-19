@@ -104,7 +104,8 @@ public class PermanentDepositController {
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
           .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
-        .addObject("proposedStartDate", padProjectInformationService.getProposedStartDate(pwaApplicationDetail));
+        .addObject("proposedStartDate", padProjectInformationService.getProposedStartDate(pwaApplicationDetail))
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");

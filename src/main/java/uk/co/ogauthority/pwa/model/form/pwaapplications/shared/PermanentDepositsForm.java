@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 
@@ -39,37 +40,9 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private String contingencyGroutBagsAmount;
   private String contingencyOtherAmount;
 
+  private CoordinateForm fromCoordinateForm;
+  private CoordinateForm toCoordinateForm;
 
-  private String fromLatitudeDegrees;
-  @NotNull
-  private String fromLatitudeMinutes;
-  @NotNull
-  private String fromLatitudeSeconds;
-
-  @NotNull
-  private String fromLongitudeDegrees;
-  @NotNull
-  private String fromLongitudeMinutes;
-  @NotNull
-  private String fromLongitudeSeconds;
-  @NotNull
-  private String fromLongitudeDirection;
-
-  @NotNull
-  private String toLatitudeDegrees;
-  @NotNull
-  private String toLatitudeMinutes;
-  @NotNull
-  private String toLatitudeSeconds;
-
-  @NotNull
-  private String toLongitudeDegrees;
-  @NotNull
-  private String toLongitudeMinutes;
-  @NotNull
-  private String toLongitudeSeconds;
-  @NotNull
-  private String toLongitudeDirection;
 
 
   public Set<String> getSelectedPipelines() {
@@ -248,117 +221,23 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.contingencyOtherAmount = contingencyOtherAmount;
   }
 
-  public String getFromLatitudeDegrees() {
-    return fromLatitudeDegrees;
+  public CoordinateForm getFromCoordinateForm() {
+    return fromCoordinateForm;
   }
 
-  public void setFromLatitudeDegrees(String fromLatitudeDegrees) {
-    this.fromLatitudeDegrees = fromLatitudeDegrees;
+  public void setFromCoordinateForm(CoordinateForm fromCoordinateForm) {
+    this.fromCoordinateForm = fromCoordinateForm;
   }
 
-  public String getFromLatitudeMinutes() {
-    return fromLatitudeMinutes;
+  public CoordinateForm getToCoordinateForm() {
+    return toCoordinateForm;
   }
 
-  public void setFromLatitudeMinutes(String fromLatitudeMinutes) {
-    this.fromLatitudeMinutes = fromLatitudeMinutes;
+  public void setToCoordinateForm(CoordinateForm toCoordinateForm) {
+    this.toCoordinateForm = toCoordinateForm;
   }
 
-  public String getFromLatitudeSeconds() {
-    return fromLatitudeSeconds;
-  }
 
-  public void setFromLatitudeSeconds(String fromLatitudeSeconds) {
-    this.fromLatitudeSeconds = fromLatitudeSeconds;
-  }
-
-  public String getFromLongitudeDegrees() {
-    return fromLongitudeDegrees;
-  }
-
-  public void setFromLongitudeDegrees(String fromLongitudeDegrees) {
-    this.fromLongitudeDegrees = fromLongitudeDegrees;
-  }
-
-  public String getFromLongitudeMinutes() {
-    return fromLongitudeMinutes;
-  }
-
-  public void setFromLongitudeMinutes(String fromLongitudeMinutes) {
-    this.fromLongitudeMinutes = fromLongitudeMinutes;
-  }
-
-  public String getFromLongitudeSeconds() {
-    return fromLongitudeSeconds;
-  }
-
-  public void setFromLongitudeSeconds(String fromLongitudeSeconds) {
-    this.fromLongitudeSeconds = fromLongitudeSeconds;
-  }
-
-  public String getFromLongitudeDirection() {
-    return fromLongitudeDirection;
-  }
-
-  public void setFromLongitudeDirection(String fromLongitudeDirection) {
-    this.fromLongitudeDirection = fromLongitudeDirection;
-  }
-
-  public String getToLatitudeDegrees() {
-    return toLatitudeDegrees;
-  }
-
-  public void setToLatitudeDegrees(String toLatitudeDegrees) {
-    this.toLatitudeDegrees = toLatitudeDegrees;
-  }
-
-  public String getToLatitudeMinutes() {
-    return toLatitudeMinutes;
-  }
-
-  public void setToLatitudeMinutes(String toLatitudeMinutes) {
-    this.toLatitudeMinutes = toLatitudeMinutes;
-  }
-
-  public String getToLatitudeSeconds() {
-    return toLatitudeSeconds;
-  }
-
-  public void setToLatitudeSeconds(String toLatitudeSeconds) {
-    this.toLatitudeSeconds = toLatitudeSeconds;
-  }
-
-  public String getToLongitudeDegrees() {
-    return toLongitudeDegrees;
-  }
-
-  public void setToLongitudeDegrees(String toLongitudeDegrees) {
-    this.toLongitudeDegrees = toLongitudeDegrees;
-  }
-
-  public String getToLongitudeMinutes() {
-    return toLongitudeMinutes;
-  }
-
-  public void setToLongitudeMinutes(String toLongitudeMinutes) {
-    this.toLongitudeMinutes = toLongitudeMinutes;
-  }
-
-  public String getToLongitudeSeconds() {
-    return toLongitudeSeconds;
-  }
-
-  public void setToLongitudeSeconds(String toLongitudeSeconds) {
-    this.toLongitudeSeconds = toLongitudeSeconds;
-  }
-
-  public String getToLongitudeDirection() {
-    return toLongitudeDirection;
-  }
-
-  public void setToLongitudeDirection(String toLongitudeDirection) {
-    this.toLongitudeDirection = toLongitudeDirection;
-  }
 
 
   @Override
@@ -370,8 +249,7 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
       return false;
     }
     PermanentDepositsForm that = (PermanentDepositsForm) o;
-    return groutBagsBioDegradable == that.groutBagsBioDegradable
-        && Objects.equals(selectedPipelines, that.selectedPipelines)
+    return Objects.equals(selectedPipelines, that.selectedPipelines)
         && Objects.equals(fromMonth, that.fromMonth)
         && Objects.equals(fromYear, that.fromYear)
         && Objects.equals(toMonth, that.toMonth)
@@ -383,6 +261,7 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
         && Objects.equals(concreteMattressLength, that.concreteMattressLength)
         && Objects.equals(concreteMattressWidth, that.concreteMattressWidth)
         && Objects.equals(concreteMattressDepth, that.concreteMattressDepth)
+        && Objects.equals(groutBagsBioDegradable, that.groutBagsBioDegradable)
         && Objects.equals(bioGroutBagsNotUsedDescription, that.bioGroutBagsNotUsedDescription)
         && Objects.equals(quantityConcrete, that.quantityConcrete)
         && Objects.equals(quantityRocks, that.quantityRocks)
@@ -392,29 +271,16 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
         && Objects.equals(contingencyRocksAmount, that.contingencyRocksAmount)
         && Objects.equals(contingencyGroutBagsAmount, that.contingencyGroutBagsAmount)
         && Objects.equals(contingencyOtherAmount, that.contingencyOtherAmount)
-        && Objects.equals(fromLatitudeDegrees, that.fromLatitudeDegrees)
-        && Objects.equals(fromLatitudeMinutes, that.fromLatitudeMinutes)
-        && Objects.equals(fromLatitudeSeconds, that.fromLatitudeSeconds)
-        && Objects.equals(fromLongitudeDegrees, that.fromLongitudeDegrees)
-        && Objects.equals(fromLongitudeMinutes, that.fromLongitudeMinutes)
-        && Objects.equals(fromLongitudeSeconds, that.fromLongitudeSeconds)
-        && Objects.equals(fromLongitudeDirection, that.fromLongitudeDirection)
-        && Objects.equals(toLatitudeDegrees, that.toLatitudeDegrees)
-        && Objects.equals(toLatitudeMinutes, that.toLatitudeMinutes)
-        && Objects.equals(toLatitudeSeconds, that.toLatitudeSeconds)
-        && Objects.equals(toLongitudeDegrees, that.toLongitudeDegrees)
-        && Objects.equals(toLongitudeMinutes, that.toLongitudeMinutes)
-        && Objects.equals(toLongitudeSeconds, that.toLongitudeSeconds)
-        && Objects.equals(toLongitudeDirection, that.toLongitudeDirection);
+        && Objects.equals(fromCoordinateForm, that.fromCoordinateForm)
+        && Objects.equals(toCoordinateForm, that.toCoordinateForm);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(selectedPipelines, fromMonth, fromYear, toMonth, toYear, materialType, rocksSize, groutBagsSize, otherMaterialSize,
-        concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bioGroutBagsNotUsedDescription,
-        quantityConcrete, quantityRocks, quantityGroutBags, quantityOther, contingencyConcreteAmount, contingencyRocksAmount,
-        contingencyGroutBagsAmount, contingencyOtherAmount, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds,
-        fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees, toLatitudeMinutes,
-        toLatitudeSeconds, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection);
+    return Objects.hash(selectedPipelines, fromMonth, fromYear, toMonth, toYear, materialType, rocksSize, groutBagsSize,
+        otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
+        bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,
+        contingencyConcreteAmount, contingencyRocksAmount, contingencyGroutBagsAmount,
+        contingencyOtherAmount, fromCoordinateForm, toCoordinateForm);
   }
 }

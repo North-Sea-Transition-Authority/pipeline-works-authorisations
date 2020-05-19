@@ -1,6 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import org.apache.commons.lang3.StringUtils;
+import javax.validation.Validation;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,14 +29,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
-
-import javax.validation.Validation;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositsServiceTest {
@@ -99,28 +97,6 @@ public class PermanentDepositsServiceTest {
 
     verify(permanentDepositEntityMappingService, times(1)).setEntityValuesUsingForm(padPermanentDeposit, form);
     verify(permanentDepositInformationRepository, times(1)).save(padPermanentDeposit);
-
-  }
-
-
-
-  @Test
-  public void validate_partial_fail() {
-
-    var tooBig = StringUtils.repeat("a", 4001);
-    var form = new PermanentDepositsForm();
-    form.setBioGroutBagsNotUsedDescription(tooBig);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    service.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
-
-    var errors = ValidatorTestUtils.extractErrors(bindingResult);
-
-//    assertThat(errors).containsOnly(
-//        entry("bioGroutBagsNotUsedDescription", Set.of("Length"))
-//    );
-//
-//    verifyNoInteractions(validator);
 
   }
 

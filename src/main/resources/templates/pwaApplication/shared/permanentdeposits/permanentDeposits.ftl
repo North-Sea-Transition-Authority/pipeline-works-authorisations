@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="longDirections" type="java.util.List<LongitudeDirection>" --> 
 <#-- @ftlvariable name="proposedStartDate" type="java.lang.String" --> 
 
-<@defaultPage htmlTitle="Permanent Deposits" pageHeading="Permanent Deposits" breadcrumbs=true>
+<@defaultPage htmlTitle="Permanent deposits" pageHeading="Permanent deposits" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
@@ -14,10 +14,8 @@
 
     <@fdsForm.htmlForm>
 
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Select Pipelines" multiSelect=true/>
-        <@fdsInsetText.insetText>
-            Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed.
-        </@fdsInsetText.insetText>
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true  optionalLabel=false
+            hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed."/>
 
         <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start (must be on/after proposed start date of " + proposedStartDate + ")" formId="from-month-year">
             <@fdsNumberInput.numberInputItem path="form.fromMonth" labelText="Month" inputClass="govuk-input--width-2"/>
@@ -36,36 +34,36 @@
             <#list materialTypes as  materialTypeOption>
                 <@fdsRadio.radioItem path="form.materialType" itemMap={materialTypeOption : materialTypeOption.getDisplayText()} isFirstItem=firstItem>   
                     <#if materialTypeOption == "CONCRETE_MATTRESSES">
-                        <@fdsTextInput.textInput path="form.concreteMattressLength" labelText="Length: m" inputClass="govuk-input--width-10"/>
-                        <@fdsTextInput.textInput path="form.concreteMattressWidth" labelText="Width: m" inputClass="govuk-input--width-10"/>
-                        <@fdsTextInput.textInput path="form.concreteMattressDepth" labelText="Depth: m" inputClass="govuk-input--width-10"/>
-                        <@fdsTextInput.textInput path="form.quantityConcrete" labelText="Enter quantity of material to be used?"/>
+                        <@fdsTextInput.textInput path="form.concreteMattressLength" nestingPath="form.materialType" labelText="Length" suffix="m" inputClass="govuk-input--width-10"/>
+                        <@fdsTextInput.textInput path="form.concreteMattressWidth" nestingPath="form.materialType" labelText="Width" suffix="m" inputClass="govuk-input--width-10"/>
+                        <@fdsTextInput.textInput path="form.concreteMattressDepth" nestingPath="form.materialType" labelText="Depth" suffix="m" inputClass="govuk-input--width-10"/>
+                        <@fdsTextInput.textInput path="form.quantityConcrete" nestingPath="form.materialType" labelText="Enter quantity of material to be used"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyConcreteAmount" labelText="How much contingency was included?"/>
+                        <@fdsTextInput.textInput path="form.contingencyConcreteAmount" nestingPath="form.materialType" labelText="How much contingency was included?"/> 
 
                     <#elseif materialTypeOption == "ROCK">
-                        <@fdsTextInput.textInput path="form.rocksSize" labelText="Size: Grade e.g (1-5)"/>
-                        <@fdsTextInput.textInput path="form.quantityRocks" labelText="Enter quantity of material to be used? (decimal tonnes)"/>
+                        <@fdsTextInput.textInput path="form.rocksSize" nestingPath="form.materialType" labelText="Size" suffix="Grade e.g (1-5)" inputClass="govuk-input--width-10"/>
+                        <@fdsTextInput.textInput path="form.quantityRocks" nestingPath="form.materialType" labelText="Quantity of material to be used (decimal tonnes)" inputClass="govuk-input--width-10"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyRocksAmount" labelText="How much contingency was included?"/>
+                        <@fdsTextInput.textInput path="form.contingencyRocksAmount" nestingPath="form.materialType" labelText="How much contingency was included?"/>
 
                     <#elseif materialTypeOption == "GROUT_BAGS">
-                        <@fdsTextInput.textInput path="form.groutBagsSize" labelText="Size: kg"/>
-                        <@fdsRadio.radioGroup path="form.groutBagsBioDegradable" labelText="Are the grout bags bio-degradable?" hiddenContent=true>  
+                        <@fdsTextInput.textInput path="form.groutBagsSize" nestingPath="form.materialType" labelText="Size" suffix="kg" inputClass="govuk-input--width-20"/>
+                        <@fdsRadio.radioGroup path="form.groutBagsBioDegradable" nestingPath="form.materialType" labelText="Are the grout bags bio-degradable?" hiddenContent=true>  
                             <@fdsRadio.radioYes path="form.groutBagsBioDegradable"/>                                
                             <@fdsRadio.radioNo path="form.groutBagsBioDegradable">
-                                <@fdsTextInput.textInput path="form.bioGroutBagsNotUsedDescription" labelText="Why are bio-degradable grout bags not being used?"/>
+                                <@fdsTextInput.textInput path="form.bioGroutBagsNotUsedDescription" nestingPath="form.materialType" labelText="Why are bio-degradable grout bags not being used" maxCharacterLength="4000"/>
                             </@fdsRadio.radioNo>                        
                         </@fdsRadio.radioGroup>
-                        <@fdsTextInput.textInput path="form.quantityGroutBags" labelText="Enter quantity of material to be used?"/>
+                        <@fdsTextInput.textInput path="form.quantityGroutBags" nestingPath="form.materialType" labelText="Quantity of material to be used" inputClass="govuk-input--width-20"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyGroutBagsAmount" labelText="How much contingency was included?"/>
+                        <@fdsTextInput.textInput path="form.contingencyGroutBagsAmount" nestingPath="form.materialType" labelText="How much contingency was included?"/>
 
                     <#elseif materialTypeOption == "OTHER">
-                        <@fdsTextInput.textInput path="form.otherMaterialSize" labelText="Size: "/>
-                        <@fdsTextInput.textInput path="form.quantityOther" labelText="Enter quantity of material to be used?"/>
+                        <@fdsTextInput.textInput path="form.otherMaterialSize" nestingPath="form.materialType" labelText="Size" inputClass="govuk-input--width-20"/>
+                        <@fdsTextInput.textInput path="form.quantityOther" nestingPath="form.materialType" labelText="Quantity of material to be used" inputClass="govuk-input--width-20"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyOtherAmount" labelText="How much contingency was included?"/>
+                        <@fdsTextInput.textInput path="form.contingencyOtherAmount" nestingPath="form.materialType" labelText="How much contingency was included?"/>
                     </#if>
                 </@fdsRadio.radioItem>
             <#assign firstItem=false/>
@@ -74,34 +72,34 @@
 
 
         <@fdsFieldset.fieldset legendHeading="Where is the start location?">
-            <@pwaLocationInput.locationInput degreesLocationPath="form.fromLatitudeDegrees"
-                                          minutesLocationPath="form.fromLatitudeMinutes"
-                                          secondsLocationPath="form.fromLatitudeSeconds"
+            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
+                                          minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
+                                          secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
                                           formId="fromLatitude"
                                           labelText="Start point latitude"/>
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.fromLongitudeDegrees"
-                                          minutesLocationPath="form.fromLongitudeMinutes"
-                                          secondsLocationPath="form.fromLongitudeSeconds"
+            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.longitudeDegrees"
+                                          minutesLocationPath="form.fromCoordinateForm.longitudeMinutes"
+                                          secondsLocationPath="form.fromCoordinateForm.longitudeSeconds"
                                           direction="EW"
-                                          directionPath="form.fromLongitudeDirection"
+                                          directionPath="form.fromCoordinateForm.longitudeDirection"
                                           directionList=longDirections
                                           formId="fromLongitude"
                                           labelText="Start point longitude"/>
         </@fdsFieldset.fieldset> 
 
         <@fdsFieldset.fieldset legendHeading="Where is the end location?">
-            <@pwaLocationInput.locationInput degreesLocationPath="form.toLatitudeDegrees" 
-                                          minutesLocationPath="form.toLatitudeMinutes" 
-                                          secondsLocationPath="form.toLatitudeSeconds" 
+            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
+                                          minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
+                                          secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
                                           formId="toLatitude" 
                                           labelText="Finish point latitude"/>
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.toLongitudeDegrees"
-                                          minutesLocationPath="form.toLongitudeMinutes"
-                                          secondsLocationPath="form.toLongitudeSeconds"
+            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.longitudeDegrees"
+                                          minutesLocationPath="form.toCoordinateForm.longitudeMinutes"
+                                          secondsLocationPath="form.toCoordinateForm.longitudeSeconds"
                                           direction="EW"
-                                          directionPath="form.toLongitudeDirection"
+                                          directionPath="form.toCoordinateForm.longitudeDirection"
                                           directionList=longDirections
                                           formId="toLongitude"
                                           labelText="Finish point longitude"/>
@@ -110,7 +108,7 @@
         
 
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

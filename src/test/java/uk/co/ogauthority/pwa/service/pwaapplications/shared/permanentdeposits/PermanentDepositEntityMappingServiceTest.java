@@ -6,8 +6,14 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 import java.math.BigDecimal;
 
@@ -33,21 +39,42 @@ public class PermanentDepositEntityMappingServiceTest {
     baseEntity.setQuantity(Double.parseDouble("5.7"));
     baseEntity.setContingencyAmount("88");
 
-    baseEntity.setFromLatitudeDegrees(1);
-    baseEntity.setFromLatitudeMinutes(33);
-    baseEntity.setFromLatitudeSeconds(new BigDecimal("15"));
-    baseEntity.setFromLongitudeDegrees(166);
-    baseEntity.setFromLongitudeMinutes(35);
-    baseEntity.setFromLongitudeSeconds(new BigDecimal("61"));
-    baseEntity.setFromLongitudeDirection(LongitudeDirection.EAST);
+    var fromCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
+            new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
+        ), fromCoordinateForm
+    );
+    baseEntity.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(fromCoordinateForm));
 
-    baseEntity.setToLatitudeDegrees(55);
-    baseEntity.setToLatitudeMinutes(32);
-    baseEntity.setToLatitudeSeconds(new BigDecimal("16"));
-    baseEntity.setToLongitudeDegrees(53);
-    baseEntity.setToLongitudeMinutes(65);
-    baseEntity.setToLongitudeSeconds(new BigDecimal("23"));
-    baseEntity.setToLongitudeDirection(LongitudeDirection.WEST);
+    var toCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(46, 46, BigDecimal.valueOf(46), LatitudeDirection.SOUTH),
+            new LongitudeCoordinate(6, 6, BigDecimal.valueOf(6.66), LongitudeDirection.WEST)
+        ), toCoordinateForm
+    );
+    baseEntity.setToCoordinates(CoordinateUtils.coordinatePairFromForm(toCoordinateForm));
+
+
+//    baseEntity.setFromLatitudeDegrees(1);
+//    baseEntity.setFromLatitudeMinutes(33);
+//    baseEntity.setFromLatitudeSeconds(new BigDecimal("15"));
+//    baseEntity.setFromLongitudeDegrees(166);
+//    baseEntity.setFromLatitudeDirection(LatitudeDirection.NORTH);
+//    baseEntity.setFromLongitudeMinutes(35);
+//    baseEntity.setFromLongitudeSeconds(new BigDecimal("61"));
+//    baseEntity.setFromLongitudeDirection(LongitudeDirection.EAST);
+//
+//    baseEntity.setToLatitudeDegrees(55);
+//    baseEntity.setToLatitudeMinutes(32);
+//    baseEntity.setToLatitudeSeconds(new BigDecimal("16"));
+//    baseEntity.setToLatitudeDirection(LatitudeDirection.NORTH);
+//    baseEntity.setToLongitudeDegrees(53);
+//    baseEntity.setToLongitudeMinutes(65);
+//    baseEntity.setToLongitudeSeconds(new BigDecimal("23"));
+//    baseEntity.setToLongitudeDirection(LongitudeDirection.WEST);
     return baseEntity;
   }
 
@@ -58,21 +85,25 @@ public class PermanentDepositEntityMappingServiceTest {
     baseForm.setToMonth(baseEntity.getToMonth());
     baseForm.setToYear(baseEntity.getToYear());
 
-    baseForm.setFromLatitudeDegrees(String.valueOf(baseEntity.getFromLatitudeDegrees()));
-    baseForm.setFromLatitudeMinutes(String.valueOf(baseEntity.getFromLatitudeMinutes()));
-    baseForm.setFromLatitudeSeconds(String.valueOf(baseEntity.getFromLatitudeSeconds()));
-    baseForm.setFromLongitudeDegrees(String.valueOf(baseEntity.getFromLongitudeDegrees()));
-    baseForm.setFromLongitudeMinutes(String.valueOf(baseEntity.getFromLongitudeMinutes()));
-    baseForm.setFromLongitudeSeconds(String.valueOf(baseEntity.getFromLongitudeSeconds()));
-    baseForm.setFromLongitudeDirection(baseEntity.getFromLongitudeDirection().name());
+    baseForm.setFromCoordinateForm(new CoordinateForm());
+    baseForm.getFromCoordinateForm().setLatitudeDegrees(baseEntity.getFromLatitudeDegrees());
+    baseForm.getFromCoordinateForm().setLatitudeMinutes(baseEntity.getFromLatitudeMinutes());
+    baseForm.getFromCoordinateForm().setLatitudeSeconds(baseEntity.getFromLatitudeSeconds());
+    baseForm.getFromCoordinateForm().setLatitudeDirection(baseEntity.getFromLatitudeDirection());
+    baseForm.getFromCoordinateForm().setLongitudeDegrees(baseEntity.getFromLongitudeDegrees());
+    baseForm.getFromCoordinateForm().setLongitudeMinutes(baseEntity.getFromLongitudeMinutes());
+    baseForm.getFromCoordinateForm().setLongitudeSeconds(baseEntity.getFromLongitudeSeconds());
+    baseForm.getFromCoordinateForm().setLongitudeDirection(baseEntity.getFromLongitudeDirection());
 
-    baseForm.setToLatitudeDegrees(String.valueOf(baseEntity.getToLatitudeDegrees()));
-    baseForm.setToLatitudeMinutes(String.valueOf(baseEntity.getToLatitudeMinutes()));
-    baseForm.setToLatitudeSeconds(String.valueOf(baseEntity.getToLatitudeSeconds()));
-    baseForm.setToLongitudeDegrees(String.valueOf(baseEntity.getToLongitudeDegrees()));
-    baseForm.setToLongitudeMinutes(String.valueOf(baseEntity.getToLongitudeMinutes()));
-    baseForm.setToLongitudeSeconds(String.valueOf(baseEntity.getToLongitudeSeconds()));
-    baseForm.setToLongitudeDirection(baseEntity.getToLongitudeDirection().name());
+    baseForm.setToCoordinateForm(new CoordinateForm());
+    baseForm.getToCoordinateForm().setLatitudeDegrees(baseEntity.getToLatitudeDegrees());
+    baseForm.getToCoordinateForm().setLatitudeMinutes(baseEntity.getToLatitudeMinutes());
+    baseForm.getToCoordinateForm().setLatitudeSeconds(baseEntity.getToLatitudeSeconds());
+    baseForm.getToCoordinateForm().setLatitudeDirection(baseEntity.getToLatitudeDirection());
+    baseForm.getToCoordinateForm().setLongitudeDegrees(baseEntity.getToLongitudeDegrees());
+    baseForm.getToCoordinateForm().setLongitudeMinutes(baseEntity.getToLongitudeMinutes());
+    baseForm.getToCoordinateForm().setLongitudeSeconds(baseEntity.getToLongitudeSeconds());
+    baseForm.getToCoordinateForm().setLongitudeDirection(baseEntity.getToLongitudeDirection());
     return baseForm;
   }
 

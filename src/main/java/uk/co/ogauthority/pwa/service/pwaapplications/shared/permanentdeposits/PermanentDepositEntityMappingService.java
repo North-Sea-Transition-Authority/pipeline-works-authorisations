@@ -1,11 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
-import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 
 /**
@@ -52,21 +52,10 @@ public class PermanentDepositEntityMappingService {
         form.setContingencyOtherAmount(entity.getContingencyAmount());
       }
 
-      form.setFromLatitudeDegrees(String.valueOf(entity.getFromLatitudeDegrees()));
-      form.setFromLatitudeMinutes(String.valueOf(entity.getFromLatitudeMinutes()));
-      form.setFromLatitudeSeconds(String.valueOf(entity.getFromLatitudeSeconds()));
-      form.setFromLongitudeDegrees(String.valueOf(entity.getFromLongitudeDegrees()));
-      form.setFromLongitudeMinutes(String.valueOf(entity.getFromLongitudeMinutes()));
-      form.setFromLongitudeSeconds(String.valueOf(entity.getFromLongitudeSeconds()));
-      form.setFromLongitudeDirection(entity.getFromLongitudeDirection().name());
-
-      form.setToLatitudeDegrees(String.valueOf(entity.getToLatitudeDegrees()));
-      form.setToLatitudeMinutes(String.valueOf(entity.getToLatitudeMinutes()));
-      form.setToLatitudeSeconds(String.valueOf(entity.getToLatitudeSeconds()));
-      form.setToLongitudeDegrees(String.valueOf(entity.getToLongitudeDegrees()));
-      form.setToLongitudeMinutes(String.valueOf(entity.getToLongitudeMinutes()));
-      form.setToLongitudeSeconds(String.valueOf(entity.getToLongitudeSeconds()));
-      form.setToLongitudeDirection(entity.getToLongitudeDirection().name());
+      form.setFromCoordinateForm(new CoordinateForm());
+      form.setToCoordinateForm(new CoordinateForm());
+      CoordinateUtils.mapCoordinatePairToForm(entity.getFromCoordinates(), form.getFromCoordinateForm());
+      CoordinateUtils.mapCoordinatePairToForm(entity.getToCoordinates(), form.getToCoordinateForm());
     }
 
 
@@ -110,22 +99,8 @@ public class PermanentDepositEntityMappingService {
       entity.setContingencyAmount(form.getContingencyOtherAmount());
     }
 
-    entity.setFromLatitudeDegrees(Integer.parseInt(form.getFromLatitudeDegrees()));
-    entity.setFromLatitudeMinutes(Integer.parseInt(form.getFromLatitudeMinutes()));
-    entity.setFromLatitudeSeconds(new BigDecimal(form.getFromLatitudeSeconds()));
-    entity.setFromLongitudeDegrees(Integer.parseInt(form.getFromLongitudeDegrees()));
-    entity.setFromLongitudeMinutes(Integer.parseInt(form.getFromLongitudeMinutes()));
-    entity.setFromLongitudeSeconds(new BigDecimal(form.getFromLongitudeSeconds()));
-    entity.setFromLongitudeDirection(LongitudeDirection.valueOf(form.getFromLongitudeDirection()));
-
-    entity.setToLatitudeDegrees(Integer.parseInt(form.getToLatitudeDegrees()));
-    entity.setToLatitudeMinutes(Integer.parseInt(form.getToLatitudeMinutes()));
-    entity.setToLatitudeSeconds(new BigDecimal(form.getToLatitudeSeconds()));
-    entity.setToLongitudeDegrees(Integer.parseInt(form.getToLongitudeDegrees()));
-    entity.setToLongitudeMinutes(Integer.parseInt(form.getToLongitudeMinutes()));
-    entity.setToLongitudeSeconds(new BigDecimal(form.getToLongitudeSeconds()));
-    entity.setToLongitudeDirection(LongitudeDirection.valueOf(form.getToLongitudeDirection()));
-
+    entity.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
+    entity.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
   }
 
 }
