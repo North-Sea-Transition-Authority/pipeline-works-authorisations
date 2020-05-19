@@ -56,25 +56,6 @@ public class PermanentDepositEntityMappingServiceTest {
         ), toCoordinateForm
     );
     baseEntity.setToCoordinates(CoordinateUtils.coordinatePairFromForm(toCoordinateForm));
-
-
-//    baseEntity.setFromLatitudeDegrees(1);
-//    baseEntity.setFromLatitudeMinutes(33);
-//    baseEntity.setFromLatitudeSeconds(new BigDecimal("15"));
-//    baseEntity.setFromLongitudeDegrees(166);
-//    baseEntity.setFromLatitudeDirection(LatitudeDirection.NORTH);
-//    baseEntity.setFromLongitudeMinutes(35);
-//    baseEntity.setFromLongitudeSeconds(new BigDecimal("61"));
-//    baseEntity.setFromLongitudeDirection(LongitudeDirection.EAST);
-//
-//    baseEntity.setToLatitudeDegrees(55);
-//    baseEntity.setToLatitudeMinutes(32);
-//    baseEntity.setToLatitudeSeconds(new BigDecimal("16"));
-//    baseEntity.setToLatitudeDirection(LatitudeDirection.NORTH);
-//    baseEntity.setToLongitudeDegrees(53);
-//    baseEntity.setToLongitudeMinutes(65);
-//    baseEntity.setToLongitudeSeconds(new BigDecimal("23"));
-//    baseEntity.setToLongitudeDirection(LongitudeDirection.WEST);
     return baseEntity;
   }
 
