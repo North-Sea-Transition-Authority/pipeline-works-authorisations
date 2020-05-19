@@ -12,7 +12,6 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +34,6 @@ import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisati
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -333,22 +331,15 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void postEditOrgHuoo_notIncludingCutoffFields() throws Exception {
+  public void postEditOrgHuoo_notIncludingTreatyFields() throws Exception {
 
     when(pwaContactService.getContactRoles(any(), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     MultiValueMap parameters = new LinkedMultiValueMap<String, String>() {{
-      add("organisationUnit", "12");
+      add("organisationUnitId", "2");
       add("huooRoles", HuooRole.USER.name());
     }};
-
-    var form = new HuooForm();
-    form.setHuooRoles(Set.of(HuooRole.USER));
-    form.setOrganisationUnit(new PortalOrganisationUnit());
-
-    var orgRole = new PadOrganisationRole();
-    when(padOrganisationRoleService.getOrganisationRole(pwaApplicationDetail, 1)).thenReturn(orgRole);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(AddHuooController.class)
@@ -361,7 +352,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void postEditTreatyHuoo_notIncludingCutoffFields() throws Exception {
+  public void postEditTreatyHuoo_notIncludingOrgFields() throws Exception {
 
     when(pwaContactService.getContactRoles(any(), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));

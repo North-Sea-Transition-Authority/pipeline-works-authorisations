@@ -177,7 +177,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
             "No organisation unit roles found for org unit with ID: " + orgUnit.getOuId()));
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(roleSet);
-    form.setOrganisationUnit(role.getOrganisationUnit());
+    form.setOrganisationUnitId(role.getOrganisationUnit().getOuId());
   }
 
   public void mapTreatyAgreementToForm(PwaApplicationDetail pwaApplicationDetail, PadOrganisationRole organisationRole,
@@ -201,13 +201,15 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   public void saveEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, HuooForm form) {
     var rolesToSave = new ArrayList<PadOrganisationRole>();
     if (form.getHuooType().equals(HuooType.PORTAL_ORG)) {
+      var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())
+          .orElse(null);
       form.getHuooRoles().forEach(huooRole -> {
         var padOrganisationRole = new PadOrganisationRole();
         padOrganisationRole.setAgreement(null);
         padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
         padOrganisationRole.setRole(huooRole);
         padOrganisationRole.setType(form.getHuooType());
-        padOrganisationRole.setOrganisationUnit(form.getOrganisationUnit());
+        padOrganisationRole.setOrganisationUnit(orgUnit);
         rolesToSave.add(padOrganisationRole);
       });
     } else if (form.getHuooType().equals(HuooType.TREATY_AGREEMENT)) {

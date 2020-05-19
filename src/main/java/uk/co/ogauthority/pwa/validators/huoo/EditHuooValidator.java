@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -15,11 +16,14 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleSer
 public class EditHuooValidator implements SmartValidator {
 
   private final PadOrganisationRoleService padOrganisationRoleService;
+  private final PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Autowired
   public EditHuooValidator(
-      PadOrganisationRoleService padOrganisationRoleService) {
+      PadOrganisationRoleService padOrganisationRoleService,
+      PortalOrganisationsAccessor portalOrganisationsAccessor) {
     this.padOrganisationRoleService = padOrganisationRoleService;
+    this.portalOrganisationsAccessor = portalOrganisationsAccessor;
   }
 
   @Override
@@ -49,7 +53,7 @@ public class EditHuooValidator implements SmartValidator {
         errors.rejectValue("huooRoles", "huooRoles.required",
             "You must select one or more roles");
       }
-      if (form.getOrganisationUnit() != null) {
+      if (form.getOrganisationUnitId() != null) {
         roles.stream()
             .filter(role -> role.getType().equals(HuooType.PORTAL_ORG))
             .filter(
@@ -57,7 +61,7 @@ public class EditHuooValidator implements SmartValidator {
                 padOrganisationRole -> huooValidationView.getPortalOrganisationUnit() == null
                     || (padOrganisationRole.getOrganisationUnit().getOuId() != huooValidationView.getPortalOrganisationUnit().getOuId()))
             .filter(padOrganisationRole ->
-                padOrganisationRole.getOrganisationUnit().getOuId() == form.getOrganisationUnit().getOuId())
+                    form.getOrganisationUnitId().equals(padOrganisationRole.getOrganisationUnit().getOuId()))
             .findAny()
             .ifPresent(padOrganisationRole -> errors.rejectValue("organisationUnit", "organisationUnit.alreadyUsed",
                 "The selected organisation is already added to the application"));

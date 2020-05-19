@@ -45,11 +45,11 @@ public class AddHuooValidator implements SmartValidator {
         errors.rejectValue("huooRoles", "huooRoles.required",
             "You must select one or more roles");
       }
-      if (form.getOrganisationUnit() != null) {
+      if (form.getOrganisationUnitId() != null) {
         roles.stream()
             .filter(role -> role.getType().equals(HuooType.PORTAL_ORG))
             .filter(padOrganisationRole ->
-                padOrganisationRole.getOrganisationUnit().getOuId() == form.getOrganisationUnit().getOuId())
+                form.getOrganisationUnitId().equals(padOrganisationRole.getOrganisationUnit().getOuId()))
             .findAny()
             .ifPresent(padOrganisationRole -> errors.rejectValue("organisationUnit", "organisationUnit.alreadyUsed",
                 "The selected organisation is already added to the application"));
