@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -12,13 +11,13 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipelines;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.DepositsForPipelinesRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
@@ -38,7 +37,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final PermanentDepositsValidator permanentDepositsValidator;
   private final SpringValidatorAdapter groupValidator;
   private final PadPipelineRepository padPipelineRepository;
-  private final DepositsForPipelinesRepository depositsForPipelinesRepository;
+  private final PadDepositPipelineRepository padDepositPipelineRepository;
   private final PadProjectInformationRepository padProjectInformationRepository;
 
   @Autowired
@@ -48,14 +47,14 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PermanentDepositsValidator permanentDepositsValidator,
       SpringValidatorAdapter groupValidator,
       PadPipelineRepository padPipelineRepository,
-      DepositsForPipelinesRepository depositsForPipelinesRepository,
+      PadDepositPipelineRepository padDepositPipelineRepository,
       PadProjectInformationRepository padProjectInformationRepository) {
     this.permanentDepositInformationRepository = permanentDepositInformationRepository;
     this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
     this.permanentDepositsValidator = permanentDepositsValidator;
     this.groupValidator = groupValidator;
     this.padPipelineRepository = padPipelineRepository;
-    this.depositsForPipelinesRepository = depositsForPipelinesRepository;
+    this.padDepositPipelineRepository = padDepositPipelineRepository;
     this.padProjectInformationRepository = padProjectInformationRepository;
   }
 
@@ -85,9 +84,9 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     permanentDepositInformation = permanentDepositInformationRepository.save(permanentDepositInformation);
     for (String padPipelineId : form.getSelectedPipelines()) {
       var padPipeline = padPipelineRepository.findById(Integer.valueOf(padPipelineId))
-          .orElse(new PadPipeline());
-      var depositsForPipelines = new PadDepositPipelines(permanentDepositInformation, padPipeline);
-      depositsForPipelinesRepository.save(depositsForPipelines);
+          .orElseThrow(() -> new PwaEntityNotFoundException("Permanent deposit information could not be found"));
+      var depositsForPipelines = new PadDepositPipeline(permanentDepositInformation, padPipeline);
+      padDepositPipelineRepository.save(depositsForPipelines);
     }
   }
 
@@ -99,7 +98,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PadPermanentDeposit padPermanentDeposit = permanentDeposits.get(0);
       var permanentDepositsForm = new PermanentDepositsForm();
       mapEntityToForm(padPermanentDeposit, permanentDepositsForm);
-      BindingResult bindingResult = new BeanPropertyBindingResult(padPermanentDeposit, "form");
+      BindingResult bindingResult = new BeanPropertyBindingResult(permanentDepositsForm, "form");
       permanentDepositsValidator.validate(permanentDepositsForm, bindingResult);
 
       return !bindingResult.hasErrors();
@@ -116,8 +115,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       groupValidator.validate(form, bindingResult, PartialValidation.class);
     } else {
       groupValidator.validate(form, bindingResult, FullValidation.class);
-      permanentDepositsValidator.validate(form, bindingResult,
-          padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail).get());
+      permanentDepositsValidator.validate(form, bindingResult);
     }
 
     return bindingResult;
@@ -140,11 +138,11 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PermanentDepositsForm form = new PermanentDepositsForm();
       mapEntityToForm(permanentDeposit, form);
 
-      var depositsForPipelines = depositsForPipelinesRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId());
-      var pipelineIds = depositsForPipelines.stream().map(depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId().getId()))
+      var depositsForPipelines = padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId());
+      var pipelineRefs = depositsForPipelines.stream().map(depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId().getPipelineRef()))
           .collect(Collectors.toSet());
 
-      form.setSelectedPipelines(pipelineIds);
+      form.setSelectedPipelines(pipelineRefs);
       forms.add(form);
     }
 

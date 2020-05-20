@@ -78,7 +78,8 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
         .requiredAppStatus(appStatus)
         .requiredAppTypes(applicationTypes)
         .requiredUserPermissions(requiredPermissions)
-        .withPadPipelineId(resolveIdFromRequestOrNull(nativeWebRequest, "padPipelineId"));
+        .withPadPipelineId(resolveIdFromRequestOrNull(nativeWebRequest, "padPipelineId"))
+        .withFileId(resolveFromRequestOrNull(nativeWebRequest, "fileId"));
 
     return pwaApplicationContextService.validateAndCreate(contextParams);
 
@@ -115,6 +116,17 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
     } catch (NullPointerException e) {
       return null;
     }
+
+  }
+
+  private String resolveFromRequestOrNull(NativeWebRequest nativeWebRequest, String requestParam) {
+
+    @SuppressWarnings("unchecked")
+    var pathVariables = (Map<String, String>) Objects.requireNonNull(
+        nativeWebRequest.getNativeRequest(HttpServletRequest.class))
+        .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+
+    return pathVariables.get(requestParam);
 
   }
 

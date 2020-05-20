@@ -1,12 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +21,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInforma
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
@@ -147,7 +145,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var projectInformationForm = new ProjectInformationForm();
     mapEntityToForm(projectInformation, projectInformationForm, ApplicationFileLinkStatus.FULL);
     BindingResult bindingResult = new BeanPropertyBindingResult(projectInformationForm, "form");
-    projectInformationValidator.validate(projectInformationForm, bindingResult);
+    validate(projectInformationForm, bindingResult, ValidationType.FULL, detail);
 
     return !bindingResult.hasErrors();
 
@@ -177,16 +175,13 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION) ? false : true;
+    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
   }
 
   public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    DateTimeFormatter formatter =
-        DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
-        .withLocale(Locale.UK)
-        .withZone(ZoneId.systemDefault());
-    return formatter.format(projectInformation.getProposedStartTimestamp());
+    return  DateUtils.formatDate(LocalDate.ofInstant(
+        projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault()));
   }
 
 

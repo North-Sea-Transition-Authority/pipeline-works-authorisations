@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
+import java.util.List;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -29,5 +30,21 @@ public interface ApplicationFormSectionService {
                          BindingResult bindingResult,
                          ValidationType validationType,
                          PwaApplicationDetail pwaApplicationDetail);
+
+  /**
+   * Used to show/hide the task list entry.
+   * @return True if entry should be shown.
+   */
+  default boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return true;
+  }
+
+  /**
+   * Use to retrieve a list of extra labels to add to the task list entry.
+   * @return List of TaskInfo objects.
+   */
+  default List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
+    return List.of();
+  }
 
 }

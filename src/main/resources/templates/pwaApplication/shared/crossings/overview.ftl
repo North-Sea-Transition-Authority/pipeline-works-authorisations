@@ -7,41 +7,53 @@
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 <#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
-<#-- @ftlvariable name="blockCrossingDocumentsUrl" type="java.lang.String" -->
+
+<#-- @ftlvariable name="cableCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView>" -->
+<#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory" -->
+<#-- @ftlvariable name="cableCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+
+<#-- @ftlvariable name="pipelineCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PipelineCrossingView>" -->
+<#-- @ftlvariable name="pipelineCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory" -->
+<#-- @ftlvariable name="pipelineCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+
+<#-- @ftlvariable name="medianLineCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingView>" -->
+<#-- @ftlvariable name="medianLineCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory" -->
+<#-- @ftlvariable name="medianLineCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
+<#-- @ftlvariable name="overview" type="uk.co.ogauthority.pwa.model.form.enums.CrossingOverview" -->
 
 
 
-<@defaultPage htmlTitle="Crossing agreements" pageHeading="Crossing agreements" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle=overview.sectionTitle pageHeading=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
 
-    <@blockCrossingManagement.blockCrossingManagement
-    blockCrossings=blockCrossings
-    blockCrossingFileViews=blockCrossingFiles
-    urlFactory=blockCrossingUrlFactory
-    isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
+    <#if overview == "LICENCE_AND_BLOCKS">
+        <@blockCrossingManagement.blockCrossingManagement
+        blockCrossings=blockCrossings
+        blockCrossingFileViews=blockCrossingFiles
+        urlFactory=blockCrossingUrlFactory
+        isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
+    <#elseif overview == "PIPELINE_CROSSINGS">
+        <@pipelineCrossingManagement.pipelineCrossingManagement
+        urlFactory=pipelineCrossingUrlFactory
+        pipelineCrossingFileViews=pipelineCrossingFiles
+        pipelineCrossings=pipelineCrossings
+        isCompleted=crossingAgreementValidationResult.isSectionValid("PIPELINE_CROSSINGS") />
+    <#elseif overview == "CABLE_CROSSINGS">
+        <@cableCrossingManagement.cableCrossingManagement
+        cableCrossingViews=cableCrossings
+        cableCrossingFileViews=cableCrossingFiles
+        urlFactory=cableCrossingUrlFactory
+        isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSINGS") />
+    <#elseif overview == "MEDIAN_LINE_CROSSING">
+        <@medianLineCrossingManagement.medianLineCrossingManagement
+        urlFactory=medianLineUrlFactory
+        medianLineAgreementView=medianLineAgreementView!""
+        medianLineFileViews=medianLineFiles />
+    </#if>
 
-    <hr class="govuk-section-break govuk-section-break--l"/>
-
-    <@cableCrossingManagement.cableCrossingManagement
-    cableCrossingViews=cableCrossings
-    cableCrossingFileViews=cableCrossingFiles
-    urlFactory=cableCrossingUrlFactory
-    isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSINGS") />
-
-    <hr class="govuk-section-break govuk-section-break--l"/>
-
-    <@pipelineCrossingManagement.pipelineCrossingManagement
-    urlFactory=pipelineCrossingUrlFactory
-    pipelineCrossingFileViews=pipelineCrossingFiles
-    pipelineCrossings=pipelineCrossings
-    isCompleted=crossingAgreementValidationResult.isSectionValid("PIPELINE_CROSSINGS")/>
-
-    <hr class="govuk-section-break govuk-section-break--l"/>
-
-    <@medianLineCrossingManagement.medianLineCrossingManagement
-    urlFactory=medianLineUrlFactory
-    medianLineAgreementView=medianLineAgreementView!""
-    medianLineFileViews=medianLineFiles />
-
+    <@fdsForm.htmlForm>
+        <@fdsAction.submitButtons errorMessage=errorMessage!"" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+    </@fdsForm.htmlForm>
 
 </@defaultPage>

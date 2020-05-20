@@ -11,8 +11,8 @@ import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 @Entity
-@Table(name = "deposits_for_pipelines")
-public class PadDepositPipelines {
+@Table(name = "pad_deposit_pipelines")
+public class PadDepositPipeline {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +28,10 @@ public class PadDepositPipelines {
   @JoinColumn(name = "pad_pipeline_id")
   private PadPipeline padPipelineId;
 
-  public PadDepositPipelines() {
+  public PadDepositPipeline() {
   }
 
-  public PadDepositPipelines(@NotNull PadPermanentDeposit permanentDepositInfo, @NotNull PadPipeline padPipelineId) {
+  public PadDepositPipeline(@NotNull PadPermanentDeposit permanentDepositInfo, @NotNull PadPipeline padPipelineId) {
     this.permanentDepositInfo = permanentDepositInfo;
     this.padPipelineId = padPipelineId;
   }

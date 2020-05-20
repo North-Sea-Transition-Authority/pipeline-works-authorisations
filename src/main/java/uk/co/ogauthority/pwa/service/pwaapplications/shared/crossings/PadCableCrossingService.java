@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -13,6 +14,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCabl
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class PadCableCrossingService implements ApplicationFormSectionService {
@@ -76,12 +79,27 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return cableCrossingFileService.isComplete(detail);
+    var cableCount = padCableCrossingRepository.countAllByPwaApplicationDetail(detail);
+    return cableCrossingFileService.isComplete(detail) && cableCount > 0;
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     throw new AssertionError("validate doesnt make sense.");
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return BooleanUtils.isTrue(pwaApplicationDetail.getCablesCrossed());
+  }
+
+  @Override
+  public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
+    var cableCount = padCableCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+    String crossingsText = StringDisplayUtils.pluralise("cable", cableCount);
+    return List.of(
+        new TaskInfo(crossingsText, (long) cableCount)
+    );
   }
 }

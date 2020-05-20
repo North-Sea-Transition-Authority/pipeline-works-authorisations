@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory" -->
 
 <#macro pipelineCrossingManagement urlFactory pipelineCrossings=[] pipelineCrossingFileViews=[] isCompleted=false>
-  <h2 class="govuk-heading-l">Pipeline crossings (Optional) <@completedTag.completedTag isCompleted/></h2>
+  <h2 class="govuk-heading-l">Pipeline crossings <@completedTag.completedTag isCompleted/></h2>
 
     <#if pipelineCrossings?has_content>
         <@fdsAction.link linkText="Add pipeline crossing" linkUrl=springUrl(urlFactory.getAddCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>

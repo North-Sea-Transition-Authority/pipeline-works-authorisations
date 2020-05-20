@@ -20,6 +20,7 @@ public class PwaApplicationContextParams {
   private Set<PwaApplicationPermission> permissions;
 
   private Integer padPipelineId;
+  private String fileId;
 
   public PwaApplicationContextParams(int applicationId, AuthenticatedUserAccount authenticatedUserAccount) {
     this.applicationId = applicationId;
@@ -48,6 +49,11 @@ public class PwaApplicationContextParams {
     return this;
   }
 
+  public PwaApplicationContextParams withFileId(String fileId) {
+    this.fileId = fileId;
+    return this;
+  }
+
   int getApplicationId() {
     return applicationId;
   }
@@ -70,5 +76,9 @@ public class PwaApplicationContextParams {
 
   Integer getPadPipelineId() {
     return padPipelineId;
+  }
+
+  public String getFileId() {
+    return fileId;
   }
 }

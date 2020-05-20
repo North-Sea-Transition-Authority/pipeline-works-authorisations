@@ -17,7 +17,7 @@
         <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true  optionalLabel=false
             hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed."/>
 
-        <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start (must be on/after proposed start date of " + proposedStartDate + ")" formId="from-month-year">
+        <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start" formId="from-month-year">
             <@fdsNumberInput.numberInputItem path="form.fromMonth" labelText="Month" inputClass="govuk-input--width-2"/>
             <@fdsNumberInput.numberInputItem path="form.fromYear" labelText="Year" inputClass="govuk-input--width-4"/>
         </@fdsNumberInput.twoNumberInputs>
@@ -52,7 +52,7 @@
                         <@fdsRadio.radioGroup path="form.groutBagsBioDegradable" nestingPath="form.materialType" labelText="Are the grout bags bio-degradable?" hiddenContent=true>  
                             <@fdsRadio.radioYes path="form.groutBagsBioDegradable"/>                                
                             <@fdsRadio.radioNo path="form.groutBagsBioDegradable">
-                                <@fdsTextInput.textInput path="form.bioGroutBagsNotUsedDescription" nestingPath="form.materialType" labelText="Why are bio-degradable grout bags not being used" maxCharacterLength="4000"/>
+                                <@fdsTextInput.textInput path="form.bioGroutBagsNotUsedDescription" nestingPath="form.materialType" labelText="Why are bio-degradable grout bags not being used?" maxCharacterLength="4000"/>
                             </@fdsRadio.radioNo>                        
                         </@fdsRadio.radioGroup>
                         <@fdsTextInput.textInput path="form.quantityGroutBags" nestingPath="form.materialType" labelText="Quantity of material to be used" inputClass="govuk-input--width-20"/>

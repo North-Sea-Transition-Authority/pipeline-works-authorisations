@@ -3,10 +3,10 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 import org.apache.commons.lang3.StringUtils;
 import javax.validation.Validation;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,11 +18,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipelines;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.DepositsForPipelinesRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
@@ -44,7 +44,7 @@ public class PermanentDepositsServiceTest {
   private PadPipelineRepository padPipelineRepository;
 
   @Mock
-  private DepositsForPipelinesRepository depositsForPipelinesRepository;
+  private PadDepositPipelineRepository padDepositPipelineRepository;
 
   @Mock
   private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
@@ -76,7 +76,7 @@ public class PermanentDepositsServiceTest {
         validator,
         groupValidator,
         padPipelineRepository,
-        depositsForPipelinesRepository,
+        padDepositPipelineRepository,
         padProjectInformationRepository
     );
 
@@ -90,13 +90,19 @@ public class PermanentDepositsServiceTest {
 
   @Test
   public void saveEntityUsingForm_verifyServiceInteractions() {
-
     form.setSelectedPipelines(Set.of("1","2"));
     pwaApplicationDetail.setId(1);
     padPermanentDeposit.setPwaApplicationDetail(pwaApplicationDetail);
     when(permanentDepositInformationRepository.save(padPermanentDeposit)).thenReturn(padPermanentDeposit);
-    service.saveEntityUsingForm(pwaApplicationDetail, form, user);
 
+    var padPipeLine  = new PadPipeline();
+    padPipeLine.setId(1);
+    when(padPipelineRepository.findById(1)).thenReturn(Optional.of(padPipeLine));
+    padPipeLine  = new PadPipeline();
+    padPipeLine.setId(2);
+    when(padPipelineRepository.findById(2)).thenReturn(Optional.of(padPipeLine));
+
+    service.saveEntityUsingForm(pwaApplicationDetail, form, user);
     verify(permanentDepositEntityMappingService, times(1)).setEntityValuesUsingForm(padPermanentDeposit, form);
     verify(permanentDepositInformationRepository, times(1)).save(padPermanentDeposit);
 
@@ -124,13 +130,8 @@ public class PermanentDepositsServiceTest {
   public void validate_full_fail() {
     var form = new PermanentDepositsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    var padProjectInformation = new PadProjectInformation();
-    padProjectInformation.setProposedStartTimestamp(LocalDate.of(2020, 3, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
-
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    verify(validator, times(1)).validate(form, bindingResult, padProjectInformation);
+    verify(validator, times(1)).validate(form, bindingResult);
   }
 
   @Test
@@ -140,12 +141,8 @@ public class PermanentDepositsServiceTest {
     form.setBioGroutBagsNotUsedDescription(ok);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    var padProjectInformation = new PadProjectInformation();
-    padProjectInformation.setProposedStartTimestamp(LocalDate.of(2020, 3, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-
-    verify(validator, times(1)).validate(form, bindingResult, padProjectInformation);
+    verify(validator, times(1)).validate(form, bindingResult);
   }
 
 
@@ -202,26 +199,26 @@ public class PermanentDepositsServiceTest {
     permanentDepositInfoMockList.add(permanentDepositInfoMock);
     when(permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(permanentDepositInfoMockList);
 
-    List<PadDepositPipelines> depositsForPipelinesList = new ArrayList<>();
-    PadDepositPipelines depositsForPipelines = new PadDepositPipelines();
+    List<PadDepositPipeline> depositsForPipelinesList = new ArrayList<>();
+    PadDepositPipeline depositsForPipelines = new PadDepositPipeline();
     var padPipeLine = new PadPipeline();
-    padPipeLine.setId(1);
+    padPipeLine.setPipelineRef("1");
     depositsForPipelines.setPadPipelineId(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
-    depositsForPipelines = new PadDepositPipelines();
+    depositsForPipelines = new PadDepositPipeline();
     padPipeLine = new PadPipeline();
-    padPipeLine.setId(2);
+    padPipeLine.setPipelineRef("2");
     depositsForPipelines.setPadPipelineId(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
-    when(depositsForPipelinesRepository.findAllByPermanentDepositInfoId(10)).thenReturn(depositsForPipelinesList);
+    when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(10)).thenReturn(depositsForPipelinesList);
 
     depositsForPipelinesList = new ArrayList<>();
-    depositsForPipelines = new PadDepositPipelines();
+    depositsForPipelines = new PadDepositPipeline();
     padPipeLine = new PadPipeline();
-    padPipeLine.setId(3);
+    padPipeLine.setPipelineRef("3");
     depositsForPipelines.setPadPipelineId(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
-    when(depositsForPipelinesRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
+    when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
 
     List<PermanentDepositsForm> actualForms = service.getPermanentDepositForm(pwaApplicationDetail);
 

@@ -15,16 +15,24 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -42,42 +50,84 @@ public class CableCrossingController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadCableCrossingService padCableCrossingService;
+  private final CableCrossingFileService cableCrossingFileService;
+  private final CrossingAgreementsService crossingAgreementsService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public CableCrossingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadCableCrossingService padCableCrossingService) {
+      PadCableCrossingService padCableCrossingService,
+      CableCrossingFileService cableCrossingFileService,
+      CrossingAgreementsService crossingAgreementsService,
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padCableCrossingService = padCableCrossingService;
+    this.cableCrossingFileService = cableCrossingFileService;
+    this.crossingAgreementsService = crossingAgreementsService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
+  }
+
+  private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/overview")
+        .addObject("overview", CrossingOverview.CABLE_CROSSINGS)
+        .addObject("cableCrossings", padCableCrossingService.getCableCrossingViews(detail))
+        .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
+        .addObject("cableCrossingFiles",
+            cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail))
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+                null)));
+    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Cable crossings");
+    return modelAndView;
   }
 
   private ModelAndView createRenderAddModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/addCableCrossing")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(
-                detail.getPwaApplicationType(),
-                detail.getMasterPwaApplicationId(),
-                null,
-                null
-            )));
-    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Add cable crossing");
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.CABLE_CROSSINGS));
+    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
+        CrossingAgreementTask.CABLE_CROSSINGS, "Add cable crossing");
     return modelAndView;
   }
 
   private ModelAndView createRenderEditModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/editCableCrossing")
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(
-                detail.getPwaApplicationType(),
-                detail.getMasterPwaApplicationId(),
-                null,
-                null
-            )));
-    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Edit cable crossing");
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.CABLE_CROSSINGS));
+    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
+        CrossingAgreementTask.CABLE_CROSSINGS, "Edit cable crossing");
     return modelAndView;
   }
 
   @GetMapping
+  public ModelAndView renderOverview(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddCableCrossingForm form,
+      PwaApplicationContext applicationContext) {
+    return createOverviewModelAndView(applicationContext.getApplicationDetail());
+  }
+
+  @PostMapping
+  public ModelAndView postOverview(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddBlockCrossingForm form,
+      PwaApplicationContext applicationContext) {
+
+    var detail = applicationContext.getApplicationDetail();
+    if (!padCableCrossingService.isComplete(detail)) {
+      return createOverviewModelAndView(detail)
+          .addObject("errorMessage", "You must have added at least one crossing, and uploaded a document");
+    }
+    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+            null));
+  }
+
+  @GetMapping("/new")
   public ModelAndView renderAddCableCrossing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -87,7 +137,7 @@ public class CableCrossingController {
     return createRenderAddModelAndView(applicationContext.getApplicationDetail());
   }
 
-  @PostMapping
+  @PostMapping("/new")
   public ModelAndView postAddCableCrossings(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
@@ -98,8 +148,7 @@ public class CableCrossingController {
     var detail = applicationContext.getApplicationDetail();
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderAddModelAndView(detail), () -> {
       padCableCrossingService.createCableCrossing(detail, form);
-      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+      return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
   }
 
@@ -130,8 +179,7 @@ public class CableCrossingController {
     var detail = applicationContext.getApplicationDetail();
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderEditModelAndView(detail), () -> {
       padCableCrossingService.updateCableCrossing(detail, crossingId, form);
-      return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-          .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+      return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
   }
 
@@ -146,9 +194,10 @@ public class CableCrossingController {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeCableCrossing")
         .addObject("cableCrossing", new CableCrossingView(crossing))
-        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(applicationType, applicationId, null, null)));
-    applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Remove cable crossing");
+        .addObject("backUrl",
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.CABLE_CROSSINGS));
+    applicationBreadcrumbService.fromCrossingSection(detail, modelAndView,
+        CrossingAgreementTask.CABLE_CROSSINGS, "Remove cable crossing");
     return modelAndView;
   }
 
@@ -161,8 +210,7 @@ public class CableCrossingController {
 
     var detail = applicationContext.getApplicationDetail();
     padCableCrossingService.removeCableCrossing(detail, crossingId);
-    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-        .renderCrossingAgreementsOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+    return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
   }
 
 }

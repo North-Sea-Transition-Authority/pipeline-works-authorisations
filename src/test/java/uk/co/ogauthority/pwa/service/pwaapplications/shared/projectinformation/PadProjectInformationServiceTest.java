@@ -316,7 +316,7 @@ public class PadProjectInformationServiceTest {
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
 
-    assertThat(service.getProposedStartDate(pwaApplicationDetail)).isEqualTo("15/05/2017");
+    assertThat(service.getProposedStartDate(pwaApplicationDetail)).isEqualTo("15 May 2017");
   }
 
 }

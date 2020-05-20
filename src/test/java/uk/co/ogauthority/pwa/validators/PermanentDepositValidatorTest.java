@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
@@ -54,15 +55,9 @@ public class PermanentDepositValidatorTest {
     return form;
   }
 
-  public PadProjectInformation getProjectInfoWithStartDate(){
-    var padProjectInformation = new PadProjectInformation();
-    padProjectInformation.setProposedStartTimestamp(LocalDate.of(2020, 3, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-    return padProjectInformation;
-  }
-
-  public Map<String, Set<String>> getErrorMap(PermanentDepositsForm form, PadProjectInformation padProjectInformation) {
+  public Map<String, Set<String>> getErrorMap(PermanentDepositsForm form) {
     var errors = new BeanPropertyBindingResult(form, "form");
-    validator.validate(form, errors, padProjectInformation);
+    validator.validate(form, errors);
     return errors.getFieldErrors().stream()
         .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
   }
@@ -70,12 +65,9 @@ public class PermanentDepositValidatorTest {
   @Test
   public void validate_fromDate_Null() {
     var form = getPermanentDepositsFormWithMaterialType();
-    var padProjectInformation = new PadProjectInformation();
-    padProjectInformation.setProposedStartTimestamp(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-    Map<String, Set<String>> errorsMap = getErrorMap(form, padProjectInformation);
-    assertThat(errorsMap).contains(entry("fromMonth", Set.of("fromMonth.invalid")),
-        entry("fromYear", Set.of("fromYear.invalid")));
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("fromMonth", Set.of("fromMonth" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("fromYear", Set.of("fromYear" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
   @Test
@@ -83,30 +75,25 @@ public class PermanentDepositValidatorTest {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setFromMonth(2);
     form.setFromYear(2020);
-    var padProjectInformation = new PadProjectInformation();
-    padProjectInformation.setProposedStartTimestamp(LocalDate.of(2020, 3, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-    Map<String, Set<String>> errorsMap = getErrorMap(form, padProjectInformation);
-    assertThat(errorsMap).contains(entry("fromMonth", Set.of("fromMonth.beforeTarget")));
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("fromMonth", Set.of("fromMonth" + FieldValidationErrorCodes.BEFORE_TODAY.getCode())));
   }
 
   @Test
   public void validate_fromDate_Future() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setFromMonth(2);
-    form.setFromYear(2020);
-    var padProjectInformation = new PadProjectInformation();
-    padProjectInformation.setProposedStartTimestamp(LocalDate.of(2020, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-    Map<String, Set<String>> errorsMap = getErrorMap(form, padProjectInformation);
-    assertThat(errorsMap).doesNotContain(entry("fromMonth", Set.of("fromMonth.beforeTarget")));
+    form.setFromYear(2120);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).doesNotContain(entry("fromMonth", Set.of("fromMonth" + FieldValidationErrorCodes.BEFORE_TODAY.getCode())),
+        entry("fromMonth", Set.of("fromMonth" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
 
 
   @Test
   public void validate_toDate_Null() {
-    Map<String, Set<String>> errorsMap = getErrorMap(getPermanentDepositsFormWithMaterialType(), getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(getPermanentDepositsFormWithMaterialType());
     assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.invalid")),
         entry("toYear", Set.of("toYear.invalid")));
   }
@@ -119,7 +106,7 @@ public class PermanentDepositValidatorTest {
     form.setToMonth(1);
     form.setToYear(2020);
 
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.outOfTargetRange")),
         entry("toYear", Set.of("toYear.outOfTargetRange")));
   }
@@ -132,7 +119,7 @@ public class PermanentDepositValidatorTest {
     form.setToMonth(3);
     form.setToYear(2021);
 
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.outOfTargetRange")),
         entry("toYear", Set.of("toYear.outOfTargetRange")));
   }
@@ -145,7 +132,7 @@ public class PermanentDepositValidatorTest {
     form.setToMonth(8);
     form.setToYear(2020);
 
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).doesNotContain(entry("toMonth", Set.of("toMonth.outOfTargetRange")),
         entry("toYear", Set.of("toYear.outOfTargetRange")));
   }
@@ -153,7 +140,7 @@ public class PermanentDepositValidatorTest {
   @Test
   public void validate_materialType_notSelected() {
     var form = getPermanentDepositsFormWithCoordinates();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("materialType", Set.of("materialType.required")));
   }
 
@@ -162,7 +149,7 @@ public class PermanentDepositValidatorTest {
   public void validate_concrete_noSizeData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("concreteMattressLength", Set.of("concreteMattressLength.invalid")),
         entry("concreteMattressWidth", Set.of("concreteMattressWidth.invalid")),
         entry("concreteMattressDepth", Set.of("concreteMattressDepth.invalid")));
@@ -173,7 +160,7 @@ public class PermanentDepositValidatorTest {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
     form.setQuantityConcrete("no num");
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("quantityConcrete", Set.of("quantityConcrete.invalid")));
   }
 
@@ -182,7 +169,7 @@ public class PermanentDepositValidatorTest {
   public void validate_rocks_noSizeData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.ROCK);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("rocksSize", Set.of("rocksSize.invalid")));
   }
 
@@ -191,7 +178,7 @@ public class PermanentDepositValidatorTest {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.ROCK);
     form.setQuantityRocks("no num");
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("quantityRocks", Set.of("quantityRocks.invalid")));
   }
 
@@ -200,7 +187,7 @@ public class PermanentDepositValidatorTest {
   public void validate_groutBags_noSizeData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("groutBagsSize", Set.of("groutBagsSize.invalid")));
   }
 
@@ -209,7 +196,7 @@ public class PermanentDepositValidatorTest {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
     form.setQuantityRocks("no num");
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("quantityGroutBags", Set.of("quantityGroutBags.invalid")));
   }
 
@@ -217,7 +204,7 @@ public class PermanentDepositValidatorTest {
   public void validate_groutBags_bioDegradableNotSelected() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("groutBagsBioDegradable", Set.of("groutBagsBioDegradable.required")));
   }
 
@@ -226,7 +213,7 @@ public class PermanentDepositValidatorTest {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
     form.setGroutBagsBioDegradable(false);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("bioGroutBagsNotUsedDescription", Set.of("bioGroutBagsNotUsedDescription.blank")));
   }
 
@@ -235,7 +222,7 @@ public class PermanentDepositValidatorTest {
   public void validate_otherMaterial_noSizeData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.OTHER);
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("otherMaterialSize", Set.of("otherMaterialSize.invalid")));
   }
 
@@ -244,7 +231,7 @@ public class PermanentDepositValidatorTest {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.OTHER);
     form.setQuantityRocks("no num");
-    Map<String, Set<String>> errorsMap = getErrorMap(form, getProjectInfoWithStartDate());
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("quantityOther", Set.of("quantityOther.invalid")));
   }
 

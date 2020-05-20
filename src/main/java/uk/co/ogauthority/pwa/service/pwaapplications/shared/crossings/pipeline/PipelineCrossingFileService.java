@@ -269,6 +269,11 @@ public class PipelineCrossingFileService implements ApplicationFormSectionServic
     );
   }
 
+  public int getDocumentUploadCount(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail,
+        ApplicationFileLinkStatus.FULL);
+  }
+
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {

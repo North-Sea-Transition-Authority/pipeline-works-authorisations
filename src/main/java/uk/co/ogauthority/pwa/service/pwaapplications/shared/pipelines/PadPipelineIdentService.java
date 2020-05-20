@@ -1,9 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
@@ -21,6 +26,60 @@ public class PadPipelineIdentService {
                                  PadPipelineIdentDataService identDataService) {
     this.repository = repository;
     this.identDataService = identDataService;
+  }
+
+  public PadPipelineIdent getIdent(PadPipeline pipeline, Integer identId) {
+    return repository.getPadPipelineIdentByPadPipelineAndId(pipeline, identId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find ident with id '%d' linked to pipeline with id '%d'", identId,
+                pipeline.getId())));
+  }
+
+  public IdentView getIdentView(PadPipeline pipeline, Integer identId) {
+    var padIdent = getIdent(pipeline, identId);
+    var identData = identDataService.getIdentData(padIdent);
+    return new IdentView(identData);
+  }
+
+  public List<IdentView> getIdentViews(PadPipeline pipeline) {
+    var idents = repository.getAllByPadPipeline(pipeline);
+    var identData = identDataService.getDataFromIdentList(idents);
+    return identData.keySet()
+        .stream()
+        .sorted(Comparator.comparing(PadPipelineIdent::getIdentNo))
+        .map(ident -> new IdentView(identData.get(ident)))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public ConnectedPipelineIdentSummaryView getConnectedPipelineIdentSummaryView(PadPipeline pipeline) {
+    List<IdentView> identViews = getIdentViews(pipeline);
+    var list = new ArrayList<List<IdentView>>();
+    var groupList = new ArrayList<IdentView>();
+    list.add(groupList);
+
+    for (int i = 0; i < identViews.size(); i++) {
+      if (i == 0) {
+        // If first ident, there's nothing to compare to.
+        groupList.add(identViews.get(i));
+        continue;
+      }
+      var previousView = identViews.get(i - 1);
+      var currentView = identViews.get(i);
+      // Compare "fromLocation" to the previous ident's "toLocation".
+      // If locations are different, add to a new group. If locations are the same, add to the existing group.
+      if (!previousView.getToLocation().equalsIgnoreCase(currentView.getFromLocation())) {
+        groupList = new ArrayList<>();
+        list.add(groupList);
+      }
+      groupList.add(identViews.get(i));
+    }
+
+    List<ConnectedPipelineIdentsView> connectedIdents = list.stream()
+        .filter(viewList -> !viewList.isEmpty())
+        .map(ConnectedPipelineIdentsView::new)
+        .collect(Collectors.toUnmodifiableList());
+
+    return new ConnectedPipelineIdentSummaryView(connectedIdents);
   }
 
   public Optional<PadPipelineIdent> getMaxIdent(PadPipeline pipeline) {
@@ -51,6 +110,19 @@ public class PadPipelineIdentService {
 
     repository.save(ident);
 
+  }
+
+  @Transactional
+  public void removeIdent(PadPipelineIdent pipelineIdent) {
+    identDataService.removeIdentData(pipelineIdent);
+    repository.delete(pipelineIdent);
+    var remainingIdents = repository.getAllByPadPipeline(pipelineIdent.getPadPipeline());
+
+    remainingIdents.stream()
+        .filter(ident -> ident.getIdentNo() > pipelineIdent.getIdentNo())
+        .forEachOrdered(ident -> ident.setIdentNo(ident.getIdentNo() - 1));
+
+    repository.saveAll(remainingIdents);
   }
 
 }

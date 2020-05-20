@@ -52,6 +52,12 @@ public class PwaApplicationDetail {
 
   private String notLinkedDescription;
 
+  private Boolean pipelinesCrossed;
+
+  private Boolean cablesCrossed;
+
+  private Boolean medianLineCrossed;
+
   public PwaApplicationDetail() {
   }
 
@@ -205,6 +211,30 @@ public class PwaApplicationDetail {
     this.statusLastModifiedByWuaId = statusLastModifiedByWuaId;
   }
 
+  public Boolean getPipelinesCrossed() {
+    return pipelinesCrossed;
+  }
+
+  public void setPipelinesCrossed(Boolean pipelinesCrossed) {
+    this.pipelinesCrossed = pipelinesCrossed;
+  }
+
+  public Boolean getCablesCrossed() {
+    return cablesCrossed;
+  }
+
+  public void setCablesCrossed(Boolean cablesCrossed) {
+    this.cablesCrossed = cablesCrossed;
+  }
+
+  public Boolean getMedianLineCrossed() {
+    return medianLineCrossed;
+  }
+
+  public void setMedianLineCrossed(Boolean medianLineCrossed) {
+    this.medianLineCrossed = medianLineCrossed;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -228,7 +258,10 @@ public class PwaApplicationDetail {
         && Objects.equals(approvedByWuaId, that.approvedByWuaId)
         && Objects.equals(approvedTimestamp, that.approvedTimestamp)
         && Objects.equals(isLinkedToField, that.isLinkedToField)
-        && Objects.equals(notLinkedDescription, that.notLinkedDescription);
+        && Objects.equals(notLinkedDescription, that.notLinkedDescription)
+        && Objects.equals(pipelinesCrossed, that.pipelinesCrossed)
+        && Objects.equals(cablesCrossed, that.cablesCrossed)
+        && Objects.equals(medianLineCrossed, that.medianLineCrossed);
   }
 
   @Override
