@@ -5,11 +5,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -79,7 +76,7 @@ public class ProjectInformationValidator implements SmartValidator {
       if (projectInfoValidationHints.isPermanentDepositQuestionRequired()) {
         if (form.getPermanentDepositsMadeType() == null) {
           errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
-                  "Select 'Yes' if permanent deposits are being made.");
+                  "Select yes if permanent deposits are being made");
         } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
           ValidatorUtils.validateDateIsPresentOrFuture(
                   "futureAppSubmission", "future application submission date",
@@ -89,8 +86,8 @@ public class ProjectInformationValidator implements SmartValidator {
 
       if (form.getTemporaryDepositsMade() == null) {
         errors.rejectValue("temporaryDepositsMade", "temporaryDepositsMade.notSelected",
-                "Select 'Yes' if temporary deposits are being made.");
-      } else if (form.getTemporaryDepositsMade() == true && form.getTemporaryDepDescription() == null) {
+                "Select yes if temporary deposits are being made");
+      } else if (form.getTemporaryDepositsMade() && form.getTemporaryDepDescription() == null) {
         errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
                 "Enter why temporary deposits are being made.");
       }

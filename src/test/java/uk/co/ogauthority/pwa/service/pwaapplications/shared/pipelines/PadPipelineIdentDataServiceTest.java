@@ -1,10 +1,15 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
@@ -62,6 +68,66 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(identData.getWallThickness()).isEqualTo(form.getWallThickness());
     assertThat(identData.getMaop()).isEqualTo(form.getMaop());
 
+  }
+
+  @Test
+  public void getDataFromIdentList_valid() {
+    var ident = new PadPipelineIdent();
+    ident.setIdentNo(1);
+
+    var identData = new PadPipelineIdentData(ident);
+    identData.setComponentPartsDescription("parts");
+
+    when(repository.getAllByPadPipelineIdentIn(eq(List.of(ident)))).thenReturn(List.of(identData));
+    var result = identDataService.getDataFromIdentList(List.of(ident));
+    assertThat(result).containsExactly(
+        entry(ident, identData)
+    );
+  }
+
+  @Test
+  public void getDataFromIdentList_emptyList() {
+    var ident = new PadPipelineIdent();
+    ident.setIdentNo(1);
+
+    var identData = new PadPipelineIdentData(ident);
+    identData.setComponentPartsDescription("parts");
+
+    when(repository.getAllByPadPipelineIdentIn(eq(List.of()))).thenReturn(List.of());
+    var result = identDataService.getDataFromIdentList(List.of());
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getIdentData_valid() {
+    var ident = new PadPipelineIdent();
+    var data = new PadPipelineIdentData();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(data));
+    var result = identDataService.getIdentData(ident);
+    assertThat(result).isEqualTo(data);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getIdentData_invalid() {
+    var ident = new PadPipelineIdent();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.empty());
+    identDataService.getIdentData(ident);
+  }
+
+  @Test
+  public void removeIdentData_validData() {
+    var ident = new PadPipelineIdent();
+    var identData = new PadPipelineIdentData();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(identData));
+    identDataService.removeIdentData(ident);
+    verify(repository, times(1)).delete(identData);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void removeIdentData_noData() {
+    var ident = new PadPipelineIdent();
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.empty());
+    identDataService.removeIdentData(ident);
   }
 
 }

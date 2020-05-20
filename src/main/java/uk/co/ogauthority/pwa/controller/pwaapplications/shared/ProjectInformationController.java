@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -58,7 +59,9 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
   public ProjectInformationController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                       PwaApplicationRedirectService pwaApplicationRedirectService,
                                       PadProjectInformationService padProjectInformationService,
-                                      PwaApplicationFileService applicationFileService) {
+                                      PwaApplicationFileService applicationFileService,
+                                      PadFileService padFileService) {
+    super(padFileService);
     this.applicationFileService = applicationFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;

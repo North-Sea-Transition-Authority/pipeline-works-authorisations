@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
@@ -36,6 +38,9 @@ public class PwaApplicationContextServiceTest {
 
   @Mock
   private PadPipelineService padPipelineService;
+
+  @Mock
+  private PadFileService padFileService;
 
   private PwaApplicationContextService contextService;
 
@@ -55,7 +60,7 @@ public class PwaApplicationContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
-    contextService = new PwaApplicationContextService(detailService, contactService, padPipelineService);
+    contextService = new PwaApplicationContextService(detailService, contactService, padPipelineService, padFileService);
 
     when(detailService.getTipDetail(1)).thenReturn(detail);
     when(contactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of(PwaContactRole.PREPARER));
@@ -63,6 +68,10 @@ public class PwaApplicationContextServiceTest {
     var padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(detail);
     when(padPipelineService.getById(2)).thenReturn(padPipeline);
+
+    var padFile = new PadFile();
+    padFile.setPwaApplicationDetail(detail);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "valid-file")).thenReturn(padFile);
 
   }
 
@@ -234,6 +243,45 @@ public class PwaApplicationContextServiceTest {
 
     var builder = new PwaApplicationContextParams(1, user)
         .withPadPipelineId(4);
+
+    contextService.validateAndCreate(builder);
+
+  }
+
+  @Test
+  public void validateAndCreate_withFileId_valid() {
+
+    var builder = new PwaApplicationContextParams(1, user)
+        .withFileId("valid-file");
+
+    var context = contextService.validateAndCreate(builder);
+
+    assertThat(context.getPadFile()).isNotNull();
+
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void validateAndCreate_withFileId_fileNotFound() {
+
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "bad-file")).thenThrow(PwaEntityNotFoundException.class);
+
+    var builder = new PwaApplicationContextParams(1, user)
+        .withFileId("bad-file");
+
+    contextService.validateAndCreate(builder);
+
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void validateAndCreate_withFileId_appDetailMismatch() {
+
+    var otherAppFile = new PadFile();
+    otherAppFile.setPwaApplicationDetail(new PwaApplicationDetail());
+
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "other-file")).thenReturn(otherAppFile);
+
+    var builder = new PwaApplicationContextParams(1, user)
+        .withFileId("other-file");
 
     contextService.validateAndCreate(builder);
 

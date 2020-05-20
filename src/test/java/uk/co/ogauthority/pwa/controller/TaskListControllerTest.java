@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
@@ -44,6 +45,8 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @Mock
   private PermanentDepositService permanentDepositService;
 
+  @MockBean
+  protected PadFileService padFileService;
   @Before
   public void taskListControllerTestSetup() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,

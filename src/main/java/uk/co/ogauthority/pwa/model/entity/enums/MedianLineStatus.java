@@ -5,16 +5,18 @@ import java.util.stream.Stream;
 
 public enum MedianLineStatus {
 
-  NOT_CROSSED(10, "The median line will not be crossed"),
-  NEGOTIATIONS_ONGOING(20, "The median line will be crossed and negotiations are ongoing"),
-  NEGOTIATIONS_COMPLETED(30, "The median line will be crossed and negotiations have been completed");
+  NOT_CROSSED(10, "The median line will not be crossed", "Not crossed"),
+  NEGOTIATIONS_ONGOING(20, "The median line will be crossed and negotiations are ongoing", "Negotiations ongoing"),
+  NEGOTIATIONS_COMPLETED(30, "The median line will be crossed and negotiations have been completed", "Negotiations completed");
 
   private int displayOrder;
   private String displayText;
+  private String labelText;
 
-  MedianLineStatus(int displayOrder, String displayText) {
+  MedianLineStatus(int displayOrder, String displayText, String labelText) {
     this.displayOrder = displayOrder;
     this.displayText = displayText;
+    this.labelText = labelText;
   }
 
   public int getDisplayOrder() {
@@ -23,6 +25,10 @@ public enum MedianLineStatus {
 
   public String getDisplayText() {
     return displayText;
+  }
+
+  public String getLabelText() {
+    return labelText;
   }
 
   public static Stream<MedianLineStatus> stream() {

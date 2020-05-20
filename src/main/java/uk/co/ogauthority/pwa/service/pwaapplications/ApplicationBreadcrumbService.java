@@ -15,18 +15,24 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
+import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 
 @Service
 public class ApplicationBreadcrumbService {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
   @Autowired
   public ApplicationBreadcrumbService(
-      PwaApplicationRedirectService pwaApplicationRedirectService) {
+      PwaApplicationRedirectService pwaApplicationRedirectService,
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
   }
 
   public void fromWorkArea(ModelAndView modelAndView, String thisPage) {
@@ -36,8 +42,19 @@ public class ApplicationBreadcrumbService {
   public void fromCrossings(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(CrossingAgreementsController.class)
-        .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
-        "Crossings");
+            .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
+        "Blocks and crossing agreements");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromCrossingSection(PwaApplicationDetail detail, ModelAndView modelAndView, CrossingAgreementTask task,
+                                  String thisPage) {
+    var map = taskList(detail.getPwaApplication());
+    map.put(ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+                null)),
+        "Blocks and crossing agreements");
+    map.put(crossingAgreementsTaskListService.getRoute(detail, task), task.getDisplayText());
     addAttrs(modelAndView, map, thisPage);
   }
 

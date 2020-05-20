@@ -2,12 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -149,7 +145,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var projectInformationForm = new ProjectInformationForm();
     mapEntityToForm(projectInformation, projectInformationForm, ApplicationFileLinkStatus.FULL);
     BindingResult bindingResult = new BeanPropertyBindingResult(projectInformationForm, "form");
-    projectInformationValidator.validate(projectInformationForm, bindingResult);
+    validate(projectInformationForm, bindingResult, ValidationType.FULL, detail);
 
     return !bindingResult.hasErrors();
 
@@ -179,7 +175,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION) ? false : true;
+    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
   }
 
   public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {

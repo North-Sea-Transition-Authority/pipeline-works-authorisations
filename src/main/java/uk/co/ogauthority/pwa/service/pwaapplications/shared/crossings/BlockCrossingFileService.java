@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadBlockCrossingFileRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadBlockCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -272,6 +272,11 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
         pwaApplicationDetail,
         uploadedFileId
     );
+  }
+
+  public int getDocumentUploadCount(PwaApplicationDetail pwaApplicationDetail) {
+    return padBlockCrossingFileRepository.countAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail,
+        ApplicationFileLinkStatus.FULL);
   }
 
 

@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
@@ -23,14 +24,17 @@ public class PwaApplicationContextService {
   private final PwaApplicationDetailService detailService;
   private final PwaContactService pwaContactService;
   private final PadPipelineService padPipelineService;
+  private final PadFileService padFileService;
 
   @Autowired
   public PwaApplicationContextService(PwaApplicationDetailService detailService,
                                       PwaContactService pwaContactService,
-                                      PadPipelineService padPipelineService) {
+                                      PadPipelineService padPipelineService,
+                                      PadFileService padFileService) {
     this.detailService = detailService;
     this.pwaContactService = pwaContactService;
     this.padPipelineService = padPipelineService;
+    this.padFileService = padFileService;
   }
 
   /**
@@ -52,6 +56,10 @@ public class PwaApplicationContextService {
 
     if (contextParams.getPadPipelineId() != null) {
       getAndSetPipeline(context, contextParams.getPadPipelineId());
+    }
+
+    if (contextParams.getFileId() != null) {
+      getAndSetPadFile(context, contextParams.getFileId());
     }
 
     return context;
@@ -158,6 +166,24 @@ public class PwaApplicationContextService {
     }
 
     context.setPadPipeline(pipeline);
+
+  }
+
+  /**
+   * If a file is found for the requested ID (and it's on the same app as the context), then add to the context.
+   * Otherwise throw a relevant exception.
+   */
+  private void getAndSetPadFile(PwaApplicationContext context, String fileId) {
+
+    var padFile = padFileService.getPadFileByPwaApplicationDetailAndFileId(context.getApplicationDetail(), fileId);
+
+    if (!Objects.equals(padFile.getPwaApplicationDetail(), context.getApplicationDetail())) {
+      throw new AccessDeniedException(String.format("PadFile app detail (%s) didn't match the app context's app detail (%s)",
+          padFile.getPwaApplicationDetail().getId(),
+          context.getApplicationDetail().getId()));
+    }
+
+    context.setPadFile(padFile);
 
   }
 

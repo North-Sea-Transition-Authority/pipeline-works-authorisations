@@ -84,16 +84,15 @@ public class TaskListService {
   }
 
   @VisibleForTesting
-  public LinkedHashMap<String, TaskInfo> getAppInfoTasks(PwaApplication application) {
-    return new LinkedHashMap<>() {
-      {
-        put("Application contacts",
-                new TaskInfo(ReverseRouter.route(on(PwaContactController.class)
-                .renderContactsScreen(application.getApplicationType(), application.getId(), null)),
-                        "CONTACT", pwaContactService.countContactsByPwaApplication(application)));
-
-      }
-    };
+  public List<TaskListEntry> getAppInfoTasks(PwaApplication application) {
+    return List.of(
+      new TaskListEntry(
+          "Application contacts",
+          ReverseRouter.route(on(PwaContactController.class)
+            .renderContactsScreen(application.getApplicationType(), application.getId(), null)),
+          false,
+          List.of(new TaskInfo("CONTACT", pwaContactService.countContactsByPwaApplication(application))))
+    );
   }
 
   @VisibleForTesting
