@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.validators;
 
 
 import io.micrometer.core.instrument.util.StringUtils;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
@@ -35,27 +32,16 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
-  }
+    var form = (PermanentDepositsForm) target;
 
-  @Override
-  public void validate(Object o, Errors errors, Object... validationHints) {
-    var form = (PermanentDepositsForm) o;
+    ValidatorUtils.validateDateIsPresentOrFuture(
+        "from", "deposit from month / year",
+        form.getFromMonth(), form.getFromYear(), errors);
 
-    if (validationHints[0] instanceof PadProjectInformation) {
-      var projectInformation = (PadProjectInformation) validationHints[0];
-      LocalDateTime proposedStartDate = LocalDateTime.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneOffset.UTC);
-      ValidatorUtils.validateDateIsPresentOrFutureOfTarget(
-          "from", "deposit from month / year",
-          form.getFromMonth(), form.getFromYear(), proposedStartDate.getMonthValue(), proposedStartDate.getYear(),
-          "proposed start date", errors);
+    ValidatorUtils.validateDateIsWithinRangeOfTarget(
+        "to", "deposit to month / year",
+        form.getToMonth(), form.getToYear(), form.getFromMonth(), form.getFromYear(), 12, errors);
 
-      ValidatorUtils.validateDateIsWithinRangeOfTarget(
-          "to", "deposit to month / year",
-          form.getToMonth(), form.getToYear(), form.getFromMonth(), form.getFromYear(), 12, errors);
-    } else {
-      errors.rejectValue("fromMonth", "fromMonth.beforeTarget",
-          "Enter a month and year that is after the proposed start date.");
-    }
 
     if (form.getMaterialType() == null) {
       errors.rejectValue("materialType", "materialType.required",
@@ -70,7 +56,10 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
         "toCoordinateForm", ValueRequirement.MANDATORY, "Finish point");
+  }
 
+  @Override
+  public void validate(Object o, Errors errors, Object... validationHints) {
   }
 
 

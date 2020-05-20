@@ -59,8 +59,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   @MockBean
   private PermanentDepositService permanentDepositService;
 
-  @MockBean
-  private PadProjectInformationService padProjectInformationService;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -108,7 +106,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     for (var appType : appTypes) {
       try {
         pwaApplication.setApplicationType(appType);
-        when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
         var result = mockMvc.perform(
             get(ReverseRouter.route(
                 on(PermanentDepositController.class).renderPermanentDeposits(appType, APP_ID, null, null)))
@@ -139,7 +136,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
         MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
           add("Complete", "Complete");
         }};
-        when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
         var result = mockMvc.perform(
             post(ReverseRouter.route(
                 on(PermanentDepositController.class).postPermanentDeposits(appType, APP_ID, null, null, null, null)))
@@ -226,7 +222,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void renderPermanentDeposits_serviceInteractions() throws Exception {
-    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
     mockMvc.perform(
         get(ReverseRouter.route(on(PermanentDepositController.class)
             .renderPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null)))
@@ -263,7 +258,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
       add("projectOverview", StringUtils.repeat("a", 5000));
     }};
 
-    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
     ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.PARTIAL);
 
     mockMvc.perform(
@@ -283,7 +277,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
       add("Complete", "Complete");
     }};
 
-    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
     ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL);
 
     mockMvc.perform(

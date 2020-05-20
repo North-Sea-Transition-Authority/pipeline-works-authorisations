@@ -152,11 +152,11 @@ public class PadPipelineServiceTest {
     var pipelinesMocked = new ArrayList<PadPipeline>();
     var PadPipeline = new PadPipeline();
     PadPipeline.setId(1);
-    PadPipeline.setFromLocation("l1");
+    PadPipeline.setPipelineRef("l1");
     pipelinesMocked.add(PadPipeline);
     PadPipeline = new PadPipeline();
     PadPipeline.setId(2);
-    PadPipeline.setFromLocation("l2");
+    PadPipeline.setPipelineRef("l2");
     pipelinesMocked.add(PadPipeline);
 
     var pipeLinesExpected = new HashMap<String, String >();

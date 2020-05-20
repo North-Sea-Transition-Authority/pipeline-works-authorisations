@@ -8,11 +8,11 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipelines;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.DepositsForPipelinesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
@@ -81,8 +81,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     permanentDepositInformation = permanentDepositInformationRepository.save(permanentDepositInformation);
     for (String padPipelineId : form.getSelectedPipelines()) {
       var padPipeline = padPipelineRepository.findById(Integer.valueOf(padPipelineId))
-          .orElse(new PadPipeline());
-      var depositsForPipelines = new PadDepositPipelines(permanentDepositInformation, padPipeline);
+          .orElseThrow(() -> new PwaEntityNotFoundException("Permanent deposit information could not be found"));
+      var depositsForPipelines = new PadDepositPipeline(permanentDepositInformation, padPipeline);
       depositsForPipelinesRepository.save(depositsForPipelines);
     }
   }
@@ -95,7 +95,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PadPermanentDeposit padPermanentDeposit = permanentDeposits.get(0);
       var permanentDepositsForm = new PermanentDepositsForm();
       mapEntityToForm(padPermanentDeposit, permanentDepositsForm);
-      BindingResult bindingResult = new BeanPropertyBindingResult(padPermanentDeposit, "form");
+      BindingResult bindingResult = new BeanPropertyBindingResult(permanentDepositsForm, "form");
       permanentDepositsValidator.validate(permanentDepositsForm, bindingResult);
 
       return !bindingResult.hasErrors();
@@ -112,8 +112,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       groupValidator.validate(form, bindingResult, PartialValidation.class);
     } else {
       groupValidator.validate(form, bindingResult, FullValidation.class);
-      permanentDepositsValidator.validate(form, bindingResult,
-          padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail).get());
+      permanentDepositsValidator.validate(form, bindingResult);
     }
 
     return bindingResult;

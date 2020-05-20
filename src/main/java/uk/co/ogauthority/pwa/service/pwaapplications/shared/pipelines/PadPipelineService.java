@@ -174,7 +174,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .stream()
         .sorted(Comparator.comparing(PadPipeline::getId))
         .collect(
-            StreamUtils.toLinkedHashMap(padPipeline -> padPipeline.getId().toString(), PadPipeline::getFromLocation));
+            StreamUtils.toLinkedHashMap(padPipeline -> String.valueOf(padPipeline.getId()), PadPipeline::getPipelineRef));
   }
 
 }

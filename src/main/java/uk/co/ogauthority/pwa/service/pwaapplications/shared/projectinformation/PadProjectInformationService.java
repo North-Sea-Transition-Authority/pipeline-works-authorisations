@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInforma
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
@@ -182,11 +184,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    DateTimeFormatter formatter =
-        DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
-        .withLocale(Locale.UK)
-        .withZone(ZoneId.systemDefault());
-    return formatter.format(projectInformation.getProposedStartTimestamp());
+    return  DateUtils.formatDate(LocalDate.ofInstant(
+        projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault()));
   }
 
 

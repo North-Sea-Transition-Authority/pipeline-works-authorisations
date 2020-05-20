@@ -36,7 +36,7 @@ CREATE TABLE ${datasource.user}.permanent_deposit_information(
 );
 
 
-CREATE TABLE ${datasource.user}.deposits_for_pipelines(
+CREATE TABLE ${datasource.user}.pad_deposit_pipelines(
     id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     permanent_deposit_info_id INTEGER NOT NULL,
     pad_pipeline_id INTEGER NOT NULL

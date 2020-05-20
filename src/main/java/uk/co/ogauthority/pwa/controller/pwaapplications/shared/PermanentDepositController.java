@@ -23,7 +23,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -48,21 +47,18 @@ public class PermanentDepositController {
   private final PermanentDepositService permanentDepositService;
   private final PwaApplicationFileService applicationFileService;
   private final PadPipelineService padPipelineService;
-  private final PadProjectInformationService padProjectInformationService;
 
   @Autowired
   public PermanentDepositController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                     PwaApplicationRedirectService pwaApplicationRedirectService,
                                     PermanentDepositService permanentDepositService,
                                     PwaApplicationFileService applicationFileService,
-                                    PadPipelineService padPipelineService,
-                                    PadProjectInformationService padProjectInformationService) {
+                                    PadPipelineService padPipelineService) {
     this.applicationFileService = applicationFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.permanentDepositService = permanentDepositService;
     this.padPipelineService = padPipelineService;
-    this.padProjectInformationService = padProjectInformationService;
   }
 
   @GetMapping
@@ -104,7 +100,6 @@ public class PermanentDepositController {
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
           .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
-        .addObject("proposedStartDate", padProjectInformationService.getProposedStartDate(pwaApplicationDetail))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
