@@ -6,19 +6,27 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class PermanentDepositsValidator implements SmartValidator {
 
+  private final CoordinateFormValidator coordinateFormValidator;
+
+  @Autowired
+  public PermanentDepositsValidator(CoordinateFormValidator coordinateFormValidator) {
+    this.coordinateFormValidator = coordinateFormValidator;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -38,7 +46,8 @@ public class PermanentDepositsValidator implements SmartValidator {
       LocalDateTime proposedStartDate = LocalDateTime.ofInstant(projectInformation.getProposedStartTimestamp(), ZoneOffset.UTC);
       ValidatorUtils.validateDateIsPresentOrFutureOfTarget(
           "from", "deposit from month / year",
-          form.getFromMonth(), form.getFromYear(), proposedStartDate.getMonthValue(), proposedStartDate.getYear(), errors);
+          form.getFromMonth(), form.getFromYear(), proposedStartDate.getMonthValue(), proposedStartDate.getYear(),
+          "proposed start date", errors);
 
       ValidatorUtils.validateDateIsWithinRangeOfTarget(
           "to", "deposit to month / year",
@@ -56,102 +65,59 @@ public class PermanentDepositsValidator implements SmartValidator {
     }
 
 
-    ValidatorUtils.validateLatitude(
-        errors,
-        "fromLatitude",
-        Pair.of("fromLatitudeDegrees", NumberUtils.createInteger(form.getFromLatitudeDegrees())),
-        Pair.of("fromLatitudeMinutes", NumberUtils.createInteger(form.getFromLatitudeMinutes())),
-        Pair.of("fromLatitudeSeconds", NumberUtils.createBigDecimal(form.getFromLatitudeSeconds()))
-    );
+    ValidationUtils.invokeValidator(coordinateFormValidator, form.getFromCoordinateForm(), errors,
+        "fromCoordinateForm", ValueRequirement.MANDATORY, "Start point");
 
-    ValidatorUtils.validateLongitude(
-        errors,
-        "fromLongitude",
-        Pair.of("fromLongitudeDegrees", NumberUtils.createInteger(form.getFromLongitudeDegrees())),
-        Pair.of("fromLongitudeMinutes", NumberUtils.createInteger(form.getFromLongitudeMinutes())),
-        Pair.of("fromLongitudeSeconds", NumberUtils.createBigDecimal(form.getFromLongitudeSeconds())),
-        Pair.of("fromLongitudeDirection",
-            form.getFromLongitudeDirection() == null ? null : LongitudeDirection.valueOf(form.getFromLongitudeDirection()))
-    );
-
-    ValidatorUtils.validateLatitude(
-        errors,
-        "toLatitude",
-        Pair.of("toLatitudeDegrees", NumberUtils.createInteger(form.getToLatitudeDegrees())),
-        Pair.of("toLatitudeMinutes", NumberUtils.createInteger(form.getToLatitudeMinutes())),
-        Pair.of("toLatitudeSeconds", NumberUtils.createBigDecimal(form.getToLatitudeSeconds()))
-    );
-
-    ValidatorUtils.validateLongitude(
-        errors,
-        "toLongitude",
-        Pair.of("toLongitudeDegrees", NumberUtils.createInteger(form.getToLongitudeDegrees())),
-        Pair.of("toLongitudeMinutes", NumberUtils.createInteger(form.getToLongitudeMinutes())),
-        Pair.of("toLongitudeSeconds", NumberUtils.createBigDecimal(form.getToLongitudeSeconds())),
-        Pair.of("toLongitudeDirection",
-            form.getToLongitudeDirection() == null ? null : LongitudeDirection.valueOf(form.getToLongitudeDirection()))
-    );
+    ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
+        "toCoordinateForm", ValueRequirement.MANDATORY, "Finish point");
 
   }
 
+
+
   private void validateMaterialTypes(PermanentDepositsForm form, Errors errors) {
     if (form.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
-      if (form.getConcreteMattressLength() == null) {
-        errors.rejectValue("concreteMattressLength", "concreteMattressLength.invalid",
-            "Enter a valid length for the 'Concrete Mattresses' material type");
-      }
-      if (form.getConcreteMattressWidth() == null) {
-        errors.rejectValue("concreteMattressWidth", "concreteMattressWidth.invalid",
-            "Enter a valid width for the 'Concrete Mattresses' material type");
-      }
-      if (form.getConcreteMattressDepth() == null) {
-        errors.rejectValue("concreteMattressDepth", "concreteMattressDepth.invalid",
-            "Enter a valid depth for the 'Concrete Mattresses' material type");
-      }
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressLength", "concreteMattressLength.invalid",
+          "Enter a valid length for the material type");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressWidth", "concreteMattressWidth.invalid",
+          "Enter a valid width for the material type");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressDepth", "concreteMattressDepth.invalid",
+          "Enter a valid depth for the material type");
       if (!NumberUtils.isCreatable(form.getQuantityConcrete())) {
         errors.rejectValue("quantityConcrete", "quantityConcrete.invalid",
-            "Enter a valid quantity for the 'Concrete Mattresses' material type");
+            "Enter a valid quantity for the material type");
       }
 
 
     } else if (form.getMaterialType().equals(MaterialType.ROCK)) {
-      if (form.getRocksSize() == null) {
-        errors.rejectValue("rocksSize", "rocksSize.invalid",
-            "Enter a valid size for the 'Rocks' material type");
-      }
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "rocksSize", "rocksSize.invalid", "Enter a valid size for the material type");
       if (!NumberUtils.isCreatable(form.getQuantityRocks())) {
         errors.rejectValue("quantityRocks", "quantityRocks.invalid",
-            "Enter a valid quantity for the 'Rocks' material type");
+            "Enter a valid quantity for the material type");
       }
 
 
     } else if (form.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
-      if (form.getGroutBagsSize() == null) {
-        errors.rejectValue("groutBagsSize", "groutBagsSize.invalid",
-            "Enter a valid size for the 'Grout Bags' material type");
-      }
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsSize", "groutBagsSize.invalid",
+          "Enter a valid size for the material type");
       if (!NumberUtils.isCreatable(form.getQuantityGroutBags())) {
         errors.rejectValue("quantityGroutBags", "quantityGroutBags.invalid",
-            "Enter a valid quantity for the 'Grout Bags' material type");
+            "Enter a valid quantity for the material type");
       }
-      if (form.getGroutBagsBioDegradable() == null) {
-        errors.rejectValue("groutBagsBioDegradable", "groutBagsBioDegradable.required",
-            "Select yes if the grout bags are bio degradable");
-      }
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsBioDegradable", "groutBagsBioDegradable.required",
+          "Select yes if the grout bags are bio degradable");
       if (BooleanUtils.isFalse(form.getGroutBagsBioDegradable()) && StringUtils.isBlank(form.getBioGroutBagsNotUsedDescription())) {
         errors.rejectValue("bioGroutBagsNotUsedDescription", "bioGroutBagsNotUsedDescription.blank",
-            "Enter a description for bio degradable grout bags not being used");
+            "Explain why bio-degradable grout bags aren’t being used");
       }
 
 
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
-      if (form.getOtherMaterialSize() == null) {
-        errors.rejectValue("otherMaterialSize", "otherMaterialSize.invalid",
-            "Enter a valid size for other material types");
-      }
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherMaterialSize", "otherMaterialSize.invalid",
+          "Enter a valid size for the material type");
       if (!NumberUtils.isCreatable(form.getQuantityOther())) {
         errors.rejectValue("quantityOther", "quantityOther.invalid",
-            "Enter a valid quantity for other material types");
+            "Enter a valid quantity for the material type");
       }
     }
   }

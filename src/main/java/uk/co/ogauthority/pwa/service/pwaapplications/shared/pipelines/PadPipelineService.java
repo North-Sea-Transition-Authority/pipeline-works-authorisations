@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -26,6 +28,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class PadPipelineService implements ApplicationFormSectionService {
@@ -164,6 +167,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     throw new AssertionError("Doesn't make sense to implement this.");
+  }
+
+  public Map<String, String> getPipelines(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
+        .stream()
+        .sorted(Comparator.comparing(PadPipeline::getId))
+        .collect(
+            StreamUtils.toLinkedHashMap(padPipeline -> padPipeline.getId().toString(), PadPipeline::getFromLocation));
   }
 
 }

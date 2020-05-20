@@ -1,0 +1,63 @@
+package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+
+@Entity
+@Table(name = "deposits_for_pipelines")
+public class PadDepositPipelines {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
+
+  @NotNull
+  @OneToOne
+  @JoinColumn(name = "permanent_deposit_info_id")
+  private PadPermanentDeposit permanentDepositInfo;
+
+  @NotNull
+  @OneToOne
+  @JoinColumn(name = "pad_pipeline_id")
+  private PadPipeline padPipelineId;
+
+  public PadDepositPipelines() {
+  }
+
+  public PadDepositPipelines(@NotNull PadPermanentDeposit permanentDepositInfo, @NotNull PadPipeline padPipelineId) {
+    this.permanentDepositInfo = permanentDepositInfo;
+    this.padPipelineId = padPipelineId;
+  }
+
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public PadPermanentDeposit getPermanentDepositInfo() {
+    return permanentDepositInfo;
+  }
+
+  public void setPermanentDepositInfo(PadPermanentDeposit permanentDepositInfo) {
+    this.permanentDepositInfo = permanentDepositInfo;
+  }
+
+  public PadPipeline getPadPipelineId() {
+    return padPipelineId;
+  }
+
+  public void setPadPipelineId(PadPipeline padPipelineId) {
+    this.padPipelineId = padPipelineId;
+  }
+}

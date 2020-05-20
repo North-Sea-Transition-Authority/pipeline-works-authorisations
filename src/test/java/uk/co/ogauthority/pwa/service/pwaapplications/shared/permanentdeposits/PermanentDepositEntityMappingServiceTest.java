@@ -5,26 +5,32 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PermanentDepositsEntityMappingServiceTest {
+public class PermanentDepositEntityMappingServiceTest {
 
-  private PermanentDepositsEntityMappingService permanentDepositsEntityMappingService;
+  private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
 
   @Before
   public void setUp() {
-    permanentDepositsEntityMappingService = new PermanentDepositsEntityMappingService();
+    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
   }
 
-  public PermanentDepositInformation buildBaseEntity() {
-    PermanentDepositInformation baseEntity = new PermanentDepositInformation();
+  public PadPermanentDeposit buildBaseEntity() {
+    PadPermanentDeposit baseEntity = new PadPermanentDeposit();
     baseEntity.setFromMonth(2);
     baseEntity.setFromYear(2020);
     baseEntity.setToMonth(3);
@@ -33,70 +39,76 @@ public class PermanentDepositsEntityMappingServiceTest {
     baseEntity.setQuantity(Double.parseDouble("5.7"));
     baseEntity.setContingencyAmount("88");
 
-    baseEntity.setFromLatitudeDegrees(1);
-    baseEntity.setFromLatitudeMinutes(33);
-    baseEntity.setFromLatitudeSeconds(new BigDecimal("15"));
-    baseEntity.setFromLongitudeDegrees(166);
-    baseEntity.setFromLongitudeMinutes(35);
-    baseEntity.setFromLongitudeSeconds(new BigDecimal("61"));
-    baseEntity.setFromLongitudeDirection(LongitudeDirection.EAST);
+    var fromCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
+            new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
+        ), fromCoordinateForm
+    );
+    baseEntity.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(fromCoordinateForm));
 
-    baseEntity.setToLatitudeDegrees(55);
-    baseEntity.setToLatitudeMinutes(32);
-    baseEntity.setToLatitudeSeconds(new BigDecimal("16"));
-    baseEntity.setToLongitudeDegrees(53);
-    baseEntity.setToLongitudeMinutes(65);
-    baseEntity.setToLongitudeSeconds(new BigDecimal("23"));
-    baseEntity.setToLongitudeDirection(LongitudeDirection.WEST);
+    var toCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(46, 46, BigDecimal.valueOf(46), LatitudeDirection.SOUTH),
+            new LongitudeCoordinate(6, 6, BigDecimal.valueOf(6.66), LongitudeDirection.WEST)
+        ), toCoordinateForm
+    );
+    baseEntity.setToCoordinates(CoordinateUtils.coordinatePairFromForm(toCoordinateForm));
     return baseEntity;
   }
 
-  public PermanentDepositsForm buildBaseForm(PermanentDepositInformation baseEntity) {
+  public PermanentDepositsForm buildBaseForm(PadPermanentDeposit baseEntity) {
     PermanentDepositsForm baseForm = new PermanentDepositsForm();
     baseForm.setFromMonth(baseEntity.getFromMonth());
     baseForm.setFromYear(baseEntity.getFromYear());
     baseForm.setToMonth(baseEntity.getToMonth());
     baseForm.setToYear(baseEntity.getToYear());
 
-    baseForm.setFromLatitudeDegrees(String.valueOf(baseEntity.getFromLatitudeDegrees()));
-    baseForm.setFromLatitudeMinutes(String.valueOf(baseEntity.getFromLatitudeMinutes()));
-    baseForm.setFromLatitudeSeconds(String.valueOf(baseEntity.getFromLatitudeSeconds()));
-    baseForm.setFromLongitudeDegrees(String.valueOf(baseEntity.getFromLongitudeDegrees()));
-    baseForm.setFromLongitudeMinutes(String.valueOf(baseEntity.getFromLongitudeMinutes()));
-    baseForm.setFromLongitudeSeconds(String.valueOf(baseEntity.getFromLongitudeSeconds()));
-    baseForm.setFromLongitudeDirection(baseEntity.getFromLongitudeDirection().name());
+    baseForm.setFromCoordinateForm(new CoordinateForm());
+    baseForm.getFromCoordinateForm().setLatitudeDegrees(baseEntity.getFromLatitudeDegrees());
+    baseForm.getFromCoordinateForm().setLatitudeMinutes(baseEntity.getFromLatitudeMinutes());
+    baseForm.getFromCoordinateForm().setLatitudeSeconds(baseEntity.getFromLatitudeSeconds());
+    baseForm.getFromCoordinateForm().setLatitudeDirection(baseEntity.getFromLatitudeDirection());
+    baseForm.getFromCoordinateForm().setLongitudeDegrees(baseEntity.getFromLongitudeDegrees());
+    baseForm.getFromCoordinateForm().setLongitudeMinutes(baseEntity.getFromLongitudeMinutes());
+    baseForm.getFromCoordinateForm().setLongitudeSeconds(baseEntity.getFromLongitudeSeconds());
+    baseForm.getFromCoordinateForm().setLongitudeDirection(baseEntity.getFromLongitudeDirection());
 
-    baseForm.setToLatitudeDegrees(String.valueOf(baseEntity.getToLatitudeDegrees()));
-    baseForm.setToLatitudeMinutes(String.valueOf(baseEntity.getToLatitudeMinutes()));
-    baseForm.setToLatitudeSeconds(String.valueOf(baseEntity.getToLatitudeSeconds()));
-    baseForm.setToLongitudeDegrees(String.valueOf(baseEntity.getToLongitudeDegrees()));
-    baseForm.setToLongitudeMinutes(String.valueOf(baseEntity.getToLongitudeMinutes()));
-    baseForm.setToLongitudeSeconds(String.valueOf(baseEntity.getToLongitudeSeconds()));
-    baseForm.setToLongitudeDirection(baseEntity.getToLongitudeDirection().name());
+    baseForm.setToCoordinateForm(new CoordinateForm());
+    baseForm.getToCoordinateForm().setLatitudeDegrees(baseEntity.getToLatitudeDegrees());
+    baseForm.getToCoordinateForm().setLatitudeMinutes(baseEntity.getToLatitudeMinutes());
+    baseForm.getToCoordinateForm().setLatitudeSeconds(baseEntity.getToLatitudeSeconds());
+    baseForm.getToCoordinateForm().setLatitudeDirection(baseEntity.getToLatitudeDirection());
+    baseForm.getToCoordinateForm().setLongitudeDegrees(baseEntity.getToLongitudeDegrees());
+    baseForm.getToCoordinateForm().setLongitudeMinutes(baseEntity.getToLongitudeMinutes());
+    baseForm.getToCoordinateForm().setLongitudeSeconds(baseEntity.getToLongitudeSeconds());
+    baseForm.getToCoordinateForm().setLongitudeDirection(baseEntity.getToLongitudeDirection());
     return baseForm;
   }
 
 
-  public void setEntityConcreteProperties(PermanentDepositInformation entity){
+  public void setEntityConcreteProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
     entity.setConcreteMattressLength(13);
     entity.setConcreteMattressWidth(22);
     entity.setConcreteMattressDepth(32);
   }
 
-  public void setEntityGroutBagProperties(PermanentDepositInformation entity){
+  public void setEntityGroutBagProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.GROUT_BAGS);
     entity.setMaterialSize("43");
     entity.setGroutBagsBioDegradable(true);
     entity.setBagsNotUsedDescription("...");
   }
 
-  public void setEntityRockProperties(PermanentDepositInformation entity){
+  public void setEntityRockProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.ROCK);
     entity.setMaterialSize("43");
   }
 
-  public void setEntityOtherProperties(PermanentDepositInformation entity){
+  public void setEntityOtherProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.OTHER);
     entity.setMaterialSize("43");
   }
@@ -146,10 +158,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeConcrete() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityConcreteProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormConcreteProperties(expectedForm);
@@ -158,10 +170,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeRocks() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityRockProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormRocksProperties(expectedForm);
@@ -170,10 +182,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeGroutBags() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityGroutBagProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormGroutBagsProperties(expectedForm);
@@ -182,10 +194,10 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void mapDepositInformationDataToForm_materialTypeOther() {
-    PermanentDepositInformation entity = buildBaseEntity();
+    PadPermanentDeposit entity = buildBaseEntity();
     setEntityOtherProperties(entity);
     var actualForm = new PermanentDepositsForm();
-    permanentDepositsEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
+    permanentDepositEntityMappingService.mapDepositInformationDataToForm(entity, actualForm);
 
     PermanentDepositsForm expectedForm = buildBaseForm(entity);
     setFormOtherMaterialProperties(expectedForm);
@@ -196,12 +208,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeConcrete() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormConcreteProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityConcreteProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);
@@ -209,12 +221,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeRocks() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormRocksProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityRockProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);
@@ -222,12 +234,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeGroutBags() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormGroutBagsProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityGroutBagProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);
@@ -235,12 +247,12 @@ public class PermanentDepositsEntityMappingServiceTest {
 
   @Test
   public void setEntityValuesUsingForm_materialTypeOther() {
-    PermanentDepositInformation expectedEntity = buildBaseEntity();
+    PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormOtherMaterialProperties(form);
 
-    var actualEntity = new PermanentDepositInformation();
-    permanentDepositsEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
+    var actualEntity = new PadPermanentDeposit();
+    permanentDepositEntityMappingService.setEntityValuesUsingForm(actualEntity, form);
 
     setEntityOtherProperties(expectedEntity);
     assertThat(actualEntity).isEqualTo(expectedEntity);

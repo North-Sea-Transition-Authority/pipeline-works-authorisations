@@ -12,7 +12,7 @@ CREATE TABLE ${datasource.user}.permanent_deposit_information(
     concrete_mattress_depth NUMBER,
 
     grout_bags_bio_degradable INTEGER CHECK(grout_bags_bio_degradable IN (0, 1) OR grout_bags_bio_degradable IS NULL),
-    bags_not_used_description VARCHAR2(500),
+    bags_not_used_description VARCHAR2(4000),
     quantity NUMBER,
     contingency_amount VARCHAR2(50),
 

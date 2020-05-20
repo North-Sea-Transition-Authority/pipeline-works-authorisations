@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -18,7 +19,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -27,7 +28,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 
 import java.time.LocalDate;
@@ -55,7 +57,10 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private PermanentDepositsService permanentDepositsService;
+  private PermanentDepositService permanentDepositService;
+
+  @MockBean
+  private PadProjectInformationService padProjectInformationService;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -71,7 +76,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-  private PermanentDepositInformation permanentDepositInformation;
+  private PadPermanentDeposit padPermanentDeposit;
 
   @Before
   public void setUp() {
@@ -86,8 +91,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     pwaApplicationDetail.setPwaApplication(pwaApplication);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
 
-    permanentDepositInformation = new PermanentDepositInformation();
-    permanentDepositInformation.setPwaApplicationDetail(pwaApplicationDetail);
+    padPermanentDeposit = new PadPermanentDeposit();
+    padPermanentDeposit.setPwaApplicationDetail(pwaApplicationDetail);
 
     //support app context code
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
@@ -103,6 +108,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     for (var appType : appTypes) {
       try {
         pwaApplication.setApplicationType(appType);
+        when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
         var result = mockMvc.perform(
             get(ReverseRouter.route(
                 on(PermanentDepositController.class).renderPermanentDeposits(appType, APP_ID, null, null)))
@@ -124,7 +130,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   @Test
   public void postPermanentDeposits_authenticatedUser_appTypeSmokeTest() throws Exception {
 
-    ControllerTestUtils.failValidationWhenPost(permanentDepositsService, new PermanentDepositsForm(), ValidationType.FULL);
+    ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL);
     PwaApplicationType[] appTypes = {PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING, PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.INITIAL, PwaApplicationType.OPTIONS_VARIATION};
     for (var appType : appTypes) {
       try {
@@ -133,6 +139,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
         MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
           add("Complete", "Complete");
         }};
+        when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
         var result = mockMvc.perform(
             post(ReverseRouter.route(
                 on(PermanentDepositController.class).postPermanentDeposits(appType, APP_ID, null, null, null, null)))
@@ -153,7 +160,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   @Test
   public void postPermanentDeposits_continue_authenticatedUser_appTypeSmokeTest() throws Exception {
 
-    ControllerTestUtils.passValidationWhenPost(permanentDepositsService, new PermanentDepositsForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.PARTIAL);
 
     PwaApplicationType[] appTypes = {PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING, PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.INITIAL, PwaApplicationType.OPTIONS_VARIATION};
     for (var appType : appTypes) {
@@ -219,6 +226,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void renderPermanentDeposits_serviceInteractions() throws Exception {
+    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
     mockMvc.perform(
         get(ReverseRouter.route(on(PermanentDepositController.class)
             .renderPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null)))
@@ -235,7 +243,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
       add("Save and complete later", "Save and complete later");
     }};
 
-    ControllerTestUtils.passValidationWhenPost(permanentDepositsService, new PermanentDepositsForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.PARTIAL);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
@@ -244,7 +252,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             .with(csrf())
             .params(params))
         .andExpect(status().is3xxRedirection());
-    verify(permanentDepositsService, times(1)).saveEntityUsingForm(any(), any(), any());
+    verify(permanentDepositService, times(1)).saveEntityUsingForm(any(), any(), any());
   }
 
   @Test
@@ -255,7 +263,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
       add("projectOverview", StringUtils.repeat("a", 5000));
     }};
 
-    ControllerTestUtils.failValidationWhenPost(permanentDepositsService, new PermanentDepositsForm(), ValidationType.PARTIAL);
+    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
+    ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.PARTIAL);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
@@ -264,7 +273,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             .with(csrf())
             .params(params))
         .andExpect(status().isOk());
-    verify(permanentDepositsService, times(0)).getPermanentDepositData(pwaApplicationDetail);
 
   }
 
@@ -275,7 +283,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
       add("Complete", "Complete");
     }};
 
-    ControllerTestUtils.failValidationWhenPost(permanentDepositsService, new PermanentDepositsForm(), ValidationType.FULL);
+    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn("1/1/2020");
+    ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
@@ -284,9 +293,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             .with(csrf())
             .params(params))
         .andExpect(status().isOk());
-
-    verify(permanentDepositsService, never()).getPermanentDepositData(pwaApplicationDetail);
-
   }
 
   @Test
@@ -298,7 +304,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
       add("materialType", MaterialType.ROCK.toString());
     }};
 
-    ControllerTestUtils.passValidationWhenPost(permanentDepositsService, new PermanentDepositsForm(), ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
@@ -308,8 +314,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             .params(params))
         .andExpect(status().is3xxRedirection());
 
-    verify(permanentDepositsService, times(1)).saveEntityUsingForm(any(), any(), any());
-    verify(permanentDepositsService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
+    verify(permanentDepositService, times(1)).saveEntityUsingForm(any(), any(), any());
+    verify(permanentDepositService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
 
   }

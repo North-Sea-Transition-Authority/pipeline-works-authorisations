@@ -11,14 +11,20 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
-
-@Entity(name = "permanent_deposit_information")
-public class PermanentDepositInformation {
+@Entity
+@Table(name = "permanent_deposit_information")
+public class PadPermanentDeposit {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +51,13 @@ public class PermanentDepositInformation {
 
   private double quantity;
   private String contingencyAmount;
+
+  @Transient
+  private CoordinatePair fromCoordinates;
+
+  @Transient
+  private CoordinatePair toCoordinates;
+
 
 
   @Column(name = "from_lat_deg")
@@ -350,6 +363,71 @@ public class PermanentDepositInformation {
   }
 
 
+
+
+
+  public CoordinatePair getFromCoordinates() {
+    return fromCoordinates;
+  }
+
+  public void setFromCoordinates(CoordinatePair fromCoordinates) {
+    this.fromCoordinates = fromCoordinates;
+    updateFromCoordinateValues();
+  }
+
+  public CoordinatePair getToCoordinates() {
+    return toCoordinates;
+  }
+
+  public void setToCoordinates(CoordinatePair toCoordinates) {
+    this.toCoordinates = toCoordinates;
+    updateToCoordinateValues();
+  }
+
+  private void updateFromCoordinateValues() {
+    this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
+    this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
+    this.fromLatitudeSeconds = this.fromCoordinates.getLatitude().getSeconds();
+    this.fromLatitudeDirection = this.fromCoordinates.getLatitude().getDirection();
+
+    this.fromLongitudeDegrees = this.fromCoordinates.getLongitude().getDegrees();
+    this.fromLongitudeMinutes = this.fromCoordinates.getLongitude().getMinutes();
+    this.fromLongitudeSeconds = this.fromCoordinates.getLongitude().getSeconds();
+    this.fromLongitudeDirection = this.fromCoordinates.getLongitude().getDirection();
+  }
+
+  private void updateToCoordinateValues() {
+    this.toLatitudeDegrees = this.toCoordinates.getLatitude().getDegrees();
+    this.toLatitudeMinutes = this.toCoordinates.getLatitude().getMinutes();
+    this.toLatitudeSeconds = this.toCoordinates.getLatitude().getSeconds();
+    this.toLatitudeDirection = this.toCoordinates.getLatitude().getDirection();
+
+    this.toLongitudeDegrees = this.toCoordinates.getLongitude().getDegrees();
+    this.toLongitudeMinutes = this.toCoordinates.getLongitude().getMinutes();
+    this.toLongitudeSeconds = this.toCoordinates.getLongitude().getSeconds();
+    this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
+  }
+
+  @PostLoad
+  public void postLoad() {
+
+    this.fromCoordinates = new CoordinatePair(
+        new LatitudeCoordinate(this.fromLatitudeDegrees, this.fromLatitudeMinutes, this.fromLatitudeSeconds, this.fromLatitudeDirection),
+        new LongitudeCoordinate(
+            this.fromLongitudeDegrees,
+            this.fromLongitudeMinutes,
+            this.fromLongitudeSeconds,
+            this.fromLongitudeDirection)
+    );
+
+    this.toCoordinates = new CoordinatePair(
+        new LatitudeCoordinate(this.toLatitudeDegrees, this.toLatitudeMinutes, this.toLatitudeSeconds, this.toLatitudeDirection),
+        new LongitudeCoordinate(this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection)
+    );
+
+  }
+
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -358,7 +436,7 @@ public class PermanentDepositInformation {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PermanentDepositInformation that = (PermanentDepositInformation) o;
+    PadPermanentDeposit that = (PadPermanentDeposit) o;
     return Double.compare(that.quantity, quantity) == 0
         && Objects.equals(id, that.id)
         && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
@@ -374,6 +452,8 @@ public class PermanentDepositInformation {
         && Objects.equals(groutBagsBioDegradable, that.groutBagsBioDegradable)
         && Objects.equals(bagsNotUsedDescription, that.bagsNotUsedDescription)
         && Objects.equals(contingencyAmount, that.contingencyAmount)
+        && Objects.equals(fromCoordinates, that.fromCoordinates)
+        && Objects.equals(toCoordinates, that.toCoordinates)
         && Objects.equals(fromLatitudeDegrees, that.fromLatitudeDegrees)
         && Objects.equals(fromLatitudeMinutes, that.fromLatitudeMinutes)
         && Objects.equals(fromLatitudeSeconds, that.fromLatitudeSeconds)
@@ -394,10 +474,11 @@ public class PermanentDepositInformation {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplicationDetail, fromMonth, fromYear, toMonth, toYear, materialType, materialSize,
-        concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription,
-        quantity, contingencyAmount, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds, fromLatitudeDirection,
-        fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees, toLatitudeMinutes,
-        toLatitudeSeconds, toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection);
+    return Objects.hash(id, pwaApplicationDetail, fromMonth, fromYear, toMonth, toYear, materialType, materialSize, concreteMattressLength,
+        concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription, quantity,
+        contingencyAmount, fromCoordinates, toCoordinates, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds,
+        fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,
+        toLatitudeMinutes, toLatitudeSeconds, toLatitudeDirection, toLongitudeDegrees,
+        toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection);
   }
 }

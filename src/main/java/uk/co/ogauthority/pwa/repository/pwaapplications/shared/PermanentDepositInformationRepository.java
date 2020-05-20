@@ -3,10 +3,10 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PermanentDepositInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 
 
-public interface PermanentDepositInformationRepository extends CrudRepository<PermanentDepositInformation, Integer> {
+public interface PermanentDepositInformationRepository extends CrudRepository<PadPermanentDeposit, Integer> {
 
-  List<PermanentDepositInformation> findByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+  List<PadPermanentDeposit> findByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 }

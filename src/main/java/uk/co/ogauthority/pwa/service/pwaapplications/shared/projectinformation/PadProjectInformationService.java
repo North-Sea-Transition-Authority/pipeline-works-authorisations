@@ -1,7 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,6 +179,16 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
     return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION) ? false : true;
   }
+
+  public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+        .withLocale(Locale.UK)
+        .withZone(ZoneId.systemDefault());
+    return formatter.format(projectInformation.getProposedStartTimestamp());
+  }
+
 
 
 }

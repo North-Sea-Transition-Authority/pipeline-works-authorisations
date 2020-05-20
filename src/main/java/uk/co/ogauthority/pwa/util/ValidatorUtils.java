@@ -170,15 +170,16 @@ public class ValidatorUtils {
                                                               Integer year,
                                                               Integer targetMonth,
                                                               Integer targetYear,
+                                                              String transference,
                                                               Errors errors) {
     if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
       var date = LocalDate.of(year, month, 1);
       var targetDate = LocalDate.of(targetYear, targetMonth, 1);
       if (date.isBefore(targetDate)) {
         errors.rejectValue(fieldPrefix + "Month",
-            String.format("%sMonth%s", fieldPrefix, ".beforeTarget"), "Month must be after proposed start date");
+            String.format("%sMonth%s", fieldPrefix, ".beforeTarget"), "Month must be on or after " + transference);
         errors.rejectValue(fieldPrefix + "Year",
-            String.format("%sYear%s", fieldPrefix, ".beforeTarget"), "Year must be after proposed start date");
+            String.format("%sYear%s", fieldPrefix, ".beforeTarget"), "Year must be on or after " + transference);
         return false;
       }
       return true;
