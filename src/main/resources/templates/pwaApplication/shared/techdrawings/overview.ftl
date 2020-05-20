@@ -12,6 +12,8 @@
     optionalSection=admiraltyOptional
     admiraltyChartFileViews=admiraltyChartFileViews />
 
+    <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(addPipelineUrl)/>
+
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>

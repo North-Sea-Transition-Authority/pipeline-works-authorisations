@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -62,7 +65,9 @@ public class TechnicalDrawingsController {
             admiraltyChartFileService.getAdmiraltyChartFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
-        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
+        .addObject("addPipelineUrl", ReverseRouter.route(on(AddTechnicalDrawingController.class)
+            .renderAddDrawing(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Technical drawings");
     return modelAndView;
   }
