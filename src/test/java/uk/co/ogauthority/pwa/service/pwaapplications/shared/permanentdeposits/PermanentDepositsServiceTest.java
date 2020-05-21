@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -22,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
@@ -225,15 +229,25 @@ public class PermanentDepositsServiceTest {
     assertThat(actualForms).isEqualTo(expectedForms);
   }
 
-  @Test
-  public void mapEntityToFormById() {
-    var entity = new PadPermanentDeposit();
-    entity.setId(1);
-    when(permanentDepositInformationRepository.findById(1)).thenReturn(Optional.of(entity));
-
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void mapEntityToFormById_noEntityExists() {
     var form = new PermanentDepositsForm();
     service.mapEntityToFormById(1, form);
-    assertThat(form.getEntityID()).isEqualTo(1);
+  }
+
+  @Test
+  public void getEditUrlsForDeposits() {
+    var expectedUrlMap = new HashMap<String, String>();
+    expectedUrlMap.put("1", ReverseRouter.route(on(PermanentDepositController.class)
+        .renderEditPermanentDeposits(
+            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+            1, null, null)));
+    var mockedEntity = new PadPermanentDeposit();
+    mockedEntity.setId(1);
+
+    when(permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
+    var actualUrlMap = service.getEditUrlsForDeposits(pwaApplicationDetail);
+    assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
 
 

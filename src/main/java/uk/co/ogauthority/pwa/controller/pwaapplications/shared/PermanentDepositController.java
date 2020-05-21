@@ -95,6 +95,17 @@ public class PermanentDepositController {
     return getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
   }
 
+  @PostMapping
+  public ModelAndView postPermanentDepositsOverview(@PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            @PathVariable("applicationId") Integer applicationId,
+                                            PwaApplicationContext applicationContext,
+                                            @ModelAttribute("form") PermanentDepositsForm form,
+                                            BindingResult bindingResult,
+                                            ValidationType validationType) {
+    return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+  }
+
   @PostMapping("/add-deposits")
   public ModelAndView postPermanentDeposits(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -168,7 +179,9 @@ public class PermanentDepositController {
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
-        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
+        .addObject("backUrl", ReverseRouter.route(on(PermanentDepositController.class)
+            .renderPermanentDepositsOverview(
+                pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("screenAction", type);
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,

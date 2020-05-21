@@ -89,11 +89,15 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     permanentDepositInformation.setPwaApplicationDetail(detail);
     permanentDepositEntityMappingService.setEntityValuesUsingForm(permanentDepositInformation, form);
     permanentDepositInformation = permanentDepositInformationRepository.save(permanentDepositInformation);
+    var existingDepositPipelines = padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDepositInformation.getId());
+    padDepositPipelineRepository.deleteAll(existingDepositPipelines);
     for (String padPipelineId : form.getSelectedPipelines()) {
-      var padPipeline = padPipelineRepository.findById(Integer.valueOf(padPipelineId))
-          .orElseThrow(() -> new PwaEntityNotFoundException("Permanent deposit information could not be found"));
-      var depositsForPipelines = new PadDepositPipeline(permanentDepositInformation, padPipeline);
-      padDepositPipelineRepository.save(depositsForPipelines);
+      if (padPipelineId != "") {
+        var padPipeline = padPipelineRepository.findById(Integer.valueOf(padPipelineId))
+            .orElseThrow(() -> new PwaEntityNotFoundException("Permanent deposit information could not be found"));
+        var depositsForPipelines = new PadDepositPipeline(permanentDepositInformation, padPipeline);
+        padDepositPipelineRepository.save(depositsForPipelines);
+      }
     }
   }
 
@@ -163,6 +167,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     mapEntityToForm(permanentDeposit, form);
     return permanentDeposit;
   }
+
 
   public Map<String, String> getEditUrlsForDeposits(PwaApplicationDetail pwaApplicationDetail) {
     Map<String, String>  depositUrls = new HashMap<>();

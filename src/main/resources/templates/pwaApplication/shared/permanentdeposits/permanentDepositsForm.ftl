@@ -14,7 +14,7 @@
 
     <@fdsForm.htmlForm>
 
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true  optionalLabel=false
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true optionalInputDefault="Select one or more"
             hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed."/>
 
         <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start" formId="from-month-year">
@@ -108,7 +108,7 @@
         
 
 
-        <@fdsAction.submitButtons primaryButtonText="${screenAction.actionText} deposit" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to deposits" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>
