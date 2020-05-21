@@ -21,7 +21,7 @@ public class PipelineDrawingValidator implements Validator {
     var form = (PipelineDrawingForm) target;
     ValidationUtils.rejectIfEmpty(errors, "pipelineIds", "pipelineIds" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "You must select at least one pipeline");
-    ValidationUtils.rejectIfEmpty(errors, "reference", "reference" + FieldValidationErrorCodes.REQUIRED.getCode(),
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reference", "reference" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "You must enter a drawing reference");
     if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
       errors.rejectValue("uploadedFileWithDescriptionForms",

@@ -68,7 +68,7 @@ public class TechnicalDrawingsController {
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
         .addObject("addPipelineUrl", ReverseRouter.route(on(PipelineDrawingController.class)
             .renderAddDrawing(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
-    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Technical drawings");
+    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Admiralty chart and pipeline drawings");
     return modelAndView;
   }
 
