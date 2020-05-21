@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
-public class TechnicalDrawingForm extends UploadMultipleFilesWithDescriptionForm {
+public class PipelineDrawingForm extends UploadMultipleFilesWithDescriptionForm {
 
   private String reference;
   private List<Integer> pipelineIds;

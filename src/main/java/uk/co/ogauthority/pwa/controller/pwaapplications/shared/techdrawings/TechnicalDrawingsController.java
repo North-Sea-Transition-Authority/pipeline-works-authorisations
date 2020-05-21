@@ -66,7 +66,7 @@ public class TechnicalDrawingsController {
         .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
-        .addObject("addPipelineUrl", ReverseRouter.route(on(AddTechnicalDrawingController.class)
+        .addObject("addPipelineUrl", ReverseRouter.route(on(PipelineDrawingController.class)
             .renderAddDrawing(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Technical drawings");
     return modelAndView;
