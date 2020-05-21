@@ -12,16 +12,20 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 public class TechnicalDrawingsService implements ApplicationFormSectionService {
 
   private final AdmiraltyChartFileService admiraltyChartFileService;
+  private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   @Autowired
   public TechnicalDrawingsService(
-      AdmiraltyChartFileService admiraltyChartFileService) {
+      AdmiraltyChartFileService admiraltyChartFileService,
+      PadTechnicalDrawingService padTechnicalDrawingService) {
     this.admiraltyChartFileService = admiraltyChartFileService;
+    this.padTechnicalDrawingService = padTechnicalDrawingService;
   }
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return admiraltyChartFileService.isComplete(detail);
+    return admiraltyChartFileService.isComplete(detail)
+        && padTechnicalDrawingService.isComplete(detail);
   }
 
   @Override

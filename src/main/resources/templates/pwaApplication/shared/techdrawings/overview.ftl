@@ -12,7 +12,10 @@
     optionalSection=admiraltyOptional
     admiraltyChartFileViews=admiraltyChartFileViews />
 
-    <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(addPipelineUrl)/>
+    <hr class="govuk-section-break govuk-section-break--m"/>
+
+    <h2 class="govuk-heading-l">Pipeline drawings</h2>
+    <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(addPipelineUrl) linkClass="govuk-button govuk-button--blue"/>
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>

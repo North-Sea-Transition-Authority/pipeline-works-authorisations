@@ -154,6 +154,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find PadPipeline with ID: %s", padPipelineId)));
   }
 
+  public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
+    return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
+  }
+
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L

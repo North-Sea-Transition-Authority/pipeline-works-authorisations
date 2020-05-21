@@ -29,10 +29,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
@@ -50,6 +53,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadPipelineService padPipelineService;
+  private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final PadFileService padFileService;
   private final PipelineDrawingValidator pipelineDrawingValidator;
 
@@ -58,11 +62,15 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   @Autowired
   public PipelineDrawingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadPipelineService padPipelineService, PadFileService padFileService,
+      PadPipelineService padPipelineService,
+      PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
+      PadTechnicalDrawingService padTechnicalDrawingService,
+      PadFileService padFileService,
       PipelineDrawingValidator pipelineDrawingValidator) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padPipelineService = padPipelineService;
+    this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.padFileService = padFileService;
     this.pipelineDrawingValidator = pipelineDrawingValidator;
   }
@@ -80,6 +88,8 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
         "Add pipeline drawing");
+
+    padFileService.getFilesLinkedToForm(form, detail, filePurpose);
     return modelAndView;
   }
 
@@ -89,6 +99,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") PipelineDrawingForm form,
       PwaApplicationContext applicationContext) {
+
 
     return getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
   }
@@ -101,10 +112,11 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
-    pipelineDrawingValidator.validate(form, bindingResult);
+    padTechnicalDrawingService.validate(form, bindingResult, ValidationType.FULL,
+        applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-      // Link file to pipelines. Need to restrict to a single file.
+      padTechnicalDrawingService.addDrawing(applicationContext.getApplicationDetail(), form);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, applicationId, null, null));
     });
@@ -126,7 +138,8 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   }
 
   @Override
-  @PostMapping("/file/download")
+  @GetMapping("/files/download/{fileId}")
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
   @ResponseBody
   public ResponseEntity<Resource> handleDownload(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
@@ -137,7 +150,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   }
 
   @Override
-  @PostMapping("/file/delete")
+  @PostMapping("/file/delete/{fileId}")
   @ResponseBody
   public FileDeleteResult handleDelete(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
