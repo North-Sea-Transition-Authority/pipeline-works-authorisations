@@ -61,4 +61,9 @@ public class PadTechnicalDrawing {
   public String getReference() {
     return reference;
   }
+
+  public String getFileDescription() {
+    return file.getDescription();
+  }
+
 }

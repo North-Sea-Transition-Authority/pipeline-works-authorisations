@@ -28,6 +28,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -46,17 +48,20 @@ public class TechnicalDrawingsController {
   private final AdmiraltyChartFileService admiraltyChartFileService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final TechnicalDrawingsService technicalDrawingsService;
+  private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   @Autowired
   public TechnicalDrawingsController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       AdmiraltyChartFileService admiraltyChartFileService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      TechnicalDrawingsService technicalDrawingsService) {
+      TechnicalDrawingsService technicalDrawingsService,
+      PadTechnicalDrawingService padTechnicalDrawingService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.technicalDrawingsService = technicalDrawingsService;
+    this.padTechnicalDrawingService = padTechnicalDrawingService;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
@@ -67,8 +72,12 @@ public class TechnicalDrawingsController {
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
         .addObject("addPipelineUrl", ReverseRouter.route(on(PipelineDrawingController.class)
-            .renderAddDrawing(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
-    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Admiralty chart and pipeline drawings");
+            .renderAddDrawing(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
+        .addObject("pipelineDrawingUrlFactory",
+            new PipelineDrawingUrlFactory(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId()))
+        .addObject("pipelineDrawingSummaryViews", padTechnicalDrawingService.getPipelineDrawingSummaryViews(detail));
+    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
+        "Admiralty chart and pipeline drawings");
     return modelAndView;
   }
 

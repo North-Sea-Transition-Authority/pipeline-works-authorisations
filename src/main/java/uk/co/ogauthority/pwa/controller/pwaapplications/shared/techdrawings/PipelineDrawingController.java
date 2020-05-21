@@ -116,6 +116,11 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+      padFileService.updateFiles(
+          form,
+          applicationContext.getApplicationDetail(),
+          filePurpose,
+          applicationContext.getUser());
       padTechnicalDrawingService.addDrawing(applicationContext.getApplicationDetail(), form);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, applicationId, null, null));

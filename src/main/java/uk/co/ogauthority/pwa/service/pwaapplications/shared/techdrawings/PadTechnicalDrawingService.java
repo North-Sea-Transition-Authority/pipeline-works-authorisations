@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,8 +11,10 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
@@ -58,6 +62,25 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     drawing.setReference(form.getReference());
     padTechnicalDrawingRepository.save(drawing);
     padTechnicalDrawingLinkService.linkDrawing(detail, form, drawing);
+  }
+
+  public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViews(PwaApplicationDetail detail) {
+    var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail);
+    var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
+    Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap = links.stream()
+        .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
+
+    var summaryList = new ArrayList<PipelineDrawingSummaryView>();
+
+    for (PadTechnicalDrawing technicalDrawing : linkMap.keySet()) {
+      List<PipelineOverview> overviews = linkMap.get(technicalDrawing)
+          .stream()
+          .map(drawingLink -> new PipelineOverview(drawingLink.getPipeline(), List.of()))
+          .collect(Collectors.toUnmodifiableList());
+      summaryList.add(new PipelineDrawingSummaryView(technicalDrawing, overviews));
+    }
+
+    return summaryList;
   }
 
   @Override
