@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -253,7 +254,7 @@ public class PadOrganisationRoleServiceTest {
 
     assertThat(form.getHuooType()).isEqualTo(org1.getType());
     assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(org1.getRole()));
-    assertThat(form.getOrganisationUnit()).isEqualTo(org1.getOrganisationUnit());
+    assertThat(form.getOrganisationUnitId()).isEqualTo(org1.getOrganisationUnit().getOuId());
     assertThat(form.getTreatyAgreement()).isNull();
 
   }
@@ -267,7 +268,7 @@ public class PadOrganisationRoleServiceTest {
 
     assertThat(form.getHuooType()).isEqualTo(treaty1.getType());
     assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(treaty1.getRole()));
-    assertThat(form.getOrganisationUnit()).isNull();
+    assertThat(form.getOrganisationUnitId()).isNull();
     assertThat(form.getTreatyAgreement()).isEqualTo(treaty1.getAgreement());
 
   }
@@ -279,8 +280,11 @@ public class PadOrganisationRoleServiceTest {
     var newOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
 
     form.setHuooType(HuooType.PORTAL_ORG);
-    form.setOrganisationUnit(newOrgUnit);
+    form.setOrganisationUnitId(newOrgUnit.getOuId());
     form.setHuooRoles(Set.of(HuooRole.OPERATOR));
+
+    when(portalOrganisationsAccessor.getOrganisationUnitById(newOrgUnit.getOuId()))
+        .thenReturn(Optional.of(newOrgUnit));
 
     padOrganisationRoleService.saveEntityUsingForm(detail, form);
 
@@ -324,7 +328,10 @@ public class PadOrganisationRoleServiceTest {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.OPERATOR));
-    form.setOrganisationUnit(org2.getOrganisationUnit());
+    form.setOrganisationUnitId(org2.getOrganisationUnit().getOuId());
+
+    when(portalOrganisationsAccessor.getOrganisationUnitById(2))
+        .thenReturn(Optional.of(org2.getOrganisationUnit()));
 
     padOrganisationRoleService.updateEntityUsingForm(detail, org1.getOrganisationUnit(), form);
 
