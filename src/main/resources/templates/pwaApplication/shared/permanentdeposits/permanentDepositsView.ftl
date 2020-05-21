@@ -18,6 +18,7 @@
 
         <#list deposits as deposit>
             <@fdsFieldset.fieldset legendHeading=('Deposit ' + deposit?index) />
+            <@fdsAction.link  linkText="Change" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />
             <table class="govuk-table">
                 <tbody class="govuk-table__body">                  
 
@@ -52,7 +53,11 @@
                     </tr>
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__header">Proposed date</th>
-                        <td class="govuk-table__cell"> ${deposit.fromMonth}</td>                    
+                        <td class="govuk-table__cell"> ${deposit.fromMonth} / ${deposit.fromYear}</td>                    
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">to date</th>
+                        <td class="govuk-table__cell"> ${deposit.toMonth} / ${deposit.toYear}</td>                    
                     </tr>
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__header">Type of materials</th>

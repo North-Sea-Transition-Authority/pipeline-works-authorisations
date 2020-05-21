@@ -225,6 +225,17 @@ public class PermanentDepositsServiceTest {
     assertThat(actualForms).isEqualTo(expectedForms);
   }
 
+  @Test
+  public void mapEntityToFormById() {
+    var entity = new PadPermanentDeposit();
+    entity.setId(1);
+    when(permanentDepositInformationRepository.findById(1)).thenReturn(Optional.of(entity));
+
+    var form = new PermanentDepositsForm();
+    service.mapEntityToFormById(1, form);
+    assertThat(form.getEntityID()).isEqualTo(1);
+  }
+
 
 
 }

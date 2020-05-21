@@ -29,8 +29,10 @@ public class PermanentDepositEntityMappingServiceTest {
     permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
   }
 
+  //Common Properties
   public PadPermanentDeposit buildBaseEntity() {
     PadPermanentDeposit baseEntity = new PadPermanentDeposit();
+    baseEntity.setId(1);
     baseEntity.setFromMonth(2);
     baseEntity.setFromYear(2020);
     baseEntity.setToMonth(3);
@@ -61,6 +63,7 @@ public class PermanentDepositEntityMappingServiceTest {
 
   public PermanentDepositsForm buildBaseForm(PadPermanentDeposit baseEntity) {
     PermanentDepositsForm baseForm = new PermanentDepositsForm();
+    baseForm.setEntityID(baseEntity.getId());
     baseForm.setFromMonth(baseEntity.getFromMonth());
     baseForm.setFromYear(baseEntity.getFromYear());
     baseForm.setToMonth(baseEntity.getToMonth());
@@ -89,6 +92,7 @@ public class PermanentDepositEntityMappingServiceTest {
   }
 
 
+  //Unique Properties
   public void setEntityConcreteProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
     entity.setConcreteMattressLength(13);

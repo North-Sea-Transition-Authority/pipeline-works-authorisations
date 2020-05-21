@@ -1,7 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -17,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
@@ -27,6 +33,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
+
 
 /* Service providing simplified API for Permanent Deposit app form */
 @Service
@@ -139,7 +146,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       mapEntityToForm(permanentDeposit, form);
 
       var depositsForPipelines = padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId());
-      var pipelineRefs = depositsForPipelines.stream().map(depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId().getPipelineRef()))
+      var pipelineRefs = depositsForPipelines.stream().map(
+          depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId().getPipelineRef()))
           .collect(Collectors.toSet());
 
       form.setSelectedPipelines(pipelineRefs);
@@ -148,4 +156,28 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
     return forms;
   }
+
+  public PadPermanentDeposit mapEntityToFormById(Integer entityID, PermanentDepositsForm form) {
+    var permanentDeposit = permanentDepositInformationRepository.findById(entityID)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", entityID)));
+    mapEntityToForm(permanentDeposit, form);
+    return permanentDeposit;
+  }
+
+  public Map<String, String> getEditUrlsForDeposits(PwaApplicationDetail pwaApplicationDetail) {
+    Map<String, String>  depositUrls = new HashMap<>();
+    var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+
+    for (PadPermanentDeposit permanentDeposit: permanentDeposits) {
+      depositUrls.put(permanentDeposit.getId().toString(),
+          ReverseRouter.route(on(PermanentDepositController.class)
+              .renderEditPermanentDeposits(
+                  pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+                  permanentDeposit.getId(), null, null)));
+    }
+    return depositUrls;
+  }
+
+
 }
+

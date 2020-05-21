@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="longDirections" type="java.util.List<LongitudeDirection>" --> 
 <#-- @ftlvariable name="proposedStartDate" type="java.lang.String" --> 
 
-<@defaultPage htmlTitle="Permanent deposits" pageHeading="Permanent deposits" breadcrumbs=true>
+<@defaultPage htmlTitle="${screenAction.actionText} permanent deposit" pageHeading="${screenAction.actionText} permanent deposit" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
@@ -108,7 +108,7 @@
         
 
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="${screenAction.actionText} deposit" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>
