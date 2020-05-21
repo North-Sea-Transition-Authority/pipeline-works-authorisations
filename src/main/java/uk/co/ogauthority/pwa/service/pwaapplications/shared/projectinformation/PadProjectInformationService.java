@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.EnumSet;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
@@ -121,6 +124,13 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
   }
+
+  public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
+    return  DateUtils.formatDate(LocalDate.ofInstant(
+        projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault()));
+  }
+
 
 
 }

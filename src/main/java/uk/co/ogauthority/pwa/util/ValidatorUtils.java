@@ -142,14 +142,12 @@ public class ValidatorUtils {
     return false;
   }
 
-
-
   public static boolean validateDateIsPastOrPresent(String fieldPrefix,
-                                                      String displayPrefix,
-                                                      Integer day,
-                                                      Integer month,
-                                                      Integer year,
-                                                      Errors errors) {
+                                                       String displayPrefix,
+                                                       Integer day,
+                                                       Integer month,
+                                                       Integer year,
+                                                       Errors errors) {
     if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
       var date = LocalDate.of(year, month, day);
       if (date.isAfter(LocalDate.now())) {
@@ -159,6 +157,55 @@ public class ValidatorUtils {
             String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()), "");
         errors.rejectValue(fieldPrefix + "Year",
             String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()), "");
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean validateDateIsPresentOrFutureOfTarget(String fieldPrefix,
+                                                              String displayPrefix,
+                                                              Integer month,
+                                                              Integer year,
+                                                              Integer targetMonth,
+                                                              Integer targetYear,
+                                                              String transference,
+                                                              Errors errors) {
+    if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
+      var date = LocalDate.of(year, month, 1);
+      var targetDate = LocalDate.of(targetYear, targetMonth, 1);
+      if (date.isBefore(targetDate)) {
+        errors.rejectValue(fieldPrefix + "Month",
+            String.format("%sMonth%s", fieldPrefix, ".beforeTarget"), "Month must be on or after " + transference);
+        errors.rejectValue(fieldPrefix + "Year",
+            String.format("%sYear%s", fieldPrefix, ".beforeTarget"), "Year must be on or after " + transference);
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+
+  public static boolean validateDateIsWithinRangeOfTarget(String fieldPrefix,
+                                                              String displayPrefix,
+                                                              Integer month,
+                                                              Integer year,
+                                                              Integer targetMonth,
+                                                              Integer targetYear,
+                                                              Integer monthRange,
+                                                              Errors errors) {
+    if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
+      var date = LocalDate.of(year, month, 1);
+      var targetDate = LocalDate.of(targetYear, targetMonth, 1);
+      if (date.isBefore(targetDate) || date.isAfter(targetDate.plusMonths(monthRange))) {
+        errors.rejectValue(fieldPrefix + "Month",
+            String.format("%sMonth%s", fieldPrefix, ".outOfTargetRange"),
+            "Month must be after from date and within " + monthRange + " months");
+        errors.rejectValue(fieldPrefix + "Year",
+            String.format("%sYear%s", fieldPrefix, ".outOfTargetRange"),
+            "Year must be after from date and within " + monthRange + " months");
         return false;
       }
       return true;

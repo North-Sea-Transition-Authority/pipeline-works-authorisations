@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -257,6 +259,18 @@ public class PadProjectInformationServiceTest {
   public void getIsAnyDepositQuestionRequired_init(){
     PwaApplicationDetail pwaApplicationDetail = getAppDetailForDepositTest(PwaApplicationType.INITIAL);
     assertThat(service.getIsAnyDepositQuestionRequired(pwaApplicationDetail)).isEqualTo(true);
+  }
+
+  @Test
+  public void getProposedStartDate() {
+    LocalDateTime dateTime = LocalDateTime.of(2017, 5, 15, 0, 0);
+    Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+    var projectInformation = new PadProjectInformation();
+    projectInformation.setProposedStartTimestamp(instant);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+
+    assertThat(service.getProposedStartDate(pwaApplicationDetail)).isEqualTo("15 May 2017");
   }
 
 }
