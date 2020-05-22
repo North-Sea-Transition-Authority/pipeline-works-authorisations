@@ -10,7 +10,7 @@
 
     <@fdsForm.htmlForm>
         <#if huooType == "PORTAL_ORG">
-            <@fdsSearchSelector.searchSelectorEnhanced path="form.organisationUnit" options=portalOrgs labelText="Select the legal entity" nestingPath="form.huooType"/>
+            <@fdsSearchSelector.searchSelectorEnhanced path="form.organisationUnitId" options=portalOrgs labelText="Select the legal entity" nestingPath="form.huooType"/>
             <@fdsCheckbox.checkboxes path="form.huooRoles" checkboxes=huooRoles fieldsetHeadingText="Which roles will the legal entity have?" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m" nestingPath="form.huooType"/>
         <#elseif huooType == "TREATY_AGREEMENT">
             <@fdsRadio.radio path="form.treatyAgreement" labelText="Which country is the treaty agreement with?" radioItems=treatyAgreements nestingPath="form.huooType" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m"/>

@@ -94,7 +94,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     for (String padPipelineId : form.getSelectedPipelines()) {
       if (padPipelineId != "") {
         var padPipeline = padPipelineRepository.findById(Integer.valueOf(padPipelineId))
-            .orElseThrow(() -> new PwaEntityNotFoundException("Permanent deposit information could not be found"));
+            .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find PadPipeline with ID: %s", padPipelineId)));
         var depositsForPipelines = new PadDepositPipeline(permanentDepositInformation, padPipeline);
         padDepositPipelineRepository.save(depositsForPipelines);
       }

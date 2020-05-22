@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.huoo;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -11,7 +10,7 @@ public class HuooForm {
   private Set<HuooRole> huooRoles;
   private HuooType huooType;
   private TreatyAgreement treatyAgreement;
-  private PortalOrganisationUnit organisationUnit;
+  private Integer organisationUnitId;
 
   public Set<HuooRole> getHuooRoles() {
     return huooRoles;
@@ -37,11 +36,11 @@ public class HuooForm {
     this.treatyAgreement = treatyAgreement;
   }
 
-  public PortalOrganisationUnit getOrganisationUnit() {
-    return organisationUnit;
+  public Integer getOrganisationUnitId() {
+    return organisationUnitId;
   }
 
-  public void setOrganisationUnit(PortalOrganisationUnit organisationUnit) {
-    this.organisationUnit = organisationUnit;
+  public void setOrganisationUnitId(Integer organisationUnitId) {
+    this.organisationUnitId = organisationUnitId;
   }
 }

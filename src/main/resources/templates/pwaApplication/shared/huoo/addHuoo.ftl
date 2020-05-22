@@ -14,7 +14,7 @@
             <#list huooTypes as name, displayText>
                 <@fdsRadio.radioItem path="form.huooType" itemMap={name:displayText} isFirstItem=false>
                     <#if name == "PORTAL_ORG">
-                        <@fdsSearchSelector.searchSelectorEnhanced path="form.organisationUnit" options=portalOrgs labelText="Select the legal entity" nestingPath="form.huooType"/>
+                        <@fdsSearchSelector.searchSelectorEnhanced path="form.organisationUnitId" options=portalOrgs labelText="Select the legal entity" nestingPath="form.huooType"/>
                         <@fdsCheckbox.checkboxes path="form.huooRoles" checkboxes=huooRoles fieldsetHeadingText="Which roles will the legal entity have?" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m" nestingPath="form.huooType"/>
                     <#else>
                         <@fdsRadio.radio path="form.treatyAgreement" labelText="Which country is the treaty agreement with?" radioItems=treatyAgreements nestingPath="form.huooType" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m"/>

@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @Service
@@ -144,12 +145,12 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                 PwaApplicationDetail pwaApplicationDetail) {
 
     if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult);
+      groupValidator.validate(form, bindingResult, PartialValidation.class);
       validator.validatePartial(form, bindingResult);
       return bindingResult;
     }
 
-    groupValidator.validate(form, bindingResult);
+    groupValidator.validate(form, bindingResult, PartialValidation.class);
     validator.validate(form, bindingResult);
     return bindingResult;
 

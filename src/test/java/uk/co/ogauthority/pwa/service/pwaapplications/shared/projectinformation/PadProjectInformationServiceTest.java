@@ -24,16 +24,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformationFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
@@ -46,8 +46,6 @@ public class PadProjectInformationServiceTest {
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
 
-  @Mock
-  private ProjectInformationFileService projectInformationFileService;
 
   @Mock
   private ProjectInformationEntityMappingService projectInformationEntityMappingService;
@@ -55,8 +53,10 @@ public class PadProjectInformationServiceTest {
   @Mock
   private ProjectInformationValidator validator;
 
-  private SpringValidatorAdapter groupValidator;
+  @Mock
+  private PadFileService padFileService;
 
+  private SpringValidatorAdapter groupValidator;
 
   private PadProjectInformationService service;
   private PadProjectInformation padProjectInformation;
@@ -72,10 +72,10 @@ public class PadProjectInformationServiceTest {
 
     service = new PadProjectInformationService(
         padProjectInformationRepository,
-        projectInformationFileService,
         projectInformationEntityMappingService,
         validator,
-        groupValidator
+        groupValidator,
+        padFileService
     );
 
     date = LocalDate.now();
@@ -112,9 +112,10 @@ public class PadProjectInformationServiceTest {
     service.saveEntityUsingForm(padProjectInformation, form, user);
 
     verify(projectInformationEntityMappingService, times(1)).setEntityValuesUsingForm(padProjectInformation, form);
-    verify(projectInformationFileService, times(1)).updateOrDeleteLinkedFilesUsingForm(
-        this.padProjectInformation.getPwaApplicationDetail(),
+    verify(padFileService, times(1)).updateFiles(
         form,
+        this.padProjectInformation.getPwaApplicationDetail(),
+        ApplicationFilePurpose.PROJECT_INFORMATION,
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
@@ -122,68 +123,19 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_verifyServiceInteractions_andUploadedFilesGetUpdated() {
-    var returnedList = List.of(new UploadFileWithDescriptionForm(FILE_ID, "desc", Instant.now()));
-    when(projectInformationFileService.getUploadedFileListAsFormList(pwaApplicationDetail,
-        ApplicationFileLinkStatus.FULL))
-        .thenReturn(returnedList);
+  public void mapEntityToForm_verifyServiceInteractions() {
 
-    service.mapEntityToForm(padProjectInformation, form, ApplicationFileLinkStatus.FULL);
+    service.mapEntityToForm(padProjectInformation, form);
 
-    verify(projectInformationEntityMappingService, times(1)).mapProjectInformationDataToForm(padProjectInformation,
-        form);
-    verify(projectInformationFileService, times(1)).getUploadedFileListAsFormList(
+    verify(projectInformationEntityMappingService, times(1))
+        .mapProjectInformationDataToForm(padProjectInformation, form);
+
+    verify(padFileService, times(1)).mapFilesToForm(
+        form,
         pwaApplicationDetail,
-        ApplicationFileLinkStatus.FULL
+        ApplicationFilePurpose.PROJECT_INFORMATION
     );
 
-    assertThat(form.getUploadedFileWithDescriptionForms()).isEqualTo(returnedList);
-
-  }
-
-  @Test
-  public void getUpdatedProjectInformationFileViewsWhenFileOnForm_verifyServiceInteraction() {
-    service.getUpdatedProjectInformationFileViewsWhenFileOnForm(pwaApplicationDetail, form);
-    verify(projectInformationFileService, times(1)).getUpdatedProjectInformationFileViewsWhenFileOnForm(
-        pwaApplicationDetail, form
-    );
-
-  }
-
-  @Test
-  public void getProjectInformationFile_verifyServiceInteraction() {
-    service.getProjectInformationFile(FILE_ID, pwaApplicationDetail);
-    verify(projectInformationFileService, times(1)).getProjectInformationFile(
-        FILE_ID, pwaApplicationDetail
-    );
-  }
-
-
-  @Test
-  public void deleteUploadedFileLink_verifyServiceInteraction() {
-    var testFile = new PadProjectInformationFile();
-    when(projectInformationFileService.getProjectInformationFile(FILE_ID, pwaApplicationDetail)).thenReturn(
-        testFile
-    );
-    service.deleteUploadedFileLink(FILE_ID, pwaApplicationDetail);
-
-    verify(projectInformationFileService, times(1)).getProjectInformationFile(
-        FILE_ID,
-        pwaApplicationDetail
-    );
-
-    verify(projectInformationFileService, times(1)).deleteProjectInformationFileLink(
-        testFile
-    );
-
-  }
-
-  @Test
-  public void createUploadedFileLink_verifyServiceInteraction() {
-    service.createUploadedFileLink(FILE_ID, pwaApplicationDetail);
-    verify(projectInformationFileService, times(1)).createAndSaveProjectInformationFile(
-        pwaApplicationDetail, FILE_ID
-    );
   }
 
   @Test
@@ -251,7 +203,8 @@ public class PadProjectInformationServiceTest {
         entry("projectName", Set.of("Length")),
         entry("methodOfPipelineDeployment", Set.of("Length")),
         entry("usingCampaignApproach", Set.of("NotNull")), // only required when full
-        entry("licenceTransferPlanned", Set.of("NotNull")) // only required when full
+        entry("licenceTransferPlanned", Set.of("NotNull")), // only required when full
+        entry("uploadedFileWithDescriptionForms", Set.of("NotEmpty"))
     );
 
   }
@@ -266,6 +219,7 @@ public class PadProjectInformationServiceTest {
     form.setMethodOfPipelineDeployment(ok);
     form.setUsingCampaignApproach(false);
     form.setLicenceTransferPlanned(false);
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("id", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
