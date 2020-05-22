@@ -116,7 +116,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-      padFileService.updateFiles(
+      padFileService.makeFilesPermanent(
           form,
           applicationContext.getApplicationDetail(),
           filePurpose,

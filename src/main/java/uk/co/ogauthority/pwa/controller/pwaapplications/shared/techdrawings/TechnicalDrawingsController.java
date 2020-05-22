@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -25,7 +28,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
@@ -72,7 +74,7 @@ public class TechnicalDrawingsController {
         .addObject("addPipelineUrl", ReverseRouter.route(on(PipelineDrawingController.class)
             .renderAddDrawing(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
         .addObject("pipelineDrawingUrlFactory",
-            new PipelineDrawingUrlFactory(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId()))
+            new PipelineDrawingUrlFactory(detail))
         .addObject("pipelineDrawingSummaryViews", padTechnicalDrawingService.getPipelineDrawingSummaryViews(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
         "Admiralty chart and pipeline drawings");

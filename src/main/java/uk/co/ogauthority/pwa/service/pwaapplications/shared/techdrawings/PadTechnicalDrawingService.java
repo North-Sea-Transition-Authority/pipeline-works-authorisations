@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,6 +85,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
           .collect(Collectors.toUnmodifiableList());
       summaryList.add(new PipelineDrawingSummaryView(technicalDrawing, overviews));
     }
+
+    summaryList.sort(Comparator.comparing(PipelineDrawingSummaryView::getReference));
 
     return summaryList;
   }

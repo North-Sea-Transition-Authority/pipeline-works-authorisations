@@ -6,14 +6,18 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 public class PipelineDrawingSummaryView {
 
-  private String reference;
-  private String documentDescription;
-  private List<PipelineOverview> pipelineOverviews;
+  private final String reference;
+  private final String documentDescription;
+  private final String fileId;
+  private final String fileName;
+  private final List<PipelineOverview> pipelineOverviews;
 
   public PipelineDrawingSummaryView(PadTechnicalDrawing technicalDrawing, List<PipelineOverview> pipelineOverviews) {
     this.reference = technicalDrawing.getReference();
     this.documentDescription = technicalDrawing.getFileDescription();
     this.pipelineOverviews = pipelineOverviews;
+    this.fileId = technicalDrawing.getFileId();
+    this.fileName = technicalDrawing.getFileId()
   }
 
   public String getReference() {
@@ -22,6 +26,14 @@ public class PipelineDrawingSummaryView {
 
   public String getDocumentDescription() {
     return documentDescription;
+  }
+
+  public String getFileId() {
+    return fileId;
+  }
+
+  public String getFileName() {
+    return file
   }
 
   public List<PipelineOverview> getPipelineOverviews() {

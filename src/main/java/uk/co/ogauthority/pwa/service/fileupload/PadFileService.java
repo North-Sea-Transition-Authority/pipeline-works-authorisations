@@ -148,6 +148,40 @@ public class PadFileService {
 
   }
 
+  /**
+   * Fully link temporary files that are still present, update file descriptions, delete files that have been deleted onscreen.
+   * @param uploadForm containing files to update
+   * @param pwaApplicationDetail we are updating files for
+   * @param purpose of files being updated
+   * @param user updating the files
+   */
+  @Transactional
+  public void makeFilesPermanent(UploadMultipleFilesWithDescriptionForm uploadForm,
+                          PwaApplicationDetail pwaApplicationDetail,
+                          ApplicationFilePurpose purpose,
+                          WebUserAccount user) {
+
+    Map<String, UploadFileWithDescriptionForm> uploadedFileIdToFormMap = getFileIdToFormMap(uploadForm);
+
+    var existingLinkedFiles = padFileRepository.findAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, purpose);
+
+    var filesToUpdate = new HashSet<PadFile>();
+
+    // if file is still in list of uploaded files, update description and add to update set
+    // else file can be deleted so add to remove set
+    existingLinkedFiles.forEach(existingFile -> {
+
+      if (uploadedFileIdToFormMap.containsKey(existingFile.getFileId())) {
+        updateFileDescriptionAndFullyLink(existingFile, uploadedFileIdToFormMap.get(existingFile.getFileId()));
+        filesToUpdate.add(existingFile);
+      }
+
+    });
+
+    padFileRepository.saveAll(filesToUpdate);
+
+  }
+
   private Map<String, UploadFileWithDescriptionForm> getFileIdToFormMap(UploadMultipleFilesWithDescriptionForm uploadForm) {
     return uploadForm.getUploadedFileWithDescriptionForms().stream()
         .collect(Collectors.toMap(UploadFileWithDescriptionForm::getUploadedFileId, f -> f));
