@@ -214,7 +214,7 @@ public class PadFileService {
   /**
    * Get files for an application with a specified purpose and link status as uploaded file views.
    */
-  private List<UploadedFileView> getUploadedFileViews(PwaApplicationDetail pwaApplicationDetail,
+  public List<UploadedFileView> getUploadedFileViews(PwaApplicationDetail pwaApplicationDetail,
                                                       ApplicationFilePurpose purpose,
                                                       ApplicationFileLinkStatus fileLinkStatus) {
 

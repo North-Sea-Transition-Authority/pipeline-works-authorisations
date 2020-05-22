@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 public class PipelineDrawingSummaryView {
@@ -12,12 +13,13 @@ public class PipelineDrawingSummaryView {
   private final String fileName;
   private final List<PipelineOverview> pipelineOverviews;
 
-  public PipelineDrawingSummaryView(PadTechnicalDrawing technicalDrawing, List<PipelineOverview> pipelineOverviews) {
+  public PipelineDrawingSummaryView(PadTechnicalDrawing technicalDrawing, List<PipelineOverview> pipelineOverviews,
+                                    UploadedFileView uploadedFileView) {
     this.reference = technicalDrawing.getReference();
     this.documentDescription = technicalDrawing.getFileDescription();
     this.pipelineOverviews = pipelineOverviews;
-    this.fileId = technicalDrawing.getFileId();
-    this.fileName = technicalDrawing.getFileId()
+    this.fileId = uploadedFileView.getFileId();
+    this.fileName = uploadedFileView.getFileName();
   }
 
   public String getReference() {
@@ -33,7 +35,7 @@ public class PipelineDrawingSummaryView {
   }
 
   public String getFileName() {
-    return file
+    return fileName;
   }
 
   public List<PipelineOverview> getPipelineOverviews() {

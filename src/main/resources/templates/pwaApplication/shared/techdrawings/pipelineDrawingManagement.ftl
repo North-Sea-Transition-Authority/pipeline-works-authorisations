@@ -13,37 +13,25 @@
         <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(urlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>
 
         <#list pipelineDrawingSummaryViews as summary>
+            <h3 class="govuk-heading-m">${summary.reference}</h3>
+            <@fdsAction.link linkText="Edit" linkUrl=springUrl("#") linkClass="govuk-link"/>
+            <@fdsAction.link linkText="Remove" linkUrl=springUrl("#") linkClass="govuk-link"/>
           <@fdsCheckAnswers.checkAnswers>
               <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="">
-                  <@fdsAction.link linkText=summary.reference linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(summary.fileId)) linkClass="govuk-link govuk-link--button" linkScreenReaderText="Download ${summary.reference}" role=false start=false openInNewTab=true/>
+                  <@fdsAction.link linkText=summary.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(summary.fileId)) linkClass="govuk-link govuk-link--button" linkScreenReaderText="Download ${summary.fileName}" role=false start=false openInNewTab=true/>
+              </@fdsCheckAnswers.checkAnswersRow>
+              <@fdsCheckAnswers.checkAnswersRow keyText="Schematic description" actionUrl="" screenReaderActionText="">
+                  ${summary.documentDescription}
+              </@fdsCheckAnswers.checkAnswersRow>
+              <@fdsCheckAnswers.checkAnswersRow keyText="Associated pipelines" actionUrl="" screenReaderActionText="">
+                <ul class="govuk-list">
+                    <#list summary.pipelineOverviews as pipeline>
+                      <li>${pipeline.pipelineNumber}</li>
+                    </#list>
+                </ul>
               </@fdsCheckAnswers.checkAnswersRow>
             </@fdsCheckAnswers.checkAnswers>
         </#list>
-      <table class="govuk-table">
-        <thead class="govuk-table__head">
-        <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="col">Drawing reference</th>
-          <th class="govuk-table__header" scope="col">Description</th>
-          <th class="govuk-table__header" scope="col">Associated pipelines</th>
-          <th class="govuk-table__header" scope="col">Actions</th>
-        </tr>
-        </thead>
-        <tbody class="govuk-table__body">
-        <#list pipelineDrawingSummaryViews as summary>
-          <tr class="govuk-table__row">
-            <td class="govuk-table__cell">${summary.}</td>
-            <td class="govuk-table__cell">${summary.documentDescription!""}</td>
-            <td class="govuk-table__cell">
-              <ul class="govuk-list">
-                <#list summary.pipelineOverviews as pipeline>
-                    <li>${pipeline.pipelineNumber}</li>
-                </#list>
-              </ul>
-            </td>
-          </tr>
-        </#list>
-        </tbody>
-      </table>
     <#else>
         <@fdsInsetText.insetText>
           No pipeline drawings have been added to this application
