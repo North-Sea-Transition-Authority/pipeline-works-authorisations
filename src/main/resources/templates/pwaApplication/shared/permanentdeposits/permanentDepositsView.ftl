@@ -17,7 +17,7 @@
         </@fdsInsetText.insetText>
 
         <#list deposits as deposit>
-            <@fdsFieldset.fieldset legendHeading=('Deposit ' + deposit?index) />
+            <@fdsFieldset.fieldset legendHeading=deposit.depositReference />
             <@fdsAction.link  linkText="Change" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />
             <table class="govuk-table">
                 <tbody class="govuk-table__body">                  

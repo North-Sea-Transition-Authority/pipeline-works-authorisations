@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
 
   private Integer entityID;
+  private String depositReference;
   @NotNull(message = "Select at least one pipeline", groups = {FullValidation.class})
   private Set<String> selectedPipelines;
   private Integer fromMonth;
@@ -51,6 +52,14 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
 
   public void setEntityID(Integer entityID) {
     this.entityID = entityID;
+  }
+
+  public String getDepositReference() {
+    return depositReference;
+  }
+
+  public void setDepositReference(String depositReference) {
+    this.depositReference = depositReference;
   }
 
   public Set<String> getSelectedPipelines() {
@@ -258,6 +267,7 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     }
     PermanentDepositsForm that = (PermanentDepositsForm) o;
     return Objects.equals(entityID, that.entityID)
+        && Objects.equals(depositReference, that.depositReference)
         && Objects.equals(selectedPipelines, that.selectedPipelines)
         && Objects.equals(fromMonth, that.fromMonth)
         && Objects.equals(fromYear, that.fromYear)
@@ -286,7 +296,8 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
 
   @Override
   public int hashCode() {
-    return Objects.hash(entityID, selectedPipelines, fromMonth, fromYear, toMonth, toYear, materialType, rocksSize, groutBagsSize,
+    return Objects.hash(entityID, depositReference, selectedPipelines, fromMonth, fromYear,
+        toMonth, toYear, materialType, rocksSize, groutBagsSize,
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,
         contingencyConcreteAmount, contingencyRocksAmount, contingencyGroutBagsAmount,

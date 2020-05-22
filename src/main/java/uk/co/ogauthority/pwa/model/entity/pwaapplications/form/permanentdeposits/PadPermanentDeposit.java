@@ -14,6 +14,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.checkerframework.common.aliasing.qual.Unique;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -29,6 +30,9 @@ public class PadPermanentDeposit {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
+
+  @Unique
+  private String reference;
 
   @JoinColumn(name = "application_detail_id")
   @OneToOne
@@ -120,6 +124,14 @@ public class PadPermanentDeposit {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+  public String getReference() {
+    return reference;
+  }
+
+  public void setReference(String reference) {
+    this.reference = reference;
   }
 
   public PwaApplicationDetail getPwaApplicationDetail() {
@@ -439,6 +451,7 @@ public class PadPermanentDeposit {
     PadPermanentDeposit that = (PadPermanentDeposit) o;
     return Double.compare(that.quantity, quantity) == 0
         && Objects.equals(id, that.id)
+        && Objects.equals(reference, that.reference)
         && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
         && Objects.equals(fromMonth, that.fromMonth)
         && Objects.equals(fromYear, that.fromYear)
@@ -474,7 +487,8 @@ public class PadPermanentDeposit {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplicationDetail, fromMonth, fromYear, toMonth, toYear, materialType, materialSize, concreteMattressLength,
+    return Objects.hash(id, reference, pwaApplicationDetail, fromMonth, fromYear, toMonth,
+        toYear, materialType, materialSize, concreteMattressLength,
         concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription, quantity,
         contingencyAmount, fromCoordinates, toCoordinates, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds,
         fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,

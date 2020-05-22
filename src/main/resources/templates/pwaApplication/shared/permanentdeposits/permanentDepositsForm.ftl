@@ -13,7 +13,8 @@
     </#if>
 
     <@fdsForm.htmlForm>
-
+        <@fdsTextInput.textInput path="form.depositReference" labelText="Deposit reference" hintText="Uniquely identifies this deposit on this application, e.g. PL1234 grout bags"/>
+        
         <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true optionalInputDefault="Select one or more"
             hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed."/>
 

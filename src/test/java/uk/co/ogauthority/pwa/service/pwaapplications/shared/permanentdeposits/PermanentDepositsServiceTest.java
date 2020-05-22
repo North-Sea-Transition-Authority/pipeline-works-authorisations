@@ -135,7 +135,7 @@ public class PermanentDepositsServiceTest {
     var form = new PermanentDepositsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    verify(validator, times(1)).validate(form, bindingResult);
+    verify(validator, times(1)).validate(form, bindingResult,service);
   }
 
   @Test
@@ -146,7 +146,7 @@ public class PermanentDepositsServiceTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-    verify(validator, times(1)).validate(form, bindingResult);
+    verify(validator, times(1)).validate(form, bindingResult, service);
   }
 
 
@@ -201,7 +201,7 @@ public class PermanentDepositsServiceTest {
     permanentDepositInfoMock = new PadPermanentDeposit();
     permanentDepositInfoMock.setId(11);
     permanentDepositInfoMockList.add(permanentDepositInfoMock);
-    when(permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(permanentDepositInfoMockList);
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(permanentDepositInfoMockList);
 
     List<PadDepositPipeline> depositsForPipelinesList = new ArrayList<>();
     PadDepositPipeline depositsForPipelines = new PadDepositPipeline();
@@ -224,7 +224,7 @@ public class PermanentDepositsServiceTest {
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
 
-    List<PermanentDepositsForm> actualForms = service.getPermanentDepositForm(pwaApplicationDetail);
+    List<PermanentDepositsForm> actualForms = service.getPermanentDepositViewForms(pwaApplicationDetail);
 
     assertThat(actualForms).isEqualTo(expectedForms);
   }
@@ -245,11 +245,40 @@ public class PermanentDepositsServiceTest {
     var mockedEntity = new PadPermanentDeposit();
     mockedEntity.setId(1);
 
-    when(permanentDepositInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
     var actualUrlMap = service.getEditUrlsForDeposits(pwaApplicationDetail);
     assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
 
+  @Test
+  public void isDepositReferenceUniqueWithId_true() {
+    var entity = new PadPermanentDeposit();
+    entity.setId(1);
+    when(permanentDepositInformationRepository.findByReference("myRef")).thenReturn(Optional.of(entity));
+    assertThat(service.isDepositReferenceUnique("myRef", 1)).isTrue();
+  }
+
+  @Test
+  public void isDepositReferenceUniqueWithId_false() {
+    var entity = new PadPermanentDeposit();
+    entity.setId(2);
+    when(permanentDepositInformationRepository.findByReference("myRef")).thenReturn(Optional.of(entity));
+    assertThat(service.isDepositReferenceUnique("myRef", 1)).isFalse();
+  }
+
+
+  @Test
+  public void isDepositReferenceUniqueNoId_true() {
+    when(permanentDepositInformationRepository.findByReference("myRef")).thenReturn(Optional.empty());
+    assertThat(service.isDepositReferenceUnique("myRef", null)).isTrue();
+  }
+
+  @Test
+  public void isDepositReferenceUnique_false() {
+    var entity = new PadPermanentDeposit();
+    when(permanentDepositInformationRepository.findByReference("myRef")).thenReturn(Optional.of(entity));
+    assertThat(service.isDepositReferenceUnique("myRef", null)).isFalse();
+  }
 
 
 }

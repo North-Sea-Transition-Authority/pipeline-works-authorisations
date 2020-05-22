@@ -20,6 +20,7 @@ public class PermanentDepositEntityMappingService {
   void mapDepositInformationDataToForm(PadPermanentDeposit entity, PermanentDepositsForm form) {
 
     form.setEntityID(entity.getId());
+    form.setDepositReference(entity.getReference());
     form.setFromMonth(entity.getFromMonth());
     form.setFromYear(entity.getFromYear());
     form.setToMonth(entity.getToMonth());
@@ -69,6 +70,7 @@ public class PermanentDepositEntityMappingService {
   void setEntityValuesUsingForm(PadPermanentDeposit entity, PermanentDepositsForm form) {
 
     entity.setId(form.getEntityID());
+    entity.setReference(form.getDepositReference());
     entity.setFromMonth(form.getFromMonth());
     entity.setFromYear(form.getFromYear());
     entity.setToMonth(form.getToMonth());

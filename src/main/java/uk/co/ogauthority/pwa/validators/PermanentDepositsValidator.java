@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -32,7 +33,22 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
-    var form = (PermanentDepositsForm) target;
+
+  }
+
+  @Override
+  public void validate(Object o, Errors errors, Object... validationHints) {
+    var form = (PermanentDepositsForm) o;
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
+        "You must enter a deposit reference");
+
+    if (StringUtils.isNotBlank(form.getDepositReference()) && validationHints[0] instanceof PermanentDepositService) {
+      var permanentDepositsService = (PermanentDepositService) validationHints[0];
+      ValidatorUtils.validateBooleanTrue(errors, permanentDepositsService.isDepositReferenceUnique(
+          form.getDepositReference(), form.getEntityID()),
+          "depositReference", "Deposit reference must be unique, enter a different reference");
+    }
 
     ValidatorUtils.validateDateIsPresentOrFuture(
         "from", "deposit from month / year",
@@ -56,10 +72,6 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
         "toCoordinateForm", ValueRequirement.MANDATORY, "Finish point");
-  }
-
-  @Override
-  public void validate(Object o, Errors errors, Object... validationHints) {
   }
 
 

@@ -139,6 +139,7 @@ public class PermanentDepositController {
                                             BindingResult bindingResult,
                                             ValidationType validationType) {
 
+    form.setEntityID(entityId);
     bindingResult = permanentDepositService.validate(form,
         bindingResult,
         validationType,
@@ -146,7 +147,6 @@ public class PermanentDepositController {
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
-          form.setEntityID(entityId);
           permanentDepositService.saveEntityUsingForm(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositController.class).renderPermanentDepositsOverview(
               pwaApplicationType, applicationId, null, null));
@@ -160,7 +160,7 @@ public class PermanentDepositController {
                                                                 PermanentDepositsForm form) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsView");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("deposits", permanentDepositService.getPermanentDepositForm(pwaApplicationDetail))
+        .addObject("deposits", permanentDepositService.getPermanentDepositViewForms(pwaApplicationDetail))
         .addObject("addDepositUrl", ReverseRouter.route(on(PermanentDepositController.class)
             .renderAddPermanentDeposits(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
