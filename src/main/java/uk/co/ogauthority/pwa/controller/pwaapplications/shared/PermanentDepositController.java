@@ -96,7 +96,7 @@ public class PermanentDepositController {
   private ModelAndView getPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                          PermanentDepositsForm form) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDeposits");
-    modelAndView.addObject("pipelines", padPipelineService.getPipelines(pwaApplicationDetail))
+    modelAndView.addObject("pipelines", padPipelineService.getPipelineReferenceMap(pwaApplicationDetail))
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
           .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))

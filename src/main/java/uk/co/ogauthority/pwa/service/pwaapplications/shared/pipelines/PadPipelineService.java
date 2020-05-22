@@ -177,7 +177,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     throw new AssertionError("Doesn't make sense to implement this.");
   }
 
-  public Map<String, String> getPipelines(PwaApplicationDetail pwaApplicationDetail) {
+  public Map<String, String> getPipelineReferenceMap(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
         .sorted(Comparator.comparing(PadPipeline::getId))
