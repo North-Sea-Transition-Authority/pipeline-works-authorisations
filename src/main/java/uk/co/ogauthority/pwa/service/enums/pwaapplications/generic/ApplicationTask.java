@@ -70,7 +70,7 @@ public enum ApplicationTask {
   ),
 
   TECHNICAL_DRAWINGS(
-      "Technical drawings",
+      "Admiralty chart and pipeline drawings",
       TechnicalDrawingsController.class,
       TechnicalDrawingsService.class,
       80
