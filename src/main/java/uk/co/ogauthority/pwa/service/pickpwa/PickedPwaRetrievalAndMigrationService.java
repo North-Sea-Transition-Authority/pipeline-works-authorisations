@@ -31,6 +31,7 @@ public class PickedPwaRetrievalAndMigrationService {
 
 
   public List<PickablePwaDto> getPickablePwasWhereAuthorised(WebUserAccount webUserAccount) {
+    // TODO PWA-69 remove migration code
     List<MasterPwaDetail> masterPwas = masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(webUserAccount);
     List<MigrationMasterPwa> migrationPwas = migrationDataAccessor.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
         webUserAccount
@@ -40,10 +41,10 @@ public class PickedPwaRetrievalAndMigrationService {
     for (MasterPwaDetail masterPwaDetail : masterPwas) {
       pickablePwaDtos.add(PickablePwaDto.from(masterPwaDetail));
     }
-
-    for (MigrationMasterPwa migrationPwa : migrationPwas) {
-      pickablePwaDtos.add(PickablePwaDto.from(migrationPwa));
-    }
+    // TODO PWA-69 rework. just ignore migration targets in pickable pwas for now
+    //    for (MigrationMasterPwa migrationPwa : migrationPwas) {
+    //      pickablePwaDtos.add(PickablePwaDto.from(migrationPwa));
+    //    }
 
     return pickablePwaDtos;
   }
