@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -30,27 +31,30 @@ public class PwaApplicationCreationService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final PwaContactService pwaContactService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final PwaApplicationReferencingService pwaApplicationReferencingService;
 
   @Autowired
   public PwaApplicationCreationService(MasterPwaManagementService masterPwaManagementService,
                                        PwaApplicationRepository pwaApplicationRepository,
                                        CamundaWorkflowService camundaWorkflowService,
                                        PwaContactService pwaContactService,
-                                       PwaApplicationDetailService pwaApplicationDetailService) {
+                                       PwaApplicationDetailService pwaApplicationDetailService,
+                                       PwaApplicationReferencingService pwaApplicationReferencingService) {
     this.masterPwaManagementService = masterPwaManagementService;
     this.pwaApplicationRepository = pwaApplicationRepository;
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.pwaApplicationReferencingService = pwaApplicationReferencingService;
   }
 
-  private PwaApplication createApplication(MasterPwa masterPwa,
+  private PwaApplicationDetail createApplication(MasterPwa masterPwa,
                                            PwaApplicationType applicationType,
                                            int variationNo,
                                            WebUserAccount createdByUser) {
 
     var application = new PwaApplication(masterPwa, applicationType, variationNo);
-    application.setAppReference(createAppReference());
+    application.setAppReference(pwaApplicationReferencingService.createAppReference());
     pwaApplicationRepository.save(application);
 
     pwaContactService.addContact(
@@ -62,12 +66,12 @@ public class PwaApplicationCreationService {
 
     camundaWorkflowService.startWorkflow(WorkflowType.PWA_APPLICATION, application.getId());
 
-    return application;
+    return detail;
 
   }
 
   @Transactional
-  public PwaApplication createInitialPwaApplication(WebUserAccount createdByUser) {
+  public PwaApplicationDetail createInitialPwaApplication(WebUserAccount createdByUser) {
 
     MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
             MasterPwaDetailStatus.APPLICATION,
@@ -82,21 +86,12 @@ public class PwaApplicationCreationService {
   }
 
   @Transactional
-  public PwaApplication createVariationPwaApplication(WebUserAccount createdByUser,
-                                                      MasterPwa masterPwa,
-                                                      PwaApplicationType pwaApplicationType) {
+  public PwaApplicationDetail createVariationPwaApplication(WebUserAccount createdByUser,
+                                                            MasterPwa masterPwa,
+                                                            PwaApplicationType pwaApplicationType) {
 
     return createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
 
   }
-
-  private String createAppReference() {
-    long refSeq = pwaApplicationRepository.getNextRefNum();
-    String appRef = "PA/" + refSeq + "/1";
-    return appRef;
-  }
-
-
-
 
 }

@@ -177,4 +177,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
             StreamUtils.toLinkedHashMap(padPipeline -> String.valueOf(padPipeline.getId()), PadPipeline::getPipelineRef));
   }
 
+  public long totalPipelineContainedInApplication(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+  }
+
 }
