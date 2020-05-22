@@ -1,0 +1,14 @@
+package uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings;
+
+import java.util.List;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
+
+@Repository
+public interface PadTechnicalDrawingLinkRepository extends CrudRepository<PadTechnicalDrawingLink, Integer> {
+
+  List<PadTechnicalDrawingLink> getAllByTechnicalDrawingIn(List<PadTechnicalDrawing> technicalDrawings);
+
+}

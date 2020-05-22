@@ -54,6 +54,10 @@ public class PadTechnicalDrawing {
     this.file = file;
   }
 
+  public void setReference(String reference) {
+    this.reference = reference;
+  }
+
   public String getReference() {
     return reference;
   }

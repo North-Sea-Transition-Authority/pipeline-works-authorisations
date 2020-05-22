@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.AdmiraltyChartDocumentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
@@ -12,16 +12,20 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 public class TechnicalDrawingsService implements ApplicationFormSectionService {
 
   private final AdmiraltyChartFileService admiraltyChartFileService;
+  private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   @Autowired
   public TechnicalDrawingsService(
-      AdmiraltyChartFileService admiraltyChartFileService) {
+      AdmiraltyChartFileService admiraltyChartFileService,
+      PadTechnicalDrawingService padTechnicalDrawingService) {
     this.admiraltyChartFileService = admiraltyChartFileService;
+    this.padTechnicalDrawingService = padTechnicalDrawingService;
   }
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return admiraltyChartFileService.isComplete(detail);
+    return admiraltyChartFileService.isComplete(detail)
+        && padTechnicalDrawingService.isComplete(detail);
   }
 
   @Override

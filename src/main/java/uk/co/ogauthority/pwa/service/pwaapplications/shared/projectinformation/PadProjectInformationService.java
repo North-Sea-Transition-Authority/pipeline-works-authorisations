@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -83,6 +84,12 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), filePurpose, user);
+  }
+
+  public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {
+    return padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
+        .map(o -> BooleanUtils.isTrue(o.getUsingCampaignApproach()))
+        .orElse(false);
   }
 
   @Override

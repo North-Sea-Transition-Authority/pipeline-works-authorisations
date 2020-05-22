@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -62,8 +63,9 @@ public class TechnicalDrawingsController {
             admiraltyChartFileService.getAdmiraltyChartFileViews(detail, ApplicationFileLinkStatus.FULL))
         .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
-        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
-    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Technical drawings");
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
+        .addObject("pipelineDrawingUrlFactory", new PipelineDrawingUrlFactory(detail));
+    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Admiralty chart and pipeline drawings");
     return modelAndView;
   }
 

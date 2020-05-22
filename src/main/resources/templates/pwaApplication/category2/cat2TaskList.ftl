@@ -16,8 +16,8 @@
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="2" sectionHeadingText="Application information">
-            <#list appInfoTasks as task, taskInfo>
-                <@pwaTaskListItem.taskInfoItem taskName=task taskInfo=taskInfo/>
+            <#list appInfoTasks as task>
+                <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route/>
             </#list>
         </@fdsTaskList.taskListSection>
         <@fdsTaskList.taskListSection sectionNumber="3" sectionHeadingText="Prepare application">

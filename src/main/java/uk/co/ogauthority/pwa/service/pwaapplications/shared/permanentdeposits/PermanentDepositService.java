@@ -133,6 +133,12 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   }
 
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return isPermanentDepositMade(pwaApplicationDetail);
+  }
+
   public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
         .orElse(new PadProjectInformation());

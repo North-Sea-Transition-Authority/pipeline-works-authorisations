@@ -4,14 +4,16 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
@@ -23,6 +25,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsCo
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
@@ -36,32 +39,27 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 
 @Service
 public class TaskListService {
 
+  private final ApplicationContext applicationContext;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final ApplicationBreadcrumbService breadcrumbService;
-  private final PadFastTrackService padFastTrackService;
   private final TaskCompletionService taskCompletionService;
   private final PwaContactService pwaContactService;
-  private final PermanentDepositService permanentDepositService;
 
   @Autowired
-  public TaskListService(PwaApplicationRedirectService pwaApplicationRedirectService,
+  public TaskListService(ApplicationContext applicationContext,
+                         PwaApplicationRedirectService pwaApplicationRedirectService,
                          ApplicationBreadcrumbService breadcrumbService,
-                         PadFastTrackService padFastTrackService,
                          TaskCompletionService taskCompletionService,
-                         PwaContactService pwaContactService,
-                         PermanentDepositService permanentDepositService) {
+                         PwaContactService pwaContactService) {
+    this.applicationContext = applicationContext;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
-    this.padFastTrackService = padFastTrackService;
     this.taskCompletionService = taskCompletionService;
     this.pwaContactService = pwaContactService;
-    this.permanentDepositService = permanentDepositService;
   }
 
   @VisibleForTesting
@@ -116,31 +114,34 @@ public class TaskListService {
 
   private void checkTaskAndAddToList(List<TaskListEntry> tasks, ApplicationTask task, PwaApplicationDetail detail) {
 
-    Optional.ofNullable(task.getControllerClass().getAnnotation(PwaApplicationTypeCheck.class)).ifPresentOrElse(
-        typeCheck -> {
-          if (Arrays.asList(typeCheck.types()).contains(detail.getPwaApplicationType())) {
-            addTask(tasks, task, detail);
-          }
-        },
-        () -> addTask(tasks, task, detail)
-    );
+    Set<PwaApplicationType> validApplicationTypes = Optional.ofNullable(task.getControllerClass())
+        // this allows us to test method logic by returning an arbitrary class from the applicationContext uin tests
+        .map(controllerClass -> applicationContext.getBean(controllerClass).getClass())
+        .map(clazz -> clazz.getAnnotation(PwaApplicationTypeCheck.class))
+        .map(typeCheck -> Set.of(typeCheck.types()))
+        // task has valid app type if controller has no type restriction
+        .orElse(EnumSet.allOf(PwaApplicationType.class));
 
+    var taskIsShown = Optional.ofNullable(task.getServiceClass())
+        .map(service -> applicationContext.getBean(service))
+        .map(service -> ((ApplicationFormSectionService) service).canShowInTaskList(detail))
+        // always show task if no service is provided
+        .orElse(true);
+
+    if (validApplicationTypes.contains(detail.getPwaApplicationType()) && taskIsShown) {
+      tasks.add(createTaskListEntry(task, detail));
+    }
   }
 
-  private void addTask(List<TaskListEntry> tasks, ApplicationTask task, PwaApplicationDetail detail) {
+  private TaskListEntry createTaskListEntry(ApplicationTask task, PwaApplicationDetail detail) {
 
     var applicationId = detail.getPwaApplication().getId();
     var applicationType = detail.getPwaApplicationType();
 
-    if ((task != ApplicationTask.FAST_TRACK || padFastTrackService.isFastTrackRequired(detail))
-        && (!task.equals(ApplicationTask.PERMANENT_DEPOSITS)
-        || (task.equals(ApplicationTask.PERMANENT_DEPOSITS) && permanentDepositService.isPermanentDepositMade(detail)))) {
-      tasks.add(new TaskListEntry(
-          task.getDisplayName(),
-          getRouteForTask(task, applicationType, applicationId),
-          taskCompletionService.isTaskComplete(detail, task)));
-    }
-
+    return new TaskListEntry(
+        task.getDisplayName(),
+        getRouteForTask(task, applicationType, applicationId),
+        taskCompletionService.isTaskComplete(detail, task));
   }
 
   @VisibleForTesting
@@ -169,6 +170,9 @@ public class TaskListService {
       case PIPELINES:
         return ReverseRouter.route(on(PipelinesController.class)
             .renderPipelinesOverview(applicationId, applicationType, null));
+      case CAMPAIGN_WORKS:
+        return ReverseRouter.route(on(CampaignWorksController.class)
+            .renderSummary(applicationType, applicationId, null));
       case TECHNICAL_DRAWINGS:
         return ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(applicationType, applicationId, null, null));

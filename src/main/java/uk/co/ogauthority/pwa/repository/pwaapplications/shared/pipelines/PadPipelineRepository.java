@@ -9,6 +9,8 @@ public interface PadPipelineRepository extends CrudRepository<PadPipeline, Integ
 
   List<PadPipeline> getAllByPwaApplicationDetail(PwaApplicationDetail detail);
 
+  List<PadPipeline> getAllByPwaApplicationDetailAndIdIn(PwaApplicationDetail detail, List<Integer> ids);
+
   Long countAllByPwaApplicationDetail(PwaApplicationDetail detail);
 
 }

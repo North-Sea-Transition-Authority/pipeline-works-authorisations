@@ -31,6 +31,7 @@ public class PickPwaForVariationService {
                                                                   PwaApplicationType pwaApplicationType,
                                                                   WebUserAccount user) {
     var masterPwa = masterPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, user);
-    return pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType);
+    return pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType)
+        .getPwaApplication();
   }
 }
