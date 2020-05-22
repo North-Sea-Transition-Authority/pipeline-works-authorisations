@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -53,6 +54,9 @@ public class PwaApplicationCreationServiceTest {
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
 
+  @Mock
+  private PwaApplicationReferencingService pwaApplicationReferencingService;
+
   private PwaApplicationCreationService pwaApplicationCreationService;
 
   private Instant fixedInstant = LocalDate
@@ -62,12 +66,18 @@ public class PwaApplicationCreationServiceTest {
 
   @Before
   public void setUp() {
+    when(pwaApplicationReferencingService.createAppReference()).thenReturn("PA/1/1");
+
+    when(pwaApplicationDetailService.createFirstDetail(any(), any()))
+        .thenAnswer(invocation -> new PwaApplicationDetail(invocation.getArgument(0), 1, 1, Instant.now()));
+
     pwaApplicationCreationService = new PwaApplicationCreationService(
         masterPwaManagementService,
         pwaApplicationRepository,
         camundaWorkflowService,
         pwaContactService,
-        pwaApplicationDetailService);
+        pwaApplicationDetailService,
+        pwaApplicationReferencingService);
   }
 
 
@@ -78,14 +88,14 @@ public class PwaApplicationCreationServiceTest {
 
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
-    when(pwaApplicationRepository.getNextRefNum()).thenReturn((long) 1);
 
-    PwaApplication createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
+
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication, user);
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user);
     verify(camundaWorkflowService, times(1)).startWorkflow(WorkflowType.PWA_APPLICATION,
         applicationArgumentCaptor.getValue().getId());
 
@@ -103,7 +113,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecision()).isEmpty();
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
-    assertThat(createdApplication).isEqualTo(application);
+    assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
   }
 
 
@@ -118,9 +128,7 @@ public class PwaApplicationCreationServiceTest {
     MasterPwa masterPwa = new MasterPwa(fixedInstant);
     masterPwa.setId(1);
 
-    when(pwaApplicationRepository.getNextRefNum()).thenReturn((long) 1);
-
-    PwaApplication createdApplication = pwaApplicationCreationService.createVariationPwaApplication(
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createVariationPwaApplication(
         user,
         masterPwa,
         pwaApplicationType
@@ -129,7 +137,7 @@ public class PwaApplicationCreationServiceTest {
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication, user);
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user);
     verify(camundaWorkflowService, times(1)).startWorkflow(
         WorkflowType.PWA_APPLICATION,
         applicationArgumentCaptor.getValue().getId()
@@ -149,7 +157,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecision()).isEmpty();
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
-    assertThat(createdApplication).isEqualTo(application);
+    assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
   }
 
 
