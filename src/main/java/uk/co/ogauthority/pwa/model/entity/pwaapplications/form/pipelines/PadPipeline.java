@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -22,7 +23,8 @@ import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
-@Entity(name = "pad_pipelines")
+@Entity
+@Table(name = "pad_pipelines")
 public class PadPipeline {
 
   @Id

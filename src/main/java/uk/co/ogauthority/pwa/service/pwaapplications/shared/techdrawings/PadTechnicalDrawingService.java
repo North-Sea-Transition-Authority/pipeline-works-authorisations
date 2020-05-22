@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
@@ -53,15 +55,18 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     return padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail);
   }
 
+  @Transactional
   public void addDrawing(PwaApplicationDetail detail, PipelineDrawingForm form) {
     var drawing = new PadTechnicalDrawing();
+    // The form should be successfully validated at this point
+    // This means it will contain a single file.
     PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail,
         form.getUploadedFileWithDescriptionForms().get(0).getUploadedFileId());
     drawing.setFile(file);
     drawing.setPwaApplicationDetail(detail);
     drawing.setReference(form.getReference());
     padTechnicalDrawingRepository.save(drawing);
-    padTechnicalDrawingLinkService.linkDrawing(detail, form, drawing);
+    padTechnicalDrawingLinkService.linkDrawing(detail, form.getPadPipelineIds(), drawing);
   }
 
   public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViews(PwaApplicationDetail detail) {
@@ -91,17 +96,17 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .map(padTechnicalDrawingLink -> padTechnicalDrawingLink.getPipeline().getId())
         .collect(Collectors.toUnmodifiableList());
 
-    return padPipelineService.getPipelineOverviews(detail)
+    return padPipelineService.getPipelines(detail)
         .stream()
-        .map(PipelineOverview::getPipelineId)
+        .map(PadPipeline::getId)
         .allMatch(linkedPipelineIds::contains);
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    pipelineDrawingValidator.validate(form, bindingResult);
-    groupValidator.validate(form, bindingResult, List.of(FullValidation.class, MandatoryUploadValidation.class).toArray());
+    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail);
+    groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
 }

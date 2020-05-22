@@ -3,13 +3,13 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -32,13 +32,14 @@ public class PadTechnicalDrawingLinkService {
     return padTechnicalDrawingLinkRepository.getAllByTechnicalDrawingIn(drawings);
   }
 
-  public void linkDrawing(PwaApplicationDetail detail, PipelineDrawingForm form, PadTechnicalDrawing technicalDrawing) {
-    Map<Integer, PadPipeline> pipelines = padPipelineService.getByIdList(detail, form.getPipelineIds())
+  @Transactional
+  public void linkDrawing(PwaApplicationDetail detail, List<Integer> padPipelineIds, PadTechnicalDrawing technicalDrawing) {
+    Map<Integer, PadPipeline> pipelines = padPipelineService.getByIdList(detail, padPipelineIds)
         .stream()
         .collect(StreamUtils.toLinkedHashMap(PadPipeline::getId, pipeline -> pipeline));
 
     var linkList = new ArrayList<PadTechnicalDrawingLink>();
-    form.getPipelineIds().forEach(pipelineId -> {
+    padPipelineIds.forEach(pipelineId -> {
       var link = new PadTechnicalDrawingLink();
       link.setPipeline(pipelines.get(pipelineId));
       link.setTechnicalDrawing(technicalDrawing);
