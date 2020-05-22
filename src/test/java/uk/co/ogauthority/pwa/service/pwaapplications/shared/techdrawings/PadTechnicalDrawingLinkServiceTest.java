@@ -62,7 +62,7 @@ public class PadTechnicalDrawingLinkServiceTest {
     pipelineB.setId(2);
 
     var form = new PipelineDrawingForm();
-    form.setPipelineIds(List.of(1, 2));
+    form.setPadPipelineIds(List.of(1, 2));
 
     var pipelineIdList = List.of(1, 2);
     var pipelineList = List.of(pipelineA, pipelineB);
@@ -72,7 +72,7 @@ public class PadTechnicalDrawingLinkServiceTest {
 
     var captor = ArgumentCaptor.forClass(Iterable.class);
 
-    padTechnicalDrawingLinkService.linkDrawing(pwaApplicationDetail, form, techDrawing);
+    padTechnicalDrawingLinkService.linkDrawing(pwaApplicationDetail, form.getPadPipelineIds(), techDrawing);
 
     verify(padTechnicalDrawingLinkRepository, times(1)).saveAll(captor.capture());
 

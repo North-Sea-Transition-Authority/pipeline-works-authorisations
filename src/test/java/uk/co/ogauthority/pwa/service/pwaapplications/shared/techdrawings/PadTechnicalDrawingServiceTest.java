@@ -82,7 +82,7 @@ public class PadTechnicalDrawingServiceTest {
 
     var captor = ArgumentCaptor.forClass(PadTechnicalDrawing.class);
     verify(padTechnicalDrawingRepository, times(1)).save(captor.capture());
-    verify(padTechnicalDrawingLinkService, times(1)).linkDrawing(pwaApplicationDetail, form, captor.getValue());
+    verify(padTechnicalDrawingLinkService, times(1)).linkDrawing(pwaApplicationDetail, form.getPadPipelineIds(), captor.getValue());
 
     assertThat(captor.getValue()).extracting(PadTechnicalDrawing::getFile, PadTechnicalDrawing::getReference, PadTechnicalDrawing::getPwaApplicationDetail)
         .containsExactly(padFile, "ref", pwaApplicationDetail);

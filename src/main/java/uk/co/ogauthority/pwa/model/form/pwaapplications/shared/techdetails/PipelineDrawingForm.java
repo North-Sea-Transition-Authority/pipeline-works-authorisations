@@ -6,7 +6,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescription
 public class PipelineDrawingForm extends UploadMultipleFilesWithDescriptionForm {
 
   private String reference;
-  private List<Integer> pipelineIds;
+  private List<Integer> padPipelineIds;
 
   public String getReference() {
     return reference;
@@ -16,11 +16,11 @@ public class PipelineDrawingForm extends UploadMultipleFilesWithDescriptionForm 
     this.reference = reference;
   }
 
-  public List<Integer> getPipelineIds() {
-    return pipelineIds;
+  public List<Integer> getPadPipelineIds() {
+    return padPipelineIds;
   }
 
-  public void setPipelineIds(List<Integer> pipelineIds) {
-    this.pipelineIds = pipelineIds;
+  public void setPadPipelineIds(List<Integer> padPipelineIds) {
+    this.padPipelineIds = padPipelineIds;
   }
 }

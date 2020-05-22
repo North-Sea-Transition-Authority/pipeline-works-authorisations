@@ -2,10 +2,17 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +23,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -56,6 +66,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   private PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
 
   private PwaApplicationDetail pwaApplicationDetail;
+  private AuthenticatedUserAccount user;
 
   @Before
   public void setUp() {
@@ -74,6 +85,8 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
+
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
   }
 
   @Test
@@ -194,7 +207,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postAddDrawing_appTypeSmokeTest_failValidation() {
+  public void postAddDrawing_failValidation() {
 
     var form = new PipelineDrawingForm();
     ControllerTestUtils.failValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
@@ -213,49 +226,26 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
-  }
-
-  @Test
-  public void postAddDrawing_appStatusSmokeTest_failValidation() {
-
-    var form = new PipelineDrawingForm();
-    ControllerTestUtils.failValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelineDrawingController.class)
-                .postAddDrawing(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null,
-                    null)
-            )
-        );
-
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    verify(padTechnicalDrawingService, never()).addDrawing(any(), any());
 
   }
 
   @Test
-  public void postAddDrawing_contactRoleSmokeTest_failValidation() {
+  public void postAddDrawing_passValidation() throws Exception {
 
     var form = new PipelineDrawingForm();
-    ControllerTestUtils.failValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
 
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelineDrawingController.class)
-                .postAddDrawing(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null,
-                    null)
-            )
-        );
+    when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    mockMvc.perform(
+        post(ReverseRouter.route(on(PipelineDrawingController.class)
+            .postAddDrawing(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+    verify(padTechnicalDrawingService, times(1)).addDrawing(any(), any());
 
   }
 }

@@ -19,10 +19,10 @@
       <hr class="govuk-section-break govuk-section-break--m"/>
 
         <@fdsFieldset.fieldset legendHeading="Which pipelines are linked to this drawing?">
-            <@pipelineTableSelection.pipelineTableSelection path="form.pipelineIds" pipelineOverviews=pipelineViews/>
+            <@pipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineViews/>
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to admiralty chart and pipeline drawings" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

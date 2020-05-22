@@ -279,7 +279,7 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
 
     if (padAdmiraltyChartFileRepository.countAllByPwaApplicationDetail(pwaApplicationDetail) > 1) {
       bindingResult.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms.exceededMaximumUpload", "" +
+          "uploadedFileWithDescriptionForms.exceededMaximumUpload",
               "You may only upload a single admiralty chart");
     }
 

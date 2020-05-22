@@ -37,6 +37,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
     this.padPipelineRepository = padPipelineRepository;
   }
 
+  public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
+    return padPipelineRepository.getAllByPwaApplicationDetail(detail);
+  }
+
   public List<PipelineOverview> getPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllAsOverviewDtoByPwaApplicationDetail(detail).stream()
