@@ -41,24 +41,24 @@
                     <#list permanentDepositsMadeOptions as depositOption>
                         <@fdsRadio.radioItem path="form.permanentDepositsMadeType" itemMap={depositOption : depositOption.getDisplayText()} isFirstItem=firstItem>
                         <#if depositOption == "LATER_APP">
-                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year that later application will be submitted" formId="date-of-future-app">
+                            <@fdsNumberInput.twoNumberInputs pathOne="form.futureAppSubmissionMonth" pathTwo="form.futureAppSubmissionYear" labelText="Month and year that later application will be submitted" formId="date-of-future-app" nestingPath="form.permanentDepositsMadeType">
                                 <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionMonth" labelText="Month" inputClass="govuk-input--width-2"/>
                                 <@fdsNumberInput.numberInputItem path="form.futureAppSubmissionYear" labelText="Year" inputClass="govuk-input--width-4"/>
                             </@fdsNumberInput.twoNumberInputs>
                         </#if>
                         </@fdsRadio.radioItem>
                     <#assign firstItem=false/>
-                    </#list>
+                    </#list>                    
                 </@fdsRadio.radioGroup>
             </#if>
-
+            
             <@fdsRadio.radioGroup path="form.temporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.temporaryDepositsMade">
                     <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description of temporary deposits" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.temporaryDepositsMade"/>
             </@fdsRadio.radioGroup>
-        </#if>
+        </#if>        
 
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>

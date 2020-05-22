@@ -1,26 +1,10 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
-
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -32,9 +16,11 @@ import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -42,13 +28,28 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 
+import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.Set;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = ProjectInformationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class ProjectInformationControllerTest extends PwaApplicationContextAbstractControllerTest {
+@WebMvcTest(controllers = PermanentDepositController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class PermanentDepositsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -56,7 +57,8 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private PadProjectInformationService padProjectInformationService;
+  private PermanentDepositService permanentDepositService;
+
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -64,8 +66,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
       PwaApplicationType.CAT_1_VARIATION,
       PwaApplicationType.CAT_2_VARIATION,
       PwaApplicationType.OPTIONS_VARIATION,
-      PwaApplicationType.DECOMMISSIONING,
-      PwaApplicationType.HUOO_VARIATION
+      PwaApplicationType.DECOMMISSIONING
   );
 
   private WebUserAccount webUserAccount;
@@ -73,7 +74,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-  private PadProjectInformation padProjectInformation;
+  private PadPermanentDeposit padPermanentDeposit;
 
   @Before
   public void setUp() {
@@ -88,8 +89,8 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     pwaApplicationDetail.setPwaApplication(pwaApplication);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
 
-    padProjectInformation = new PadProjectInformation();
-    padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
+    padPermanentDeposit = new PadPermanentDeposit();
+    padPermanentDeposit.setPwaApplicationDetail(pwaApplicationDetail);
 
     //support app context code
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
@@ -100,13 +101,14 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
-    for (var appType : PwaApplicationType.values()) {
+  public void renderPermanentDeposits_authenticatedUser_appTypeSmokeTest() throws Exception {
+    PwaApplicationType[] appTypes = {PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING, PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.INITIAL, PwaApplicationType.OPTIONS_VARIATION};
+    for (var appType : appTypes) {
       try {
         pwaApplication.setApplicationType(appType);
         var result = mockMvc.perform(
             get(ReverseRouter.route(
-                on(ProjectInformationController.class).renderProjectInformation(appType, APP_ID, null, null)))
+                on(PermanentDepositController.class).renderPermanentDeposits(appType, APP_ID, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf()));
         if (allowedApplicationTypes.contains(appType)) {
@@ -123,11 +125,11 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postCompleteProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+  public void postPermanentDeposits_authenticatedUser_appTypeSmokeTest() throws Exception {
 
-    ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
-
-    for (var appType : PwaApplicationType.values()) {
+    ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL);
+    PwaApplicationType[] appTypes = {PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING, PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.INITIAL, PwaApplicationType.OPTIONS_VARIATION};
+    for (var appType : appTypes) {
       try {
         pwaApplication.setApplicationType(appType);
         // Expect isOk because endpoint validates. If form can't validate, return same page.
@@ -136,7 +138,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
-                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
+                on(PermanentDepositController.class).postPermanentDeposits(appType, APP_ID, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
                 .params(completeParams));
@@ -152,11 +154,12 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation_continue_authenticatedUser_appTypeSmokeTest() throws Exception {
+  public void postPermanentDeposits_continue_authenticatedUser_appTypeSmokeTest() throws Exception {
 
-    ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.PARTIAL);
 
-    for (var appType : PwaApplicationType.values()) {
+    PwaApplicationType[] appTypes = {PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING, PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.INITIAL, PwaApplicationType.OPTIONS_VARIATION};
+    for (var appType : appTypes) {
       try {
         pwaApplication.setApplicationType(appType);
         // Expect isOk because endpoint validates. If form can't validate, return same page.
@@ -167,7 +170,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
-                on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
+                on(PermanentDepositController.class).postPermanentDeposits(appType, APP_ID, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
                 .params(continueParams));
@@ -183,154 +186,129 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderProjectInformation_unauthenticated() throws Exception {
+  public void renderPermanentDeposits_unauthenticated() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(ProjectInformationController.class)
-            .renderProjectInformation(PwaApplicationType.INITIAL, null, null, null))))
+        get(ReverseRouter.route(on(PermanentDepositController.class)
+            .renderPermanentDeposits(PwaApplicationType.INITIAL, null, null, null))))
         .andExpect(status().is3xxRedirection());
 
   }
 
   @Test
-  public void postProjectInformation_complete_unauthenticated() throws Exception {
+  public void postPermanentDeposits_complete_unauthenticated() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
       add("Complete", "");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(ProjectInformationController.class)
-                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null)))
+            on(PermanentDepositController.class)
+                .postPermanentDeposits(PwaApplicationType.INITIAL, null, null, null, null, null)))
             .params(completeParams))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void postProjectInformation_continue_unauthenticated() throws Exception {
+  public void postPermanentDeposits_continue_unauthenticated() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "");
     }};
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(ProjectInformationController.class)
-                .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null)))
+            on(PermanentDepositController.class)
+                .postPermanentDeposits(PwaApplicationType.INITIAL, null, null, null, null, null)))
             .params(continueParams))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderProjectInformation_serviceInteractions() throws Exception {
+  public void renderPermanentDeposits_serviceInteractions() throws Exception {
     mockMvc.perform(
-        get(ReverseRouter.route(on(ProjectInformationController.class)
-            .renderProjectInformation(PwaApplicationType.INITIAL, 1, null, null)))
+        get(ReverseRouter.route(on(PermanentDepositController.class)
+            .renderPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/projectInformation"));
-    verify(padProjectInformationService, times(1)).mapEntityToForm(any(), any());
+        .andExpect(view().name("pwaApplication/shared/permanentdeposits/permanentDeposits"));
   }
 
   @Test
-  public void postProjectInformation__continue_validForm() throws Exception {
+  public void postPermanentDeposits__continue_validForm() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "Save and complete later");
     }};
 
-    ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.PARTIAL);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
+        post(ReverseRouter.route(on(PermanentDepositController.class)
+            .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
         .andExpect(status().is3xxRedirection());
-    verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
-    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
+    verify(permanentDepositService, times(1)).saveEntityUsingForm(any(), any(), any());
   }
 
   @Test
-  public void postProjectInformation__continue_formValidationFailed() throws Exception {
+  public void postPermanentDeposits__continue_formValidationFailed() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Save and complete later", "Save and complete later");
       add("projectOverview", StringUtils.repeat("a", 5000));
     }};
 
-    ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.PARTIAL);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
+        post(ReverseRouter.route(on(PermanentDepositController.class)
+            .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
         .andExpect(status().isOk());
-    verify(padProjectInformationService, times(0)).getPadProjectInformationData(pwaApplicationDetail);
 
   }
 
   @Test
-  public void postProjectInformation__complete_noData() throws Exception {
+  public void postPermanentDeposits__complete_noData() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "Complete");
     }};
 
-    ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
+    ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
+        post(ReverseRouter.route(on(PermanentDepositController.class)
+            .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
         .andExpect(status().isOk());
-
-    verify(padProjectInformationService, never()).getPadProjectInformationData(pwaApplicationDetail);
-
   }
 
   @Test
-  public void postProjectInformation_complete_valid() throws Exception {
+  public void postPermanentDeposits_complete_valid() throws Exception {
 
     LocalDate date = LocalDate.now().plusDays(2);
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "Complete");
-      add("projectName", "name");
-      add("projectOverview", "overview");
-      add("methodOfPipelineDeployment", "pipeline installation method");
-      add("proposedStartDay", "" + date.getDayOfMonth());
-      add("proposedStartMonth", "" + date.getMonthValue());
-      add("proposedStartYear", "" + date.getYear());
-      add("mobilisationDay", "" + date.getDayOfMonth());
-      add("mobilisationMonth", "" + date.getMonthValue());
-      add("mobilisationYear", "" + date.getYear());
-      add("earliestCompletionDay", "" + date.getDayOfMonth());
-      add("earliestCompletionMonth", "" + date.getMonthValue());
-      add("earliestCompletionYear", "" + date.getYear());
-      add("latestCompletionDay", "" + date.getDayOfMonth());
-      add("latestCompletionMonth", "" + date.getMonthValue());
-      add("latestCompletionYear", "" + date.getYear());
-      add("usingCampaignApproach", "true");
-      add("uploadedFileWithDescriptionForms[0].uploadedFileId", "123" );
-      add("uploadedFileWithDescriptionForms[0].uploadedFileDescription", "321" );
-      add("uploadedFileWithDescriptionForms[0].uploadedFileInstant", "2020-04-02T16:15:33.166138Z" );
+      add("materialType", MaterialType.ROCK.toString());
     }};
 
-    ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ProjectInformationController.class)
-            .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
+        post(ReverseRouter.route(on(PermanentDepositController.class)
+            .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(params))
         .andExpect(status().is3xxRedirection());
 
-    verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
-    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
-    verify(padProjectInformationService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
+    verify(permanentDepositService, times(1)).saveEntityUsingForm(any(), any(), any());
+    verify(permanentDepositService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
 
   }

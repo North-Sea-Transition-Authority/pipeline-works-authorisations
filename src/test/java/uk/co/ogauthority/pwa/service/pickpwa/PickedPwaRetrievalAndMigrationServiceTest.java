@@ -78,6 +78,7 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
   @Test
   public void getPickablePwasWhereAuthorised_whenSingleMigrationPwaExistsOnly() {
 
+    // TODO PWA-69 requires update/removal when migrations are no longer supported in app.
     when(migrationDataAccessor.getMasterPwasWhereUserIsAuthorisedAndNotMigrated(
         webUserAccount)).thenReturn(
         List.of(migrationMasterPwa)
@@ -85,11 +86,8 @@ public class PickedPwaRetrievalAndMigrationServiceTest {
 
     var pickablePwaDtos = pickedPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(webUserAccount);
 
-    assertThat(pickablePwaDtos.size()).isEqualTo(1);
-    assertThat(pickablePwaDtos.get(0).getPickablePwaString()).isEqualTo(
-        PickablePwaSource.MIGRATION.getPickableStringPrefix() + migrationMasterPwa.getPadId()
-    );
-    assertThat(pickablePwaDtos.get(0).getReference()).isEqualTo(migrationMasterPwa.getReference());
+    assertThat(pickablePwaDtos.size()).isEqualTo(0);
+
 
   }
 

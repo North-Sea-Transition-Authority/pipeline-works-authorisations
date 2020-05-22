@@ -1,7 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.EnumSet;
-import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,17 +10,18 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformationFile;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
@@ -29,23 +31,25 @@ import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
 public class PadProjectInformationService implements ApplicationFormSectionService {
 
   private final PadProjectInformationRepository padProjectInformationRepository;
-  private final ProjectInformationFileService projectInformationFileService;
   private final ProjectInformationEntityMappingService projectInformationEntityMappingService;
   private final ProjectInformationValidator projectInformationValidator;
   private final SpringValidatorAdapter groupValidator;
+  private final PadFileService padFileService;
+
+  private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
   public PadProjectInformationService(
       PadProjectInformationRepository padProjectInformationRepository,
-      ProjectInformationFileService projectInformationFileService,
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
-      SpringValidatorAdapter groupValidator) {
+      SpringValidatorAdapter groupValidator,
+      PadFileService padFileService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
-    this.projectInformationFileService = projectInformationFileService;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
     this.groupValidator = groupValidator;
+    this.padFileService = padFileService;
   }
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
@@ -56,25 +60,15 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   /**
-   * Map stored data to form including uploaded files depending on requested link status.
+   * Map stored data to form.
    *
    * @param padProjectInformation     stored data
    * @param form                      form to map to
-   * @param applicationFileLinkStatus link status of uploaded files to be included in form.
    */
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
-                              ProjectInformationForm form,
-                              ApplicationFileLinkStatus applicationFileLinkStatus) {
-
+                              ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
-
-    // only attach files with matching link status to form
-    var uploadedFilesWithDescriptionFormList = projectInformationFileService.getUploadedFileListAsFormList(
-        padProjectInformation.getPwaApplicationDetail(),
-        applicationFileLinkStatus
-    );
-
-    form.setUploadedFileWithDescriptionForms(uploadedFilesWithDescriptionFormList);
+    padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), filePurpose);
   }
 
 
@@ -87,52 +81,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                   ProjectInformationForm form,
                                   WebUserAccount user) {
     projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
-    projectInformationFileService.updateOrDeleteLinkedFilesUsingForm(
-        padProjectInformation.getPwaApplicationDetail(),
-        form,
-        user
-    );
     padProjectInformationRepository.save(padProjectInformation);
-
-  }
-
-  /**
-   * Simplify api by providing pass through method to access file service.
-   */
-  public List<UploadedFileView> getUpdatedProjectInformationFileViewsWhenFileOnForm(
-      PwaApplicationDetail pwaApplicationDetail,
-      ProjectInformationForm form) {
-    return projectInformationFileService.getUpdatedProjectInformationFileViewsWhenFileOnForm(pwaApplicationDetail,
-        form);
-
-  }
-
-  /**
-   * Simplify api by providing pass through method to access file service.
-   */
-  public PadProjectInformationFile getProjectInformationFile(String fileId, PwaApplicationDetail pwaApplicationDetail) {
-    return projectInformationFileService.getProjectInformationFile(fileId,
-        pwaApplicationDetail);
-  }
-
-
-  @Transactional
-  public void deleteUploadedFileLink(String fileId, PwaApplicationDetail pwaApplicationDetail) {
-    PadProjectInformationFile existingFile = projectInformationFileService.getProjectInformationFile(fileId,
-        pwaApplicationDetail);
-    projectInformationFileService.deleteProjectInformationFileLink(existingFile);
-  }
-
-  /**
-   * Method which creates "temporary" link to application detail project information.
-   * If form left unsaved, we know which files are deletable.
-   */
-  @Transactional
-  public void createUploadedFileLink(String uploadedFileId, PwaApplicationDetail pwaApplicationDetail) {
-    projectInformationFileService.createAndSaveProjectInformationFile(
-        pwaApplicationDetail,
-        uploadedFileId
-    );
+    padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), filePurpose, user);
   }
 
   @Override
@@ -140,7 +90,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     PadProjectInformation projectInformation = getPadProjectInformationData(detail);
     var projectInformationForm = new ProjectInformationForm();
-    mapEntityToForm(projectInformation, projectInformationForm, ApplicationFileLinkStatus.FULL);
+    mapEntityToForm(projectInformation, projectInformationForm);
     BindingResult bindingResult = new BeanPropertyBindingResult(projectInformationForm, "form");
     validate(projectInformationForm, bindingResult, ValidationType.FULL, detail);
 
@@ -156,7 +106,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     if (validationType.equals(ValidationType.PARTIAL)) {
       groupValidator.validate(form, bindingResult, PartialValidation.class);
     } else {
-      groupValidator.validate(form, bindingResult, FullValidation.class);
+      groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
       var projectInfoValidationHints = new ProjectInformationFormValidationHints(getIsAnyDepositQuestionRequired(pwaApplicationDetail),
           getIsPermanentDepositQuestionRequired(pwaApplicationDetail));
       projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
@@ -174,6 +124,13 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
   }
+
+  public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
+    return  DateUtils.formatDate(LocalDate.ofInstant(
+        projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault()));
+  }
+
 
 
 }

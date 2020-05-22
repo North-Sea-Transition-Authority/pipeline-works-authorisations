@@ -6,6 +6,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -141,6 +144,29 @@ public class PadPipelineServiceTest {
 
     assertThat(pipelinesService.isComplete(detail)).isTrue();
 
+  }
+
+
+  @Test
+  public void getPipelines() {
+    var pipelinesMocked = new ArrayList<PadPipeline>();
+    var PadPipeline = new PadPipeline();
+    PadPipeline.setId(1);
+    PadPipeline.setPipelineRef("l1");
+    pipelinesMocked.add(PadPipeline);
+    PadPipeline = new PadPipeline();
+    PadPipeline.setId(2);
+    PadPipeline.setPipelineRef("l2");
+    pipelinesMocked.add(PadPipeline);
+
+    var pipeLinesExpected = new HashMap<String, String >();
+    pipeLinesExpected.put("1", "l1");
+    pipeLinesExpected.put("2", "l2");
+
+    var detail = new PwaApplicationDetail();
+    when(repository.getAllByPwaApplicationDetail(detail)).thenReturn(pipelinesMocked);
+
+    assertThat(pipelinesService.getPipelines(detail)).isEqualTo(pipeLinesExpected);
   }
 
 }

@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListServiceTest {
@@ -44,12 +45,15 @@ public class TaskListServiceTest {
   @Mock
   private PwaContactService pwaContactService;
 
+  @Mock
+  private PermanentDepositService permanentDepositService;
+
   private TaskListService taskListService;
 
   @Before
   public void setUp() {
     taskListService = new TaskListService(pwaApplicationRedirectService, applicationBreadcrumbService,
-        padFastTrackService, taskCompletionService, pwaContactService);
+        padFastTrackService, taskCompletionService, pwaContactService, permanentDepositService);
   }
 
   @Test
@@ -107,6 +111,7 @@ public class TaskListServiceTest {
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
 
+    when(permanentDepositService.isPermanentDepositMade(detail)).thenReturn(true);
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
@@ -122,7 +127,8 @@ public class TaskListServiceTest {
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
-                ApplicationTask.PIPELINES.getDisplayName()
+                ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:
@@ -131,7 +137,8 @@ public class TaskListServiceTest {
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-                ApplicationTask.HUOO.getDisplayName()
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
             );
             break;
           case DECOMMISSIONING:
@@ -140,7 +147,8 @@ public class TaskListServiceTest {
               ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
               ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
               ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-              ApplicationTask.HUOO.getDisplayName()
+              ApplicationTask.HUOO.getDisplayName(),
+              ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
           );
           break;
         case CAT_2_VARIATION:
@@ -150,7 +158,8 @@ public class TaskListServiceTest {
               ApplicationTask.LOCATION_DETAILS.getDisplayName(),
               ApplicationTask.HUOO.getDisplayName(),
               ApplicationTask.PIPELINES.getDisplayName(),
-              ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName()
+              ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
+              ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:

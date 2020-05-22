@@ -5,6 +5,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDeco
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
@@ -15,6 +16,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDeco
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
@@ -72,6 +74,13 @@ public enum ApplicationTask {
       TechnicalDrawingsController.class,
       TechnicalDrawingsService.class,
       80
+  ),
+
+  PERMANENT_DEPOSITS(
+    "Permanent deposits",
+    PermanentDepositController.class,
+    PermanentDepositService.class,
+      90
   );
 
 
