@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.model.entity.files;
 
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 
 /**
  * Enumeration of the different areas of a PWA application that can have file links.
