@@ -66,7 +66,7 @@ public class PipelinesController {
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
-        .addObject("pipelineOverviews", padPipelineService.getPipelineOverviews(detail).stream()
+        .addObject("pipelineTaskListItems", padPipelineService.getPipelineTaskListItems(detail).stream()
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("addPipelineUrl", ReverseRouter.route(on(PipelinesController.class)

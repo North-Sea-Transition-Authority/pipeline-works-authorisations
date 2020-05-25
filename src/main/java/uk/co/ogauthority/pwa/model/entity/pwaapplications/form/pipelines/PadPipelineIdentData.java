@@ -8,8 +8,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-@Entity(name = "pad_pipeline_ident_data")
+@Entity
+@Table(name = "pad_pipeline_ident_data")
 public class PadPipelineIdentData {
 
   @Id

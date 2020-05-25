@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import 'pipelineOverview.ftl' as pipelineOverview>
 
-<#-- @ftlvariable name="pipelineOverviews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
+<#-- @ftlvariable name="pipelineTaskListItems" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem>" -->
 <#-- @ftlvariable name="addPipelineUrl" type="String" -->
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
@@ -14,7 +14,7 @@
 
     ${addPipeButton}
 
-    <#list pipelineOverviews as pipeline>
+    <#list pipelineTaskListItems as pipeline>
 
         <@fdsCard.card>
 
@@ -23,9 +23,9 @@
             <@pipelineOverview.header pipeline=pipeline />
 
             <@fdsTaskList.taskList>
-                <#list pipeline.tasks as task>
-                    <#if task.taskInfo?has_content>
-                        <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfo=task.taskInfo/>
+                <#list pipeline.getTaskList() as task>
+                    <#if task.taskInfoList?has_content>
+                        <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route/>
                     <#else>
                         <@fdsTaskList.taskListItem itemText=task.taskName itemUrl=springUrl(task.route) completed=task.completed/>
                     </#if>
@@ -35,11 +35,11 @@
 
     </#list>
 
-    <#if pipelineOverviews?size gt 4>
+    <#if pipelineTaskListItems?size gt 4>
       ${addPipeButton}
     </#if>
 
-    <#if !pipelineOverviews?has_content>
+    <#if !pipelineTaskListItems?has_content>
       <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
     </#if>
 

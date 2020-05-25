@@ -1,6 +1,8 @@
 <#include '../../layout.ftl'>
 <#import '/spring.ftl' as spring>
 
+<#-- @ftlvariable name="pipelineOverviews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
+
 <#macro pipelineTableSelection path pipelineOverviews>
     <@spring.bind path/>
     <#local id=spring.status.expression?replace('[','')?replace(']','')>
@@ -33,22 +35,22 @@
               <#assign checkboxId = id>
           </#if>
           <#-- pipelineId must be converted to a string to check seq_contains. -->
-          <#assign isSelected = selectedItems?seq_contains("${pipeline.pipelineId}")>
+          <#assign isSelected = selectedItems?seq_contains("${pipeline.getPadPipelineId()}")>
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">
             <div class="govuk-checkboxes govuk-checkboxes--small">
               <div class="govuk-checkboxes__item">
-                <input class="govuk-checkboxes__input" id="pipeline-checkbox-${checkboxId}" name="${spring.status.expression}" type="checkbox" value="${pipeline.pipelineId}" <#if isSelected>checked</#if>>
+                <input class="govuk-checkboxes__input" id="pipeline-checkbox-${checkboxId}" name="${spring.status.expression}" type="checkbox" value="${pipeline.getPadPipelineId()}" <#if isSelected>checked</#if>>
                 <label class="govuk-label govuk-checkboxes__label" for="pipeline-checkbox-${checkboxId}"><span
-                    class="govuk-visually-hidden">Select or de-select ${pipeline.pipelineNumber}</span>&nbsp;</label>
+                    class="govuk-visually-hidden">Select or de-select ${pipeline.getPipelineNumber()}</span>&nbsp;</label>
               </div>
             </div>
           </td>
-          <td class="govuk-table__cell">${pipeline.pipelineNumber}</td>
-          <td class="govuk-table__cell">${pipeline.pipelineType.displayName}</td>
-          <td class="govuk-table__cell">${pipeline.fromLocation}</td>
-          <td class="govuk-table__cell">${pipeline.toLocation}</td>
-          <td class="govuk-table__cell">${pipeline.length}m</td>
+          <td class="govuk-table__cell">${pipeline.getPipelineNumber()}</td>
+          <td class="govuk-table__cell">${pipeline.getPipelineType().displayName}</td>
+          <td class="govuk-table__cell">${pipeline.getFromLocation()}</td>
+          <td class="govuk-table__cell">${pipeline.getToLocation()}</td>
+          <td class="govuk-table__cell">${pipeline.getLength()}m</td>
         </tr>
       </#list>
       </tbody>
