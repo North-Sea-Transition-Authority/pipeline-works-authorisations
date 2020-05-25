@@ -1,5 +1,4 @@
 <#include '../../../layout.ftl'>
-<#import '../../../components/widgets/pipelineTableSelection.ftl' as pipelineTableSelection/>
 
 <#-- @ftlvariable name="admiraltyChartUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory" -->
 <#-- @ftlvariable name="admiraltyChartFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
@@ -19,7 +18,7 @@
       <hr class="govuk-section-break govuk-section-break--m"/>
 
         <@fdsFieldset.fieldset legendHeading="Which pipelines are linked to this drawing?">
-            <@pipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineViews/>
+            <@pwaPipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineViews/>
         </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to admiralty chart and pipeline drawings" linkSecondaryActionUrl=springUrl(backUrl)/>

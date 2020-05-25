@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -12,6 +13,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -20,6 +22,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -35,29 +39,51 @@ public class CampaignWorksController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final PadPipelineService padPipelineService;
 
   @Autowired
   public CampaignWorksController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PwaApplicationRedirectService pwaApplicationRedirectService) {
+      PwaApplicationRedirectService pwaApplicationRedirectService,
+      PadPipelineService padPipelineService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.padPipelineService = padPipelineService;
   }
 
 
   @GetMapping
   public ModelAndView renderSummary(@PathVariable("applicationType")
-                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                   @PathVariable("applicationId") int applicationId,
-                                   PwaApplicationContext applicationContext) {
+                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                    @PathVariable("applicationId") int applicationId,
+                                    PwaApplicationContext applicationContext) {
     var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/campaignWorks")
         .addObject("dependencySectionName", ApplicationTask.PROJECT_INFORMATION.getDisplayName())
         .addObject("dependencySectionUrl", ReverseRouter.route(on(ProjectInformationController.class)
-            .renderProjectInformation(pwaApplicationType, applicationId, null, null)));
+            .renderProjectInformation(pwaApplicationType, applicationId, null, null)))
+        .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()));
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Campaign Works");
     return modelAndView;
   }
 
+
+  @GetMapping("/add")
+  public ModelAndView renderAddWorkSchedule(@PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            @PathVariable("applicationId") int applicationId,
+                                            PwaApplicationContext applicationContext,
+                                            @ModelAttribute("form") WorkScheduleForm form) {
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/workScheduleForm")
+        .addObject("cancelUrl", ReverseRouter.route(on(CampaignWorksController.class)
+            .renderSummary(pwaApplicationType, applicationId, null)))
+        .addObject("pipelineViews", padPipelineService.getPipelineOverviews(applicationContext.getApplicationDetail()));
+
+    applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,
+        "Add work schedule");
+
+    return modelAndView;
+  }
 
 
 }

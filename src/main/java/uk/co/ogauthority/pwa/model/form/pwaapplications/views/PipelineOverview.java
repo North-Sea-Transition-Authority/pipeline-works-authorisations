@@ -6,7 +6,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
-
+// TODO This needs refactoring into the DTO overview part and the last list part
 public class PipelineOverview {
 
   private Integer pipelineId;

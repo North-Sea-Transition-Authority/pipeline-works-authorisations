@@ -17,6 +17,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   }
 
   @Override
+  // TODO PWA-372 this is going to cause horrible n+1s
   public List<PadPipelineOverviewDto> findAllAsOverviewDtoByPwaApplicationDetail(PwaApplicationDetail detail) {
     return entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineOverviewDto(" +
