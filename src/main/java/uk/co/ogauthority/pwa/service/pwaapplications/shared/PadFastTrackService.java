@@ -55,6 +55,12 @@ public class PadFastTrackService implements ApplicationFormSectionService {
         .orElse(fastTrackIfOptionalEmpty);
   }
 
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return isFastTrackRequired(pwaApplicationDetail);
+  }
+
   public boolean isFastTrackRequired(PwaApplicationDetail detail) {
     var projectInformation = padProjectInformationService.getPadProjectInformationData(detail);
     if (projectInformation.getProposedStartTimestamp() != null) {

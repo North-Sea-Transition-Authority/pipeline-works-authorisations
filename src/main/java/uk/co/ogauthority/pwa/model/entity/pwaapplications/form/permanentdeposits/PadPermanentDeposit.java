@@ -14,7 +14,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import org.checkerframework.common.aliasing.qual.Unique;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -24,14 +23,12 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 @Entity
-@Table(name = "permanent_deposit_information")
+@Table(name = "pad_permanent_deposits")
 public class PadPermanentDeposit {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
-
-  @Unique
   private String reference;
 
   @JoinColumn(name = "application_detail_id")

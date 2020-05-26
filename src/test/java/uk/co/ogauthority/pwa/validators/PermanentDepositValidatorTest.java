@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
@@ -62,7 +63,7 @@ public class PermanentDepositValidatorTest {
 
   public Map<String, Set<String>> getErrorMap(PermanentDepositsForm form) {
     var errors = new BeanPropertyBindingResult(form, "form");
-    validator.validate(form, errors, service);
+    validator.validate(form, errors, service, new PwaApplicationDetail());
     return errors.getFieldErrors().stream()
         .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
   }
@@ -78,7 +79,6 @@ public class PermanentDepositValidatorTest {
   public void validate_reference_notUnique() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setDepositReference("myRef");
-    //when(service.isDepositReferenceUnique("myRef", 1)).thenReturn(false);
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }

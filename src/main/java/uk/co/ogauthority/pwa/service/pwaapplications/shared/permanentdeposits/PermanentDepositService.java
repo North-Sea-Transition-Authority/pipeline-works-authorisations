@@ -133,11 +133,17 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       groupValidator.validate(form, bindingResult, PartialValidation.class);
     } else {
       groupValidator.validate(form, bindingResult, FullValidation.class);
-      permanentDepositsValidator.validate(form, bindingResult, this);
+      permanentDepositsValidator.validate(form, bindingResult, this, pwaApplicationDetail);
     }
 
     return bindingResult;
 
+  }
+
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return isPermanentDepositMade(pwaApplicationDetail);
   }
 
   public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
@@ -183,9 +189,9 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return depositUrls;
   }
 
-  public boolean isDepositReferenceUnique(String depositRef, Integer padPipelinesId) {
-    var existingDeposits = permanentDepositInformationRepository.findByReference(depositRef);
-    return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(padPipelinesId));
+  public boolean isDepositReferenceUnique(String depositRef, Integer padDepositId, PwaApplicationDetail pwaApplicationDetail) {
+    var existingDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail, depositRef);
+    return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(padDepositId));
   }
 
 

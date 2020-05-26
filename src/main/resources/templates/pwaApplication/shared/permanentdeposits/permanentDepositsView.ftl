@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="deposits" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm>" --> 
 
 
-<@defaultPage htmlTitle="Deposits" pageHeading="Deposits" breadcrumbs=true>
+<@defaultPage htmlTitle="Permanent deposits" pageHeading="Permanent deposits" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
@@ -15,12 +15,13 @@
         <@fdsInsetText.insetText>
             The Consent will only authorise deposits exactly as described, up to the maximum quantities specified to be laid, in the positions listed and within the period stated within the Table - nothing else can be laid.
         </@fdsInsetText.insetText>
+        <@fdsAction.link linkText="Add deposit" linkUrl=springUrl(addDepositUrl) linkClass="govuk-button govuk-button--blue"/>
 
         <#list deposits as deposit>
-            <@fdsFieldset.fieldset legendHeading=deposit.depositReference />
+            <h2 class="govuk-heading-m">${deposit.depositReference}</h2>
+            
             <@fdsAction.link  linkText="Change" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />
-            <table class="govuk-table">
-                <tbody class="govuk-table__body">                  
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">          
 
                     <#assign size="" quantity="" contingency="" groutBagsDescription=""/>
                     <#if deposit.materialType = "CONCRETE_MATTRESSES">
@@ -45,84 +46,62 @@
                         <#if deposit.contingencyOtherAmount??> <#assign contingency=deposit.contingencyOtherAmount/> </#if>    
                     </#if>
 
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Pipeline</th>
-                        <td class="govuk-table__cell">
-                            <#list deposit.selectedPipelines as pipeline>${pipeline}<#sep>, </#list>
-                        </td>                    
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Proposed date</th>
-                        <td class="govuk-table__cell"> ${deposit.fromMonth} / ${deposit.fromYear}</td>                    
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">to date</th>
-                        <td class="govuk-table__cell"> ${deposit.toMonth} / ${deposit.toYear}</td>                    
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Type of materials</th>
-                        <td class="govuk-table__cell"> ${deposit.materialType.getDisplayText()}</td>                    
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Size</th>
-                        <td class="govuk-table__cell"> ${size} </td>                    
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Quantity</th>
-                        <td class="govuk-table__cell"> ${quantity}</td>                    
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Contingency Included</th>
-                        <td class="govuk-table__cell"> ${contingency}</td>                    
-                    </tr>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Pipelines</dt>
+                        <dd class="govuk-summary-list__value">
+                            <#list deposit.selectedPipelines as pipeline>${pipeline}<br> </#list>
+                        </dd>                    
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Proposed date</dt>
+                        <dd class="govuk-summary-list__value"> ${deposit.fromMonth} / ${deposit.fromYear}</dd>                    
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">to date</dt>
+                        <dd class="govuk-summary-list__value"> ${deposit.toMonth} / ${deposit.toYear}</dd>                    
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Type of materials</dt>
+                        <dd class="govuk-summary-list__value"> ${deposit.materialType.getDisplayText()}</dd>                    
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Size</dt>
+                        <dd class="govuk-summary-list__value"> ${size} </dd>                    
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Quantity</dt>
+                        <dd class="govuk-summary-list__value"> ${quantity}</dd>                    
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Contingency included</dt>
+                        <dd class="govuk-summary-list__value"> ${contingency}</dd>                    
+                    </div>
                     <#if deposit.groutBagsBioDegradable?? && deposit.groutBagsBioDegradable == false>
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">Biodegradeable grout bags</th>
-                            <td class="govuk-table__cell"> ${groutBagsDescription}</td>                  
-                        </tr>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">Bio-degradable grout bags</dt>
+                            <dd class="govuk-summary-list__value"> ${groutBagsDescription}</dd>                  
+                        </div>
                     </#if>
 
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">From (WGS84)</th>
-                        <td class="govuk-table__cell"> 
-                            Latitude &nbsp;
-                            ${deposit.fromCoordinateForm.latitudeDegrees} ° &nbsp;
-                            ${deposit.fromCoordinateForm.latitudeDegrees} ' &nbsp;
-                            ${deposit.fromCoordinateForm.latitudeSeconds} " &nbsp;
-                            ${deposit.fromCoordinateForm.latitudeDirection}                            
-                            <br>
-                            Longitude &nbsp;
-                            ${deposit.fromCoordinateForm.longitudeDegrees} ° &nbsp;
-                            ${deposit.fromCoordinateForm.longitudeMinutes} ' &nbsp;
-                            ${deposit.fromCoordinateForm.longitudeSeconds} " &nbsp;
-                            ${deposit.fromCoordinateForm.longitudeDirection}    
-                        </td>                    
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">To (WGS84)</th>
-                        <td class="govuk-table__cell"> 
-                            Latitude &nbsp;
-                            ${deposit.toCoordinateForm.latitudeDegrees} ° &nbsp;
-                            ${deposit.toCoordinateForm.latitudeDegrees} ' &nbsp;
-                            ${deposit.toCoordinateForm.latitudeSeconds} " &nbsp;
-                            ${deposit.toCoordinateForm.latitudeDirection}                            
-                            <br>
-                            Longitude &nbsp;
-                            ${deposit.toCoordinateForm.longitudeDegrees} ° &nbsp;
-                            ${deposit.toCoordinateForm.longitudeMinutes} ' &nbsp;
-                            ${deposit.toCoordinateForm.longitudeSeconds} " &nbsp;
-                            ${deposit.toCoordinateForm.longitudeDirection} 
-                        </td>                    
-                    </tr>                   
-                </tbody>
-            </table>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">From (WGS84)</dt>
+                        <dd class="govuk-summary-list__value"> 
+                            <@pwaCoordinate.display coordinatePair=permanentDepositDataFormatFactory.getFromCoordinatesPairFromForm(deposit?index) />                            
+                        </dd>   
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">To (WGS84)</dt>
+                        <dd class="govuk-summary-list__value"> 
+                            <@pwaCoordinate.display coordinatePair=permanentDepositDataFormatFactory.getToCoordinatesPairFromForm(deposit?index) />      
+                        </dd>                    
+                    </div>  
+            </dl>
         </#list>
 
 
        
 
 
-        <@fdsAction.link linkText="Add deposit" linkUrl=springUrl(addDepositUrl) linkClass="govuk-button govuk-button--blue"/>
         <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 

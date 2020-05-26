@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadAdmiraltyChartFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.AdmiraltyChartDocumentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadAdmiraltyChartFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -279,7 +279,8 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
 
     if (padAdmiraltyChartFileRepository.countAllByPwaApplicationDetail(pwaApplicationDetail) > 1) {
       bindingResult.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms.exceededMaximumUpload", "You may only upload a single admiralty chart");
+          "uploadedFileWithDescriptionForms.exceededMaximumUpload",
+              "You may only upload a single admiralty chart");
     }
 
     return bindingResult;

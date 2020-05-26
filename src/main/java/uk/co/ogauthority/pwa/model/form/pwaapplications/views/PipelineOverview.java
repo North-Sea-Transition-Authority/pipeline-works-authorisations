@@ -9,6 +9,8 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 
 public class PipelineOverview {
 
+  private Integer pipelineId;
+
   private String fromLocation;
 
   private CoordinatePair fromCoordinates;
@@ -30,6 +32,7 @@ public class PipelineOverview {
   private List<TaskListEntry> tasks;
 
   public PipelineOverview(PadPipeline pipeline, List<TaskListEntry> tasks) {
+    this.pipelineId = pipeline.getId();
     this.fromLocation = pipeline.getFromLocation();
     this.fromCoordinates = pipeline.getFromCoordinates();
     this.toLocation = pipeline.getToLocation();
@@ -40,6 +43,10 @@ public class PipelineOverview {
     this.length = pipeline.getLength();
     this.productsToBeConveyed = pipeline.getProductsToBeConveyed();
     this.tasks = tasks;
+  }
+
+  public Integer getPipelineId() {
+    return pipelineId;
   }
 
   public String getFromLocation() {

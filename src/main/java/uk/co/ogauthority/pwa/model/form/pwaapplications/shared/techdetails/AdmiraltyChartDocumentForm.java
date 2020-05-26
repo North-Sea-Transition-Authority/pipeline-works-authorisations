@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
+package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;

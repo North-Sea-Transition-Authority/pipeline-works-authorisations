@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 
@@ -41,6 +42,7 @@ public class PickPwaForVariationServiceTest {
         pwaApplicationCreationService
     );
 
+    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any())).thenReturn(new PwaApplicationDetail());
     when(pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(any(), any())).thenReturn(masterPwa);
   }
 

@@ -40,6 +40,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
     this.padPipelineRepository = padPipelineRepository;
   }
 
+  public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
+    return padPipelineRepository.getAllByPwaApplicationDetail(detail);
+  }
+
   public List<PipelineOverview> getPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllAsOverviewDtoByPwaApplicationDetail(detail).stream()
@@ -157,6 +161,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find PadPipeline with ID: %s", padPipelineId)));
   }
 
+  public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
+    return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
+  }
+
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L
@@ -169,12 +177,16 @@ public class PadPipelineService implements ApplicationFormSectionService {
     throw new AssertionError("Doesn't make sense to implement this.");
   }
 
-  public Map<String, String> getPipelines(PwaApplicationDetail pwaApplicationDetail) {
+  public Map<String, String> getPipelineReferenceMap(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
         .sorted(Comparator.comparing(PadPipeline::getId))
         .collect(
             StreamUtils.toLinkedHashMap(padPipeline -> String.valueOf(padPipeline.getId()), PadPipeline::getPipelineRef));
+  }
+
+  public long totalPipelineContainedInApplication(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
 }

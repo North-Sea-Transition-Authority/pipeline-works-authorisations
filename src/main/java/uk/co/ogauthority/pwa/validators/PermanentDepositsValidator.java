@@ -10,6 +10,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
@@ -40,13 +41,17 @@ public class PermanentDepositsValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (PermanentDepositsForm) o;
 
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedPipelines", "selectedPipelines.required",
+        "Select at least one pipeline");
+
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
         "You must enter a deposit reference");
 
     if (StringUtils.isNotBlank(form.getDepositReference()) && validationHints[0] instanceof PermanentDepositService) {
       var permanentDepositsService = (PermanentDepositService) validationHints[0];
+      var pwaApplicationDetail = (PwaApplicationDetail) validationHints[1];
       ValidatorUtils.validateBooleanTrue(errors, permanentDepositsService.isDepositReferenceUnique(
-          form.getDepositReference(), form.getEntityID()),
+          form.getDepositReference(), form.getEntityID(), pwaApplicationDetail),
           "depositReference", "Deposit reference must be unique, enter a different reference");
     }
 

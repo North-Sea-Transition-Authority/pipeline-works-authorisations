@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -166,7 +165,7 @@ public class PadPipelineServiceTest {
     var detail = new PwaApplicationDetail();
     when(repository.getAllByPwaApplicationDetail(detail)).thenReturn(pipelinesMocked);
 
-    assertThat(pipelinesService.getPipelines(detail)).isEqualTo(pipeLinesExpected);
+    assertThat(pipelinesService.getPipelineReferenceMap(detail)).isEqualTo(pipeLinesExpected);
   }
 
 }
