@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 
