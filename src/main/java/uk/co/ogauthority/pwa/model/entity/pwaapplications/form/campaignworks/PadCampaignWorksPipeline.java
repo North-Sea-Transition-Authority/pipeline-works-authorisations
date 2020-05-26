@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 @Entity
-@Table(name="pad_campaign_works_pipelines")
+@Table(name = "pad_campaign_works_pipelines")
 public class PadCampaignWorksPipeline {
 
   @Id
@@ -19,7 +19,7 @@ public class PadCampaignWorksPipeline {
   private Integer id;
 
   @ManyToOne
-  @JoinColumn(name="pad_campaign_work_schedule_id")
+  @JoinColumn(name = "pad_campaign_work_schedule_id")
   private PadCampaignWorkSchedule padCampaignWorkSchedule;
 
   @ManyToOne

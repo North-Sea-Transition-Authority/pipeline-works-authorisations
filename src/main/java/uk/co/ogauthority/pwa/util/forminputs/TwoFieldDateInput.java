@@ -83,8 +83,8 @@ public class TwoFieldDateInput {
       return false;
     }
     TwoFieldDateInput that = (TwoFieldDateInput) o;
-    return Objects.equals(month, that.month) &&
-        Objects.equals(year, that.year);
+    return Objects.equals(month, that.month)
+        && Objects.equals(year, that.year);
   }
 
   @Override
