@@ -44,6 +44,11 @@ public class TwoFieldDateInput {
     this.year = String.valueOf(year);
   }
 
+  public LocalDate createDateOrNull(){
+    return this.createDate()
+        .orElse(null);
+  }
+
   public Optional<LocalDate> createDate() {
 
     try {
@@ -71,6 +76,13 @@ public class TwoFieldDateInput {
     var testableDate = testDate.withDayOfMonth(DEFAULT_DAY);
     return this.createDate()
         .filter(date -> date.isAfter(testableDate))
+        .isPresent();
+  }
+
+  public boolean isInSameMonth(LocalDate testDate) {
+    var testableDate = testDate.withDayOfMonth(DEFAULT_DAY);
+    return this.createDate()
+        .filter(date -> date.equals(testableDate))
         .isPresent();
   }
 

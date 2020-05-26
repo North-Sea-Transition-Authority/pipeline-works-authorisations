@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,17 +15,21 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -41,24 +46,29 @@ public class CampaignWorksController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadPipelineService padPipelineService;
+  private final CampaignWorksService campaignWorksService;
 
   @Autowired
   public CampaignWorksController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      PadPipelineService padPipelineService) {
+      PadPipelineService padPipelineService,
+      CampaignWorksService campaignWorksService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPipelineService = padPipelineService;
+    this.campaignWorksService = campaignWorksService;
   }
 
 
-  private ModelAndView createAddWorkScheduleModelAndView(PwaApplicationContext applicationContext) {
+  private ModelAndView createAddWorkScheduleModelAndView(PwaApplicationContext applicationContext,
+                                                         ScreenActionType screenActionType) {
     var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/workScheduleForm")
         .addObject("cancelUrl", ReverseRouter.route(on(CampaignWorksController.class)
             .renderSummary(applicationContext.getApplicationType(), applicationContext.getMasterPwaApplicationId(),
                 null)))
-        .addObject("pipelineViews", padPipelineService.getPipelineOverviews(applicationContext.getApplicationDetail()));
+        .addObject("pipelineViews", padPipelineService.getPipelineOverviews(applicationContext.getApplicationDetail()))
+        .addObject("screenActionType", screenActionType);
 
     applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,
         "Add work schedule");
@@ -87,7 +97,7 @@ public class CampaignWorksController {
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") WorkScheduleForm form) {
 
-    return createAddWorkScheduleModelAndView(applicationContext);
+    return createAddWorkScheduleModelAndView(applicationContext, ScreenActionType.ADD);
   }
 
   @PostMapping("/add")
@@ -95,9 +105,23 @@ public class CampaignWorksController {
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       @PathVariable("applicationId") int applicationId,
                                       PwaApplicationContext applicationContext,
-                                      @ModelAttribute("form") WorkScheduleForm form) {
+                                      @ModelAttribute("form") WorkScheduleForm form,
+                                      BindingResult bindingResult) {
 
-    return createAddWorkScheduleModelAndView(applicationContext);
+    campaignWorksService.validate(
+        form,
+        bindingResult,
+        ValidationType.FULL,
+        applicationContext.getApplicationDetail()
+    );
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        createAddWorkScheduleModelAndView(applicationContext, ScreenActionType.ADD), () -> {
+          campaignWorksService.addCampaignWorkScheduleFromForm(form, applicationContext.getApplicationDetail());
+          return ReverseRouter.redirect(
+              on(CampaignWorksController.class).renderSummary(pwaApplicationType, applicationId, null));
+
+        });
   }
 
 

@@ -2,11 +2,13 @@ package uk.co.ogauthority.pwa.util.forminputs.twofielddate;
 
 import java.util.Arrays;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 
+@Component
 public class TwoFieldDateInputValidator implements SmartValidator {
 
   private static final String MONTH = "month";
@@ -34,8 +36,6 @@ public class TwoFieldDateInputValidator implements SmartValidator {
   @Override
   public void validate(Object o, Errors errors, Object... objects) {
 
-    var twoFieldDateInput = (TwoFieldDateInput) o;
-
     // should be be small list of hints so this repeated looping over whole list is probably harmless
     var inputLabel = Arrays.stream(objects)
         .filter(hint -> hint.getClass().equals(FormInputLabel.class))
@@ -43,12 +43,24 @@ public class TwoFieldDateInputValidator implements SmartValidator {
         .findFirst()
         .orElse(new FormInputLabel("Date"));
 
-    Optional<BeforeDateHint> testBeforeDate = Arrays.stream(objects)
+    var twoFieldDateInput = (TwoFieldDateInput) o;
+
+    Optional<OnOrBeforeDateHint> onOrBeforeDateHint = Arrays.stream(objects)
+        .filter(hint -> hint.getClass().equals(OnOrBeforeDateHint.class))
+        .map(hint -> ((OnOrBeforeDateHint) hint))
+        .findFirst();
+
+    Optional<BeforeDateHint> beforeDateHint = Arrays.stream(objects)
         .filter(hint -> hint.getClass().equals(BeforeDateHint.class))
         .map(hint -> ((BeforeDateHint) hint))
         .findFirst();
 
-    Optional<AfterDateHint> testAfterDate = Arrays.stream(objects)
+    Optional<OnOrAfterDateHint> onOrAfterDateHint = Arrays.stream(objects)
+        .filter(hint -> hint.getClass().equals(OnOrAfterDateHint.class))
+        .map(hint -> ((OnOrAfterDateHint) hint))
+        .findFirst();
+
+    Optional<AfterDateHint> afterDateHint = Arrays.stream(objects)
         .filter(hint -> hint.getClass().equals(AfterDateHint.class))
         .map(hint -> ((AfterDateHint) hint))
         .findFirst();
@@ -61,12 +73,48 @@ public class TwoFieldDateInputValidator implements SmartValidator {
           inputLabel.getLabel() + " must be a valid date");
     } else {
       // only do additional validation when the date is valid
-      testAfterDate.ifPresent(afterDateHint -> validateAfterDate(errors, twoFieldDateInput, inputLabel, afterDateHint));
-
-      testBeforeDate.ifPresent(beforeDateHint -> validateBeforeDate(errors, twoFieldDateInput, inputLabel, beforeDateHint));
+      afterDateHint.ifPresent(hint -> validateAfterDate(errors, twoFieldDateInput, inputLabel, hint));
+      beforeDateHint.ifPresent(hint -> validateBeforeDate(errors, twoFieldDateInput, inputLabel, hint));
+      onOrAfterDateHint.ifPresent(hint -> validateOnOrAfterDate(errors, twoFieldDateInput, inputLabel, hint));
+      onOrBeforeDateHint.ifPresent(hint -> validateOnOrBeforeDate(errors, twoFieldDateInput, inputLabel, hint));
     }
 
+  }
 
+  // There must be a cleaner way than this to avoid adding new methods per hint type. Maybe put the check on the date hints them selves and loop over any that exist?
+  // Revisit if any more get added
+  // Things to look at, moving error code onto hint, moving message format string to hint,
+  // can we move check itself to hint without having to add explicit input object classes to the generic date hints?
+  // ^would that be better or worse than what we have? ie treating hints as validation strategies
+  private void validateOnOrAfterDate(Errors errors,
+                                     TwoFieldDateInput twoFieldDateInput,
+                                     FormInputLabel inputLabel,
+                                     OnOrAfterDateHint testOnOrAfterDate) {
+    if (!(
+        twoFieldDateInput.isAfter(testOnOrAfterDate.getDate())
+            || twoFieldDateInput.isInSameMonth(testOnOrAfterDate.getDate())
+    )) {
+      var afterDateLabel = testOnOrAfterDate.getDateLabel();
+
+      errors.rejectValue(MONTH, MONTH_AFTER_DATE_CODE, "");
+      errors.rejectValue(YEAR, YEAR_AFTER_DATE_CODE, inputLabel.getLabel() + " must be the same as or after " + afterDateLabel);
+    }
+  }
+
+  private void validateOnOrBeforeDate(Errors errors,
+                                      TwoFieldDateInput twoFieldDateInput,
+                                      FormInputLabel inputLabel,
+                                      OnOrBeforeDateHint testOnOrBeforeDate) {
+    if (!(
+        twoFieldDateInput.isBefore(testOnOrBeforeDate.getDate())
+            || twoFieldDateInput.isInSameMonth(testOnOrBeforeDate.getDate())
+    )) {
+      var beforeDateLabel = testOnOrBeforeDate.getDateLabel();
+
+      errors.rejectValue(MONTH, MONTH_BEFORE_DATE_CODE, "");
+      errors.rejectValue(YEAR, YEAR_BEFORE_DATE_CODE,
+          inputLabel.getLabel() + " must be the same as or before " + beforeDateLabel);
+    }
   }
 
   private void validateAfterDate(Errors errors,
@@ -80,7 +128,6 @@ public class TwoFieldDateInputValidator implements SmartValidator {
       errors.rejectValue(YEAR, YEAR_AFTER_DATE_CODE, inputLabel.getLabel() + " must be after " + afterDateLabel);
     }
   }
-
 
   private void validateBeforeDate(Errors errors,
                                   TwoFieldDateInput twoFieldDateInput,

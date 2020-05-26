@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Entity
-@Table(name = "pad_campaign_works_schedule")
+@Table(name = "pad_campaign_work_schedule")
 public class PadCampaignWorkSchedule {
 
   @Id

@@ -132,6 +132,12 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
   }
 
+  public ProjectInfoMetadata getProjectInformationMetadata(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
+        .orElse(null);
+    return ProjectInfoMetadata.from(projectInformation);
+  }
+
   public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
     return  DateUtils.formatDate(LocalDate.ofInstant(

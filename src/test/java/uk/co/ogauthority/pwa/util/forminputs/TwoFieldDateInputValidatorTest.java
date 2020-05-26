@@ -14,6 +14,8 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.AfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.BeforeDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -85,7 +87,7 @@ public class TwoFieldDateInputValidatorTest {
 
 
   @Test
-  public void validate_inputLabelHint_beforeDateHint_afterDateHint_validDate() {
+  public void validate_validDate() {
     twoFieldDateInput.setMonth(6);
     twoFieldDateInput.setYear(2020);
 
@@ -106,7 +108,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_inputLabelHint_beforeDateHint_afterDateHint_afterDateFail() {
+  public void validate_afterDateFail() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2019);
 
@@ -135,7 +137,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_inputLabelHint_beforeDateHint_afterDateHint_beforeDateFail() {
+  public void validate_beforeDateFail() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2021);
 
@@ -161,6 +163,100 @@ public class TwoFieldDateInputValidatorTest {
         // case preserved. up to callers to make sure they provide a good hint
         entry("year", Set.of("Some date must be before Before date"))
     );
+  }
+
+  @Test
+  public void validate_onOrBeforeDateFail() {
+    twoFieldDateInput.setMonth(12);
+    twoFieldDateInput.setYear(2021);
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    Object[] hints = {
+        new FormInputLabel("Some date"),
+        new OnOrBeforeDateHint(LocalDate.of(2020, 12, 31), "On/Before date"),
+
+    };
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(errors);
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrors).containsExactly(
+        entry("month", Set.of("month.beforeDate")),
+        entry("year", Set.of("year.beforeDate"))
+    );
+
+    assertThat(fieldErrorMessages).containsExactly(
+        entry("month", Set.of("")),
+        // case preserved. up to callers to make sure they provide a good hint
+        entry("year", Set.of("Some date must be the same as or before On/Before date"))
+    );
+  }
+
+  @Test
+  public void validate_onOrBeforeDatePass_sameMonth() {
+    twoFieldDateInput.setMonth(12);
+    twoFieldDateInput.setYear(2020);
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    Object[] hints = {
+        new FormInputLabel("Some date"),
+        new OnOrBeforeDateHint(LocalDate.of(2020, 12, 31), "On/Before date"),
+
+    };
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(errors);
+
+    assertThat(fieldErrors).isEmpty();
+
+  }
+
+  @Test
+  public void validate_onOrAfterDateFail() {
+    twoFieldDateInput.setMonth(12);
+    twoFieldDateInput.setYear(2020);
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    Object[] hints = {
+        new FormInputLabel("Some date"),
+        new OnOrAfterDateHint(LocalDate.of(2021, 12, 31), "On/After date"),
+
+    };
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(errors);
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrors).containsExactly(
+        entry("month", Set.of("month.afterDate")),
+        entry("year", Set.of("year.afterDate"))
+    );
+
+    assertThat(fieldErrorMessages).containsExactly(
+        entry("month", Set.of("")),
+        // case preserved. up to callers to make sure they provide a good hint
+        entry("year", Set.of("Some date must be the same as or after On/After date"))
+    );
+  }
+
+  @Test
+  public void validate_onOrAfterDatePass_sameMonth() {
+    twoFieldDateInput.setMonth(12);
+    twoFieldDateInput.setYear(2020);
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    Object[] hints = {
+        new FormInputLabel("Some date"),
+        new OnOrAfterDateHint(LocalDate.of(2020, 12, 31), "On/After date"),
+
+    };
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(errors);
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrors).isEmpty();
   }
 
 }

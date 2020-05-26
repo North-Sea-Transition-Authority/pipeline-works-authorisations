@@ -1,9 +1,22 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.CampaignWorkScheduleValidationHint;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCampaignWorkScheduleRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
@@ -14,27 +27,93 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
   private final PadProjectInformationService padProjectInformationService;
   private final PadPipelineService padPipelineService;
+  private final WorkScheduleFormValidator workScheduleFormValidator;
+  private final PadCampaignWorkScheduleRepository padCampaignWorkScheduleRepository;
+  private final PadCampaignWorksPipelineRepository padCampaignWorksPipelineRepository;
 
   @Autowired
   public CampaignWorksService(
       PadProjectInformationService padProjectInformationService,
-      PadPipelineService padPipelineService) {
+      PadPipelineService padPipelineService,
+      WorkScheduleFormValidator workScheduleFormValidator,
+      PadCampaignWorkScheduleRepository padCampaignWorkScheduleRepository,
+      PadCampaignWorksPipelineRepository padCampaignWorksPipelineRepository) {
     this.padProjectInformationService = padProjectInformationService;
     this.padPipelineService = padPipelineService;
+    this.workScheduleFormValidator = workScheduleFormValidator;
+    this.padCampaignWorkScheduleRepository = padCampaignWorkScheduleRepository;
+    this.padCampaignWorksPipelineRepository = padCampaignWorksPipelineRepository;
   }
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    // TODO PWA-372 do validation
+    // TODO PWA-372 do validation on all work schedules
+    // then we need to check at least one schedule and that every schedule has at least one pad pipeline AND valid schedule dates
     return false;
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    // TODO PWA-372 if project information says campaign works should be used,
-    // then we need to check at least one schedule and that every schedule has at least one pad pipeline AND valid schedule dates
+    var projectInfoData = padProjectInformationService.getProjectInformationMetadata(pwaApplicationDetail);
+    var campaignWorksHint = new CampaignWorkScheduleValidationHint(
+        projectInfoData.getProposedStartDate().orElse(null),
+        pwaApplicationDetail.getPwaApplicationType());
+    return validateForm((WorkScheduleForm) form, bindingResult, pwaApplicationDetail, campaignWorksHint);
+  }
+
+  private BindingResult validateForm(WorkScheduleForm form,
+                                     BindingResult bindingResult,
+                                     PwaApplicationDetail pwaApplicationDetail,
+                                     CampaignWorkScheduleValidationHint campaignWorkScheduleValidationHint) {
+
+    var validationHints = new Object[]{pwaApplicationDetail, campaignWorkScheduleValidationHint};
+    ValidationUtils.invokeValidator(workScheduleFormValidator, form, bindingResult, validationHints);
     return bindingResult;
+
+  }
+
+
+  @Transactional
+  public PadCampaignWorkSchedule addCampaignWorkScheduleFromForm(WorkScheduleForm form,
+                                                                 PwaApplicationDetail pwaApplicationDetail) {
+
+    var padPipelines = padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds());
+    return addCampaignWorksSchedule(
+        form.getWorkStart().createDateOrNull(),
+        form.getWorkEnd().createDateOrNull(),
+        padPipelines,
+        pwaApplicationDetail
+    );
+  }
+
+
+  private PadCampaignWorkSchedule addCampaignWorksSchedule(LocalDate workStart, LocalDate workEnd,
+                                                           List<PadPipeline> associatedPipelines,
+                                                           PwaApplicationDetail pwaApplicationDetail) {
+    var schedule = new PadCampaignWorkSchedule();
+    schedule.setPwaApplicationDetail(pwaApplicationDetail);
+    schedule.setWorkFromDate(workStart);
+    schedule.setWorkToDate(workEnd);
+    schedule = padCampaignWorkScheduleRepository.save(schedule);
+    List<PadCampaignWorksPipeline> workSchedulePipelines = new ArrayList<>();
+
+    for (PadPipeline padPipeline : associatedPipelines) {
+      workSchedulePipelines.add(createCampaignWorksPipeline(schedule, padPipeline));
+    }
+
+    padCampaignWorksPipelineRepository.saveAll(workSchedulePipelines);
+    return schedule;
+
+  }
+
+  private PadCampaignWorksPipeline createCampaignWorksPipeline(PadCampaignWorkSchedule padCampaignWorkSchedule,
+                                                               PadPipeline padPipeline) {
+    var padCampaignWorksPipeline = new PadCampaignWorksPipeline();
+    padCampaignWorksPipeline.setPadCampaignWorkSchedule(padCampaignWorkSchedule);
+    padCampaignWorksPipeline.setPadPipeline(padPipeline);
+    return padCampaignWorksPipeline;
+
   }
 
   @Override

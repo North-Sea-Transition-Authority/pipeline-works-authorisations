@@ -121,4 +121,38 @@ public class TwoFieldDateInputTest {
         .isFalse();
   }
 
+
+
+  @Test
+  public void isInSameMonth_whenInvalidDate() {
+    assertThat(twoFieldDateInput.isInSameMonth(LocalDate.now())).isFalse();
+  }
+
+  @Test
+  public void isInSameMonth_whenValidDate_andDateIsSameYearMonth() {
+    twoFieldDateInput.setYear(LocalDate.now().getYear());
+    twoFieldDateInput.setMonth(LocalDate.now().getMonthValue());
+
+    assertThat(twoFieldDateInput.isInSameMonth(LocalDate.now()))
+        .isTrue();
+  }
+
+
+  @Test
+  public void isInSameMonth_whenValidDate_andDateIsMonthsBefore() {
+    twoFieldDateInput.setYear(LocalDate.now().getYear());
+    twoFieldDateInput.setMonth(LocalDate.now().getMonthValue());
+
+    assertThat(twoFieldDateInput.isInSameMonth(LocalDate.now().plus(1, ChronoUnit.MONTHS)))
+        .isFalse();
+  }
+
+  @Test
+  public void isInSameMonth_whenValidDate_andDateIsMonthsAfter() {
+    twoFieldDateInput.setYear(LocalDate.now().getYear());
+    twoFieldDateInput.setMonth(LocalDate.now().getMonthValue());
+
+    assertThat(twoFieldDateInput.isInSameMonth(LocalDate.now().minus(1, ChronoUnit.MONTHS)))
+        .isFalse();
+  }
 }

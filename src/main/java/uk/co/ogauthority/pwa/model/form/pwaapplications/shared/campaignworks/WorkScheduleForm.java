@@ -11,7 +11,7 @@ public class WorkScheduleForm {
 
   private TwoFieldDateInput workStart;
 
-  private TwoFieldDateInput workEndMonth;
+  private TwoFieldDateInput workEnd;
 
   private List<Integer> padPipelineIds = new ArrayList<>();
 
@@ -31,19 +31,19 @@ public class WorkScheduleForm {
     this.workStart = workStart;
   }
 
-  public TwoFieldDateInput getWorkEndMonth() {
-    return workEndMonth;
+  public TwoFieldDateInput getWorkEnd() {
+    return workEnd;
   }
 
-  public void setWorkEndMonth(TwoFieldDateInput workEndMonth) {
-    this.workEndMonth = workEndMonth;
+  public void setWorkEnd(TwoFieldDateInput workEnd) {
+    this.workEnd = workEnd;
   }
 
   @Override
   public String toString() {
     return "WorkScheduleForm{" +
         "workStart=" + workStart.toString() +
-        ", workEndMonth=" + workEndMonth.toString() +
+        ", workEnd=" + workEnd.toString() +
         ", padPipelineIds_size=" + (padPipelineIds != null ? String.valueOf(padPipelineIds.size()) : "IS_NULL") +
         '}';
   }
