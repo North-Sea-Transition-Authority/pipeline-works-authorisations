@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
@@ -21,6 +23,23 @@ public class ValidatorUtils {
 
   public ValidatorUtils() {
     throw new AssertionError();
+  }
+
+
+  /**
+   * invoke validator on a nested object while safely pushing and popping the nested object path.
+   */
+  public static void invokeNestedValidator(Errors errors,
+                                           Validator validator,
+                                           String targetPath,
+                                           Object targetObject,
+                                           Object... validationHints) {
+    try {
+      errors.pushNestedPath(targetPath);
+      ValidationUtils.invokeValidator(validator, targetObject, errors, validationHints);
+    } finally {
+      errors.popNestedPath();
+    }
   }
 
   /**

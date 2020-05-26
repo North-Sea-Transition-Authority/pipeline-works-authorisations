@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util.forminputs;
+package uk.co.ogauthority.pwa.util.forminputs.twofielddate;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;

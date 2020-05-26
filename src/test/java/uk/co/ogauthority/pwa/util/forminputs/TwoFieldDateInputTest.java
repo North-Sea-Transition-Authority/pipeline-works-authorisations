@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TwoFieldDateInputTest {
