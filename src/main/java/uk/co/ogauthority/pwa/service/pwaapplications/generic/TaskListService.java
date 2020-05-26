@@ -115,7 +115,7 @@ public class TaskListService {
   private void checkTaskAndAddToList(List<TaskListEntry> tasks, ApplicationTask task, PwaApplicationDetail detail) {
 
     Set<PwaApplicationType> validApplicationTypes = Optional.ofNullable(task.getControllerClass())
-        // this allows us to test method logic by returning an arbitrary class from the applicationContext uin tests
+        // this allows us to test method logic by returning an arbitrary class from the applicationContext in tests
         .map(controllerClass -> applicationContext.getBean(controllerClass).getClass())
         .map(clazz -> clazz.getAnnotation(PwaApplicationTypeCheck.class))
         .map(typeCheck -> Set.of(typeCheck.types()))
