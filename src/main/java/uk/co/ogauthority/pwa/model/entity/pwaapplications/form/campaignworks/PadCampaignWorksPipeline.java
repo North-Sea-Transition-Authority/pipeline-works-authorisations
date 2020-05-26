@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks;
 
 
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -49,5 +50,24 @@ public class PadCampaignWorksPipeline {
 
   public void setPadPipeline(PadPipeline padPipeline) {
     this.padPipeline = padPipeline;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadCampaignWorksPipeline that = (PadCampaignWorksPipeline) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(padCampaignWorkSchedule, that.padCampaignWorkSchedule)
+        && Objects.equals(padPipeline, that.padPipeline);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, padCampaignWorkSchedule, padPipeline);
   }
 }

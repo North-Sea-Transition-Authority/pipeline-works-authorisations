@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.repository.pwaapplications.shared;
+package uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks;
 
 
 import org.springframework.data.repository.CrudRepository;

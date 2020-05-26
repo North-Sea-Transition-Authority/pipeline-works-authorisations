@@ -85,7 +85,8 @@ public class CampaignWorksController {
         .addObject("dependencySectionName", ApplicationTask.PROJECT_INFORMATION.getDisplayName())
         .addObject("dependencySectionUrl", ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(pwaApplicationType, applicationId, null, null)))
-        .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()));
+        .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()))
+        .addObject("workScheduleViewList", campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail()));
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Campaign Works");
     return modelAndView;
   }

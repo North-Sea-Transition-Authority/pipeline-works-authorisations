@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.CampaignWorkScheduleValidationHint;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCampaignWorkScheduleRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCampaignWorksPipelineRepository;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
@@ -71,6 +75,48 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     ValidationUtils.invokeValidator(workScheduleFormValidator, form, bindingResult, validationHints);
     return bindingResult;
 
+  }
+
+  public List<WorkScheduleView> getWorkScheduleViews(PwaApplicationDetail pwaApplicationDetail) {
+
+    // is there a nicer way? potentially putting a link down to linked pipelines on the schedule entity would have made this much simpler.
+    // 1. get all pipelines for work schedules on the application
+    // 2. create a lookup from padPipelineId to pipelineOverview view
+    // 3. Organise the list of all pipelines on a schedule into a map so we can go from a single schedule to all its pipelines
+    // 4. for each schedule, create a schedule summary using the pipelineOverview lookup
+
+    var allScheduledPipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(
+        pwaApplicationDetail);
+
+    var padPipelineIds = allScheduledPipelines.stream()
+        .map(PadCampaignWorksPipeline::getPadPipeline)
+        .map(PadPipeline::getId)
+        .collect(Collectors.toSet());
+
+    var pipelineOverviewsMappedByPadPipelineId = padPipelineService.getPipelineOverviews(pwaApplicationDetail)
+        .stream()
+        .filter(po -> padPipelineIds.contains(po.getPadPipelineId()))
+        .collect(Collectors.toMap(PipelineOverview::getPadPipelineId, po -> po));
+
+    Map<PadCampaignWorkSchedule, List<PadPipeline>> scheduleToSchedulePipelineMap = allScheduledPipelines.stream()
+        .collect(Collectors.groupingBy((PadCampaignWorksPipeline::getPadCampaignWorkSchedule),
+            Collectors.mapping(PadCampaignWorksPipeline::getPadPipeline, Collectors.toList())
+        ));
+
+    var listOfWorkScheduleViews = new ArrayList<WorkScheduleView>();
+    for (Map.Entry<PadCampaignWorkSchedule, List<PadPipeline>> entry : scheduleToSchedulePipelineMap.entrySet()) {
+      var schedulePipelineOverviews = entry.getValue().stream()
+          .map(padPipeline -> pipelineOverviewsMappedByPadPipelineId.get(padPipeline.getId()))
+          .collect(Collectors.toList());
+      listOfWorkScheduleViews.add(new WorkScheduleView(
+          entry.getKey().getId(),
+          entry.getKey().getWorkFromDate(),
+          entry.getKey().getWorkToDate(),
+          schedulePipelineOverviews
+      ));
+    }
+
+    return listOfWorkScheduleViews;
   }
 
 
