@@ -432,7 +432,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   private PadPipeline getDefaultPadPipeline(int id, PwaApplicationDetail pwaApplicationDetail) {
     var padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(pwaApplicationDetail);
-    padPipeline.setId(99);
+    padPipeline.setId(id);
     padPipeline.setPipelineRef("testref");
     padPipeline.setFromLocation("from");
     padPipeline.setToLocation("to");

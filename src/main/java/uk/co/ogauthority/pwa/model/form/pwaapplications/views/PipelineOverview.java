@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
-/* Regardless of application or consented status, provide consisten interface for basic summarised pipeline data */
+/* Regardless of application or consented status, provide consistent interface for basic summarised pipeline data */
 public interface PipelineOverview {
 
   Integer getPadPipelineId();
