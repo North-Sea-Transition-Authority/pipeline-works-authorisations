@@ -15,6 +15,7 @@
         <@fdsInsetText.insetText>
             The Consent will only authorise deposits exactly as described, up to the maximum quantities specified to be laid, in the positions listed and within the period stated within the Table - nothing else can be laid.
         </@fdsInsetText.insetText>
+        <@fdsAction.link linkText="Add deposit" linkUrl=springUrl(addDepositUrl) linkClass="govuk-button govuk-button--blue"/>
 
         <#list deposits as deposit>
             <h2 class="govuk-heading-m">${'Deposit ' + deposit?index}</h2>
@@ -100,7 +101,6 @@
        
 
 
-        <@fdsAction.link linkText="Add deposit" linkUrl=springUrl(addDepositUrl) linkClass="govuk-button govuk-button--blue"/>
         <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
