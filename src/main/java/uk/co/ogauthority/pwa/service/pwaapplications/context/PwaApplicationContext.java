@@ -65,4 +65,8 @@ public class PwaApplicationContext {
   public void setPadFile(PadFile padFile) {
     this.padFile = padFile;
   }
+
+  public int getMasterPwaApplicationId(){
+    return this.applicationDetail.getMasterPwaApplicationId();
+  }
 }

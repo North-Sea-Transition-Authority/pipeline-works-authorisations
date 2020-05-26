@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
@@ -52,6 +53,19 @@ public class CampaignWorksController {
   }
 
 
+  private ModelAndView createAddWorkScheduleModelAndView(PwaApplicationContext applicationContext) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/workScheduleForm")
+        .addObject("cancelUrl", ReverseRouter.route(on(CampaignWorksController.class)
+            .renderSummary(applicationContext.getApplicationType(), applicationContext.getMasterPwaApplicationId(),
+                null)))
+        .addObject("pipelineViews", padPipelineService.getPipelineOverviews(applicationContext.getApplicationDetail()));
+
+    applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,
+        "Add work schedule");
+
+    return modelAndView;
+  }
+
   @GetMapping
   public ModelAndView renderSummary(@PathVariable("applicationType")
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -66,7 +80,6 @@ public class CampaignWorksController {
     return modelAndView;
   }
 
-
   @GetMapping("/add")
   public ModelAndView renderAddWorkSchedule(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -74,15 +87,17 @@ public class CampaignWorksController {
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") WorkScheduleForm form) {
 
-    var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/workScheduleForm")
-        .addObject("cancelUrl", ReverseRouter.route(on(CampaignWorksController.class)
-            .renderSummary(pwaApplicationType, applicationId, null)))
-        .addObject("pipelineViews", padPipelineService.getPipelineOverviews(applicationContext.getApplicationDetail()));
+    return createAddWorkScheduleModelAndView(applicationContext);
+  }
 
-    applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,
-        "Add work schedule");
+  @PostMapping("/add")
+  public ModelAndView addWorkSchedule(@PathVariable("applicationType")
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      @PathVariable("applicationId") int applicationId,
+                                      PwaApplicationContext applicationContext,
+                                      @ModelAttribute("form") WorkScheduleForm form) {
 
-    return modelAndView;
+    return createAddWorkScheduleModelAndView(applicationContext);
   }
 
 
