@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+
 
 
 @Controller
@@ -96,6 +98,17 @@ public class PermanentDepositController {
     return getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
   }
 
+  @GetMapping("/remove-deposit/{depositId}")
+  public ModelAndView renderRemovePermanentDeposits(@PathVariable("applicationType")
+                                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                  @PathVariable("applicationId") Integer applicationId,
+                                                  @PathVariable("depositId") Integer depositId,
+                                                  PwaApplicationContext applicationContext,
+                                                  @ModelAttribute("form") PermanentDepositsForm form) {
+    permanentDepositService.populatePermanentDepositViewForm(depositId, form);
+    return getRemovePermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form);
+  }
+
   @PostMapping
   public ModelAndView postPermanentDepositsOverview(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -155,18 +168,31 @@ public class PermanentDepositController {
 
   }
 
+  @PostMapping("/remove-deposit/{depositId}")
+  public ModelAndView postRemovePermanentDeposits(@PathVariable("applicationType")
+                                                @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                @PathVariable("applicationId") Integer applicationId,
+                                                @PathVariable("depositId") Integer depositId,
+                                                PwaApplicationContext applicationContext,
+                                                @ModelAttribute("form") PermanentDepositsForm form,
+                                                BindingResult bindingResult) {
+
+    permanentDepositService.removeDeposit(depositId);
+    return getOverviewPermanentDepositsModelAndView(applicationContext.getApplicationDetail());
+  }
 
 
   private ModelAndView getOverviewPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var permanentDepositsForm = permanentDepositService.getPermanentDepositViewForms(pwaApplicationDetail);
+    var permanentDepositsForms = permanentDepositService.getPermanentDepositViewForms(pwaApplicationDetail);
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsView");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("deposits", permanentDepositsForm)
+        .addObject("deposits", permanentDepositsForms)
         .addObject("addDepositUrl", ReverseRouter.route(on(PermanentDepositController.class)
             .renderAddPermanentDeposits(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("editDepositUrls", permanentDepositService.getEditUrlsForDeposits(pwaApplicationDetail))
-        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(permanentDepositsForm));
+        .addObject("removeDepositUrls", permanentDepositService.getRemoveUrlsForDeposits(pwaApplicationDetail))
+        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(permanentDepositsForms));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
@@ -193,6 +219,21 @@ public class PermanentDepositController {
     return modelAndView;
   }
 
+
+  private ModelAndView getRemovePermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                               PermanentDepositsForm form) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsRemove");
+    modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
+        .addObject("deposit", form)
+        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(List.of(form)))
+        .addObject("cancelUrl", ReverseRouter.route(on(PermanentDepositController.class)
+            .renderPermanentDepositsOverview(
+                pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)));
+
+    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        "Permanent deposits");
+    return modelAndView;
+  }
 
 
 

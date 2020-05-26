@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -161,17 +162,22 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     for (PadPermanentDeposit permanentDeposit: permanentDeposits) {
       PermanentDepositsForm form = new PermanentDepositsForm();
       mapEntityToForm(permanentDeposit, form);
-
-      var depositsForPipelines = padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId());
-      var pipelineRefs = depositsForPipelines.stream().map(
-          depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId().getPipelineRef()))
-          .collect(Collectors.toSet());
-
-      form.setSelectedPipelines(pipelineRefs);
+      form.setSelectedPipelines(getPipeLineRefs(permanentDeposit));
       forms.add(form);
     }
-
     return forms;
+  }
+
+  public void populatePermanentDepositViewForm(Integer entityID, PermanentDepositsForm form) {
+    var permanentDeposit = mapEntityToFormById(entityID, form);
+    form.setSelectedPipelines(getPipeLineRefs(permanentDeposit));
+  }
+
+  private Set<String> getPipeLineRefs(PadPermanentDeposit permanentDeposit) {
+    var depositsForPipelines = padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId());
+    return depositsForPipelines.stream().map(
+        depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId().getPipelineRef()))
+        .collect(Collectors.toSet());
   }
 
 
@@ -189,11 +195,31 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return depositUrls;
   }
 
+  public Map<String, String> getRemoveUrlsForDeposits(PwaApplicationDetail pwaApplicationDetail) {
+    Map<String, String>  depositUrls = new HashMap<>();
+    var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
+
+    for (PadPermanentDeposit permanentDeposit: permanentDeposits) {
+      depositUrls.put(permanentDeposit.getId().toString(),
+          ReverseRouter.route(on(PermanentDepositController.class)
+              .renderRemovePermanentDeposits(
+                  pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+                  permanentDeposit.getId(), null, null)));
+    }
+    return depositUrls;
+  }
+
   public boolean isDepositReferenceUnique(String depositRef, Integer padDepositId, PwaApplicationDetail pwaApplicationDetail) {
     var existingDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail, depositRef);
     return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(padDepositId));
   }
 
+
+  public void removeDeposit(Integer depositId) {
+    var permanentDeposit = permanentDepositInformationRepository.findById(depositId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
+    permanentDepositInformationRepository.delete(permanentDeposit);
+  }
 
 
 }

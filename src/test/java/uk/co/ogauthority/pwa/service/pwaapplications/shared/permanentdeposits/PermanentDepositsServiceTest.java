@@ -185,7 +185,7 @@ public class PermanentDepositsServiceTest {
 
 
   @Test
-  public void getPermanentDepositData() {
+  public void getPermanentDepositViewForms() {
     var expectedForms = new ArrayList<PermanentDepositsForm>();
     var expectedForm = new PermanentDepositsForm();
     expectedForm.setSelectedPipelines(Set.of("1","2"));
@@ -229,6 +229,28 @@ public class PermanentDepositsServiceTest {
     assertThat(actualForms).isEqualTo(expectedForms);
   }
 
+  @Test
+  public void populatePermanentDepositViewForm() {
+    var expectedForm = new PermanentDepositsForm();
+    expectedForm.setSelectedPipelines(Set.of("1"));
+
+    var permanentDepositInfoMock = new PadPermanentDeposit();
+    permanentDepositInfoMock.setId(1);
+    when(permanentDepositInformationRepository.findById(1)).thenReturn(Optional.of(permanentDepositInfoMock));
+
+    List<PadDepositPipeline> depositsForPipelinesList = new ArrayList<>();
+    PadDepositPipeline depositsForPipelines = new PadDepositPipeline();
+    var padPipeLine = new PadPipeline();
+    padPipeLine.setPipelineRef("1");
+    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelinesList.add(depositsForPipelines);
+    when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(1)).thenReturn(depositsForPipelinesList);
+
+    var actualForm = new PermanentDepositsForm();
+    service.populatePermanentDepositViewForm(1, actualForm);
+    assertThat(actualForm).isEqualTo(expectedForm);
+  }
+
   @Test(expected = PwaEntityNotFoundException.class)
   public void mapEntityToFormById_noEntityExists() {
     var form = new PermanentDepositsForm();
@@ -247,6 +269,21 @@ public class PermanentDepositsServiceTest {
 
     when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
     var actualUrlMap = service.getEditUrlsForDeposits(pwaApplicationDetail);
+    assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
+  }
+
+  @Test
+  public void getRemoveUrlsForDeposits() {
+    var expectedUrlMap = new HashMap<String, String>();
+    expectedUrlMap.put("1", ReverseRouter.route(on(PermanentDepositController.class)
+        .renderRemovePermanentDeposits(
+            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+            1, null, null)));
+    var mockedEntity = new PadPermanentDeposit();
+    mockedEntity.setId(1);
+
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
+    var actualUrlMap = service.getRemoveUrlsForDeposits(pwaApplicationDetail);
     assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
 
@@ -278,6 +315,12 @@ public class PermanentDepositsServiceTest {
     var entity = new PadPermanentDeposit();
     when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
     assertThat(service.isDepositReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void removeDeposit_noEntityFound() {
+    service.removeDeposit(5);
+
   }
 
 
