@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks;
 
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,6 +27,17 @@ public class PadCampaignWorksPipeline {
   @ManyToOne
   @JoinColumn(name = "padPipelineId")
   private PadPipeline padPipeline;
+
+  public PadCampaignWorksPipeline() {
+  }
+
+  @VisibleForTesting
+  public PadCampaignWorksPipeline(
+      PadCampaignWorkSchedule padCampaignWorkSchedule,
+      PadPipeline padPipeline) {
+    this.padCampaignWorkSchedule = padCampaignWorkSchedule;
+    this.padPipeline = padPipeline;
+  }
 
   public Integer getId() {
     return id;

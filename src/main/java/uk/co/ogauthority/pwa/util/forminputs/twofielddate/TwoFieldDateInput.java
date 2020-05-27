@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.util.forminputs.twofielddate;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -19,6 +20,14 @@ public class TwoFieldDateInput {
   private String month;
   private String year;
 
+  public TwoFieldDateInput() {
+  }
+
+  @VisibleForTesting
+  public TwoFieldDateInput(int year, int month) {
+    this.year = String.valueOf(year);
+    this.month = String.valueOf(month);
+  }
 
   public String getMonth() {
     return month;

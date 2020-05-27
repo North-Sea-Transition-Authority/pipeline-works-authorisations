@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,6 +26,15 @@ public class PadCampaignWorkSchedule {
   private LocalDate workFromDate;
   private LocalDate workToDate;
 
+  public PadCampaignWorkSchedule(){
+  }
+
+  @VisibleForTesting
+  public PadCampaignWorkSchedule(
+      PwaApplicationDetail pwaApplicationDetail, int id) {
+    this.id = id;
+    this.pwaApplicationDetail = pwaApplicationDetail;
+  }
 
   public PwaApplicationDetail getPwaApplicationDetail() {
     return pwaApplicationDetail;
