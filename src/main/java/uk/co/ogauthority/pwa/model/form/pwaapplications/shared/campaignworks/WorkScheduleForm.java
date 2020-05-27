@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ public class WorkScheduleForm {
 
   private TwoFieldDateInput workEnd;
 
-  private List<Integer> padPipelineIds = new ArrayList<>();
+  private List<Integer> padPipelineIds;
 
   public List<Integer> getPadPipelineIds() {
     return padPipelineIds;

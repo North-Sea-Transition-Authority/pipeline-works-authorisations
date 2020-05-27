@@ -72,7 +72,10 @@ public class WorkScheduleFormValidator implements SmartValidator {
                                      CampaignWorkScheduleValidationHint campaignWorkScheduleValidationHint) {
 
     if (form.getWorkStart() == null) {
-      ValidationUtils.rejectIfEmpty(errors, "workStart", "Work start date is required");
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "workStart",
+          "workStart" + FieldValidationErrorCodes.REQUIRED.getCode(), "Work start date is required");
     } else {
       Object[] workStartHints = {
           new FormInputLabel("Work start date"),
@@ -93,7 +96,10 @@ public class WorkScheduleFormValidator implements SmartValidator {
                                    CampaignWorkScheduleValidationHint campaignWorkScheduleValidationHint) {
     // end date validation depends on overall project date and work start date
     if (form.getWorkEnd() == null) {
-      ValidationUtils.rejectIfEmpty(errors, "workEnd", "Work end date is required");
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "workEnd",
+          "workEnd" + FieldValidationErrorCodes.REQUIRED.getCode(),  "Work end date is required");
     } else {
       List<Object> workEndHints = new ArrayList<>();
       workEndHints.add(new FormInputLabel("Work end date"));
@@ -120,7 +126,7 @@ public class WorkScheduleFormValidator implements SmartValidator {
     if (form.getPadPipelineIds() != null
         && padPipelineService.getByIdList(pwaApplicationDetail,
         form.getPadPipelineIds()).size() != form.getPadPipelineIds().size()) {
-      errors.rejectValue("padPipelineIds", "padPipelineIds" + FieldValidationErrorCodes.INVALID,
+      errors.rejectValue("padPipelineIds", "padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode(),
           "One or more added pipelines is invalid");
     }
   }
