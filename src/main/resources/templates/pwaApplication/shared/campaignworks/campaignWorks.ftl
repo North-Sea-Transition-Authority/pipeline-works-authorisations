@@ -13,7 +13,6 @@
     <@fdsInsetText.insetText>
       <p>Your application requires campaign works information due to the information provided in the ${dependencySectionName} section.</p>
       <p><a href="${springUrl(dependencySectionUrl)}" class="govuk-link">Click here to change your campaign works approach.</a></p>
-      <p>You will lose any progress on this page by clicking this link.</p>
     </@fdsInsetText.insetText>
     <@fdsAction.link linkText="Add work schedule" linkUrl=springUrl(urlFactory.addWorkScheduleUrl()) linkClass="govuk-button govuk-button--blue"/>
 

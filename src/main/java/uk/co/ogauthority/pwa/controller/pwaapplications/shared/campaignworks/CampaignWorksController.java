@@ -60,7 +60,6 @@ public class CampaignWorksController {
     this.campaignWorksService = campaignWorksService;
   }
 
-
   private ModelAndView createAddWorkScheduleModelAndView(PwaApplicationContext applicationContext,
                                                          ScreenActionType screenActionType) {
     var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/workScheduleForm")
@@ -86,7 +85,8 @@ public class CampaignWorksController {
         .addObject("dependencySectionUrl", ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(pwaApplicationType, applicationId, null, null)))
         .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()))
-        .addObject("workScheduleViewList", campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail()));
+        .addObject("workScheduleViewList",
+            campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail()));
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Campaign Works");
     return modelAndView;
   }
@@ -109,7 +109,7 @@ public class CampaignWorksController {
                                       @ModelAttribute("form") WorkScheduleForm form,
                                       BindingResult bindingResult) {
 
-    campaignWorksService.validate(
+    bindingResult = campaignWorksService.validate(
         form,
         bindingResult,
         ValidationType.FULL,

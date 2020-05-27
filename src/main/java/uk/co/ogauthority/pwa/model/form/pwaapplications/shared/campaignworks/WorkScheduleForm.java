@@ -42,8 +42,8 @@ public class WorkScheduleForm {
   @Override
   public String toString() {
     return "WorkScheduleForm{" +
-        "workStart=" + workStart.toString() +
-        ", workEnd=" + workEnd.toString() +
+        "workStart=" + workStart +
+        ", workEnd=" + workEnd +
         ", padPipelineIds_size=" + (padPipelineIds != null ? String.valueOf(padPipelineIds.size()) : "IS_NULL") +
         '}';
   }
