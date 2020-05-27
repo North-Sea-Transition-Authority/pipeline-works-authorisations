@@ -44,7 +44,7 @@ public class TwoFieldDateInput {
     this.year = String.valueOf(year);
   }
 
-  public LocalDate createDateOrNull(){
+  public LocalDate createDateOrNull() {
     return this.createDate()
         .orElse(null);
   }

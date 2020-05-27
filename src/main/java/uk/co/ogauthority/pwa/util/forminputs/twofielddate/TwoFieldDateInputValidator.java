@@ -81,7 +81,8 @@ public class TwoFieldDateInputValidator implements SmartValidator {
 
   }
 
-  // There must be a cleaner way than this to avoid adding new methods per hint type. Maybe put the check on the date hints them selves and loop over any that exist?
+  // There must be a cleaner way than this to avoid adding new methods per hint type.
+  // Maybe put the check on the date hints them selves and loop over any that exist?
   // Revisit if any more get added
   // Things to look at, moving error code onto hint, moving message format string to hint,
   // can we move check itself to hint without having to add explicit input object classes to the generic date hints?
@@ -93,11 +94,12 @@ public class TwoFieldDateInputValidator implements SmartValidator {
     if (!(
         twoFieldDateInput.isAfter(testOnOrAfterDate.getDate())
             || twoFieldDateInput.isInSameMonth(testOnOrAfterDate.getDate())
-    )) {
+      )) {
       var afterDateLabel = testOnOrAfterDate.getDateLabel();
 
       errors.rejectValue(MONTH, MONTH_AFTER_DATE_CODE, "");
-      errors.rejectValue(YEAR, YEAR_AFTER_DATE_CODE, inputLabel.getLabel() + " must be the same as or after " + afterDateLabel);
+      errors.rejectValue(YEAR, YEAR_AFTER_DATE_CODE,
+          inputLabel.getLabel() + " must be the same as or after " + afterDateLabel);
     }
   }
 
@@ -108,7 +110,7 @@ public class TwoFieldDateInputValidator implements SmartValidator {
     if (!(
         twoFieldDateInput.isBefore(testOnOrBeforeDate.getDate())
             || twoFieldDateInput.isInSameMonth(testOnOrBeforeDate.getDate())
-    )) {
+      )) {
       var beforeDateLabel = testOnOrBeforeDate.getDateLabel();
 
       errors.rejectValue(MONTH, MONTH_BEFORE_DATE_CODE, "");

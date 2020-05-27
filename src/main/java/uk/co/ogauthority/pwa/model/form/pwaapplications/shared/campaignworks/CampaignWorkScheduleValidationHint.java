@@ -25,7 +25,8 @@ public final class CampaignWorkScheduleValidationHint {
     this.earliestDate = projectInfoProposedStartDate != null ? projectInfoProposedStartDate : LocalDate.now();
     var formattedEarliestDate = "(" + this.earliestDate.format(DATETIME_FORMATTER) + ")";
 
-    var earliestDateLabel = projectInfoProposedStartDate != null ? PROJECT_INFO_PROP_START_DATE_LABEL + " " + formattedEarliestDate : "today's date";
+    var earliestDateLabel = projectInfoProposedStartDate != null
+        ? PROJECT_INFO_PROP_START_DATE_LABEL + " " + formattedEarliestDate : "today's date";
 
     var plusMonths = pwaApplicationType.equals(PwaApplicationType.OPTIONS_VARIATION)
         ? OPTIONS_VARIATION_MAX_MONTH : DEFAULT_MAX_MONTH;
