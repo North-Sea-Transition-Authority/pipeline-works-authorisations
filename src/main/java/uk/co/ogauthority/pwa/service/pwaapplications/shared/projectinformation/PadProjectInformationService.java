@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,16 +134,15 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
   }
 
-  public ProjectInfoMetadata getProjectInformationMetadata(PwaApplicationDetail pwaApplicationDetail) {
-    var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .orElse(null);
-    return ProjectInfoMetadata.from(projectInformation);
-  }
-
-  public String getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
+  public String getFormattedProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
     return  DateUtils.formatDate(LocalDate.ofInstant(
         projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault()));
+  }
+
+  public Optional<Instant> getProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
+    return Optional.ofNullable(projectInformation.getProposedStartTimestamp());
   }
 
 

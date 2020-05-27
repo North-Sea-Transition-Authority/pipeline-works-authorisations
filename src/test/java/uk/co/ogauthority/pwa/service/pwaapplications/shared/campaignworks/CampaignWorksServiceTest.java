@@ -2,28 +2,35 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.CampaignWorkScheduleValidationHint;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
@@ -85,6 +92,7 @@ public class CampaignWorksServiceTest {
     workScheduleForm.setPadPipelineIds(padPipelineIdList);
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, padPipelineIdList)).thenReturn(padPipelineList);
+    when(workScheduleFormValidator.supports(any())).thenCallRealMethod();
 
   }
 
@@ -144,7 +152,7 @@ public class CampaignWorksServiceTest {
   }
 
   @Test
-  public void getWorkScheduleViews_mutlipleSchedules_multiplePipelines(){
+  public void getWorkScheduleViews_mutlipleSchedules_multiplePipelines() {
     var schedule1 = new PadCampaignWorkSchedule(pwaApplicationDetail, 1);
     schedule1.setWorkFromDate(LocalDate.of(2020, 1, 1));
     schedule1.setWorkToDate(LocalDate.of(2020, 2, 1));
@@ -189,7 +197,7 @@ public class CampaignWorksServiceTest {
   }
 
   @Test
-  public void getWorkScheduleViews_zeroSchedules(){
+  public void getWorkScheduleViews_zeroSchedules() {
 
     var workScheduleViewList = campaignWorksService.getWorkScheduleViews(pwaApplicationDetail);
 
@@ -197,7 +205,100 @@ public class CampaignWorksServiceTest {
 
   }
 
+  @Test
+  public void validate_assertValidationHints_whenNoProjectInfoProposedStartDate_andInitialAppType() {
 
+    var originalBindingResult = new BeanPropertyBindingResult(workScheduleForm, "form");
+    var bindingResult = campaignWorksService.validate(
+        workScheduleForm,
+        originalBindingResult,
+        ValidationType.FULL,
+        pwaApplicationDetail);
+
+    ArgumentCaptor<Object> hintCapture = ArgumentCaptor.forClass(Object.class);
+    verify(workScheduleFormValidator, times(1))
+        .validate(eq(workScheduleForm), eq(originalBindingResult), hintCapture.capture());
+    var capturedHints = hintCapture.getAllValues();
+    assetValidationHintsWhenNoProjectInfoDate(capturedHints, 12L);
+
+  }
+
+  @Test
+  public void validate_assertValidationHints_whenNoProjectInfoProposedStartDate_andOptionsAppType() {
+
+    pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+
+    var originalBindingResult = new BeanPropertyBindingResult(workScheduleForm, "form");
+    var bindingResult = campaignWorksService.validate(
+        workScheduleForm,
+        originalBindingResult,
+        ValidationType.FULL,
+        pwaApplicationDetail);
+
+    ArgumentCaptor<Object> hintCapture = ArgumentCaptor.forClass(Object.class);
+    verify(workScheduleFormValidator, times(1))
+        .validate(eq(workScheduleForm), eq(originalBindingResult), hintCapture.capture());
+
+    var capturedHints = hintCapture.getAllValues();
+    assetValidationHintsWhenNoProjectInfoDate(capturedHints, 6L);
+
+  }
+
+  public void assetValidationHintsWhenNoProjectInfoDate(List<Object> validationHints, long expectedLatestDateMonths){
+    assertThat(validationHints.get(0)).isEqualTo(pwaApplicationDetail);
+    assertThat(validationHints.get(1)).satisfies(o -> {
+      var hint = (CampaignWorkScheduleValidationHint) o;
+      // check earliest date
+      assertThat(hint.getEarliestDate()).isEqualTo(LocalDate.now());
+      // check embedded earliest date hint
+      assertThat(hint.getEarliestWorkStartDateHint().getDateLabel()).isEqualTo("today's date");
+      assertThat(hint.getEarliestWorkStartDateHint().getDate()).isEqualTo(LocalDate.now());
+      // check embedded latest date hint
+
+      var expectedLatestDate = LocalDate.now().plusMonths(expectedLatestDateMonths);
+      assertThat(hint.getLatestWorkEndDateHint().getDateLabel())
+          .isEqualTo(expectedLatestDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
+      assertThat(hint.getLatestWorkEndDateHint().getDate()).isEqualTo(expectedLatestDate);
+    });
+  }
+
+
+  @Test
+  public void validate_assertValidationHints_whenProjectInfoProposedStartDate_andIntialAppType() {
+
+    var clock = Clock.fixed(Clock.systemUTC().instant(), ZoneId.systemDefault() );
+
+    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn(Optional.of(clock.instant()));
+
+    var originalBindingResult = new BeanPropertyBindingResult(workScheduleForm, "form");
+    var bindingResult = campaignWorksService.validate(
+        workScheduleForm,
+        originalBindingResult,
+        ValidationType.FULL,
+        pwaApplicationDetail);
+
+    ArgumentCaptor<Object> hintCapture = ArgumentCaptor.forClass(Object.class);
+    verify(workScheduleFormValidator, times(1))
+        .validate(eq(workScheduleForm), eq(originalBindingResult), hintCapture.capture());
+
+    var capturedHints = hintCapture.getAllValues();
+
+    assertThat(capturedHints.get(0)).isEqualTo(pwaApplicationDetail);
+    assertThat(capturedHints.get(1)).satisfies(o -> {
+      var hint = (CampaignWorkScheduleValidationHint) o;
+      // check earliest date
+      assertThat(hint.getEarliestDate()).isEqualTo(LocalDate.now());
+      // check embedded earliest date hint
+      assertThat(hint.getEarliestWorkStartDateHint().getDateLabel()).contains("Project information proposed start date");
+      assertThat(hint.getEarliestWorkStartDateHint().getDate()).isEqualTo(LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()));
+      // check embedded latest date hint
+      var expectedLatestDate = LocalDate.now().plusMonths(12L);
+      assertThat(hint.getLatestWorkEndDateHint().getDateLabel())
+          .contains(expectedLatestDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
+      assertThat(hint.getLatestWorkEndDateHint().getDate()).isEqualTo(expectedLatestDate);
+    });
+
+  }
 
 
 }

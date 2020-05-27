@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +60,11 @@ public class CampaignWorksService implements ApplicationFormSectionService {
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    var projectInfoData = padProjectInformationService.getProjectInformationMetadata(pwaApplicationDetail);
+    var projectStartDate = padProjectInformationService.getProposedStartDate(pwaApplicationDetail)
+        .map(instant -> LocalDate.ofInstant(instant, ZoneId.systemDefault()));
+
     var campaignWorksHint = new CampaignWorkScheduleValidationHint(
-        projectInfoData.getProposedStartDate().orElse(null),
+        projectStartDate.orElse(null),
         pwaApplicationDetail.getPwaApplicationType());
     return validateForm((WorkScheduleForm) form, bindingResult, pwaApplicationDetail, campaignWorksHint);
   }

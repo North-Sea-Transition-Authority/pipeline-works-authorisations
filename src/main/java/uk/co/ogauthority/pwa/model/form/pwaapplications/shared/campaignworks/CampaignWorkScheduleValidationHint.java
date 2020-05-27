@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 /* contain earliest and latest work dates as determined by application type. Could be inlined into validator */
 public final class CampaignWorkScheduleValidationHint {
 
-  private static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
+  public static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
   private static final long OPTIONS_VARIATION_MAX_MONTH = 6L;
   private static final long DEFAULT_MAX_MONTH = 12L;
   private static final String PROJECT_INFO_PROP_START_DATE_LABEL = ApplicationTask.PROJECT_INFORMATION.getDisplayName() +
