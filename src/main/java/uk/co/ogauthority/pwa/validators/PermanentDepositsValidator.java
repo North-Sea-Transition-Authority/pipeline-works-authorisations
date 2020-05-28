@@ -34,7 +34,6 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
-
   }
 
   @Override

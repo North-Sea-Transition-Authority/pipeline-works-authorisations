@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -18,7 +19,8 @@ import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
-@Entity(name = "pad_pipeline_idents")
+@Entity
+@Table(name = "pad_pipeline_idents")
 public class PadPipelineIdent {
 
   @Id
