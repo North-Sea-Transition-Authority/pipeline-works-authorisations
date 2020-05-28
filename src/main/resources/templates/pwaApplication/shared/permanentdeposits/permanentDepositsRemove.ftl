@@ -4,15 +4,13 @@
 <#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm" --> 
 
 
-<@defaultPage htmlTitle="Remove permanent deposit" pageHeading="Remove permanent deposit" breadcrumbs=true>
+<@defaultPage htmlTitle="Remove permanent deposit" pageHeading=("Remove permanent deposit " + deposit.depositReference) breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
     </#if>
 
-    <@fdsForm.htmlForm>
-        <h2 class="govuk-heading-m">Are you sure you want to remove the deposit: ${deposit.depositReference}</h2>
-        
+    <@fdsForm.htmlForm>        
         <dl class="govuk-summary-list govuk-!-margin-bottom-9">          
 
             <#assign size="" quantity="" contingency="" groutBagsDescription=""/>
@@ -45,12 +43,12 @@
                 </dd>                    
             </div>
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Proposed date</dt>
-                <dd class="govuk-summary-list__value"> ${deposit.fromMonth} / ${deposit.fromYear}</dd>                    
+                <dt class="govuk-summary-list__key">Proposed start date</dt>
+                <dd class="govuk-summary-list__value"> ${deposit.fromMonth} / ${deposit.fromYear?c}</dd>                    
             </div>
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">to date</dt>
-                <dd class="govuk-summary-list__value"> ${deposit.toMonth} / ${deposit.toYear}</dd>                    
+                <dt class="govuk-summary-list__key">End date</dt>
+                <dd class="govuk-summary-list__value"> ${deposit.toMonth} / ${deposit.toYear?c}</dd>                    
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">Type of materials</dt>
