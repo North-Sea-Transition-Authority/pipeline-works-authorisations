@@ -149,6 +149,18 @@ public class PermanentDepositsServiceTest {
     verify(validator, times(1)).validate(form, bindingResult, service, pwaApplicationDetail);
   }
 
+  @Test
+  public void validateDepositOverview_valid() {
+    when(permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Long.valueOf(1));
+    assertThat(service.validateDepositOverview(pwaApplicationDetail)).isEqualTo(true);
+  }
+
+  @Test
+  public void validateDepositOverview_inValid() {
+    when(permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Long.valueOf(0));
+    assertThat(service.validateDepositOverview(pwaApplicationDetail)).isEqualTo(false);
+  }
+
 
   @Test
   public void isPermanentDepositMade_depositMadeTrue() {

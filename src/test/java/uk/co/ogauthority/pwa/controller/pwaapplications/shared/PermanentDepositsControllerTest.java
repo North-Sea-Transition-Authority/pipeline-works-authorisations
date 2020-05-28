@@ -373,6 +373,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void postPermanentDepositsOverview_appTypeSmokeTest() {
+    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
@@ -385,6 +386,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void postPermanentDepositsOverview_appStatusSmokeTest() {
+    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
@@ -398,6 +400,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   @Test
   public void postPermanentDepositsOverview_contactSmokeTest() {
+    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
@@ -420,7 +423,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
         .renderRemovePermanentDeposits(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), 1, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(status().isOk());
+        .andExpect(status().is3xxRedirection());
   }
 
   @Test
@@ -429,7 +432,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
         .postRemovePermanentDeposits(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
-        .andExpect(status().isOk());
+        .andExpect(status().is3xxRedirection());
   }
 
 
