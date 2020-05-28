@@ -113,6 +113,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     }
   }
 
+  @Transactional
   public void removeDeposit(Integer depositId) {
     var permanentDeposit = permanentDepositInformationRepository.findById(depositId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
@@ -214,6 +215,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(padDepositId));
   }
 
+
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return isPermanentDepositMade(pwaApplicationDetail);
@@ -225,9 +227,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return BooleanUtils.isTrue(projectInformation.getPermanentDepositsMade())
         || pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
   }
-
-
-
 
 
 }
