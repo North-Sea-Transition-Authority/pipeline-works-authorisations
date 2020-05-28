@@ -34,6 +34,9 @@ public class PermanentDepositsValidator implements SmartValidator {
   public void validate(Object target, Errors errors) {
     var form = (PermanentDepositsForm) target;
 
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedPipelines", "selectedPipelines.required",
+        "Select at least one pipeline");
+
     ValidatorUtils.validateDateIsPresentOrFuture(
         "from", "deposit from month / year",
         form.getFromMonth(), form.getFromYear(), errors);

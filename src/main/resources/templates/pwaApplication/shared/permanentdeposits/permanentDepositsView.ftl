@@ -52,12 +52,12 @@
                         </dd>                    
                     </div>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">Proposed date</dt>
-                        <dd class="govuk-summary-list__value"> ${deposit.fromMonth} / ${deposit.fromYear}</dd>                    
+                        <dt class="govuk-summary-list__key">Proposed start date</dt>
+                        <dd class="govuk-summary-list__value"> ${deposit.fromMonth} / ${deposit.fromYear?c}</dd>                    
                     </div>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">to date</dt>
-                        <dd class="govuk-summary-list__value"> ${deposit.toMonth} / ${deposit.toYear}</dd>                    
+                        <dt class="govuk-summary-list__key">End date</dt>
+                        <dd class="govuk-summary-list__value"> ${deposit.toMonth} / ${deposit.toYear?c}</dd>                 
                     </div>
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">Type of materials</dt>
