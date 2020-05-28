@@ -254,7 +254,7 @@ public class PermanentDepositsServiceTest {
   public void isDepositReferenceUniqueWithId_true() {
     var entity = new PadPermanentDeposit();
     entity.setId(1);
-    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
     assertThat(service.isDepositReferenceUnique("myRef", 1, pwaApplicationDetail)).isTrue();
   }
 
@@ -262,21 +262,21 @@ public class PermanentDepositsServiceTest {
   public void isDepositReferenceUniqueWithId_false() {
     var entity = new PadPermanentDeposit();
     entity.setId(2);
-    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
     assertThat(service.isDepositReferenceUnique("myRef", 1, pwaApplicationDetail)).isFalse();
   }
 
 
   @Test
   public void isDepositReferenceUniqueNoId_true() {
-    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail,"myRef")).thenReturn(Optional.empty());
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.empty());
     assertThat(service.isDepositReferenceUnique("myRef", null, pwaApplicationDetail)).isTrue();
   }
 
   @Test
   public void isDepositReferenceUnique_false() {
     var entity = new PadPermanentDeposit();
-    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
     assertThat(service.isDepositReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
   }
 

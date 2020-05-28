@@ -75,6 +75,11 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   public void mapEntityToForm(PadPermanentDeposit padPermanentDeposit,
                               PermanentDepositsForm form) {
     permanentDepositEntityMappingService.mapDepositInformationDataToForm(padPermanentDeposit, form);
+    var depositsForPipelines = padDepositPipelineRepository.findAllByPermanentDepositInfoId(padPermanentDeposit.getId());
+    var pipelineIds = depositsForPipelines.stream().map(
+        depositsForPipeline -> String.valueOf(depositsForPipeline.getPadPipelineId().getId()))
+        .collect(Collectors.toSet());
+    form.setSelectedPipelines(pipelineIds);
   }
 
 
@@ -190,7 +195,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   }
 
   public boolean isDepositReferenceUnique(String depositRef, Integer padDepositId, PwaApplicationDetail pwaApplicationDetail) {
-    var existingDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailAndReference(pwaApplicationDetail, depositRef);
+    var existingDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
+        pwaApplicationDetail, depositRef);
     return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(padDepositId));
   }
 
