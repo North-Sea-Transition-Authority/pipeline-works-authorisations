@@ -3,10 +3,12 @@ package uk.co.ogauthority.pwa.validators;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
@@ -17,6 +19,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
@@ -29,11 +32,14 @@ import java.util.stream.Collectors;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositValidatorTest {
 
   private PermanentDepositsValidator validator;
+  @Mock
+  private PermanentDepositService service;
 
   @Before
   public void setUp() {
@@ -57,9 +63,24 @@ public class PermanentDepositValidatorTest {
 
   public Map<String, Set<String>> getErrorMap(PermanentDepositsForm form) {
     var errors = new BeanPropertyBindingResult(form, "form");
-    validator.validate(form, errors);
+    validator.validate(form, errors, service, new PwaApplicationDetail());
     return errors.getFieldErrors().stream()
         .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+  }
+
+  @Test
+  public void validate_reference_blank() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_reference_notUnique() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setDepositReference("myRef");
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
@@ -93,7 +114,10 @@ public class PermanentDepositValidatorTest {
 
   @Test
   public void validate_toDate_Null() {
-    Map<String, Set<String>> errorsMap = getErrorMap(getPermanentDepositsFormWithMaterialType());
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setFromMonth(2);
+    form.setFromYear(3020);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.invalid")),
         entry("toYear", Set.of("toYear.invalid")));
   }
@@ -102,12 +126,12 @@ public class PermanentDepositValidatorTest {
   public void validate_toDate_Past() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setFromMonth(2);
-    form.setFromYear(2020);
+    form.setFromYear(3020);
     form.setToMonth(1);
     form.setToYear(2020);
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.outOfTargetRange")),
+    assertThat(errorsMap).contains((entry("toMonth", Set.of("toMonth.outOfTargetRange"))),
         entry("toYear", Set.of("toYear.outOfTargetRange")));
   }
 
@@ -115,9 +139,9 @@ public class PermanentDepositValidatorTest {
   public void validate_toDate_Future() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setFromMonth(2);
-    form.setFromYear(2020);
+    form.setFromYear(3020);
     form.setToMonth(3);
-    form.setToYear(2021);
+    form.setToYear(3021);
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.outOfTargetRange")),

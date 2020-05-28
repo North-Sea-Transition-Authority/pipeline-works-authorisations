@@ -89,10 +89,10 @@ public class PermanentDepositController {
   public ModelAndView renderEditPermanentDeposits(@PathVariable("applicationType")
                                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                  @PathVariable("applicationId") Integer applicationId,
-                                                  @PathVariable("depositId") Integer entityId,
+                                                  @PathVariable("depositId") Integer depositId,
                                                  PwaApplicationContext applicationContext,
                                                  @ModelAttribute("form") PermanentDepositsForm form) {
-    permanentDepositService.mapEntityToFormById(entityId, form);
+    permanentDepositService.mapEntityToFormById(depositId, form);
     return getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
   }
 
@@ -140,6 +140,7 @@ public class PermanentDepositController {
                                             BindingResult bindingResult,
                                             ValidationType validationType) {
 
+    form.setEntityID(depositId);
     bindingResult = permanentDepositService.validate(form,
         bindingResult,
         validationType,
@@ -147,7 +148,6 @@ public class PermanentDepositController {
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
-          form.setEntityID(depositId);
           permanentDepositService.saveEntityUsingForm(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositController.class).renderPermanentDepositsOverview(
               pwaApplicationType, applicationId, null, null));
@@ -158,7 +158,7 @@ public class PermanentDepositController {
 
 
   private ModelAndView getOverviewPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var permanentDepositsForm = permanentDepositService.getPermanentDepositForm(pwaApplicationDetail);
+    var permanentDepositsForm = permanentDepositService.getPermanentDepositViewForms(pwaApplicationDetail);
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsView");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
         .addObject("deposits", permanentDepositsForm)
