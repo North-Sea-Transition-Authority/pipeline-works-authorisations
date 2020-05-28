@@ -34,7 +34,6 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
-
   }
 
   @Override
@@ -55,13 +54,15 @@ public class PermanentDepositsValidator implements SmartValidator {
           "depositReference", "Deposit reference must be unique, enter a different reference");
     }
 
-    ValidatorUtils.validateDateIsPresentOrFuture(
+    boolean fromDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
         "from", "deposit from month / year",
         form.getFromMonth(), form.getFromYear(), errors);
 
-    ValidatorUtils.validateDateIsWithinRangeOfTarget(
-        "to", "deposit to month / year",
-        form.getToMonth(), form.getToYear(), form.getFromMonth(), form.getFromYear(), 12, errors);
+    if (fromDateValid) {
+      ValidatorUtils.validateDateIsWithinRangeOfTarget(
+          "to", "deposit to month / year",
+          form.getToMonth(), form.getToYear(), form.getFromMonth(), form.getFromYear(), 12, errors);
+    }
 
 
     if (form.getMaterialType() == null) {

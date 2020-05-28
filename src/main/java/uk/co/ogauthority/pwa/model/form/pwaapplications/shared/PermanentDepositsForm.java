@@ -6,14 +6,12 @@ import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
 
   private Integer entityID;
   private String depositReference;
-  @NotNull(message = "Select at least one pipeline", groups = {FullValidation.class})
   private Set<String> selectedPipelines;
   private Integer fromMonth;
   private Integer fromYear;

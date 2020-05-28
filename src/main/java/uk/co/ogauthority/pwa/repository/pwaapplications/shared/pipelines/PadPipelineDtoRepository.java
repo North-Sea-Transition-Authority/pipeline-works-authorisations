@@ -1,14 +1,19 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 
 import java.util.List;
+import java.util.Optional;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 /**
  * Interface used to enhance the default repository so DTOs can be produced easily.
  */
 public interface PadPipelineDtoRepository {
 
-  List<PadPipelineOverviewDto> findAllAsOverviewDtoByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+  List<PadPipelineSummaryDto> findAllPipelinesAsSummaryDtoByPwaApplicationDetail(PwaApplicationDetail detail);
+
+  Optional<PadPipelineSummaryDto> findPipelineAsSummaryDtoByPadPipeline(PadPipeline padPipeline);
 
   Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 

@@ -11,5 +11,6 @@ public interface PermanentDepositInformationRepository extends CrudRepository<Pa
 
   List<PadPermanentDeposit> findByPwaApplicationDetailOrderByReferenceAsc(PwaApplicationDetail pwaApplicationDetail);
 
-  Optional<PadPermanentDeposit> findByPwaApplicationDetailAndReference(PwaApplicationDetail pwaApplicationDetail, String reference);
+  Optional<PadPermanentDeposit> findByPwaApplicationDetailAndReferenceIgnoreCase(
+      PwaApplicationDetail pwaApplicationDetail, String reference);
 }

@@ -114,7 +114,10 @@ public class PermanentDepositValidatorTest {
 
   @Test
   public void validate_toDate_Null() {
-    Map<String, Set<String>> errorsMap = getErrorMap(getPermanentDepositsFormWithMaterialType());
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setFromMonth(2);
+    form.setFromYear(3020);
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.invalid")),
         entry("toYear", Set.of("toYear.invalid")));
   }
@@ -123,12 +126,12 @@ public class PermanentDepositValidatorTest {
   public void validate_toDate_Past() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setFromMonth(2);
-    form.setFromYear(2020);
+    form.setFromYear(3020);
     form.setToMonth(1);
     form.setToYear(2020);
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.outOfTargetRange")),
+    assertThat(errorsMap).contains((entry("toMonth", Set.of("toMonth.outOfTargetRange"))),
         entry("toYear", Set.of("toYear.outOfTargetRange")));
   }
 
@@ -136,9 +139,9 @@ public class PermanentDepositValidatorTest {
   public void validate_toDate_Future() {
     var form = getPermanentDepositsFormWithMaterialType();
     form.setFromMonth(2);
-    form.setFromYear(2020);
+    form.setFromYear(3020);
     form.setToMonth(3);
-    form.setToYear(2021);
+    form.setToYear(3021);
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("toMonth", Set.of("toMonth.outOfTargetRange")),

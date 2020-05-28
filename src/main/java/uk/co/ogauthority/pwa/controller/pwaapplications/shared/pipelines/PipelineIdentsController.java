@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -19,7 +18,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -30,6 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -49,19 +48,23 @@ public class PipelineIdentsController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineIdentFormValidator validator;
   private final PadPipelineIdentService padIdentService;
+  private final PadPipelineService padPipelineService;
+
 
   @Autowired
   public PipelineIdentsController(ApplicationBreadcrumbService breadcrumbService,
                                   PipelineIdentFormValidator validator,
-                                  PadPipelineIdentService padIdentService) {
+                                  PadPipelineIdentService padIdentService,
+                                  PadPipelineService padPipelineService) {
     this.breadcrumbService = breadcrumbService;
     this.validator = validator;
     this.padIdentService = padIdentService;
+    this.padPipelineService = padPipelineService;
   }
 
   private ModelAndView getIdentOverviewModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/identOverview")
-        .addObject("pipelineOverview", new PipelineOverview(padPipeline, List.of()))
+        .addObject("pipelineOverview", padPipelineService.getPipelineOverview(padPipeline))
         .addObject("summaryView", padIdentService.getConnectedPipelineIdentSummaryView(padPipeline))
         .addObject("addIdentUrl", ReverseRouter.route(on(PipelineIdentsController.class)
             .renderAddIdent(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), padPipeline.getId(),
