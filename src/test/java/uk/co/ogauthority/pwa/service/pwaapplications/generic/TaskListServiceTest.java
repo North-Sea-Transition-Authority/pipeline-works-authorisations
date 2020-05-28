@@ -62,19 +62,15 @@ public class TaskListServiceTest {
   @Before
   public void setUp() {
 
-    when(springApplicationContext.getBean(any(Class.class))).thenAnswer( invocation -> {
+    when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> {
       Class clazz = invocation.getArgument(0);
-    if(ApplicationFormSectionService.class.isAssignableFrom(clazz)){
-      return applicationFormSectionService;
-    } else {
-      return mock(clazz);
-    }
-
-
-
-//
+      if (ApplicationFormSectionService.class.isAssignableFrom(clazz)) {
+        return applicationFormSectionService;
+      } else {
+        return mock(clazz);
+      }
     });
-   // when(springApplicationContext.getBean(isA(Class.class))).thenReturn(applicationFormSectionService);
+
 
     taskListService = new TaskListService(
         springApplicationContext,
@@ -175,26 +171,26 @@ public class TaskListServiceTest {
             break;
           case DECOMMISSIONING:
           case OPTIONS_VARIATION:
-          assertThat(taskNamesList).containsOnly(
-              ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
-              ApplicationTask.FAST_TRACK.getDisplayName(),
-              ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
-              ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-              ApplicationTask.HUOO.getDisplayName(),
-              ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
-          );
-          break;
-        case CAT_2_VARIATION:
-          assertThat(taskNamesList).containsOnly(
-              ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
-              ApplicationTask.FAST_TRACK.getDisplayName(),
-              ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
-              ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-              ApplicationTask.HUOO.getDisplayName(),
-              ApplicationTask.PIPELINES.getDisplayName(),
-              ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
-              ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
-              ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
+            assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.FAST_TRACK.getDisplayName(),
+                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
+            );
+            break;
+          case CAT_2_VARIATION:
+            assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.FAST_TRACK.getDisplayName(),
+                ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
+                ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:
