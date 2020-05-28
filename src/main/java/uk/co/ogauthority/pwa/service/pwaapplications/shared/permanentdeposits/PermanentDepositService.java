@@ -220,7 +220,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(padDepositId));
   }
 
-
+  @Transactional
   public void removeDeposit(Integer depositId) {
     var permanentDeposit = permanentDepositInformationRepository.findById(depositId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
