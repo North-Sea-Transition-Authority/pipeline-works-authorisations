@@ -70,7 +70,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   private PermanentDepositService permanentDepositService;
 
   @MockBean
-  private PermanentDepositInformationRepository padDPermanentDepositRepository;
+  private PermanentDepositInformationRepository padPermanentDepositRepository;
 
   @MockBean
   private PermanentDepositsValidator validator;
@@ -414,7 +414,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   //Remove deposit tests
   @Test
   public void renderRemovePermanentDeposits_success() throws Exception {
-    when(padDPermanentDepositRepository.findById(1)).thenReturn(Optional.of(buildDepositEntity()));
+    when(padPermanentDepositRepository.findById(1)).thenReturn(Optional.of(buildDepositEntity()));
 
     mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositController.class)
         .renderRemovePermanentDeposits(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), 1, null, null)))

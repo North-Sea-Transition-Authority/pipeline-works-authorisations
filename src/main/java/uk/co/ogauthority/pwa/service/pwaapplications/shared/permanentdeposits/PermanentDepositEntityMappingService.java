@@ -5,6 +5,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 
@@ -105,6 +106,55 @@ public class PermanentDepositEntityMappingService {
 
     entity.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
     entity.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
+  }
+
+
+
+  /**
+   * Map Permanent Deposits stored data to view object.
+   */
+  void mapDepositInformationDataToView(PadPermanentDeposit entity, PermanentDepositsOverview view) {
+    view.setEntityID(entity.getId());
+    view.setDepositReference(entity.getReference());
+    view.setFromMonth(entity.getFromMonth());
+    view.setFromYear(entity.getFromYear());
+    view.setToMonth(entity.getToMonth());
+    view.setToYear(entity.getToYear());
+
+    if (entity.getMaterialType() != null) {
+      view.setMaterialType(entity.getMaterialType());
+
+      if (view.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
+        view.setConcreteMattressLength(entity.getConcreteMattressLength());
+        view.setConcreteMattressWidth(entity.getConcreteMattressWidth());
+        view.setConcreteMattressDepth(entity.getConcreteMattressDepth());
+        view.setQuantityConcrete(String.valueOf(entity.getQuantity()));
+        view.setContingencyConcreteAmount(entity.getContingencyAmount());
+
+      } else if (view.getMaterialType().equals(MaterialType.ROCK)) {
+        view.setRocksSize(Integer.parseInt(entity.getMaterialSize()));
+        view.setQuantityRocks(String.valueOf(entity.getQuantity()));
+        view.setContingencyRocksAmount(entity.getContingencyAmount());
+
+      } else if (view.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
+        view.setGroutBagsSize(Integer.parseInt(entity.getMaterialSize()));
+        view.setQuantityGroutBags(String.valueOf(entity.getQuantity()));
+        view.setContingencyGroutBagsAmount(entity.getContingencyAmount());
+        view.setGroutBagsBioDegradable(entity.getGroutBagsBioDegradable());
+        view.setBioGroutBagsNotUsedDescription(entity.getBagsNotUsedDescription());
+
+      } else if (view.getMaterialType().equals(MaterialType.OTHER)) {
+        view.setOtherMaterialSize(entity.getMaterialSize());
+        view.setQuantityOther(String.valueOf(entity.getQuantity()));
+        view.setContingencyOtherAmount(entity.getContingencyAmount());
+      }
+
+      view.setFromCoordinateForm(new CoordinateForm());
+      view.setToCoordinateForm(new CoordinateForm());
+      CoordinateUtils.mapCoordinatePairToForm(entity.getFromCoordinates(), view.getFromCoordinateForm());
+      CoordinateUtils.mapCoordinatePairToForm(entity.getToCoordinates(), view.getToCoordinateForm());
+    }
+
   }
 
 }

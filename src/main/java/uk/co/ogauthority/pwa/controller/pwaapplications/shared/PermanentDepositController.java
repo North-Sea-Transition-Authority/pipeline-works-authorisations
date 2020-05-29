@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -105,8 +106,9 @@ public class PermanentDepositController {
                                                   @PathVariable("depositId") Integer depositId,
                                                   PwaApplicationContext applicationContext,
                                                   @ModelAttribute("form") PermanentDepositsForm form) {
-    permanentDepositService.populatePermanentDepositViewForm(depositId, form);
-    return getRemovePermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form);
+    var view = new PermanentDepositsOverview();
+    permanentDepositService.populatePermanentDepositView(depositId, view);
+    return getRemovePermanentDepositsModelAndView(applicationContext.getApplicationDetail(), view);
   }
 
   @PostMapping
@@ -183,16 +185,16 @@ public class PermanentDepositController {
 
 
   private ModelAndView getOverviewPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var permanentDepositsForms = permanentDepositService.getPermanentDepositViewForms(pwaApplicationDetail);
+    var permanentDepositViews = permanentDepositService.getPermanentDepositViews(pwaApplicationDetail);
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsView");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("deposits", permanentDepositsForms)
+        .addObject("deposits", permanentDepositViews)
         .addObject("addDepositUrl", ReverseRouter.route(on(PermanentDepositController.class)
             .renderAddPermanentDeposits(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("editDepositUrls", permanentDepositService.getEditUrlsForDeposits(pwaApplicationDetail))
         .addObject("removeDepositUrls", permanentDepositService.getRemoveUrlsForDeposits(pwaApplicationDetail))
-        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(permanentDepositsForms));
+        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(permanentDepositViews));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
@@ -221,11 +223,10 @@ public class PermanentDepositController {
 
 
   private ModelAndView getRemovePermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                               PermanentDepositsForm form) {
+                                                              PermanentDepositsOverview view) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsRemove");
-    modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("deposit", form)
-        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(List.of(form)))
+    modelAndView.addObject("deposit", view)
+        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(List.of(view)))
         .addObject("cancelUrl", ReverseRouter.route(on(PermanentDepositController.class)
             .renderPermanentDepositsOverview(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)));

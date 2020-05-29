@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
@@ -185,14 +186,14 @@ public class PermanentDepositsServiceTest {
 
 
   @Test
-  public void getPermanentDepositViewForms() {
-    var expectedForms = new ArrayList<PermanentDepositsForm>();
-    var expectedForm = new PermanentDepositsForm();
-    expectedForm.setSelectedPipelines(Set.of("1","2"));
-    expectedForms.add(expectedForm);
-    expectedForm = new PermanentDepositsForm();
-    expectedForm.setSelectedPipelines(Set.of("3"));
-    expectedForms.add(expectedForm);
+  public void getPermanentDepositViews() {
+    var expectedViews = new ArrayList<PermanentDepositsOverview>();
+    var expectedView = new PermanentDepositsOverview();
+    expectedView.setPipelineRefs(Set.of("1","2"));
+    expectedViews.add(expectedView);
+    expectedView = new PermanentDepositsOverview();
+    expectedView.setPipelineRefs(Set.of("3"));
+    expectedViews.add(expectedView);
 
     List<PadPermanentDeposit> permanentDepositInfoMockList = new ArrayList<>();
     var permanentDepositInfoMock = new PadPermanentDeposit();
@@ -224,15 +225,15 @@ public class PermanentDepositsServiceTest {
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
 
-    List<PermanentDepositsForm> actualForms = service.getPermanentDepositViewForms(pwaApplicationDetail);
+    List<PermanentDepositsOverview> actualViews = service.getPermanentDepositViews(pwaApplicationDetail);
 
-    assertThat(actualForms).isEqualTo(expectedForms);
+    assertThat(actualViews).isEqualTo(expectedViews);
   }
 
   @Test
-  public void populatePermanentDepositViewForm() {
-    var expectedForm = new PermanentDepositsForm();
-    expectedForm.setSelectedPipelines(Set.of("1"));
+  public void populatePermanentDepositViews() {
+    var expectedView = new PermanentDepositsOverview();
+    expectedView.setPipelineRefs(Set.of("1"));
 
     var permanentDepositInfoMock = new PadPermanentDeposit();
     permanentDepositInfoMock.setId(1);
@@ -246,9 +247,9 @@ public class PermanentDepositsServiceTest {
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(1)).thenReturn(depositsForPipelinesList);
 
-    var actualForm = new PermanentDepositsForm();
-    service.populatePermanentDepositViewForm(1, actualForm);
-    assertThat(actualForm).isEqualTo(expectedForm);
+    var actualView = new PermanentDepositsOverview();
+    service.populatePermanentDepositView(1, actualView);
+    assertThat(actualView).isEqualTo(expectedView);
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
