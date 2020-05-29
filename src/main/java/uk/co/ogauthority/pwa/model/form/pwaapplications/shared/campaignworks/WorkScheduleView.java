@@ -26,7 +26,6 @@ public class WorkScheduleView {
     this.workEndDate = workEndDate;
     this.formattedWorkStartDate = workStartDate.format(DATETIME_FORMATTER);
     this.formattedWorkEndDate = workEndDate.format(DATETIME_FORMATTER);
-    ;
     this.schedulePipelines = linkedPipelines;
   }
 

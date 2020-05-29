@@ -103,7 +103,6 @@ public class TwoFieldDateInputValidatorTest {
 
     var fieldErrors = ValidatorTestUtils.extractErrors(errors);
 
-    // as date is invalid do not do additional validation
     assertThat(fieldErrors).isEmpty();
   }
 
