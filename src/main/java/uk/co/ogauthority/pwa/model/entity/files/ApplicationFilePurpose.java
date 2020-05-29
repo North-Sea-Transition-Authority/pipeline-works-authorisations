@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.files;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 
 /**
@@ -16,7 +17,8 @@ public enum ApplicationFilePurpose {
   CABLE_CROSSINGS(null),
   PIPELINE_CROSSINGS(null),
   MEDIAN_LINE_CROSSING(null),
-  PIPELINE_DRAWINGS(PipelineDrawingController.class);
+  PIPELINE_DRAWINGS(PipelineDrawingController.class),
+  DEPOSIT_DRAWINGS(PermanentDepositDrawingsController.class);
 
   private final Class<? extends PwaApplicationDataFileUploadAndDownloadController> fileControllerClass;
 
