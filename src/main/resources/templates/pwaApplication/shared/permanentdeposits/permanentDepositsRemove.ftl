@@ -5,14 +5,14 @@
 <#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm" --> 
 
 
-<@defaultPage htmlTitle="Remove permanent deposit" pageHeading=("Remove permanent deposit " + deposit.depositReference) breadcrumbs=true>
+<@defaultPage htmlTitle="Remove permanent deposit" pageHeading=("Are you want to remove permanent deposit " + deposit.depositReference + "?") breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
     </#if>
 
     <@fdsForm.htmlForm>                
-        <@depositViewSummary deposit 0/>     
+        <@depositViewSummary deposit/>     
         <@fdsAction.submitButtons primaryButtonText="Remove" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(cancelUrl)/>
     </@fdsForm.htmlForm>
 

@@ -237,6 +237,9 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   public void removeDeposit(Integer depositId) {
     var permanentDeposit = permanentDepositInformationRepository.findById(depositId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
+
+    padDepositPipelineRepository.deleteAll(
+        padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId()));
     permanentDepositInformationRepository.delete(permanentDeposit);
   }
 

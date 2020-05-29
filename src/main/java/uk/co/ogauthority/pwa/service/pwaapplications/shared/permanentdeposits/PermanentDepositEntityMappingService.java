@@ -149,10 +149,8 @@ public class PermanentDepositEntityMappingService {
         view.setContingencyOtherAmount(entity.getContingencyAmount());
       }
 
-      view.setFromCoordinateForm(new CoordinateForm());
-      view.setToCoordinateForm(new CoordinateForm());
-      CoordinateUtils.mapCoordinatePairToForm(entity.getFromCoordinates(), view.getFromCoordinateForm());
-      CoordinateUtils.mapCoordinatePairToForm(entity.getToCoordinates(), view.getToCoordinateForm());
+      view.setFromCoordinates(entity.getFromCoordinates());
+      view.setToCoordinates(entity.getToCoordinates());
     }
 
   }

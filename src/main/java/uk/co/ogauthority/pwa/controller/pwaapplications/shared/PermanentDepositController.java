@@ -27,7 +27,6 @@ import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositDataFormatFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -193,8 +192,7 @@ public class PermanentDepositController {
             .renderAddPermanentDeposits(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("editDepositUrls", permanentDepositService.getEditUrlsForDeposits(pwaApplicationDetail))
-        .addObject("removeDepositUrls", permanentDepositService.getRemoveUrlsForDeposits(pwaApplicationDetail))
-        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(permanentDepositViews));
+        .addObject("removeDepositUrls", permanentDepositService.getRemoveUrlsForDeposits(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
@@ -226,7 +224,6 @@ public class PermanentDepositController {
                                                               PermanentDepositsOverview view) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsRemove");
     modelAndView.addObject("deposit", view)
-        .addObject("permanentDepositDataFormatFactory", new PermanentDepositDataFormatFactory(List.of(view)))
         .addObject("cancelUrl", ReverseRouter.route(on(PermanentDepositController.class)
             .renderPermanentDepositsOverview(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)));

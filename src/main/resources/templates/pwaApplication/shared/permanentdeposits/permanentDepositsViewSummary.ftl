@@ -1,10 +1,10 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" --> 
-<#-- @ftlvariable name="deposits" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview>" --> 
+<#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview" --> 
 
 
-<#macro depositViewSummary deposit depositIndex>
+<#macro depositViewSummary deposit>
     <dl class="govuk-summary-list govuk-!-margin-bottom-9">          
 
         <#assign size="" quantity="" contingency="" groutBagsDescription=""/>
@@ -70,13 +70,13 @@
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">From (WGS84)</dt>
             <dd class="govuk-summary-list__value"> 
-                <@pwaCoordinate.display coordinatePair=permanentDepositDataFormatFactory.getFromCoordinatesPairFromForm(depositIndex) />                            
+                <@pwaCoordinate.display coordinatePair=deposit.fromCoordinates />                            
             </dd>   
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">To (WGS84)</dt>
             <dd class="govuk-summary-list__value"> 
-                <@pwaCoordinate.display coordinatePair=permanentDepositDataFormatFactory.getToCoordinatesPairFromForm(depositIndex) />      
+                <@pwaCoordinate.display coordinatePair=deposit.toCoordinates />      
             </dd>                    
         </div>  
     </dl>

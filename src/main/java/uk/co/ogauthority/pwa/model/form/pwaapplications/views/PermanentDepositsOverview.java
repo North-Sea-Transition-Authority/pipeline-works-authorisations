@@ -4,8 +4,7 @@ import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 
 public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptionForm {
@@ -39,9 +38,8 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
   private String contingencyRocksAmount;
   private String contingencyGroutBagsAmount;
   private String contingencyOtherAmount;
-
-  private CoordinateForm fromCoordinateForm;
-  private CoordinateForm toCoordinateForm;
+  private CoordinatePair fromCoordinates;
+  private CoordinatePair toCoordinates;
 
 
   public Integer getEntityID() {
@@ -236,24 +234,21 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
     this.contingencyOtherAmount = contingencyOtherAmount;
   }
 
-  public CoordinateForm getFromCoordinateForm() {
-    return fromCoordinateForm;
+  public CoordinatePair getFromCoordinates() {
+    return fromCoordinates;
   }
 
-  public void setFromCoordinateForm(CoordinateForm fromCoordinateForm) {
-    this.fromCoordinateForm = fromCoordinateForm;
+  public void setFromCoordinates(CoordinatePair fromCoordinates) {
+    this.fromCoordinates = fromCoordinates;
   }
 
-  public CoordinateForm getToCoordinateForm() {
-    return toCoordinateForm;
+  public CoordinatePair getToCoordinates() {
+    return toCoordinates;
   }
 
-  public void setToCoordinateForm(CoordinateForm toCoordinateForm) {
-    this.toCoordinateForm = toCoordinateForm;
+  public void setToCoordinates(CoordinatePair toCoordinates) {
+    this.toCoordinates = toCoordinates;
   }
-
-
-
 
   @Override
   public boolean equals(Object o) {
@@ -288,8 +283,8 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
         && Objects.equals(contingencyRocksAmount, that.contingencyRocksAmount)
         && Objects.equals(contingencyGroutBagsAmount, that.contingencyGroutBagsAmount)
         && Objects.equals(contingencyOtherAmount, that.contingencyOtherAmount)
-        && Objects.equals(fromCoordinateForm, that.fromCoordinateForm)
-        && Objects.equals(toCoordinateForm, that.toCoordinateForm);
+        && Objects.equals(fromCoordinates, that.fromCoordinates)
+        && Objects.equals(toCoordinates, that.toCoordinates);
   }
 
   @Override
@@ -299,6 +294,6 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,
         contingencyConcreteAmount, contingencyRocksAmount, contingencyGroutBagsAmount,
-        contingencyOtherAmount, fromCoordinateForm, toCoordinateForm);
+        contingencyOtherAmount, fromCoordinates, toCoordinates);
   }
 }

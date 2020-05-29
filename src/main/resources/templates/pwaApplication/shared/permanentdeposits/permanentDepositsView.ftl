@@ -22,7 +22,7 @@
             <h2 class="govuk-heading-m">${deposit.depositReference}</h2>    
             <@fdsAction.link  linkText="Change" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />
             <@fdsAction.link  linkText="Remove" linkUrl=springUrl(removeDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />
-            <@depositViewSummary deposit deposit?index/>
+            <@depositViewSummary deposit/>
         </#list>      
 
 

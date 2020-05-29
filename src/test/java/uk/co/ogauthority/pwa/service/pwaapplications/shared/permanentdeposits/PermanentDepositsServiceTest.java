@@ -321,7 +321,6 @@ public class PermanentDepositsServiceTest {
   @Test(expected = PwaEntityNotFoundException.class)
   public void removeDeposit_noEntityFound() {
     service.removeDeposit(5);
-
   }
 
 
