@@ -412,6 +412,19 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
 
   }
 
+  @Test
+  public void postPermanentDepositsOverview_failValidation() {
+    when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(false);
+    ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositController.class)
+                .postPermanentDepositsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
 
 
   //Remove deposit tests

@@ -33,7 +33,7 @@
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Pipelines</dt>
             <dd class="govuk-summary-list__value">
-                <#list deposit.pipelinesRefs as pipelineRef>${pipelineRef}<br> </#list>
+                <#list deposit.pipelineRefs as pipelineRef>${pipelineRef}<br> </#list>
             </dd>                    
         </div>
         <div class="govuk-summary-list__row">

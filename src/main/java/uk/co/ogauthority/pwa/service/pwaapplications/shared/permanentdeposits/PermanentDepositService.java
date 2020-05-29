@@ -235,10 +235,12 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   }
 
   public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
-    var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .orElse(new PadProjectInformation());
-    return BooleanUtils.isTrue(projectInformation.getPermanentDepositsMade())
-        || pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
+    var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+    if (projectInformation.isPresent()) {
+      return BooleanUtils.isTrue(projectInformation.get().getPermanentDepositsMade())
+          || pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
+    }
+    return false;
   }
 
 
