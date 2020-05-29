@@ -24,7 +24,7 @@ public class AddHuooValidator implements SmartValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return clazz.equals(AddHuooValidator.class);
+    return clazz.equals(HuooForm.class);
   }
 
   @Override
@@ -51,10 +51,10 @@ public class AddHuooValidator implements SmartValidator {
             .filter(padOrganisationRole ->
                 form.getOrganisationUnitId().equals(padOrganisationRole.getOrganisationUnit().getOuId()))
             .findAny()
-            .ifPresent(padOrganisationRole -> errors.rejectValue("organisationUnit", "organisationUnit.alreadyUsed",
+            .ifPresent(padOrganisationRole -> errors.rejectValue("organisationUnitId", "organisationUnitId.alreadyUsed",
                 "The selected organisation is already added to the application"));
       } else {
-        errors.rejectValue("organisationUnit", "organisationUnit.required",
+        errors.rejectValue("organisationUnitId", "organisationUnitId.required",
             "You must select an organisation");
       }
     } else if (form.getHuooType() == HuooType.TREATY_AGREEMENT && form.getTreatyAgreement() == null) {
