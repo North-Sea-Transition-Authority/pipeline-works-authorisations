@@ -262,7 +262,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getProposedStartDate() {
+  public void getFormattedProposedStartDate() {
     LocalDateTime dateTime = LocalDateTime.of(2017, 5, 15, 0, 0);
     Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
     var projectInformation = new PadProjectInformation();
@@ -270,7 +270,7 @@ public class PadProjectInformationServiceTest {
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
 
-    assertThat(service.getProposedStartDate(pwaApplicationDetail)).isEqualTo("15 May 2017");
+    assertThat(service.getFormattedProposedStartDate(pwaApplicationDetail)).isEqualTo("15 May 2017");
   }
 
 }

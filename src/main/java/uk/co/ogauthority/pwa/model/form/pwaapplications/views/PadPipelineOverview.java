@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 public class PadPipelineOverview implements PipelineOverview {
 
   // to be more generic, this should be a composite key of type and id, e.g "PAD_PIPELINE_ID++1" or "PIPELINE_ID++1"
-  // best to have the interface handle this kid of thing for us imo.
+  // best to have the interface handle this kind of thing for us imo.
   // e.g Optional<Integer> getPadPipelineId(); Optional<Integer> getMasterPipelineId(); or similar
   private Integer padPipelineId;
 
