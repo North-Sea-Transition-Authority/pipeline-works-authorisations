@@ -6,12 +6,12 @@ import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
 
-  @NotNull(message = "Select at least one pipeline", groups = {FullValidation.class})
+  private Integer entityID;
+  private String depositReference;
   private Set<String> selectedPipelines;
   private Integer fromMonth;
   private Integer fromYear;
@@ -44,6 +44,21 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private CoordinateForm toCoordinateForm;
 
 
+  public Integer getEntityID() {
+    return entityID;
+  }
+
+  public void setEntityID(Integer entityID) {
+    this.entityID = entityID;
+  }
+
+  public String getDepositReference() {
+    return depositReference;
+  }
+
+  public void setDepositReference(String depositReference) {
+    this.depositReference = depositReference;
+  }
 
   public Set<String> getSelectedPipelines() {
     return selectedPipelines;
@@ -249,7 +264,9 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
       return false;
     }
     PermanentDepositsForm that = (PermanentDepositsForm) o;
-    return Objects.equals(selectedPipelines, that.selectedPipelines)
+    return Objects.equals(entityID, that.entityID)
+        && Objects.equals(depositReference, that.depositReference)
+        && Objects.equals(selectedPipelines, that.selectedPipelines)
         && Objects.equals(fromMonth, that.fromMonth)
         && Objects.equals(fromYear, that.fromYear)
         && Objects.equals(toMonth, that.toMonth)
@@ -277,7 +294,8 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
 
   @Override
   public int hashCode() {
-    return Objects.hash(selectedPipelines, fromMonth, fromYear, toMonth, toYear, materialType, rocksSize, groutBagsSize,
+    return Objects.hash(entityID, depositReference, selectedPipelines, fromMonth, fromYear,
+        toMonth, toYear, materialType, rocksSize, groutBagsSize,
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,
         contingencyConcreteAmount, contingencyRocksAmount, contingencyGroutBagsAmount,

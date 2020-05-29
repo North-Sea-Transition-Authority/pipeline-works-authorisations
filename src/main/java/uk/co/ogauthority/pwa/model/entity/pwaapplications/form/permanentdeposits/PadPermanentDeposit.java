@@ -23,12 +23,13 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 @Entity
-@Table(name = "permanent_deposit_information")
+@Table(name = "pad_permanent_deposits")
 public class PadPermanentDeposit {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
+  private String reference;
 
   @JoinColumn(name = "application_detail_id")
   @OneToOne
@@ -120,6 +121,14 @@ public class PadPermanentDeposit {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+  public String getReference() {
+    return reference;
+  }
+
+  public void setReference(String reference) {
+    this.reference = reference;
   }
 
   public PwaApplicationDetail getPwaApplicationDetail() {
@@ -439,6 +448,7 @@ public class PadPermanentDeposit {
     PadPermanentDeposit that = (PadPermanentDeposit) o;
     return Double.compare(that.quantity, quantity) == 0
         && Objects.equals(id, that.id)
+        && Objects.equals(reference, that.reference)
         && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
         && Objects.equals(fromMonth, that.fromMonth)
         && Objects.equals(fromYear, that.fromYear)
@@ -474,7 +484,8 @@ public class PadPermanentDeposit {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplicationDetail, fromMonth, fromYear, toMonth, toYear, materialType, materialSize, concreteMattressLength,
+    return Objects.hash(id, reference, pwaApplicationDetail, fromMonth, fromYear, toMonth,
+        toYear, materialType, materialSize, concreteMattressLength,
         concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription, quantity,
         contingencyAmount, fromCoordinates, toCoordinates, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds,
         fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,

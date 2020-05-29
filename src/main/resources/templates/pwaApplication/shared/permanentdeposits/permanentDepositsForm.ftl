@@ -6,15 +6,16 @@
 <#-- @ftlvariable name="longDirections" type="java.util.List<LongitudeDirection>" --> 
 <#-- @ftlvariable name="proposedStartDate" type="java.lang.String" --> 
 
-<@defaultPage htmlTitle="Permanent deposits" pageHeading="Permanent deposits" breadcrumbs=true>
+<@defaultPage htmlTitle="${screenAction.actionText} permanent deposit" pageHeading="${screenAction.actionText} permanent deposit" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
     </#if>
 
     <@fdsForm.htmlForm>
-
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true  optionalLabel=false
+        <@fdsTextInput.textInput path="form.depositReference" labelText="Deposit reference" hintText="Uniquely identifies this deposit on this application, e.g. PL1234 grout bags"/>
+        
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true optionalInputDefault="Select one or more"
             hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed."/>
 
         <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start" formId="from-month-year">
@@ -108,7 +109,7 @@
         
 
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to deposits" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

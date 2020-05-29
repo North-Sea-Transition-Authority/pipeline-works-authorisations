@@ -178,7 +178,7 @@ public class TaskListService {
             .renderOverview(applicationType, applicationId, null, null));
       case PERMANENT_DEPOSITS:
         return ReverseRouter.route(on(PermanentDepositController.class)
-            .renderPermanentDeposits(applicationType, applicationId, null, null));
+            .renderPermanentDepositsOverview(applicationType, applicationId, null, null));
       default:
         return "";
     }

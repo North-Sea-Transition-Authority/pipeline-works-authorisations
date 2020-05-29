@@ -10,9 +10,11 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -32,15 +34,35 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors) {
-    var form = (PermanentDepositsForm) target;
+  }
 
-    ValidatorUtils.validateDateIsPresentOrFuture(
+  @Override
+  public void validate(Object o, Errors errors, Object... validationHints) {
+    var form = (PermanentDepositsForm) o;
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedPipelines", "selectedPipelines.required",
+        "Select at least one pipeline");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
+        "You must enter a deposit reference");
+
+    if (StringUtils.isNotBlank(form.getDepositReference()) && validationHints[0] instanceof PermanentDepositService) {
+      var permanentDepositsService = (PermanentDepositService) validationHints[0];
+      var pwaApplicationDetail = (PwaApplicationDetail) validationHints[1];
+      ValidatorUtils.validateBooleanTrue(errors, permanentDepositsService.isDepositReferenceUnique(
+          form.getDepositReference(), form.getEntityID(), pwaApplicationDetail),
+          "depositReference", "Deposit reference must be unique, enter a different reference");
+    }
+
+    boolean fromDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
         "from", "deposit from month / year",
         form.getFromMonth(), form.getFromYear(), errors);
 
-    ValidatorUtils.validateDateIsWithinRangeOfTarget(
-        "to", "deposit to month / year",
-        form.getToMonth(), form.getToYear(), form.getFromMonth(), form.getFromYear(), 12, errors);
+    if (fromDateValid) {
+      ValidatorUtils.validateDateIsWithinRangeOfTarget(
+          "to", "deposit to month / year",
+          form.getToMonth(), form.getToYear(), form.getFromMonth(), form.getFromYear(), 12, errors);
+    }
 
 
     if (form.getMaterialType() == null) {
@@ -56,10 +78,6 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
         "toCoordinateForm", ValueRequirement.MANDATORY, "Finish point");
-  }
-
-  @Override
-  public void validate(Object o, Errors errors, Object... validationHints) {
   }
 
 
