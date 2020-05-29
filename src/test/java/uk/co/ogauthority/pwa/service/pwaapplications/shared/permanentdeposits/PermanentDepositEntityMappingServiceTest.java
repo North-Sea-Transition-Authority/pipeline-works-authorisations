@@ -42,6 +42,7 @@ public class PermanentDepositEntityMappingServiceTest {
     baseEntity.setQuantity(Double.parseDouble("5.7"));
     baseEntity.setContingencyAmount("88");
 
+
     var fromCoordinateForm = new CoordinateForm();
     CoordinateUtils.mapCoordinatePairToForm(
         new CoordinatePair(
