@@ -121,7 +121,7 @@ public class PermanentDepositController {
 
     if (!permanentDepositService.validateDepositOverview(applicationContext.getApplicationDetail())) {
       return getOverviewPermanentDepositsModelAndView(applicationContext.getApplicationDetail())
-          .addObject("errorMessage", "At least one deposit must be added.");
+          .addObject("errorMessage", "Ensure that at least one deposit has been added and that they are all valid.");
     }
     return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
   }
