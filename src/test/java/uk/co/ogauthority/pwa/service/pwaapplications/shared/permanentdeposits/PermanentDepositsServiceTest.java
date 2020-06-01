@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
@@ -43,7 +43,7 @@ public class PermanentDepositsServiceTest {
   private final static String FILE_ID = "1234567u8oplkjmnhbgvfc";
 
   @Mock
-  private PermanentDepositInformationRepository permanentDepositInformationRepository;
+  private PadPermanentDepositRepository permanentDepositInformationRepository;
 
   @Mock
   private PadPipelineRepository padPipelineRepository;

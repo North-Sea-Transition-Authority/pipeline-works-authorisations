@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsO
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
 @Service
 public class PermanentDepositService implements ApplicationFormSectionService {
 
-  private final PermanentDepositInformationRepository permanentDepositInformationRepository;
+  private final PadPermanentDepositRepository permanentDepositInformationRepository;
   private final PermanentDepositEntityMappingService permanentDepositEntityMappingService;
   private final PermanentDepositsValidator permanentDepositsValidator;
   private final SpringValidatorAdapter groupValidator;
@@ -49,7 +49,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Autowired
   public PermanentDepositService(
-      PermanentDepositInformationRepository permanentDepositInformationRepository,
+      PadPermanentDepositRepository permanentDepositInformationRepository,
       PermanentDepositEntityMappingService permanentDepositEntityMappingService,
       PermanentDepositsValidator permanentDepositsValidator,
       SpringValidatorAdapter groupValidator,
