@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdeposit
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -13,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 public interface PadDepositDrawingRepository extends CrudRepository<PadDepositDrawing, Integer> {
 
   List<PadDepositDrawing> getAllByPwaApplicationDetail(PwaApplicationDetail detail);
+
   Optional<PadDepositDrawing> findByPwaApplicationDetailAndReferenceIgnoreCase(
       PwaApplicationDetail pwaApplicationDetail, String reference);
 }

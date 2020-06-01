@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
-import java.util.Set;
 
 public class PermanentDepositDrawingsForm extends UploadMultipleFilesWithDescriptionForm {
 

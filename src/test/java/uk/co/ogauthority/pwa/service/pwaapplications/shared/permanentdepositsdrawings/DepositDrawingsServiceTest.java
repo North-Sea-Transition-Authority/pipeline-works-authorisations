@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositd
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 
@@ -37,6 +38,9 @@ import static org.mockito.Mockito.*;
 public class DepositDrawingsServiceTest {
 
   private DepositDrawingsService depositDrawingsService;
+
+  @Mock
+  private PermanentDepositService permanentDepositService;
 
   @Mock
   private PadDepositDrawingRepository padDepositDrawingRepository;
@@ -63,7 +67,7 @@ public class DepositDrawingsServiceTest {
 
   @Before
   public void setUp() {
-    depositDrawingsService = new DepositDrawingsService(padDepositDrawingRepository, padPermanentDepositRepository,
+    depositDrawingsService = new DepositDrawingsService(permanentDepositService, padDepositDrawingRepository, padPermanentDepositRepository,
         padDepositDrawingLinkRepository, validator, springValidatorAdapter, padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);

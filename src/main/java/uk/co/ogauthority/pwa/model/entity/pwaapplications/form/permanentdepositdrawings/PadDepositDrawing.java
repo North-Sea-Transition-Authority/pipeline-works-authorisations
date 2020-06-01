@@ -1,9 +1,17 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings;
 
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-import javax.persistence.*;
 
 @Entity
 @Table(name = "pad_deposit_drawings")

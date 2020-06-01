@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
 
 import java.util.List;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -18,15 +19,16 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 
-import javax.transaction.Transactional;
 
 
 /* Service providing simplified API for Permanent Deposit Drawings app form */
 @Service
 public class DepositDrawingsService implements ApplicationFormSectionService {
 
+  private final PermanentDepositService permanentDepositService;
   private final PadDepositDrawingRepository padDepositDrawingRepository;
   private final PadPermanentDepositRepository padPermanentDepositRepository;
   private final PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
@@ -36,12 +38,14 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Autowired
   public DepositDrawingsService(
+      PermanentDepositService permanentDepositService,
       PadDepositDrawingRepository padDepositDrawingRepository,
       PadPermanentDepositRepository padPermanentDepositRepository,
       PadDepositDrawingLinkRepository padDepositDrawingLinkRepository,
       PermanentDepositsDrawingValidator permanentDepositsDrawingValidator,
       SpringValidatorAdapter groupValidator,
       PadFileService padFileService) {
+    this.permanentDepositService = permanentDepositService;
     this.padDepositDrawingRepository = padDepositDrawingRepository;
     this.padPermanentDepositRepository = padPermanentDepositRepository;
     this.padDepositDrawingLinkRepository = padDepositDrawingLinkRepository;
@@ -66,7 +70,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     for (String padPermanentDepositId: form.getSelectedDeposits()) {
       if (padPermanentDepositId != "") {
         var padPermanentDeposit = padPermanentDepositRepository.findById(Integer.parseInt(padPermanentDepositId))
-            .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
+            .orElseThrow(() -> new PwaEntityNotFoundException(
+              String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
 
         var drawingLink = new PadDepositDrawingLink(padPermanentDeposit, drawing);
         padDepositDrawingLinkRepository.save(drawingLink);
@@ -92,8 +97,9 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return false;
+    return permanentDepositService.isPermanentDepositMade(pwaApplicationDetail);
   }
+
 
   @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
