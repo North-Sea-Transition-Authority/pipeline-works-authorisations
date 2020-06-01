@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -157,6 +159,22 @@ public class PadTechnicalDrawingServiceTest {
     assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
     assertThat(summaryView.getPipelineOverviews()).hasSize(2);
     assertThat(summaryView.getReference()).isEqualTo(pipelineDrawing.getReference());
+  }
+
+  @Test
+  public void removeDrawing() {
+    var drawing = new PadTechnicalDrawing();
+    when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
+        .thenReturn(Optional.of(drawing));
+    padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1);
+    verify(padTechnicalDrawingRepository, times(1)).delete(drawing);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void removeDrawing_drawingNotFound() {
+    when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
+    .thenReturn(Optional.empty());
+    padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1);
   }
 
 }

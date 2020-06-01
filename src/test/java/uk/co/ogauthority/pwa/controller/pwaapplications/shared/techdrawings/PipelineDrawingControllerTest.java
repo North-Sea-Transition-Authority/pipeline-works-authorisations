@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -12,7 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,8 +30,14 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -83,10 +92,21 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
-        pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+        .thenReturn(pwaApplicationDetail);
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
+
+    var padFile = new PadFile(pwaApplicationDetail, "id1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL);
+    padFile.setDescription("desc");
+    var techDrawing = new PadTechnicalDrawing(1, pwaApplicationDetail, padFile, "ref");
+    var fileView = new UploadedFileView("id1", "file", 0L, "file desc", Instant.now(), "#");
+    var summaryView = new PipelineDrawingSummaryView(techDrawing, List.of(), fileView);
+    when(padTechnicalDrawingService.getPipelineSummaryView(any(), any()))
+        .thenAnswer(invocation -> {
+          return summaryView;
+        });
   }
 
   @Test
@@ -246,6 +266,114 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
         .andExpect(status().is3xxRedirection());
 
     verify(padTechnicalDrawingService, times(1)).addDrawing(any(), any());
+
+  }
+
+  @Test
+  public void renderRemoveDrawing_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .renderRemoveDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemoveDrawing_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .renderRemoveDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderRemoveDrawing_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .renderRemoveDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postRemoveDrawing_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .postRemoveDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+    verify(padTechnicalDrawingService, times(endpointTester.getAllowedTypes().size())).removeDrawing(any(), eq(1));
+
+  }
+
+  @Test
+  public void postRemoveDrawing_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .postRemoveDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+    verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1));
+
+  }
+
+  @Test
+  public void postRemoveDrawing_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .postRemoveDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+    verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1));
 
   }
 }

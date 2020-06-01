@@ -47,4 +47,10 @@ public class PadTechnicalDrawingLinkService {
     });
     padTechnicalDrawingLinkRepository.saveAll(linkList);
   }
+
+  @Transactional
+  public void unlinkDrawing(PwaApplicationDetail detail, PadTechnicalDrawing technicalDrawing) {
+    var links = getLinksFromDrawingList(List.of(technicalDrawing));
+    padTechnicalDrawingLinkRepository.deleteAll(links);
+  }
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
@@ -75,8 +76,27 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     padTechnicalDrawingLinkService.linkDrawing(detail, form.getPadPipelineIds(), drawing);
   }
 
+  public PipelineDrawingSummaryView getPipelineSummaryView(PwaApplicationDetail detail, Integer drawingId) {
+    var drawing = padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(detail, drawingId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Unable to find drawing with id (%d) of detail (%d)", drawingId, detail.getId())
+        ));
+    var summaryList = getPipelineDrawingSummaryViewsFromDrawingList(detail, List.of(drawing));
+    if (summaryList.size() > 1) {
+      throw new AccessDeniedException("Too many PipelineDrawingSummaryView results for drawing id: " + drawingId);
+    } else if (summaryList.size() == 0) {
+      throw new AccessDeniedException("No PipelineDrawingSummaryViews for drawing id: " + drawingId);
+    }
+    return summaryList.get(0);
+  }
+
   public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViews(PwaApplicationDetail detail) {
     var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail);
+    return getPipelineDrawingSummaryViewsFromDrawingList(detail, drawings);
+  }
+
+  private List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViewsFromDrawingList(PwaApplicationDetail detail,
+                                                                                         List<PadTechnicalDrawing> drawings) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
     Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap = links.stream()
         .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
@@ -104,6 +124,16 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     summaryList.sort(Comparator.comparing(PipelineDrawingSummaryView::getReference));
 
     return summaryList;
+  }
+
+  @Transactional
+  public void removeDrawing(PwaApplicationDetail detail, Integer drawingId) {
+    var drawing = padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(detail, drawingId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Unable to find drawing with id (%d) of detail (%d)", drawingId, detail.getId())
+        ));
+    padTechnicalDrawingLinkService.unlinkDrawing(detail, drawing);
+    padTechnicalDrawingRepository.delete(drawing);
   }
 
   @Override
