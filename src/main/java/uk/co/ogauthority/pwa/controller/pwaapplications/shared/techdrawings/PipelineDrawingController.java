@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
@@ -147,9 +148,10 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("drawingId") Integer drawingId,
-      PwaApplicationContext applicationContext) {
+      PwaApplicationContext applicationContext,
+      AuthenticatedUserAccount user) {
 
-    padTechnicalDrawingService.removeDrawing(applicationContext.getApplicationDetail(), drawingId);
+    padTechnicalDrawingService.removeDrawing(applicationContext.getApplicationDetail(), drawingId, user);
 
     return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
         .renderOverview(applicationType, applicationId, null, null));

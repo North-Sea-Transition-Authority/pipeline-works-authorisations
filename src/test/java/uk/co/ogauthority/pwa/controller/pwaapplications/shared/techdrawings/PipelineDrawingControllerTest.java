@@ -103,10 +103,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
     var techDrawing = new PadTechnicalDrawing(1, pwaApplicationDetail, padFile, "ref");
     var fileView = new UploadedFileView("id1", "file", 0L, "file desc", Instant.now(), "#");
     var summaryView = new PipelineDrawingSummaryView(techDrawing, List.of(), fileView);
-    when(padTechnicalDrawingService.getPipelineSummaryView(any(), any()))
-        .thenAnswer(invocation -> {
-          return summaryView;
-        });
+    when(padTechnicalDrawingService.getPipelineSummaryView(any(), any())).thenReturn(summaryView);
   }
 
   @Test
@@ -329,13 +326,14 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     1,
+                    null,
                     null)
             )
         );
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
-    verify(padTechnicalDrawingService, times(endpointTester.getAllowedTypes().size())).removeDrawing(any(), eq(1));
+    verify(padTechnicalDrawingService, times(endpointTester.getAllowedTypes().size())).removeDrawing(any(), eq(1), any());
 
   }
 
@@ -348,13 +346,14 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     1,
+                    null,
                     null)
             )
         );
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
-    verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1));
+    verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1), any());
 
   }
 
@@ -367,13 +366,14 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
                     type,
                     applicationDetail.getMasterPwaApplicationId(),
                     1,
+                    null,
                     null)
             )
         );
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
-    verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1));
+    verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1), any());
 
   }
 }

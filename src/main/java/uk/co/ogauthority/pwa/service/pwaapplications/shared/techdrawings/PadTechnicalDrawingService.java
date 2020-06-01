@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -127,13 +128,14 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
   }
 
   @Transactional
-  public void removeDrawing(PwaApplicationDetail detail, Integer drawingId) {
+  public void removeDrawing(PwaApplicationDetail detail, Integer drawingId, WebUserAccount webUserAccount) {
     var drawing = padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(detail, drawingId)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Unable to find drawing with id (%d) of detail (%d)", drawingId, detail.getId())
         ));
     padTechnicalDrawingLinkService.unlinkDrawing(detail, drawing);
     padTechnicalDrawingRepository.delete(drawing);
+    padFileService.processFileDeletion(drawing.getFile(), webUserAccount);
   }
 
   @Override

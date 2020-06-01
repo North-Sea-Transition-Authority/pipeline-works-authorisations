@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -15,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
@@ -166,15 +169,18 @@ public class PadTechnicalDrawingServiceTest {
     var drawing = new PadTechnicalDrawing();
     when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
         .thenReturn(Optional.of(drawing));
-    padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1);
+    padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1, new WebUserAccount(1));
     verify(padTechnicalDrawingRepository, times(1)).delete(drawing);
+    verify(padFileService, times(1)).processFileDeletion(any(), any());
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void removeDrawing_drawingNotFound() {
     when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
     .thenReturn(Optional.empty());
-    padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1);
+    padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1, new WebUserAccount(1));
+    verifyNoInteractions(padTechnicalDrawingRepository);
+    verifyNoInteractions(padFileService);
   }
 
 }
