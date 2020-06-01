@@ -42,10 +42,10 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
           "reference", "Drawing reference must be unique, enter a different reference");
     }
 
-    if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
+    if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() != 1) {
       errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "You must only upload a single drawing");
+          "You must upload at most one drawing");
     }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedDeposits", "selectedDeposits.required",

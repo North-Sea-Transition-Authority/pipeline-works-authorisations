@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 
 import java.time.Instant;
 import java.util.List;
@@ -52,6 +53,9 @@ public class DepositDrawingsServiceTest {
   @Mock
   private SpringValidatorAdapter springValidatorAdapter;
 
+  @Mock
+  private PermanentDepositsDrawingValidator validator;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   public DepositDrawingsServiceTest() {
@@ -60,7 +64,7 @@ public class DepositDrawingsServiceTest {
   @Before
   public void setUp() {
     depositDrawingsService = new DepositDrawingsService(padDepositDrawingRepository, padPermanentDepositRepository,
-        padDepositDrawingLinkRepository, springValidatorAdapter, padFileService);
+        padDepositDrawingLinkRepository, validator, springValidatorAdapter, padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
@@ -97,8 +101,8 @@ public class DepositDrawingsServiceTest {
   public void isDrawingReferenceUniqueWithId_true() {
     var entity = new PadDepositDrawing();
     entity.setId(1);
-    when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", 1, pwaApplicationDetail)).isTrue();
+    when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"my existing ref")).thenReturn(Optional.of(entity));
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("my new ref", pwaApplicationDetail)).isTrue();
   }
 
   @Test
@@ -106,21 +110,21 @@ public class DepositDrawingsServiceTest {
     var entity = new PadDepositDrawing();
     entity.setId(2);
     when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", 1, pwaApplicationDetail)).isFalse();
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", pwaApplicationDetail)).isFalse();
   }
 
 
   @Test
   public void isDrawingReferenceUniqueNoId_true() {
     when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.empty());
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", null, pwaApplicationDetail)).isTrue();
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef",  pwaApplicationDetail)).isTrue();
   }
 
   @Test
   public void isDrawingReferenceUnique_false() {
     var entity = new PadDepositDrawing();
     when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", pwaApplicationDetail)).isFalse();
   }
 
 
