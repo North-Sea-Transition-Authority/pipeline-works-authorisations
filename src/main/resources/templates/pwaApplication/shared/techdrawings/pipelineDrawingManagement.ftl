@@ -14,16 +14,16 @@
 
         <#list pipelineDrawingSummaryViews as summary>
             <h3 class="govuk-heading-m">${summary.reference}</h3>
-            <@fdsAction.link linkText="Edit" linkUrl=springUrl("#") linkClass="govuk-link"/>
-            <@fdsAction.link linkText="Remove" linkUrl=springUrl("#") linkClass="govuk-link"/>
+            <@fdsAction.link linkText="Edit" linkUrl=springUrl("#") linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
+            <@fdsAction.link linkText="Remove" linkUrl=springUrl("#") linkClass="govuk-link govuk-!-font-size-19"/>
           <@fdsCheckAnswers.checkAnswers>
-              <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="">
-                  <@fdsAction.link linkText=summary.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(summary.fileId)) linkClass="govuk-link govuk-link--button" linkScreenReaderText="Download ${summary.fileName}" role=false start=false openInNewTab=true/>
+              <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="" actionText="">
+                  <@fdsAction.link linkText=summary.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(summary.fileId)) linkClass="govuk-link" linkScreenReaderText="Download ${summary.fileName}" role=false start=false openInNewTab=true/>
               </@fdsCheckAnswers.checkAnswersRow>
-              <@fdsCheckAnswers.checkAnswersRow keyText="Schematic description" actionUrl="" screenReaderActionText="">
+              <@fdsCheckAnswers.checkAnswersRow keyText="Schematic description" actionUrl="" screenReaderActionText="" actionText="">
                   ${summary.documentDescription}
               </@fdsCheckAnswers.checkAnswersRow>
-              <@fdsCheckAnswers.checkAnswersRow keyText="Associated pipelines" actionUrl="" screenReaderActionText="">
+              <@fdsCheckAnswers.checkAnswersRow keyText="Associated pipelines" actionUrl="" screenReaderActionText="" actionText="">
                 <ul class="govuk-list">
                     <#list summary.pipelineOverviews as pipeline>
                       <li>${pipeline.pipelineNumber}</li>
