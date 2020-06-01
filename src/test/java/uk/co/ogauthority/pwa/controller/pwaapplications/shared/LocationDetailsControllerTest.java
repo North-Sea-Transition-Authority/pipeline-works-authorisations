@@ -99,7 +99,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.DEPOSIT_CONSENT)
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

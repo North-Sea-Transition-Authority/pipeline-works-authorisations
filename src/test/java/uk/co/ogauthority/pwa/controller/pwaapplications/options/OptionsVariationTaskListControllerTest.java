@@ -45,7 +45,7 @@ public class OptionsVariationTaskListControllerTest extends TaskListControllerTe
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.OPTIONS_VARIATION)
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 

@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
-                  id="Definitions_00r3tcx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler"
-                  exporterVersion="3.7.2">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_00r3tcx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
   <bpmn:collaboration id="Collaboration_1xq8xhx">
     <bpmn:participant id="Participant_0pwf8b0" name="PWA application" processRef="pwaApplication" />
   </bpmn:collaboration>
@@ -14,7 +9,9 @@
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>prepareApplication</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_1owjdyd" />
+      <bpmn:lane id="Lane_1owjdyd">
+        <bpmn:flowNodeRef>caseOfficerReview</bpmn:flowNodeRef>
+      </bpmn:lane>
       <bpmn:lane id="Lane_0xuhf3w" name="PWA Manager">
         <bpmn:flowNodeRef>applicationReview</bpmn:flowNodeRef>
       </bpmn:lane>
@@ -28,8 +25,13 @@
       <bpmn:outgoing>applicantSubmitApplication</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="applicantSubmitApplication" sourceRef="prepareApplication" targetRef="applicationReview" />
-    <bpmn:userTask id="applicationReview" name="Application review" camunda:candidateGroups="PWA_MANAGER">
+    <bpmn:userTask id="applicationReview" name="PWA manager review" camunda:candidateGroups="PWA_MANAGER">
       <bpmn:incoming>applicantSubmitApplication</bpmn:incoming>
+      <bpmn:outgoing>Flow_0iisx53</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0iisx53" sourceRef="applicationReview" targetRef="caseOfficerReview" />
+    <bpmn:userTask id="caseOfficerReview" name="Case officer review" camunda:candidateGroups="CASE_OFFICER">
+      <bpmn:incoming>Flow_0iisx53</bpmn:incoming>
     </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -54,6 +56,10 @@
         <di:waypoint x="268" y="210" />
         <di:waypoint x="350" y="210" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iisx53_di" bpmnElement="Flow_0iisx53">
+        <di:waypoint x="400" y="499" />
+        <di:waypoint x="400" y="610" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="232" y="192" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -62,6 +68,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_068fx2u_di" bpmnElement="applicationReview">
         <dc:Bounds x="350" y="419" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ho4iwz_di" bpmnElement="caseOfficerReview">
+        <dc:Bounds x="350" y="610" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
