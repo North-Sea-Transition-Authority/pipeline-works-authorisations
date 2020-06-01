@@ -9,11 +9,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -28,18 +30,21 @@ public class WorkAreaService {
   private final PwaContactService pwaContactService;
   private final ApplicationDetailSearcher applicationDetailSearcher;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final PwaAppProcessingPermissionService appProcessingPermissionService;
 
   @Autowired
   public WorkAreaService(PwaContactService pwaContactService,
                          ApplicationDetailSearcher applicationDetailSearcher,
-                         PwaApplicationRedirectService pwaApplicationRedirectService) {
+                         PwaApplicationRedirectService pwaApplicationRedirectService,
+                         PwaAppProcessingPermissionService appProcessingPermissionService) {
     this.pwaContactService = pwaContactService;
     this.applicationDetailSearcher = applicationDetailSearcher;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.appProcessingPermissionService = appProcessingPermissionService;
   }
 
   /**
-   * get workarea items for user.
+   * Get work area items for user.
    */
   public PageView<PwaApplicationWorkAreaItem> getWorkAreaResultPage(AuthenticatedUserAccount authenticatedUserAccount,
                                                                     WorkAreaTab workAreaTab,
@@ -59,14 +64,20 @@ public class WorkAreaService {
   private Page<ApplicationDetailSearchItem> getUserSearchResults(AuthenticatedUserAccount userAccount,
                                                                  WorkAreaTab workAreaTab,
                                                                  int pageRequest) {
-    if (userAccount.hasPrivilege(PwaUserPrivilege.PWA_REGULATOR_ADMIN)) {
+
+    var processingPermissions = appProcessingPermissionService.getProcessingPermissions(userAccount);
+
+    if (processingPermissions.contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)) {
+
       var adminStatusVisibility = EnumSet.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
       return applicationDetailSearcher.searchByStatus(
           getWorkAreaPageRequest(pageRequest, WorkAreaSort.PROPOSED_DATE_ASC),
           adminStatusVisibility
       );
+
     } else {
+
       var applicationContactRoles = pwaContactService.getPwaContactRolesForWebUserAccount(
           userAccount,
           EnumSet.of(PwaContactRole.PREPARER));
@@ -84,14 +95,22 @@ public class WorkAreaService {
   }
 
   private String viewApplicationUrlProducer(ApplicationDetailSearchItem applicationDetailSearchItem) {
-    if (PwaApplicationStatus.DRAFT.equals(applicationDetailSearchItem.getPadStatus())) {
-      return pwaApplicationRedirectService.getTaskListRoute(
-          applicationDetailSearchItem.getPwaApplicationId(),
-          applicationDetailSearchItem.getApplicationType()
-      );
-    } else {
-      return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null));
+
+    var applicationId = applicationDetailSearchItem.getPwaApplicationId();
+    var applicationType = applicationDetailSearchItem.getApplicationType();
+
+    switch (applicationDetailSearchItem.getPadStatus()) {
+
+      case DRAFT:
+        return pwaApplicationRedirectService.getTaskListRoute(applicationId, applicationType);
+      case INITIAL_SUBMISSION_REVIEW:
+        return ReverseRouter.route(on(InitialReviewController.class)
+            .renderInitialReview(applicationId, applicationType, null, null));
+      default:
+        return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null));
+
     }
+
   }
 
 }

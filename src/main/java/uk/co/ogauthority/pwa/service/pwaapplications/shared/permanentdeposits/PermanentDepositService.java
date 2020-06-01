@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositC
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
@@ -178,7 +177,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
 
 
-
   public List<PermanentDepositsOverview> getPermanentDepositViews(PwaApplicationDetail pwaApplicationDetail) {
     List<PermanentDepositsOverview> views = new ArrayList<>();
 
@@ -205,8 +203,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         .map(depositsForPipeline -> depositsForPipeline.getPadPipelineId().getPipelineRef())
         .collect(Collectors.toSet());
   }
-
-
 
   public Map<String, String> getEditUrlsForDeposits(PwaApplicationDetail pwaApplicationDetail) {
     Map<String, String>  depositUrls = new HashMap<>();
@@ -238,7 +234,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
 
 
-
   public boolean isDepositReferenceUnique(String depositRef, Integer padDepositId, PwaApplicationDetail pwaApplicationDetail) {
     var existingDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
         pwaApplicationDetail, depositRef);
@@ -258,6 +253,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     }
     return false;
   }
+
 
 }
 

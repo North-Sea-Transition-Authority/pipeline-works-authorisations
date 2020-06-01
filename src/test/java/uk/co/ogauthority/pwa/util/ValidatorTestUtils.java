@@ -55,6 +55,18 @@ public class ValidatorTestUtils {
 
   }
 
+  /**
+   * Return a map of field id -> set of field error messages for a BindingResult
+   */
+  public static Map<String, Set<String>> extractErrorMessages(BindingResult bindingResult) {
+
+    return bindingResult.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getDefaultMessage, Collectors.toSet())));
+
+  }
+
+
+
   public static String over4000Chars() {
     return StringUtils.repeat("a", 4001);
   }

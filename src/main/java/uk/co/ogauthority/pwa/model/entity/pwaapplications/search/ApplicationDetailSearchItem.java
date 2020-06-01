@@ -51,7 +51,8 @@ public class ApplicationDetailSearchItem {
 
   private Instant padSubmittedTimestamp;
 
-  private Instant padApprovedTimestamp;
+  @Column(name = "pad_init_review_approved_ts")
+  private Instant padInitialReviewApprovedTimestamp;
 
   private Instant padStatusTimestamp;
 
@@ -138,12 +139,12 @@ public class ApplicationDetailSearchItem {
     this.padSubmittedTimestamp = padSubmittedTimestamp;
   }
 
-  public Instant getPadApprovedTimestamp() {
-    return padApprovedTimestamp;
+  public Instant getPadInitialReviewApprovedTimestamp() {
+    return padInitialReviewApprovedTimestamp;
   }
 
-  public void setPadApprovedTimestamp(Instant padApprovedTimestamp) {
-    this.padApprovedTimestamp = padApprovedTimestamp;
+  public void setPadInitialReviewApprovedTimestamp(Instant padApprovedTimestamp) {
+    this.padInitialReviewApprovedTimestamp = padApprovedTimestamp;
   }
 
   public boolean isTipFlag() {

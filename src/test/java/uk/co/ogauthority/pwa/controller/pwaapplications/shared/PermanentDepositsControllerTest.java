@@ -95,7 +95,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.DECOMMISSIONING)
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -437,6 +437,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
+
   }
 
   @Test

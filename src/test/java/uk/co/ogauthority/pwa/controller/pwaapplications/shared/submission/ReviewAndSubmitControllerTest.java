@@ -85,7 +85,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         PwaApplicationType.HUOO_VARIATION
     )
         // all app roles should be able to review
-        .setAllowedRoles(
+        .setAllowedContactRoles(
             PwaContactRole.ACCESS_MANAGER,
             PwaContactRole.PREPARER,
             PwaContactRole.VIEWER)
@@ -102,7 +102,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         PwaApplicationType.OPTIONS_VARIATION,
         PwaApplicationType.HUOO_VARIATION
     )
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 

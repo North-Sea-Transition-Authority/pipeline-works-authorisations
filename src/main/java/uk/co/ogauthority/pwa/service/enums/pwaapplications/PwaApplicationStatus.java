@@ -5,7 +5,9 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications;
  */
 public enum PwaApplicationStatus {
 
-  DRAFT("Draft"), INITIAL_SUBMISSION_REVIEW("Submitted - awaiting review");
+  DRAFT("Draft"),
+  INITIAL_SUBMISSION_REVIEW("Submitted - awaiting review"),
+  CASE_OFFICER_REVIEW("Case officer review");
 
   private final String displayName;
 

@@ -247,9 +247,10 @@ public class PermanentDepositsServiceTest {
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
 
     List<PermanentDepositsOverview> actualViews = service.getPermanentDepositViews(pwaApplicationDetail);
-
     assertThat(actualViews).isEqualTo(expectedViews);
   }
+
+
 
   @Test
   public void populatePermanentDepositViews() {

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.mvc;
+package uk.co.ogauthority.pwa.mvc.argresolvers;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;

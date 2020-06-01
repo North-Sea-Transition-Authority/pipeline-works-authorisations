@@ -148,4 +148,13 @@ public class PwaApplicationDetailService {
     detail.setMedianLineCrossed(form.getMedianLineCrossed());
     pwaApplicationDetailRepository.save(detail);
   }
+
+  @Transactional
+  public void setInitialReviewApproved(PwaApplicationDetail detail, WebUserAccount acceptingUser) {
+    detail.setInitialReviewApprovedByWuaId(acceptingUser.getWuaId());
+    detail.setInitialReviewApprovedTimestamp(Instant.now(clock));
+    updateStatus(detail, PwaApplicationStatus.CASE_OFFICER_REVIEW, acceptingUser);
+    pwaApplicationDetailRepository.save(detail);
+  }
+
 }

@@ -13,10 +13,11 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
-import uk.co.ogauthority.pwa.mvc.AuthenticatedUserAccountArgumentResolver;
-import uk.co.ogauthority.pwa.mvc.PwaApplicationContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.ResponseBufferSizeHandlerInterceptor;
-import uk.co.ogauthority.pwa.mvc.ValidationTypeArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.argresolvers.AuthenticatedUserAccountArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.argresolvers.PwaAppProcessingContextArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.argresolvers.PwaApplicationContextArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.argresolvers.ValidationTypeArgumentResolver;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
 
@@ -24,15 +25,19 @@ import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConve
 public class WebMvcConfig implements WebMvcConfigurer {
 
   private final PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver;
+  private final PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver;
 
   @Autowired
-  public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver) {
+  public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
+                      PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
+    this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
   }
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(pwaApplicationContextArgumentResolver);
+    resolvers.add(pwaAppProcessingContextArgumentResolver);
     resolvers.add(new AuthenticatedUserAccountArgumentResolver());
     resolvers.add(new ValidationTypeArgumentResolver());
   }

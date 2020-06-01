@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -56,6 +57,9 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
 
   @Mock
   private ApplicationFormSectionService applicationFormSectionService;
+
+  @MockBean
+  private PwaAppProcessingContextService appProcessingContextService;
 
   @Before
   public void taskListControllerTestSetup() {
