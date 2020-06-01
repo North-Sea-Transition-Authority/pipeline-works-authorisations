@@ -7,23 +7,23 @@
 <#macro header pipeline>
 
     <#assign from>
-      ${pipeline.fromLocation}
+      ${pipeline.getFromLocation()}
       <br/>
-      <@pwaCoordinate.display coordinatePair=pipeline.fromCoordinates />
+      <@pwaCoordinate.display coordinatePair=pipeline.getFromCoordinates() />
     </#assign>
 
     <#assign to>
-      ${pipeline.toLocation}
+      ${pipeline.getToLocation()}
       <br/>
-      <@pwaCoordinate.display coordinatePair=pipeline.toCoordinates />
+      <@pwaCoordinate.display coordinatePair=pipeline.getToCoordinates() />
     </#assign>
 
     <@fdsDataItems.dataItem>
-        <@fdsDataItems.dataValues key="Length" value="${pipeline.length}m" />
+        <@fdsDataItems.dataValues key="Length" value="${pipeline.getLength()}m" />
         <@fdsDataItems.dataValues key="From" value=from />
         <@fdsDataItems.dataValues key="To" value=to />
-        <@fdsDataItems.dataValues key="Component parts" value="${pipeline.componentParts}" />
-        <@fdsDataItems.dataValues key="Products to be conveyed" value=pipeline.productsToBeConveyed />
+        <@fdsDataItems.dataValues key="Component parts" value="${pipeline.getComponentParts()}" />
+        <@fdsDataItems.dataValues key="Products to be conveyed" value=pipeline.getProductsToBeConveyed() />
     </@fdsDataItems.dataItem>
 
 </#macro>

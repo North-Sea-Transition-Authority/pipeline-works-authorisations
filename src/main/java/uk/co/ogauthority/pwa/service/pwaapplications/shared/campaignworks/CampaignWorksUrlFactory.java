@@ -1,0 +1,25 @@
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+
+public class CampaignWorksUrlFactory {
+
+  private final int applicationId;
+  private final PwaApplicationType applicationType;
+
+  public CampaignWorksUrlFactory(PwaApplicationDetail pwaApplicationDetail) {
+    this.applicationId = pwaApplicationDetail.getMasterPwaApplicationId();
+    this.applicationType = pwaApplicationDetail.getPwaApplicationType();
+  }
+
+
+  public String addWorkScheduleUrl() {
+    return ReverseRouter.route(on(CampaignWorksController.class)
+        .renderAddWorkSchedule(this.applicationType, this.applicationId, null, null));
+  }
+}

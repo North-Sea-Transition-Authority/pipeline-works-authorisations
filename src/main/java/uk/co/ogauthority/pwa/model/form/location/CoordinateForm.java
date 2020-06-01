@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.location;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -86,4 +87,33 @@ public class CoordinateForm {
   public void setLongitudeDirection(LongitudeDirection longitudeDirection) {
     this.longitudeDirection = longitudeDirection;
   }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CoordinateForm that = (CoordinateForm) o;
+    return Objects.equals(latitudeDegrees, that.latitudeDegrees)
+        && Objects.equals(latitudeMinutes, that.latitudeMinutes)
+        && Objects.equals(latitudeSeconds, that.latitudeSeconds)
+        && latitudeDirection == that.latitudeDirection
+        && Objects.equals(longitudeDegrees, that.longitudeDegrees)
+        && Objects.equals(longitudeMinutes, that.longitudeMinutes)
+        && Objects.equals(longitudeSeconds, that.longitudeSeconds)
+        && longitudeDirection == that.longitudeDirection;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(latitudeDegrees, latitudeMinutes, latitudeSeconds, latitudeDirection,
+        longitudeDegrees, longitudeMinutes, longitudeSeconds, longitudeDirection);
+  }
 }
+
+
+

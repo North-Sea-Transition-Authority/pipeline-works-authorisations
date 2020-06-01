@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -202,6 +204,17 @@ public class PadFileServiceTest {
   }
 
   @Test
+  public void updateFiles_whenNoExistingFiles() {
+    var form = ProjectInformationTestUtils.buildForm(LocalDate.now());
+    padFileService.updateFiles(form, pwaApplicationDetail, ApplicationFilePurpose.PROJECT_INFORMATION, wua);
+
+    verifyNoInteractions(fileUploadService);
+    verify(padFileRepository, times(1)).saveAll(eq(Set.of()));
+    verify(padFileRepository, times(1)).deleteAll(eq(Set.of()));
+
+  }
+
+  @Test
   public void deleteFileLinksAndUploadedFiles_uploadedFileRemoveSuccessful() {
     padFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua);
     verify(padFileRepository).deleteAll(eq(List.of(file)));
@@ -229,7 +242,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void getUpdatedFileViewsWhenFileOnForm() {
+  public void getFilesLinkedToForm() {
 
     var form = new LocationDetailsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());

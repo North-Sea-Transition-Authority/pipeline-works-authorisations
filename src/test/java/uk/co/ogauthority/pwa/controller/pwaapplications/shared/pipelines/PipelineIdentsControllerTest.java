@@ -35,15 +35,19 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -99,10 +103,11 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
 
-    padPipeline = new PadPipeline();
-    padPipeline.setPwaApplicationDetail(pwaApplicationDetail);
-    padPipeline.setId(99);
+    padPipeline = getDefaultPadPipeline(99, pwaApplicationDetail);
+
     when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
+    var padPipelineOverview = new PadPipelineOverview(padPipeline, 0L);
+    when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
 
     var ident = new PadPipelineIdent();
     ident.setId(1);
@@ -416,12 +421,37 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
         .postRemoveIdent(APP_ID, PwaApplicationType.INITIAL, padPipeline.getId(), null, 1)))
-    .with(authenticatedUserAndSession(user))
-    .with(csrf()))
-    .andExpect(status().is3xxRedirection());
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().is3xxRedirection());
 
     verify(pipelineIdentService, times(1)).removeIdent(ident);
 
+  }
+
+  private PadPipeline getDefaultPadPipeline(int id, PwaApplicationDetail pwaApplicationDetail) {
+    var padPipeline = new PadPipeline();
+    padPipeline.setPwaApplicationDetail(pwaApplicationDetail);
+    padPipeline.setId(id);
+    padPipeline.setPipelineRef("testref");
+    padPipeline.setFromLocation("from");
+    padPipeline.setToLocation("to");
+
+    padPipeline.setFromCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ONE, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ONE, LongitudeDirection.EAST)
+    ));
+
+    padPipeline.setToCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(2, 2, BigDecimal.ONE, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(2, 2, BigDecimal.ONE, LongitudeDirection.EAST)
+    ));
+
+    padPipeline.setLength(BigDecimal.TEN);
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setComponentPartsDescription("comp parts");
+    padPipeline.setProductsToBeConveyed("prods");
+    return padPipeline;
   }
 
 }

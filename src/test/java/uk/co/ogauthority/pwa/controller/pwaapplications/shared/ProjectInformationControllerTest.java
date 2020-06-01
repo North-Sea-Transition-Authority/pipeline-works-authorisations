@@ -226,7 +226,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/projectInformation"));
-    verify(padProjectInformationService, times(1)).mapEntityToForm(any(), any(), any());
+    verify(padProjectInformationService, times(1)).mapEntityToForm(any(), any());
   }
 
   @Test

@@ -1,0 +1,1 @@
+DROP TABLE ${datasource.user}.pad_project_information_files;

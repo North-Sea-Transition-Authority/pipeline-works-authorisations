@@ -87,6 +87,76 @@ public class ValidatorUtilsTest {
     assertThat(validationNoErrors).isTrue();
   }
 
+
+  @Test
+  public void validateDateIsPresentOrFutureOfTarget_Present() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFutureOfTarget("proposedStart", "proposed start",
+        3, 2020, 3, 2020, "proposed start date", errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
+    assertThat(validationNoErrors).isTrue();
+  }
+
+  @Test
+  public void validateDateIsPresentOrFutureOfTarget_future() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFutureOfTarget("proposedStart", "proposed start",
+        4, 2020, 3, 2020, "proposed start date", errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
+    assertThat(validationNoErrors).isTrue();
+  }
+
+  @Test
+  public void validateDateIsPresentOrFutureOfTarget_past() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFutureOfTarget("proposedStart", "proposed start",
+        2, 2020, 3, 2020, "proposed start date", errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .containsExactlyInAnyOrder(
+            "proposedStartMonth.beforeTarget",
+            "proposedStartYear.beforeTarget"
+        );
+    assertThat(validationNoErrors).isFalse();
+  }
+
+  @Test
+  public void validateDateIsWithinRangeOfTarget_before() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStart", "proposed start",
+        2, 2020, 3, 2020, 5, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .containsExactlyInAnyOrder(
+            "proposedStartMonth.outOfTargetRange",
+            "proposedStartYear.outOfTargetRange"
+        );
+    assertThat(validationNoErrors).isFalse();
+  }
+
+  @Test
+  public void validateDateIsWithinRangeOfTarget_after() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStart", "proposed start",
+        9, 2020, 3, 2020, 5, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .containsExactlyInAnyOrder(
+            "proposedStartMonth.outOfTargetRange",
+            "proposedStartYear.outOfTargetRange"
+        );
+    assertThat(validationNoErrors).isFalse();
+  }
+
+  @Test
+  public void validateDateIsWithinRangeOfTarget_within() {
+    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStart", "proposed start",
+        7, 2020, 3, 2020, 5, errors);
+    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
+        .doesNotContain("proposedStartDay", "proposedStartMonth");
+    assertThat(validationNoErrors).isTrue();
+  }
+
   @Test
   public void validateDateIsPastOrPresent_Past() {
     var date = LocalDate.now().minusDays(2);

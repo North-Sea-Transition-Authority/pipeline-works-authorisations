@@ -21,8 +21,10 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
@@ -32,7 +34,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.Technic
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @ActiveProfiles("integration-test")
-public class TaskCompletionServiceTest {
+public class TaskCompletionServiceIntegrationTest {
 
   @SpyBean
   private TaskCompletionService taskCompletionService;
@@ -63,6 +65,12 @@ public class TaskCompletionServiceTest {
 
   @MockBean
   private PadPipelineService padPipelineService;
+
+  @MockBean
+  private PermanentDepositService permanentDepositService;
+
+  @MockBean
+  private CampaignWorksService campaignWorksService;
 
   @Test
   public void isTaskComplete() {
@@ -96,11 +104,17 @@ public class TaskCompletionServiceTest {
         case PIPELINES:
           service = padPipelineService;
           break;
+        case CAMPAIGN_WORKS:
+            service = campaignWorksService;
+            break;
         case TECHNICAL_DRAWINGS:
           service = technicalDrawingsService;
           break;
+        case PERMANENT_DEPOSITS:
+          service = permanentDepositService;
+          break;
         default:
-          throw new AssertionError();
+          throw new AssertionError(task);
       }
 
       when(service.isComplete(detail)).thenReturn(true);

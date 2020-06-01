@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
@@ -100,6 +101,16 @@ public class ApplicationBreadcrumbService {
     map.put(ReverseRouter.route(on(PipelineIdentsController.class)
         .renderIdentOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), padPipeline.getId(), null)),
         padPipeline.getPipelineRef() + " idents");
+    addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromCampaignWorksOverview(
+      PwaApplication pwaApplication,
+      ModelAndView modelAndView,
+      String thisPage) {
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(CampaignWorksController.class)
+        .renderSummary(pwaApplication.getApplicationType(),pwaApplication.getId(), null)), "Campaign works");
     addAttrs(modelAndView, map, thisPage);
   }
 

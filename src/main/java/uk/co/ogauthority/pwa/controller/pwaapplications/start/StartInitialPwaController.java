@@ -42,7 +42,8 @@ public class StartInitialPwaController {
    */
   @PostMapping
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user) {
-    PwaApplication pwaApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
+    PwaApplication pwaApplication = pwaApplicationCreationService.createInitialPwaApplication(user)
+        .getPwaApplication();
     return ReverseRouter.redirect(on(PwaHolderController.class)
         .renderHolderScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null, null));
   }

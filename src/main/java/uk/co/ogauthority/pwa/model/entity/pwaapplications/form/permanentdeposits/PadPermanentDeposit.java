@@ -1,0 +1,495 @@
+package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+
+@Entity
+@Table(name = "pad_permanent_deposits")
+public class PadPermanentDeposit {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
+  private String reference;
+
+  @JoinColumn(name = "application_detail_id")
+  @OneToOne
+  private PwaApplicationDetail pwaApplicationDetail;
+
+  private Integer fromMonth;
+  private Integer fromYear;
+  private Integer toMonth;
+  private Integer toYear;
+
+  @Enumerated(EnumType.STRING)
+  private MaterialType materialType;
+  private String materialSize;
+  private Integer concreteMattressLength;
+  private Integer concreteMattressWidth;
+  private Integer concreteMattressDepth;
+
+  private Boolean groutBagsBioDegradable;
+  private String bagsNotUsedDescription;
+
+  private double quantity;
+  private String contingencyAmount;
+
+  @Transient
+  private CoordinatePair fromCoordinates;
+
+  @Transient
+  private CoordinatePair toCoordinates;
+
+
+
+  @Column(name = "from_lat_deg")
+  private Integer fromLatitudeDegrees;
+
+  @Column(name = "from_lat_min")
+  private Integer fromLatitudeMinutes;
+
+  @Column(name = "from_lat_sec")
+  private BigDecimal fromLatitudeSeconds;
+
+  @Column(name = "from_lat_dir")
+  @Enumerated(EnumType.STRING)
+  private LatitudeDirection fromLatitudeDirection;
+
+  @Column(name = "from_long_deg")
+  private Integer fromLongitudeDegrees;
+
+  @Column(name = "from_long_min")
+  private Integer fromLongitudeMinutes;
+
+  @Column(name = "from_long_sec")
+  private BigDecimal fromLongitudeSeconds;
+
+  @Column(name = "from_long_dir")
+  @Enumerated(EnumType.STRING)
+  private LongitudeDirection fromLongitudeDirection;
+
+
+  @Column(name = "to_lat_deg")
+  private Integer toLatitudeDegrees;
+
+  @Column(name = "to_lat_min")
+  private Integer toLatitudeMinutes;
+
+  @Column(name = "to_lat_sec")
+  private BigDecimal toLatitudeSeconds;
+
+  @Column(name = "to_lat_dir")
+  @Enumerated(EnumType.STRING)
+  private LatitudeDirection toLatitudeDirection;
+
+  @Column(name = "to_long_deg")
+  private Integer toLongitudeDegrees;
+
+  @Column(name = "to_long_min")
+  private Integer toLongitudeMinutes;
+
+  @Column(name = "to_long_sec")
+  private BigDecimal toLongitudeSeconds;
+
+  @Column(name = "to_long_dir")
+  @Enumerated(EnumType.STRING)
+  private LongitudeDirection toLongitudeDirection;
+
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getReference() {
+    return reference;
+  }
+
+  public void setReference(String reference) {
+    this.reference = reference;
+  }
+
+  public PwaApplicationDetail getPwaApplicationDetail() {
+    return pwaApplicationDetail;
+  }
+
+  public void setPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    this.pwaApplicationDetail = pwaApplicationDetail;
+  }
+
+  public Integer getFromMonth() {
+    return fromMonth;
+  }
+
+  public void setFromMonth(Integer fromMonth) {
+    this.fromMonth = fromMonth;
+  }
+
+  public Integer getFromYear() {
+    return fromYear;
+  }
+
+  public void setFromYear(Integer fromYear) {
+    this.fromYear = fromYear;
+  }
+
+  public Integer getToMonth() {
+    return toMonth;
+  }
+
+  public void setToMonth(Integer toMonth) {
+    this.toMonth = toMonth;
+  }
+
+  public Integer getToYear() {
+    return toYear;
+  }
+
+  public void setToYear(Integer toYear) {
+    this.toYear = toYear;
+  }
+
+  public MaterialType getMaterialType() {
+    return materialType;
+  }
+
+  public void setMaterialType(MaterialType materialType) {
+    this.materialType = materialType;
+  }
+
+  public String getMaterialSize() {
+    return materialSize;
+  }
+
+  public void setMaterialSize(String materialSize) {
+    this.materialSize = materialSize;
+  }
+
+  public Integer getConcreteMattressLength() {
+    return concreteMattressLength;
+  }
+
+  public void setConcreteMattressLength(Integer concreteMattressLength) {
+    this.concreteMattressLength = concreteMattressLength;
+  }
+
+  public Integer getConcreteMattressWidth() {
+    return concreteMattressWidth;
+  }
+
+  public void setConcreteMattressWidth(Integer concreteMattressWidth) {
+    this.concreteMattressWidth = concreteMattressWidth;
+  }
+
+  public Integer getConcreteMattressDepth() {
+    return concreteMattressDepth;
+  }
+
+  public void setConcreteMattressDepth(Integer concreteMattressDepth) {
+    this.concreteMattressDepth = concreteMattressDepth;
+  }
+
+  public Boolean getGroutBagsBioDegradable() {
+    return groutBagsBioDegradable;
+  }
+
+  public void setGroutBagsBioDegradable(Boolean groutBagsBioDegradable) {
+    this.groutBagsBioDegradable = groutBagsBioDegradable;
+  }
+
+  public String getBagsNotUsedDescription() {
+    return bagsNotUsedDescription;
+  }
+
+  public void setBagsNotUsedDescription(String bagsNotUsedDescription) {
+    this.bagsNotUsedDescription = bagsNotUsedDescription;
+  }
+
+  public double getQuantity() {
+    return quantity;
+  }
+
+  public void setQuantity(double quantity) {
+    this.quantity = quantity;
+  }
+
+  public String getContingencyAmount() {
+    return contingencyAmount;
+  }
+
+  public void setContingencyAmount(String contingencyAmount) {
+    this.contingencyAmount = contingencyAmount;
+  }
+
+  public Integer getFromLatitudeDegrees() {
+    return fromLatitudeDegrees;
+  }
+
+  public void setFromLatitudeDegrees(Integer fromLatitudeDegrees) {
+    this.fromLatitudeDegrees = fromLatitudeDegrees;
+  }
+
+  public Integer getFromLatitudeMinutes() {
+    return fromLatitudeMinutes;
+  }
+
+  public void setFromLatitudeMinutes(Integer fromLatitudeMinutes) {
+    this.fromLatitudeMinutes = fromLatitudeMinutes;
+  }
+
+  public BigDecimal getFromLatitudeSeconds() {
+    return fromLatitudeSeconds;
+  }
+
+  public void setFromLatitudeSeconds(BigDecimal fromLatitudeSeconds) {
+    this.fromLatitudeSeconds = fromLatitudeSeconds;
+  }
+
+  public LatitudeDirection getFromLatitudeDirection() {
+    return fromLatitudeDirection;
+  }
+
+  public void setFromLatitudeDirection(LatitudeDirection fromLatitudeDirection) {
+    this.fromLatitudeDirection = fromLatitudeDirection;
+  }
+
+  public Integer getFromLongitudeDegrees() {
+    return fromLongitudeDegrees;
+  }
+
+  public void setFromLongitudeDegrees(Integer fromLongitudeDegrees) {
+    this.fromLongitudeDegrees = fromLongitudeDegrees;
+  }
+
+  public Integer getFromLongitudeMinutes() {
+    return fromLongitudeMinutes;
+  }
+
+  public void setFromLongitudeMinutes(Integer fromLongitudeMinutes) {
+    this.fromLongitudeMinutes = fromLongitudeMinutes;
+  }
+
+  public BigDecimal getFromLongitudeSeconds() {
+    return fromLongitudeSeconds;
+  }
+
+  public void setFromLongitudeSeconds(BigDecimal fromLongitudeSeconds) {
+    this.fromLongitudeSeconds = fromLongitudeSeconds;
+  }
+
+  public LongitudeDirection getFromLongitudeDirection() {
+    return fromLongitudeDirection;
+  }
+
+  public void setFromLongitudeDirection(LongitudeDirection fromLongitudeDirection) {
+    this.fromLongitudeDirection = fromLongitudeDirection;
+  }
+
+  public Integer getToLatitudeDegrees() {
+    return toLatitudeDegrees;
+  }
+
+  public void setToLatitudeDegrees(Integer toLatitudeDegrees) {
+    this.toLatitudeDegrees = toLatitudeDegrees;
+  }
+
+  public Integer getToLatitudeMinutes() {
+    return toLatitudeMinutes;
+  }
+
+  public void setToLatitudeMinutes(Integer toLatitudeMinutes) {
+    this.toLatitudeMinutes = toLatitudeMinutes;
+  }
+
+  public BigDecimal getToLatitudeSeconds() {
+    return toLatitudeSeconds;
+  }
+
+  public void setToLatitudeSeconds(BigDecimal toLatitudeSeconds) {
+    this.toLatitudeSeconds = toLatitudeSeconds;
+  }
+
+  public LatitudeDirection getToLatitudeDirection() {
+    return toLatitudeDirection;
+  }
+
+  public void setToLatitudeDirection(LatitudeDirection toLatitudeDirection) {
+    this.toLatitudeDirection = toLatitudeDirection;
+  }
+
+  public Integer getToLongitudeDegrees() {
+    return toLongitudeDegrees;
+  }
+
+  public void setToLongitudeDegrees(Integer toLongitudeDegrees) {
+    this.toLongitudeDegrees = toLongitudeDegrees;
+  }
+
+  public Integer getToLongitudeMinutes() {
+    return toLongitudeMinutes;
+  }
+
+  public void setToLongitudeMinutes(Integer toLongitudeMinutes) {
+    this.toLongitudeMinutes = toLongitudeMinutes;
+  }
+
+  public BigDecimal getToLongitudeSeconds() {
+    return toLongitudeSeconds;
+  }
+
+  public void setToLongitudeSeconds(BigDecimal toLongitudeSeconds) {
+    this.toLongitudeSeconds = toLongitudeSeconds;
+  }
+
+  public LongitudeDirection getToLongitudeDirection() {
+    return toLongitudeDirection;
+  }
+
+  public void setToLongitudeDirection(LongitudeDirection toLongitudeDirection) {
+    this.toLongitudeDirection = toLongitudeDirection;
+  }
+
+
+
+
+
+  public CoordinatePair getFromCoordinates() {
+    return fromCoordinates;
+  }
+
+  public void setFromCoordinates(CoordinatePair fromCoordinates) {
+    this.fromCoordinates = fromCoordinates;
+    updateFromCoordinateValues();
+  }
+
+  public CoordinatePair getToCoordinates() {
+    return toCoordinates;
+  }
+
+  public void setToCoordinates(CoordinatePair toCoordinates) {
+    this.toCoordinates = toCoordinates;
+    updateToCoordinateValues();
+  }
+
+  private void updateFromCoordinateValues() {
+    this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
+    this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
+    this.fromLatitudeSeconds = this.fromCoordinates.getLatitude().getSeconds();
+    this.fromLatitudeDirection = this.fromCoordinates.getLatitude().getDirection();
+
+    this.fromLongitudeDegrees = this.fromCoordinates.getLongitude().getDegrees();
+    this.fromLongitudeMinutes = this.fromCoordinates.getLongitude().getMinutes();
+    this.fromLongitudeSeconds = this.fromCoordinates.getLongitude().getSeconds();
+    this.fromLongitudeDirection = this.fromCoordinates.getLongitude().getDirection();
+  }
+
+  private void updateToCoordinateValues() {
+    this.toLatitudeDegrees = this.toCoordinates.getLatitude().getDegrees();
+    this.toLatitudeMinutes = this.toCoordinates.getLatitude().getMinutes();
+    this.toLatitudeSeconds = this.toCoordinates.getLatitude().getSeconds();
+    this.toLatitudeDirection = this.toCoordinates.getLatitude().getDirection();
+
+    this.toLongitudeDegrees = this.toCoordinates.getLongitude().getDegrees();
+    this.toLongitudeMinutes = this.toCoordinates.getLongitude().getMinutes();
+    this.toLongitudeSeconds = this.toCoordinates.getLongitude().getSeconds();
+    this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
+  }
+
+  @PostLoad
+  public void postLoad() {
+
+    this.fromCoordinates = new CoordinatePair(
+        new LatitudeCoordinate(this.fromLatitudeDegrees, this.fromLatitudeMinutes, this.fromLatitudeSeconds, this.fromLatitudeDirection),
+        new LongitudeCoordinate(
+            this.fromLongitudeDegrees,
+            this.fromLongitudeMinutes,
+            this.fromLongitudeSeconds,
+            this.fromLongitudeDirection)
+    );
+
+    this.toCoordinates = new CoordinatePair(
+        new LatitudeCoordinate(this.toLatitudeDegrees, this.toLatitudeMinutes, this.toLatitudeSeconds, this.toLatitudeDirection),
+        new LongitudeCoordinate(this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection)
+    );
+
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadPermanentDeposit that = (PadPermanentDeposit) o;
+    return Double.compare(that.quantity, quantity) == 0
+        && Objects.equals(id, that.id)
+        && Objects.equals(reference, that.reference)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(fromMonth, that.fromMonth)
+        && Objects.equals(fromYear, that.fromYear)
+        && Objects.equals(toMonth, that.toMonth)
+        && Objects.equals(toYear, that.toYear)
+        && materialType == that.materialType
+        && Objects.equals(materialSize, that.materialSize)
+        && Objects.equals(concreteMattressLength, that.concreteMattressLength)
+        && Objects.equals(concreteMattressWidth, that.concreteMattressWidth)
+        && Objects.equals(concreteMattressDepth, that.concreteMattressDepth)
+        && Objects.equals(groutBagsBioDegradable, that.groutBagsBioDegradable)
+        && Objects.equals(bagsNotUsedDescription, that.bagsNotUsedDescription)
+        && Objects.equals(contingencyAmount, that.contingencyAmount)
+        && Objects.equals(fromCoordinates, that.fromCoordinates)
+        && Objects.equals(toCoordinates, that.toCoordinates)
+        && Objects.equals(fromLatitudeDegrees, that.fromLatitudeDegrees)
+        && Objects.equals(fromLatitudeMinutes, that.fromLatitudeMinutes)
+        && Objects.equals(fromLatitudeSeconds, that.fromLatitudeSeconds)
+        && fromLatitudeDirection == that.fromLatitudeDirection
+        && Objects.equals(fromLongitudeDegrees, that.fromLongitudeDegrees)
+        && Objects.equals(fromLongitudeMinutes, that.fromLongitudeMinutes)
+        && Objects.equals(fromLongitudeSeconds, that.fromLongitudeSeconds)
+        && fromLongitudeDirection == that.fromLongitudeDirection
+        && Objects.equals(toLatitudeDegrees, that.toLatitudeDegrees)
+        && Objects.equals(toLatitudeMinutes, that.toLatitudeMinutes)
+        && Objects.equals(toLatitudeSeconds, that.toLatitudeSeconds)
+        && toLatitudeDirection == that.toLatitudeDirection
+        && Objects.equals(toLongitudeDegrees, that.toLongitudeDegrees)
+        && Objects.equals(toLongitudeMinutes, that.toLongitudeMinutes)
+        && Objects.equals(toLongitudeSeconds, that.toLongitudeSeconds)
+        && toLongitudeDirection == that.toLongitudeDirection;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, reference, pwaApplicationDetail, fromMonth, fromYear, toMonth,
+        toYear, materialType, materialSize, concreteMattressLength,
+        concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription, quantity,
+        contingencyAmount, fromCoordinates, toCoordinates, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds,
+        fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,
+        toLatitudeMinutes, toLatitudeSeconds, toLatitudeDirection, toLongitudeDegrees,
+        toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection);
+  }
+}
