@@ -1,5 +1,20 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+
+import java.math.BigDecimal;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,20 +54,6 @@ import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
-
-import java.math.BigDecimal;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 
 
@@ -95,7 +96,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.DECOMMISSIONING)
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
