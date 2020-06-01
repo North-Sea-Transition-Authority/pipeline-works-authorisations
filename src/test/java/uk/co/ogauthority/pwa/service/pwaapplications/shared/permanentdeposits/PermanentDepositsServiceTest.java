@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInforma
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -59,6 +60,9 @@ public class PermanentDepositsServiceTest {
 
   @Mock
   private PermanentDepositsValidator validator;
+
+  @Mock
+  private CoordinateFormValidator coordinateFormValidator;
 
   private SpringValidatorAdapter groupValidator;
 
@@ -150,6 +154,23 @@ public class PermanentDepositsServiceTest {
     verify(validator, times(1)).validate(form, bindingResult, service, pwaApplicationDetail);
   }
 
+  @Test
+  public void validateDepositOverview_valid() {
+    var entityMapper = new PermanentDepositEntityMappingServiceTest();
+    PadPermanentDeposit entity = entityMapper.buildBaseEntity();
+    entityMapper.setEntityConcreteProperties(entity);
+
+    when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(entity));
+    assertThat(service.validateDepositOverview(pwaApplicationDetail)).isEqualTo(true);
+  }
+
+
+  @Test
+  public void validateDepositOverview_inValid() {
+    when( permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(new ArrayList<>());
+    assertThat(service.validateDepositOverview(pwaApplicationDetail)).isEqualTo(false);
+  }
+
 
   @Test
   public void isPermanentDepositMade_depositMadeTrue() {
@@ -226,9 +247,10 @@ public class PermanentDepositsServiceTest {
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
 
     List<PermanentDepositsOverview> actualViews = service.getPermanentDepositViews(pwaApplicationDetail);
-
     assertThat(actualViews).isEqualTo(expectedViews);
   }
+
+
 
   @Test
   public void populatePermanentDepositViews() {

@@ -118,6 +118,11 @@ public class PermanentDepositController {
                                             @ModelAttribute("form") PermanentDepositsForm form,
                                             BindingResult bindingResult,
                                             ValidationType validationType) {
+
+    if (!permanentDepositService.validateDepositOverview(applicationContext.getApplicationDetail())) {
+      return getOverviewPermanentDepositsModelAndView(applicationContext.getApplicationDetail())
+          .addObject("errorMessage", "Ensure that at least one deposit has been added and that they are all valid.");
+    }
     return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
   }
 
@@ -179,7 +184,8 @@ public class PermanentDepositController {
                                                 BindingResult bindingResult) {
 
     permanentDepositService.removeDeposit(depositId);
-    return getOverviewPermanentDepositsModelAndView(applicationContext.getApplicationDetail());
+    return ReverseRouter.redirect(on(PermanentDepositController.class)
+        .renderPermanentDepositsOverview(pwaApplicationType, applicationId, null, null));
   }
 
 

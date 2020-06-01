@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositC
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
@@ -125,20 +124,22 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     }
   }
 
+  @Transactional
+  public void removeDeposit(Integer depositId) {
+    var permanentDeposit = permanentDepositInformationRepository.findById(depositId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
+
+    padDepositPipelineRepository.deleteAll(
+        padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId()));
+    permanentDepositInformationRepository.delete(permanentDeposit);
+  }
+
+
+
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(detail);
-    if (permanentDeposits.size() > 0) {
-      PadPermanentDeposit padPermanentDeposit = permanentDeposits.get(0);
-      var permanentDepositsForm = new PermanentDepositsForm();
-      mapEntityToForm(padPermanentDeposit, permanentDepositsForm);
-      BindingResult bindingResult = new BeanPropertyBindingResult(permanentDepositsForm, "form");
-      permanentDepositsValidator.validate(permanentDepositsForm, bindingResult);
-
-      return !bindingResult.hasErrors();
-    }
-    return false;
+    return validateDepositOverview(detail);
   }
 
   @Override
@@ -154,21 +155,26 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     }
 
     return bindingResult;
-
   }
 
+  public boolean validateDepositOverview(PwaApplicationDetail pwaApplicationDetail) {
+    List<PadPermanentDeposit> padPermanentDeposits =
+        permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
 
-  @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return isPermanentDepositMade(pwaApplicationDetail);
+    for (PadPermanentDeposit padPermanentDeposit: padPermanentDeposits) {
+      var depositForm = new PermanentDepositsForm();
+      mapEntityToForm(padPermanentDeposit, depositForm);
+
+      BindingResult bindingResult = new BeanPropertyBindingResult(depositForm, "form");
+      validate(depositForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+      if (bindingResult.hasErrors()) {
+        return false;
+      }
+    }
+
+    return padPermanentDeposits.size() > 0;
   }
 
-  public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
-    var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .orElse(new PadProjectInformation());
-    return BooleanUtils.isTrue(projectInformation.getPermanentDepositsMade())
-        || pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
-  }
 
 
   public List<PermanentDepositsOverview> getPermanentDepositViews(PwaApplicationDetail pwaApplicationDetail) {
@@ -198,7 +204,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         .collect(Collectors.toSet());
   }
 
-
   public Map<String, String> getEditUrlsForDeposits(PwaApplicationDetail pwaApplicationDetail) {
     Map<String, String>  depositUrls = new HashMap<>();
     var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
@@ -227,20 +232,26 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return depositUrls;
   }
 
+
+
   public boolean isDepositReferenceUnique(String depositRef, Integer padDepositId, PwaApplicationDetail pwaApplicationDetail) {
     var existingDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
         pwaApplicationDetail, depositRef);
     return existingDeposits.isEmpty() || (existingDeposits.get().getId() != null && existingDeposits.get().getId().equals(padDepositId));
   }
 
-  @Transactional
-  public void removeDeposit(Integer depositId) {
-    var permanentDeposit = permanentDepositInformationRepository.findById(depositId)
-        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return isPermanentDepositMade(pwaApplicationDetail);
+  }
 
-    padDepositPipelineRepository.deleteAll(
-        padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId()));
-    permanentDepositInformationRepository.delete(permanentDeposit);
+  public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
+    var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+    if (projectInformation.isPresent()) {
+      return BooleanUtils.isTrue(projectInformation.get().getPermanentDepositsMade())
+          || pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT);
+    }
+    return false;
   }
 
 
