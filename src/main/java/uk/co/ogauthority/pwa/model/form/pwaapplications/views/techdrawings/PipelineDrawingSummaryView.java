@@ -16,7 +16,7 @@ public class PipelineDrawingSummaryView {
   public PipelineDrawingSummaryView(PadTechnicalDrawing technicalDrawing, List<PipelineOverview> pipelineOverviews,
                                     UploadedFileView uploadedFileView) {
     this.reference = technicalDrawing.getReference();
-    this.documentDescription = technicalDrawing.getFileDescription();
+    this.documentDescription = uploadedFileView.getFileDescription();
     this.pipelineOverviews = pipelineOverviews;
     this.fileId = uploadedFileView.getFileId();
     this.fileName = uploadedFileView.getFileName();

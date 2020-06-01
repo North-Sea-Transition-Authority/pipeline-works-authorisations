@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -194,7 +195,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   }
 
   public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
-    return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
+    return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, ListUtils.emptyIfNull(pipelineIds));
   }
 
   @Override

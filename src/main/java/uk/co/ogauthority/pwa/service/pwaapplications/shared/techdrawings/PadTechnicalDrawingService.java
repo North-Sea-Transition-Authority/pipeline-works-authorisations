@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
@@ -89,7 +90,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     for (PadTechnicalDrawing technicalDrawing : linkMap.keySet()) {
       List<PipelineOverview> overviews = linkMap.get(technicalDrawing)
           .stream()
-          .map(drawingLink -> new PipelineOverview(drawingLink.getPipeline(), List.of()))
+          .map(drawingLink -> new PadPipelineOverview(drawingLink.getPipeline(), 0L))
           .collect(Collectors.toUnmodifiableList());
 
       UploadedFileView fileView = fileViews.stream()
