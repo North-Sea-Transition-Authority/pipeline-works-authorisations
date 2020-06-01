@@ -16,13 +16,20 @@ public class PadDepositDrawingLink {
   @NotNull
   @OneToOne
   @JoinColumn(name = "permanent_deposit_info_id")
-  private PadPermanentDeposit permanentDepositInfo;
+  private PadPermanentDeposit padPermanentDeposit;
 
   @NotNull
   @OneToOne
   @JoinColumn(name = "pad_deposit_drawing_id")
   private PadDepositDrawing padDepositDrawingId;
 
+  public PadDepositDrawingLink() {
+  }
+
+  public PadDepositDrawingLink(@NotNull PadPermanentDeposit padPermanentDeposit, @NotNull PadDepositDrawing padDepositDrawingId) {
+    this.padPermanentDeposit = padPermanentDeposit;
+    this.padDepositDrawingId = padDepositDrawingId;
+  }
 
   public Integer getId() {
     return id;
@@ -32,12 +39,12 @@ public class PadDepositDrawingLink {
     this.id = id;
   }
 
-  public PadPermanentDeposit getPermanentDepositInfo() {
-    return permanentDepositInfo;
+  public PadPermanentDeposit getPadPermanentDeposit() {
+    return padPermanentDeposit;
   }
 
-  public void setPermanentDepositInfo(PadPermanentDeposit permanentDepositInfo) {
-    this.permanentDepositInfo = permanentDepositInfo;
+  public void setPadPermanentDeposit(PadPermanentDeposit padPermanentDeposit) {
+    this.padPermanentDeposit = padPermanentDeposit;
   }
 
   public PadDepositDrawing getPadDepositDrawingId() {

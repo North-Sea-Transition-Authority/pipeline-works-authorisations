@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -113,10 +114,17 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                             @ModelAttribute("form") PermanentDepositDrawingsForm form,
                                             BindingResult bindingResult,
                                             ValidationType validationType) {
-    depositDrawingsService.addDrawing(applicationContext.getApplicationDetail(), form);
-    return ReverseRouter.redirect(on(PermanentDepositDrawingsController.class)
-        .renderDepositDrawingsOverview(
-            pwaApplicationType, applicationId, null, null));
+    bindingResult = depositDrawingsService.validate(form,
+        bindingResult,
+        validationType,
+        applicationContext.getApplicationDetail());
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD), () -> {
+          depositDrawingsService.addDrawing(applicationContext.getApplicationDetail(), form);
+          return ReverseRouter.redirect(on(PermanentDepositDrawingsController.class).renderDepositDrawingsOverview(
+              pwaApplicationType, applicationId, null, null));
+        });
   }
 
 

@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 
 import javax.transaction.Transactional;
 
@@ -29,6 +30,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   private final PadDepositDrawingRepository padDepositDrawingRepository;
   private final PadPermanentDepositRepository padPermanentDepositRepository;
   private final PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
+  private final PermanentDepositsDrawingValidator permanentDepositsDrawingValidator;
   private final SpringValidatorAdapter groupValidator;
   private final PadFileService padFileService;
 
@@ -37,14 +39,18 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
       PadDepositDrawingRepository padDepositDrawingRepository,
       PadPermanentDepositRepository padPermanentDepositRepository,
       PadDepositDrawingLinkRepository padDepositDrawingLinkRepository,
+      PermanentDepositsDrawingValidator permanentDepositsDrawingValidator,
       SpringValidatorAdapter groupValidator,
       PadFileService padFileService) {
     this.padDepositDrawingRepository = padDepositDrawingRepository;
     this.padPermanentDepositRepository = padPermanentDepositRepository;
     this.padDepositDrawingLinkRepository = padDepositDrawingLinkRepository;
+    this.permanentDepositsDrawingValidator = permanentDepositsDrawingValidator;
     this.groupValidator = groupValidator;
     this.padFileService = padFileService;
   }
+
+
 
   @Transactional
   public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingsForm form) {
@@ -57,13 +63,12 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     drawing.setReference(form.getReference());
     padDepositDrawingRepository.save(drawing);
 
-    var drawingLink = new PadDepositDrawingLink();
-    drawingLink.setPadDepositDrawingId(drawing);
     for (String padPermanentDepositId: form.getSelectedDeposits()) {
       if (padPermanentDepositId != "") {
         var padPermanentDeposit = padPermanentDepositRepository.findById(Integer.parseInt(padPermanentDepositId))
             .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
-        drawingLink.setPermanentDepositInfo(padPermanentDeposit);
+
+        var drawingLink = new PadDepositDrawingLink(padPermanentDeposit, drawing);
         padDepositDrawingLinkRepository.save(drawingLink);
       }
     }
@@ -80,7 +85,9 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    return null;
+
+    permanentDepositsDrawingValidator.validate(form, bindingResult, this, pwaApplicationDetail);
+    return bindingResult;
   }
 
   @Override
@@ -92,5 +99,15 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     return null;
   }
+
+
+
+  public boolean isDrawingReferenceUnique(String drawingRef, PwaApplicationDetail pwaApplicationDetail) {
+    var existingDrawings = padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
+        pwaApplicationDetail, drawingRef);
+    return existingDrawings.isEmpty();
+  }
+
+
 }
 

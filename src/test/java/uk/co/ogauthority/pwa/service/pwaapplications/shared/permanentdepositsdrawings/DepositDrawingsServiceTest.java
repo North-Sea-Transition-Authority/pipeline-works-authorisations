@@ -48,7 +48,7 @@ public class DepositDrawingsServiceTest {
 
   @Mock
   private PadFileService padFileService;
-  
+
   @Mock
   private SpringValidatorAdapter springValidatorAdapter;
 
@@ -87,9 +87,40 @@ public class DepositDrawingsServiceTest {
     assertThat(captor.getValue()).extracting(PadDepositDrawing::getFile, PadDepositDrawing::getReference, PadDepositDrawing::getPwaApplicationDetail)
         .containsExactly(padFile, "ref", pwaApplicationDetail);
 
-    var captor2 = ArgumentCaptor.forClass(PadDepositDrawingLink.class);
-    verify(padDepositDrawingLinkRepository, times(1)).save(captor2.capture());
+    var captorDrawingLink = ArgumentCaptor.forClass(PadDepositDrawingLink.class);
+    verify(padDepositDrawingLinkRepository, times(1)).save(captorDrawingLink.capture());
+  }
 
+
+
+  @Test
+  public void isDrawingReferenceUniqueWithId_true() {
+    var entity = new PadDepositDrawing();
+    entity.setId(1);
+    when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", 1, pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void isDrawingReferenceUniqueWithId_false() {
+    var entity = new PadDepositDrawing();
+    entity.setId(2);
+    when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", 1, pwaApplicationDetail)).isFalse();
+  }
+
+
+  @Test
+  public void isDrawingReferenceUniqueNoId_true() {
+    when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.empty());
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", null, pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void isDrawingReferenceUnique_false() {
+    var entity = new PadDepositDrawing();
+    when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
   }
 
 

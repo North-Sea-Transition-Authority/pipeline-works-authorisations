@@ -9,3 +9,14 @@ CREATE TABLE ${datasource.user}.pad_deposit_drawings (
 
 CREATE INDEX ${datasource.user}.depd_pf_idx ON ${datasource.user}.pad_deposit_drawings (pf_id);
 CREATE INDEX ${datasource.user}.depd_pad_idx ON ${datasource.user}.pad_deposit_drawings (pad_id);
+
+CREATE TABLE ${datasource.user}.pad_deposit_drawing_links (
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+    , permanent_deposit_info_id NUMBER
+    , pad_deposit_drawing_id NUMBER
+    , CONSTRAINT pad_depdlink_permdep_fk FOREIGN KEY(permanent_deposit_info_id) REFERENCES ${datasource.user}.pad_permanent_deposits(id)
+    , CONSTRAINT pad_depdlink_depdid_fk FOREIGN KEY(pad_deposit_drawing_id) REFERENCES ${datasource.user}.pad_deposit_drawings(id)
+);
+
+CREATE INDEX ${datasource.user}.depdlink_permdep_idx ON ${datasource.user}.pad_deposit_drawing_links (permanent_deposit_info_id);
+CREATE INDEX ${datasource.user}.depdlink_depdid_idx ON ${datasource.user}.pad_deposit_drawing_links (pad_deposit_drawing_id);
