@@ -1,0 +1,72 @@
+package uk.co.ogauthority.pwa.service.appprocessing;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.teams.PwaRole;
+import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PwaAppProcessingPermissionServiceTest {
+
+  @Mock
+  private TeamService teamService;
+
+  private PwaAppProcessingPermissionService processingPermissionService;
+
+  private WebUserAccount user = new WebUserAccount(1);
+  private PwaTeamMember regTeamMember;
+
+  @Before
+  public void setUp() {
+
+    processingPermissionService = new PwaAppProcessingPermissionService(teamService);
+
+    regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("PWA_MANAGER", "Pwa Manager", null, 10)));
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
+
+  }
+
+  @Test
+  public void getProcessingPermissions_acceptInitialReviewPermission_success() {
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+
+    assertThat(permissions).contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+
+  }
+
+  @Test
+  public void getProcessingPermissions_acceptInitialReviewPermission_failed() {
+
+    regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("ORGANISATION_MANAGER", "Org Manager", null, 10)));
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+
+  }
+
+  @Test
+  public void getProcessingPermissions_userNotInRegTeam() {
+
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.empty());
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+
+    assertThat(permissions).isEmpty();
+
+  }
+
+}

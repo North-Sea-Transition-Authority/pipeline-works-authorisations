@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import java.time.Instant;
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -43,10 +44,11 @@ public class PwaApplicationDetail {
 
   private Instant submittedTimestamp;
 
-  private Integer approvedByWuaId;
+  @Column(name = "init_review_approved_by_wua_id")
+  private Integer initialReviewApprovedByWuaId;
 
-  private Instant approvedTimestamp;
-
+  @Column(name = "init_review_approved_timestamp")
+  private Instant initialReviewApprovedTimestamp;
 
   private Boolean isLinkedToField;
 
@@ -147,20 +149,20 @@ public class PwaApplicationDetail {
     this.submittedTimestamp = submittedTimestamp;
   }
 
-  public Integer getApprovedByWuaId() {
-    return approvedByWuaId;
+  public Integer getInitialReviewApprovedByWuaId() {
+    return initialReviewApprovedByWuaId;
   }
 
-  public void setApprovedByWuaId(Integer approvedByWuaId) {
-    this.approvedByWuaId = approvedByWuaId;
+  public void setInitialReviewApprovedByWuaId(Integer approvedByWuaId) {
+    this.initialReviewApprovedByWuaId = approvedByWuaId;
   }
 
-  public Instant getApprovedTimestamp() {
-    return approvedTimestamp;
+  public Instant getInitialReviewApprovedTimestamp() {
+    return initialReviewApprovedTimestamp;
   }
 
-  public void setApprovedTimestamp(Instant approvedTimestamp) {
-    this.approvedTimestamp = approvedTimestamp;
+  public void setInitialReviewApprovedTimestamp(Instant approvedTimestamp) {
+    this.initialReviewApprovedTimestamp = approvedTimestamp;
   }
 
   public Boolean getLinkedToField() {
@@ -255,8 +257,8 @@ public class PwaApplicationDetail {
         && Objects.equals(createdTimestamp, that.createdTimestamp)
         && Objects.equals(submittedByWuaId, that.submittedByWuaId)
         && Objects.equals(submittedTimestamp, that.submittedTimestamp)
-        && Objects.equals(approvedByWuaId, that.approvedByWuaId)
-        && Objects.equals(approvedTimestamp, that.approvedTimestamp)
+        && Objects.equals(initialReviewApprovedByWuaId, that.initialReviewApprovedByWuaId)
+        && Objects.equals(initialReviewApprovedTimestamp, that.initialReviewApprovedTimestamp)
         && Objects.equals(isLinkedToField, that.isLinkedToField)
         && Objects.equals(notLinkedDescription, that.notLinkedDescription)
         && Objects.equals(pipelinesCrossed, that.pipelinesCrossed)
@@ -268,6 +270,6 @@ public class PwaApplicationDetail {
   public int hashCode() {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
-        approvedByWuaId, approvedTimestamp, isLinkedToField, notLinkedDescription);
+        initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription);
   }
 }

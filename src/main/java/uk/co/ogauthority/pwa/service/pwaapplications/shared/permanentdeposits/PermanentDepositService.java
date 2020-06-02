@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
@@ -157,10 +158,22 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   }
 
   public boolean validateDepositOverview(PwaApplicationDetail pwaApplicationDetail) {
-    long totalDeposits = permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail);
-    return totalDeposits < 1 ? false : true;
-  }
+    List<PadPermanentDeposit> padPermanentDeposits =
+        permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
 
+    for (PadPermanentDeposit padPermanentDeposit: padPermanentDeposits) {
+      var depositForm = new PermanentDepositsForm();
+      mapEntityToForm(padPermanentDeposit, depositForm);
+
+      BindingResult bindingResult = new BeanPropertyBindingResult(depositForm, "form");
+      validate(depositForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+      if (bindingResult.hasErrors()) {
+        return false;
+      }
+    }
+
+    return padPermanentDeposits.size() > 0;
+  }
 
 
   public List<PadPermanentDeposit> getPermanentDeposits(PwaApplicationDetail pwaApplicationDetail) {
@@ -194,8 +207,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         .collect(Collectors.toSet());
   }
 
-
-
   public Map<String, String> getEditUrlsForDeposits(PwaApplicationDetail pwaApplicationDetail) {
     Map<String, String>  depositUrls = new HashMap<>();
     var permanentDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
@@ -226,7 +237,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
 
 
-
   public boolean isDepositReferenceUnique(String depositRef, Integer padDepositId, PwaApplicationDetail pwaApplicationDetail) {
     var existingDeposits = permanentDepositInformationRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
         pwaApplicationDetail, depositRef);
@@ -246,6 +256,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     }
     return false;
   }
+
 
 }
 

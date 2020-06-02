@@ -1,0 +1,146 @@
+package uk.co.ogauthority.pwa.service.pwaapplications.context;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextParams;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PwaAppProcessingContextServiceTest {
+
+  @Mock
+  private PwaApplicationDetailService detailService;
+
+  @Mock
+  private PwaAppProcessingPermissionService appProcessingPermissionService;
+
+  private PwaAppProcessingContextService contextService;
+
+  private PwaApplicationDetail detail;
+  private PwaApplication application;
+  private AuthenticatedUserAccount user;
+
+  @Before
+  public void setUp() {
+
+    application = new PwaApplication();
+    application.setId(1);
+    application.setApplicationType(PwaApplicationType.INITIAL);
+
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
+
+    detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService);
+
+    when(detailService.getTipDetail(1)).thenReturn(detail);
+    when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+  }
+
+  @Test
+  public void validateAndCreate_noChecks() {
+
+    var contextBuilder = new PwaAppProcessingContextParams(1, user);
+    var processingContext = contextService.validateAndCreate(contextBuilder);
+
+    assertThat(processingContext.getApplicationDetail()).isEqualTo(detail);
+    assertThat(processingContext.getUser()).isEqualTo(user);
+    assertThat(processingContext.getAppProcessingPermissions()).containsExactly(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void validateAndCreate_noChecks_userHasNoProcessingPermissions() {
+    when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of());
+    var contextBuilder = new PwaAppProcessingContextParams(1, user);
+    contextService.validateAndCreate(contextBuilder);
+  }
+
+  @Test
+  public void validateAndCreate_statusCheck_valid() {
+
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    var appContext = contextService.validateAndCreate(builder);
+
+    assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
+    assertThat(appContext.getUser()).isEqualTo(user);
+    assertThat(appContext.getAppProcessingPermissions()).containsExactly(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void validateAndCreate_statusCheck_invalid() {
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatus(PwaApplicationStatus.DRAFT);
+    contextService.validateAndCreate(builder);
+  }
+
+  @Test
+  public void validateAndCreate_permissionsCheck_valid() {
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    var appContext = contextService.validateAndCreate(builder);
+    assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
+    assertThat(appContext.getUser()).isEqualTo(user);
+    assertThat(appContext.getAppProcessingPermissions()).containsExactly(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void validateAndCreate_permissionsCheck_invalid() {
+    when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    contextService.validateAndCreate(builder);
+  }
+
+  @Test
+  public void validateAndCreate_allChecks_valid() {
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    var appContext = contextService.validateAndCreate(builder);
+    assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
+    assertThat(appContext.getUser()).isEqualTo(user);
+    assertThat(appContext.getAppProcessingPermissions()).containsExactly(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void validateAndCreate_allChecks_statusInvalid() {
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatus(PwaApplicationStatus.DRAFT)
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    contextService.validateAndCreate(builder);
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void validateAndCreate_allChecks_permissionsInvalid() {
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
+    contextService.validateAndCreate(builder);
+  }
+
+}

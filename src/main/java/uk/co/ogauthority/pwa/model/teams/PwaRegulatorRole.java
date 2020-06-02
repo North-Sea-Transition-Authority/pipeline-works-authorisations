@@ -1,10 +1,14 @@
 package uk.co.ogauthority.pwa.model.teams;
 
-public enum PwaRegulatorRole {
-  TEAM_ADMINISTRATOR("RESOURCE_COORDINATOR"),
-  ORGANISATION_MANAGER("ORGANISATION_MANAGER");
+import java.util.stream.Stream;
 
-  private String portalTeamRoleName;
+public enum PwaRegulatorRole {
+
+  TEAM_ADMINISTRATOR("RESOURCE_COORDINATOR"),
+  ORGANISATION_MANAGER("ORGANISATION_MANAGER"),
+  PWA_MANAGER("PWA_MANAGER");
+
+  private final String portalTeamRoleName;
 
   PwaRegulatorRole(String portalTeamRoleName) {
     this.portalTeamRoleName = portalTeamRoleName;
@@ -13,4 +17,13 @@ public enum PwaRegulatorRole {
   public String getPortalTeamRoleName() {
     return portalTeamRoleName;
   }
+
+  public static PwaRegulatorRole getValueByPortalTeamRoleName(String portalTeamRoleName) {
+    return Stream.of(PwaRegulatorRole.values())
+        .filter(r -> r.getPortalTeamRoleName().equals(portalTeamRoleName))
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException(String.format(
+            "Couldn't map portal team role name: %s to a PwaRegulatorRole value", portalTeamRoleName)));
+  }
+
 }

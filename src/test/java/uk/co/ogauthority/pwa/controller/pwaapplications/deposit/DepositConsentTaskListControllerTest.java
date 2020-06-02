@@ -45,7 +45,7 @@ public class DepositConsentTaskListControllerTest extends TaskListControllerTest
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.DEPOSIT_CONSENT)
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 
