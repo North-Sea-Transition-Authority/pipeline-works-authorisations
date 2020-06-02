@@ -105,7 +105,6 @@ public class DepositDrawingsServiceTest {
   public void isDrawingReferenceUniqueWithId_true() {
     var entity = new PadDepositDrawing();
     entity.setId(1);
-    when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"my existing ref")).thenReturn(Optional.of(entity));
     assertThat(depositDrawingsService.isDrawingReferenceUnique("my new ref", pwaApplicationDetail)).isTrue();
   }
 
