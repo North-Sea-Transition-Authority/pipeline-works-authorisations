@@ -7,16 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
 public class PwaApplicationContextService {
@@ -46,7 +44,7 @@ public class PwaApplicationContextService {
     var applicationId = contextParams.getApplicationId();
     var context = getApplicationContext(applicationId, contextParams.getAuthenticatedUserAccount());
 
-    performAppStatusCheck(contextParams.getStatus(), context.getApplicationDetail());
+    ApplicationContextUtils.performAppStatusCheck(contextParams.getStatus(), context.getApplicationDetail());
     performApplicationTypeCheck(contextParams.getTypes(), context.getApplicationType(), applicationId);
     performPrivilegeCheck(
         contextParams.getPermissions(),
@@ -77,25 +75,6 @@ public class PwaApplicationContextService {
     var detail = detailService.getTipDetail(applicationId);
     var roles = pwaContactService.getContactRoles(detail.getPwaApplication(), authenticatedUser.getLinkedPerson());
     return new PwaApplicationContext(detail, authenticatedUser, roles);
-  }
-
-
-  /**
-   * If the application status matches the required one, pass, otherwise throw relevant exception.
-   */
-  private void performAppStatusCheck(PwaApplicationStatus expectedStatus,
-                                     PwaApplicationDetail pwaApplicationDetail) {
-
-    if (expectedStatus != null && !expectedStatus.equals(pwaApplicationDetail.getStatus())) {
-      throw new PwaEntityNotFoundException(
-          String.format("PwaApplicationDetailId:%s Did not have expected status:%s. Actual status:%s",
-              pwaApplicationDetail.getId(),
-              expectedStatus,
-              pwaApplicationDetail.getStatus()
-          )
-      );
-    }
-
   }
 
   /**

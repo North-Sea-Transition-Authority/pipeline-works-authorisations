@@ -43,7 +43,7 @@
                         <@fdsTextInput.textInput path="form.contingencyConcreteAmount" nestingPath="form.materialType" labelText="How much contingency was included?"/> 
 
                     <#elseif materialTypeOption == "ROCK">
-                        <@fdsTextInput.textInput path="form.rocksSize" nestingPath="form.materialType" labelText="Size" suffix="Grade e.g (1-5)" inputClass="govuk-input--width-10"/>
+                        <@fdsTextInput.textInput path="form.rocksSize" nestingPath="form.materialType" labelText="Size" hintText="For example 1-5" inputClass="govuk-input--width-10"/>
                         <@fdsTextInput.textInput path="form.quantityRocks" nestingPath="form.materialType" labelText="Quantity of material to be used (decimal tonnes)" inputClass="govuk-input--width-10"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
                         <@fdsTextInput.textInput path="form.contingencyRocksAmount" nestingPath="form.materialType" labelText="How much contingency was included?"/>
@@ -109,7 +109,7 @@
         
 
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to deposits" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

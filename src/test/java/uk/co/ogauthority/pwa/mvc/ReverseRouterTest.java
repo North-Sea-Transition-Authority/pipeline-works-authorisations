@@ -24,6 +24,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
@@ -32,6 +33,9 @@ public class ReverseRouterTest extends AbstractControllerTest {
 
   @MockBean
   private PwaApplicationContextService pwaApplicationContextService;
+
+  @MockBean
+  private PwaAppProcessingContextService appProcessingContextService;
 
   @Before
   public void setUp() {

@@ -45,7 +45,7 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.HUOO_VARIATION)
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 

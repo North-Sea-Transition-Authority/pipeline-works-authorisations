@@ -88,7 +88,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT
         )
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 

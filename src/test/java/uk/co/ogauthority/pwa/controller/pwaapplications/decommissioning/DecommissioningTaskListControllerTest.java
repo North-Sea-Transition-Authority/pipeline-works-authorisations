@@ -45,7 +45,7 @@ public class DecommissioningTaskListControllerTest extends TaskListControllerTes
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(PwaApplicationType.DECOMMISSIONING)
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
   }
 

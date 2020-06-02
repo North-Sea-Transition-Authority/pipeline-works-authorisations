@@ -93,7 +93,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT
         )
-        .setAllowedRoles(PwaContactRole.PREPARER)
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 
   }

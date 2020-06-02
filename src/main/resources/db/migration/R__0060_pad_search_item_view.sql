@@ -7,13 +7,13 @@ SELECT
 , pad.id pwa_application_detail_id
 
 , pd.reference pwa_reference
-, pa.app_reference pad_reference    
+, pa.app_reference pad_reference
 , pa.application_type
 
 , pad.status pad_status
 , pad.created_timestamp pad_created_timestamp
 , pad.submitted_timestamp pad_submitted_timestamp
-, pad.approved_timestamp pad_approved_timestamp
+, pad.init_review_approved_timestamp pad_init_review_approved_ts
 , pad.status_last_modified_timestamp pad_status_timestamp
 , pad.tip_flag
 
@@ -31,5 +31,5 @@ JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
 
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
-WHERE pd.end_timestamp IS NULL; 
+WHERE pd.end_timestamp IS NULL;
 
