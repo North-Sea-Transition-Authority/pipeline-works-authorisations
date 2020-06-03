@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -82,21 +83,16 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Unable to find drawing with id (%d) of detail (%d)", drawingId, detail.getId())
         ));
-    var summaryList = getPipelineDrawingSummaryViewsFromDrawingList(detail, List.of(drawing));
-    if (summaryList.size() > 1) {
-      throw new AccessDeniedException("Too many PipelineDrawingSummaryView results for drawing id: " + drawingId);
-    } else if (summaryList.size() == 0) {
-      throw new AccessDeniedException("No PipelineDrawingSummaryViews for drawing id: " + drawingId);
-    }
-    return summaryList.get(0);
+    return getPipelineDrawingSummaryViewFromDrawing(detail, drawing);
   }
 
-  public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViews(PwaApplicationDetail detail) {
+  public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViewList(PwaApplicationDetail detail) {
     var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail);
     return getPipelineDrawingSummaryViewsFromDrawingList(detail, drawings);
   }
 
-  private List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViewsFromDrawingList(PwaApplicationDetail detail,
+  @VisibleForTesting
+  public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViewsFromDrawingList(PwaApplicationDetail detail,
                                                                                          List<PadTechnicalDrawing> drawings) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
     Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap = links.stream()
@@ -125,6 +121,17 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     summaryList.sort(Comparator.comparing(PipelineDrawingSummaryView::getReference));
 
     return summaryList;
+  }
+
+  @VisibleForTesting
+  public PipelineDrawingSummaryView getPipelineDrawingSummaryViewFromDrawing(PwaApplicationDetail detail,
+                                                                             PadTechnicalDrawing drawing) {
+    var summaryList = getPipelineDrawingSummaryViewsFromDrawingList(detail, List.of(drawing));
+    if (summaryList.size() == 1) {
+      return summaryList.get(0);
+    } else {
+      throw new AccessDeniedException("");
+    }
   }
 
   @Transactional
