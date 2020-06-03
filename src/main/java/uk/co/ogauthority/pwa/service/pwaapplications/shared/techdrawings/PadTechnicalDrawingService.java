@@ -20,8 +20,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -87,23 +85,30 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
     var summaryList = new ArrayList<PipelineDrawingSummaryView>();
 
-    for (PadTechnicalDrawing technicalDrawing : linkMap.keySet()) {
-      List<PipelineOverview> overviews = linkMap.get(technicalDrawing)
-          .stream()
-          .map(drawingLink -> new PadPipelineOverview(drawingLink.getPipeline(), 0L))
-          .collect(Collectors.toUnmodifiableList());
-
-      UploadedFileView fileView = fileViews.stream()
-          .filter(uploadedFileView -> uploadedFileView.getFileId().equals(technicalDrawing.getFileId()))
-          .findFirst()
-          .orElseThrow(() -> new PwaEntityNotFoundException(
-              "Unable to get UploadedFileView of file with ID: " + technicalDrawing.getFileId()));
-      summaryList.add(new PipelineDrawingSummaryView(technicalDrawing, overviews, fileView));
-    }
+    linkMap.forEach((technicalDrawing, drawingLinks) -> {
+      var summaryView = buildSummaryView(technicalDrawing, drawingLinks, fileViews);
+      summaryList.add(summaryView);
+    });
 
     summaryList.sort(Comparator.comparing(PipelineDrawingSummaryView::getReference));
 
     return summaryList;
+  }
+
+  private PipelineDrawingSummaryView buildSummaryView(PadTechnicalDrawing technicalDrawing,
+                                                      List<PadTechnicalDrawingLink> drawingLinks,
+                                                      List<UploadedFileView> fileViewList) {
+    List<String> references = drawingLinks.stream()
+        .map(drawingLink -> drawingLink.getPipeline().getPipelineRef())
+        .collect(Collectors.toUnmodifiableList());
+
+    UploadedFileView fileView = fileViewList.stream()
+        .filter(uploadedFileView -> uploadedFileView.getFileId().equals(technicalDrawing.getFileId()))
+        .findFirst()
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Unable to get UploadedFileView of file with ID: " + technicalDrawing.getFileId()));
+
+    return new PipelineDrawingSummaryView(technicalDrawing, references, fileView);
   }
 
   @Override

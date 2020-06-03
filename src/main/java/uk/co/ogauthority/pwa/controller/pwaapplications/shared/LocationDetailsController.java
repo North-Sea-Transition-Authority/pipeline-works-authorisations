@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.rest.DevukRestController;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.model.entity.enums.FileUpdateMode;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -142,6 +143,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
           form,
           applicationContext.getApplicationDetail(),
           filePurpose,
+          FileUpdateMode.UPDATE_AND_DELETE_UNLINKED_FILES,
           applicationContext.getUser());
 
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());

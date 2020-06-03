@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,7 +16,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -30,7 +27,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.Admiral
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -47,7 +44,7 @@ public class TechnicalDrawingsController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final AdmiraltyChartFileService admiraltyChartFileService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final TechnicalDrawingsService technicalDrawingsService;
+  private final TechnicalDrawingSectionService technicalDrawingSectionService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   @Autowired
@@ -55,12 +52,12 @@ public class TechnicalDrawingsController {
       ApplicationBreadcrumbService applicationBreadcrumbService,
       AdmiraltyChartFileService admiraltyChartFileService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      TechnicalDrawingsService technicalDrawingsService,
+      TechnicalDrawingSectionService technicalDrawingSectionService,
       PadTechnicalDrawingService padTechnicalDrawingService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.technicalDrawingsService = technicalDrawingsService;
+    this.technicalDrawingSectionService = technicalDrawingSectionService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
   }
 
@@ -71,8 +68,6 @@ public class TechnicalDrawingsController {
         .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
-        .addObject("addPipelineUrl", ReverseRouter.route(on(PipelineDrawingController.class)
-            .renderAddDrawing(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
         .addObject("pipelineDrawingUrlFactory",
             new PipelineDrawingUrlFactory(detail))
         .addObject("pipelineDrawingSummaryViews", padTechnicalDrawingService.getPipelineDrawingSummaryViews(detail));
@@ -99,7 +94,7 @@ public class TechnicalDrawingsController {
                                    PwaApplicationContext applicationContext,
                                    AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
-    bindingResult = technicalDrawingsService.validate(form, bindingResult, ValidationType.FULL, detail);
+    bindingResult = technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     if (bindingResult.hasErrors()) {
       return getOverviewModelAndView(detail)
           .addObject("errorMessage", "The admiralty chart section is invalid");

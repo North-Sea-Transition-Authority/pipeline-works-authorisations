@@ -36,7 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
@@ -54,7 +54,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private TechnicalDrawingsService technicalDrawingsService;
+  private TechnicalDrawingSectionService technicalDrawingSectionService;
 
   @MockBean
   private AdmiraltyChartFileService admiraltyChartFileService;
@@ -145,7 +145,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
 
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
-    ControllerTestUtils.failValidationWhenPost(technicalDrawingsService, new SummaryForm(), ValidationType.FULL);
+    ControllerTestUtils.failValidationWhenPost(technicalDrawingSectionService, new SummaryForm(), ValidationType.FULL);
 
     mockMvc.perform(post(ReverseRouter.route(on(TechnicalDrawingsController.class)
         .postOverview(
@@ -166,7 +166,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
 
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(Set.of(PwaContactRole.PREPARER));
 
-    ControllerTestUtils.passValidationWhenPost(technicalDrawingsService, new SummaryForm(), ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(technicalDrawingSectionService, new SummaryForm(), ValidationType.FULL);
 
     mockMvc.perform(post(ReverseRouter.route(on(TechnicalDrawingsController.class)
         .postOverview(

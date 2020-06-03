@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDow
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.enums.FileUpdateMode;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
@@ -110,10 +111,11 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-      padFileService.makeFilesPermanent(
+      padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
           filePurpose,
+          FileUpdateMode.UPDATE_AND_KEEP_UNLINKED_FILES,
           applicationContext.getUser());
       padTechnicalDrawingService.addDrawing(applicationContext.getApplicationDetail(), form);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)

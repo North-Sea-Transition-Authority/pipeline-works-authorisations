@@ -197,7 +197,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
     var list = ListUtils.emptyIfNull(pipelineIds);
     if (list.size() > 0) {
-      return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, ListUtils.emptyIfNull(pipelineIds));
+      return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, list);
     }
     return List.of();
   }

@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocation
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
 /**
  * Enumeration of all app form tasks for the PWA application task list.
@@ -81,7 +81,7 @@ public enum ApplicationTask {
   TECHNICAL_DRAWINGS(
       "Admiralty chart and pipeline drawings",
       TechnicalDrawingsController.class,
-      TechnicalDrawingsService.class,
+      TechnicalDrawingSectionService.class,
       90
   ),
 
