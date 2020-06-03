@@ -32,7 +32,7 @@ captionClass="govuk-caption-xl"
 fullWidthColumn=false
 oneHalfColumn=false
 oneThirdColumn=false
-twoThirdsColumn=false
+twoThirdsColumn=true
 twoThirdsOneThirdColumn=false
 oneQuarterColumn=false
 twoThirdsOneThirdContent=""
@@ -45,7 +45,6 @@ phaseBannerLink="#"
 topNavigation=false
 wrapperWidth=false
 masthead=false
-headerLogo="FIVIUM"
 errorCheck=false
 noIndex=false>
 
