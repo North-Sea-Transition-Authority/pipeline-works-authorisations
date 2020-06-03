@@ -46,7 +46,8 @@ topNavigation=false
 wrapperWidth=false
 masthead=false
 errorCheck=false
-noIndex=false>
+noIndex=false
+headerIcon=true>
 
     <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
 
