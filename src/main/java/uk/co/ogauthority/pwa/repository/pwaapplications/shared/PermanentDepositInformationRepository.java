@@ -9,6 +9,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 
 public interface PermanentDepositInformationRepository extends CrudRepository<PadPermanentDeposit, Integer> {
 
+  long countByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+
   List<PadPermanentDeposit> findByPwaApplicationDetailOrderByReferenceAsc(PwaApplicationDetail pwaApplicationDetail);
 
   Optional<PadPermanentDeposit> findByPwaApplicationDetailAndReferenceIgnoreCase(

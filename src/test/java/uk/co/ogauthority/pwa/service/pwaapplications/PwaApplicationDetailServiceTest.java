@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -153,4 +155,21 @@ public class PwaApplicationDetailServiceTest {
     assertThat(submittedDetail.getSubmittedByWuaId()).isEqualTo(alternativeWua.getWuaId());
 
   }
+
+  @Test
+  public void setInitialReviewApproved() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    pwaApplicationDetailService.setInitialReviewApproved(detail, user);
+
+    verify(applicationDetailRepository, times(2)).save(detail);
+
+    assertThat(detail.getInitialReviewApprovedByWuaId()).isEqualTo(user.getWuaId());
+    assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
+    assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+  }
+
 }

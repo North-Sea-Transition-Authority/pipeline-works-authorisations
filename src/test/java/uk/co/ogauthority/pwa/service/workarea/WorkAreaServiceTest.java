@@ -24,6 +24,8 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -38,10 +40,15 @@ public class WorkAreaServiceTest {
 
   @Mock
   private PwaContactService pwaContactService;
+
   @Mock
   private ApplicationDetailSearcher applicationDetailSearcher;
+
   @Mock
   private PwaApplicationRedirectService pwaApplicationRedirectService;
+
+  @Mock
+  private PwaAppProcessingPermissionService appProcessingPermissionService;
 
   private WorkAreaService workAreaService;
 
@@ -49,9 +56,9 @@ public class WorkAreaServiceTest {
       new WebUserAccount(10),
       EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
 
-  private AuthenticatedUserAccount adminWorkAreUser = new AuthenticatedUserAccount(
+  private AuthenticatedUserAccount pwaManager = new AuthenticatedUserAccount(
       new WebUserAccount(10),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REGULATOR_ADMIN));
+      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_MANAGER));
 
   @Before
   public void setup() {
@@ -59,7 +66,11 @@ public class WorkAreaServiceTest {
     workAreaService = new WorkAreaService(
         pwaContactService,
         applicationDetailSearcher,
-        pwaApplicationRedirectService);
+        pwaApplicationRedirectService,
+        appProcessingPermissionService);
+
+    when(appProcessingPermissionService.getProcessingPermissions(pwaManager)).thenReturn(Set.of(
+        PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
   }
 
@@ -88,7 +99,7 @@ public class WorkAreaServiceTest {
   public void getWorkAreaResultPage_zeroResults_userIsAdmin() {
     setupFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
 
-    var workareaPage = workAreaService.getWorkAreaResultPage(adminWorkAreUser, WorkAreaTab.OPEN, REQUESTED_PAGE);
+    var workareaPage = workAreaService.getWorkAreaResultPage(pwaManager, WorkAreaTab.OPEN, REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(0);
 
     verify(applicationDetailSearcher, times(1)).searchByStatus(
@@ -130,7 +141,7 @@ public class WorkAreaServiceTest {
 
     setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
 
-    var workareaPage = workAreaService.getWorkAreaResultPage(adminWorkAreUser, WorkAreaTab.OPEN, REQUESTED_PAGE);
+    var workareaPage = workAreaService.getWorkAreaResultPage(pwaManager, WorkAreaTab.OPEN, REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(1);
 
     verify(applicationDetailSearcher, times(1)).searchByStatus(

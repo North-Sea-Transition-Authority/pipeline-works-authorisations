@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
@@ -56,6 +57,9 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   @Mock
   private PwaApplication pwaApplication;
+
+  @MockBean
+  private PwaAppProcessingContextService appProcessingContextService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Collections.emptyList());

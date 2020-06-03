@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.PwaApplicationWorkAreaItem;
@@ -36,6 +37,9 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PwaApplicationContextService pwaApplicationContextService;
+
+  @MockBean
+  private PwaAppProcessingContextService pwaAppProcessingContextService;
 
   @MockBean
   private WorkAreaService workAreaService;
