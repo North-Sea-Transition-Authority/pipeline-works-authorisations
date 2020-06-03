@@ -1,50 +1,27 @@
 package uk.co.ogauthority.pwa.service.enums.workflow;
 
-import java.util.Arrays;
-import java.util.List;
-import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
-import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 
 /**
- * Values are defined for each stage in a Camunda workflow.
- * workflowType = the workflow the stage belongs to
- * taskName = the name assigned in the .bpmn document for the stage
- * userTypes = types of user that should be able to take the actions available at the stage
+ * Interface to enforce common functionality but allow separation between workflow tasks for different workflow types.
  */
-public enum UserWorkflowTask {
+public interface UserWorkflowTask {
 
-  PREPARE_APPLICATION(WorkflowType.PWA_APPLICATION, "prepareApplication", List.of(UserType.INDUSTRY)),
-  APPLICATION_REVIEW(WorkflowType.PWA_APPLICATION, "applicationReview", List.of(UserType.OGA)),
-  CASE_OFFICER_REVIEW(WorkflowType.PWA_APPLICATION, "caseOfficerReview", List.of(UserType.OGA));
+  /**
+   * Task key is the name assigned in the .bpmn document for the stage.
+   */
+  String getTaskKey();
 
-  private final WorkflowType workflowType;
-  private final String taskKey;
-  private final List<UserType> userTypes;
+  WorkflowType getWorkflowType();
 
-  UserWorkflowTask(WorkflowType workflowType, String taskKey,
-                   List<UserType> userTypes) {
-    this.workflowType = workflowType;
-    this.taskKey = taskKey;
-    this.userTypes = userTypes;
-  }
+  /**
+   * Determines which type of user can be assigned the task.
+   */
+  WorkflowAssignment getAssignment();
 
-  public WorkflowType getWorkflowType() {
-    return workflowType;
-  }
-
-  public String getTaskKey() {
-    return taskKey;
-  }
-
-  public List<UserType> getUserTypes() {
-    return userTypes;
-  }
-
-  public static UserWorkflowTask getByTaskName(String taskName) {
-    return Arrays.stream(UserWorkflowTask.values())
-        .filter(e -> e.getTaskKey().equals(taskName))
-        .findFirst()
-        .orElseThrow(() -> new ValueNotFoundException(String.format("Task name %s not found", taskName)));
-  }
+  /**
+   * Return the name of the enum value.
+   */
+  String getTaskName();
 
 }

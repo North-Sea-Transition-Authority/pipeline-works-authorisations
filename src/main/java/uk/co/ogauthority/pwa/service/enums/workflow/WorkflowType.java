@@ -8,7 +8,7 @@ public enum WorkflowType {
 
   PWA_APPLICATION("pwaApplication");
 
-  private String processDefinitionKey;
+  private final String processDefinitionKey;
 
   WorkflowType(String processDefinitionKey) {
     this.processDefinitionKey = processDefinitionKey;

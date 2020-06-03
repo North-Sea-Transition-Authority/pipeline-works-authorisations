@@ -7,9 +7,12 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
  * Service to provide actions available to users at the 'Initial review' stage after submission.
@@ -19,16 +22,23 @@ public class InitialReviewService {
 
   private final PwaApplicationDetailService applicationDetailService;
   private final CamundaWorkflowService workflowService;
+  private final WorkflowAssignmentService workflowAssignmentService;
+  private final TeamManagementService teamManagementService;
 
   @Autowired
   public InitialReviewService(PwaApplicationDetailService applicationDetailService,
-                              CamundaWorkflowService workflowService) {
+                              CamundaWorkflowService workflowService,
+                              WorkflowAssignmentService workflowAssignmentService,
+                              TeamManagementService teamManagementService) {
     this.applicationDetailService = applicationDetailService;
     this.workflowService = workflowService;
+    this.workflowAssignmentService = workflowAssignmentService;
+    this.teamManagementService = teamManagementService;
   }
 
   @Transactional
   public void acceptApplication(PwaApplicationDetail detail,
+                                Integer caseOfficerPersonId,
                                 WebUserAccount acceptingUser) {
 
     if (!detail.getStatus().equals(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)) {
@@ -37,7 +47,13 @@ public class InitialReviewService {
     }
 
     applicationDetailService.setInitialReviewApproved(detail, acceptingUser);
-    workflowService.completeTask(detail.getMasterPwaApplicationId(), UserWorkflowTask.APPLICATION_REVIEW);
+    workflowService.completeTask(new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.APPLICATION_REVIEW));
+
+    workflowAssignmentService.assign(
+        detail.getPwaApplication(),
+        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        teamManagementService.getPerson(caseOfficerPersonId),
+        acceptingUser.getLinkedPerson());
 
   }
 
