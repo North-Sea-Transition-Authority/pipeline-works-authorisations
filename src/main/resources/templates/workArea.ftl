@@ -65,7 +65,7 @@
                 </tbody>
               </table>
 
-              <@fdsPagination.paginationControls pageView=workAreaPageView />
+                <@fdsPagination.pagination pageView=workAreaPageView />
             </#if>
         </@fdsTabs.tabContent>
 
