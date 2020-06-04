@@ -24,7 +24,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -96,10 +95,10 @@ public class PwaApplicationCreationServiceTest {
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
     verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user);
-    verify(camundaWorkflowService, times(1)).startWorkflow(WorkflowType.PWA_APPLICATION,
-        applicationArgumentCaptor.getValue().getId());
 
     PwaApplication application = applicationArgumentCaptor.getValue();
+
+    verify(camundaWorkflowService, times(1)).startWorkflow(application);
 
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
@@ -138,12 +137,10 @@ public class PwaApplicationCreationServiceTest {
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
     verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user);
-    verify(camundaWorkflowService, times(1)).startWorkflow(
-        WorkflowType.PWA_APPLICATION,
-        applicationArgumentCaptor.getValue().getId()
-    );
 
     PwaApplication application = applicationArgumentCaptor.getValue();
+
+    verify(camundaWorkflowService, times(1)).startWorkflow(application);
 
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));

@@ -18,9 +18,13 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
@@ -86,6 +90,82 @@ public class PadTechnicalDrawingServiceTest {
 
     assertThat(captor.getValue()).extracting(PadTechnicalDrawing::getFile, PadTechnicalDrawing::getReference, PadTechnicalDrawing::getPwaApplicationDetail)
         .containsExactly(padFile, "ref", pwaApplicationDetail);
+  }
+
+  @Test
+  public void getPipelineDrawingSummaryViews_singleOverview() {
+    var pipelineDrawing = new PadTechnicalDrawing();
+    pipelineDrawing.setReference("ref");
+    pipelineDrawing.setPwaApplicationDetail(pwaApplicationDetail);
+    pipelineDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL));
+    pipelineDrawing.setId(1);
+
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
+    var drawingLink = new PadTechnicalDrawingLink();
+    drawingLink.setTechnicalDrawing(pipelineDrawing);
+    drawingLink.setPipeline(pipeline);
+
+    var drawingList = List.of(pipelineDrawing);
+    var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
+
+    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(drawingList);
+    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(drawingList))
+        .thenReturn(List.of(drawingLink));
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+
+    var result = padTechnicalDrawingService.getPipelineDrawingSummaryViews(pwaApplicationDetail);
+    PipelineDrawingSummaryView summaryView = result.get(0);
+    assertThat(summaryView.getFileId()).isEqualTo(fileView.getFileId());
+    assertThat(summaryView.getDocumentDescription()).isEqualTo(fileView.getFileDescription());
+    assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
+    assertThat(summaryView.getPipelineReferences()).hasSize(1);
+    assertThat(summaryView.getReference()).isEqualTo(pipelineDrawing.getReference());
+  }
+
+  @Test
+  public void getPipelineDrawingSummaryViews_multipleOverviews() {
+    var pipelineDrawing = new PadTechnicalDrawing();
+    pipelineDrawing.setReference("ref");
+    pipelineDrawing.setPwaApplicationDetail(pwaApplicationDetail);
+    pipelineDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL));
+    pipelineDrawing.setId(1);
+
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
+    var pipeline2 = new PadPipeline();
+    pipeline2.setPipelineRef("ref");
+
+    var drawingLink = new PadTechnicalDrawingLink();
+    drawingLink.setTechnicalDrawing(pipelineDrawing);
+    drawingLink.setPipeline(pipeline);
+    var drawingLink2 = new PadTechnicalDrawingLink();
+    drawingLink2.setTechnicalDrawing(pipelineDrawing);
+    drawingLink2.setPipeline(pipeline2);
+
+    var drawingList = List.of(pipelineDrawing);
+    var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
+
+    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(drawingList);
+    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(drawingList))
+        .thenReturn(List.of(drawingLink, drawingLink2));
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+
+    var result = padTechnicalDrawingService.getPipelineDrawingSummaryViews(pwaApplicationDetail);
+    PipelineDrawingSummaryView summaryView = result.get(0);
+    assertThat(summaryView.getFileId()).isEqualTo(fileView.getFileId());
+    assertThat(summaryView.getDocumentDescription()).isEqualTo(fileView.getFileDescription());
+    assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
+    assertThat(summaryView.getPipelineReferences()).hasSize(2);
+    assertThat(summaryView.getReference()).isEqualTo(pipelineDrawing.getReference());
   }
 
 }

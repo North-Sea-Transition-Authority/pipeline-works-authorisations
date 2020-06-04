@@ -6,9 +6,10 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
  * A workflow-agnostic service designed to provide generic access to common Camunda features.
@@ -26,32 +27,47 @@ public class CamundaWorkflowService {
     this.runtimeService = runtimeService;
   }
 
-  public void startWorkflow(WorkflowType workflowType, Integer businessKey) {
-    runtimeService.startProcessInstanceByKey(workflowType.getProcessDefinitionKey(), businessKey.toString());
+  public void startWorkflow(WorkflowSubject workflowSubject) {
+    runtimeService.startProcessInstanceByKey(
+        workflowSubject.getWorkflowType().getProcessDefinitionKey(),
+        workflowSubject.getBusinessKey().toString());
   }
 
-  public void completeTask(Integer businessKey, UserWorkflowTask task) {
+  private Optional<Task> getWorkflowTask(WorkflowTaskInstance workflowTaskInstance) {
 
-    Optional<Task> taskToComplete = Optional.ofNullable(taskService
-        .createTaskQuery()
-        .processDefinitionKey(task.getWorkflowType().getProcessDefinitionKey())
-        .processInstanceBusinessKey(businessKey.toString())
+    return Optional.ofNullable(taskService.createTaskQuery()
+        .processDefinitionKey(workflowTaskInstance.getWorkflowType().getProcessDefinitionKey())
+        .processInstanceBusinessKey(workflowTaskInstance.getBusinessKey().toString())
         .active()
-        .taskDefinitionKey(task.getTaskKey())
-        .singleResult()
-    );
+        .taskDefinitionKey(workflowTaskInstance.getTaskKey())
+        .singleResult());
 
-    taskToComplete.ifPresentOrElse(
+  }
+
+  public void completeTask(WorkflowTaskInstance workflowTaskInstance) {
+
+    getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
         foundTask -> taskService.complete(foundTask.getId()),
-        () -> {
-          throw new WorkflowException(
-              String.format("Active task: [%s] not found for workflow: [%s] and business key: [%s]",
-                  task.name(),
-                  task.getWorkflowType().name(),
-                  businessKey.toString()));
-        }
+        () -> throwTaskNotFoundException(workflowTaskInstance)
     );
 
+  }
+
+  public void assignTaskToUser(WorkflowTaskInstance workflowTaskInstance, Person person) {
+
+    getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
+        task -> taskService.setAssignee(task.getId(), String.valueOf(person.getId().asInt())),
+        () -> throwTaskNotFoundException(workflowTaskInstance)
+    );
+
+  }
+
+  private void throwTaskNotFoundException(WorkflowTaskInstance workflowTaskInstance) {
+    throw new WorkflowException(
+        String.format("Active task: [%s] not found for workflow: [%s] and business key: [%s]",
+            workflowTaskInstance.getTaskKey(),
+            workflowTaskInstance.getWorkflowType().name(),
+            workflowTaskInstance.getBusinessKey().toString()));
   }
 
 }

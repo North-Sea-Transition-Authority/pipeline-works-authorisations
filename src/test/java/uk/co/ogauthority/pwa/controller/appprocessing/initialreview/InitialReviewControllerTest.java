@@ -8,11 +8,13 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,8 +36,11 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.validators.appprocessing.initialreview.InitialReviewFormValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = InitialReviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
@@ -47,7 +52,13 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   private int APP_ID = 1;
 
   @MockBean
+  private WorkflowAssignmentService workflowAssignmentService;
+
+  @MockBean
   private InitialReviewService initialReviewService;
+
+  @MockBean
+  private InitialReviewFormValidator validator;
 
   @Before
   public void setUp() {
@@ -72,7 +83,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
-                .renderInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .renderInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performRegulatorRoleCheck(status().isOk(), status().isForbidden());
 
@@ -84,7 +95,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
-                .renderInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .renderInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -96,7 +107,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
-                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTester.performRegulatorRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -107,30 +118,50 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
+        .param("caseOfficerPersonId", "5")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(initialReviewService, times(1)).acceptApplication(pwaApplicationDetail, user);
+    verify(initialReviewService, times(1)).acceptApplication(pwaApplicationDetail, 5, user);
 
   }
 
   @Test
   public void postInitialReview_alreadyPerformed() throws Exception {
 
+    var approvedTimestamp = Instant.now().minusSeconds(60);
+
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     pwaApplicationDetail.setInitialReviewApprovedByWuaId(1);
-    pwaApplicationDetail.setInitialReviewApprovedTimestamp(Instant.now().minusSeconds(60));
+    pwaApplicationDetail.setInitialReviewApprovedTimestamp(approvedTimestamp);
 
-    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, user);
+    doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, 5, user);
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
         .with(authenticatedUserAndSession(user))
+        .param("caseOfficerPersonId", "5")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    assertThat(pwaApplicationDetail.getInitialReviewApprovedTimestamp()).isBefore(Instant.now().minusSeconds(10));
+    assertThat(pwaApplicationDetail.getInitialReviewApprovedTimestamp()).isEqualTo(approvedTimestamp);
+
+  }
+
+  @Test
+  public void postInitialReview_validationFail() throws Exception {
+
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    ControllerTestUtils.mockValidatorErrors(validator, List.of("caseOfficerPersonId"));
+
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .param("caseOfficerPersonId", "5")
+        .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/appProcessing/initialReview/initialReview"));
 
   }
 

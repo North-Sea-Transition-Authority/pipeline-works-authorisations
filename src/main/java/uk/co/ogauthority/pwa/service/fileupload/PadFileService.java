@@ -112,6 +112,7 @@ public class PadFileService {
    * Fully link temporary files that are still present, update file descriptions, delete files that have been deleted onscreen.
    * @param uploadForm containing files to update
    * @param pwaApplicationDetail we are updating files for
+   * @param updateMode the mode used when updating files
    * @param purpose of files being updated
    * @param user updating the files
    */
@@ -119,6 +120,7 @@ public class PadFileService {
   public void updateFiles(UploadMultipleFilesWithDescriptionForm uploadForm,
                           PwaApplicationDetail pwaApplicationDetail,
                           ApplicationFilePurpose purpose,
+                          FileUpdateMode updateMode,
                           WebUserAccount user) {
 
     Map<String, UploadFileWithDescriptionForm> uploadedFileIdToFormMap = getFileIdToFormMap(uploadForm);
@@ -144,7 +146,10 @@ public class PadFileService {
     });
 
     padFileRepository.saveAll(filesToUpdate);
-    deleteAppFileLinksAndUploadedFiles(filesToRemove, user);
+
+    if (updateMode == FileUpdateMode.DELETE_UNLINKED_FILES) {
+      deleteAppFileLinksAndUploadedFiles(filesToRemove, user);
+    }
 
   }
 
@@ -180,7 +185,7 @@ public class PadFileService {
   /**
    * Get files for an application with a specified purpose and link status as uploaded file views.
    */
-  private List<UploadedFileView> getUploadedFileViews(PwaApplicationDetail pwaApplicationDetail,
+  public List<UploadedFileView> getUploadedFileViews(PwaApplicationDetail pwaApplicationDetail,
                                                       ApplicationFilePurpose purpose,
                                                       ApplicationFileLinkStatus fileLinkStatus) {
 

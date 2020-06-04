@@ -14,9 +14,11 @@ import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
 @Entity(name = "pwa_applications")
-public class PwaApplication {
+public class PwaApplication implements WorkflowSubject {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -136,5 +138,15 @@ public class PwaApplication {
   public int hashCode() {
     return Objects.hash(id, masterPwa, applicationType, appReference, consentReference, variationNo, decision,
         decisionTimestamp);
+  }
+
+  @Override
+  public Integer getBusinessKey() {
+    return id;
+  }
+
+  @Override
+  public WorkflowType getWorkflowType() {
+    return WorkflowType.PWA_APPLICATION;
   }
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -130,7 +131,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
     // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
     Long numberOfPipesForDetail = padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    newPipeline.setPipelineRef("TEMPORARY_" + (numberOfPipesForDetail.intValue() + 1));
+    newPipeline.setPipelineRef("TEMPORARY " + (numberOfPipesForDetail.intValue() + 1));
 
     saveEntityUsingForm(newPipeline, form);
 
@@ -194,7 +195,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
   }
 
   public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
-    return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
+    var list = ListUtils.emptyIfNull(pipelineIds);
+    if (list.size() > 0) {
+      return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, list);
+    }
+    return List.of();
   }
 
   @Override

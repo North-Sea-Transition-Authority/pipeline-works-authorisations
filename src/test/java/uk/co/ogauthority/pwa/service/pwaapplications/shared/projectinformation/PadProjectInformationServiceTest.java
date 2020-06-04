@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
@@ -116,6 +117,7 @@ public class PadProjectInformationServiceTest {
         form,
         this.padProjectInformation.getPwaApplicationDetail(),
         ApplicationFilePurpose.PROJECT_INFORMATION,
+        FileUpdateMode.DELETE_UNLINKED_FILES,
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);

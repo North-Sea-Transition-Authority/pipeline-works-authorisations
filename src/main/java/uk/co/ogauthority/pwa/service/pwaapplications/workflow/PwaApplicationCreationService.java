@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -64,7 +63,7 @@ public class PwaApplicationCreationService {
 
     var detail = pwaApplicationDetailService.createFirstDetail(application, createdByUser);
 
-    camundaWorkflowService.startWorkflow(WorkflowType.PWA_APPLICATION, application.getId());
+    camundaWorkflowService.startWorkflow(application);
 
     return detail;
 

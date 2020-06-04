@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -65,8 +66,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   /**
    * Map stored data to form.
    *
-   * @param padProjectInformation     stored data
-   * @param form                      form to map to
+   * @param padProjectInformation stored data
+   * @param form                  form to map to
    */
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
                               ProjectInformationForm form) {
@@ -85,7 +86,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                   WebUserAccount user) {
     projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
-    padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), filePurpose, user);
+    padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), filePurpose,
+        FileUpdateMode.DELETE_UNLINKED_FILES, user);
   }
 
   public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {
@@ -116,7 +118,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       groupValidator.validate(form, bindingResult, PartialValidation.class);
     } else {
       groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
-      var projectInfoValidationHints = new ProjectInformationFormValidationHints(getIsAnyDepositQuestionRequired(pwaApplicationDetail),
+      var projectInfoValidationHints = new ProjectInformationFormValidationHints(
+          getIsAnyDepositQuestionRequired(pwaApplicationDetail),
           getIsPermanentDepositQuestionRequired(pwaApplicationDetail));
       projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
     }
@@ -136,7 +139,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   public String getFormattedProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    return  DateUtils.formatDate(LocalDate.ofInstant(
+    return DateUtils.formatDate(LocalDate.ofInstant(
         projectInformation.getProposedStartTimestamp(), ZoneId.systemDefault()));
   }
 
@@ -144,7 +147,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
     return Optional.ofNullable(projectInformation.getProposedStartTimestamp());
   }
-
 
 
 }
