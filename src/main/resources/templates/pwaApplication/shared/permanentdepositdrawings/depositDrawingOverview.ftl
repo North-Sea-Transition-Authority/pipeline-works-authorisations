@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#include 'depositsDrawingsViewSummary.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" --> 
 
@@ -11,7 +12,14 @@
 
     <@fdsForm.htmlForm>
         
-        <@fdsAction.link linkText="Add drawing" linkUrl=springUrl(addDrawingUrl) linkClass="govuk-button govuk-button--blue"/>        
+        <@fdsAction.link linkText="Add drawing" linkUrl=springUrl(depositDrawingUrlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>     
+
+        <#list depositDrawingSummaryViews as depositDrawingView>
+            <h2 class="govuk-heading-m">${depositDrawingView.reference}</h2>    
+            <#--  <@fdsAction.link  linkText="Change" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />
+            <@fdsAction.link  linkText="Remove" linkUrl=springUrl(removeDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />  -->
+            <@depositDrawingViewSummary depositDrawingView depositDrawingUrlFactory/>
+        </#list>        
 
 
         <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
