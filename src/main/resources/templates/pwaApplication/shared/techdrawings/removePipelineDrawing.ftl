@@ -16,8 +16,8 @@
         </@fdsCheckAnswers.checkAnswersRow>
         <@fdsCheckAnswers.checkAnswersRow keyText="Associated pipelines" actionUrl="" screenReaderActionText="" actionText="">
           <ul class="govuk-list">
-              <#list summary.pipelineOverviews as pipeline>
-                <li>${pipeline.pipelineNumber}</li>
+              <#list summary.pipelineReferences as ref>
+                <li>${ref}</li>
               </#list>
           </ul>
         </@fdsCheckAnswers.checkAnswersRow>
