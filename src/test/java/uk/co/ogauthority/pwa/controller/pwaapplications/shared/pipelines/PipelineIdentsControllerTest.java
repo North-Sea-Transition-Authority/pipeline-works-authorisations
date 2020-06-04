@@ -178,6 +178,10 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     var prevIdent = new PadPipelineIdent();
     prevIdent.setPadPipeline(padPipeline);
     prevIdent.setToLocation("prevTo");
+    prevIdent.setToCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ONE, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ONE, LongitudeDirection.EAST)
+    ));
     when(pipelineIdentService.getMaxIdent(padPipeline)).thenReturn(Optional.of(prevIdent));
 
     var identForm = (PipelineIdentForm) Objects.requireNonNull(
@@ -197,6 +201,15 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .get("form");
 
     assertThat(identForm.getFromLocation()).isEqualTo(prevIdent.getToLocation());
+
+    var fromCoordinateForm = identForm.getFromCoordinateForm();
+    var fromCoordinatePair = new CoordinatePair(
+        new LatitudeCoordinate(fromCoordinateForm.getLatitudeDegrees(), fromCoordinateForm.getLatitudeMinutes(),
+            fromCoordinateForm.getLatitudeSeconds(), fromCoordinateForm.getLatitudeDirection()),
+        new LongitudeCoordinate(fromCoordinateForm.getLongitudeDegrees(), fromCoordinateForm.getLongitudeMinutes(),
+            fromCoordinateForm.getLongitudeSeconds(), fromCoordinateForm.getLongitudeDirection())
+    );
+    assertThat(fromCoordinatePair).isEqualToComparingFieldByField(prevIdent.getToCoordinates());
 
   }
 

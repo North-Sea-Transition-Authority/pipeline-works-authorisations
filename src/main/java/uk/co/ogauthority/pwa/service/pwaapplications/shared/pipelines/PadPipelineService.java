@@ -130,7 +130,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
     // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
     Long numberOfPipesForDetail = padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    newPipeline.setPipelineRef("TEMPORARY_" + (numberOfPipesForDetail.intValue() + 1));
+    newPipeline.setPipelineRef("TEMPORARY " + (numberOfPipesForDetail.intValue() + 1));
 
     saveEntityUsingForm(newPipeline, form);
 
