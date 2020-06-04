@@ -104,7 +104,7 @@ public class PermanentDepositViewMappingServiceTest {
     var entity = buildBaseEntity();
     setEntityRockProperties(entity);
     view.setMaterialType(MaterialType.ROCK);
-    view.setRocksSize(Integer.parseInt(entity.getMaterialSize()));
+    view.setRocksSize(entity.getMaterialSize());
     view.setQuantityRocks(String.valueOf(entity.getQuantity()));
     view.setContingencyRocksAmount(entity.getContingencyAmount());
   }

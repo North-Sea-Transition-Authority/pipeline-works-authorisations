@@ -6,27 +6,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingsForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +39,7 @@ public class PermanentDepositDrawingValidatorTest {
   }
 
 
-  public Map<String, Set<String>> getErrorMap(PermanentDepositDrawingsForm form) {
+  public Map<String, Set<String>> getErrorMap(PermanentDepositDrawingForm form) {
     var errors = new BeanPropertyBindingResult(form, "form");
     validator.validate(form, errors, service, pwaApplicationDetail);
     return errors.getFieldErrors().stream()
@@ -63,7 +49,7 @@ public class PermanentDepositDrawingValidatorTest {
 
   @Test
   public void validate_form_empty() {
-    var form = new PermanentDepositDrawingsForm();
+    var form = new PermanentDepositDrawingForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(
         entry("reference", Set.of("reference.required")),
@@ -74,7 +60,7 @@ public class PermanentDepositDrawingValidatorTest {
 
   @Test
   public void validate_ref_notUnique() {
-    var form = new PermanentDepositDrawingsForm();
+    var form = new PermanentDepositDrawingForm();
     form.setReference("existing ref");
     when(service.isDrawingReferenceUnique(
         form.getReference(), pwaApplicationDetail)).thenReturn(false);
@@ -85,7 +71,7 @@ public class PermanentDepositDrawingValidatorTest {
 
   @Test
   public void validate_ref_valid() {
-    var form = new PermanentDepositDrawingsForm();
+    var form = new PermanentDepositDrawingForm();
     form.setReference("new ref");
     when(service.isDrawingReferenceUnique(
         form.getReference(), pwaApplicationDetail)).thenReturn(true);
@@ -95,7 +81,7 @@ public class PermanentDepositDrawingValidatorTest {
 
   @Test
   public void validate_files_moreThanOneUploaded() {
-    var form = new PermanentDepositDrawingsForm();
+    var form = new PermanentDepositDrawingForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm(), new UploadFileWithDescriptionForm()));
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))

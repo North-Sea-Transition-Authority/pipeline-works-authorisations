@@ -12,6 +12,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 @Repository
 public interface PadDepositDrawingLinkRepository extends CrudRepository<PadDepositDrawingLink, Integer> {
 
-  List<PadDepositDrawingLink> getAllByPadDepositDrawingIdIn(List<PadDepositDrawing> drawings);
+  List<PadDepositDrawingLink> getAllByPadDepositDrawingIn(List<PadDepositDrawing> drawings);
 
 }

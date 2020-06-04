@@ -4,7 +4,7 @@ import java.util.Set;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
 
-public class PermanentDepositDrawingsForm extends UploadMultipleFilesWithDescriptionForm {
+public class PermanentDepositDrawingForm extends UploadMultipleFilesWithDescriptionForm {
 
   private Set<String> selectedDeposits;
   private String reference;

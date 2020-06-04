@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -176,6 +177,10 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   }
 
 
+  public Optional<PadPermanentDeposit> getDepositById(int id) {
+    return permanentDepositInformationRepository.findById(id);
+  }
+
   public List<PadPermanentDeposit> getPermanentDeposits(PwaApplicationDetail pwaApplicationDetail) {
     return permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
   }
@@ -245,10 +250,10 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return isPermanentDepositMade(pwaApplicationDetail);
+    return isPermanentDepositToBeMade(pwaApplicationDetail);
   }
 
-  public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean isPermanentDepositToBeMade(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
     if (projectInformation.isPresent()) {
       return BooleanUtils.isTrue(projectInformation.get().getPermanentDepositsMade())
@@ -257,6 +262,9 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return false;
   }
 
+  public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
+    return permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail) > 0 ? true : false;
+  }
 
 }
 

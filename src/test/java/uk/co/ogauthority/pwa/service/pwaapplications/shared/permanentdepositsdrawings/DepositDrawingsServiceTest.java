@@ -17,8 +17,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -79,7 +79,7 @@ public class DepositDrawingsServiceTest {
 
   @Test
   public void addDrawing() {
-    var form = new PermanentDepositDrawingsForm();
+    var form = new PermanentDepositDrawingForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     form.setReference("ref");
     form.setSelectedDeposits(Set.of("1"));
@@ -89,7 +89,8 @@ public class DepositDrawingsServiceTest {
 
     var padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setId(1);
-    when(padPermanentDepositRepository.findById(Integer.parseInt("1"))).thenReturn(Optional.of(padPermanentDeposit));
+    //when(padPermanentDepositRepository.findById(Integer.parseInt("1"))).thenReturn(Optional.of(padPermanentDeposit));
+    when(permanentDepositService.getDepositById(1)).thenReturn(Optional.of(padPermanentDeposit));
     depositDrawingsService.addDrawing(pwaApplicationDetail, form, new WebUserAccount());
 
     var captor = ArgumentCaptor.forClass(PadDepositDrawing.class);
@@ -113,7 +114,7 @@ public class DepositDrawingsServiceTest {
     depositDrawing.setId(1);
 
     var drawingLink = new PadDepositDrawingLink();
-    drawingLink.setPadDepositDrawingId(depositDrawing);
+    drawingLink.setPadDepositDrawing(depositDrawing);
     var padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setReference("my ref");
     drawingLink.setPadPermanentDeposit(padPermanentDeposit);
@@ -148,12 +149,12 @@ public class DepositDrawingsServiceTest {
     depositDrawing.setId(1);
 
     var drawingLink1 = new PadDepositDrawingLink();
-    drawingLink1.setPadDepositDrawingId(depositDrawing);
+    drawingLink1.setPadDepositDrawing(depositDrawing);
     var padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setReference("my ref");
     drawingLink1.setPadPermanentDeposit(padPermanentDeposit);
     var drawingLink2 = new PadDepositDrawingLink();
-    drawingLink2.setPadDepositDrawingId(depositDrawing);
+    drawingLink2.setPadDepositDrawing(depositDrawing);
     padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setReference("my ref2");
     drawingLink2.setPadPermanentDeposit(padPermanentDeposit);

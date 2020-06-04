@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -20,8 +19,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -29,7 +28,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 
@@ -67,8 +65,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
 
 
-  @Transactional
-  public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingsForm form, WebUserAccount webUserAccount) {
+
+  public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingForm form, WebUserAccount webUserAccount) {
     var drawing = new PadDepositDrawing();
     // Validated form will always have 1 file
     PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail,
@@ -80,7 +78,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
     for (String padPermanentDepositId: form.getSelectedDeposits()) {
       if (padPermanentDepositId != "") {
-        var padPermanentDeposit = padPermanentDepositRepository.findById(Integer.parseInt(padPermanentDepositId))
+        var padPermanentDeposit = permanentDepositService.getDepositById(Integer.parseInt(padPermanentDepositId))
             .orElseThrow(() -> new PwaEntityNotFoundException(
               String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
 
@@ -95,9 +93,9 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   public List<PermanentDepositDrawingView> getDepositDrawingSummaryViews(PwaApplicationDetail pwaApplicationDetail) {
     var drawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
-    var links = padDepositDrawingLinkRepository.getAllByPadDepositDrawingIdIn(drawings);
+    var links = padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawings);
     Map<PadDepositDrawing, List<PadDepositDrawingLink>> linkMap = links.stream()
-        .collect(Collectors.groupingBy(PadDepositDrawingLink::getPadDepositDrawingId));
+        .collect(Collectors.groupingBy(PadDepositDrawingLink::getPadDepositDrawing));
 
     List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
         ApplicationFilePurpose.DEPOSIT_DRAWINGS,
@@ -150,12 +148,6 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return permanentDepositService.isPermanentDepositMade(pwaApplicationDetail);
-  }
-
-
-  @Override
-  public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
-    return null;
   }
 
 
