@@ -110,9 +110,12 @@ public class PadTechnicalDrawingServiceTest {
         ApplicationFileLinkStatus.FULL));
     pipelineDrawing.setId(1);
 
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
     var drawingLink = new PadTechnicalDrawingLink();
     drawingLink.setTechnicalDrawing(pipelineDrawing);
-    drawingLink.setPipeline(new PadPipeline());
+    drawingLink.setPipeline(pipeline);
 
     var drawingList = List.of(pipelineDrawing);
     var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
@@ -129,7 +132,7 @@ public class PadTechnicalDrawingServiceTest {
     assertThat(summaryView.getFileId()).isEqualTo(fileView.getFileId());
     assertThat(summaryView.getDocumentDescription()).isEqualTo(fileView.getFileDescription());
     assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
-    assertThat(summaryView.getPipelineOverviews()).hasSize(1);
+    assertThat(summaryView.getPipelineReferences()).hasSize(1);
     assertThat(summaryView.getReference()).isEqualTo(pipelineDrawing.getReference());
   }
 
@@ -142,12 +145,18 @@ public class PadTechnicalDrawingServiceTest {
         ApplicationFileLinkStatus.FULL));
     pipelineDrawing.setId(1);
 
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
+    var pipeline2 = new PadPipeline();
+    pipeline2.setPipelineRef("ref");
+
     var drawingLink = new PadTechnicalDrawingLink();
     drawingLink.setTechnicalDrawing(pipelineDrawing);
-    drawingLink.setPipeline(new PadPipeline());
+    drawingLink.setPipeline(pipeline);
     var drawingLink2 = new PadTechnicalDrawingLink();
     drawingLink2.setTechnicalDrawing(pipelineDrawing);
-    drawingLink2.setPipeline(new PadPipeline());
+    drawingLink2.setPipeline(pipeline2);
 
     var drawingList = List.of(pipelineDrawing);
     var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
@@ -164,7 +173,7 @@ public class PadTechnicalDrawingServiceTest {
     assertThat(summaryView.getFileId()).isEqualTo(fileView.getFileId());
     assertThat(summaryView.getDocumentDescription()).isEqualTo(fileView.getFileDescription());
     assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
-    assertThat(summaryView.getPipelineOverviews()).hasSize(2);
+    assertThat(summaryView.getPipelineReferences()).hasSize(2);
     assertThat(summaryView.getReference()).isEqualTo(pipelineDrawing.getReference());
   }
 

@@ -25,8 +25,8 @@
               </@fdsCheckAnswers.checkAnswersRow>
               <@fdsCheckAnswers.checkAnswersRow keyText="Associated pipelines" actionUrl="" screenReaderActionText="" actionText="">
                 <ul class="govuk-list">
-                    <#list summary.pipelineOverviews as pipeline>
-                      <li>${pipeline.pipelineNumber}</li>
+                    <#list summary.pipelineReferences as ref>
+                      <li>${ref}</li>
                     </#list>
                 </ul>
               </@fdsCheckAnswers.checkAnswersRow>
@@ -34,7 +34,7 @@
         </#list>
     <#else>
         <@fdsInsetText.insetText>
-          No pipeline drawings have been added to this application
+          No pipeline drawings have been added to this application.
         </@fdsInsetText.insetText>
         <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(urlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>

@@ -105,7 +105,7 @@ public class WorkAreaService {
         return pwaApplicationRedirectService.getTaskListRoute(applicationId, applicationType);
       case INITIAL_SUBMISSION_REVIEW:
         return ReverseRouter.route(on(InitialReviewController.class)
-            .renderInitialReview(applicationId, applicationType, null, null));
+            .renderInitialReview(applicationId, applicationType, null, null, null));
       default:
         return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null));
 

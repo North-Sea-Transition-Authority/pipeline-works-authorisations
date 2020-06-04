@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -142,6 +143,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
           form,
           applicationContext.getApplicationDetail(),
           filePurpose,
+          FileUpdateMode.DELETE_UNLINKED_FILES,
           applicationContext.getUser());
 
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
