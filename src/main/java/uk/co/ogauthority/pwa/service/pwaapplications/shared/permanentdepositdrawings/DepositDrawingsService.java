@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -57,7 +57,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
 
   @Transactional
-  public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingsForm form) {
+  public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingForm form) {
     var drawing = new PadDepositDrawing();
     // Validated form will always have 1 file
     PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail,
@@ -69,7 +69,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
     for (String padPermanentDepositId: form.getSelectedDeposits()) {
       if (padPermanentDepositId != "") {
-        var padPermanentDeposit = padPermanentDepositRepository.findById(Integer.parseInt(padPermanentDepositId))
+        var padPermanentDeposit = permanentDepositService.getDepositById(Integer.parseInt(padPermanentDepositId))
             .orElseThrow(() -> new PwaEntityNotFoundException(
               String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
 
@@ -98,12 +98,6 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return permanentDepositService.isPermanentDepositMade(pwaApplicationDetail);
-  }
-
-
-  @Override
-  public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
-    return null;
   }
 
 

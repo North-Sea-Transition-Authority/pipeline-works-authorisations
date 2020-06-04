@@ -20,7 +20,7 @@ public class PadDepositDrawingLink {
 
   @NotNull
   @OneToOne
-  @JoinColumn(name = "permanent_deposit_info_id")
+  @JoinColumn(name = "pad_permanent_deposit_id")
   private PadPermanentDeposit padPermanentDeposit;
 
   @NotNull

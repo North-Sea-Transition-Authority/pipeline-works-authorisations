@@ -7,7 +7,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
@@ -20,7 +20,7 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return clazz.equals(PermanentDepositsForm.class);
+    return clazz.equals(PermanentDepositDrawingForm.class);
   }
 
   @Override
@@ -29,7 +29,7 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
 
   @Override
   public void validate(Object o, Errors errors, Object... validationHints) {
-    var form = (PermanentDepositDrawingsForm) o;
+    var form = (PermanentDepositDrawingForm) o;
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reference", "reference.required",
         "You must enter a deposit reference");
@@ -45,11 +45,11 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
     if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() != 1) {
       errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "You must upload at most one drawing");
+          "You must upload one drawing");
     }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedDeposits", "selectedDeposits.required",
-        "You must select at least one reference");
+        "You must select at least one deposit");
 
   }
 

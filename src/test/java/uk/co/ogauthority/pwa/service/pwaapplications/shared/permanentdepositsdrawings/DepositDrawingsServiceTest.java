@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -76,7 +76,7 @@ public class DepositDrawingsServiceTest {
 
   @Test
   public void addDrawing() {
-    var form = new PermanentDepositDrawingsForm();
+    var form = new PermanentDepositDrawingForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     form.setReference("ref");
     form.setSelectedDeposits(Set.of("1"));
