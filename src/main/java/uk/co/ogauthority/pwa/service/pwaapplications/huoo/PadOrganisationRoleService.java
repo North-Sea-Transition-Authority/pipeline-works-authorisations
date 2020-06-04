@@ -114,13 +114,13 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private String getRemoveHuooUrl(PwaApplicationDetail detail, PortalOrganisationUnit organisationUnit) {
     return ReverseRouter.route(on(AddHuooController.class)
         .postDeleteOrgHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
-            organisationUnit.getOuId(), null, null, null, null));
+            organisationUnit.getOuId(), null, null, null, null, null));
   }
 
   private String getRemoveHuooUrl(PwaApplicationDetail detail, PadOrganisationRole organisationRole) {
     return ReverseRouter.route(on(AddHuooController.class)
         .postDeleteTreatyHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
-            organisationRole.getId(), null, null, null, null));
+            organisationRole.getId(), null, null, null, null, null));
   }
 
   public List<HuooTreatyAgreementView> getTreatyAgreementViews(PwaApplicationDetail detail,

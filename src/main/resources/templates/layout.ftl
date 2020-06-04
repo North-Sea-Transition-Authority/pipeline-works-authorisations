@@ -56,10 +56,12 @@ headerIcon=true>
 
     <#--Phase banner-->
         <#if phaseBanner>
-          <div class="govuk-phase-banner <#if wrapperWidth> govuk-width-container-wide<#else> govuk-width-container </#if>">
+          <div
+            class="govuk-phase-banner <#if wrapperWidth> govuk-width-container-wide<#else> govuk-width-container </#if>">
             <p class="govuk-phase-banner__content">
               <strong class="govuk-tag govuk-phase-banner__content__tag ">alpha</strong>
-              <span class="govuk-phase-banner__text">This is a new service – your <a class="govuk-link" href="${phaseBannerLink}">feedback</a> will help us to improve it.</span>
+              <span class="govuk-phase-banner__text">This is a new service – your <a class="govuk-link"
+                                                                                     href="${phaseBannerLink}">feedback</a> will help us to improve it.</span>
             </p>
           </div>
         </#if>
@@ -83,11 +85,22 @@ headerIcon=true>
               <@fdsBackLink.backLink backLinkUrl=backLinkUrl backLinkText=backLinkText/>
           </#if>
 
+          <#assign flash>
+              <#if flashTitle?has_content>
+                  <@fdsFlash.flash flashTitle=flashTitle flashClass=flashClass!"">
+                      <#if flashMessage?has_content>
+                        <p class="govuk-body">${flashMessage}</p>
+                      </#if>
+                  </@fdsFlash.flash>
+              </#if>
+          </#assign>
+
         <main class="${mainClasses}" id="main-content" role="main">
             <#--Grid goes below me-->
             <#if fullWidthColumn>
                 <@grid.gridRow>
                     <@grid.fullColumn>
+                        ${flash}
                         <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
                         <#nested>
                     </@grid.fullColumn>
@@ -95,6 +108,7 @@ headerIcon=true>
             <#elseif oneHalfColumn>
                 <@grid.gridRow>
                     <@grid.oneHalfColumn>
+                        ${flash}
                         <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
                         <#nested>
                     </@grid.oneHalfColumn>
@@ -102,6 +116,7 @@ headerIcon=true>
             <#elseif oneThirdColumn>
                 <@grid.gridRow>
                     <@grid.oneThirdColumn>
+                        ${flash}
                         <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
                         <#nested>
                     </@grid.oneThirdColumn>
@@ -109,6 +124,7 @@ headerIcon=true>
             <#elseif twoThirdsColumn>
                 <@grid.gridRow>
                     <@grid.twoThirdsColumn>
+                        ${flash}
                         <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
                         <#nested>
                     </@grid.twoThirdsColumn>
@@ -116,6 +132,7 @@ headerIcon=true>
             <#elseif oneQuarterColumn>
                 <@grid.gridRow>
                     <@grid.oneQuarterColumn>
+                        ${flash}
                         <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
                         <#nested>
                     </@grid.oneQuarterColumn>
@@ -123,6 +140,7 @@ headerIcon=true>
             <#elseif twoThirdsOneThirdColumn>
                 <@grid.gridRow>
                     <@grid.twoThirdsColumn>
+                        ${flash}
                         <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
                         <#nested>
                     </@grid.twoThirdsColumn>
@@ -131,6 +149,7 @@ headerIcon=true>
                     </@grid.oneThirdColumn>
                 </@grid.gridRow>
             <#else>
+                ${flash}
                 <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
                 <#nested>
             </#if>

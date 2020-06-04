@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
@@ -35,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.huoo.AddHuooValidator;
@@ -225,13 +227,18 @@ public class AddHuooController {
                                         PwaApplicationContext applicationContext,
                                         @Valid @ModelAttribute("form") HuooForm form,
                                         BindingResult bindingResult,
-                                        AuthenticatedUserAccount user) {
+                                        AuthenticatedUserAccount user,
+                                        RedirectAttributes redirectAttributes) {
     var detail = applicationContext.getApplicationDetail();
     var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
     if (padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, orgUnit)) {
       padOrganisationRoleService.removeRolesOfUnit(detail, orgUnit);
     }
+    FlashUtils.success(
+        redirectAttributes,
+        String.format("Removed %s from the application", orgUnit.getName()),
+        "This legal entity will no longer be on the consent document, should this application be consented");
     return ReverseRouter.redirect(on(HuooController.class)
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }
@@ -244,10 +251,15 @@ public class AddHuooController {
                                            PwaApplicationContext applicationContext,
                                            @Valid @ModelAttribute("form") HuooForm form,
                                            BindingResult bindingResult,
-                                           AuthenticatedUserAccount user) {
+                                           AuthenticatedUserAccount user,
+                                           RedirectAttributes redirectAttributes) {
     var detail = applicationContext.getApplicationDetail();
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     padOrganisationRoleService.removeRoleOfTreatyAgreement(orgRole);
+    FlashUtils.success(
+        redirectAttributes,
+        String.format("Removed treaty agreement for %s from the application", orgRole.getAgreement().getCountry()),
+        "This treaty agreement will no longer be on the consent document, should this application be consented");
     return ReverseRouter.redirect(on(HuooController.class)
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }
