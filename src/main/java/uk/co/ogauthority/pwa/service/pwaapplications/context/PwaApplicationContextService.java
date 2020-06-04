@@ -170,7 +170,7 @@ public class PwaApplicationContextService {
     } catch (Exception e) {
       // Ignore this error for now
       // TODO: PWA-588 - Remove this try/catch block.
-      LOGGER.error(e.toString());
+      LOGGER.error("Failed to get PadFile for context", e);
     }
   }
 
