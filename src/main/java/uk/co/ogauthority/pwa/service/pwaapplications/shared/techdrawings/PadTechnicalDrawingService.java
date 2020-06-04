@@ -1,17 +1,26 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
@@ -62,6 +71,44 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     drawing.setReference(form.getReference());
     padTechnicalDrawingRepository.save(drawing);
     padTechnicalDrawingLinkService.linkDrawing(detail, form.getPadPipelineIds(), drawing);
+  }
+
+  public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViews(PwaApplicationDetail detail) {
+    var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail);
+    var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
+    Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap = links.stream()
+        .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
+
+    List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(detail,
+        ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL);
+
+    var summaryList = new ArrayList<PipelineDrawingSummaryView>();
+
+    linkMap.forEach((technicalDrawing, drawingLinks) -> {
+      var summaryView = buildSummaryView(technicalDrawing, drawingLinks, fileViews);
+      summaryList.add(summaryView);
+    });
+
+    summaryList.sort(Comparator.comparing(PipelineDrawingSummaryView::getReference));
+
+    return summaryList;
+  }
+
+  private PipelineDrawingSummaryView buildSummaryView(PadTechnicalDrawing technicalDrawing,
+                                                      List<PadTechnicalDrawingLink> drawingLinks,
+                                                      List<UploadedFileView> fileViewList) {
+    List<String> references = drawingLinks.stream()
+        .map(drawingLink -> drawingLink.getPipeline().getPipelineRef())
+        .collect(Collectors.toUnmodifiableList());
+
+    UploadedFileView fileView = fileViewList.stream()
+        .filter(uploadedFileView -> uploadedFileView.getFileId().equals(technicalDrawing.getFileId()))
+        .findFirst()
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Unable to get UploadedFileView of file with ID: " + technicalDrawing.getFileId()));
+
+    return new PipelineDrawingSummaryView(technicalDrawing, references, fileView);
   }
 
   @Override

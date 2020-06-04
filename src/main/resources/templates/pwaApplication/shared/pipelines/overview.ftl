@@ -12,6 +12,10 @@
 
 <@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true breadcrumbs=true>
 
+    <#if !pipelineTaskListItems?has_content>
+        <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
+    </#if>
+
     ${addPipeButton}
 
     <#list pipelineTaskListItems as pipeline>
@@ -40,11 +44,9 @@
       ${addPipeButton}
     </#if>
 
-    <#if !pipelineTaskListItems?has_content>
-      <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
+    <#if pipelineTaskListItems?has_content>
+        <hr class="govuk-section-break govuk-section-break--l"/>
     </#if>
-
-    <hr class="govuk-section-break govuk-section-break--l"/>
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl) errorMessage=errorMessage!/>

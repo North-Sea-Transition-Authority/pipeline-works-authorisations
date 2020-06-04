@@ -9,13 +9,13 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
 @Service
-public class TechnicalDrawingsService implements ApplicationFormSectionService {
+public class TechnicalDrawingSectionService implements ApplicationFormSectionService {
 
   private final AdmiraltyChartFileService admiraltyChartFileService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
 
   @Autowired
-  public TechnicalDrawingsService(
+  public TechnicalDrawingSectionService(
       AdmiraltyChartFileService admiraltyChartFileService,
       PadTechnicalDrawingService padTechnicalDrawingService) {
     this.admiraltyChartFileService = admiraltyChartFileService;
