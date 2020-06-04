@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,7 +17,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -300,5 +303,49 @@ public class CampaignWorksServiceTest {
 
   }
 
+  @Test
+  public void updateCampaignWorksScheduleFromForm_serviceInteraction() {
+    var spySchedule = spy(PadCampaignWorkSchedule.class);
+
+    var listOfOldPipelineLinks = List.of(new PadCampaignWorksPipeline());
+
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(spySchedule))
+        .thenReturn(listOfOldPipelineLinks);
+
+    campaignWorksService.updateCampaignWorksScheduleFromForm(workScheduleForm, spySchedule);
+
+    InOrder orderVerifier = Mockito.inOrder(spySchedule, padCampaignWorkScheduleRepository, padCampaignWorksPipelineRepository);
+
+    orderVerifier.verify(padCampaignWorksPipelineRepository).findAllByPadCampaignWorkSchedule(spySchedule);
+    orderVerifier.verify(padCampaignWorksPipelineRepository).deleteAll(listOfOldPipelineLinks);
+    orderVerifier.verify(spySchedule).setWorkFromDate(eq(workScheduleForm.getWorkStart().createDateOrNull()));
+    orderVerifier.verify(spySchedule).setWorkToDate(eq(workScheduleForm.getWorkEnd().createDateOrNull()));
+    orderVerifier.verify(padCampaignWorkScheduleRepository).save(spySchedule);
+
+  }
+
+  @Test
+  public void mapWorkScheduleToForm_mappingAsExpected(){
+    var linkedPipeline = new PadCampaignWorksPipeline();
+    linkedPipeline.setPadPipeline(pipe1);
+    var linkedPipelines = List.of(linkedPipeline);
+
+    var fromDate = LocalDate.of(2020, 1, 1);
+    var toDate = LocalDate.of(2020, 12, 1);
+    var schedule = new PadCampaignWorkSchedule();
+    schedule.setWorkFromDate(fromDate);
+    schedule.setWorkToDate(toDate);
+
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(schedule)).thenReturn(linkedPipelines);
+
+    var emptyForm = new WorkScheduleForm();
+
+    campaignWorksService.mapWorkScheduleToForm(emptyForm, schedule);
+
+    assertThat(emptyForm.getPadPipelineIds()).isEqualTo(List.of(pipe1.getId()));
+    assertThat(emptyForm.getWorkStart()).isEqualTo(new TwoFieldDateInput(fromDate));
+    assertThat(emptyForm.getWorkEnd()).isEqualTo(new TwoFieldDateInput(toDate));
+
+  }
 
 }
