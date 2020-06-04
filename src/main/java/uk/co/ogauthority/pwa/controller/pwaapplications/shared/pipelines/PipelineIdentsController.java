@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -125,7 +127,12 @@ public class PipelineIdentsController {
 
     // set the fromLocation of our new ident to the toLocation of the previous ident if one exists
     padIdentService.getMaxIdent(applicationContext.getPadPipeline())
-        .ifPresent(previousIdent -> form.setFromLocation(previousIdent.getToLocation()));
+        .ifPresent(previousIdent -> {
+          var fromCoordinateForm = new CoordinateForm();
+          CoordinateUtils.mapCoordinatePairToForm(previousIdent.getToCoordinates(), fromCoordinateForm);
+          form.setFromLocation(previousIdent.getToLocation());
+          form.setFromCoordinateForm(fromCoordinateForm);
+        });
 
     return getAddIdentModelAndView(applicationContext.getApplicationDetail(), form,
         applicationContext.getPadPipeline());

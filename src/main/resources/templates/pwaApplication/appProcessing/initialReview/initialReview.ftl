@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="appRef" type="String" -->
 <#-- @ftlvariable name="isOptionsVariation" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="isFastTrack" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="caseOfficerCandidates" type="java.util.Map<String, String>" -->
 
 <@defaultPage htmlTitle="Accept application ${appRef}" pageHeading="Accept application ${appRef}" breadcrumbs=true>
 
@@ -23,7 +24,11 @@
     </#if>
 
     <@fdsForm.htmlForm>
+
+      <@fdsSearchSelector.searchSelectorEnhanced path="form.caseOfficerPersonId" options=caseOfficerCandidates labelText="Case officer" />
+
       <@fdsAction.submitButtons primaryButtonText="Accept application" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workAreaUrl) />
+
     </@fdsForm.htmlForm>
 
 </@defaultPage>

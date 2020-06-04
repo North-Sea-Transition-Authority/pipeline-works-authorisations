@@ -18,9 +18,10 @@
 
         <@fdsCard.card>
 
-            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber} ${pipeline.pipelineType.displayName}" />
+            <span class="govuk-caption-l">${pipeline.length}m ${pipeline.pipelineType.displayName}</span>
+            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber}" />
 
-            <@pipelineOverview.header pipeline=pipeline />
+            <hr class="govuk-section-break govuk-section-break--m"/>
 
             <@fdsTaskList.taskList>
                 <#list pipeline.getTaskList() as task>
