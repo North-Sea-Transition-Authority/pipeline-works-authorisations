@@ -36,11 +36,11 @@
 
                   <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
-                      <#assign viewLinkText=item.padReference?has_content?then(item.padReference, "Resume draft PWA") />
-                      <@fdsAction.link linkText=viewLinkText
-                      linkUrl=springUrl(item.viewApplicationUrl)
-                      linkClass="govuk-link govuk-link--no-visited-state"
-                      />
+                        <#assign viewLinkText=item.padReference?has_content?then(item.padReference, "Resume draft PWA") />
+                        <@fdsAction.link linkText=viewLinkText
+                        linkUrl=springUrl(item.viewApplicationUrl)
+                        linkClass="govuk-link govuk-link--no-visited-state"
+                        />
                     </td>
                     <td class="govuk-table__cell"> ${item.applicationType}</td>
                     <td class="govuk-table__cell"> ${item.masterPwaReference}</td>
@@ -48,9 +48,9 @@
                       <ul class="govuk-list">
                         <li>Project Name: ${item.projectName!""}</li>
                         <li>Proposed start date: ${item.getFormattedProposedStartDate()!""}</li>
-                        <#if item.orderedFieldList?has_content>
-                          <li>Field: ${item.orderedFieldList?join(", ")}</li>
-                        </#if>
+                          <#if item.orderedFieldList?has_content>
+                            <li>Field: ${item.orderedFieldList?join(", ")}</li>
+                          </#if>
                       </ul>
                     </td>
                     <td class="govuk-table__cell">
@@ -65,7 +65,7 @@
                 </tbody>
               </table>
 
-              <@fdsPagination.paginationControls pageView=workAreaPageView />
+                <@fdsPagination.pagination pageView=workAreaPageView />
             </#if>
         </@fdsTabs.tabContent>
 

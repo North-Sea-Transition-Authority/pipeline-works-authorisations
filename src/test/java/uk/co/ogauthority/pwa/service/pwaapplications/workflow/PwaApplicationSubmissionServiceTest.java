@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,9 +19,10 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,8 +48,7 @@ public class PwaApplicationSubmissionServiceTest {
   public void setup() {
     pwaApplicationSubmissionService = new PwaApplicationSubmissionService(
         pwaApplicationDetailService,
-        camundaWorkflowService,
-        Clock.fixed(fixedInstant, ZoneId.systemDefault())
+        camundaWorkflowService
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -93,7 +93,7 @@ public class PwaApplicationSubmissionServiceTest {
     pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
 
     verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
-    verify(camundaWorkflowService, times(1)).completeTask(pwaApplicationDetail.getMasterPwaApplicationId(), UserWorkflowTask.PREPARE_APPLICATION);
+    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.PREPARE_APPLICATION)));
 
   }
 
