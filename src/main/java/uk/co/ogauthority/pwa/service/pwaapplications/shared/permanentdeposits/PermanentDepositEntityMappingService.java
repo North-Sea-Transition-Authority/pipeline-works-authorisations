@@ -38,7 +38,7 @@ public class PermanentDepositEntityMappingService {
         form.setContingencyConcreteAmount(entity.getContingencyAmount());
 
       } else if (form.getMaterialType().equals(MaterialType.ROCK)) {
-        form.setRocksSize(Integer.parseInt(entity.getMaterialSize()));
+        form.setRocksSize(entity.getMaterialSize());
         form.setQuantityRocks(String.valueOf(entity.getQuantity()));
         form.setContingencyRocksAmount(entity.getContingencyAmount());
 
@@ -132,7 +132,7 @@ public class PermanentDepositEntityMappingService {
         view.setContingencyConcreteAmount(entity.getContingencyAmount());
 
       } else if (view.getMaterialType().equals(MaterialType.ROCK)) {
-        view.setRocksSize(Integer.parseInt(entity.getMaterialSize()));
+        view.setRocksSize(entity.getMaterialSize());
         view.setQuantityRocks(String.valueOf(entity.getQuantity()));
         view.setContingencyRocksAmount(entity.getContingencyAmount());
 
