@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -55,6 +56,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadPipelineService padPipelineService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
+  private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
   private final PadFileService padFileService;
 
   private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.PIPELINE_DRAWINGS;
@@ -64,11 +66,13 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadPipelineService padPipelineService,
       PadTechnicalDrawingService padTechnicalDrawingService,
+      PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
       PadFileService padFileService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padPipelineService = padPipelineService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
+    this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
     this.padFileService = padFileService;
   }
 
@@ -157,6 +161,20 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
         .renderOverview(applicationType, applicationId, null, null));
+  }
+
+  @GetMapping("/{drawingId}/edit")
+  public ModelAndView renderEditDrawing(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("drawingId") Integer drawingId,
+      @ModelAttribute("form") PipelineDrawingForm form,
+      PwaApplicationContext applicationContext) {
+
+    var drawing = padTechnicalDrawingService.getDrawing(applicationContext.getApplicationDetail(), drawingId);
+    padTechnicalDrawingService.mapDrawingToForm(applicationContext.getApplicationDetail(), drawing, form);
+    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
+
   }
 
   @Override

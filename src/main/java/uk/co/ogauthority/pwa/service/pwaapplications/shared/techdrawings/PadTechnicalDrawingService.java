@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
+import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
@@ -62,6 +63,28 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     return padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail);
   }
 
+  public PadTechnicalDrawing getDrawing(PwaApplicationDetail detail, Integer drawingId) {
+    return padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(detail, drawingId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Unable to find drawing (%d) of detail (%d)", drawingId, detail.getId())));
+  }
+
+  public void mapDrawingToForm(PwaApplicationDetail detail, PadTechnicalDrawing drawing, PipelineDrawingForm form) {
+
+    var pipelineIds = padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))
+        .stream()
+        .map(drawingLink -> drawingLink.getPipeline().getId())
+        .collect(Collectors.toUnmodifiableList());
+
+    var file = padFileService.getUploadedFileView(detail, drawing.getFileId(), ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL);
+
+    form.setReference(drawing.getReference());
+    form.setPadPipelineIds(pipelineIds);
+    form.setUploadedFileWithDescriptionForms(List.of(
+        new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
+  }
+
   @Transactional
   public void addDrawing(PwaApplicationDetail detail, PipelineDrawingForm form) {
     var drawing = new PadTechnicalDrawing();
@@ -91,7 +114,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
   @VisibleForTesting
   public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViewsFromDrawingList(PwaApplicationDetail detail,
-                                                                                         List<PadTechnicalDrawing> drawings) {
+                                                                                        List<PadTechnicalDrawing> drawings) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
     Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap = links.stream()
         .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
