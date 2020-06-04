@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -86,8 +87,8 @@ public class DepositDrawingsServiceTest {
 
     var padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setId(1);
-    when(padPermanentDepositRepository.findById(Integer.parseInt("1"))).thenReturn(Optional.of(padPermanentDeposit));
-    depositDrawingsService.addDrawing(pwaApplicationDetail, form);
+    when(permanentDepositService.getDepositById(1)).thenReturn(Optional.of(padPermanentDeposit));
+    depositDrawingsService.addDrawing(pwaApplicationDetail, form, new WebUserAccount());
 
     var captor = ArgumentCaptor.forClass(PadDepositDrawing.class);
     verify(padDepositDrawingRepository, times(1)).save(captor.capture());

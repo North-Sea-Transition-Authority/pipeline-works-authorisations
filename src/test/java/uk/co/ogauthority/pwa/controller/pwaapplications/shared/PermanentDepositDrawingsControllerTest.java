@@ -205,7 +205,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
             .params(params))
         .andExpect(status().is3xxRedirection());
 
-    verify(depositDrawingsService, times(1)).addDrawing(any(), any());
+    verify(depositDrawingsService, times(1)).addDrawing(any(), any(), any());
     verify(depositDrawingsService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
   }
 

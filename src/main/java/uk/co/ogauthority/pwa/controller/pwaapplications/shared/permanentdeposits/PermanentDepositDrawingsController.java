@@ -128,7 +128,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD), () -> {
-          depositDrawingsService.addDrawing(applicationContext.getApplicationDetail(), form);
+          depositDrawingsService.addDrawing(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositDrawingsController.class).renderDepositDrawingsOverview(
               pwaApplicationType, applicationId, null, null));
         });
