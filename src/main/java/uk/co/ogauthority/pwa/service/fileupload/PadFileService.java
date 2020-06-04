@@ -15,7 +15,6 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.FileUpdateMode;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
@@ -148,7 +147,7 @@ public class PadFileService {
 
     padFileRepository.saveAll(filesToUpdate);
 
-    if (updateMode == FileUpdateMode.UPDATE_AND_DELETE_UNLINKED_FILES) {
+    if (updateMode == FileUpdateMode.DELETE_UNLINKED_FILES) {
       deleteAppFileLinksAndUploadedFiles(filesToRemove, user);
     }
 

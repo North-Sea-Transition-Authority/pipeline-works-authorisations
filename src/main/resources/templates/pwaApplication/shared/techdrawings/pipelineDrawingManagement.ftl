@@ -34,7 +34,7 @@
         </#list>
     <#else>
         <@fdsInsetText.insetText>
-          No pipeline drawings have been added to this application
+          No pipeline drawings have been added to this application.
         </@fdsInsetText.insetText>
         <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(urlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>

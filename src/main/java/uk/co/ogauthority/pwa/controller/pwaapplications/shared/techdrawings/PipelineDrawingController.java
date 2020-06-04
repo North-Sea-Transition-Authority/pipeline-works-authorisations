@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDow
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.enums.FileUpdateMode;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
@@ -31,6 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
@@ -115,7 +115,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
           form,
           applicationContext.getApplicationDetail(),
           filePurpose,
-          FileUpdateMode.UPDATE_AND_KEEP_UNLINKED_FILES,
+          FileUpdateMode.KEEP_UNLINKED_FILES,
           applicationContext.getUser());
       padTechnicalDrawingService.addDrawing(applicationContext.getApplicationDetail(), form);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)

@@ -13,7 +13,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.FileUpdateMode;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -21,6 +20,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -87,7 +87,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), filePurpose,
-        FileUpdateMode.UPDATE_AND_DELETE_UNLINKED_FILES, user);
+        FileUpdateMode.DELETE_UNLINKED_FILES, user);
   }
 
   public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {

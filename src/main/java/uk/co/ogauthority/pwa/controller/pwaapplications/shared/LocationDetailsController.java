@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.rest.DevukRestController;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.model.entity.enums.FileUpdateMode;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -33,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -143,7 +143,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
           form,
           applicationContext.getApplicationDetail(),
           filePurpose,
-          FileUpdateMode.UPDATE_AND_DELETE_UNLINKED_FILES,
+          FileUpdateMode.DELETE_UNLINKED_FILES,
           applicationContext.getUser());
 
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
