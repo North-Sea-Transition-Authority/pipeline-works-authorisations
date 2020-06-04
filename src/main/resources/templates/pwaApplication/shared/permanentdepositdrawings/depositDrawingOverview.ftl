@@ -15,9 +15,9 @@
         <@fdsAction.link linkText="Add drawing" linkUrl=springUrl(depositDrawingUrlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>     
 
         <#list depositDrawingSummaryViews as depositDrawingView>
-            <h2 class="govuk-heading-m">${depositDrawingView.reference}</h2>    
-            <#--  <@fdsAction.link  linkText="Change" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />
-            <@fdsAction.link  linkText="Remove" linkUrl=springUrl(removeDepositUrls[deposit.entityID?string.number]) linkClass="govuk-link govuk-link--button" />  -->
+            <h2 class="govuk-heading-m">${depositDrawingView.reference}</h2>                
+            <@fdsAction.link linkText="Change" linkUrl=springUrl("#") linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
+            <@fdsAction.link linkText="Remove" linkUrl=springUrl("#") linkClass="govuk-link govuk-!-font-size-19"/>
             <@depositDrawingViewSummary depositDrawingView depositDrawingUrlFactory/>
         </#list>        
 

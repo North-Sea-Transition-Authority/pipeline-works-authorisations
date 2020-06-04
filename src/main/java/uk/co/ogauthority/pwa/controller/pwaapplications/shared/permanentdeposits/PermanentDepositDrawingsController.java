@@ -166,6 +166,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
+    padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, filePurpose);
     return modelAndView;
   }
 

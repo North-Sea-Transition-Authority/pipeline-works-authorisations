@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepos
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
@@ -87,7 +88,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         padDepositDrawingLinkRepository.save(drawingLink);
       }
     }
-    padFileService.updateFiles(form, detail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, webUserAccount);
+    padFileService.updateFiles(form, detail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES, webUserAccount);
   }
 
 

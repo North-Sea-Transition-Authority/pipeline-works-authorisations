@@ -1,6 +1,8 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"
+existingFiles=uploadedFileViewList
+ -->
 
 <@defaultPage htmlTitle="${screenAction.actionText} deposit drawing" pageHeading="${screenAction.actionText} deposit drawing" breadcrumbs=true>
 
@@ -11,8 +13,8 @@
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.reference" labelText="Drawing reference" inputClass="govuk-!-width-two-thirds"/>
 
-        <@fileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="deposit-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize 
-         allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=fasle/>
+        <@fdsFileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="deposit-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize 
+         allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl  dropzoneText="Drag and drop your document here" multiFile=fasle/>
 
         <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedDeposits" options=depositOptions labelText="Select deposits" multiSelect=true optionalInputDefault="Select one or more"/>
   
