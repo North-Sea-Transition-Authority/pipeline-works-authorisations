@@ -30,15 +30,14 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/pipeline-drawings")
@@ -55,7 +54,6 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   private final PadPipelineService padPipelineService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final PadFileService padFileService;
-  private final PipelineDrawingValidator pipelineDrawingValidator;
 
   private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.PIPELINE_DRAWINGS;
 
@@ -63,16 +61,13 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   public PipelineDrawingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadPipelineService padPipelineService,
-      PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
       PadTechnicalDrawingService padTechnicalDrawingService,
-      PadFileService padFileService,
-      PipelineDrawingValidator pipelineDrawingValidator) {
+      PadFileService padFileService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padPipelineService = padPipelineService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.padFileService = padFileService;
-    this.pipelineDrawingValidator = pipelineDrawingValidator;
   }
 
   private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form) {
@@ -116,6 +111,12 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+      padFileService.updateFiles(
+          form,
+          applicationContext.getApplicationDetail(),
+          filePurpose,
+          FileUpdateMode.KEEP_UNLINKED_FILES,
+          applicationContext.getUser());
       padTechnicalDrawingService.addDrawing(applicationContext.getApplicationDetail(), form);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, applicationId, null, null));

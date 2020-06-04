@@ -24,7 +24,8 @@ public class FileUploadFrontendControllerAdvice {
    */
   @ModelAttribute
   public void addCommonModelAttributes(Model model) {
-    model.addAttribute("fileuploadAllowedExtensions", fileUploadProperties.getAllowedExtensions());
+    String fileUploadAllowedExtensions = String.join(",", fileUploadProperties.getAllowedExtensions());
+    model.addAttribute("fileuploadAllowedExtensions", fileUploadAllowedExtensions);
     model.addAttribute("fileuploadMaxUploadSize", String.valueOf(fileUploadProperties.getMaxFileSize()));
   }
 }

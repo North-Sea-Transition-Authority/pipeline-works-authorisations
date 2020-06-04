@@ -168,6 +168,7 @@ public class PadFileServiceTest {
         form,
         pwaApplicationDetail,
         ApplicationFilePurpose.LOCATION_DETAILS,
+        FileUpdateMode.DELETE_UNLINKED_FILES,
         wua
     );
 
@@ -187,6 +188,7 @@ public class PadFileServiceTest {
         form,
         pwaApplicationDetail,
         ApplicationFilePurpose.LOCATION_DETAILS,
+        FileUpdateMode.DELETE_UNLINKED_FILES,
         wua
     );
 
@@ -206,7 +208,8 @@ public class PadFileServiceTest {
   @Test
   public void updateFiles_whenNoExistingFiles() {
     var form = ProjectInformationTestUtils.buildForm(LocalDate.now());
-    padFileService.updateFiles(form, pwaApplicationDetail, ApplicationFilePurpose.PROJECT_INFORMATION, wua);
+    padFileService.updateFiles(form, pwaApplicationDetail, ApplicationFilePurpose.PROJECT_INFORMATION,
+        FileUpdateMode.DELETE_UNLINKED_FILES, wua);
 
     verifyNoInteractions(fileUploadService);
     verify(padFileRepository, times(1)).saveAll(eq(Set.of()));

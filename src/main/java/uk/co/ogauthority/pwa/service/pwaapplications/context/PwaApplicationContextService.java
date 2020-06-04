@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.context;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -18,6 +20,8 @@ import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
 public class PwaApplicationContextService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaApplicationContextService.class);
 
   private final PwaApplicationDetailService detailService;
   private final PwaContactService pwaContactService;
@@ -154,16 +158,20 @@ public class PwaApplicationContextService {
    */
   private void getAndSetPadFile(PwaApplicationContext context, String fileId) {
 
-    var padFile = padFileService.getPadFileByPwaApplicationDetailAndFileId(context.getApplicationDetail(), fileId);
-
-    if (!Objects.equals(padFile.getPwaApplicationDetail(), context.getApplicationDetail())) {
-      throw new AccessDeniedException(String.format("PadFile app detail (%s) didn't match the app context's app detail (%s)",
-          padFile.getPwaApplicationDetail().getId(),
-          context.getApplicationDetail().getId()));
+    try {
+      var padFile = padFileService.getPadFileByPwaApplicationDetailAndFileId(context.getApplicationDetail(), fileId);
+      if (!Objects.equals(padFile.getPwaApplicationDetail(), context.getApplicationDetail())) {
+        throw new AccessDeniedException(
+            String.format("PadFile app detail (%s) didn't match the app context's app detail (%s)",
+                padFile.getPwaApplicationDetail().getId(),
+                context.getApplicationDetail().getId()));
+      }
+      context.setPadFile(padFile);
+    } catch (Exception e) {
+      // Ignore this error for now
+      // TODO: PWA-588 - Remove this try/catch block.
+      LOGGER.error("Failed to get PadFile for context", e);
     }
-
-    context.setPadFile(padFile);
-
   }
 
 }

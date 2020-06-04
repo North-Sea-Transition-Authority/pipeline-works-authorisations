@@ -12,15 +12,20 @@
 
 <@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true breadcrumbs=true>
 
+    <#if !pipelineTaskListItems?has_content>
+        <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
+    </#if>
+
     ${addPipeButton}
 
     <#list pipelineTaskListItems as pipeline>
 
         <@fdsCard.card>
 
-            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber} ${pipeline.pipelineType.displayName}" />
+            <span class="govuk-caption-l">${pipeline.length}m ${pipeline.pipelineType.displayName}</span>
+            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber}" />
 
-            <@pipelineOverview.header pipeline=pipeline />
+            <hr class="govuk-section-break govuk-section-break--m"/>
 
             <@fdsTaskList.taskList>
                 <#list pipeline.getTaskList() as task>
@@ -39,11 +44,9 @@
       ${addPipeButton}
     </#if>
 
-    <#if !pipelineTaskListItems?has_content>
-      <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
+    <#if pipelineTaskListItems?has_content>
+        <hr class="govuk-section-break govuk-section-break--l"/>
     </#if>
-
-    <hr class="govuk-section-break govuk-section-break--l"/>
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl) errorMessage=errorMessage!/>

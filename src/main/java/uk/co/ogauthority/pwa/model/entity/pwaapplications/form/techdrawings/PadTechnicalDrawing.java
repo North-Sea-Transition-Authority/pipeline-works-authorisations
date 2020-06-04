@@ -50,6 +50,10 @@ public class PadTechnicalDrawing {
     return file;
   }
 
+  public String getFileId() {
+    return file.getFileId();
+  }
+
   public void setFile(PadFile file) {
     this.file = file;
   }
@@ -61,4 +65,9 @@ public class PadTechnicalDrawing {
   public String getReference() {
     return reference;
   }
+
+  public String getFileDescription() {
+    return file.getDescription();
+  }
+
 }

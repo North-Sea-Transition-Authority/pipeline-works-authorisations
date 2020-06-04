@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdraw
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -62,7 +62,7 @@ public class TaskCompletionServiceIntegrationTest {
   private PadOrganisationRoleService padOrganisationRoleService;
 
   @MockBean
-  private TechnicalDrawingsService technicalDrawingsService;
+  private TechnicalDrawingSectionService technicalDrawingSectionService;
 
   @MockBean
   private PadPipelineService padPipelineService;
@@ -112,7 +112,7 @@ public class TaskCompletionServiceIntegrationTest {
             service = campaignWorksService;
             break;
         case TECHNICAL_DRAWINGS:
-          service = technicalDrawingsService;
+          service = technicalDrawingSectionService;
           break;
         case PERMANENT_DEPOSITS:
           service = permanentDepositService;
