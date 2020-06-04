@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -17,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -86,7 +89,12 @@ public class CampaignWorksController {
             .renderProjectInformation(pwaApplicationType, applicationId, null, null)))
         .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()))
         .addObject("workScheduleViewList",
-            campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail()));
+            campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail())
+            .stream()
+            .sorted(Comparator.comparing(WorkScheduleView::getWorkStartDate)
+                .thenComparing(WorkScheduleView::getWorkEndDate))
+            .collect(Collectors.toList())
+        );
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Campaign Works");
     return modelAndView;
   }
