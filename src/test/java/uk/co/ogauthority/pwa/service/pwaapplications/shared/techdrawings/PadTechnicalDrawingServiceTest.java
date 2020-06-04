@@ -205,6 +205,8 @@ public class PadTechnicalDrawingServiceTest {
     drawing.setId(1);
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
     var link = new PadTechnicalDrawingLink();
     link.setTechnicalDrawing(drawing);
     link.setPipeline(pipeline);
@@ -235,6 +237,8 @@ public class PadTechnicalDrawingServiceTest {
     drawing.setId(1);
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
     var link = new PadTechnicalDrawingLink();
     link.setTechnicalDrawing(drawing);
     link.setPipeline(pipeline);
@@ -282,6 +286,8 @@ public class PadTechnicalDrawingServiceTest {
     when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing));
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
     var link = new PadTechnicalDrawingLink();
     link.setTechnicalDrawing(drawing);
     link.setPipeline(pipeline);
