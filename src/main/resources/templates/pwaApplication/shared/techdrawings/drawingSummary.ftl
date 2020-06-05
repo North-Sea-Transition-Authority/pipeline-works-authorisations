@@ -7,7 +7,7 @@
     <#if !showReferenceAsKey>
         <h3 class="govuk-heading-m">${summary.reference}</h3>
         <#if showActions>
-            <@fdsAction.link linkText="Edit" linkUrl=springUrl("#") linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
+            <@fdsAction.link linkText="Edit" linkUrl=springUrl(urlFactory.getPipelineDrawingEditUrl(summary.drawingId)) linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
             <@fdsAction.link linkText="Remove" linkUrl=springUrl(urlFactory.getPipelineDrawingRemoveUrl(summary.drawingId)) linkClass="govuk-link govuk-!-font-size-19"/>
         </#if>
     </#if>

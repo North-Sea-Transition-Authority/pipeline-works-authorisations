@@ -66,7 +66,7 @@ public class PadTechnicalDrawingServiceTest {
   public void setUp() {
     padTechnicalDrawingService = new PadTechnicalDrawingService(padTechnicalDrawingRepository,
         padTechnicalDrawingLinkService, padFileService, padPipelineService, pipelineDrawingValidator,
-        springValidatorAdapter);
+        editPipelineDrawingValidator, springValidatorAdapter);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }

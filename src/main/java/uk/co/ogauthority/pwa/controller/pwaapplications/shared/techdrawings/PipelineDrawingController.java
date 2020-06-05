@@ -177,6 +177,33 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
   }
 
+  @PostMapping("/{drawingId}/edit")
+  public ModelAndView postEditDrawing(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("drawingId") Integer drawingId,
+      @ModelAttribute("form") PipelineDrawingForm form,
+      BindingResult bindingResult,
+      PwaApplicationContext applicationContext,
+      AuthenticatedUserAccount user) {
+
+    bindingResult = padTechnicalDrawingService.validateEdit(form, bindingResult, ValidationType.FULL,
+        applicationContext.getApplicationDetail(), drawingId);
+    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+      padFileService.updateFiles(
+          form,
+          applicationContext.getApplicationDetail(),
+          filePurpose,
+          FileUpdateMode.KEEP_UNLINKED_FILES,
+          applicationContext.getUser());
+      padTechnicalDrawingService.updateDrawing(applicationContext.getApplicationDetail(), drawingId, user, form);
+      return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
+          .renderOverview(applicationType, applicationId, null, null));
+    });
+
+  }
+
   @Override
   @PostMapping("/file/upload")
   @ResponseBody
