@@ -100,14 +100,46 @@ AS
 
   END determine_consent_type;
 
-  FUNCTION get_or_create_pipeline(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE)
+  FUNCTION get_last_consented_consent_id(p_master_pwa_id NUMBER)
+    RETURN NUMBER
+  AS
+    l_last_consented_consent_id NUMBER;
+  BEGIN
+    -- get the last consent on the pwa, as we are dealing only with tip data, doesnt really matter for our purposes if it was a deposit consent,
+    -- because the data can only tell us the state of the world at the time of the last consent.
+    -- as last resort order by id if multiple consents at same exact time
+    WITH ranked_consents AS (
+      SELECT
+        pc.id
+      , RANK() OVER (ORDER BY pc.consent_timestamp DESC, pc.id DESC) rank
+      FROM ${datasource.user}.pwa_consents pc
+      WHERE pc.pwa_id = p_master_pwa_id
+    )
+    SELECT id
+    INTO l_last_consented_consent_id
+    FROM ranked_consents
+    WHERE rank = 1;
+
+    RETURN l_last_consented_consent_id;
+
+  END get_last_consented_consent_id;
+
+  /** when creating a pipeline, at this point create the overall App level pipeline HUOO data.
+    Historical HUOO data does not need to be loaded into app tables (concerns about effort, and meaningfullness of data if attempted)
+    Historical HUOO data loaded at pipeline detail level for reference, not into application significant huoo tables
+  */
+  FUNCTION get_or_create_pipeline(p_mig_pipeline_history ${datasource.user}.mig_pipeline_history%ROWTYPE
+                                 , p_dry_run BOOLEAN DEFAULT FALSE
+  )
     RETURN ${datasource.user}.pipelines%ROWTYPE
   AS
     l_pipeline_row             ${datasource.user}.pipelines%ROWTYPE;
-    l_current_pipeline_auth_id NUMBER;
-
+    l_master_pwa_id            NUMBER;
+    l_latest_consent_id        NUMBER;
     l_count                    NUMBER;
   BEGIN
+
+    SAVEPOINT dry_run_safety_net;
     /**
       When creating the main pipeline, we need to just use the status control = 'C' consent.
       Assumption is that the consent already exists at the point pipelines start getting migrated.
@@ -120,19 +152,73 @@ AS
     IF (l_count = 0) THEN
       -- pa_id of consents is the master pwa in new system is mapped to
       SELECT mpa.pa_id
-      INTO l_current_pipeline_auth_id
+      INTO l_master_pwa_id
       FROM ${datasource.user}.mig_pipeline_history mph
       JOIN ${datasource.user}.migrated_pipeline_auths mpa ON mph.pipe_auth_detail_id = mpa.pad_id
       WHERE mph.status_control = 'C'
       AND mph.pipeline_id = p_mig_pipeline_history.pipeline_id;
 
-      INSERT INTO ${datasource.user}.pipelines(id, pwa_id)
-      VALUES (p_mig_pipeline_history.pipeline_id, l_current_pipeline_auth_id);
+      l_latest_consent_id := get_last_consented_consent_id(l_master_pwa_id);
 
-      ${datasource.user}.migration_logger.log_pipeline(
-          p_mig_pipeline_history => p_mig_pipeline_history
-        , p_status => ${datasource.user}.migration_logger.master_pipeline_created_status
-        , p_message => 'Master pipeline created. pipeline_id:' || p_mig_pipeline_history.pipeline_id);
+      INSERT INTO ${datasource.user}.pipelines(id, pwa_id)
+      VALUES (p_mig_pipeline_history.pipeline_id, l_master_pwa_id);
+
+      -- for the current pipeline record, find matching consent level org role
+      FOR current_pipeline_huoo_roles IN (
+        SELECT mphor.pipeline_id, mphor.role, mphor.org_ou_id, mphor.org_manual_name
+        FROM ${datasource.user}.mig_pipeline_hist_org_roles mphor
+        WHERE mphor.status_control = 'C'
+        AND mphor.pipeline_status != 'DELETED'
+        AND mphor.pa_id = l_master_pwa_id
+        AND mphor.pipeline_id = p_mig_pipeline_history.pipeline_id
+      ) LOOP
+
+        DECLARE
+          l_matching_consent_org_role ${datasource.user}.pwa_consent_organisation_roles%ROWTYPE;
+        BEGIN
+          -- if this does not return a row then the dry run will blow up same as the normal run, and the linked consent will not get migrated
+          SELECT *
+          INTO l_matching_consent_org_role
+          FROM ${datasource.user}.pwa_consent_organisation_roles cor
+          -- consent level huoo only linked to latest consent on pwa
+          WHERE cor.added_by_pwa_consent_id = l_latest_consent_id
+          AND cor.role = current_pipeline_huoo_roles.role
+          AND (cor.ou_id = current_pipeline_huoo_roles.org_ou_id
+                 OR (cor.ou_id IS NULL AND current_pipeline_huoo_roles.org_ou_id IS NULL)
+            )
+          AND (cor.migrated_organisation_name = current_pipeline_huoo_roles.org_manual_name
+                 OR (cor.migrated_organisation_name IS NULL AND current_pipeline_huoo_roles.org_manual_name IS NULL)
+            );
+
+            INSERT INTO ${datasource.user}.pipeline_org_role_links( pipeline_id
+                                                                  , pwa_consent_org_role_id -- this links the pipeline huoo role to the consent huoo role
+                                                                  , added_by_pwa_consent_id -- this links the pipeline huoo role to the consent which added the link
+                                                                  , start_timestamp
+                                                                  )
+            VALUES( p_mig_pipeline_history.pipeline_id
+                  , l_matching_consent_org_role.id
+                  , l_matching_consent_org_role.added_by_pwa_consent_id
+                  , SYSTIMESTAMP
+
+
+            );
+          END;
+        END LOOP;
+
+      IF(p_dry_run) THEN
+        ROLLBACK TO SAVEPOINT dry_run_safety_net;
+
+        ${datasource.user}.migration_logger.log_pipeline(
+            p_mig_pipeline_history => p_mig_pipeline_history
+          , p_status => 'DRY_RUN_COMPLETE'
+          , p_message => 'DRY RUN Master pipeline creation pipeline_id:' || p_mig_pipeline_history.pipeline_id);
+        RETURN NULL;
+      ELSE
+        ${datasource.user}.migration_logger.log_pipeline(
+            p_mig_pipeline_history => p_mig_pipeline_history
+          , p_status => ${datasource.user}.migration_logger.master_pipeline_created_status
+          , p_message => 'Master pipeline created. pipeline_id:' || p_mig_pipeline_history.pipeline_id);
+      END IF;
 
     END IF;
 
@@ -152,6 +238,7 @@ AS
     l_detail_ident_id          NUMBER;
     l_detail_ident_data_id     NUMBER;
     l_detail_migration_data_id NUMBER;
+    l_huoo_role_count NUMBER := 0;
 
   BEGIN
     ${datasource.user}.migration_logger.log_pipeline(
@@ -160,6 +247,7 @@ AS
       , p_message => 'pipeline record migration started pd_id: ' || p_mig_pipeline_history.pd_id
       );
 
+    /* This needs to create the master pipeline record and link current HUOO data to it.*/
     l_master_pipeline_row := get_or_create_pipeline(p_mig_pipeline_history);
 
     /*
@@ -167,8 +255,7 @@ AS
       2. create ident
       3. create ident data
       4. create detail migration data
-
-      TODO: HUOO migration. seperate step?
+      5. create historical huoo data
       */
 
     INSERT INTO ${datasource.user}.pipeline_details ( id
@@ -266,6 +353,25 @@ AS
            , p_mig_pipeline_history.notes)
     RETURNING id INTO l_detail_migration_data_id;
 
+    FOR company_hist IN (
+      SELECT *
+      FROM ${datasource.user}.mig_pipeline_hist_org_roles mphor
+      WHERE mphor.pd_id = l_detail_id
+      )
+    LOOP
+        -- batch insert might be quicker, but dont think we need to worry for now.
+        INSERT INTO ${datasource.user}.pipeline_detail_migr_huoo_data (pipeline_detail_id
+                                                          , organisation_role
+                                                          , organisation_unit_id
+                                                          , manual_organisation_name)
+        VALUES ( company_hist.pd_id
+               , company_hist.role
+               , company_hist.org_ou_id
+               , company_hist.org_manual_name
+       );
+        l_huoo_role_count := l_huoo_role_count + 1;
+    END LOOP;
+
     COMMIT;
 
     ${datasource.user}.migration_logger.log_pipeline(
@@ -277,7 +383,8 @@ AS
                      ' pipeline_detail_id: ' || l_detail_id ||
                      ' pipeline_detail_ident_id: ' || l_detail_ident_id ||
                      ' pipeline_detail_ident_data_id: ' || l_detail_ident_data_id ||
-                     ' pipeline_detail_migration_data_id: ' || l_detail_migration_data_id
+                     ' pipeline_detail_migration_data_id: ' || l_detail_migration_data_id ||
+                     ' huoo role count: ' || l_huoo_role_count
       );
   EXCEPTION
     WHEN OTHERS THEN
@@ -289,6 +396,42 @@ AS
         );
 
   END migrate_pipeline_history;
+
+
+  PROCEDURE pwa_huoo_check(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE)
+  AS
+    l_count_valid_holders NUMBER;
+    l_count_invalid_holders NUMBER;
+  BEGIN
+    SELECT COUNT(*)
+    INTO l_count_valid_holders
+    FROM ${datasource.user}.mig_pipeline_hist_org_roles mphor
+    JOIN ${datasource.user}.mig_pipeline_history mph ON mphor.pd_id = mph.pd_id
+    WHERE mphor.status_control = 'C'
+    AND mphor.pipeline_status != 'DELETED'
+    AND mph.pipe_auth_detail_id = p_mig_master_pwa.pad_id
+    AND mphor.org_ou_id IS NOT NULL
+    AND mphor.role = 'HOLDER';
+
+    SELECT COUNT(*)
+    INTO l_count_invalid_holders
+    FROM ${datasource.user}.mig_pipeline_hist_org_roles mphor
+    WHERE mphor.status_control = 'C'
+    AND mphor.pipeline_status != 'DELETED'
+    AND mphor.pipe_auth_detail_id = p_mig_master_pwa.pad_id
+    AND org_manual_name IS NOT NULL
+    AND mphor.role = 'HOLDER';
+
+    IF(l_count_valid_holders = 0) THEN
+      RAISE_APPLICATION_ERROR(-20789, 'Cannot migrate consent where zero valid holder exist!');
+    END IF;
+
+    -- hard error for now to highlight required data fixes
+    IF(l_count_invalid_holders > 0) THEN
+      RAISE_APPLICATION_ERROR(-20789, 'Cannot migrate consent where ' || l_count_invalid_holders || ' invalid holders exist!');
+    END IF;
+
+  END pwa_huoo_check;
 
 
   FUNCTION create_consent_migration(p_mig_master_pwa ${datasource.user}.mig_master_pwas%ROWTYPE
@@ -402,12 +545,19 @@ AS
     *   - pa_id should be set as master_pwa_id to maintain current id relationships to ease system integration.
     * 2. Loop over all the consents related to the migrations master
     *   - pad_id should be set as the pwa_consent id to ease system integration
+    * 3. Add current HUOO data for latest consent only
+        - Dry run migration of top level pipeline to check that we can identify HOLDER, USER, OPERATOR, DATA
+          for every pipeline in the top level pwa.
+          If this is not possible, rollback the consent migration so data can investigated and fixed up.
+    * 4. DEFFERRED to pipeline migration step
+        - when top level pipelines are created, at that point link pipeline to huoo data for latest consent on PWA.
     */
 
     l_master_mig_pwa_consent := get_mig_pwa_consent(p_mig_master_pwa.pad_id);
     ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'STARTING',
         'Starting migration. Initial PWA reference: ' || l_master_mig_pwa_consent.reference);
     previous_migration_check(p_mig_master_pwa);
+    pwa_huoo_check(p_mig_master_pwa);
 
     l_master_pwa_detail := create_master_pwa(
         p_mig_master_pwa => p_mig_master_pwa
@@ -439,6 +589,58 @@ AS
         );
       END;
     END LOOP;
+
+    DECLARE
+      -- get the last consent on the pwa, as we are dealing only with tip data, doesnt really matter for our purposes if it was a deposit consent,
+      -- because the data can only tell us the state of the world at the time of the last consent.
+      l_last_consented_consent_id NUMBER := get_last_consented_consent_id(l_master_pwa_detail.pwa_id);
+      -- temp variable to ensure we can dry run pwa pipeline migration
+      l_master_pipeline_row ${datasource.user}.pipelines%ROWTYPE;
+    BEGIN
+      -- because of sanity check before migration
+      -- only non HOLDER roles might have a manual org name. This will never be entered as new going forward, only for reference
+      -- ignore deleted pipelines, how can they have legitimate HUOO info in the new system, and what use would bad data be?
+      FOR distinct_huoo_role IN (
+        SELECT DISTINCT mphor.role, mphor.org_ou_id, mphor.org_manual_name
+        FROM ${datasource.user}.mig_pipeline_hist_org_roles mphor
+        WHERE mphor.status_control = 'C'
+        AND mphor.pipeline_status != 'DELETED'
+        -- all current pipelines attached to master pwa
+        AND mphor.pa_id = p_mig_master_pwa.pa_id
+      ) LOOP
+        INSERT INTO ${datasource.user}.pwa_consent_organisation_roles ( added_by_pwa_consent_id
+                                                                      , role
+                                                                      , type
+                                                                      , ou_id
+                                                                      , migrated_organisation_name
+                                                                      , start_timestamp)
+        VALUES ( l_last_consented_consent_id
+               , distinct_huoo_role.role
+               , 'PORTAL_ORG'
+               , distinct_huoo_role.org_ou_id
+               , distinct_huoo_role.org_manual_name
+               , SYSTIMESTAMP
+               );
+
+      END LOOP;
+
+      -- dry run huoo migration for every pwa pipeline. blow up if any cannot link huoo details exactly as expected.
+      FOR dry_run_current_pipeline IN (
+        SELECT mph.*
+        FROM ${datasource.user}.mig_pipeline_history mph
+        JOIN ${datasource.user}.mig_pwa_consents mpc ON mph.pipe_auth_detail_id = mpc.pad_id
+        WHERE mph.status_control = 'C'
+        AND mph.pipeline_status != 'DELETED'
+        AND mpc.pa_id = p_mig_master_pwa.pa_id
+      ) LOOP
+        -- this will blow up if every current pipeline for the PWA cannot reconcile HUOO data.
+        l_master_pipeline_row := get_or_create_pipeline(
+         p_mig_pipeline_history => dry_run_current_pipeline
+         , p_dry_run => TRUE
+         );
+      END LOOP;
+
+    END;
 
     COMMIT;
     ${datasource.user}.migration_logger.log(p_mig_master_pwa, 'SUCCESS', 'All migration steps completed and committed');
