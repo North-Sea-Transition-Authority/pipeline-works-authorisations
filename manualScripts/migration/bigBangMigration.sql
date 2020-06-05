@@ -56,7 +56,9 @@ ORDER BY li.time DESC
 /
 
 /* Run this sql for detailed info on specific migrations.*/
-SELECT * FROM PWA.migration_master_logs
+SELECT ml.*
+ FROM PWA.migration_master_logs ml
+WHERE status = 'FAILED'
 /
 
 
@@ -175,7 +177,7 @@ ORDER BY xpad.pa_id, xpad.pad_id
 
 -- get total pipeline history failures per pad where pad migration failed
 SELECT pad_id, status, count(*)
-FROM pwa.migration_pipeline_logs mpl
+FROM PWA.migration_pipeline_logs mpl
 WHERE pad_id IN(
   SELECT xpad.pad_id
   FROM DECMGR.XVIEW_PIPELINE_AUTH_DETAILS xpad
@@ -195,7 +197,7 @@ GROUP BY ROLLUP(pad_id, status)
 -- total pipeline record migrations failures where consent migration succeeded
 /
 SELECT pad_id, status, count(*)
-FROM pwa.migration_pipeline_logs mpl
+FROM PWA.migration_pipeline_logs mpl
 WHERE pad_id NOT IN(
   SELECT xpad.pad_id
   FROM DECMGR.XVIEW_PIPELINE_AUTH_DETAILS xpad

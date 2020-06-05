@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 
-<@defaultPage htmlTitle="${screenActionType.getActionText()} work schedule" pageHeading="${screenActionType.getActionText()} work schedule" breadcrumbs=true>
+<@defaultPage htmlTitle="${screenActionType.getActionText()} work schedule" pageHeading="${screenActionType.getActionText()} work schedule" breadcrumbs=true fullWidthColumn=true >
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>

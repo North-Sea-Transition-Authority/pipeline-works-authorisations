@@ -177,7 +177,7 @@ public class PermanentDepositsServiceTest {
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(true);
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.isPermanentDepositToBeMade(pwaApplicationDetail)).isEqualTo(true);
+    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
   }
 
   @Test
@@ -185,7 +185,7 @@ public class PermanentDepositsServiceTest {
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(false);
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.isPermanentDepositToBeMade(pwaApplicationDetail)).isEqualTo(false);
+    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(false);
   }
 
   @Test
@@ -193,7 +193,7 @@ public class PermanentDepositsServiceTest {
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(null);
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.isPermanentDepositToBeMade(pwaApplicationDetail)).isEqualTo(false);
+    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(false);
   }
 
   @Test
@@ -202,7 +202,7 @@ public class PermanentDepositsServiceTest {
     projectInformation.setPermanentDepositsMade(false);
     var pwaApplicationDetail = PwaApplicationTestUtil.createApplicationDetail(null, PwaApplicationType.DEPOSIT_CONSENT, null, 0, 0);
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-    assertThat(service.isPermanentDepositToBeMade(pwaApplicationDetail)).isEqualTo(true);
+    assertThat(service.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
   }
 
 

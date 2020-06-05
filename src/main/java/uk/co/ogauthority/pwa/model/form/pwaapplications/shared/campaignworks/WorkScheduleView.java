@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 public class WorkScheduleView {
@@ -15,7 +16,7 @@ public class WorkScheduleView {
   private final String formattedWorkStartDate;
   private final String formattedWorkEndDate;
 
-  private final List<PipelineOverview> schedulePipelines;
+  private final List<CampaignWorkSchedulePipelineView> schedulePipelines;
 
   public WorkScheduleView(Integer padCampaignWorkScheduleId,
                           LocalDate workStartDate,
@@ -26,7 +27,10 @@ public class WorkScheduleView {
     this.workEndDate = workEndDate;
     this.formattedWorkStartDate = workStartDate.format(DATETIME_FORMATTER);
     this.formattedWorkEndDate = workEndDate.format(DATETIME_FORMATTER);
-    this.schedulePipelines = linkedPipelines;
+    this.schedulePipelines = linkedPipelines
+        .stream()
+        .map(CampaignWorkSchedulePipelineView::fromPipelineOverview)
+    .collect(Collectors.toList());
   }
 
   public LocalDate getWorkStartDate() {
@@ -49,7 +53,7 @@ public class WorkScheduleView {
     return padCampaignWorkScheduleId;
   }
 
-  public List<PipelineOverview> getSchedulePipelines() {
+  public List<CampaignWorkSchedulePipelineView> getSchedulePipelines() {
     return schedulePipelines;
   }
 }

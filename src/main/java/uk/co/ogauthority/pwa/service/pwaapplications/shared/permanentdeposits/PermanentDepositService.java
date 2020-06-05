@@ -250,10 +250,10 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return isPermanentDepositToBeMade(pwaApplicationDetail);
+    return permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail);
   }
 
-  public boolean isPermanentDepositToBeMade(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean permanentDepositsAreToBeMadeOnApp(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
     if (projectInformation.isPresent()) {
       return BooleanUtils.isTrue(projectInformation.get().getPermanentDepositsMade())
@@ -262,7 +262,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return false;
   }
 
-  public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean hasPermanentDepositBeenMade(PwaApplicationDetail pwaApplicationDetail) {
     return permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail) > 0 ? true : false;
   }
 
