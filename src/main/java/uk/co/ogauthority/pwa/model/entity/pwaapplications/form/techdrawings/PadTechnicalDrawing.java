@@ -37,6 +37,18 @@ public class PadTechnicalDrawing {
     this.id = id;
   }
 
+  public PadTechnicalDrawing() {
+  }
+
+  public PadTechnicalDrawing(Integer id,
+                             PwaApplicationDetail pwaApplicationDetail,
+                             PadFile file, String reference) {
+    this.id = id;
+    this.pwaApplicationDetail = pwaApplicationDetail;
+    this.file = file;
+    this.reference = reference;
+  }
+
   public PwaApplicationDetail getPwaApplicationDetail() {
     return pwaApplicationDetail;
   }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
@@ -36,6 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -88,13 +90,23 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     return modelAndView;
   }
 
+  private ModelAndView getRemoveDrawingModelAndView(PwaApplicationDetail detail, Integer drawingId) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/removePipelineDrawing")
+        .addObject("summary", padTechnicalDrawingService.getPipelineSummaryView(detail, drawingId))
+        .addObject("urlFactory", new PipelineDrawingUrlFactory(detail))
+        .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
+    applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
+        "Remove pipeline drawing");
+    return modelAndView;
+  }
+
   @GetMapping("/new")
   public ModelAndView renderAddDrawing(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") PipelineDrawingForm form,
       PwaApplicationContext applicationContext) {
-
 
     return getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
   }
@@ -121,6 +133,30 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, applicationId, null, null));
     });
+  }
+
+  @GetMapping("/{drawingId}/remove")
+  public ModelAndView renderRemoveDrawing(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("drawingId") Integer drawingId,
+      PwaApplicationContext applicationContext) {
+
+    return getRemoveDrawingModelAndView(applicationContext.getApplicationDetail(), drawingId);
+  }
+
+  @PostMapping("/{drawingId}/remove")
+  public ModelAndView postRemoveDrawing(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("drawingId") Integer drawingId,
+      PwaApplicationContext applicationContext,
+      AuthenticatedUserAccount user) {
+
+    padTechnicalDrawingService.removeDrawing(applicationContext.getApplicationDetail(), drawingId, user);
+
+    return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
+        .renderOverview(applicationType, applicationId, null, null));
   }
 
   @Override

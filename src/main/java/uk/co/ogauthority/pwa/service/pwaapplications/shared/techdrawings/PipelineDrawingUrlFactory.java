@@ -26,4 +26,9 @@ public class PipelineDrawingUrlFactory {
     return ReverseRouter.route(on(PipelineDrawingController.class)
         .handleDownload(applicationType, applicationId, fileId, null));
   }
+
+  public String getPipelineDrawingRemoveUrl(Integer drawingId) {
+    return ReverseRouter.route(on(PipelineDrawingController.class)
+        .renderRemoveDrawing(applicationType, applicationId, drawingId, null));
+  }
 }

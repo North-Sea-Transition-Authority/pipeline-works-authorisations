@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
@@ -73,7 +75,15 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     padTechnicalDrawingLinkService.linkDrawing(detail, form.getPadPipelineIds(), drawing);
   }
 
-  public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViews(PwaApplicationDetail detail) {
+  public PipelineDrawingSummaryView getPipelineSummaryView(PwaApplicationDetail detail, Integer drawingId) {
+    var drawing = padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(detail, drawingId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Unable to find drawing with id (%d) of detail (%d)", drawingId, detail.getId())
+        ));
+    return getPipelineDrawingSummaryViewFromDrawing(detail, drawing);
+  }
+
+  public List<PipelineDrawingSummaryView> getPipelineDrawingSummaryViewList(PwaApplicationDetail detail) {
     var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail);
     var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
     Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap = links.stream()
@@ -109,6 +119,27 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
             "Unable to get UploadedFileView of file with ID: " + technicalDrawing.getFileId()));
 
     return new PipelineDrawingSummaryView(technicalDrawing, references, fileView);
+  }
+
+  @VisibleForTesting
+  public PipelineDrawingSummaryView getPipelineDrawingSummaryViewFromDrawing(PwaApplicationDetail detail,
+                                                                             PadTechnicalDrawing drawing) {
+    var links = padTechnicalDrawingLinkService.getLinksFromDrawing(drawing);
+    List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(detail,
+        ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL);
+    return buildSummaryView(drawing, links, fileViews);
+  }
+
+  @Transactional
+  public void removeDrawing(PwaApplicationDetail detail, Integer drawingId, WebUserAccount webUserAccount) {
+    var drawing = padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(detail, drawingId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Unable to find drawing with id (%d) of detail (%d)", drawingId, detail.getId())
+        ));
+    padTechnicalDrawingLinkService.unlinkDrawing(detail, drawing);
+    padTechnicalDrawingRepository.delete(drawing);
+    padFileService.processFileDeletion(drawing.getFile(), webUserAccount);
   }
 
   @Override
