@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,6 +178,14 @@ public class PadFileService {
     padFileRepository.deleteAll(filesToBeRemoved);
 
   }
+
+
+  public void deleteFilesAndLinks(Consumer<String> onDeleteMethod) {
+    onDeleteMethod.accept("");
+
+  }
+
+
 
   public UploadedFile getUploadedFileById(String fileId) {
     return fileUploadService.getFileById(fileId);

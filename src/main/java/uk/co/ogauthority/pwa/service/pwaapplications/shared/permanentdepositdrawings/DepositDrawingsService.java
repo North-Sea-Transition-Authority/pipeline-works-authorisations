@@ -1,16 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
 
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -22,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -31,6 +30,8 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 
 /* Service providing simplified API for Permanent Deposit Drawings app form */
@@ -118,7 +119,30 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Unable to get UploadedFileView of file with ID: " + depositDrawing.getFile().getFileId()));
 
-    return new PermanentDepositDrawingView(depositDrawing.getReference(), depositReferences, fileView);
+    return new PermanentDepositDrawingView(depositDrawing.getId(), depositDrawing.getReference(), depositReferences, fileView);
+  }
+
+
+  public void editDepositDrawing(int depositDrawingId) {
+
+  }
+
+
+
+
+
+  public Map<String, String> getEditUrlsForDepositDrawings(PwaApplicationDetail pwaApplicationDetail) {
+    Map<String, String>  depositDrawingUrls = new HashMap<>();
+    var depositDrawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+
+    for (PadDepositDrawing depositDrawing: depositDrawings) {
+      depositDrawingUrls.put(depositDrawing.getId().toString(),
+          ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+              .renderEditDepositDrawing(
+                  pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+                  null, depositDrawing.getId(), null)));
+    }
+    return depositDrawingUrls;
   }
 
 
