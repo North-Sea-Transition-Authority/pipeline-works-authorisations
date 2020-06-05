@@ -212,7 +212,6 @@ public class PadTechnicalDrawingServiceTest {
 
     var uploadedFileView = new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#");
 
-    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))).thenReturn(List.of(link));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(uploadedFileView));
 
@@ -234,7 +233,6 @@ public class PadTechnicalDrawingServiceTest {
     drawing.setReference("ref");
     drawing.setId(1);
 
-    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))).thenReturn(List.of());
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of());
 
