@@ -67,7 +67,8 @@ public class InitialReviewController {
         .addObject("caseOfficerCandidates",
             workflowAssignmentService.getAssignmentCandidates(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
                 .sorted(Comparator.comparing(Person::getFullName))
-                .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()), Person::getFullName)));
+                .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
+                    Person::getFullName)));
 
     breadcrumbService.fromWorkArea(modelAndView, detail.getPwaApplicationRef());
 
@@ -98,13 +99,18 @@ public class InitialReviewController {
 
     initialReviewFormValidator.validate(form, bindingResult);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getInitialReviewModelAndView(processingContext.getApplicationDetail()),
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        getInitialReviewModelAndView(processingContext.getApplicationDetail()),
         () -> {
 
           try {
-            initialReviewService.acceptApplication(processingContext.getApplicationDetail(), form.getCaseOfficerPersonId(), user);
+            initialReviewService.acceptApplication(processingContext.getApplicationDetail(),
+                form.getCaseOfficerPersonId(), user);
+            FlashUtils.success(redirectAttributes,
+                "Accepted initial review for " + processingContext.getApplicationDetail().getPwaApplicationRef());
           } catch (ActionAlreadyPerformedException e) {
-            FlashUtils.error(redirectAttributes, "Initial review already accepted");
+            FlashUtils.error(redirectAttributes, String.format("Initial review for %s already accepted",
+                processingContext.getApplicationDetail().getPwaApplicationRef()));
           }
 
           return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
