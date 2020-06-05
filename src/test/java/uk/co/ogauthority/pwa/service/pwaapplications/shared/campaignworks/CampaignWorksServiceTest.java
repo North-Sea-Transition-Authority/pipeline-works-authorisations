@@ -3,10 +3,12 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -16,9 +18,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
@@ -78,11 +83,8 @@ public class CampaignWorksServiceTest {
         padCampaignWorksPipelineRepository
     );
 
-    pipe1 = new PadPipeline(pwaApplicationDetail);
-    pipe1.setId(10);
-
-    pipe2 = new PadPipeline(pwaApplicationDetail);
-    pipe2.setId(20);
+    pipe1 = createPadPipeline(10, "PIPE1", pwaApplicationDetail);
+    pipe2 = createPadPipeline(20, "PIPE2", pwaApplicationDetail);
     padPipelineList = List.of(pipe1, pipe2);
     padPipelineIdList = List.of(pipe1.getId(), pipe2.getId());
 
@@ -94,6 +96,15 @@ public class CampaignWorksServiceTest {
     when(padPipelineService.getByIdList(pwaApplicationDetail, padPipelineIdList)).thenReturn(padPipelineList);
     when(workScheduleFormValidator.supports(any())).thenCallRealMethod();
 
+  }
+
+  private PadPipeline createPadPipeline(int id, String pipelineNumber, PwaApplicationDetail pwaApplicationDetail){
+    var pipe = new PadPipeline(pwaApplicationDetail);
+    pipe.setId(id);
+    pipe.setPipelineRef(pipelineNumber);
+    pipe.setLength(BigDecimal.ONE);
+    pipe.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    return pipe;
   }
 
   @Test
@@ -183,15 +194,19 @@ public class CampaignWorksServiceTest {
     assertThat(workScheduleViewList).anySatisfy(workScheduleView -> {
       assertThat(workScheduleView.getWorkStartDate()).isEqualTo(schedule1.getWorkFromDate());
       assertThat(workScheduleView.getWorkEndDate()).isEqualTo(schedule1.getWorkToDate());
-      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(po -> po.getPadPipelineId().equals(pipe1.getId()));
+      assertThat(workScheduleView.getSchedulePipelines())
+          .anySatisfy(campaignWorkSchedulePipelineView -> assertThat(
+              campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef()));
     });
 
     //schedule 2 view checks
     assertThat(workScheduleViewList).anySatisfy(workScheduleView -> {
       assertThat(workScheduleView.getWorkStartDate()).isEqualTo(schedule2.getWorkFromDate());
       assertThat(workScheduleView.getWorkEndDate()).isEqualTo(schedule2.getWorkToDate());
-      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(po -> po.getPadPipelineId().equals(pipe1.getId()));
-      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(po -> po.getPadPipelineId().equals(pipe2.getId()));
+      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(campaignWorkSchedulePipelineView -> assertThat(
+          campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef()));
+      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(campaignWorkSchedulePipelineView -> assertThat(
+          campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe2.getPipelineRef()));
     });
 
   }
@@ -244,7 +259,7 @@ public class CampaignWorksServiceTest {
 
   }
 
-  public void assetValidationHintsWhenNoProjectInfoDate(List<Object> validationHints, long expectedLatestDateMonths){
+  public void assetValidationHintsWhenNoProjectInfoDate(List<Object> validationHints, long expectedLatestDateMonths) {
     assertThat(validationHints.get(0)).isEqualTo(pwaApplicationDetail);
     assertThat(validationHints.get(1)).satisfies(o -> {
       var hint = (CampaignWorkScheduleValidationHint) o;
@@ -266,9 +281,10 @@ public class CampaignWorksServiceTest {
   @Test
   public void validate_assertValidationHints_whenProjectInfoProposedStartDate_andIntialAppType() {
 
-    var clock = Clock.fixed(Clock.systemUTC().instant(), ZoneId.systemDefault() );
+    var clock = Clock.fixed(Clock.systemUTC().instant(), ZoneId.systemDefault());
 
-    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn(Optional.of(clock.instant()));
+    when(padProjectInformationService.getProposedStartDate(pwaApplicationDetail)).thenReturn(
+        Optional.of(clock.instant()));
 
     var originalBindingResult = new BeanPropertyBindingResult(workScheduleForm, "form");
     var bindingResult = campaignWorksService.validate(
@@ -289,8 +305,10 @@ public class CampaignWorksServiceTest {
       // check earliest date
       assertThat(hint.getEarliestDate()).isEqualTo(LocalDate.now());
       // check embedded earliest date hint
-      assertThat(hint.getEarliestWorkStartDateHint().getDateLabel()).contains("Project information proposed start date");
-      assertThat(hint.getEarliestWorkStartDateHint().getDate()).isEqualTo(LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()));
+      assertThat(hint.getEarliestWorkStartDateHint().getDateLabel()).contains(
+          "Project information proposed start date");
+      assertThat(hint.getEarliestWorkStartDateHint().getDate()).isEqualTo(
+          LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()));
       // check embedded latest date hint
       var expectedLatestDate = LocalDate.now().plusMonths(12L);
       assertThat(hint.getLatestWorkEndDateHint().getDateLabel())
@@ -300,5 +318,50 @@ public class CampaignWorksServiceTest {
 
   }
 
+  @Test
+  public void updateCampaignWorksScheduleFromForm_serviceInteraction() {
+    var spySchedule = spy(PadCampaignWorkSchedule.class);
+
+    var listOfOldPipelineLinks = List.of(new PadCampaignWorksPipeline());
+
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(spySchedule))
+        .thenReturn(listOfOldPipelineLinks);
+
+    campaignWorksService.updateCampaignWorksScheduleFromForm(workScheduleForm, spySchedule);
+
+    InOrder orderVerifier = Mockito.inOrder(spySchedule, padCampaignWorkScheduleRepository,
+        padCampaignWorksPipelineRepository);
+
+    orderVerifier.verify(padCampaignWorksPipelineRepository).findAllByPadCampaignWorkSchedule(spySchedule);
+    orderVerifier.verify(padCampaignWorksPipelineRepository).deleteAll(listOfOldPipelineLinks);
+    orderVerifier.verify(spySchedule).setWorkFromDate(eq(workScheduleForm.getWorkStart().createDateOrNull()));
+    orderVerifier.verify(spySchedule).setWorkToDate(eq(workScheduleForm.getWorkEnd().createDateOrNull()));
+    orderVerifier.verify(padCampaignWorkScheduleRepository).save(spySchedule);
+
+  }
+
+  @Test
+  public void mapWorkScheduleToForm_mappingAsExpected() {
+    var linkedPipeline = new PadCampaignWorksPipeline();
+    linkedPipeline.setPadPipeline(pipe1);
+    var linkedPipelines = List.of(linkedPipeline);
+
+    var fromDate = LocalDate.of(2020, 1, 1);
+    var toDate = LocalDate.of(2020, 12, 1);
+    var schedule = new PadCampaignWorkSchedule();
+    schedule.setWorkFromDate(fromDate);
+    schedule.setWorkToDate(toDate);
+
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(schedule)).thenReturn(linkedPipelines);
+
+    var emptyForm = new WorkScheduleForm();
+
+    campaignWorksService.mapWorkScheduleToForm(emptyForm, schedule);
+
+    assertThat(emptyForm.getPadPipelineIds()).isEqualTo(List.of(pipe1.getId()));
+    assertThat(emptyForm.getWorkStart()).isEqualTo(new TwoFieldDateInput(fromDate));
+    assertThat(emptyForm.getWorkEnd()).isEqualTo(new TwoFieldDateInput(toDate));
+
+  }
 
 }

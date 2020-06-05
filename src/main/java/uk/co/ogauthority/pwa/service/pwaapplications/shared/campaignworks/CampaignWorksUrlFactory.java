@@ -22,4 +22,13 @@ public class CampaignWorksUrlFactory {
     return ReverseRouter.route(on(CampaignWorksController.class)
         .renderAddWorkSchedule(this.applicationType, this.applicationId, null, null));
   }
+
+  public String editWorkScheduleUrl(int campaignWorksId) {
+    return ReverseRouter.route(on(CampaignWorksController.class).renderEditWorkSchedule(
+        this.applicationType,
+        this.applicationId,
+        campaignWorksId,
+        null,
+        null));
+  }
 }

@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -17,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -60,8 +63,8 @@ public class CampaignWorksController {
     this.campaignWorksService = campaignWorksService;
   }
 
-  private ModelAndView createAddWorkScheduleModelAndView(PwaApplicationContext applicationContext,
-                                                         ScreenActionType screenActionType) {
+  private ModelAndView createWorkScheduleFormModelAndView(PwaApplicationContext applicationContext,
+                                                          ScreenActionType screenActionType) {
     var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/workScheduleForm")
         .addObject("cancelUrl", ReverseRouter.route(on(CampaignWorksController.class)
             .renderSummary(applicationContext.getApplicationType(), applicationContext.getMasterPwaApplicationId(),
@@ -70,7 +73,7 @@ public class CampaignWorksController {
         .addObject("screenActionType", screenActionType);
 
     applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,
-        "Add work schedule");
+        screenActionType.getActionText() + " work schedule");
 
     return modelAndView;
   }
@@ -86,7 +89,12 @@ public class CampaignWorksController {
             .renderProjectInformation(pwaApplicationType, applicationId, null, null)))
         .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()))
         .addObject("workScheduleViewList",
-            campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail()));
+            campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail())
+                .stream()
+                .sorted(Comparator.comparing(WorkScheduleView::getWorkStartDate)
+                    .thenComparing(WorkScheduleView::getWorkEndDate))
+                .collect(Collectors.toList())
+        );
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Campaign Works");
     return modelAndView;
   }
@@ -98,7 +106,7 @@ public class CampaignWorksController {
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") WorkScheduleForm form) {
 
-    return createAddWorkScheduleModelAndView(applicationContext, ScreenActionType.ADD);
+    return createWorkScheduleFormModelAndView(applicationContext, ScreenActionType.ADD);
   }
 
   @PostMapping("/add")
@@ -117,11 +125,52 @@ public class CampaignWorksController {
     );
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        createAddWorkScheduleModelAndView(applicationContext, ScreenActionType.ADD), () -> {
+        createWorkScheduleFormModelAndView(applicationContext, ScreenActionType.ADD), () -> {
           campaignWorksService.addCampaignWorkScheduleFromForm(form, applicationContext.getApplicationDetail());
           return ReverseRouter.redirect(
               on(CampaignWorksController.class).renderSummary(pwaApplicationType, applicationId, null));
 
+        });
+  }
+
+  @GetMapping("/{campaignWorkScheduleId}/edit")
+  public ModelAndView renderEditWorkSchedule(@PathVariable("applicationType")
+                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                             @PathVariable("applicationId") int applicationId,
+                                             @PathVariable("campaignWorkScheduleId") int campaignWorkScheduleId,
+                                             PwaApplicationContext applicationContext,
+                                             @ModelAttribute("form") WorkScheduleForm form) {
+    var editWorkSchedule = campaignWorksService.getWorkScheduleOrError(
+        applicationContext.getApplicationDetail(),
+        campaignWorkScheduleId);
+    campaignWorksService.mapWorkScheduleToForm(form, editWorkSchedule);
+    return createWorkScheduleFormModelAndView(applicationContext, ScreenActionType.EDIT);
+  }
+
+  @PostMapping("/{campaignWorkScheduleId}/edit")
+  public ModelAndView editWorkSchedule(@PathVariable("applicationType")
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @PathVariable("applicationId") int applicationId,
+                                       @PathVariable("campaignWorkScheduleId") int campaignWorkScheduleId,
+                                       PwaApplicationContext applicationContext,
+                                       @ModelAttribute("form") WorkScheduleForm form,
+                                       BindingResult bindingResult) {
+    var editWorkSchedule = campaignWorksService.getWorkScheduleOrError(
+        applicationContext.getApplicationDetail(),
+        campaignWorkScheduleId);
+
+    bindingResult = campaignWorksService.validate(
+        form,
+        bindingResult,
+        ValidationType.FULL,
+        applicationContext.getApplicationDetail()
+    );
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        createWorkScheduleFormModelAndView(applicationContext, ScreenActionType.EDIT), () -> {
+          campaignWorksService.updateCampaignWorksScheduleFromForm(form, editWorkSchedule);
+          return ReverseRouter.redirect(
+              on(CampaignWorksController.class).renderSummary(pwaApplicationType, applicationId, null));
         });
   }
 
