@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -76,7 +77,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     this.padFileService = padFileService;
   }
 
-  private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form) {
+  private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form, ScreenActionType actionType) {
 
     var modelAndView = this.createModelAndView(
         "pwaApplication/shared/techdrawings/addPipelineDrawing",
@@ -85,10 +86,11 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         form)
         .addObject("pipelineViews", padPipelineService.getPipelineOverviews(detail))
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
-            .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
+            .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
+        .addObject("actionType", actionType);
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
-        "Add pipeline drawing");
+        actionType.getActionText() + " pipeline drawing");
 
     padFileService.getFilesLinkedToForm(form, detail, filePurpose);
     return modelAndView;
@@ -112,7 +114,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       @ModelAttribute("form") PipelineDrawingForm form,
       PwaApplicationContext applicationContext) {
 
-    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
+    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD);
   }
 
   @PostMapping("/new")
@@ -125,7 +127,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     bindingResult = padTechnicalDrawingService.validate(form, bindingResult, ValidationType.FULL,
         applicationContext.getApplicationDetail());
-    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
       padFileService.updateFiles(
           form,
@@ -173,7 +175,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     var drawing = padTechnicalDrawingService.getDrawing(applicationContext.getApplicationDetail(), drawingId);
     padTechnicalDrawingService.mapDrawingToForm(applicationContext.getApplicationDetail(), drawing, form);
-    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
+    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
 
   }
 
@@ -189,7 +191,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     bindingResult = padTechnicalDrawingService.validateEdit(form, bindingResult, ValidationType.FULL,
         applicationContext.getApplicationDetail(), drawingId);
-    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
       padFileService.updateFiles(
           form,
