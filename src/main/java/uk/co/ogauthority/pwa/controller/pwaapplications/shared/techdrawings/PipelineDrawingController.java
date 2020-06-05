@@ -119,7 +119,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
-    bindingResult = padTechnicalDrawingService.validate(form, bindingResult, ValidationType.FULL,
+    bindingResult = padTechnicalDrawingService.validateAdd(form, bindingResult, ValidationType.FULL,
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {

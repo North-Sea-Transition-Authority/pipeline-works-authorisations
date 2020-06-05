@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.Pipel
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
@@ -144,23 +146,43 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var drawings = getDrawings(detail);
-    List<Integer> linkedPipelineIds = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings)
-        .stream()
-        .map(padTechnicalDrawingLink -> padTechnicalDrawingLink.getPipeline().getId())
-        .collect(Collectors.toUnmodifiableList());
-
-    return padPipelineService.getPipelines(detail)
-        .stream()
-        .map(PadPipeline::getId)
-        .allMatch(linkedPipelineIds::contains);
+    return allPipelinesLinked(detail);
   }
 
   @Override
+  @Deprecated
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
+    throw new ActionNotAllowedException("PadTechnicalDrawingService::validate should not be used");
+  }
+
+  public BindingResult validateAdd(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
+    return bindingResult;
+  }
+
+  private boolean allPipelinesLinked(PwaApplicationDetail pwaApplicationDetail) {
+    var drawings = getDrawings(pwaApplicationDetail);
+    var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
+    var pipelines = padPipelineService.getPipelines(pwaApplicationDetail);
+
+    Set<Integer> linkedPipelineIds = links.stream()
+        .map(drawingLink -> drawingLink.getPipeline().getId())
+        .collect(Collectors.toSet());
+
+    return pipelines.stream()
+        .allMatch(pipeline -> linkedPipelineIds.contains(pipeline.getId()));
+  }
+
+  public BindingResult validateSection(BindingResult bindingResult, PwaApplicationDetail pwaApplicationDetail) {
+
+    if (!allPipelinesLinked(pwaApplicationDetail)) {
+      bindingResult.reject("allPipelinesAdded" + FieldValidationErrorCodes.INVALID.getCode(),
+          "Not all pipelines have been linked to a drawing");
+    }
+
     return bindingResult;
   }
 }
