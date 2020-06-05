@@ -11,4 +11,6 @@ public interface PadTechnicalDrawingLinkRepository extends CrudRepository<PadTec
 
   List<PadTechnicalDrawingLink> getAllByTechnicalDrawingIn(List<PadTechnicalDrawing> technicalDrawings);
 
+  List<PadTechnicalDrawingLink> getAllByTechnicalDrawing(PadTechnicalDrawing drawing);
+
 }

@@ -32,8 +32,13 @@ public class PadTechnicalDrawingLinkService {
     return padTechnicalDrawingLinkRepository.getAllByTechnicalDrawingIn(drawings);
   }
 
+  public List<PadTechnicalDrawingLink> getLinksFromDrawing(PadTechnicalDrawing drawing) {
+    return padTechnicalDrawingLinkRepository.getAllByTechnicalDrawing(drawing);
+  }
+
   @Transactional
-  public void linkDrawing(PwaApplicationDetail detail, List<Integer> padPipelineIds, PadTechnicalDrawing technicalDrawing) {
+  public void linkDrawing(PwaApplicationDetail detail, List<Integer> padPipelineIds,
+                          PadTechnicalDrawing technicalDrawing) {
     Map<Integer, PadPipeline> pipelines = padPipelineService.getByIdList(detail, padPipelineIds)
         .stream()
         .collect(StreamUtils.toLinkedHashMap(PadPipeline::getId, pipeline -> pipeline));
