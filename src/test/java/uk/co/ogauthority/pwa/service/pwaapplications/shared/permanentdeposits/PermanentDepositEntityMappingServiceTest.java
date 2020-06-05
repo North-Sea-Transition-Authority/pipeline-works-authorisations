@@ -135,7 +135,7 @@ public class PermanentDepositEntityMappingServiceTest {
     var entity = buildBaseEntity();
     setEntityRockProperties(entity);
     form.setMaterialType(MaterialType.ROCK);
-    form.setRocksSize(Integer.parseInt(entity.getMaterialSize()));
+    form.setRocksSize(entity.getMaterialSize());
     form.setQuantityRocks(String.valueOf(entity.getQuantity()));
     form.setContingencyRocksAmount(entity.getContingencyAmount());
   }

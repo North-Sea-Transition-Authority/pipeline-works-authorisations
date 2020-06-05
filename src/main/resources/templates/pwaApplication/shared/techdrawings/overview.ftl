@@ -1,5 +1,6 @@
 <#include '../../../layout.ftl'>
 <#import 'admiraltyChartManagement.ftl' as admiraltyChartManagement>
+<#import 'pipelineDrawingManagement.ftl' as pipelineDrawingManagement>
 
 <#-- @ftlvariable name="admiraltyChartUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory" -->
 <#-- @ftlvariable name="admiraltyChartFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
@@ -14,8 +15,9 @@
 
     <hr class="govuk-section-break govuk-section-break--m"/>
 
-    <h2 class="govuk-heading-l">Pipeline drawings</h2>
-    <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(pipelineDrawingUrlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>
+    <@pipelineDrawingManagement.pipelineDrawingManagement
+    urlFactory=pipelineDrawingUrlFactory
+    pipelineDrawingSummaryViews=pipelineDrawingSummaryViews/>
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
