@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -55,6 +56,7 @@ import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 public class CampaignWorksControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
+  private static final int SCHEDULE_ID = 101;
 
   // Dont understand why this needs to be spybean and not a mock bean
   @SpyBean
@@ -69,6 +71,8 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
       EnumSet.allOf(PwaUserPrivilege.class));
 
   private PwaApplicationEndpointTestBuilder endpointTester;
+
+  private PadCampaignWorkSchedule schedule;
 
   @Before
   public void setup() {
@@ -89,17 +93,19 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
         .thenReturn(pwaApplicationDetail);
     when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    schedule = new PadCampaignWorkSchedule();
+    when(campaignWorksService.getWorkScheduleOrError(any(), eq(SCHEDULE_ID))).thenReturn(schedule);
   }
 
   @Test
   public void renderSummary_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .renderSummary(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).renderSummary(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null)
             )
         );
 
@@ -111,11 +117,10 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   public void renderSummary_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .renderSummary(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).renderSummary(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null)
             )
         );
 
@@ -127,11 +132,10 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   public void renderSummary_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .renderSummary(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).renderSummary(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null)
             )
         );
 
@@ -156,12 +160,11 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   public void renderAddWorkSchedule_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .renderAddWorkSchedule(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).renderAddWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null,
+                null)
             )
         );
 
@@ -173,12 +176,11 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   public void renderAddWorkSchedule_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .renderAddWorkSchedule(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).renderAddWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null,
+                null)
             )
         );
 
@@ -190,12 +192,11 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   public void renderAddWorkSchedule_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .renderAddWorkSchedule(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).renderAddWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null,
+                null)
             )
         );
 
@@ -207,8 +208,11 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   public void renderAddWorkSchedule_serviceInteractions() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
-            on(CampaignWorksController.class).renderAddWorkSchedule(pwaApplicationDetail.getPwaApplicationType(),
-                APP_ID, null, null)))
+            on(CampaignWorksController.class).renderAddWorkSchedule(
+                pwaApplicationDetail.getPwaApplicationType(),
+                APP_ID,
+                null,
+                null)))
             .with(authenticatedUserAndSession(user))
     )
         .andExpect(status().isOk())
@@ -225,13 +229,12 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
     endpointTester.setRequestMethod(HttpMethod.POST)
 
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .addWorkSchedule(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null,
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).addWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null,
+                null,
+                null)
             )
         );
 
@@ -246,13 +249,12 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .addWorkSchedule(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null,
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).addWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null,
+                null,
+                null)
             )
         );
 
@@ -265,13 +267,12 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
     ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CampaignWorksController.class)
-                .addWorkSchedule(
-                    type,
-                    applicationDetail.getMasterPwaApplicationId(),
-                    null,
-                    null,
-                    null)
+            ReverseRouter.route(on(CampaignWorksController.class).addWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                null,
+                null,
+                null)
             )
         );
 
@@ -279,13 +280,17 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
 
   }
 
+
   @Test
-  public void renderAddWorkSchedule_serviceInteractions_whenValidationFail() throws Exception {
+  public void addWorkSchedule_serviceInteractions_whenValidationFail() throws Exception {
     ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(CampaignWorksController.class).addWorkSchedule(pwaApplicationDetail.getPwaApplicationType(),
-                APP_ID, null, null, null)))
+            on(CampaignWorksController.class).addWorkSchedule(
+                pwaApplicationDetail.getPwaApplicationType(),
+                APP_ID,
+                null,
+                null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(getWorkScheduleFormAsMap())
@@ -296,12 +301,17 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddWorkSchedule_serviceInteractions_whenValidationPass() throws Exception {
+  public void addWorkSchedule_serviceInteractions_whenValidationPass() throws Exception {
     ControllerTestUtils.passValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
     mockMvc.perform(
         post(ReverseRouter.route(
-            on(CampaignWorksController.class).addWorkSchedule(pwaApplicationDetail.getPwaApplicationType(),
-                APP_ID, null, null, null)))
+            on(CampaignWorksController.class)
+                .addWorkSchedule(
+                    pwaApplicationDetail.getPwaApplicationType(),
+                    APP_ID,
+                    null,
+                    null,
+                    null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(getWorkScheduleFormAsMap())
@@ -311,6 +321,178 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
     verify(campaignWorksService, times(1)).addCampaignWorkScheduleFromForm(any(), eq(pwaApplicationDetail));
   }
 
+  @Test
+  public void renderEditWorkSchedule_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).renderEditWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null,
+                null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditWorkSchedule_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).renderEditWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null,
+                null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderEditWorkSchedule_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).renderEditWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null,
+                null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditWorkSchedule_serviceInteractions() throws Exception {
+    mockMvc.perform(
+        get(ReverseRouter.route(
+            on(CampaignWorksController.class).renderEditWorkSchedule(
+                pwaApplicationDetail.getPwaApplicationType(),
+                APP_ID, SCHEDULE_ID,
+                null,
+                null)))
+            .with(authenticatedUserAndSession(user))
+    )
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("screenActionType", ScreenActionType.EDIT));
+
+    verify(padPipelineService, times(1)).getPipelineOverviews(pwaApplicationDetail);
+  }
+
+
+  @Test
+  public void editWorkSchedule_appTypeSmokeTest() {
+
+    ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).editWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null,
+                null,
+                null)
+            )
+        );
+
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void editWorkSchedule_appStatusSmokeTest() {
+    ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).editWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null,
+                null,
+                null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void editWorkSchedule_contactRoleSmokeTest() {
+    ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).editWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null,
+                null,
+                null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void editWorkSchedule_serviceInteractions_whenValidationFail() throws Exception {
+    ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(CampaignWorksController.class).editWorkSchedule(
+                pwaApplicationDetail.getPwaApplicationType(),
+                APP_ID,
+                SCHEDULE_ID,
+                null,
+                null,
+                null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(getWorkScheduleFormAsMap())
+    )
+        .andExpect(status().isOk());
+
+    verify(campaignWorksService, times(0)).updateCampaignWorksScheduleFromForm(any(), eq(schedule));
+  }
+
+  @Test
+  public void editWorkSchedule_serviceInteractions_whenValidationPass() throws Exception {
+    ControllerTestUtils.passValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(CampaignWorksController.class).editWorkSchedule(
+                pwaApplicationDetail.getPwaApplicationType(),
+                APP_ID,
+                SCHEDULE_ID,
+                null,
+                null,
+                null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(getWorkScheduleFormAsMap())
+    )
+        .andExpect(status().is3xxRedirection());
+
+    verify(campaignWorksService, times(1)).updateCampaignWorksScheduleFromForm(any(), eq(schedule));
+  }
 
   private MultiValueMap<String, String> getWorkScheduleFormAsMap() {
 

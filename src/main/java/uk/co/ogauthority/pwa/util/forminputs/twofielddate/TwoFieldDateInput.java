@@ -23,6 +23,11 @@ public class TwoFieldDateInput {
   public TwoFieldDateInput() {
   }
 
+  public TwoFieldDateInput(LocalDate localDate) {
+    this.year = String.valueOf(localDate.getYear());
+    this.month = String.valueOf(localDate.getMonthValue());
+  }
+
   @VisibleForTesting
   public TwoFieldDateInput(int year, int month) {
     this.year = String.valueOf(year);

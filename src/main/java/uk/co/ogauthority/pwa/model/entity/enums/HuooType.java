@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 public enum HuooType {
-
+  // if these change check the huoo data migration script for hardcoded enum values
   PORTAL_ORG(10, "Legal entity"),
   TREATY_AGREEMENT(20, "Treaty agreement");
 
