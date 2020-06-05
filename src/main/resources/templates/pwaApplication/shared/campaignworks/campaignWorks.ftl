@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="workScheduleViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView>" -->
 
 
-<@defaultPage htmlTitle="Campaign works" pageHeading="Campaign works" breadcrumbs=true>
+<@defaultPage htmlTitle="Campaign works" pageHeading="Campaign works" breadcrumbs=true fullWidthColumn=true>
 
     <@fdsInsetText.insetText>
       <p>Your application requires campaign works information due to the information provided in the ${dependencySectionName} section.</p>
@@ -37,13 +37,13 @@
                     </tr>
                     </thead>
                     <tbody class="govuk-table__body">
-                    <#list workSchedule.getSchedulePipelines() as pipeline>
+                    <#list workSchedule.schedulePipelines as pipeline>
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">${pipeline.getPipelineNumber()}</td>
-                            <td class="govuk-table__cell">${pipeline.getPipelineType().displayName}</td>
-                            <td class="govuk-table__cell">${pipeline.getFromLocation()}</td>
-                            <td class="govuk-table__cell">${pipeline.getToLocation()}</td>
-                            <td class="govuk-table__cell">${pipeline.getLength()}m</td>
+                            <td class="govuk-table__cell">${pipeline.pipelineNumber}</td>
+                            <td class="govuk-table__cell">${pipeline.pipelineTypeDisplayName}</td>
+                            <td class="govuk-table__cell">${pipeline.fromLocation}</td>
+                            <td class="govuk-table__cell">${pipeline.toLocation}</td>
+                            <td class="govuk-table__cell">${pipeline.metreLength}</td>
                         </tr>
                     </#list>
                     </tbody>

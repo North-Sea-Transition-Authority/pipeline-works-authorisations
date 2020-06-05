@@ -86,7 +86,7 @@ public class CampaignWorksService implements ApplicationFormSectionService {
                                                         int workScheduleId) {
     return padCampaignWorkScheduleRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, workScheduleId)
         .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("work schedule id: %s not found for app_detail_id: %s", pwaApplicationDetail.getId(), workScheduleId))
+            String.format("work schedule id: %s not found for app_detail_id: %s", workScheduleId, pwaApplicationDetail.getId()))
         );
   }
 
@@ -164,17 +164,15 @@ public class CampaignWorksService implements ApplicationFormSectionService {
                                                   PadCampaignWorkSchedule padCampaignWorkSchedule) {
 
     var formPadPipelines = padPipelineService.getByIdList(padCampaignWorkSchedule.getPwaApplicationDetail(), form.getPadPipelineIds());
-    var oldSchedulePipeline = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(padCampaignWorkSchedule);
-    padCampaignWorksPipelineRepository.deleteAll(oldSchedulePipeline);
+    var oldSchedulePipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(padCampaignWorkSchedule);
+    padCampaignWorksPipelineRepository.deleteAll(oldSchedulePipelines);
 
     var updatedSchedule = setCampaignWorkScheduleValues(
         form.getWorkStart().createDateOrNull(),
         form.getWorkEnd().createDateOrNull(),
         formPadPipelines,
         padCampaignWorkSchedule);
-
   }
-
 
   private PadCampaignWorkSchedule setCampaignWorkScheduleValues(LocalDate workStart, LocalDate workEnd,
                                                            List<PadPipeline> associatedPipelines,
