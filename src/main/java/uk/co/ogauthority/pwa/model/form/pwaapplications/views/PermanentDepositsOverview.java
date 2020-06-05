@@ -19,7 +19,7 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
 
   private MaterialType materialType;
 
-  private Integer rocksSize;
+  private String rocksSize;
   private Integer groutBagsSize;
   private String otherMaterialSize;
   private Integer concreteMattressLength;
@@ -106,11 +106,11 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
     this.materialType = materialType;
   }
 
-  public Integer getRocksSize() {
+  public String getRocksSize() {
     return rocksSize;
   }
 
-  public void setRocksSize(Integer rocksSize) {
+  public void setRocksSize(String rocksSize) {
     this.rocksSize = rocksSize;
   }
 
