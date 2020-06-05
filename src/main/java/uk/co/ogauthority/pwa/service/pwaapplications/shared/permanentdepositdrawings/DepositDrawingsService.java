@@ -1,11 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
 
-import java.util.ArrayList;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -30,7 +31,6 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
-
 
 
 /* Service providing simplified API for Permanent Deposit Drawings app form */
@@ -65,7 +65,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
 
 
-
+  @Transactional
   public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingForm form, WebUserAccount webUserAccount) {
     var drawing = new PadDepositDrawing();
     // Validated form will always have 1 file
@@ -99,15 +99,10 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL);
 
-    var summaryList = new ArrayList<PermanentDepositDrawingView>();
-    linkMap.forEach((depositDrawing, drawingLinks) -> {
-      var summaryView = buildSummaryView(depositDrawing, drawingLinks, fileViews);
-      summaryList.add(summaryView);
-    });
-
-    summaryList.sort(Comparator.comparing(PermanentDepositDrawingView::getReference));
-
-    return summaryList;
+    return linkMap.entrySet().stream()
+        .map(entrySet -> buildSummaryView(entrySet.getKey(), entrySet.getValue(), fileViews))
+        .sorted(Comparator.comparing(PermanentDepositDrawingView::getReference))
+        .collect(Collectors.toList());
   }
 
   private PermanentDepositDrawingView buildSummaryView(PadDepositDrawing depositDrawing,

@@ -20,8 +20,10 @@
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Deposits on drawing</dt>
             <dd class="govuk-summary-list__value">
-                <#list depositDrawingView.depositReferences as ref>
-                    <li>${ref}</li>
+                <#list depositDrawingView.depositReferences?sort as ref>
+                    <ul class="govuk-list">
+                        <li>${ref}</li>
+                    </ul>
                 </#list>
             </dd>                    
         </div>

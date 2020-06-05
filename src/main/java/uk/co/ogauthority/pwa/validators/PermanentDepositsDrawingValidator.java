@@ -46,7 +46,12 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
       errors.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
           "You must upload one drawing");
+    } else if (StringUtils.isBlank(form.getUploadedFileWithDescriptionForms().get(0).getUploadedFileDescription())) {
+      errors.rejectValue("uploadedFileWithDescriptionForms",
+          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "You must enter a file description");
     }
+
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedDeposits", "selectedDeposits.required",
         "You must select at least one deposit");

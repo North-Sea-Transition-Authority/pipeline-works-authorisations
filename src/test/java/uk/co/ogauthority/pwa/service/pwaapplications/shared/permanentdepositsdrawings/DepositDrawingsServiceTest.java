@@ -124,7 +124,7 @@ public class DepositDrawingsServiceTest {
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(drawingList);
-    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIdIn(drawingList))
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawingList))
         .thenReturn(List.of(drawingLink));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
@@ -164,7 +164,7 @@ public class DepositDrawingsServiceTest {
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(drawingList);
-    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIdIn(drawingList))
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawingList))
         .thenReturn(List.of(drawingLink1, drawingLink2));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
