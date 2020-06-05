@@ -237,8 +237,7 @@ public class AddHuooController {
     }
     FlashUtils.success(
         redirectAttributes,
-        String.format("Removed %s from the application", orgUnit.getName()),
-        "This legal entity will no longer be on the consent document, should this application be consented");
+        String.format("Removed legal entity %s", orgUnit.getName()));
     return ReverseRouter.redirect(on(HuooController.class)
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }
@@ -258,8 +257,7 @@ public class AddHuooController {
     padOrganisationRoleService.removeRoleOfTreatyAgreement(orgRole);
     FlashUtils.success(
         redirectAttributes,
-        String.format("Removed treaty agreement for %s from the application", orgRole.getAgreement().getCountry()),
-        "This treaty agreement will no longer be on the consent document, should this application be consented");
+        String.format("Removed %s treaty agreement", orgRole.getAgreement().getCountry()));
     return ReverseRouter.redirect(on(HuooController.class)
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }

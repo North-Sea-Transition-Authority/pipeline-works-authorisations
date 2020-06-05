@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
@@ -30,6 +31,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.appprocessing.initialreview.InitialReviewFormValidator;
@@ -91,7 +93,8 @@ public class InitialReviewController {
                                         PwaAppProcessingContext processingContext,
                                         @ModelAttribute("form") InitialReviewForm form,
                                         BindingResult bindingResult,
-                                        AuthenticatedUserAccount user) {
+                                        AuthenticatedUserAccount user,
+                                        RedirectAttributes redirectAttributes) {
 
     initialReviewFormValidator.validate(form, bindingResult);
 
@@ -101,7 +104,7 @@ public class InitialReviewController {
           try {
             initialReviewService.acceptApplication(processingContext.getApplicationDetail(), form.getCaseOfficerPersonId(), user);
           } catch (ActionAlreadyPerformedException e) {
-            // TODO PWA-565 flash messages
+            FlashUtils.error(redirectAttributes, "Initial review already accepted");
           }
 
           return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));

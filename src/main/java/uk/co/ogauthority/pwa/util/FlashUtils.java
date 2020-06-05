@@ -12,14 +12,28 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 public class FlashUtils {
 
+  public static void success(RedirectAttributes redirectAttributes, String title) {
+    redirectAttributes.addFlashAttribute("flashClass", "fds-flash--green");
+    addTextAttributes(redirectAttributes, title, null);
+  }
+
   public static void success(RedirectAttributes redirectAttributes, String title, String message) {
     redirectAttributes.addFlashAttribute("flashClass", "fds-flash--green");
     addTextAttributes(redirectAttributes, title, message);
   }
 
+  public static void error(RedirectAttributes redirectAttributes, String title) {
+    redirectAttributes.addFlashAttribute("flashClass", "fds-flash--red");
+    addTextAttributes(redirectAttributes, title, null);
+  }
+
   public static void error(RedirectAttributes redirectAttributes, String title, String message) {
     redirectAttributes.addFlashAttribute("flashClass", "fds-flash--red");
     addTextAttributes(redirectAttributes, title, message);
+  }
+
+  public static void info(RedirectAttributes redirectAttributes, String title) {
+    addTextAttributes(redirectAttributes, title, null);
   }
 
   public static void info(RedirectAttributes redirectAttributes, String title, String message) {
