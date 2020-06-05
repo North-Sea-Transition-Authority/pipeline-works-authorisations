@@ -69,14 +69,12 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     padDepositDrawingRepository.save(drawing);
 
     for (String padPermanentDepositId: form.getSelectedDeposits()) {
-      if (padPermanentDepositId != "") {
-        var padPermanentDeposit = permanentDepositService.getDepositById(Integer.parseInt(padPermanentDepositId))
-            .orElseThrow(() -> new PwaEntityNotFoundException(
-              String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
+      var padPermanentDeposit = permanentDepositService.getDepositById(Integer.parseInt(padPermanentDepositId))
+          .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
 
-        var drawingLink = new PadDepositDrawingLink(padPermanentDeposit, drawing);
-        padDepositDrawingLinkRepository.save(drawingLink);
-      }
+      var drawingLink = new PadDepositDrawingLink(padPermanentDeposit, drawing);
+      padDepositDrawingLinkRepository.save(drawingLink);
     }
     padFileService.updateFiles(form, detail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES, webUserAccount);
   }
@@ -99,7 +97,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return permanentDepositService.isPermanentDepositMade(pwaApplicationDetail);
+    return permanentDepositService.hasPermanentDepositBeenMade(pwaApplicationDetail);
   }
 
 
