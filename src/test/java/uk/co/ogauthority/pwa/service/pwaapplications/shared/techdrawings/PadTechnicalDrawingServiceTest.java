@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
@@ -197,38 +196,6 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getPipelineDrawingSummaryViewsFromDrawingList() {
-
-    var drawing = new PadTechnicalDrawing();
-    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS, ApplicationFileLinkStatus.FULL));
-    drawing.setReference("ref");
-    drawing.setId(1);
-
-    var pipeline = new PadPipeline();
-    pipeline.setPipelineRef("ref");
-
-    var link = new PadTechnicalDrawingLink();
-    link.setTechnicalDrawing(drawing);
-    link.setPipeline(pipeline);
-
-    var uploadedFileView = new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#");
-
-    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))).thenReturn(List.of(link));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(uploadedFileView));
-
-    var result = padTechnicalDrawingService.getPipelineDrawingSummaryViewsFromDrawingList(pwaApplicationDetail, List.of(drawing));
-
-    assertThat(result).hasSize(1);
-    assertThat(result.get(0).getReference()).isEqualTo(drawing.getReference());
-    assertThat(result.get(0).getFileName()).isEqualTo(uploadedFileView.getFileName());
-    assertThat(result.get(0).getFileId()).isEqualTo(drawing.getFileId());
-    assertThat(result.get(0).getDocumentDescription()).isEqualTo(uploadedFileView.getFileDescription());
-    assertThat(result.get(0).getDrawingId()).isEqualTo(drawing.getId());
-
-  }
-
-  @Test
   public void getPipelineDrawingSummaryViewFromDrawing_oneResult() {
 
     var drawing = new PadTechnicalDrawing();
@@ -245,7 +212,6 @@ public class PadTechnicalDrawingServiceTest {
 
     var uploadedFileView = new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#");
 
-    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))).thenReturn(List.of(link));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(uploadedFileView));
 
@@ -259,7 +225,7 @@ public class PadTechnicalDrawingServiceTest {
 
   }
 
-  @Test(expected = AccessDeniedException.class)
+  @Test(expected = PwaEntityNotFoundException.class)
   public void getPipelineDrawingSummaryViewFromDrawing_noResults() {
 
     var drawing = new PadTechnicalDrawing();
@@ -267,7 +233,6 @@ public class PadTechnicalDrawingServiceTest {
     drawing.setReference("ref");
     drawing.setId(1);
 
-    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))).thenReturn(List.of());
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of());
 
