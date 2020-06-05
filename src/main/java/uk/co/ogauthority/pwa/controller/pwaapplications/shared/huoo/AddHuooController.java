@@ -235,7 +235,7 @@ public class AddHuooController {
     if (padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, orgUnit)) {
       padOrganisationRoleService.removeRolesOfUnit(detail, orgUnit);
     }
-    FlashUtils.success(
+    FlashUtils.info(
         redirectAttributes,
         String.format("Removed legal entity %s", orgUnit.getName()));
     return ReverseRouter.redirect(on(HuooController.class)
@@ -255,7 +255,7 @@ public class AddHuooController {
     var detail = applicationContext.getApplicationDetail();
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     padOrganisationRoleService.removeRoleOfTreatyAgreement(orgRole);
-    FlashUtils.success(
+    FlashUtils.info(
         redirectAttributes,
         String.format("Removed %s treaty agreement", orgRole.getAgreement().getCountry()));
     return ReverseRouter.redirect(on(HuooController.class)
