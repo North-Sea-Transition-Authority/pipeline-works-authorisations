@@ -73,9 +73,6 @@ public class PipelineDrawingValidator implements SmartValidator {
         referenceAlreadyInUse = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail)
             .stream()
             .filter(technicalDrawing -> !technicalDrawing.getId().equals(existingDrawing.getId()))
-            .peek(drawing -> {
-              System.out.println();
-            })
             .anyMatch(technicalDrawing -> technicalDrawing.getReference().equalsIgnoreCase(form.getReference()));
         break;
       default:
