@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
@@ -19,6 +20,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -30,12 +32,14 @@ import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DepositDrawingsServiceTest {
@@ -89,7 +93,6 @@ public class DepositDrawingsServiceTest {
 
     var padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setId(1);
-    //when(padPermanentDepositRepository.findById(Integer.parseInt("1"))).thenReturn(Optional.of(padPermanentDeposit));
     when(permanentDepositService.getDepositById(1)).thenReturn(Optional.of(padPermanentDeposit));
     depositDrawingsService.addDrawing(pwaApplicationDetail, form, new WebUserAccount());
 
@@ -178,13 +181,45 @@ public class DepositDrawingsServiceTest {
     assertThat(summaryView.getReference()).isEqualTo(depositDrawing.getReference());
   }
 
+  @Test
+  public void editDepositDrawing() {
+    var form = new PermanentDepositDrawingForm();
+    form.setSelectedDeposits(Set.of("1"));
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm()));
+
+    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
+
+    var padPermanentDeposit = new PadPermanentDeposit();
+    padPermanentDeposit.setId(1);
+    when(permanentDepositService.getDepositById(1)).thenReturn(Optional.of(padPermanentDeposit));
+    depositDrawingsService.addDrawing(pwaApplicationDetail, form, new WebUserAccount());
+
+    depositDrawingsService.editDepositDrawing(1, pwaApplicationDetail, form, null);
+    assertThat(padDepositDrawingRepository.findById(1)).isEmpty();
+  }
+
+
+  @Test
+  public void getEditUrlsForDepositDrawings() {
+    var expectedUrlMap = new HashMap<String, String>();
+    expectedUrlMap.put("1", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderEditDepositDrawing(
+            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+            null, 1, null)));
+    var mockedEntity = new PadDepositDrawing();
+    mockedEntity.setId(1);
+
+    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
+    var actualUrlMap = depositDrawingsService.getEditUrlsForDepositDrawings(pwaApplicationDetail);
+    assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
+  }
+
 
 
   @Test
   public void isDrawingReferenceUniqueWithId_true() {
-    var entity = new PadDepositDrawing();
-    entity.setId(1);
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("my new ref", pwaApplicationDetail)).isTrue();
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("my new ref", 1, pwaApplicationDetail)).isTrue();
   }
 
   @Test
@@ -192,21 +227,21 @@ public class DepositDrawingsServiceTest {
     var entity = new PadDepositDrawing();
     entity.setId(2);
     when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", pwaApplicationDetail)).isFalse();
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", 1, pwaApplicationDetail)).isFalse();
   }
 
 
   @Test
   public void isDrawingReferenceUniqueNoId_true() {
     when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.empty());
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef",  pwaApplicationDetail)).isTrue();
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", null, pwaApplicationDetail)).isTrue();
   }
 
   @Test
   public void isDrawingReferenceUnique_false() {
     var entity = new PadDepositDrawing();
     when(padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(pwaApplicationDetail,"myRef")).thenReturn(Optional.of(entity));
-    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", pwaApplicationDetail)).isFalse();
+    assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
   }
 
 

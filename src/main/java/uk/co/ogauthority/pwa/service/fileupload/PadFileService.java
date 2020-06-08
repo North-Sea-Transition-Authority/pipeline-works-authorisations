@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,11 +181,10 @@ public class PadFileService {
   }
 
 
-  public void deleteFilesAndLinks(Consumer<String> onDeleteMethod) {
-    onDeleteMethod.accept("");
-
+  public void deleteFilesAndLinks(Supplier<PadFile> deleteLinksAndEntity, WebUserAccount webUserAccount) {
+    var padFile = deleteLinksAndEntity.get();
+    deleteAppFileLinksAndUploadedFiles(List.of(padFile), webUserAccount);
   }
-
 
 
   public UploadedFile getUploadedFileById(String fileId) {
