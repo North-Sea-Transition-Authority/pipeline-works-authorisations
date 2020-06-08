@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 
 <@defaultPage htmlTitle="${screenAction.actionText} deposit drawing" pageHeading="${screenAction.actionText} deposit drawing" breadcrumbs=true>
 
