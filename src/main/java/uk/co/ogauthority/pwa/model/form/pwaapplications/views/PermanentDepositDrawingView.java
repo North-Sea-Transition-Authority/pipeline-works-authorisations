@@ -13,7 +13,8 @@ public class PermanentDepositDrawingView {
   private String fileName;
   private Set<String> depositReferences;
 
-  public PermanentDepositDrawingView(Integer depositDrawingId, String reference, Set<String> depositReferences, UploadedFileView uploadedFileView) {
+  public PermanentDepositDrawingView(Integer depositDrawingId, String reference,
+                                     Set<String> depositReferences, UploadedFileView uploadedFileView) {
     this.depositDrawingId = depositDrawingId;
     this.reference = reference;
     this.depositReferences = depositReferences;

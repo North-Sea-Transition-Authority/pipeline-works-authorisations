@@ -1,7 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +35,6 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
-
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 
 /* Service providing simplified API for Permanent Deposit Drawings app form */
@@ -68,20 +71,21 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   public void mapEntityToForm(PwaApplicationDetail detail, Integer depositDrawingId, PermanentDepositDrawingForm form) {
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId)));
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId)));
 
     var depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
 
     form.setReference(depositDrawing.getReference());
     form.setSelectedDeposits(depositDrawingLinks
-      .stream()
-      .map(depositDrawingLink -> depositDrawingLink.getPadPermanentDeposit().getId().toString())
-      .collect(Collectors.toSet()));
+        .stream()
+        .map(depositDrawingLink -> depositDrawingLink.getPadPermanentDeposit().getId().toString())
+        .collect(Collectors.toSet()));
 
-//    var file = padFileService.getUploadedFileViews(detail, depositDrawing.getFile().getFileId(), ApplicationFilePurpose.DEPOSIT_DRAWINGS,
-//        ApplicationFileLinkStatus.FULL);
-//    form.setUploadedFileWithDescriptionForms(List.of(
-//        new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
+    //    var file = padFileService.getUploadedFileViews(detail, depositDrawing.getFile().getFileId(),
+    //      ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    //    form.setUploadedFileWithDescriptionForms(List.of(
+    //        new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
   }
 
   @Transactional
@@ -141,8 +145,9 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public void editDepositDrawing(int depositDrawingId, PwaApplicationDetail detail, PermanentDepositDrawingForm form, WebUserAccount webUserAccount) {
-    padFileService.deleteFilesAndLinks( () -> deleteLinksAndEntity(depositDrawingId), webUserAccount);
+  public void editDepositDrawing(int depositDrawingId, PwaApplicationDetail detail,
+                                 PermanentDepositDrawingForm form, WebUserAccount webUserAccount) {
+    padFileService.deleteFilesAndLinks(() -> deleteLinksAndEntity(depositDrawingId), webUserAccount);
     addDrawing(detail, form, webUserAccount);
   }
 
@@ -206,7 +211,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   public boolean isDrawingReferenceUnique(String drawingRef, Integer padDepositDrawingId, PwaApplicationDetail pwaApplicationDetail) {
     var existingDrawings = padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
         pwaApplicationDetail, drawingRef);
-    return existingDrawings.isEmpty() || (existingDrawings.get().getId() != null && existingDrawings.get().getId().equals(padDepositDrawingId));
+    return existingDrawings.isEmpty()
+        || (existingDrawings.get().getId() != null && existingDrawings.get().getId().equals(padDepositDrawingId));
   }
 
 
