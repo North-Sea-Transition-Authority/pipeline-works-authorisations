@@ -311,7 +311,7 @@ public class PadTechnicalDrawingServiceTest {
     when(padTechnicalDrawingLinkService.getLinksFromDrawingList(any())).thenReturn(List.of(link));
     when(padPipelineService.getPipelines(any())).thenReturn(List.of(pipeline, pipeline2));
 
-    BindingResult bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+    BindingResult bindingResult = new BeanPropertyBindingResult(null, "form");
 
     padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
 

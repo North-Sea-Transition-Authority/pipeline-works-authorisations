@@ -108,7 +108,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     when(padTechnicalDrawingService.validateSection(any(), any())).thenAnswer(invocationOnMock ->
         invocationOnMock.getArgument(0));
-    when(padTechnicalDrawingService.validateAdd(any(), any(), any(), any())).thenAnswer(invocationOnMock ->
+    when(padTechnicalDrawingService.validateDrawing(any(), any(), any(), any())).thenAnswer(invocationOnMock ->
         invocationOnMock.getArgument(1));
   }
 
@@ -235,7 +235,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
     var form = new PipelineDrawingForm();
     ControllerTestUtils.failValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
 
-    when(padTechnicalDrawingService.validateAdd(any(), any(), any(), any())).thenAnswer(invocationOnMock -> {
+    when(padTechnicalDrawingService.validateDrawing(any(), any(), any(), any())).thenAnswer(invocationOnMock -> {
       var bindingResult = (BindingResult) invocationOnMock.getArgument(1);
       bindingResult.reject("fake", "error");
       return bindingResult;

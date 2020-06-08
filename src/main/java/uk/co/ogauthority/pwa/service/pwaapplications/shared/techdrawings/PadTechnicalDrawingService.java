@@ -156,8 +156,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     throw new ActionNotAllowedException("PadTechnicalDrawingService::validate should not be used");
   }
 
-  public BindingResult validateAdd(Object form, BindingResult bindingResult, ValidationType validationType,
-                                PwaApplicationDetail pwaApplicationDetail) {
+  public BindingResult validateDrawing(Object form, BindingResult bindingResult, ValidationType validationType,
+                                       PwaApplicationDetail pwaApplicationDetail) {
     pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
