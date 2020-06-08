@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.workarea;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationWorkAreaItemTest {
@@ -41,6 +43,7 @@ public class PwaApplicationWorkAreaItemTest {
 
     applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.DRAFT);
     applicationDetailSearchItem.setTipFlag(true);
+    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(false);
 
 
   }
@@ -101,4 +104,38 @@ public class PwaApplicationWorkAreaItemTest {
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
     assertThat(pwaApplicationWorkAreaItem.getFormattedStatusSetDatetime()).isNull();
   }
+
+  @Test
+  public void getFastTrackLabelText_notFastTrack() {
+
+    var workAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+
+    assertThat(workAreaItem.getFastTrackLabelText()).isNull();
+
+  }
+
+  @Test
+  public void getFastTrackLabelText_fastTrack_notAccepted() {
+
+    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(null);
+
+    var workAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+
+    assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(ApplicationTask.FAST_TRACK.getDisplayName());
+
+  }
+
+  @Test
+  public void getFastTrackLabelText_fastTrack_accepted() {
+
+    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+
+    var workAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+
+    assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(ApplicationTask.FAST_TRACK.getDisplayName() + " accepted");
+
+  }
+
 }
