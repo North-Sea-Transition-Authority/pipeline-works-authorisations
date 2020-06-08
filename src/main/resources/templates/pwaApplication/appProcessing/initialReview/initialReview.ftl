@@ -7,20 +7,16 @@
 
 <@defaultPage htmlTitle="Accept application ${appRef}" pageHeading="Accept application ${appRef}" breadcrumbs=true>
 
-    <#if isOptionsVariation || isFastTrack>
-
+    <#if isFastTrack>
         <@fdsWarning.warning>
-
-            <#if isFastTrack>
-              This application is being fast-tracked, consider the proposed start date before accepting.
-            </#if>
-
-            <#if isOptionsVariation>
-              This application is an Options variation, consider all options provided before accepting.
-            </#if>
-
+          This application is being fast-tracked, consider the proposed start date before accepting.
         </@fdsWarning.warning>
+    </#if>
 
+    <#if isOptionsVariation>
+      <@fdsWarning.warning>
+        This application is an Options variation, consider all options provided before accepting.
+      </@fdsWarning.warning>
     </#if>
 
     <@fdsForm.htmlForm>

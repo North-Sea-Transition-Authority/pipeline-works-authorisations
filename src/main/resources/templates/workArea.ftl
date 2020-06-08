@@ -9,7 +9,6 @@
 
     <@fdsAction.link linkText="Start Prototype PWA application" linkUrl=springUrl(prototypeApplicationUrl) linkClass="govuk-button"/>
 
-
     <@fdsTabs.tabs tabsHeading="Work area tabs">
         <@fdsTabs.tabList>
             <@fdsTabs.tab tabLabel="My open applications" tabUrl=myNotificationsUrl tabAnchor="open-apps" currentTab=selectedTab tabValue="openApplications"/>
@@ -55,8 +54,11 @@
                     </td>
                     <td class="govuk-table__cell">
                       <ul class="govuk-list">
-                        <li><span class="govuk-tag">${item.padDisplayStatus}</span></li>
+                        <li><strong class="govuk-tag govuk-tag--blue">${item.padDisplayStatus}</strong></li>
                         <li>Status set: ${item.getFormattedStatusSetDatetime()}</li>
+                        <#if item.wasSubmittedAsFastTrack()>
+                          <li><strong class="govuk-tag govuk-tag--${item.isFastTrackAccepted()?then("green", "red")}">${item.getFastTrackLabelText()}</strong></li>
+                        </#if>
                       </ul>
                     </td>
                   </tr>
@@ -65,12 +67,12 @@
                 </tbody>
               </table>
 
-                <@fdsPagination.pagination pageView=workAreaPageView />
+              <@fdsPagination.pagination pageView=workAreaPageView />
+
             </#if>
+
         </@fdsTabs.tabContent>
 
-
     </@fdsTabs.tabs>
-
 
 </@defaultPage>

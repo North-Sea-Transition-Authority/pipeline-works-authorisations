@@ -106,6 +106,9 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
     var summaryView = new PipelineDrawingSummaryView(techDrawing, List.of(), fileView);
     when(padTechnicalDrawingService.getPipelineSummaryView(any(), any())).thenReturn(summaryView);
 
+    when(padTechnicalDrawingService.validateEdit(any(), any(BindingResult.class), any(), any(), any()))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+
     when(padTechnicalDrawingService.validateSection(any(), any())).thenAnswer(invocationOnMock ->
         invocationOnMock.getArgument(0));
     when(padTechnicalDrawingService.validateDrawing(any(), any(), any(), any())).thenAnswer(invocationOnMock ->
@@ -345,7 +348,8 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
-    verify(padTechnicalDrawingService, times(endpointTester.getAllowedTypes().size())).removeDrawing(any(), eq(1), any());
+    verify(padTechnicalDrawingService, times(endpointTester.getAllowedTypes().size())).removeDrawing(any(), eq(1),
+        any());
 
   }
 
@@ -386,6 +390,127 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
     verify(padTechnicalDrawingService, times(1)).removeDrawing(any(), eq(1), any());
+
+  }
+
+  @Test
+  public void renderEditDrawing_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .renderEditDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditDrawing_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .renderEditDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderEditDrawing_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .renderEditDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditDrawing_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .postEditDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+    verify(padTechnicalDrawingService, times(endpointTester.getAllowedTypes().size())).updateDrawing(any(), eq(1),
+        any(), any());
+
+  }
+
+  @Test
+  public void postEditDrawing_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .postEditDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+    verify(padTechnicalDrawingService, times(1)).updateDrawing(any(), eq(1), any(), any());
+
+  }
+
+  @Test
+  public void postEditDrawing_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineDrawingController.class)
+                .postEditDrawing(
+                    type,
+                    applicationDetail.getMasterPwaApplicationId(),
+                    1,
+                    null,
+                    null,
+                    null,
+                    null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+    verify(padTechnicalDrawingService, times(1)).updateDrawing(any(), eq(1), any(), any());
 
   }
 }

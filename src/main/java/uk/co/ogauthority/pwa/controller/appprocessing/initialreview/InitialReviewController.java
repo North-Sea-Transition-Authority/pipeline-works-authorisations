@@ -62,7 +62,7 @@ public class InitialReviewController {
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/initialReview/initialReview")
         .addObject("appRef", detail.getPwaApplicationRef())
         .addObject("isOptionsVariation", detail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION))
-        .addObject("isFastTrack", false) //TODO PWA-542
+        .addObject("isFastTrack", detail.getSubmittedAsFastTrackFlag())
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("caseOfficerCandidates",
             workflowAssignmentService.getAssignmentCandidates(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()

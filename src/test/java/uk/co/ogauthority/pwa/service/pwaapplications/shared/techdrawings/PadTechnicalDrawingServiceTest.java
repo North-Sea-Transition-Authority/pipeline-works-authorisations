@@ -280,6 +280,35 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
+  public void updateDrawing() {
+    var form = new PipelineDrawingForm();
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setReference("ref");
+
+    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL);
+
+    var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, padFile, "ref");
+
+    when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
+        .thenReturn(Optional.of(drawing));
+
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
+    padTechnicalDrawingService.updateDrawing(pwaApplicationDetail, 1, new WebUserAccount(), form);
+
+    verify(padTechnicalDrawingLinkService, times(1)).unlinkDrawing(pwaApplicationDetail, drawing);
+
+    var captor = ArgumentCaptor.forClass(PadTechnicalDrawing.class);
+    verify(padTechnicalDrawingRepository, times(1)).save(captor.capture());
+    verify(padTechnicalDrawingLinkService, times(1)).linkDrawing(pwaApplicationDetail, form.getPadPipelineIds(),
+        captor.getValue());
+
+    assertThat(captor.getValue()).extracting(PadTechnicalDrawing::getFile, PadTechnicalDrawing::getReference,
+        PadTechnicalDrawing::getPwaApplicationDetail)
+        .containsExactly(padFile, "ref", pwaApplicationDetail);
+  }
+
+  @Test
   public void validateSection_valid() {
     var pipeline = new PadPipeline(pwaApplicationDetail);
     pipeline.setId(1);

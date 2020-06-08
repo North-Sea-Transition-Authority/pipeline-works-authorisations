@@ -14,4 +14,9 @@ public interface PadFileDtoRepository {
                                                                                  ApplicationFilePurpose purpose,
                                                                                  ApplicationFileLinkStatus linkStatus);
 
+  UploadedFileView findAsFileViewByAppDetailAndFileIdAndPurposeAndFileLinkStatus(PwaApplicationDetail detail,
+                                                                                 String fileId,
+                                                                                 ApplicationFilePurpose purpose,
+                                                                                 ApplicationFileLinkStatus linkStatus);
+
 }

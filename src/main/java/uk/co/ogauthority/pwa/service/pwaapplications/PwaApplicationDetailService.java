@@ -16,18 +16,22 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 @Service
 public class PwaApplicationDetailService {
 
   private final PwaApplicationDetailRepository pwaApplicationDetailRepository;
   private final Clock clock;
+  private final PadFastTrackService padFastTrackService;
 
   @Autowired
   public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
-                                     @Qualifier("utcClock") Clock clock) {
+                                     @Qualifier("utcClock") Clock clock,
+                                     PadFastTrackService padFastTrackService) {
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
     this.clock = clock;
+    this.padFastTrackService = padFastTrackService;
   }
 
   /**
@@ -117,11 +121,15 @@ public class PwaApplicationDetailService {
     pwaApplicationDetail.setSubmittedByWuaId(webUserAccount.getWuaId());
     pwaApplicationDetail.setSubmittedTimestamp(clock.instant());
 
+    boolean fastTrackFlag = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
+    pwaApplicationDetail.setSubmittedAsFastTrackFlag(fastTrackFlag);
+
     return updateStatus(
         pwaApplicationDetail,
         PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW,
         webUserAccount
     );
+
   }
 
   /**
