@@ -179,7 +179,6 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
                             PipelineDrawingForm form) {
     var drawing = getDrawing(detail, drawingId);
     padTechnicalDrawingLinkService.unlinkDrawing(detail, drawing);
-    padTechnicalDrawingRepository.delete(drawing);
     saveDrawingAndLink(detail, form, drawing);
   }
 
