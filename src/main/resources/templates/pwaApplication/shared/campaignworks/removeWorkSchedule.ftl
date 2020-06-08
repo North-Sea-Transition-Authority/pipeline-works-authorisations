@@ -12,7 +12,7 @@
       <#--<@fdsAction.submitButtons linkSecondaryAction=true-->
         <@fdsAction.submitButtons
         linkSecondaryAction=true
-        primaryButtonText="Remove schedule work"
+        primaryButtonText="Remove scheduled work"
         secondaryLinkText="Back to overview"
         linkSecondaryActionUrl=springUrl(overviewUrl)/>
     </@fdsForm.htmlForm>
