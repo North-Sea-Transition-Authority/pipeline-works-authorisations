@@ -26,6 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -104,6 +105,11 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
     var fileView = new UploadedFileView("id1", "file", 0L, "file desc", Instant.now(), "#");
     var summaryView = new PipelineDrawingSummaryView(techDrawing, List.of(), fileView);
     when(padTechnicalDrawingService.getPipelineSummaryView(any(), any())).thenReturn(summaryView);
+
+    when(padTechnicalDrawingService.validateSection(any(), any())).thenAnswer(invocationOnMock ->
+        invocationOnMock.getArgument(0));
+    when(padTechnicalDrawingService.validateAdd(any(), any(), any(), any())).thenAnswer(invocationOnMock ->
+        invocationOnMock.getArgument(1));
   }
 
   @Test
@@ -228,6 +234,12 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     var form = new PipelineDrawingForm();
     ControllerTestUtils.failValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
+
+    when(padTechnicalDrawingService.validateAdd(any(), any(), any(), any())).thenAnswer(invocationOnMock -> {
+      var bindingResult = (BindingResult) invocationOnMock.getArgument(1);
+      bindingResult.reject("fake", "error");
+      return bindingResult;
+    });
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
