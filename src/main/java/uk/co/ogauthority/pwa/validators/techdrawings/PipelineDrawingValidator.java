@@ -7,10 +7,12 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
 
 @Service
 public class PipelineDrawingValidator implements SmartValidator {
@@ -39,6 +41,8 @@ public class PipelineDrawingValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (PipelineDrawingForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
+    var existingDrawing = (PadTechnicalDrawing) validationHints[1];
+    var validatorMode = (PipelineDrawingValidationType) validationHints[2];
     var pipelineList = padPipelineService.getByIdList(detail, form.getPadPipelineIds());
     if (ListUtils.emptyIfNull(pipelineList).size() != ListUtils.emptyIfNull(form.getPadPipelineIds()).size()) {
       errors.rejectValue("padPipelineIds", "padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode(),
@@ -56,12 +60,30 @@ public class PipelineDrawingValidator implements SmartValidator {
           "You must only upload a single drawing");
     }
 
-    boolean referenceAlreadyInUse = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail)
-        .stream()
-        .anyMatch(technicalDrawing -> technicalDrawing.getReference().equalsIgnoreCase(form.getReference()));
+
+    boolean referenceAlreadyInUse;
+
+    switch (validatorMode) {
+      case ADD:
+        referenceAlreadyInUse = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail)
+            .stream()
+            .anyMatch(technicalDrawing -> technicalDrawing.getReference().equalsIgnoreCase(form.getReference()));
+        break;
+      case EDIT:
+        referenceAlreadyInUse = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail)
+            .stream()
+            .filter(technicalDrawing -> !technicalDrawing.getId().equals(existingDrawing.getId()))
+            .peek(drawing -> {
+              System.out.println();
+            })
+            .anyMatch(technicalDrawing -> technicalDrawing.getReference().equalsIgnoreCase(form.getReference()));
+        break;
+      default:
+        throw new ActionNotAllowedException("No implementation for " + validatorMode.name());
+    }
 
     if (referenceAlreadyInUse) {
-      errors.rejectValue("uploadedFileWithDescriptionForms",
+      errors.rejectValue("reference",
           "reference" + FieldValidationErrorCodes.INVALID.getCode(),
           "The drawing reference is already in use");
     }

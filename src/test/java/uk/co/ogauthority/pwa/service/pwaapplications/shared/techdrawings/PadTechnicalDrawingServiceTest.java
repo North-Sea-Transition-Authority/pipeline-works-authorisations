@@ -35,7 +35,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.techdrawings.EditPipelineDrawingValidator;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -61,16 +60,13 @@ public class PadTechnicalDrawingServiceTest {
   @Mock
   private SpringValidatorAdapter springValidatorAdapter;
 
-  @Mock
-  private EditPipelineDrawingValidator editPipelineDrawingValidator;
-
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
     padTechnicalDrawingService = new PadTechnicalDrawingService(padTechnicalDrawingRepository,
         padTechnicalDrawingLinkService, padFileService, padPipelineService, pipelineDrawingValidator,
-        editPipelineDrawingValidator, springValidatorAdapter);
+        springValidatorAdapter);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }

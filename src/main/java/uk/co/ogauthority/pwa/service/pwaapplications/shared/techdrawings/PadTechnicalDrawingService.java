@@ -31,7 +31,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
-import uk.co.ogauthority.pwa.validators.techdrawings.EditPipelineDrawingValidator;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
 
 @Service
@@ -42,7 +41,6 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
   private final PadFileService padFileService;
   private final PadPipelineService padPipelineService;
   private final PipelineDrawingValidator pipelineDrawingValidator;
-  private final EditPipelineDrawingValidator editPipelineDrawingValidator;
   private final SpringValidatorAdapter groupValidator;
 
   @Autowired
@@ -51,14 +49,12 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
       PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
       PadFileService padFileService, PadPipelineService padPipelineService,
       PipelineDrawingValidator pipelineDrawingValidator,
-      EditPipelineDrawingValidator editPipelineDrawingValidator,
       SpringValidatorAdapter groupValidator) {
     this.padTechnicalDrawingRepository = padTechnicalDrawingRepository;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
     this.padFileService = padFileService;
     this.padPipelineService = padPipelineService;
     this.pipelineDrawingValidator = pipelineDrawingValidator;
-    this.editPipelineDrawingValidator = editPipelineDrawingValidator;
     this.groupValidator = groupValidator;
   }
 
@@ -91,6 +87,12 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
   @Transactional
   public void addDrawing(PwaApplicationDetail detail, PipelineDrawingForm form) {
     var drawing = new PadTechnicalDrawing();
+    saveDrawingAndLink(detail, form, drawing);
+  }
+
+  @Transactional
+  void saveDrawingAndLink(PwaApplicationDetail detail, PipelineDrawingForm form,
+                          PadTechnicalDrawing drawing) {
     // The form should be successfully validated at this point
     // This means it will contain a single file.
     PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail,
@@ -178,7 +180,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     var drawing = getDrawing(detail, drawingId);
     padTechnicalDrawingLinkService.unlinkDrawing(detail, drawing);
     padTechnicalDrawingRepository.delete(drawing);
-    addDrawing(detail, form);
+    saveDrawingAndLink(detail, form, drawing);
   }
 
   @Override
@@ -198,7 +200,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail);
+    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, null, PipelineDrawingValidationType.ADD);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
@@ -206,7 +208,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
   public BindingResult validateEdit(Object form, BindingResult bindingResult, ValidationType validationType,
                                     PwaApplicationDetail pwaApplicationDetail, Integer drawingId) {
     var drawing = getDrawing(pwaApplicationDetail, drawingId);
-    editPipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, drawing);
+    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
