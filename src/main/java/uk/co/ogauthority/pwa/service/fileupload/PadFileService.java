@@ -180,7 +180,9 @@ public class PadFileService {
 
   }
 
-
+  /**
+   * Run the passed in function to delete the links of a drawing entity and the drawing entity itself, then delete associated file.
+   */
   public void deleteFilesAndLinks(Supplier<PadFile> deleteLinksAndEntity, WebUserAccount webUserAccount) {
     var padFile = deleteLinksAndEntity.get();
     deleteAppFileLinksAndUploadedFiles(List.of(padFile), webUserAccount);

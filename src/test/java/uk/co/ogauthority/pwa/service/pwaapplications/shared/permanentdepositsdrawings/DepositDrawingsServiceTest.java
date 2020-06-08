@@ -9,6 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -199,6 +200,16 @@ public class DepositDrawingsServiceTest {
     assertThat(padDepositDrawingRepository.findById(1)).isEmpty();
   }
 
+  @Test
+  public void removeDeposit_noEntityFound() {
+    var entity = new PadDepositDrawing();
+    when(padDepositDrawingRepository.findById(1)).thenReturn(Optional.of(entity));
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(entity)).thenReturn(List.of(new PadDepositDrawingLink()));
+    depositDrawingsService.deleteLinksAndEntity(1);
+    verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
+    verify(padDepositDrawingRepository, times(1)).delete(any());
+  }
+
 
   @Test
   public void getEditUrlsForDepositDrawings() {
@@ -212,6 +223,21 @@ public class DepositDrawingsServiceTest {
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
     var actualUrlMap = depositDrawingsService.getEditUrlsForDepositDrawings(pwaApplicationDetail);
+    assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
+  }
+
+  @Test
+  public void getRemoveUrlsForDepositDrawings() {
+    var expectedUrlMap = new HashMap<String, String>();
+    expectedUrlMap.put("1", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderRemoveDepositDrawing(
+            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+            null, 1, null)));
+    var mockedEntity = new PadDepositDrawing();
+    mockedEntity.setId(1);
+
+    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
+    var actualUrlMap = depositDrawingsService.getRemoveUrlsForDepositDrawings(pwaApplicationDetail);
     assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
 
