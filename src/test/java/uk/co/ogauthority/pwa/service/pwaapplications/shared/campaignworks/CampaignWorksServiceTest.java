@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
@@ -31,7 +32,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.CampaignWorkScheduleValidationHint;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -43,6 +43,8 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CampaignWorksServiceTest {
+
+  private static final int SCHEDULE_ID = 1;
 
   @Mock
   private PadProjectInformationService padProjectInformationService;
@@ -67,6 +69,8 @@ public class CampaignWorksServiceTest {
   private PadPipeline pipe2;
 
   private WorkScheduleForm workScheduleForm;
+
+  private PadCampaignWorkSchedule workSchedule;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -95,6 +99,15 @@ public class CampaignWorksServiceTest {
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, padPipelineIdList)).thenReturn(padPipelineList);
     when(workScheduleFormValidator.supports(any())).thenCallRealMethod();
+
+    workSchedule = new PadCampaignWorkSchedule();
+    workSchedule.setPwaApplicationDetail(pwaApplicationDetail);
+    workSchedule.setWorkFromDate(LocalDate.MIN);
+    workSchedule.setWorkToDate(LocalDate.MAX);
+
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, SCHEDULE_ID))
+        .thenReturn(Optional.of(workSchedule));
+
 
   }
 
@@ -180,11 +193,6 @@ public class CampaignWorksServiceTest {
     when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(schedule1Pipeline1, schedule2Pipeline1, schedule2Pipeline2));
 
-    var pipe1Overview = new PadPipelineOverview(pipe1, 1L);
-    var pipe2Overview = new PadPipelineOverview(pipe2, 2L);
-
-    when(padPipelineService.getPipelineOverviews(pwaApplicationDetail))
-        .thenReturn(List.of(pipe1Overview, pipe2Overview));
 
     var workScheduleViewList = campaignWorksService.getWorkScheduleViews(pwaApplicationDetail);
 
@@ -362,6 +370,64 @@ public class CampaignWorksServiceTest {
     assertThat(emptyForm.getWorkStart()).isEqualTo(new TwoFieldDateInput(fromDate));
     assertThat(emptyForm.getWorkEnd()).isEqualTo(new TwoFieldDateInput(toDate));
 
+  }
+
+  @Test(expected= PwaEntityNotFoundException.class)
+  public void getWorkScheduleOrError_unknownId(){
+
+    campaignWorksService.getWorkScheduleOrError(pwaApplicationDetail, 123);
+
+  }
+
+  @Test
+  public void getWorkScheduleOrError_validId(){
+
+    var workSchedule = campaignWorksService.getWorkScheduleOrError(pwaApplicationDetail, SCHEDULE_ID );
+
+  }
+
+  @Test
+  public void removeCampaignWorksSchedule_serviceInteractions(){
+
+    var schedulePipeline = new PadCampaignWorksPipeline(workSchedule, pipe1);
+
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
+        workSchedule)).thenReturn(List.of(schedulePipeline));
+    campaignWorksService.removeCampaignWorksSchedule(workSchedule);
+
+    var orderVerifier = Mockito.inOrder(padCampaignWorkScheduleRepository, padCampaignWorksPipelineRepository);
+    orderVerifier.verify(padCampaignWorksPipelineRepository).findAllByPadCampaignWorkSchedule(workSchedule);
+    orderVerifier.verify(padCampaignWorksPipelineRepository).deleteAll(eq(List.of(schedulePipeline)));
+    orderVerifier.verify(padCampaignWorkScheduleRepository).delete(workSchedule);
+    orderVerifier.verifyNoMoreInteractions();
+
+  }
+
+  @Test
+  public void createWorkScheduleView_singlePipeline(){
+    var schedulePipeline = new PadCampaignWorksPipeline(workSchedule, pipe1);
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
+        workSchedule)).thenReturn(List.of(schedulePipeline));
+
+    var workScheduleView = campaignWorksService.createWorkScheduleView(workSchedule);
+
+    assertThat(workScheduleView.getSchedulePipelines()).allSatisfy(
+        campaignWorkSchedulePipelineView -> {
+          assertThat(campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef());
+          assertThat(campaignWorkSchedulePipelineView.getFromLocation()).isEqualTo(pipe1.getFromLocation());
+          assertThat(campaignWorkSchedulePipelineView.getToLocation()).isEqualTo(pipe1.getToLocation());
+          assertThat(campaignWorkSchedulePipelineView.getPipelineTypeDisplayName())
+              .isEqualTo(pipe1.getPipelineType().getDisplayName());
+
+        }
+    );
+
+  }
+
+  @Test
+  public void createWorkScheduleView_zeroPipelines(){
+    var workScheduleView = campaignWorksService.createWorkScheduleView(workSchedule);
+    assertThat(workScheduleView.getSchedulePipelines()).isEmpty();
   }
 
 }

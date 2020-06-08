@@ -1,5 +1,5 @@
 <#include '../../../layout.ftl'>
-<#import '../pipelines/pipelineOverview.ftl' as pipelineOverviewMacro>
+<#import 'workScheduleView.ftl' as workScheduleView>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="dependencySectionName" type="java.lang.String" -->
@@ -18,39 +18,21 @@
 
     <#list workScheduleViewList as workSchedule>
         <@fdsCard.card>
-            <@fdsCard.cardHeader cardHeadingText="Scheduled ${workSchedule.getFormattedWorkStartDate()} to ${workSchedule.getFormattedWorkEndDate()}">
+            <#assign workScheduleFromTo="${workSchedule.getFormattedWorkStartDate()} to ${workSchedule.getFormattedWorkEndDate()}"/>
+
+            <@fdsCard.cardHeader cardHeadingText="Scheduled ${workScheduleFromTo}">
                 <@fdsCard.cardAction cardLinkText="Edit"
-                  cardLinkScreenReaderText="Edit work schedule starting ${workSchedule.getFormattedWorkStartDate()} and ending ${workSchedule.getFormattedWorkEndDate()}"
+                  cardLinkScreenReaderText="Edit work schedule starting ${workScheduleFromTo}"
                   cardLinkUrl=springUrl(urlFactory.editWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
                  />
+                <@fdsCard.cardAction cardLinkText="Remove"
+                cardLinkScreenReaderText="Remove work schedule starting ${workScheduleFromTo}"
+                cardLinkUrl=springUrl(urlFactory.removeWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
+                />
             </@fdsCard.cardHeader>
 
-            <#if workSchedule.getSchedulePipelines()?hasContent>
-                <table id="work-schedule-${workSchedule?index}" class="govuk-table">
-                    <thead class="govuk-table__head">
-                    <tr class="govuk-table__row">
-                        <th class="govuk-table__header" scope="col">Pipeline number</th>
-                        <th class="govuk-table__header" scope="col">Pipeline type</th>
-                        <th class="govuk-table__header" scope="col">From</th>
-                        <th class="govuk-table__header" scope="col">To</th>
-                        <th class="govuk-table__header" scope="col">Length</th>
-                    </tr>
-                    </thead>
-                    <tbody class="govuk-table__body">
-                    <#list workSchedule.schedulePipelines as pipeline>
-                        <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">${pipeline.pipelineNumber}</td>
-                            <td class="govuk-table__cell">${pipeline.pipelineTypeDisplayName}</td>
-                            <td class="govuk-table__cell">${pipeline.fromLocation}</td>
-                            <td class="govuk-table__cell">${pipeline.toLocation}</td>
-                            <td class="govuk-table__cell">${pipeline.metreLength}</td>
-                        </tr>
-                    </#list>
-                    </tbody>
-                </table>
-            <#else>
-                <p class="govuk-body">No pipelines have been added to this work schedule</p>
-            </#if>
+            <@workScheduleView.pipelineList workSchedule=workSchedule tableIdx=workSchedule?index?string/>
+
         </@fdsCard.card>
     </#list>
 
