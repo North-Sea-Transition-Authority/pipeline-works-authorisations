@@ -16,6 +16,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -28,10 +31,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
+import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
@@ -272,6 +277,46 @@ public class PadTechnicalDrawingServiceTest {
     assertThat(result.get(0).getDocumentDescription()).isEqualTo(uploadedFileView.getFileDescription());
     assertThat(result.get(0).getDrawingId()).isEqualTo(drawing.getId());
 
+  }
+
+  @Test
+  public void validateSection_valid() {
+    var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setId(1);
+
+    var link = new PadTechnicalDrawingLink();
+    link.setPipeline(pipeline);
+
+    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(any())).thenReturn(List.of(link));
+    when(padPipelineService.getPipelines(any())).thenReturn(List.of(pipeline));
+
+    BindingResult bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+
+    padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
+
+    assertThat(bindingResult.getErrorCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void validateSection_invalid() {
+    var pipeline = new PadPipeline(pwaApplicationDetail);
+    pipeline.setId(1);
+
+    var pipeline2 = new PadPipeline(pwaApplicationDetail);
+    pipeline2.setId(2);
+
+    var link = new PadTechnicalDrawingLink();
+    link.setPipeline(pipeline);
+
+    when(padTechnicalDrawingLinkService.getLinksFromDrawingList(any())).thenReturn(List.of(link));
+    when(padPipelineService.getPipelines(any())).thenReturn(List.of(pipeline, pipeline2));
+
+    BindingResult bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+
+    padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
+
+    assertThat(bindingResult.getAllErrors()).extracting(ObjectError::getCode)
+        .containsExactly("allPipelinesAdded" + FieldValidationErrorCodes.INVALID.getCode());
   }
 
 }
