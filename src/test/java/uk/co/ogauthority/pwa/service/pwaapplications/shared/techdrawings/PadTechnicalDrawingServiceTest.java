@@ -291,7 +291,6 @@ public class PadTechnicalDrawingServiceTest {
     when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
     padTechnicalDrawingService.updateDrawing(pwaApplicationDetail, 1, new WebUserAccount(), form);
 
-    verify(padTechnicalDrawingRepository, times(1)).delete(drawing);
     verify(padTechnicalDrawingLinkService, times(1)).unlinkDrawing(pwaApplicationDetail, drawing);
 
     var captor = ArgumentCaptor.forClass(PadTechnicalDrawing.class);
