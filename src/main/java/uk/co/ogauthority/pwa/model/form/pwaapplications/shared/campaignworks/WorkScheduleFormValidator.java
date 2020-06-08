@@ -99,7 +99,7 @@ public class WorkScheduleFormValidator implements SmartValidator {
       ValidationUtils.rejectIfEmpty(
           errors,
           "workEnd",
-          "workEnd" + FieldValidationErrorCodes.REQUIRED.getCode(),  "Work end date is required");
+          "workEnd" + FieldValidationErrorCodes.REQUIRED.getCode(), "Work end date is required");
     } else {
       List<Object> workEndHints = new ArrayList<>();
       workEndHints.add(new FormInputLabel("Work end date"));
@@ -120,8 +120,10 @@ public class WorkScheduleFormValidator implements SmartValidator {
   }
 
   private void validatePipelines(Errors errors, WorkScheduleForm form, PwaApplicationDetail pwaApplicationDetail) {
-    ValidationUtils.rejectIfEmpty(errors, "padPipelineIds", "padPipelineIds.required",
-        "You must select at least one pipeline");
+
+    if (form.getPadPipelineIds() == null || (form.getPadPipelineIds() != null && form.getPadPipelineIds().isEmpty())) {
+      errors.rejectValue("padPipelineIds", "padPipelineIds.required", "You must select at least one pipeline");
+    }
 
     if (form.getPadPipelineIds() != null
         && padPipelineService.getByIdList(pwaApplicationDetail,

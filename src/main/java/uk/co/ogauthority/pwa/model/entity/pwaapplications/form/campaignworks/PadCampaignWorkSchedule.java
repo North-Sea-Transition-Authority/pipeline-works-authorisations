@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,7 +27,7 @@ public class PadCampaignWorkSchedule {
   private LocalDate workFromDate;
   private LocalDate workToDate;
 
-  public PadCampaignWorkSchedule(){
+  public PadCampaignWorkSchedule() {
   }
 
   @VisibleForTesting
@@ -67,5 +68,25 @@ public class PadCampaignWorkSchedule {
 
   public void setWorkToDate(LocalDate workToDate) {
     this.workToDate = workToDate;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadCampaignWorkSchedule that = (PadCampaignWorkSchedule) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(workFromDate, that.workFromDate)
+        && Objects.equals(workToDate, that.workToDate);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, workFromDate, workToDate);
   }
 }
