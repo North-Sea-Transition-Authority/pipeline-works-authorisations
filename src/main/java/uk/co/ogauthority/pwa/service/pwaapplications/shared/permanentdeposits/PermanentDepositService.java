@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -25,8 +26,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDeposits
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -40,7 +41,7 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
 @Service
 public class PermanentDepositService implements ApplicationFormSectionService {
 
-  private final PermanentDepositInformationRepository permanentDepositInformationRepository;
+  private final PadPermanentDepositRepository permanentDepositInformationRepository;
   private final PermanentDepositEntityMappingService permanentDepositEntityMappingService;
   private final PermanentDepositsValidator permanentDepositsValidator;
   private final SpringValidatorAdapter groupValidator;
@@ -50,7 +51,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Autowired
   public PermanentDepositService(
-      PermanentDepositInformationRepository permanentDepositInformationRepository,
+      PadPermanentDepositRepository permanentDepositInformationRepository,
       PermanentDepositEntityMappingService permanentDepositEntityMappingService,
       PermanentDepositsValidator permanentDepositsValidator,
       SpringValidatorAdapter groupValidator,
@@ -176,6 +177,13 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   }
 
 
+  public Optional<PadPermanentDeposit> getDepositById(int id) {
+    return permanentDepositInformationRepository.findById(id);
+  }
+
+  public List<PadPermanentDeposit> getPermanentDeposits(PwaApplicationDetail pwaApplicationDetail) {
+    return permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail);
+  }
 
   public List<PermanentDepositsOverview> getPermanentDepositViews(PwaApplicationDetail pwaApplicationDetail) {
     List<PermanentDepositsOverview> views = new ArrayList<>();
@@ -242,10 +250,10 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return isPermanentDepositMade(pwaApplicationDetail);
+    return permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail);
   }
 
-  public boolean isPermanentDepositMade(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean permanentDepositsAreToBeMadeOnApp(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail);
     if (projectInformation.isPresent()) {
       return BooleanUtils.isTrue(projectInformation.get().getPermanentDepositsMade())
@@ -254,6 +262,9 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return false;
   }
 
+  public boolean hasPermanentDepositBeenMade(PwaApplicationDetail pwaApplicationDetail) {
+    return permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail) > 0 ? true : false;
+  }
 
 }
 

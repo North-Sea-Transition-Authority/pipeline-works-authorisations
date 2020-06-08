@@ -30,6 +30,7 @@ import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
@@ -39,7 +40,7 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PermanentDepositInformationRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -71,7 +72,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   private PermanentDepositService permanentDepositService;
 
   @MockBean
-  private PermanentDepositInformationRepository padPermanentDepositRepository;
+  private PadPermanentDepositRepository padPermanentDepositRepository;
 
   @MockBean
   private PermanentDepositsValidator validator;

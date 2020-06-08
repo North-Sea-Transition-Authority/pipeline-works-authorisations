@@ -5,10 +5,11 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDeco
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -18,6 +19,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -90,6 +92,13 @@ public enum ApplicationTask {
     PermanentDepositController.class,
     PermanentDepositService.class,
       100
+  ),
+
+  PERMANENT_DEPOSIT_DRAWINGS(
+      "Permanent deposit drawings",
+      PermanentDepositDrawingsController.class,
+      DepositDrawingsService.class,
+      110
   );
 
 

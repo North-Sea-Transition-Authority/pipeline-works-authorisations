@@ -1,0 +1,1 @@
+DROP TABLE ${datasource.user}.permanent_deposit_info_files;

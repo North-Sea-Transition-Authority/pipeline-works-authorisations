@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -70,6 +71,9 @@ public class TaskCompletionServiceIntegrationTest {
   private PermanentDepositService permanentDepositService;
 
   @MockBean
+  private DepositDrawingsService depositDrawingsService;
+
+  @MockBean
   private CampaignWorksService campaignWorksService;
 
   @Test
@@ -112,6 +116,9 @@ public class TaskCompletionServiceIntegrationTest {
           break;
         case PERMANENT_DEPOSITS:
           service = permanentDepositService;
+          break;
+        case PERMANENT_DEPOSIT_DRAWINGS:
+          service = depositDrawingsService;
           break;
         default:
           throw new AssertionError(task);

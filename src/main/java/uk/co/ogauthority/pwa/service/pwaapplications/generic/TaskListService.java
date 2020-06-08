@@ -22,11 +22,12 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDeco
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
@@ -179,6 +180,9 @@ public class TaskListService {
       case PERMANENT_DEPOSITS:
         return ReverseRouter.route(on(PermanentDepositController.class)
             .renderPermanentDepositsOverview(applicationType, applicationId, null, null));
+      case PERMANENT_DEPOSIT_DRAWINGS:
+        return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+            .renderDepositDrawingsOverview(applicationType, applicationId, null, null));
       default:
         return "";
     }

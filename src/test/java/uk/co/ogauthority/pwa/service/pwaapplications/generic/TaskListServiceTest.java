@@ -155,7 +155,8 @@ public class TaskListServiceTest {
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
                 ApplicationTask.PIPELINES.getDisplayName(),
                 ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
-                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:
@@ -166,7 +167,8 @@ public class TaskListServiceTest {
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
-                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
             );
             break;
           case DECOMMISSIONING:
@@ -177,7 +179,8 @@ public class TaskListServiceTest {
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
-                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
             );
             break;
           case CAT_2_VARIATION:
@@ -190,7 +193,8 @@ public class TaskListServiceTest {
                 ApplicationTask.PIPELINES.getDisplayName(),
                 ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
-                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:
