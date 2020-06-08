@@ -28,6 +28,7 @@ public class PwaApplicationTestUtil {
     detail.setStatus(pwaApplicationStatus);
     detail.setTipFlag(true);
     detail.setVersionNo(1);
+    detail.setSubmittedAsFastTrackFlag(false);
 
     return detail;
 

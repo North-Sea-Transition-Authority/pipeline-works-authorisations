@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +34,9 @@ public class PwaApplicationDetailServiceTest {
 
   @Mock
   private PwaApplicationDetailRepository applicationDetailRepository;
+
+  @Mock
+  private PadFastTrackService fastTrackService;
 
   private PwaApplicationDetailService pwaApplicationDetailService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -59,7 +63,7 @@ public class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock);
+    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService);
   }
 
   @Test
@@ -139,10 +143,14 @@ public class PwaApplicationDetailServiceTest {
 
   @Test
   public void setSubmitted_allStatusColumnsSetAsExpected(){
+
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
     var alternativeWua = new WebUserAccount(1000);
+
+    when(fastTrackService.isFastTrackRequired(detail)).thenReturn(true);
+
     var submittedDetail = pwaApplicationDetailService.setSubmitted(
         detail,
         alternativeWua
@@ -153,6 +161,8 @@ public class PwaApplicationDetailServiceTest {
     assertThat(submittedDetail.getStatus()).isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
     assertThat(submittedDetail.getSubmittedTimestamp()).isEqualTo(clock.instant());
     assertThat(submittedDetail.getSubmittedByWuaId()).isEqualTo(alternativeWua.getWuaId());
+
+    assertThat(submittedDetail.getSubmittedAsFastTrackFlag()).isTrue();
 
   }
 
