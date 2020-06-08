@@ -1,10 +1,17 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="admiraltyChartUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory" -->
-<#-- @ftlvariable name="admiraltyChartFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="admiraltyOptional" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="backUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="fileuploadMaxUploadSize" type="String" -->
+<#-- @ftlvariable name="fileuploadAllowedExtensions" type="java.util.List<String>" -->
+<#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="uploadUrl" type="String" -->
+<#-- @ftlvariable name="deleteUrl" type="String" -->
+<#-- @ftlvariable name="downloadUrl" type="String" -->
+<#-- @ftlvariable name="actionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
+<#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 
-<@defaultPage htmlTitle="Add a pipeline drawing" pageHeading="Add a pipeline drawing" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle="${actionType.actionText} a pipeline drawing" pageHeading="${actionType.actionText} a pipeline drawing" breadcrumbs=true fullWidthColumn=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList />
@@ -21,7 +28,7 @@
             <@pwaPipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineViews/>
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to admiralty chart and pipeline drawings" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} drawing" linkSecondaryAction=true secondaryLinkText="Back to admiralty chart and pipeline drawings" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

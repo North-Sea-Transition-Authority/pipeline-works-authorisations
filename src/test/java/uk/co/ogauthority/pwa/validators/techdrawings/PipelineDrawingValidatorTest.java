@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.validators.techdrawings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,10 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
@@ -40,14 +45,16 @@ public class PipelineDrawingValidatorTest {
 
   @Test
   public void validate_emptyForm() {
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, null,
+        PipelineDrawingValidationType.ADD);
     assertThat(result).containsOnlyKeys("reference", "padPipelineIds");
   }
 
   @Test
   public void validate_referenceWhitespace() {
     form.setReference(" ");
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, null,
+        PipelineDrawingValidationType.ADD);
     assertThat(result).containsOnlyKeys("reference", "padPipelineIds");
   }
 
@@ -55,8 +62,32 @@ public class PipelineDrawingValidatorTest {
   public void validate_invalidPipelineId() {
     form.setPadPipelineIds(List.of(1));
     form.setReference("Test");
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, null,
+        PipelineDrawingValidationType.ADD);
     assertThat(result).containsKeys("padPipelineIds");
+  }
+
+  @Test
+  public void validate_existingReference_add() {
+
+    form.setPadPipelineIds(List.of(1));
+    form.setReference("ref");
+
+    when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
+        .thenReturn(List.of(new PadPipeline()));
+
+    var existingDrawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
+
+    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(existingDrawing));
+
+    var drawing = new PadTechnicalDrawing();
+    drawing.setReference("ref");
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, drawing,
+        PipelineDrawingValidationType.ADD);
+    assertThat(result).containsExactly(
+        entry("reference", Set.of("reference" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
   }
 
   @Test
@@ -67,7 +98,52 @@ public class PipelineDrawingValidatorTest {
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(new PadPipeline()));
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, null,
+        PipelineDrawingValidationType.ADD);
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validate_duplicateReference_edit() {
+
+    form.setPadPipelineIds(List.of(1));
+    form.setReference("ref");
+
+    when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
+        .thenReturn(List.of(new PadPipeline()));
+
+    var existingDrawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
+
+    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(existingDrawing));
+
+    var drawing = new PadTechnicalDrawing();
+    drawing.setReference("ref");
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, drawing,
+        PipelineDrawingValidationType.EDIT);
+    assertThat(result).containsExactly(
+        entry("reference", Set.of("reference" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_duplicateReference_sameDrawing_edit() {
+
+    form.setPadPipelineIds(List.of(1));
+    form.setReference("ref");
+
+    when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
+        .thenReturn(List.of(new PadPipeline()));
+
+    var existingDrawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
+
+    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(existingDrawing));
+
+    var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, drawing,
+        PipelineDrawingValidationType.EDIT);
     assertThat(result).isEmpty();
   }
 }
