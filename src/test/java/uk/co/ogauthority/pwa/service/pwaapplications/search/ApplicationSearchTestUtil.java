@@ -34,17 +34,17 @@ public class ApplicationSearchTestUtil {
     applicationDetailSearchItem.setPwaReference("PWA_REF");
     applicationDetailSearchItem.setPadReference("PAD_REF");
     applicationDetailSearchItem.setTipFlag(true);
+    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(false);
     return applicationDetailSearchItem;
   }
 
   public static Page<ApplicationDetailSearchItem> setupFakeApplicationSearchResultPage(
       List<ApplicationDetailSearchItem> results,
       Pageable pageable) {
-    var fakePage = new PageImpl<ApplicationDetailSearchItem>(
+
+    return new PageImpl<ApplicationDetailSearchItem>(
         results,
         pageable,
         results.size());
-
-    return fakePage;
   }
 }

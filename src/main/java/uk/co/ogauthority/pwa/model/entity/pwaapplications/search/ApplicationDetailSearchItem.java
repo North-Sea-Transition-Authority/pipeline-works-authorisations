@@ -58,6 +58,7 @@ public class ApplicationDetailSearchItem {
 
   private boolean tipFlag;
 
+  private boolean submittedAsFastTrackFlag;
 
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
@@ -186,4 +187,13 @@ public class ApplicationDetailSearchItem {
   public void setPadStatusTimestamp(Instant padStatusTimestamp) {
     this.padStatusTimestamp = padStatusTimestamp;
   }
+
+  public boolean wasSubmittedAsFastTrack() {
+    return submittedAsFastTrackFlag;
+  }
+
+  public void setSubmittedAsFastTrackFlag(boolean fastTrackFlag) {
+    this.submittedAsFastTrackFlag = fastTrackFlag;
+  }
+
 }

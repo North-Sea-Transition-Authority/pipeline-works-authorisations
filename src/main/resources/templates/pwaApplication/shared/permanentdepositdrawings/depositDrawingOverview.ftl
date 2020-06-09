@@ -17,7 +17,7 @@
         <#list depositDrawingSummaryViews as depositDrawingView>
             <h2 class="govuk-heading-m">${depositDrawingView.reference}</h2>                
             <@fdsAction.link linkText="Change" linkUrl=springUrl(editDepositDrawingUrls[depositDrawingView.depositDrawingId?string.number]) linkClass="govuk-link govuk-!-font-size-19"/>&nbsp;
-            <@fdsAction.link linkText="Remove" linkUrl=springUrl("#") linkClass="govuk-link govuk-!-font-size-19"/>
+            <@fdsAction.link linkText="Remove" linkUrl=springUrl(removeDepositDrawingUrls[depositDrawingView.depositDrawingId?string.number]) linkClass="govuk-link govuk-!-font-size-19"/>
             <@depositDrawingViewSummary depositDrawingView depositDrawingUrlFactory/>
         </#list>        
 

@@ -60,6 +60,8 @@ public class PwaApplicationDetail {
 
   private Boolean medianLineCrossed;
 
+  private Boolean submittedAsFastTrackFlag;
+
   public PwaApplicationDetail() {
   }
 
@@ -237,6 +239,14 @@ public class PwaApplicationDetail {
     this.medianLineCrossed = medianLineCrossed;
   }
 
+  public Boolean getSubmittedAsFastTrackFlag() {
+    return submittedAsFastTrackFlag;
+  }
+
+  public void setSubmittedAsFastTrackFlag(Boolean fastTrackFlag) {
+    this.submittedAsFastTrackFlag = fastTrackFlag;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -263,13 +273,15 @@ public class PwaApplicationDetail {
         && Objects.equals(notLinkedDescription, that.notLinkedDescription)
         && Objects.equals(pipelinesCrossed, that.pipelinesCrossed)
         && Objects.equals(cablesCrossed, that.cablesCrossed)
-        && Objects.equals(medianLineCrossed, that.medianLineCrossed);
+        && Objects.equals(medianLineCrossed, that.medianLineCrossed)
+        && Objects.equals(submittedAsFastTrackFlag, that.submittedAsFastTrackFlag);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
-        initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription);
+        initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
+        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag);
   }
 }

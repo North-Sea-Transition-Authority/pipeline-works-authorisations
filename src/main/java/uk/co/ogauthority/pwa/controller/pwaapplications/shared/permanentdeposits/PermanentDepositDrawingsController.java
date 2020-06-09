@@ -186,8 +186,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                              PwaApplicationContext applicationContext,
                                              @PathVariable("depositDrawingId") Integer depositDrawingId,
                                              @ModelAttribute("form") PermanentDepositDrawingForm form,
-                                             BindingResult bindingResult,
-                                             ValidationType validationType) {
+                                             BindingResult bindingResult) {
     depositDrawingsService.deleteLinksAndEntity(depositDrawingId);
     return ReverseRouter.redirect(on(PermanentDepositDrawingsController.class)
         .renderDepositDrawingsOverview(pwaApplicationType, applicationId, null, null));
@@ -239,7 +238,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
     modelAndView.addObject("backUrl", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
         .renderDepositDrawingsOverview(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
-        //.addObject("depositDrawingView", depositDrawingsService.getDepositDrawingView(depositDrawingId, pwaApplicationDetail))
+        .addObject("depositDrawingView", depositDrawingsService.getDepositDrawingView(depositDrawingId, pwaApplicationDetail))
         .addObject("depositDrawingUrlFactory", new DepositDrawingUrlFactory(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()));
 

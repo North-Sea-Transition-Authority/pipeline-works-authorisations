@@ -8,11 +8,14 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 public class PwaApplicationWorkAreaItem {
 
   private static final DateTimeFormatter WORK_AREA_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
   private static final DateTimeFormatter WORK_AREA_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+  private final String fastTrackText = ApplicationTask.FAST_TRACK.getDisplayName();
+  private final String fastTrackAcceptedText = fastTrackText + " accepted";
 
   private final int pwaApplicationId;
 
@@ -36,6 +39,9 @@ public class PwaApplicationWorkAreaItem {
 
   private final String projectName;
 
+  private final boolean submittedAsFastTrackFlag;
+
+  private final Instant initialReviewApprovedInstant;
 
   public PwaApplicationWorkAreaItem(ApplicationDetailSearchItem applicationDetailSearchItem,
                                     Function<ApplicationDetailSearchItem, String> viewApplicationUrlProducer) {
@@ -56,6 +62,8 @@ public class PwaApplicationWorkAreaItem {
 
     this.projectName = applicationDetailSearchItem.getPadProjectName();
     this.proposedStartInstant = applicationDetailSearchItem.getPadProposedStart();
+    this.submittedAsFastTrackFlag = applicationDetailSearchItem.wasSubmittedAsFastTrack();
+    this.initialReviewApprovedInstant = applicationDetailSearchItem.getPadInitialReviewApprovedTimestamp();
 
   }
 
@@ -111,11 +119,29 @@ public class PwaApplicationWorkAreaItem {
     return padStatusSetInstant;
   }
 
+  public boolean wasSubmittedAsFastTrack() {
+    return submittedAsFastTrackFlag;
+  }
+
   private String formatInstant(Instant instant, DateTimeFormatter formatter) {
     if (instant == null) {
       return null;
     }
     return instant.atZone(ZoneId.systemDefault()).format(formatter);
+  }
+
+  public boolean isFastTrackAccepted() {
+    return submittedAsFastTrackFlag && initialReviewApprovedInstant != null;
+  }
+
+  public String getFastTrackLabelText() {
+
+    if (!wasSubmittedAsFastTrack()) {
+      return null;
+    }
+
+    return isFastTrackAccepted() ? fastTrackAcceptedText : fastTrackText;
+
   }
 
 }

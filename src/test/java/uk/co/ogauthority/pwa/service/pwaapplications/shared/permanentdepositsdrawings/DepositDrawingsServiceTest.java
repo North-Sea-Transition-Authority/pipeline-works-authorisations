@@ -182,23 +182,6 @@ public class DepositDrawingsServiceTest {
     assertThat(summaryView.getReference()).isEqualTo(depositDrawing.getReference());
   }
 
-  @Test
-  public void editDepositDrawing() {
-    var form = new PermanentDepositDrawingForm();
-    form.setSelectedDeposits(Set.of("1"));
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm()));
-
-    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
-    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
-
-    var padPermanentDeposit = new PadPermanentDeposit();
-    padPermanentDeposit.setId(1);
-    when(permanentDepositService.getDepositById(1)).thenReturn(Optional.of(padPermanentDeposit));
-    depositDrawingsService.addDrawing(pwaApplicationDetail, form, new WebUserAccount());
-
-    depositDrawingsService.editDepositDrawing(1, pwaApplicationDetail, form, null);
-    assertThat(padDepositDrawingRepository.findById(1)).isEmpty();
-  }
 
   @Test
   public void removeDeposit_noEntityFound() {

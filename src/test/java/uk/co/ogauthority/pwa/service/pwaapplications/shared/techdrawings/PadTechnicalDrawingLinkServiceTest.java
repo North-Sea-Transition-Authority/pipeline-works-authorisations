@@ -83,4 +83,15 @@ public class PadTechnicalDrawingLinkServiceTest {
             tuple(pipelineB, techDrawing)
         );
   }
+
+  @Test
+  public void unlinkDrawing() {
+    var drawing = new PadTechnicalDrawing();
+    var link = new PadTechnicalDrawingLink();
+    var linkList = List.of(link);
+    when(padTechnicalDrawingLinkRepository.getAllByTechnicalDrawingIn(List.of(drawing)))
+        .thenReturn(linkList);
+    padTechnicalDrawingLinkService.unlinkDrawing(pwaApplicationDetail, drawing);
+    verify(padTechnicalDrawingLinkRepository, times(1)).deleteAll(linkList);
+  }
 }

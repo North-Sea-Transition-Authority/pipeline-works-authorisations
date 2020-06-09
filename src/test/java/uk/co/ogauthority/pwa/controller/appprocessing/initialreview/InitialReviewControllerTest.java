@@ -107,7 +107,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
-                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
 
     endpointTester.performRegulatorRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -118,7 +118,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .param("caseOfficerPersonId", "5")
         .with(csrf()))
@@ -139,7 +139,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, 5, user);
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .param("caseOfficerPersonId", "5")
         .with(csrf()))
@@ -156,7 +156,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     ControllerTestUtils.mockValidatorErrors(validator, List.of("caseOfficerPersonId"));
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .param("caseOfficerPersonId", "5")
         .with(csrf()))

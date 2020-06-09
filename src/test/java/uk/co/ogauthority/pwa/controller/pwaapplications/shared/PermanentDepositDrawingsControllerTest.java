@@ -12,6 +12,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -20,6 +22,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -38,6 +41,7 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -311,7 +315,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void renderRemoveDepositDrawing_contactSmokeTest() {
-
+    when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
@@ -322,7 +326,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void renderRemoveDepositDrawing_appTypeSmokeTest() {
-
+    when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
@@ -334,7 +338,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void renderRemoveDepositDrawing_appStatusSmokeTest() {
-
+    when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
@@ -350,7 +354,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, null)));
+                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -362,7 +366,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, null)));
+                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -374,7 +378,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, null)));
+                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -386,6 +390,134 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
 
 
+  //EDIT endpoints
+  @Test
+  public void renderEditDepositDrawing_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(),  null, 1, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void renderEditDepositDrawing_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditDepositDrawing_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postEditDepositDrawing_appTypeSmokeTest() {
+    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditDepositDrawing_appStatusSmokeTest() {
+    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postEditDepositDrawing_contactSmokeTest() {
+    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditDepositDrawing_withInvalidForm() throws Exception {
+    var bindingResult = new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form");
+    bindingResult.addError(new ObjectError("fake", "fake"));
+    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(bindingResult);
+    ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("reference"));
+
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
+      add("Complete", "Complete");
+    }};
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+            .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(params))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  public void postEditDepositDrawing_withValidForm() throws Exception {
+    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
+      add("Complete", "Complete");
+    }};
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+            .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(params))
+        .andExpect(status().is3xxRedirection());
+
+    verify(depositDrawingsService, times(1)).editDepositDrawing(anyInt(), any(), any(), any());
+    verify(depositDrawingsService, times(1)).validate(any(), any(), any(), any(), anyInt());
+  }
+
+
+
+
+
+  private PermanentDepositDrawingView buildDepositDrawingView() {
+    var view = new PermanentDepositDrawingView();
+    view.setDepositDrawingId(1);
+    view.setDepositReferences(Set.of("dep ref"));
+    view.setReference("drawing ref");
+    view.setFileId("1");
+    view.setDocumentDescription("description");
+    view.setFileName("file name");
+    return view;
+  }
 
   
 

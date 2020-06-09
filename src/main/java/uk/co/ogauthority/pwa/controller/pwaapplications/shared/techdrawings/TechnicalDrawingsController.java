@@ -70,7 +70,7 @@ public class TechnicalDrawingsController {
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
         .addObject("pipelineDrawingUrlFactory",
             new PipelineDrawingUrlFactory(detail))
-        .addObject("pipelineDrawingSummaryViews", padTechnicalDrawingService.getPipelineDrawingSummaryViews(detail));
+        .addObject("pipelineDrawingSummaryViews", padTechnicalDrawingService.getPipelineDrawingSummaryViewList(detail));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
         "Admiralty chart and pipeline drawings");
     return modelAndView;

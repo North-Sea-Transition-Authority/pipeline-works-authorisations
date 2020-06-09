@@ -398,4 +398,11 @@ public class PwaApplicationEndpointTestBuilder {
 
   }
 
+  public Set<PwaApplicationType> getAllowedTypes() {
+    return allowedTypes;
+  }
+
+  public Set<PwaApplicationStatus> getAllowedStatuses() {
+    return allowedStatuses;
+  }
 }
