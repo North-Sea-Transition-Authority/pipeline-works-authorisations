@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.validators;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -12,17 +11,14 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectInformationValidatorTest {
@@ -32,7 +28,7 @@ public class ProjectInformationValidatorTest {
 
   @Before
   public void setUp() {
-    validator = new ProjectInformationValidator();
+    validator = new ProjectInformationValidator(new TwoFieldDateInputValidator());
     projectInformationFormValidationHints = new ProjectInformationFormValidationHints(false, false);
   }
 
@@ -294,10 +290,11 @@ public class ProjectInformationValidatorTest {
   public void validate_permanentDepositType_LaterApp_noDate() {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
+    form.setFutureSubmissionDate(new TwoFieldDateInput());
     Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
     assertThat(errorsMap).contains(
-            entry("futureAppSubmissionMonth", Set.of("futureAppSubmissionMonth.invalid")),
-            entry("futureAppSubmissionYear", Set.of("futureAppSubmissionYear.invalid"))
+        entry("futureSubmissionDate.month", Set.of("month.invalid")),
+        entry("futureSubmissionDate.year", Set.of("year.invalid"))
     );
   }
 
@@ -305,12 +302,11 @@ public class ProjectInformationValidatorTest {
   public void validate_permanentDepositType_LaterApp_pastDate() {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-    form.setFutureAppSubmissionMonth(2);
-    form.setFutureAppSubmissionYear(2020);
+    form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 2));
     Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
     assertThat(errorsMap).contains(
-            entry("futureAppSubmissionMonth", Set.of("futureAppSubmissionMonth.beforeToday")),
-            entry("futureAppSubmissionYear", Set.of("futureAppSubmissionYear.beforeToday"))
+            entry("futureSubmissionDate.month", Set.of("month.afterDate")),
+            entry("futureSubmissionDate.year", Set.of("year.afterDate"))
     );
   }
 

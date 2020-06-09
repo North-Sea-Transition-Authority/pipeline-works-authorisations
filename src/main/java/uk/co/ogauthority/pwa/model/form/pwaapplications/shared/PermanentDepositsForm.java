@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
 
 import java.util.Objects;
 import java.util.Set;
-import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 
 public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
@@ -13,12 +13,11 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private Integer entityID;
   private String depositReference;
   private Set<String> selectedPipelines;
-  private Integer fromMonth;
-  private Integer fromYear;
-  private Integer toMonth;
-  private Integer toYear;
+  private TwoFieldDateInput fromDate;
+  private TwoFieldDateInput toDate;
 
   private MaterialType materialType;
+  private String otherMaterialType;
 
   private String rocksSize;
   private Integer groutBagsSize;
@@ -68,36 +67,20 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.selectedPipelines = selectedPipelines;
   }
 
-  public Integer getFromMonth() {
-    return fromMonth;
+  public TwoFieldDateInput getFromDate() {
+    return fromDate;
   }
 
-  public void setFromMonth(Integer fromMonth) {
-    this.fromMonth = fromMonth;
+  public void setFromDate(TwoFieldDateInput fromDate) {
+    this.fromDate = fromDate;
   }
 
-  public Integer getFromYear() {
-    return fromYear;
+  public TwoFieldDateInput getToDate() {
+    return toDate;
   }
 
-  public void setFromYear(Integer fromYear) {
-    this.fromYear = fromYear;
-  }
-
-  public Integer getToMonth() {
-    return toMonth;
-  }
-
-  public void setToMonth(Integer toMonth) {
-    this.toMonth = toMonth;
-  }
-
-  public Integer getToYear() {
-    return toYear;
-  }
-
-  public void setToYear(Integer toYear) {
-    this.toYear = toYear;
+  public void setToDate(TwoFieldDateInput toDate) {
+    this.toDate = toDate;
   }
 
   public MaterialType getMaterialType() {
@@ -106,6 +89,14 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
 
   public void setMaterialType(MaterialType materialType) {
     this.materialType = materialType;
+  }
+
+  public String getOtherMaterialType() {
+    return otherMaterialType;
+  }
+
+  public void setOtherMaterialType(String otherMaterialType) {
+    this.otherMaterialType = otherMaterialType;
   }
 
   public String getRocksSize() {
@@ -267,11 +258,10 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     return Objects.equals(entityID, that.entityID)
         && Objects.equals(depositReference, that.depositReference)
         && Objects.equals(selectedPipelines, that.selectedPipelines)
-        && Objects.equals(fromMonth, that.fromMonth)
-        && Objects.equals(fromYear, that.fromYear)
-        && Objects.equals(toMonth, that.toMonth)
-        && Objects.equals(toYear, that.toYear)
+        && Objects.equals(fromDate, that.fromDate)
+        && Objects.equals(toDate, that.toDate)
         && materialType == that.materialType
+        && Objects.equals(otherMaterialType, that.otherMaterialType)
         && Objects.equals(rocksSize, that.rocksSize)
         && Objects.equals(groutBagsSize, that.groutBagsSize)
         && Objects.equals(otherMaterialSize, that.otherMaterialSize)
@@ -294,8 +284,8 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
 
   @Override
   public int hashCode() {
-    return Objects.hash(entityID, depositReference, selectedPipelines, fromMonth, fromYear,
-        toMonth, toYear, materialType, rocksSize, groutBagsSize,
+    return Objects.hash(entityID, depositReference, selectedPipelines, fromDate,
+        toDate, materialType, otherMaterialType, rocksSize, groutBagsSize,
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,
         contingencyConcreteAmount, contingencyRocksAmount, contingencyGroutBagsAmount,

@@ -4,6 +4,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
@@ -56,8 +57,7 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private Boolean usingCampaignApproach;
 
   private PermanentDepositRadioOption permanentDepositsMadeType;
-  private Integer futureAppSubmissionMonth;
-  private Integer futureAppSubmissionYear;
+  private TwoFieldDateInput futureSubmissionDate;
 
   private Boolean temporaryDepositsMade;
   private String temporaryDepDescription;
@@ -255,20 +255,12 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.permanentDepositsMadeType = permanentDepositsMadeType;
   }
 
-  public Integer getFutureAppSubmissionMonth() {
-    return futureAppSubmissionMonth;
+  public TwoFieldDateInput getFutureSubmissionDate() {
+    return futureSubmissionDate;
   }
 
-  public void setFutureAppSubmissionMonth(Integer futureAppSubmissionMonth) {
-    this.futureAppSubmissionMonth = futureAppSubmissionMonth;
-  }
-
-  public Integer getFutureAppSubmissionYear() {
-    return futureAppSubmissionYear;
-  }
-
-  public void setFutureAppSubmissionYear(Integer futureAppSubmissionYear) {
-    this.futureAppSubmissionYear = futureAppSubmissionYear;
+  public void setFutureSubmissionDate(TwoFieldDateInput futureSubmissionDate) {
+    this.futureSubmissionDate = futureSubmissionDate;
   }
 
   public Boolean getTemporaryDepositsMade() {

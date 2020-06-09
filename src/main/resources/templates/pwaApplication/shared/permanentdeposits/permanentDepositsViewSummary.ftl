@@ -7,7 +7,7 @@
 <#macro depositViewSummary deposit>
     <dl class="govuk-summary-list govuk-!-margin-bottom-9">          
 
-        <#assign size="" quantity="" contingency="" groutBagsDescription=""/>
+        <#assign materialType=deposit.materialType.getDisplayText() size="" quantity="" contingency="" groutBagsDescription=""/>
         <#if deposit.materialType = "CONCRETE_MATTRESSES">
             <#assign size= deposit.concreteMattressLength + "m x " + deposit.concreteMattressWidth + "m x " + deposit.concreteMattressDepth + "m"/>
             <#assign quantity=deposit.quantityConcrete/>
@@ -25,6 +25,7 @@
             <#if deposit.groutBagsBioDegradable?? && deposit.groutBagsBioDegradable == false> <#assign groutBagsDescription=deposit.bioGroutBagsNotUsedDescription/> </#if> 
             
         <#elseif deposit.materialType = "OTHER">
+            <#assign materialType=materialType + " - " + deposit.otherMaterialType/>
             <#assign size=deposit.otherMaterialSize/>
             <#assign quantity=deposit.quantityOther/>
             <#if deposit.contingencyOtherAmount??> <#assign contingency=deposit.contingencyOtherAmount/> </#if>    
@@ -46,7 +47,7 @@
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Type of materials</dt>
-            <dd class="govuk-summary-list__value"> ${deposit.materialType.getDisplayText()}</dd>                    
+            <dd class="govuk-summary-list__value"> ${materialType}</dd>                    
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Size</dt>

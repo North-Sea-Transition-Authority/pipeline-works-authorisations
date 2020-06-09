@@ -6,6 +6,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 /**
  * Mapping of form data to entity and entity to form data for project information application form.
@@ -78,8 +79,8 @@ public class ProjectInformationEntityMappingService {
         if (padProjectInformation.getFutureAppSubmissionMonth() != null
             && padProjectInformation.getFutureAppSubmissionYear() != null) {
           form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-          form.setFutureAppSubmissionMonth(padProjectInformation.getFutureAppSubmissionMonth());
-          form.setFutureAppSubmissionYear(padProjectInformation.getFutureAppSubmissionYear());
+          form.setFutureSubmissionDate(new TwoFieldDateInput(padProjectInformation.getFutureAppSubmissionYear(),
+              padProjectInformation.getFutureAppSubmissionMonth()));
         } else {
           form.setPermanentDepositsMadeType(PermanentDepositRadioOption.THIS_APP);
         }
@@ -160,8 +161,8 @@ public class ProjectInformationEntityMappingService {
       padProjectInformation.setFutureAppSubmissionYear(null);
       padProjectInformation.setPermanentDepositsMade(true);
       if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
-        padProjectInformation.setFutureAppSubmissionMonth(form.getFutureAppSubmissionMonth());
-        padProjectInformation.setFutureAppSubmissionYear(form.getFutureAppSubmissionYear());
+        padProjectInformation.setFutureAppSubmissionMonth(Integer.parseInt(form.getFutureSubmissionDate().getMonth()));
+        padProjectInformation.setFutureAppSubmissionYear(Integer.parseInt(form.getFutureSubmissionDate().getYear()));
       } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.NONE)) {
         padProjectInformation.setPermanentDepositsMade(false);
       }

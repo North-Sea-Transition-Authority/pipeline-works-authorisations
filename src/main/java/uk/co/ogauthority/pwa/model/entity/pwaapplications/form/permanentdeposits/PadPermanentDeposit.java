@@ -42,6 +42,7 @@ public class PadPermanentDeposit {
 
   @Enumerated(EnumType.STRING)
   private MaterialType materialType;
+  private String otherMaterialType;
   private String materialSize;
   private Integer concreteMattressLength;
   private Integer concreteMattressWidth;
@@ -177,6 +178,14 @@ public class PadPermanentDeposit {
 
   public void setMaterialType(MaterialType materialType) {
     this.materialType = materialType;
+  }
+
+  public String getOtherMaterialType() {
+    return otherMaterialType;
+  }
+
+  public void setOtherMaterialType(String otherMaterialType) {
+    this.otherMaterialType = otherMaterialType;
   }
 
   public String getMaterialSize() {
@@ -455,6 +464,7 @@ public class PadPermanentDeposit {
         && Objects.equals(toMonth, that.toMonth)
         && Objects.equals(toYear, that.toYear)
         && materialType == that.materialType
+        && Objects.equals(otherMaterialType, that.otherMaterialType)
         && Objects.equals(materialSize, that.materialSize)
         && Objects.equals(concreteMattressLength, that.concreteMattressLength)
         && Objects.equals(concreteMattressWidth, that.concreteMattressWidth)
@@ -485,7 +495,7 @@ public class PadPermanentDeposit {
   @Override
   public int hashCode() {
     return Objects.hash(id, reference, pwaApplicationDetail, fromMonth, fromYear, toMonth,
-        toYear, materialType, materialSize, concreteMattressLength,
+        toYear, materialType, otherMaterialType, materialSize, concreteMattressLength,
         concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable, bagsNotUsedDescription, quantity,
         contingencyAmount, fromCoordinates, toCoordinates, fromLatitudeDegrees, fromLatitudeMinutes, fromLatitudeSeconds,
         fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes, fromLongitudeSeconds, fromLongitudeDirection, toLatitudeDegrees,
