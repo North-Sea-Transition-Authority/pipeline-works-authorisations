@@ -9,7 +9,6 @@
 
     <@workScheduleView.pipelineList workSchedule=workSchedule/>
     <@fdsForm.htmlForm>
-      <#--<@fdsAction.submitButtons linkSecondaryAction=true-->
         <@fdsAction.submitButtons
         linkSecondaryAction=true
         primaryButtonText="Remove scheduled work"
