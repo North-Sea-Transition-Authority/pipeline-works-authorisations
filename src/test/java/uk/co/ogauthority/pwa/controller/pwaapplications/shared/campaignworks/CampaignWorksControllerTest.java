@@ -571,8 +571,6 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
   @Test
   public void removeWorkSchedule_appTypeSmokeTest() {
 
-    ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
-
     endpointTester.setRequestMethod(HttpMethod.POST)
 
         .setEndpointUrlProducer((applicationDetail, type) ->
