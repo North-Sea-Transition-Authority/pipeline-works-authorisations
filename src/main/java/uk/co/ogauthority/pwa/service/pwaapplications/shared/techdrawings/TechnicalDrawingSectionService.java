@@ -34,6 +34,7 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
     var admiraltyForm = new AdmiraltyChartDocumentForm();
     admiraltyChartFileService.mapDocumentsToForm(pwaApplicationDetail, admiraltyForm);
     admiraltyChartFileService.validate(admiraltyForm, bindingResult, validationType, pwaApplicationDetail);
+    padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
     return bindingResult;
   }
 }
