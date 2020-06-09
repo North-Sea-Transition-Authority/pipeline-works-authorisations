@@ -31,7 +31,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
@@ -319,7 +318,7 @@ public class PadTechnicalDrawingServiceTest {
     when(padTechnicalDrawingLinkService.getLinksFromDrawingList(any())).thenReturn(List.of(link));
     when(padPipelineService.getPipelines(any())).thenReturn(List.of(pipeline));
 
-    BindingResult bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
+    BindingResult bindingResult = new BeanPropertyBindingResult(null, "form");
 
     padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
 
