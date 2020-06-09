@@ -81,6 +81,8 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setPipelineRouteDetails(locationDetailsForm.getPipelineRouteDetails());
     if (BooleanUtils.isFalse(locationDetailsForm.getFacilitiesOffshore())) {
       padLocationDetails.setPipelineAshoreLocation(locationDetailsForm.getPipelineAshoreLocation());
+    } else {
+      padLocationDetails.setPipelineAshoreLocation(null);
     }
     if (BooleanUtils.isTrue(locationDetailsForm.getRouteSurveyUndertaken())) {
       DateUtils.consumeInstantFromIntegersElseNull(
