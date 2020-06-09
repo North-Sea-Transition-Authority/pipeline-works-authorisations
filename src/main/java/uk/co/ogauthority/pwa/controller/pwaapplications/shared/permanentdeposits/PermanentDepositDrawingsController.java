@@ -134,6 +134,10 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
                                             BindingResult bindingResult,
                                             ValidationType validationType) {
+    if (!depositDrawingsService.isComplete(applicationContext.getApplicationDetail())) {
+      return getDepositDrawingsOverviewModelAndView(applicationContext.getApplicationDetail())
+          .addObject("errorMessage", "Ensure that all deposits have drawings linked to them");
+    }
     return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
   }
 

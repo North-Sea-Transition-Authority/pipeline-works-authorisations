@@ -39,6 +39,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -223,6 +225,63 @@ public class DepositDrawingsServiceTest {
     var actualUrlMap = depositDrawingsService.getRemoveUrlsForDepositDrawings(pwaApplicationDetail);
     assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
+
+  @Test
+  public void isComplete_valid() {
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setId(2);
+    var deposits = List.of(deposit1, deposit2);
+    when(padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(deposits);
+
+    var depositLink1 = new PadDepositDrawingLink();
+    depositLink1.setPadPermanentDeposit(deposit1);
+    var depositLink2 = new PadDepositDrawingLink();
+    depositLink2.setPadPermanentDeposit(deposit2);
+    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1));
+    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit2)).thenReturn(List.of(depositLink2));
+
+    assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
+  }
+
+  @Test
+  public void isComplete_invalid() {
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setId(2);
+    var deposits = List.of(deposit1, deposit2);
+    when(padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(deposits);
+
+    var depositLink1 = new PadDepositDrawingLink();
+    depositLink1.setPadPermanentDeposit(deposit1);
+    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1));
+
+    assertFalse(depositDrawingsService.isComplete(pwaApplicationDetail));
+  }
+
+  @Test
+  public void isComplete_valid_multipleDrawingsOnSameDeposit() {
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setId(2);
+    var deposits = List.of(deposit1, deposit2);
+    when(padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(deposits);
+
+    var depositLink1 = new PadDepositDrawingLink();
+    depositLink1.setPadPermanentDeposit(deposit1);
+    var depositLink2 = new PadDepositDrawingLink();
+    depositLink2.setPadPermanentDeposit(deposit2);
+    var depositLink3 = new PadDepositDrawingLink();
+    depositLink2.setPadPermanentDeposit(deposit1);
+    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1, depositLink3));
+    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit2)).thenReturn(List.of(depositLink2));
+
+    assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
+  }
+
 
 
 

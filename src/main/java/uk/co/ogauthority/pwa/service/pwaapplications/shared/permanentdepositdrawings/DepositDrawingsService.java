@@ -230,7 +230,13 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return false;
+    var permanentDeposits = padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(detail);
+    for (var permanentDeposit: permanentDeposits) {
+      if (padDepositDrawingLinkRepository.findByPadPermanentDeposit(permanentDeposit).isEmpty()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -246,6 +252,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     permanentDepositsDrawingValidator.validate(form, bindingResult, this, pwaApplicationDetail, padDepositDrawingId);
     return bindingResult;
   }
+
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {

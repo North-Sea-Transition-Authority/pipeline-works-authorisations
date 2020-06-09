@@ -20,7 +20,6 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -40,7 +39,6 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -146,7 +144,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_appTypeSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -159,7 +157,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_appStatusSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -172,7 +170,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_contactSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
