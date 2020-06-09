@@ -73,7 +73,9 @@ public class PipelineIdentsController {
                 null, null)))
         .addObject("identUrlFactory",
             new IdentUrlFactory(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
-                padPipeline.getId()));
+                padPipeline.getId()))
+        .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)));
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         padPipeline.getPipelineRef() + " idents");
@@ -115,6 +117,23 @@ public class PipelineIdentsController {
 
     breadcrumbService.fromPipelineIdentOverview(detail.getPwaApplication(), padPipeline, modelAndView, "Add ident");
     return modelAndView;
+  }
+
+  @PostMapping
+  public ModelAndView postIdentOverview(@PathVariable("applicationId") Integer applicationId,
+                                        @PathVariable("applicationType")
+                                        @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                        @PathVariable("padPipelineId") Integer padPipelineId,
+                                        PwaApplicationContext applicationContext) {
+
+    var bindingResult = padIdentService.validateSection(applicationContext.getPadPipeline());
+    var failModelAndView = getIdentOverviewModelAndView(
+        applicationContext.getApplicationDetail(),
+        applicationContext.getPadPipeline()
+    ).addObject("errorMessage", "At least one ident must be added");
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult, failModelAndView, () ->
+        ReverseRouter.redirect(on(PipelinesController.class)
+            .renderPipelinesOverview(applicationId, pwaApplicationType, null)));
   }
 
   @GetMapping("/add")

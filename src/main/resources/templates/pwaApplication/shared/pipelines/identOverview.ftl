@@ -60,4 +60,8 @@
         </@fdsTimeline.timeline>
     </#if>
 
+    <@fdsForm.htmlForm>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl) errorMessage=errorMessage!/>
+    </@fdsForm.htmlForm>
+
 </@defaultPage>
