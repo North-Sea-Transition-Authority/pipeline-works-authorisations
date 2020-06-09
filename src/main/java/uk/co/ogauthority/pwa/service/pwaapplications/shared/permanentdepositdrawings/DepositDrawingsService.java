@@ -156,7 +156,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         webUserAccount);
 
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find pipeline crossing with ID: " + depositDrawingId));
+        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find permanent deposit drawing with ID: " + depositDrawingId));
     depositDrawing.setReference(form.getReference());
 
     List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
@@ -173,12 +173,18 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   public PadFile deleteLinksAndEntity(int depositDrawingId) {
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find pipeline crossing with ID: " + depositDrawingId));
+        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find permanent deposit drawing with ID: " + depositDrawingId));
     var padFileDrawing = depositDrawing.getFile();
     List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
     padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
     padDepositDrawingRepository.delete(depositDrawing);
     return padFileDrawing;
+  }
+
+  public void removeFile(PadFile file, PwaApplicationDetail pwaApplicationDetail) {
+    var depositDrawing = padDepositDrawingRepository.findByPwaApplicationDetailAndAndFile(pwaApplicationDetail, file)
+        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find permanent deposit drawing with associated file id: " + file.getFileId()));
+    deleteLinksAndEntity(depositDrawing.getId());
   }
 
 
