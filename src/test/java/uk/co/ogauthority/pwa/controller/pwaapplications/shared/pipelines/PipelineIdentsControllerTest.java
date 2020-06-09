@@ -31,6 +31,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -133,6 +134,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     identData.setProductsToBeConveyed("");
     var identView = new IdentView(identData);
     when(pipelineIdentService.getIdentView(any(), any())).thenReturn(identView);
+
+    when(pipelineIdentService.validateSection(any())).thenReturn(new BeanPropertyBindingResult(null, "section"));
 
   }
 
@@ -465,6 +468,58 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     padPipeline.setComponentPartsDescription("comp parts");
     padPipeline.setProductsToBeConveyed("prods");
     return padPipeline;
+  }
+
+  @Test
+  public void postIdentOverview_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postIdentOverview_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postIdentOverview_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postIdentOverview_failValidation() {
+
+    var bindingResult = new BeanPropertyBindingResult(null, "section");
+    bindingResult.reject("fake", "error");
+    when(pipelineIdentService.validateSection(any())).thenReturn(bindingResult);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
   }
 
 }

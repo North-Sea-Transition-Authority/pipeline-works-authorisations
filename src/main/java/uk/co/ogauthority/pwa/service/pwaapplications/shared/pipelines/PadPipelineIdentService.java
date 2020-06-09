@@ -131,7 +131,7 @@ public class PadPipelineIdentService {
   public BindingResult validateSection(PadPipeline pipeline) {
     var errors = new BeanPropertyBindingResult(null, "section");
     if (repository.countAllByPadPipeline(pipeline).equals(0L)) {
-      errors.reject("idents" + FieldValidationErrorCodes.REQUIRED);
+      errors.reject("idents" + FieldValidationErrorCodes.REQUIRED.getCode());
     }
     return errors;
   }
