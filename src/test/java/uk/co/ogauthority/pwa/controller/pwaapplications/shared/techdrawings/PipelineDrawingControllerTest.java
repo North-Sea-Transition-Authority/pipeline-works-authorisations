@@ -108,6 +108,11 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     when(padTechnicalDrawingService.validateEdit(any(), any(BindingResult.class), any(), any(), any()))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(1));
+
+    when(padTechnicalDrawingService.validateSection(any(), any())).thenAnswer(invocationOnMock ->
+        invocationOnMock.getArgument(0));
+    when(padTechnicalDrawingService.validateDrawing(any(), any(), any(), any())).thenAnswer(invocationOnMock ->
+        invocationOnMock.getArgument(1));
   }
 
   @Test
@@ -232,6 +237,12 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     var form = new PipelineDrawingForm();
     ControllerTestUtils.failValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
+
+    when(padTechnicalDrawingService.validateDrawing(any(), any(), any(), any())).thenAnswer(invocationOnMock -> {
+      var bindingResult = (BindingResult) invocationOnMock.getArgument(1);
+      bindingResult.reject("fake", "error");
+      return bindingResult;
+    });
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
