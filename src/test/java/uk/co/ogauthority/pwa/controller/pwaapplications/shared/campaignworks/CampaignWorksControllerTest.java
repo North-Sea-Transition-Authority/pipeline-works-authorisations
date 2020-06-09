@@ -19,6 +19,7 @@ import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -36,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -64,6 +66,9 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
 
   @MockBean
   private CampaignWorksService campaignWorksService;
+
+  @Mock
+  private WorkScheduleView workScheduleViewMock;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -95,7 +100,11 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     schedule = new PadCampaignWorkSchedule();
+    when(workScheduleViewMock.getFormattedWorkEndDate()).thenReturn("end date");
+    when(workScheduleViewMock.getFormattedWorkStartDate()).thenReturn("start date");
+
     when(campaignWorksService.getWorkScheduleOrError(any(), eq(SCHEDULE_ID))).thenReturn(schedule);
+    when(campaignWorksService.createWorkScheduleView(schedule)).thenReturn(workScheduleViewMock);
   }
 
   @Test
@@ -493,6 +502,146 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
 
     verify(campaignWorksService, times(1)).updateCampaignWorksScheduleFromForm(any(), eq(schedule));
   }
+
+
+  @Test
+  public void renderRemoveWorkSchedule_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).renderRemoveWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null)
+            )
+        );
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemoveWorkSchedule_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).renderRemoveWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderRemoveWorkSchedule_contactRoleSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).renderRemoveWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemoveWorkSchedule_serviceInteractions() throws Exception {
+    mockMvc.perform(
+        get(ReverseRouter.route(
+            on(CampaignWorksController.class).renderRemoveWorkSchedule(
+                pwaApplicationDetail.getPwaApplicationType(),
+                APP_ID, SCHEDULE_ID,
+                null)))
+            .with(authenticatedUserAndSession(user))
+    )
+        .andExpect(status().isOk());
+
+    verify(campaignWorksService, times(1)).createWorkScheduleView(schedule);
+  }
+
+
+  @Test
+  public void removeWorkSchedule_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).removeWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null)
+            )
+        );
+
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void removeWorkSchedule_appStatusSmokeTest() {
+    ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).removeWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null)
+            )
+        );
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void removeWorkSchedule_contactRoleSmokeTest() {
+    ControllerTestUtils.failValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(CampaignWorksController.class).removeWorkSchedule(
+                type,
+                applicationDetail.getMasterPwaApplicationId(),
+                SCHEDULE_ID,
+                null)
+            )
+        );
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+
+  @Test
+  public void removeWorkSchedule_serviceInteractions() throws Exception {
+    ControllerTestUtils.passValidationWhenPost(campaignWorksService, new WorkScheduleForm(), ValidationType.FULL);
+    mockMvc.perform(
+        post(ReverseRouter.route(
+            on(CampaignWorksController.class).removeWorkSchedule(
+                pwaApplicationDetail.getPwaApplicationType(),
+                APP_ID,
+                SCHEDULE_ID,
+                null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .params(getWorkScheduleFormAsMap())
+    )
+        .andExpect(status().is3xxRedirection());
+
+    verify(campaignWorksService, times(1)).removeCampaignWorksSchedule(eq(schedule));
+  }
+
 
   private MultiValueMap<String, String> getWorkScheduleFormAsMap() {
 

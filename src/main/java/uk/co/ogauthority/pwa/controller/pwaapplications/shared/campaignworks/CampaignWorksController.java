@@ -149,7 +149,7 @@ public class CampaignWorksController {
 
   @PostMapping("/{campaignWorkScheduleId}/edit")
   public ModelAndView editWorkSchedule(@PathVariable("applicationType")
-                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                        @PathVariable("applicationId") int applicationId,
                                        @PathVariable("campaignWorkScheduleId") int campaignWorkScheduleId,
                                        PwaApplicationContext applicationContext,
@@ -174,5 +174,42 @@ public class CampaignWorksController {
         });
   }
 
+
+  @GetMapping("/{campaignWorkScheduleId}/remove")
+  public ModelAndView renderRemoveWorkSchedule(@PathVariable("applicationType")
+                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                               @PathVariable("applicationId") int applicationId,
+                                               @PathVariable("campaignWorkScheduleId") int campaignWorkScheduleId,
+                                               PwaApplicationContext applicationContext) {
+    var campaignWorkSchedule = campaignWorksService.getWorkScheduleOrError(
+        applicationContext.getApplicationDetail(),
+        campaignWorkScheduleId);
+
+    var workScheduleView = campaignWorksService.createWorkScheduleView(campaignWorkSchedule);
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/removeWorkSchedule")
+        .addObject("workSchedule", workScheduleView)
+        .addObject("overviewUrl", ReverseRouter.route(on(CampaignWorksController.class)
+            .renderSummary(pwaApplicationType, applicationId, null)));
+    applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,
+        "Remove work schedule");
+    return modelAndView;
+  }
+
+  @PostMapping("/{campaignWorkScheduleId}/remove")
+  public ModelAndView removeWorkSchedule(@PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable("applicationId") int applicationId,
+                                         @PathVariable("campaignWorkScheduleId") int campaignWorkScheduleId,
+                                         PwaApplicationContext applicationContext) {
+    var campaignWorkSchedule = campaignWorksService.getWorkScheduleOrError(
+        applicationContext.getApplicationDetail(),
+        campaignWorkScheduleId);
+
+    campaignWorksService.removeCampaignWorksSchedule(campaignWorkSchedule);
+
+    return ReverseRouter.redirect(
+        on(CampaignWorksController.class).renderSummary(pwaApplicationType, applicationId, null));
+  }
 
 }
