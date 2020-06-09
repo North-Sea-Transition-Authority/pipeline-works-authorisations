@@ -29,7 +29,7 @@
 
         <#if hasErrors>
           <span id="${workSchedule.getPadCampaignWorkScheduleId()}-error" class="govuk-error-message">
-            Please edit this work schedule to fix validation errors.
+            Edit this work schedule to fix validation errors
           </span>
 
         </#if>
@@ -58,7 +58,6 @@
         linkSecondaryAction=true
         secondaryLinkText="Back to task list"
         linkSecondaryActionUrl=springUrl(backUrl)
-        primaryDisabledButton=!sectionValidationResult.isComplete()
         />
     </@fdsForm.htmlForm>
 

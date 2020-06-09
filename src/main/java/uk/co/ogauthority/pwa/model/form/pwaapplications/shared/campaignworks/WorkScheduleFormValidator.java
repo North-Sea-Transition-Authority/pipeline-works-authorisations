@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -121,7 +122,7 @@ public class WorkScheduleFormValidator implements SmartValidator {
 
   private void validatePipelines(Errors errors, WorkScheduleForm form, PwaApplicationDetail pwaApplicationDetail) {
 
-    if (form.getPadPipelineIds() == null || (form.getPadPipelineIds() != null && form.getPadPipelineIds().isEmpty())) {
+    if (ListUtils.emptyIfNull(form.getPadPipelineIds()).isEmpty()) {
       errors.rejectValue("padPipelineIds", "padPipelineIds.required", "You must select at least one pipeline");
     }
 

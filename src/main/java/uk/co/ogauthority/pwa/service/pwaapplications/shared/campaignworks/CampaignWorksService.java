@@ -61,7 +61,7 @@ public class CampaignWorksService implements ApplicationFormSectionService {
   public CampaignWorksSummaryValidationResult getCampaignWorksValidationResult(
       PwaApplicationDetail pwaApplicationDetail) {
 
-    // create this once to avoid hitting the db for very form when the date will not have change
+    // create this once to avoid hitting the db for every form when the data will not have changed
     var campaignWorksHint = createCampaignWorksValidationHint(pwaApplicationDetail);
     var allCampaignWorkSchedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
 
@@ -86,7 +86,7 @@ public class CampaignWorksService implements ApplicationFormSectionService {
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return padProjectInformationService.isCampaignApproachBeingUsed(pwaApplicationDetail)
-        && padPipelineService.totalPipelineContainedInApplication(pwaApplicationDetail) > 0L;
+        && padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail) > 0L;
   }
 
   private boolean allApplicationPipelinesCoveredByWorkSchedules(PwaApplicationDetail pwaApplicationDetail) {
@@ -97,7 +97,7 @@ public class CampaignWorksService implements ApplicationFormSectionService {
         .map(PadCampaignWorksPipeline::getPadPipeline)
         .collect(Collectors.toSet());
 
-    var totalApplicationPipelines = padPipelineService.totalPipelineContainedInApplication(pwaApplicationDetail);
+    var totalApplicationPipelines = padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail);
 
     return Long.valueOf(distinctSchedulePadPipeline.size()).equals(totalApplicationPipelines);
 
