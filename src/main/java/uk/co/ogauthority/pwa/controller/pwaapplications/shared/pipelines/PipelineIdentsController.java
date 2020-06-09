@@ -126,14 +126,16 @@ public class PipelineIdentsController {
                                         @PathVariable("padPipelineId") Integer padPipelineId,
                                         PwaApplicationContext applicationContext) {
 
-    var bindingResult = padIdentService.validateSection(applicationContext.getPadPipeline());
-    var failModelAndView = getIdentOverviewModelAndView(
-        applicationContext.getApplicationDetail(),
-        applicationContext.getPadPipeline()
-    ).addObject("errorMessage", "At least one ident must be added");
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, failModelAndView, () ->
-        ReverseRouter.redirect(on(PipelinesController.class)
-            .renderPipelinesOverview(applicationId, pwaApplicationType, null)));
+    var sectionValid = padIdentService.isSectionValid(applicationContext.getPadPipeline());
+    if (sectionValid) {
+      return ReverseRouter.redirect(on(PipelinesController.class)
+          .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+    } else {
+      return getIdentOverviewModelAndView(
+          applicationContext.getApplicationDetail(),
+          applicationContext.getPadPipeline()
+      ).addObject("errorMessage", "At least one ident must be added");
+    }
   }
 
   @GetMapping("/add")

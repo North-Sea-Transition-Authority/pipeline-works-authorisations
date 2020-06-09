@@ -31,7 +31,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -135,7 +134,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     var identView = new IdentView(identData);
     when(pipelineIdentService.getIdentView(any(), any())).thenReturn(identView);
 
-    when(pipelineIdentService.validateSection(any())).thenReturn(new BeanPropertyBindingResult(null, "section"));
+    when(pipelineIdentService.isSectionValid(any())).thenReturn(true);
 
   }
 
@@ -509,9 +508,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void postIdentOverview_failValidation() {
 
-    var bindingResult = new BeanPropertyBindingResult(null, "section");
-    bindingResult.reject("fake", "error");
-    when(pipelineIdentService.validateSection(any())).thenReturn(bindingResult);
+    when(pipelineIdentService.isSectionValid(any())).thenReturn(false);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->

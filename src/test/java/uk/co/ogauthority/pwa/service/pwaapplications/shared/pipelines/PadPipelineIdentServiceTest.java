@@ -17,7 +17,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
@@ -31,7 +30,6 @@ import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -276,17 +274,16 @@ public class PadPipelineIdentServiceTest {
   public void validateSection_valid() {
     var padPipeline = new PadPipeline();
     when(repository.countAllByPadPipeline(padPipeline)).thenReturn(1L);
-    var bindingResult = identService.validateSection(padPipeline);
-    assertThat(bindingResult.hasErrors()).isFalse();
+    var valid = identService.isSectionValid(padPipeline);
+    assertThat(valid).isTrue();
   }
 
   @Test
   public void validateSection_invalid() {
     var padPipeline = new PadPipeline();
     when(repository.countAllByPadPipeline(padPipeline)).thenReturn(0L);
-    var bindingResult = identService.validateSection(padPipeline);
-    assertThat(bindingResult.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .containsExactly("idents" + FieldValidationErrorCodes.REQUIRED.getCode());
+    var valid = identService.isSectionValid(padPipeline);
+    assertThat(valid).isFalse();
   }
 
 }

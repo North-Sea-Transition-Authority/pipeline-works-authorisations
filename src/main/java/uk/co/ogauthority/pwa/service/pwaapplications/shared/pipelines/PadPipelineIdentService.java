@@ -8,14 +8,11 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Service
@@ -128,12 +125,8 @@ public class PadPipelineIdentService {
     repository.saveAll(remainingIdents);
   }
 
-  public BindingResult validateSection(PadPipeline pipeline) {
-    var errors = new BeanPropertyBindingResult(null, "section");
-    if (repository.countAllByPadPipeline(pipeline).equals(0L)) {
-      errors.reject("idents" + FieldValidationErrorCodes.REQUIRED.getCode());
-    }
-    return errors;
+  public boolean isSectionValid(PadPipeline pipeline) {
+    return !repository.countAllByPadPipeline(pipeline).equals(0L);
   }
 
 }
