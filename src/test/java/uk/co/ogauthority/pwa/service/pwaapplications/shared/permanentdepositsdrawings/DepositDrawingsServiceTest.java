@@ -9,7 +9,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -109,6 +108,37 @@ public class DepositDrawingsServiceTest {
 
 
   @Test
+  public void editDrawing() {
+    var form = new PermanentDepositDrawingForm();
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setReference("ref");
+    form.setSelectedDeposits(Set.of("2"));
+
+    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
+
+    var depositDrawing = new PadDepositDrawing();
+    depositDrawing.setId(1);
+    when(padDepositDrawingRepository.findById(1)).thenReturn(Optional.of(depositDrawing));
+
+    var padPermanentDeposit = new PadPermanentDeposit();
+    padPermanentDeposit.setId(2);
+    when(permanentDepositService.getDepositById(2)).thenReturn(Optional.of(padPermanentDeposit));
+    depositDrawingsService.editDepositDrawing(1, pwaApplicationDetail, form, new WebUserAccount());
+
+
+    var captor = ArgumentCaptor.forClass(PadDepositDrawing.class);
+    verify(padDepositDrawingRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue()).extracting(PadDepositDrawing::getFile, PadDepositDrawing::getReference, PadDepositDrawing::getPwaApplicationDetail)
+        .containsExactly(padFile, "ref", pwaApplicationDetail);
+
+    var captorDrawingLink = ArgumentCaptor.forClass(PadDepositDrawingLink.class);
+    verify(padDepositDrawingLinkRepository, times(1)).save(captorDrawingLink.capture());
+  }
+
+
+  @Test
   public void getDepositDrawingSummaryViews() {
     var depositDrawing = new PadDepositDrawing();
     depositDrawing.setReference("ref");
@@ -184,11 +214,11 @@ public class DepositDrawingsServiceTest {
 
 
   @Test
-  public void removeDeposit_noEntityFound() {
+  public void removeDrawingAndFile_noEntityFound() {
     var entity = new PadDepositDrawing();
     when(padDepositDrawingRepository.findById(1)).thenReturn(Optional.of(entity));
     when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(entity)).thenReturn(List.of(new PadDepositDrawingLink()));
-    depositDrawingsService.deleteLinksAndEntity(1);
+    depositDrawingsService.removeDrawingAndFile(1, new WebUserAccount());
     verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
     verify(padDepositDrawingRepository, times(1)).delete(any());
   }
