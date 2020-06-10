@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +62,9 @@ public class PickedPwaRetrievalServiceTest {
 
     when(masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR)).thenReturn(
         Set.of(masterPwa)
+    );
+    when(masterPwaAuthorisationService.getCurrentMasterPwaDetails(Set.of(masterPwa))).thenReturn(
+        List.of(masterPwaDetail)
     );
 
     var pickablePwaDtos = pickedPwaRetrievalService.getPickablePwasWhereAuthorised(webUserAccount);
