@@ -14,6 +14,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -118,6 +120,16 @@ public class PadPipeline {
 
   @Transient
   private CoordinatePair toCoordinates;
+
+  @Enumerated(EnumType.STRING)
+  private PipelineFlexibility pipelineFlexibility;
+
+  @Enumerated(EnumType.STRING)
+  private PipelineMaterial pipelineMaterial;
+  private String otherPipelineMaterialUsed;
+
+  private int pipelineDesignLife;
+
 
   public PadPipeline() {
   }
@@ -239,6 +251,38 @@ public class PadPipeline {
   public void setToCoordinates(CoordinatePair toCoordinates) {
     this.toCoordinates = toCoordinates;
     updateToCoordinateValues();
+  }
+
+  public PipelineFlexibility getPipelineFlexibility() {
+    return pipelineFlexibility;
+  }
+
+  public void setPipelineFlexibility(PipelineFlexibility pipelineFlexibility) {
+    this.pipelineFlexibility = pipelineFlexibility;
+  }
+
+  public PipelineMaterial getPipelineMaterial() {
+    return pipelineMaterial;
+  }
+
+  public void setPipelineMaterial(PipelineMaterial pipelineMaterial) {
+    this.pipelineMaterial = pipelineMaterial;
+  }
+
+  public String getOtherPipelineMaterialUsed() {
+    return otherPipelineMaterialUsed;
+  }
+
+  public void setOtherPipelineMaterialUsed(String otherPipelineMaterialUsed) {
+    this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
+  }
+
+  public int getPipelineDesignLife() {
+    return pipelineDesignLife;
+  }
+
+  public void setPipelineDesignLife(int pipelineDesignLife) {
+    this.pipelineDesignLife = pipelineDesignLife;
   }
 
   private void updateFromCoordinateValues() {
