@@ -75,7 +75,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineMaterial", "pipelineMaterial.required",
         "Select an option for the pipeline material");
 
-    if(form.getPipelineMaterial() != null && form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
+    if (form.getPipelineMaterial() != null && form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPipelineMaterialUsed", "otherPipelineMaterialUsed.required",
           "Enter details of other pipeline materials used");
     }
@@ -83,7 +83,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmpty(errors, "pipelineDesignLife", "pipelineDesignLife.required",
         "Enter the design life of the pipeline");
 
-    if(form.getPipelineDesignLife() != null && form.getPipelineDesignLife() < 1) {
+    if (form.getPipelineDesignLife() != null && form.getPipelineDesignLife() < 1) {
       errors.rejectValue("pipelineDesignLife", "pipelineDesignLife.invalid",
           "Design life of the pipeline must be a positive whole number.");
     }

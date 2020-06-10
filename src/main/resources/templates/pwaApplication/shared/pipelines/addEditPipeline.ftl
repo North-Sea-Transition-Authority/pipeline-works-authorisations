@@ -90,7 +90,7 @@
                 <#list pipelineMaterialTypes as  pipelineMaterialTypeOption>
                     <@fdsRadio.radioItem path="form.pipelineMaterial" itemMap={pipelineMaterialTypeOption : pipelineMaterialTypeOption.getDisplayText()} isFirstItem=firstItem>  
                         <#if pipelineMaterialTypeOption == "OTHER"> 
-                            <@fdsTextInput.textInput path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used"/>
+                            <@fdsTextarea.textarea path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used"/>
                         </#if>                    
                     </@fdsRadio.radioItem>
                 <#assign firstItem=false/>
