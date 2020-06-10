@@ -47,7 +47,6 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   private final PermanentDepositService permanentDepositService;
   private final PadDepositDrawingRepository padDepositDrawingRepository;
-  private final PadPermanentDepositRepository padPermanentDepositRepository;
   private final PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
   private final PermanentDepositsDrawingValidator permanentDepositsDrawingValidator;
   private final SpringValidatorAdapter groupValidator;
@@ -57,14 +56,12 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   public DepositDrawingsService(
       PermanentDepositService permanentDepositService,
       PadDepositDrawingRepository padDepositDrawingRepository,
-      PadPermanentDepositRepository padPermanentDepositRepository,
       PadDepositDrawingLinkRepository padDepositDrawingLinkRepository,
       PermanentDepositsDrawingValidator permanentDepositsDrawingValidator,
       SpringValidatorAdapter groupValidator,
       PadFileService padFileService) {
     this.permanentDepositService = permanentDepositService;
     this.padDepositDrawingRepository = padDepositDrawingRepository;
-    this.padPermanentDepositRepository = padPermanentDepositRepository;
     this.padDepositDrawingLinkRepository = padDepositDrawingLinkRepository;
     this.permanentDepositsDrawingValidator = permanentDepositsDrawingValidator;
     this.groupValidator = groupValidator;
@@ -233,7 +230,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var permanentDeposits = padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(detail);
+    var permanentDeposits = permanentDepositService.getPermanentDeposits(detail);
     for (var permanentDeposit: permanentDeposits) {
       if (padDepositDrawingLinkRepository.findByPadPermanentDeposit(permanentDeposit).isEmpty()) {
         return false;

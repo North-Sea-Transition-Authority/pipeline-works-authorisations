@@ -76,7 +76,7 @@ public class DepositDrawingsServiceTest {
 
   @Before
   public void setUp() {
-    depositDrawingsService = new DepositDrawingsService(permanentDepositService, padDepositDrawingRepository, padPermanentDepositRepository,
+    depositDrawingsService = new DepositDrawingsService(permanentDepositService, padDepositDrawingRepository,
         padDepositDrawingLinkRepository, validator, springValidatorAdapter, padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
@@ -258,20 +258,6 @@ public class DepositDrawingsServiceTest {
 
   @Test
   public void isComplete_valid() {
-    var deposit1 = new PadPermanentDeposit();
-    deposit1.setId(1);
-    var deposit2 = new PadPermanentDeposit();
-    deposit2.setId(2);
-    var deposits = List.of(deposit1, deposit2);
-    when(padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(deposits);
-
-    var depositLink1 = new PadDepositDrawingLink();
-    depositLink1.setPadPermanentDeposit(deposit1);
-    var depositLink2 = new PadDepositDrawingLink();
-    depositLink2.setPadPermanentDeposit(deposit2);
-    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1));
-    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit2)).thenReturn(List.of(depositLink2));
-
     assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
   }
 
@@ -282,7 +268,7 @@ public class DepositDrawingsServiceTest {
     var deposit2 = new PadPermanentDeposit();
     deposit2.setId(2);
     var deposits = List.of(deposit1, deposit2);
-    when(padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(deposits);
+    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(deposits);
 
     var depositLink1 = new PadDepositDrawingLink();
     depositLink1.setPadPermanentDeposit(deposit1);
@@ -298,7 +284,7 @@ public class DepositDrawingsServiceTest {
     var deposit2 = new PadPermanentDeposit();
     deposit2.setId(2);
     var deposits = List.of(deposit1, deposit2);
-    when(padPermanentDepositRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(deposits);
+    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(deposits);
 
     var depositLink1 = new PadDepositDrawingLink();
     depositLink1.setPadPermanentDeposit(deposit1);
