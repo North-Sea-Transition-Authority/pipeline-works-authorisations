@@ -97,7 +97,86 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
 
 
-  //ADD deposit tests
+
+  //Overview endpoint tests
+  @Test
+  public void renderDepositDrawingsOverview_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(),  null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void renderDepositDrawingsOverview_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderDepositDrawingsOverview_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postDepositDrawingsOverview_appTypeSmokeTest() {
+    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postDepositDrawingsOverview_appStatusSmokeTest() {
+    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postDepositDrawingsOverview_contactSmokeTest() {
+    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+
+
+
+  //ADD endpoint tests
   @Test
   public void renderAddDepositDrawing_contactSmokeTest() {
 

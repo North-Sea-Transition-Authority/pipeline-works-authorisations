@@ -97,7 +97,7 @@ public class TechnicalDrawingsController {
     bindingResult = technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     if (bindingResult.hasErrors()) {
       return getOverviewModelAndView(detail)
-          .addObject("errorMessage", "The admiralty chart section is invalid");
+          .addObject("errorMessage", "An admiralty chart must be uploaded, and all pipelines must be linked to a drawing");
     }
     return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
   }

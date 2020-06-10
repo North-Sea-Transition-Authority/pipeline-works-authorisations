@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.validators;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -8,9 +10,19 @@ import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 @Service
 public class ProjectInformationValidator implements SmartValidator {
+
+
+  private final TwoFieldDateInputValidator twoFieldDateInputValidator;
+
+  public ProjectInformationValidator(TwoFieldDateInputValidator twoFieldDateInputValidator) {
+    this.twoFieldDateInputValidator = twoFieldDateInputValidator;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -78,15 +90,22 @@ public class ProjectInformationValidator implements SmartValidator {
           errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
                   "Select yes if permanent deposits are being made");
         } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
-          ValidatorUtils.validateDateIsPresentOrFuture(
-                  "futureAppSubmission", "future application submission date",
-                  form.getFutureAppSubmissionMonth(), form.getFutureAppSubmissionYear(), errors);
+          List<Object> toDateHints = new ArrayList<>();
+          toDateHints.add(new FormInputLabel("Submission date"));
+          toDateHints.add(new OnOrAfterDateHint(LocalDate.now(), "current date"));
+          ValidatorUtils.invokeNestedValidator(
+              errors,
+              twoFieldDateInputValidator,
+              "futureSubmissionDate",
+              form.getFutureSubmissionDate(),
+              toDateHints.toArray());
         }
       }
 
       if (form.getTemporaryDepositsMade() == null) {
         errors.rejectValue("temporaryDepositsMade", "temporaryDepositsMade.notSelected",
                 "Select yes if temporary deposits are being made");
+
       } else if (form.getTemporaryDepositsMade() && form.getTemporaryDepDescription() == null) {
         errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
                 "Enter why temporary deposits are being made.");

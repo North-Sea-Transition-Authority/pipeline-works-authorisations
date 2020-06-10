@@ -270,4 +270,20 @@ public class PadPipelineIdentServiceTest {
         .containsExactly(1, 2);
   }
 
+  @Test
+  public void validateSection_valid() {
+    var padPipeline = new PadPipeline();
+    when(repository.countAllByPadPipeline(padPipeline)).thenReturn(1L);
+    var valid = identService.isSectionValid(padPipeline);
+    assertThat(valid).isTrue();
+  }
+
+  @Test
+  public void validateSection_invalid() {
+    var padPipeline = new PadPipeline();
+    when(repository.countAllByPadPipeline(padPipeline)).thenReturn(0L);
+    var valid = identService.isSectionValid(padPipeline);
+    assertThat(valid).isFalse();
+  }
+
 }

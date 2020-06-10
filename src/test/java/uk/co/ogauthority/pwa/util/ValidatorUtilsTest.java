@@ -124,12 +124,11 @@ public class ValidatorUtilsTest {
   @Test
   public void validateDateIsWithinRangeOfTarget_before() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStart", "proposed start",
+    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStartMonth", "proposed start",
         2, 2020, 3, 2020, 5, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
-            "proposedStartMonth.outOfTargetRange",
-            "proposedStartYear.outOfTargetRange"
+            "proposedStartMonth.outOfTargetRange"
         );
     assertThat(validationNoErrors).isFalse();
   }
@@ -137,12 +136,11 @@ public class ValidatorUtilsTest {
   @Test
   public void validateDateIsWithinRangeOfTarget_after() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStart", "proposed start",
+    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStartMonth", "proposed start",
         9, 2020, 3, 2020, 5, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
-            "proposedStartMonth.outOfTargetRange",
-            "proposedStartYear.outOfTargetRange"
+            "proposedStartMonth.outOfTargetRange"
         );
     assertThat(validationNoErrors).isFalse();
   }
@@ -150,7 +148,7 @@ public class ValidatorUtilsTest {
   @Test
   public void validateDateIsWithinRangeOfTarget_within() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStart", "proposed start",
+    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStartDay", "proposed start",
         7, 2020, 3, 2020, 5, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .doesNotContain("proposedStartDay", "proposedStartMonth");

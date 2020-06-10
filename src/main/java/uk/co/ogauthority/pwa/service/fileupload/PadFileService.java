@@ -196,6 +196,21 @@ public class PadFileService {
 
   }
 
+  /**
+   * Get a file for an application with a specified purpose and link status as an uploaded file view.
+   */
+  public UploadedFileView getUploadedFileView(PwaApplicationDetail pwaApplicationDetail,
+                                                     String fileId,
+                                                     ApplicationFilePurpose purpose,
+                                                     ApplicationFileLinkStatus fileLinkStatus) {
+
+    var fileView =  padFileRepository.findAsFileViewByAppDetailAndFileIdAndPurposeAndFileLinkStatus(
+        pwaApplicationDetail, fileId, purpose, fileLinkStatus);
+    fileView.setFileUrl(getDownloadUrl(pwaApplicationDetail, purpose, fileView.getFileId()));
+    return fileView;
+
+  }
+
   private String getDownloadUrl(PwaApplicationDetail detail, ApplicationFilePurpose purpose, String fileId) {
     return ReverseRouter.route(on(purpose.getFileControllerClass()).handleDownload(
         detail.getPwaApplicationType(),

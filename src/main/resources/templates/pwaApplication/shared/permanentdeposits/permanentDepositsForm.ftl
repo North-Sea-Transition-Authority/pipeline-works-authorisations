@@ -15,17 +15,17 @@
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput path="form.depositReference" labelText="Deposit reference" hintText="Uniquely identifies this deposit on this application, e.g. PL1234 grout bags"/>
         
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true optionalInputDefault="Select one or more"
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedPipelines" options=pipelines labelText="Pipelines" multiSelect=true 
             hintText="Only add more than one pipeline on the same deposit if they’re within the same trench or piggy-backed."/>
 
-        <@fdsNumberInput.twoNumberInputs pathOne="form.fromMonth" pathTwo="form.fromYear" labelText="Month and year of deposit start" formId="from-month-year">
-            <@fdsNumberInput.numberInputItem path="form.fromMonth" labelText="Month" inputClass="govuk-input--width-2"/>
-            <@fdsNumberInput.numberInputItem path="form.fromYear" labelText="Year" inputClass="govuk-input--width-4"/>
+        <@fdsNumberInput.twoNumberInputs pathOne="form.fromDate.month" pathTwo="form.fromDate.year" labelText="Month and year of deposit start" formId="from-month-year">
+            <@fdsNumberInput.numberInputItem path="form.fromDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
+            <@fdsNumberInput.numberInputItem path="form.fromDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
         </@fdsNumberInput.twoNumberInputs>
 
-        <@fdsNumberInput.twoNumberInputs pathOne="form.toMonth" pathTwo="form.toYear" labelText="Month and year of deposit end" formId="to-month-year">
-            <@fdsNumberInput.numberInputItem path="form.toMonth" labelText="Month" inputClass="govuk-input--width-2"/>
-            <@fdsNumberInput.numberInputItem path="form.toYear" labelText="Year" inputClass="govuk-input--width-4"/>
+        <@fdsNumberInput.twoNumberInputs pathOne="form.toDate.month" pathTwo="form.toDate.year" labelText="Month and year of deposit end" formId="to-month-year">
+            <@fdsNumberInput.numberInputItem path="form.toDate.month" labelText="Month" inputClass="govuk-input--width-2"/>
+            <@fdsNumberInput.numberInputItem path="form.toDate.year" labelText="Year" inputClass="govuk-input--width-4"/>
         </@fdsNumberInput.twoNumberInputs>
 
 
@@ -61,6 +61,7 @@
                         <@fdsTextInput.textInput path="form.contingencyGroutBagsAmount" nestingPath="form.materialType" labelText="How much contingency was included?"/>
 
                     <#elseif materialTypeOption == "OTHER">
+                        <@fdsTextInput.textInput path="form.otherMaterialType" nestingPath="form.materialType" labelText="Deposit material" inputClass="govuk-input--width-20"/>
                         <@fdsTextInput.textInput path="form.otherMaterialSize" nestingPath="form.materialType" labelText="Size" inputClass="govuk-input--width-20"/>
                         <@fdsTextInput.textInput path="form.quantityOther" nestingPath="form.materialType" labelText="Quantity of material to be used" inputClass="govuk-input--width-20"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>

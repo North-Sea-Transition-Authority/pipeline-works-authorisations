@@ -47,4 +47,33 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
 
   }
 
+  @Override
+  public UploadedFileView findAsFileViewByAppDetailAndFileIdAndPurposeAndFileLinkStatus(PwaApplicationDetail detail,
+                                                                                        String fileId,
+                                                                                        ApplicationFilePurpose purpose,
+                                                                                        ApplicationFileLinkStatus linkStatus) {
+    return entityManager.createQuery("" +
+            "SELECT new uk.co.ogauthority.pwa.model.form.files.UploadedFileView(" +
+            "  uf.fileId" +
+            ", uf.fileName" +
+            ", uf.fileSize" +
+            ", pf.description" +
+            ", uf.uploadDatetime" +
+            ", '#' " + //link updated after construction as requires reverse router
+            ") " +
+            "FROM PadFile pf " +
+            "JOIN UploadedFile uf ON pf.fileId = uf.fileId " +
+            "WHERE pf.fileId = :fileId " +
+            "AND uf.status = :fileStatus " +
+            "AND pf.pwaApplicationDetail = :pwaAppDetail " +
+            "AND pf.purpose = :purpose " +
+            "AND (pf.fileLinkStatus = :fileLinkStatus OR :fileLinkStatus = '" + ApplicationFileLinkStatus.ALL + "')",
+        UploadedFileView.class)
+        .setParameter("pwaAppDetail", detail)
+        .setParameter("purpose", purpose)
+        .setParameter("fileId", fileId)
+        .setParameter("fileStatus", FileUploadStatus.CURRENT)
+        .setParameter("fileLinkStatus", linkStatus)
+        .getSingleResult();
+  }
 }
