@@ -88,7 +88,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .collect(Collectors.toUnmodifiableList());
 
     if (drawing.getFile() != null) {
-      var file = padFileService.getUploadedFileView(detail, drawing.getFileId(), ApplicationFilePurpose.PIPELINE_DRAWINGS,
+      var file = padFileService.getUploadedFileView(detail, drawing.getFileId(),
+          ApplicationFilePurpose.PIPELINE_DRAWINGS,
           ApplicationFileLinkStatus.FULL);
       form.setUploadedFileWithDescriptionForms(List.of(
           new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
@@ -212,7 +213,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
   public BindingResult validateDrawing(Object form, BindingResult bindingResult, ValidationType validationType,
                                        PwaApplicationDetail pwaApplicationDetail) {
-    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, null, PipelineDrawingValidationType.ADD);
+    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, null,
+        PipelineDrawingValidationType.ADD);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }
@@ -220,7 +222,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
   public BindingResult validateEdit(Object form, BindingResult bindingResult, ValidationType validationType,
                                     PwaApplicationDetail pwaApplicationDetail, Integer drawingId) {
     var drawing = getDrawing(pwaApplicationDetail, drawingId);
-    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, drawing, PipelineDrawingValidationType.EDIT);
+    pipelineDrawingValidator.validate(form, bindingResult, pwaApplicationDetail, drawing,
+        PipelineDrawingValidationType.EDIT);
     groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
     return bindingResult;
   }

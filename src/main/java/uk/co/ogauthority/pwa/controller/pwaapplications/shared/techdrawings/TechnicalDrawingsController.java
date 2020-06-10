@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.Admiral
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -62,6 +63,7 @@ public class TechnicalDrawingsController {
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
+    var summaryViews = padTechnicalDrawingService.getPipelineDrawingSummaryViewList(detail);
     var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/overview")
         .addObject("admiraltyChartFileViews",
             admiraltyChartFileService.getAdmiraltyChartFileViews(detail, ApplicationFileLinkStatus.FULL))
@@ -70,7 +72,8 @@ public class TechnicalDrawingsController {
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
         .addObject("pipelineDrawingUrlFactory",
             new PipelineDrawingUrlFactory(detail))
-        .addObject("pipelineDrawingSummaryViews", padTechnicalDrawingService.getPipelineDrawingSummaryViewList(detail));
+        .addObject("pipelineDrawingSummaryViews", summaryViews)
+        .addObject("validatorFactory", new PipelineDrawingValidationFactory(summaryViews));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
         "Admiralty chart and pipeline drawings");
     return modelAndView;

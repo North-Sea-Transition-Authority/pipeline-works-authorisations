@@ -17,7 +17,8 @@
 
     <@pipelineDrawingManagement.pipelineDrawingManagement
     urlFactory=pipelineDrawingUrlFactory
-    pipelineDrawingSummaryViews=pipelineDrawingSummaryViews/>
+    pipelineDrawingSummaryViews=pipelineDrawingSummaryViews
+    validatorFactory=validatorFactory/>
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
