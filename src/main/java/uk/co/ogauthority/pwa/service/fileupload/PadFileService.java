@@ -181,12 +181,6 @@ public class PadFileService {
   }
 
 
-  public void deleteFilesAndLinks(Supplier<PadFile> deleteLinksAndEntity, WebUserAccount webUserAccount) {
-    var padFile = deleteLinksAndEntity.get();
-    deleteAppFileLinksAndUploadedFiles(List.of(padFile), webUserAccount);
-  }
-
-
   public UploadedFile getUploadedFileById(String fileId) {
     return fileUploadService.getFileById(fileId);
   }
