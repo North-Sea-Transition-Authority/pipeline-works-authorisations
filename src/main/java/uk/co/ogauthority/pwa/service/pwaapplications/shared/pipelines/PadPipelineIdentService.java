@@ -94,22 +94,40 @@ public class PadPipelineIdentService {
 
     saveEntityUsingForm(ident, form);
 
-    identDataService.addIdentData(ident, form.getDataForm());
+  }
 
+  @Transactional
+  public void addIdentAtPosition(PadPipeline pipeline, PipelineIdentForm form, Integer position) {
+
+    var ident = new PadPipelineIdent(pipeline, position);
+
+    var idents = repository.getAllByPadPipeline(pipeline);
+    idents.stream()
+        .filter(existingIdent -> existingIdent.getIdentNo() >= position)
+        .forEachOrdered(existingIdent -> existingIdent.setIdentNo(existingIdent.getIdentNo() + 1));
+
+    repository.saveAll(idents);
+
+    saveEntityUsingForm(ident, form);
+
+  }
+
+  @Transactional
+  public Optional<PadPipelineIdent> getIdentByIdentNumber(PadPipeline pipeline, Integer identNumber) {
+    return repository.getByPadPipelineAndAndIdentNo(pipeline, identNumber);
   }
 
   public void saveEntityUsingForm(PadPipelineIdent ident, PipelineIdentForm form) {
 
     ident.setFromLocation(form.getFromLocation());
     ident.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
-
     ident.setToLocation(form.getToLocation());
     ident.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
-
     ident.setLength(form.getLength());
 
     repository.save(ident);
 
+    identDataService.addIdentData(ident, form.getDataForm());
   }
 
   @Transactional

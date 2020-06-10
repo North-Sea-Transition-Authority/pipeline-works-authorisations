@@ -16,4 +16,6 @@ public interface PadPipelineIdentRepository extends CrudRepository<PadPipelineId
 
   Optional<PadPipelineIdent> getPadPipelineIdentByPadPipelineAndId(PadPipeline pipeline, Integer identId);
 
+  Optional<PadPipelineIdent> getByPadPipelineAndAndIdentNo(PadPipeline pipeline, Integer identNo);
+
 }
