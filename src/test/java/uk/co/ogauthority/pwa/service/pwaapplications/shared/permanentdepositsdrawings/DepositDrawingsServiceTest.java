@@ -108,6 +108,37 @@ public class DepositDrawingsServiceTest {
 
 
   @Test
+  public void editDrawing() {
+    var form = new PermanentDepositDrawingForm();
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setReference("ref");
+    form.setSelectedDeposits(Set.of("2"));
+
+    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
+
+    var depositDrawing = new PadDepositDrawing();
+    depositDrawing.setId(1);
+    when(padDepositDrawingRepository.findById(1)).thenReturn(Optional.of(depositDrawing));
+
+    var padPermanentDeposit = new PadPermanentDeposit();
+    padPermanentDeposit.setId(2);
+    when(permanentDepositService.getDepositById(2)).thenReturn(Optional.of(padPermanentDeposit));
+    depositDrawingsService.editDepositDrawing(1, pwaApplicationDetail, form, new WebUserAccount());
+
+
+    var captor = ArgumentCaptor.forClass(PadDepositDrawing.class);
+    verify(padDepositDrawingRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue()).extracting(PadDepositDrawing::getFile, PadDepositDrawing::getReference, PadDepositDrawing::getPwaApplicationDetail)
+        .containsExactly(padFile, "ref", pwaApplicationDetail);
+
+    var captorDrawingLink = ArgumentCaptor.forClass(PadDepositDrawingLink.class);
+    verify(padDepositDrawingLinkRepository, times(1)).save(captorDrawingLink.capture());
+  }
+
+
+  @Test
   public void getDepositDrawingSummaryViews() {
     var depositDrawing = new PadDepositDrawing();
     depositDrawing.setReference("ref");

@@ -233,6 +233,29 @@ public class PadFileService {
    * Delete an individual file for an application.
    * @param padFile file being deleted
    * @param user deleting file
+   * @param actionBeforeDelete a consumer to run if the result is valid, prior to deletion.
+   * @return a successful (or failed) file delete result
+   */
+  @Transactional
+  public FileDeleteResult processFileDeletion(PadFile padFile,
+                                              WebUserAccount user,
+                                              Consumer<PadFile> actionBeforeDelete) {
+
+    var result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
+
+    if (result.isValid()) {
+      actionBeforeDelete.accept(padFile);
+      padFileRepository.delete(padFile);
+    }
+
+    return result;
+
+  }
+
+  /**
+   * Delete an individual file for an application.
+   * @param padFile file being deleted
+   * @param user deleting file
    * @return a successful (or failed) file delete result
    */
   @Transactional
