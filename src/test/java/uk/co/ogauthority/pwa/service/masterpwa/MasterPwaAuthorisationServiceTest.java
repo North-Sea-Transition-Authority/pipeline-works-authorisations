@@ -12,11 +12,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRolesService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MasterPwaAuthorisationServiceTest {
@@ -29,6 +33,15 @@ public class MasterPwaAuthorisationServiceTest {
   @Mock
   private MasterPwaDetailRepository masterPwaDetailRepository;
 
+  @Mock
+  private TeamService teamService;
+
+  @Mock
+  private PortalOrganisationsAccessor portalOrganisationsAccessor;
+
+  @Mock
+  private PwaConsentOrganisationRolesService pwaConsentOrganisationRolesService;
+
   private MasterPwaAuthorisationService masterPwaAuthorisationService;
 
   private WebUserAccount webUserAccount = new WebUserAccount(1);
@@ -40,8 +53,10 @@ public class MasterPwaAuthorisationServiceTest {
   public void setup() {
     masterPwaAuthorisationService = new MasterPwaAuthorisationService(
         masterPwaRepository,
-        masterPwaDetailRepository
-    );
+        masterPwaDetailRepository,
+        teamService,
+        portalOrganisationsAccessor,
+        pwaConsentOrganisationRolesService);
 
     when(masterPwaRepository.findById(MASTER_PWA_ID)).thenReturn(Optional.of(masterPwa));
   }
@@ -49,14 +64,14 @@ public class MasterPwaAuthorisationServiceTest {
 
   @Test
   public void getMasterPwaIfAuthorised_verifyServiceInteractions() {
-    masterPwaAuthorisationService.getMasterPwaIfAuthorised(MASTER_PWA_ID, webUserAccount);
+    masterPwaAuthorisationService.getMasterPwaIfAuthorised(MASTER_PWA_ID, webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR);
     verify(masterPwaRepository, times(1)).findById(MASTER_PWA_ID);
     verifyNoMoreMockInteractions();
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void getMasterPwaIfAuthorised_whenMasterPwaNotFound() {
-    masterPwaAuthorisationService.getMasterPwaIfAuthorised(9999, webUserAccount);
+    masterPwaAuthorisationService.getMasterPwaIfAuthorised(9999, webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR);
   }
 
   private void verifyNoMoreMockInteractions(){

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -50,7 +51,7 @@ public class PickedPwaRetrievalServiceTest {
   public void getPickablePwasWhereAuthorised_whenNoPickablePwasExist() {
     assertThat(pickedPwaRetrievalService.getPickablePwasWhereAuthorised(webUserAccount)).isEmpty();
 
-    verify(masterPwaAuthorisationService, times(1)).getMasterPwasWhereUserIsAuthorised(webUserAccount);
+    verify(masterPwaAuthorisationService, times(1)).getMasterPwasWhereUserIsAuthorised(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR);
 
   }
 
@@ -58,8 +59,8 @@ public class PickedPwaRetrievalServiceTest {
   public void getPickablePwasWhereAuthorised_whenSingleMasterPwaExistsOnly() {
     when(masterPwaDetail.getReference()).thenReturn("REFERENCE");
 
-    when(masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(webUserAccount)).thenReturn(
-        List.of(masterPwaDetail)
+    when(masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR)).thenReturn(
+        Set.of(masterPwa)
     );
 
     var pickablePwaDtos = pickedPwaRetrievalService.getPickablePwasWhereAuthorised(webUserAccount);
@@ -84,7 +85,8 @@ public class PickedPwaRetrievalServiceTest {
     pickedPwaRetrievalService.getPickedPwa(pickedPwa, webUserAccount);
     verify(masterPwaAuthorisationService, times(1)).getMasterPwaIfAuthorised(
         pickedPwa.getContentId(),
-        webUserAccount
+        webUserAccount,
+        PwaOrganisationRole.APPLICATION_CREATOR
     );
     verifyNoMoreInteractions(masterPwaAuthorisationService);
   }

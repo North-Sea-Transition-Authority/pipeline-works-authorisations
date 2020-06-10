@@ -69,7 +69,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Before
   public void setup() {
 
-    when(masterPwaAuthorisationService.getMasterPwaIfAuthorised(anyInt(), any())).thenReturn(masterPwa);
+    when(masterPwaAuthorisationService.getMasterPwaIfAuthorised(anyInt(), any(), any())).thenReturn(masterPwa);
     // fake create application service so we get an app of the requested type back
     when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any())).thenAnswer(invocation -> {
           PwaApplicationType appType = Arrays.stream(invocation.getArguments())
