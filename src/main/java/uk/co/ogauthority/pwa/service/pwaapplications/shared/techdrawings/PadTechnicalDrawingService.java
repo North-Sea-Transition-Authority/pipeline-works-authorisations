@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -70,6 +71,15 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
             String.format("Unable to find drawing (%d) of detail (%d)", drawingId, detail.getId())));
   }
 
+  public Optional<PadTechnicalDrawing> getDrawingLinkedToPadFile(PwaApplicationDetail detail, PadFile padFile) {
+    return padTechnicalDrawingRepository.findByPwaApplicationDetailAndFile(detail, padFile);
+  }
+
+  public void unlinkFile(PadTechnicalDrawing drawing) {
+    drawing.setFile(null);
+    padTechnicalDrawingRepository.save(drawing);
+  }
+
   public void mapDrawingToForm(PwaApplicationDetail detail, PadTechnicalDrawing drawing, PipelineDrawingForm form) {
 
     var pipelineIds = padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))
@@ -77,13 +87,15 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .map(drawingLink -> drawingLink.getPipeline().getId())
         .collect(Collectors.toUnmodifiableList());
 
-    var file = padFileService.getUploadedFileView(detail, drawing.getFileId(), ApplicationFilePurpose.PIPELINE_DRAWINGS,
-        ApplicationFileLinkStatus.FULL);
+    if (drawing.getFile() != null) {
+      var file = padFileService.getUploadedFileView(detail, drawing.getFileId(), ApplicationFilePurpose.PIPELINE_DRAWINGS,
+          ApplicationFileLinkStatus.FULL);
+      form.setUploadedFileWithDescriptionForms(List.of(
+          new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
+    }
 
     form.setReference(drawing.getReference());
     form.setPadPipelineIds(pipelineIds);
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
   }
 
   @Transactional
@@ -149,13 +161,15 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .map(drawingLink -> drawingLink.getPipeline().getPipelineRef())
         .collect(Collectors.toUnmodifiableList());
 
-    UploadedFileView fileView = fileViewList.stream()
-        .filter(uploadedFileView -> uploadedFileView.getFileId().equals(technicalDrawing.getFileId()))
-        .findFirst()
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            "Unable to get UploadedFileView of file with ID: " + technicalDrawing.getFileId()));
-
-    return new PipelineDrawingSummaryView(technicalDrawing, references, fileView);
+    if (technicalDrawing.getFile() != null) {
+      UploadedFileView fileView = fileViewList.stream()
+          .filter(uploadedFileView -> uploadedFileView.getFileId().equals(technicalDrawing.getFileId()))
+          .findFirst()
+          .orElseThrow(() -> new PwaEntityNotFoundException(
+              "Unable to get UploadedFileView of file with ID: " + technicalDrawing.getFileId()));
+      return new PipelineDrawingSummaryView(technicalDrawing, references, fileView);
+    }
+    return new PipelineDrawingSummaryView(technicalDrawing, references);
   }
 
   @VisibleForTesting
@@ -186,7 +200,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return allPipelinesLinked(detail);
+    return drawingsValid(detail);
   }
 
   @Override
@@ -211,8 +225,16 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     return bindingResult;
   }
 
-  private boolean allPipelinesLinked(PwaApplicationDetail pwaApplicationDetail) {
+  private boolean drawingsValid(PwaApplicationDetail pwaApplicationDetail) {
     var drawings = getDrawings(pwaApplicationDetail);
+
+    boolean allDrawingsLinkedToFile = drawings.stream()
+        .allMatch(drawing -> drawing.getFile() != null);
+
+    return allDrawingsLinkedToFile && allPipelinesLinked(pwaApplicationDetail, drawings);
+  }
+
+  private boolean allPipelinesLinked(PwaApplicationDetail pwaApplicationDetail, List<PadTechnicalDrawing> drawings) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
     var pipelines = padPipelineService.getPipelines(pwaApplicationDetail);
 
@@ -226,9 +248,9 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
   public BindingResult validateSection(BindingResult bindingResult, PwaApplicationDetail pwaApplicationDetail) {
 
-    if (!allPipelinesLinked(pwaApplicationDetail)) {
+    if (!drawingsValid(pwaApplicationDetail)) {
       bindingResult.reject("allPipelinesAdded" + FieldValidationErrorCodes.INVALID.getCode(),
-          "Not all pipelines have been linked to a drawing");
+          "Not all pipelines have been linked to a drawing, or have missing files");
     }
 
     return bindingResult;

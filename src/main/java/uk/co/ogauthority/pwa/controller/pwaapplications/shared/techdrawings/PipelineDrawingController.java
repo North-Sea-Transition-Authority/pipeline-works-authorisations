@@ -73,7 +73,8 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     this.padFileService = padFileService;
   }
 
-  private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form, ScreenActionType actionType) {
+  private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form,
+                                              ScreenActionType actionType) {
 
     var modelAndView = this.createModelAndView(
         "pwaApplication/shared/techdrawings/addPipelineDrawing",
@@ -237,6 +238,10 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
+
+    var detail = applicationContext.getApplicationDetail();
+    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser(),
+        padFile -> padTechnicalDrawingService.getDrawingLinkedToPadFile(detail, padFile)
+            .ifPresent(padTechnicalDrawingService::unlinkFile));
   }
 }

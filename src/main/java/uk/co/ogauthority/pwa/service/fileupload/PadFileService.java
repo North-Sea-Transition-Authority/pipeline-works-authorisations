@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -218,6 +219,29 @@ public class PadFileService {
         fileId,
         null
     ));
+  }
+
+  /**
+   * Delete an individual file for an application.
+   * @param padFile file being deleted
+   * @param user deleting file
+   * @param actionBeforeDelete a consumer to run if the result is valid, prior to deletion.
+   * @return a successful (or failed) file delete result
+   */
+  @Transactional
+  public FileDeleteResult processFileDeletion(PadFile padFile,
+                                              WebUserAccount user,
+                                              Consumer<PadFile> actionBeforeDelete) {
+
+    var result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
+
+    if (result.isValid()) {
+      actionBeforeDelete.accept(padFile);
+      padFileRepository.delete(padFile);
+    }
+
+    return result;
+
   }
 
   /**
