@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
@@ -43,6 +44,9 @@ public class PwaApplicationWorkAreaItem {
 
   private final Instant initialReviewApprovedInstant;
 
+  private PersonId caseOfficerPersonId;
+  private String caseOfficerName;
+
   public PwaApplicationWorkAreaItem(ApplicationDetailSearchItem applicationDetailSearchItem,
                                     Function<ApplicationDetailSearchItem, String> viewApplicationUrlProducer) {
 
@@ -64,6 +68,11 @@ public class PwaApplicationWorkAreaItem {
     this.proposedStartInstant = applicationDetailSearchItem.getPadProposedStart();
     this.submittedAsFastTrackFlag = applicationDetailSearchItem.wasSubmittedAsFastTrack();
     this.initialReviewApprovedInstant = applicationDetailSearchItem.getPadInitialReviewApprovedTimestamp();
+
+    if (applicationDetailSearchItem.getCaseOfficerPersonId() != null) {
+      this.caseOfficerPersonId = new PersonId(applicationDetailSearchItem.getCaseOfficerPersonId());
+      this.caseOfficerName = applicationDetailSearchItem.getCaseOfficerName();
+    }
 
   }
 
@@ -121,6 +130,14 @@ public class PwaApplicationWorkAreaItem {
 
   public boolean wasSubmittedAsFastTrack() {
     return submittedAsFastTrackFlag;
+  }
+
+  public PersonId getCaseOfficerPersonId() {
+    return caseOfficerPersonId;
+  }
+
+  public String getCaseOfficerName() {
+    return caseOfficerName;
   }
 
   private String formatInstant(Instant instant, DateTimeFormatter formatter) {

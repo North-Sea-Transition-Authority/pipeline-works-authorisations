@@ -43,10 +43,26 @@ public class ApplicationDetailSearcher {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndAndPadStatusIn(
+    return applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusIn(
         pageable,
         statusFilter
     );
+  }
+
+  public Page<ApplicationDetailSearchItem> searchByStatusOrApplicationIds(Pageable pageable,
+                                                                          Set<PwaApplicationStatus> statusFilter,
+                                                                          Set<Integer> pwaApplicationIdFilter) {
+
+    if (statusFilter.isEmpty() && pwaApplicationIdFilter.isEmpty()) {
+      return Page.empty(pageable);
+    }
+
+    return applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusInOrPwaApplicationIdIn(
+        pageable,
+        statusFilter,
+        pwaApplicationIdFilter
+    );
+
   }
 
 

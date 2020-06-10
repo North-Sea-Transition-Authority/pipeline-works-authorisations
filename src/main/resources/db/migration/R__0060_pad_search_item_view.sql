@@ -18,6 +18,9 @@ SELECT
 , pad.tip_flag
 , COALESCE(pad.submitted_as_fast_track_flag, 0) submitted_as_fast_track_flag
 
+, paa.assignee_person_id case_officer_person_id
+, paa.assignee_name case_officer_name
+
 , ppi.project_name pad_project_name
 , ppi.proposed_start_timestamp pad_proposed_start_timestamp
 , (
@@ -26,10 +29,14 @@ SELECT
     LEFT JOIN ${datasource.user}.devuk_fields df ON pf.field_id = df.field_id
     WHERE pf.application_detail_id = pad.id
   ) pad_field_name_list
+
+
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
 JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
+
+LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id = pad.pwa_application_id AND paa.assignment = 'CASE_OFFICER'
 
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
 WHERE pd.end_timestamp IS NULL;

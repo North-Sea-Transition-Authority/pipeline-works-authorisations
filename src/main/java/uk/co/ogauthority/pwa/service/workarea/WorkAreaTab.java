@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
 /*
- * Differentiates between tab requested on workarea.
+ * Differentiates between tab requested on work area.
  */
 public enum WorkAreaTab {
-  OPEN
+  OPEN_APPLICATIONS
 }
