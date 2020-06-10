@@ -15,14 +15,14 @@ import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCrea
 @Service
 public class PickPwaForVariationService {
 
-  private final PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
+  private final PickedPwaRetrievalService pickedPwaRetrievalService;
   private final PwaApplicationCreationService pwaApplicationCreationService;
 
   @Autowired
   public PickPwaForVariationService(
-      PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService,
+      PickedPwaRetrievalService pickedPwaRetrievalService,
       PwaApplicationCreationService pwaApplicationCreationService) {
-    this.masterPwaRetrievalAndMigrationService = masterPwaRetrievalAndMigrationService;
+    this.pickedPwaRetrievalService = pickedPwaRetrievalService;
     this.pwaApplicationCreationService = pwaApplicationCreationService;
   }
 
@@ -30,7 +30,7 @@ public class PickPwaForVariationService {
   public PwaApplication createPwaVariationApplicationForPickedPwa(PickablePwa pickedPwa,
                                                                   PwaApplicationType pwaApplicationType,
                                                                   WebUserAccount user) {
-    var masterPwa = masterPwaRetrievalAndMigrationService.getOrMigratePickedPwa(pickedPwa, user);
+    var masterPwa = pickedPwaRetrievalService.getOrMigratePickedPwa(pickedPwa, user);
     return pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType)
         .getPwaApplication();
   }

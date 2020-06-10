@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCrea
 public class PickPwaForVariationServiceTest {
 
   @Mock
-  private PickedPwaRetrievalAndMigrationService pickedPwaRetrievalAndMigrationService;
+  private PickedPwaRetrievalService pickedPwaRetrievalService;
 
   @Mock
   private PwaApplicationCreationService pwaApplicationCreationService;
@@ -38,19 +38,19 @@ public class PickPwaForVariationServiceTest {
   @Before
   public void setup() {
     pickPwaForVariationService = new PickPwaForVariationService(
-        pickedPwaRetrievalAndMigrationService,
+        pickedPwaRetrievalService,
         pwaApplicationCreationService
     );
 
     when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any())).thenReturn(new PwaApplicationDetail());
-    when(pickedPwaRetrievalAndMigrationService.getOrMigratePickedPwa(any(), any())).thenReturn(masterPwa);
+    when(pickedPwaRetrievalService.getOrMigratePickedPwa(any(), any())).thenReturn(masterPwa);
   }
 
   @Test
   public void createPwaVariationApplicationForPickedPwa_verifyServiceInteractions(){
 
     pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(pickablePwa, PwaApplicationType.CAT_1_VARIATION, webUserAccount);
-    verify(pickedPwaRetrievalAndMigrationService, times(1)).getOrMigratePickedPwa(pickablePwa, webUserAccount);
+    verify(pickedPwaRetrievalService, times(1)).getOrMigratePickedPwa(pickablePwa, webUserAccount);
     verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(webUserAccount, masterPwa, PwaApplicationType.CAT_1_VARIATION);
   }
 

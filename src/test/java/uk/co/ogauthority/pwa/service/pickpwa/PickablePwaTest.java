@@ -9,27 +9,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PickablePwaTest {
 
   private static final String MASTER_PWA_PREFIX = PickablePwaSource.MASTER.getPickableStringPrefix();
-  private static final String MIGRATION_PWA_PREFIX = PickablePwaSource.MIGRATION.getPickableStringPrefix();
   private static final int CONTENT_ID = 1;
 
-  private static final int MIGRATION_PWA_ID = 10;
   private static final int MASTER_PWA_ID = 20;
-
-  @Mock
-  private MigrationMasterPwa migrationMasterPwa;
 
   @Mock
   private MasterPwaDetail masterPwaDetail;
 
   @Before
   public void setup(){
-    when(migrationMasterPwa.getPadId()).thenReturn(MIGRATION_PWA_ID);
     when(masterPwaDetail.getMasterPwaId()).thenReturn(MASTER_PWA_ID);
   }
 
@@ -40,16 +33,6 @@ public class PickablePwaTest {
     var pickablePwa = new PickablePwa(constructorString);
     assertThat(pickablePwa.getContentId()).isEqualTo(CONTENT_ID);
     assertThat(pickablePwa.getPickablePwaSource()).isEqualTo(PickablePwaSource.MASTER);
-    assertThat(pickablePwa.getPickablePwaString()).isEqualTo(constructorString);
-
-  }
-
-  @Test
-  public void pickablePwa_usingInputStringOnly_whenMigrationPrefix(){
-    var constructorString = MIGRATION_PWA_PREFIX + CONTENT_ID;
-    var pickablePwa = new PickablePwa(constructorString);
-    assertThat(pickablePwa.getContentId()).isEqualTo(CONTENT_ID);
-    assertThat(pickablePwa.getPickablePwaSource()).isEqualTo(PickablePwaSource.MIGRATION);
     assertThat(pickablePwa.getPickablePwaString()).isEqualTo(constructorString);
 
   }
@@ -68,11 +51,5 @@ public class PickablePwaTest {
     assertThat(pickablePwa.getPickablePwaString()).isEqualTo(MASTER_PWA_PREFIX + masterPwaDetail.getMasterPwaId());
   }
 
-  @Test
-  public void pickablePwa_usingMigrationMasterPwaOnly(){
-    var pickablePwa = new PickablePwa(migrationMasterPwa);
-    assertThat(pickablePwa.getContentId()).isEqualTo(MIGRATION_PWA_ID);
-    assertThat(pickablePwa.getPickablePwaSource()).isEqualTo(PickablePwaSource.MIGRATION);
-    assertThat(pickablePwa.getPickablePwaString()).isEqualTo(MIGRATION_PWA_PREFIX + migrationMasterPwa.getPadId());
-  }
+
 }
