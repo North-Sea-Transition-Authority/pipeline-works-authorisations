@@ -28,7 +28,6 @@ import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -232,7 +231,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   public boolean isComplete(PwaApplicationDetail detail) {
     var permanentDeposits = permanentDepositService.getPermanentDeposits(detail);
     for (var permanentDeposit: permanentDeposits) {
-      if (padDepositDrawingLinkRepository.findByPadPermanentDeposit(permanentDeposit).isEmpty()) {
+      if (padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(permanentDeposit).isEmpty()) {
         return false;
       }
     }

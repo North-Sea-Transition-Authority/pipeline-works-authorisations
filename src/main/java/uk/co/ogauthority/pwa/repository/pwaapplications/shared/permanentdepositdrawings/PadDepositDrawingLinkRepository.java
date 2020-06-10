@@ -16,8 +16,6 @@ public interface PadDepositDrawingLinkRepository extends CrudRepository<PadDepos
 
   List<PadDepositDrawingLink> getAllByPadDepositDrawing(PadDepositDrawing drawing);
 
-  List<PadDepositDrawingLink> getAllByPadPermanentDepositIn(List<PadPermanentDeposit> padPermanentDeposits);
-
-  List<PadDepositDrawingLink> findByPadPermanentDeposit(PadPermanentDeposit padPermanentDeposits);
+  List<PadDepositDrawingLink> getAllByPadPermanentDeposit(PadPermanentDeposit padPermanentDeposits);
 
 }

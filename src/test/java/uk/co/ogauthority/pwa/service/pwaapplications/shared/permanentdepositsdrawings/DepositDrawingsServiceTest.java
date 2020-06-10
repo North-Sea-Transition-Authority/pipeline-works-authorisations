@@ -272,7 +272,7 @@ public class DepositDrawingsServiceTest {
 
     var depositLink1 = new PadDepositDrawingLink();
     depositLink1.setPadPermanentDeposit(deposit1);
-    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1));
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1));
 
     assertFalse(depositDrawingsService.isComplete(pwaApplicationDetail));
   }
@@ -292,8 +292,8 @@ public class DepositDrawingsServiceTest {
     depositLink2.setPadPermanentDeposit(deposit2);
     var depositLink3 = new PadDepositDrawingLink();
     depositLink2.setPadPermanentDeposit(deposit1);
-    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1, depositLink3));
-    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit2)).thenReturn(List.of(depositLink2));
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1, depositLink3));
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit2)).thenReturn(List.of(depositLink2));
 
     assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
   }
