@@ -125,4 +125,8 @@ public class PadPipelineIdentService {
     repository.saveAll(remainingIdents);
   }
 
+  public boolean isSectionValid(PadPipeline pipeline) {
+    return !repository.countAllByPadPipeline(pipeline).equals(0L);
+  }
+
 }

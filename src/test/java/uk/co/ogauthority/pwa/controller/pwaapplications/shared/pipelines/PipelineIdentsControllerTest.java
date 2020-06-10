@@ -134,6 +134,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     var identView = new IdentView(identData);
     when(pipelineIdentService.getIdentView(any(), any())).thenReturn(identView);
 
+    when(pipelineIdentService.isSectionValid(any())).thenReturn(true);
+
   }
 
   @Test
@@ -465,6 +467,56 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     padPipeline.setComponentPartsDescription("comp parts");
     padPipeline.setProductsToBeConveyed("prods");
     return padPipeline;
+  }
+
+  @Test
+  public void postIdentOverview_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postIdentOverview_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postIdentOverview_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postIdentOverview_failValidation() {
+
+    when(pipelineIdentService.isSectionValid(any())).thenReturn(false);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
   }
 
 }
