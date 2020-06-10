@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
 import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 
@@ -24,6 +26,15 @@ public class PipelineHeaderForm {
 
   private Boolean trenchedBuriedBackfilled;
   private String trenchingMethods;
+
+  private PipelineFlexibility pipelineFlexibility;
+
+  private PipelineMaterial pipelineMaterial;
+  private String otherPipelineMaterialUsed;
+
+  private Integer pipelineDesignLife;
+
+
 
   public PipelineHeaderForm() {
   }
@@ -106,5 +117,38 @@ public class PipelineHeaderForm {
 
   public void setTrenchingMethods(String trenchingMethods) {
     this.trenchingMethods = trenchingMethods;
+  }
+
+  public PipelineFlexibility getPipelineFlexibility() {
+    return pipelineFlexibility;
+  }
+
+  public void setPipelineFlexibility(
+      PipelineFlexibility pipelineFlexibility) {
+    this.pipelineFlexibility = pipelineFlexibility;
+  }
+
+  public PipelineMaterial getPipelineMaterial() {
+    return pipelineMaterial;
+  }
+
+  public void setPipelineMaterial(PipelineMaterial pipelineMaterial) {
+    this.pipelineMaterial = pipelineMaterial;
+  }
+
+  public String getOtherPipelineMaterialUsed() {
+    return otherPipelineMaterialUsed;
+  }
+
+  public void setOtherPipelineMaterialUsed(String otherPipelineMaterialUsed) {
+    this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
+  }
+
+  public Integer getPipelineDesignLife() {
+    return pipelineDesignLife;
+  }
+
+  public void setPipelineDesignLife(Integer pipelineDesignLife) {
+    this.pipelineDesignLife = pipelineDesignLife;
   }
 }

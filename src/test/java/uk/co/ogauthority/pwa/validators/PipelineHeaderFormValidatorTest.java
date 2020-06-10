@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
@@ -63,7 +65,9 @@ public class PipelineHeaderFormValidatorTest {
         entry("length", Set.of("length.required")),
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
         entry("productsToBeConveyed", Set.of("productsToBeConveyed.required")),
-        entry("trenchedBuriedBackfilled", Set.of("trenchedBuriedBackfilled.required"))
+        entry("pipelineFlexibility", Set.of("pipelineFlexibility.required")),
+        entry("pipelineMaterial", Set.of("pipelineMaterial.required")),
+        entry("pipelineDesignLife", Set.of("pipelineDesignLife.required"))
     );
   }
 
@@ -90,6 +94,23 @@ public class PipelineHeaderFormValidatorTest {
     assertThat(result).isEmpty();
 
   }
+
+  @Test
+  public void invalid_otherMaterialUsed() {
+    var form = buildForm();
+    form.setPipelineMaterial(PipelineMaterial.OTHER);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    assertThat(result).containsOnly(entry("otherPipelineMaterialUsed", Set.of("otherPipelineMaterialUsed.required")));
+  }
+
+  @Test
+  public void invalid_designLife() {
+    var form = buildForm();
+    form.setPipelineDesignLife(0);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    assertThat(result).containsOnly(entry("pipelineDesignLife", Set.of("pipelineDesignLife.invalid")));
+  }
+
 
   private PipelineHeaderForm buildForm() {
 
@@ -121,6 +142,11 @@ public class PipelineHeaderFormValidatorTest {
     form.setProductsToBeConveyed("products");
     form.setTrenchedBuriedBackfilled(true);
     form.setTrenchingMethods("trench methods");
+
+    form.setPipelineFlexibility(PipelineFlexibility.FLEXIBLE);
+    form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
+    form.setPipelineDesignLife(5);
+
 
     return form;
 

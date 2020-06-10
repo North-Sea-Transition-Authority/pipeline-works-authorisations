@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.Optional;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
@@ -66,6 +68,25 @@ public class PipelineHeaderFormValidator implements SmartValidator {
         .filter(tru -> tru)
         .ifPresent(t -> ValidationUtils.rejectIfEmptyOrWhitespace(errors, "trenchingMethods", "trenchingMethods.required",
             "Enter the trenching methods"));
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineFlexibility", "pipelineFlexibility.required",
+        "Select an option for the pipeline flexibility");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineMaterial", "pipelineMaterial.required",
+        "Select an option for the pipeline material");
+
+    if(form.getPipelineMaterial() != null && form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPipelineMaterialUsed", "otherPipelineMaterialUsed.required",
+          "Enter details of other pipeline materials used");
+    }
+
+    ValidationUtils.rejectIfEmpty(errors, "pipelineDesignLife", "pipelineDesignLife.required",
+        "Enter the design life of the pipeline");
+
+    if(form.getPipelineDesignLife() != null && form.getPipelineDesignLife() < 1) {
+      errors.rejectValue("pipelineDesignLife", "pipelineDesignLife.invalid",
+          "Design life of the pipeline must be a positive whole number.");
+    }
 
   }
 

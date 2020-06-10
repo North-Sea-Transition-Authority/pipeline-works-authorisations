@@ -155,6 +155,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setTrenchingMethodsDescription(form.getTrenchingMethods());
     }
 
+    padPipeline.setPipelineFlexibility(form.getPipelineFlexibility());
+    padPipeline.setPipelineMaterial(form.getPipelineMaterial());
+    padPipeline.setOtherPipelineMaterialUsed(form.getOtherPipelineMaterialUsed());
+    padPipeline.setPipelineDesignLife(form.getPipelineDesignLife());
+
     padPipelineRepository.save(padPipeline);
 
   }
@@ -180,6 +185,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
     Optional.ofNullable(form.getTrenchedBuriedBackfilled())
         .filter(tru -> tru)
         .ifPresent(t -> form.setTrenchingMethods(pipeline.getTrenchingMethodsDescription()));
+
+    form.setPipelineFlexibility(pipeline.getPipelineFlexibility());
+    form.setPipelineMaterial(pipeline.getPipelineMaterial());
+    form.setOtherPipelineMaterialUsed(pipeline.getOtherPipelineMaterialUsed());
+    form.setPipelineDesignLife(pipeline.getPipelineDesignLife());
 
   }
 

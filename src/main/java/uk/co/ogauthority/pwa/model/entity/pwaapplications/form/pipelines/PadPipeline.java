@@ -128,7 +128,7 @@ public class PadPipeline {
   private PipelineMaterial pipelineMaterial;
   private String otherPipelineMaterialUsed;
 
-  private int pipelineDesignLife;
+  private Integer pipelineDesignLife;
 
 
   public PadPipeline() {
@@ -277,11 +277,11 @@ public class PadPipeline {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
   }
 
-  public int getPipelineDesignLife() {
+  public Integer getPipelineDesignLife() {
     return pipelineDesignLife;
   }
 
-  public void setPipelineDesignLife(int pipelineDesignLife) {
+  public void setPipelineDesignLife(Integer pipelineDesignLife) {
     this.pipelineDesignLife = pipelineDesignLife;
   }
 
