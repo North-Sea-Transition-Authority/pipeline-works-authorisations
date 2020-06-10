@@ -30,7 +30,7 @@ public class PickPwaForVariationService {
   public PwaApplication createPwaVariationApplicationForPickedPwa(PickablePwa pickedPwa,
                                                                   PwaApplicationType pwaApplicationType,
                                                                   WebUserAccount user) {
-    var masterPwa = pickedPwaRetrievalService.getOrMigratePickedPwa(pickedPwa, user);
+    var masterPwa = pickedPwaRetrievalService.getPickedPwa(pickedPwa, user);
     return pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, pwaApplicationType)
         .getPwaApplication();
   }

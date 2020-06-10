@@ -73,15 +73,15 @@ public class PickedPwaRetrievalServiceTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void getOrMigratePickedPwa_whenUnknownPwaSource() {
+  public void getPickedPwa_whenUnknownPwaSource() {
     when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.UNKNOWN);
-    var masterPwa = pickedPwaRetrievalService.getOrMigratePickedPwa(pickedPwa, webUserAccount);
+    var masterPwa = pickedPwaRetrievalService.getPickedPwa(pickedPwa, webUserAccount);
   }
 
   @Test
-  public void getOrMigratePickedPwa_whenSourceIsMaster() {
+  public void getPickedPwa_whenSourceIsMaster() {
     when(pickedPwa.getPickablePwaSource()).thenReturn(PickablePwaSource.MASTER);
-    pickedPwaRetrievalService.getOrMigratePickedPwa(pickedPwa, webUserAccount);
+    pickedPwaRetrievalService.getPickedPwa(pickedPwa, webUserAccount);
     verify(masterPwaAuthorisationService, times(1)).getMasterPwaIfAuthorised(
         pickedPwa.getContentId(),
         webUserAccount

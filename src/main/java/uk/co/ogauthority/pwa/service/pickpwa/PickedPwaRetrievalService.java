@@ -33,7 +33,7 @@ public class PickedPwaRetrievalService {
   }
 
   @Transactional
-  public MasterPwa getOrMigratePickedPwa(PickablePwa pickedPwaForVariation, WebUserAccount user) {
+  public MasterPwa getPickedPwa(PickablePwa pickedPwaForVariation, WebUserAccount user) {
 
     switch (pickedPwaForVariation.getPickablePwaSource()) {
       case MASTER:

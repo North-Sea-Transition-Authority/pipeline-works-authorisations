@@ -43,14 +43,14 @@ public class PickPwaForVariationServiceTest {
     );
 
     when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any())).thenReturn(new PwaApplicationDetail());
-    when(pickedPwaRetrievalService.getOrMigratePickedPwa(any(), any())).thenReturn(masterPwa);
+    when(pickedPwaRetrievalService.getPickedPwa(any(), any())).thenReturn(masterPwa);
   }
 
   @Test
   public void createPwaVariationApplicationForPickedPwa_verifyServiceInteractions(){
 
     pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(pickablePwa, PwaApplicationType.CAT_1_VARIATION, webUserAccount);
-    verify(pickedPwaRetrievalService, times(1)).getOrMigratePickedPwa(pickablePwa, webUserAccount);
+    verify(pickedPwaRetrievalService, times(1)).getPickedPwa(pickablePwa, webUserAccount);
     verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(webUserAccount, masterPwa, PwaApplicationType.CAT_1_VARIATION);
   }
 
