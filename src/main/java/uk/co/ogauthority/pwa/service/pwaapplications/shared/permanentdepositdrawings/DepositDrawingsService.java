@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -91,7 +92,12 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Transactional
   public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingForm form, WebUserAccount webUserAccount) {
-    var drawing = new PadDepositDrawing();
+    padFileService.updateFiles(
+        form, detail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES, webUserAccount);
+    saveDrawingAndLinks(detail, form, new PadDepositDrawing());
+  }
+
+  private void saveDrawingAndLinks(PwaApplicationDetail detail, PermanentDepositDrawingForm form, PadDepositDrawing drawing) {
     // Validated form will always have 1 file
     PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail,
         form.getUploadedFileWithDescriptionForms().get(0).getUploadedFileId());
@@ -103,12 +109,11 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     for (String padPermanentDepositId: form.getSelectedDeposits()) {
       var padPermanentDeposit = permanentDepositService.getDepositById(Integer.parseInt(padPermanentDepositId))
           .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
+              String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
 
       var drawingLink = new PadDepositDrawingLink(padPermanentDeposit, drawing);
       padDepositDrawingLinkRepository.save(drawingLink);
     }
-    padFileService.updateFiles(form, detail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES, webUserAccount);
   }
 
 
@@ -168,32 +173,30 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         webUserAccount);
 
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find pipeline crossing with ID: " + depositDrawingId));
-    depositDrawing.setReference(form.getReference());
-
+        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find permanent deposit drawing with ID: " + depositDrawingId));
     List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
     padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
-    for (var depositId: form.getSelectedDeposits()) {
-      var depositLink = new PadDepositDrawingLink();
-      depositLink.setPadDepositDrawing(depositDrawing);
-      var deposit = padPermanentDepositRepository.findById(Integer.parseInt(depositId)).orElseThrow(() -> new PwaEntityNotFoundException(
-          String.format("Couldn't find padPermanentDeposit with ID: %s", depositId)));
-      depositLink.setPadPermanentDeposit(deposit);
-      padDepositDrawingLinkRepository.save(depositLink);
-    }
+
+    saveDrawingAndLinks(detail, form, depositDrawing);
   }
 
-  public PadFile deleteLinksAndEntity(int depositDrawingId) {
+  public void removeDrawingAndFile(int depositDrawingId, WebUserAccount webUserAccount) {
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find pipeline crossing with ID: " + depositDrawingId));
-    var padFileDrawing = depositDrawing.getFile();
+        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find permanent deposit drawing with ID: " + depositDrawingId));
     List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
     padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
     padDepositDrawingRepository.delete(depositDrawing);
-    return padFileDrawing;
+    padFileService.processFileDeletion(depositDrawing.getFile(), webUserAccount);
   }
 
+  public Optional<PadDepositDrawing> getDrawingLinkedToPadFile(PwaApplicationDetail applicationDetail, PadFile padFile) {
+    return padDepositDrawingRepository.findByPwaApplicationDetailAndAndFile(applicationDetail, padFile);
+  }
 
+  public void unlinkFile(PadDepositDrawing depositDrawing) {
+    depositDrawing.setFile(null);
+    padDepositDrawingRepository.save(depositDrawing);
+  }
 
 
 

@@ -22,10 +22,8 @@ import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDow
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
@@ -191,7 +189,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                              @PathVariable("depositDrawingId") Integer depositDrawingId,
                                              @ModelAttribute("form") PermanentDepositDrawingForm form,
                                              BindingResult bindingResult) {
-    depositDrawingsService.deleteLinksAndEntity(depositDrawingId);
+    depositDrawingsService.removeDrawingAndFile(depositDrawingId, applicationContext.getUser());
     return ReverseRouter.redirect(on(PermanentDepositDrawingsController.class)
         .renderDepositDrawingsOverview(pwaApplicationType, applicationId, null, null));
   }
@@ -292,7 +290,10 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
+    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser(),
+        padFile -> depositDrawingsService.getDrawingLinkedToPadFile(
+            applicationContext.getApplicationDetail(), applicationContext.getPadFile())
+            .ifPresent(depositDrawingsService::unlinkFile));
   }
 
 
