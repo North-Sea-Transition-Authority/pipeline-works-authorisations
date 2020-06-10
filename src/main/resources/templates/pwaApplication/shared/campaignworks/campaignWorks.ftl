@@ -4,9 +4,40 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="dependencySectionName" type="java.lang.String" -->
 <#-- @ftlvariable name="dependencySectionUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory" -->
 <#-- @ftlvariable name="workScheduleViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView>" -->
+<#-- @ftlvariable name="sectionValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksSummaryValidationResult" -->
 
+
+<#macro campaignWorkScheduleCard workSchedule cardIndex>
+    <#local hasErrors=sectionValidationResult.isWorkScheduleInvalid(workSchedule.getPadCampaignWorkScheduleId())/>
+
+    <@fdsCard.card cardClass=hasErrors?then("fds-card--error", "")>
+        <#local workScheduleFromTo="${workSchedule.getFormattedWorkStartDate()} to ${workSchedule.getFormattedWorkEndDate()}"/>
+
+        <@fdsCard.cardHeader cardHeadingText="Scheduled ${workScheduleFromTo}">
+            <@fdsCard.cardAction cardLinkText="Edit"
+            cardLinkScreenReaderText="Edit work schedule starting ${workScheduleFromTo}"
+            cardLinkUrl=springUrl(urlFactory.editWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
+            />
+            <@fdsCard.cardAction cardLinkText="Remove"
+            cardLinkScreenReaderText="Remove work schedule starting ${workScheduleFromTo}"
+            cardLinkUrl=springUrl(urlFactory.removeWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
+            />
+        </@fdsCard.cardHeader>
+
+        <#if hasErrors>
+          <span id="${workSchedule.getPadCampaignWorkScheduleId()}-error" class="govuk-error-message">
+            Edit this work schedule to fix validation errors
+          </span>
+
+        </#if>
+
+        <@workScheduleView.pipelineList workSchedule=workSchedule tableIdx=cardIndex/>
+
+    </@fdsCard.card>
+</#macro>
 
 <@defaultPage htmlTitle="Campaign works" pageHeading="Campaign works" breadcrumbs=true fullWidthColumn=true>
 
@@ -17,23 +48,17 @@
     <@fdsAction.link linkText="Add work schedule" linkUrl=springUrl(urlFactory.addWorkScheduleUrl()) linkClass="govuk-button govuk-button--blue"/>
 
     <#list workScheduleViewList as workSchedule>
-        <@fdsCard.card>
-            <#assign workScheduleFromTo="${workSchedule.getFormattedWorkStartDate()} to ${workSchedule.getFormattedWorkEndDate()}"/>
-
-            <@fdsCard.cardHeader cardHeadingText="Scheduled ${workScheduleFromTo}">
-                <@fdsCard.cardAction cardLinkText="Edit"
-                  cardLinkScreenReaderText="Edit work schedule starting ${workScheduleFromTo}"
-                  cardLinkUrl=springUrl(urlFactory.editWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
-                 />
-                <@fdsCard.cardAction cardLinkText="Remove"
-                cardLinkScreenReaderText="Remove work schedule starting ${workScheduleFromTo}"
-                cardLinkUrl=springUrl(urlFactory.removeWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
-                />
-            </@fdsCard.cardHeader>
-
-            <@workScheduleView.pipelineList workSchedule=workSchedule tableIdx=workSchedule?index?string/>
-
-        </@fdsCard.card>
+        <@campaignWorkScheduleCard workSchedule=workSchedule cardIndex=workSchedule?index?string/>
     </#list>
+
+    <@fdsForm.htmlForm>
+        <@fdsAction.submitButtons
+        errorMessage=sectionValidationResult.getCompleteSectionErrorMessage()!""
+        primaryButtonText="Complete"
+        linkSecondaryAction=true
+        secondaryLinkText="Back to task list"
+        linkSecondaryActionUrl=springUrl(backUrl)
+        />
+    </@fdsForm.htmlForm>
 
 </@defaultPage>

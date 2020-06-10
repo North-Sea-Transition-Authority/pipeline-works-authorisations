@@ -83,11 +83,38 @@ public class CampaignWorksController {
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                     @PathVariable("applicationId") int applicationId,
                                     PwaApplicationContext applicationContext) {
+    return createSummaryModelAndView(applicationContext);
+  }
+
+  @PostMapping
+  public ModelAndView postSummary(@PathVariable("applicationType")
+                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                  @PathVariable("applicationId") int applicationId,
+                                  PwaApplicationContext applicationContext) {
+    // Seems to be the pattern to accept a post on summary pages.
+    // when section is "complete" redirect to task list, else simply reload page.
+    var validationResult = campaignWorksService.getCampaignWorksValidationResult(
+        applicationContext.getApplicationDetail());
+    if (validationResult.isComplete()) {
+      return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+    } else {
+      return createSummaryModelAndView(applicationContext);
+    }
+  }
+
+  private ModelAndView createSummaryModelAndView(PwaApplicationContext applicationContext) {
     var modelAndView = new ModelAndView("pwaApplication/shared/campaignworks/campaignWorks")
         .addObject("dependencySectionName", ApplicationTask.PROJECT_INFORMATION.getDisplayName())
         .addObject("dependencySectionUrl", ReverseRouter.route(on(ProjectInformationController.class)
-            .renderProjectInformation(pwaApplicationType, applicationId, null, null)))
+            .renderProjectInformation(
+                applicationContext.getApplicationType(),
+                applicationContext.getMasterPwaApplicationId(),
+                null,
+                null)))
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
         .addObject("urlFactory", new CampaignWorksUrlFactory(applicationContext.getApplicationDetail()))
+        .addObject("sectionValidationResult",
+            campaignWorksService.getCampaignWorksValidationResult(applicationContext.getApplicationDetail()))
         .addObject("workScheduleViewList",
             campaignWorksService.getWorkScheduleViews(applicationContext.getApplicationDetail())
                 .stream()
@@ -96,6 +123,7 @@ public class CampaignWorksController {
                 .collect(Collectors.toList())
         );
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Campaign Works");
+
     return modelAndView;
   }
 

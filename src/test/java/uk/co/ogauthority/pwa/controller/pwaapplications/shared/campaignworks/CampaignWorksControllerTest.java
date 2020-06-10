@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksSummaryValidationResult;
 import uk.co.ogauthority.pwa.util.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
@@ -79,6 +80,9 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
 
   private PadCampaignWorkSchedule schedule;
 
+  @Mock
+  private CampaignWorksSummaryValidationResult campaignWorksSummaryValidationResult;
+
   @Before
   public void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCampaignWorksOverview(any(), any(), any());
@@ -105,6 +109,9 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
 
     when(campaignWorksService.getWorkScheduleOrError(any(), eq(SCHEDULE_ID))).thenReturn(schedule);
     when(campaignWorksService.createWorkScheduleView(schedule)).thenReturn(workScheduleViewMock);
+
+    when(campaignWorksService.getCampaignWorksValidationResult(any()))
+        .thenReturn(campaignWorksSummaryValidationResult);
   }
 
   @Test
