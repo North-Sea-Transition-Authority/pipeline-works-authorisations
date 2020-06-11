@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.Cam
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
@@ -85,12 +86,12 @@ public class TaskListService {
   @VisibleForTesting
   public List<TaskListEntry> getAppInfoTasks(PwaApplication application) {
     return List.of(
-      new TaskListEntry(
-          "Application contacts",
-          ReverseRouter.route(on(PwaContactController.class)
-            .renderContactsScreen(application.getApplicationType(), application.getId(), null)),
-          false,
-          List.of(new TaskInfo("CONTACT", pwaContactService.countContactsByPwaApplication(application))))
+        new TaskListEntry(
+            "Application contacts",
+            ReverseRouter.route(on(PwaContactController.class)
+                .renderContactsScreen(application.getApplicationType(), application.getId(), null)),
+            false,
+            List.of(new TaskInfo("CONTACT", pwaContactService.countContactsByPwaApplication(application))))
     );
   }
 
@@ -171,6 +172,9 @@ public class TaskListService {
       case PIPELINES:
         return ReverseRouter.route(on(PipelinesController.class)
             .renderPipelinesOverview(applicationId, applicationType, null));
+      case PIPELINES_HUOO:
+        return ReverseRouter.route(on(PipelinesHuooController.class)
+            .renderSummary(applicationType, applicationId, null));
       case CAMPAIGN_WORKS:
         return ReverseRouter.route(on(CampaignWorksController.class)
             .renderSummary(applicationType, applicationId, null));

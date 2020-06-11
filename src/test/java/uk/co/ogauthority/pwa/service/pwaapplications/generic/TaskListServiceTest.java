@@ -154,6 +154,7 @@ public class TaskListServiceTest {
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
                 ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName(),
                 ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
                 ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
                 ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
@@ -191,6 +192,7 @@ public class TaskListServiceTest {
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName(),
                 ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
                 ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
@@ -201,7 +203,8 @@ public class TaskListServiceTest {
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.FAST_TRACK.getDisplayName(),
-                ApplicationTask.HUOO.getDisplayName()
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName()
             );
             break;
         }
