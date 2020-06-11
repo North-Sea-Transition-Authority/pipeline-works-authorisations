@@ -13,12 +13,20 @@ public class PermanentDepositDrawingView {
   private String fileName;
   private Set<String> depositReferences;
 
+
+  public PermanentDepositDrawingView(Integer depositDrawingId, String reference,
+                                     Set<String> depositReferences) {
+    this.depositDrawingId = depositDrawingId;
+    this.reference = reference;
+    this.depositReferences = depositReferences;
+  }
+
   public PermanentDepositDrawingView(Integer depositDrawingId, String reference,
                                      Set<String> depositReferences, UploadedFileView uploadedFileView) {
     this.depositDrawingId = depositDrawingId;
     this.reference = reference;
     this.depositReferences = depositReferences;
-    this.documentDescription = uploadedFileView.getFileDescription();
+    this.documentDescription = uploadedFileView != null ? uploadedFileView.getFileDescription() : "";
     this.fileId = uploadedFileView.getFileId();
     this.fileName = uploadedFileView.getFileName();
   }

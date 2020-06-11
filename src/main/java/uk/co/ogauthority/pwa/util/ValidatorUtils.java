@@ -219,12 +219,9 @@ public class ValidatorUtils {
       var date = LocalDate.of(year, month, 1);
       var targetDate = LocalDate.of(targetYear, targetMonth, 1);
       if (date.isBefore(targetDate) || date.isAfter(targetDate.plusMonths(monthRange))) {
-        errors.rejectValue(fieldPrefix + "Month",
-            String.format("%sMonth%s", fieldPrefix, ".outOfTargetRange"),
-            "Month must be after from date and within " + monthRange + " months");
-        errors.rejectValue(fieldPrefix + "Year",
-            String.format("%sYear%s", fieldPrefix, ".outOfTargetRange"),
-            "Year must be after from date and within " + monthRange + " months");
+        errors.rejectValue(fieldPrefix,
+            fieldPrefix + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode(),
+            "Month and year must be after from date and within " + monthRange + " months");
         return false;
       }
       return true;

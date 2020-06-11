@@ -13,7 +13,7 @@ import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 public class LocationDetailsValidatorTest {
 

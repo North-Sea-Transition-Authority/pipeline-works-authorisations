@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.util.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadOrganisationRoleServiceTest {

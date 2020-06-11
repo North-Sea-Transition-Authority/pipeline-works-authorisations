@@ -86,6 +86,7 @@ public class PermanentDepositViewMappingServiceTest {
 
   public void setEntityOtherProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.OTHER);
+    entity.setOtherMaterialType("metal");
     entity.setMaterialSize("43");
   }
 
@@ -124,6 +125,7 @@ public class PermanentDepositViewMappingServiceTest {
     var entity = buildBaseEntity();
     setEntityOtherProperties(entity);
     view.setMaterialType(MaterialType.OTHER);
+    view.setOtherMaterialType(entity.getOtherMaterialType());
     view.setOtherMaterialSize(entity.getMaterialSize());
     view.setQuantityOther(String.valueOf(entity.getQuantity()));
     view.setContingencyOtherAmount(entity.getContingencyAmount());

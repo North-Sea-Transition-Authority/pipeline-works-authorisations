@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.testutils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

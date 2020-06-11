@@ -7,6 +7,7 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 
 /**
@@ -22,10 +23,8 @@ public class PermanentDepositEntityMappingService {
 
     form.setEntityID(entity.getId());
     form.setDepositReference(entity.getReference());
-    form.setFromMonth(entity.getFromMonth());
-    form.setFromYear(entity.getFromYear());
-    form.setToMonth(entity.getToMonth());
-    form.setToYear(entity.getToYear());
+    form.setFromDate(new TwoFieldDateInput(entity.getFromYear(), entity.getFromMonth()));
+    form.setToDate(new TwoFieldDateInput(entity.getToYear(), entity.getToMonth()));
 
     if (entity.getMaterialType() != null) {
       form.setMaterialType(entity.getMaterialType());
@@ -50,6 +49,7 @@ public class PermanentDepositEntityMappingService {
         form.setBioGroutBagsNotUsedDescription(entity.getBagsNotUsedDescription());
 
       } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
+        form.setOtherMaterialType(entity.getOtherMaterialType());
         form.setOtherMaterialSize(entity.getMaterialSize());
         form.setQuantityOther(String.valueOf(entity.getQuantity()));
         form.setContingencyOtherAmount(entity.getContingencyAmount());
@@ -72,10 +72,10 @@ public class PermanentDepositEntityMappingService {
 
     entity.setId(form.getEntityID());
     entity.setReference(form.getDepositReference());
-    entity.setFromMonth(form.getFromMonth());
-    entity.setFromYear(form.getFromYear());
-    entity.setToMonth(form.getToMonth());
-    entity.setToYear(form.getToYear());
+    entity.setFromMonth(Integer.parseInt(form.getFromDate().getMonth()));
+    entity.setFromYear(Integer.parseInt(form.getFromDate().getYear()));
+    entity.setToMonth(Integer.parseInt(form.getToDate().getMonth()));
+    entity.setToYear(Integer.parseInt(form.getToDate().getYear()));
 
     entity.setMaterialType(form.getMaterialType());
 
@@ -99,6 +99,7 @@ public class PermanentDepositEntityMappingService {
       entity.setBagsNotUsedDescription(form.getBioGroutBagsNotUsedDescription());
 
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
+      entity.setOtherMaterialType(form.getOtherMaterialType());
       entity.setMaterialSize(String.valueOf(form.getOtherMaterialSize()));
       entity.setQuantity(Double.parseDouble(form.getQuantityOther()));
       entity.setContingencyAmount(form.getContingencyOtherAmount());
@@ -144,6 +145,7 @@ public class PermanentDepositEntityMappingService {
         view.setBioGroutBagsNotUsedDescription(entity.getBagsNotUsedDescription());
 
       } else if (view.getMaterialType().equals(MaterialType.OTHER)) {
+        view.setOtherMaterialType(entity.getOtherMaterialType());
         view.setOtherMaterialSize(entity.getMaterialSize());
         view.setQuantityOther(String.valueOf(entity.getQuantity()));
         view.setContingencyOtherAmount(entity.getContingencyAmount());

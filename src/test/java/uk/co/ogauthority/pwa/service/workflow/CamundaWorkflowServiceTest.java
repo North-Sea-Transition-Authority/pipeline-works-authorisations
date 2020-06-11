@@ -113,4 +113,36 @@ public class CamundaWorkflowServiceTest {
 
   }
 
+  @Test
+  public void getAssignedTasks() {
+
+    var person = new Person(11, null, null, null, null);
+
+    camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
+
+    camundaWorkflowService.assignTaskToUser(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW), person);
+
+    var assignedTasks = camundaWorkflowService.getAssignedTasks(person);
+
+    assertThat(assignedTasks.size()).isEqualTo(1);
+
+    var task = assignedTasks.iterator().next();
+
+    assertThat(task.getBusinessKey()).isEqualTo(application.getBusinessKey());
+    assertThat(task.getTaskDefinitionKey()).isEqualTo(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW.getTaskKey());
+    assertThat(task.getWorkflowType()).isEqualTo(WorkflowType.PWA_APPLICATION);
+    assertThat(task.getAssignee()).isEqualTo(person);
+
+  }
+
+  @Test
+  public void getAssignedTasks_noTasks() {
+
+    var person = new Person(2, null, null, null, null);
+    assertThat(camundaWorkflowService.getAssignedTasks(person)).isEmpty();
+
+  }
+
 }

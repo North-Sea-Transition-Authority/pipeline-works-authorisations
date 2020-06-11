@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
-import uk.co.ogauthority.pwa.util.TeamTestingUtils;
+import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TeamServiceTest {

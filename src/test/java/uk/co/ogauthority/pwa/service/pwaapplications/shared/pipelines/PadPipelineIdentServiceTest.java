@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -268,6 +269,189 @@ public class PadPipelineIdentServiceTest {
 
     assertThat((List<PadPipelineIdent>) captor.getValue()).extracting(PadPipelineIdent::getIdentNo)
         .containsExactly(1, 2);
+  }
+
+  @Test
+  public void updateIdent() {
+    var form = new PipelineIdentForm();
+    form.setFromLocation("from");
+    form.setToLocation("to");
+    form.setLength(BigDecimal.ONE);
+
+    form.setFromCoordinateForm(new CoordinateForm());
+    form.setToCoordinateForm(new CoordinateForm());
+    CoordinateUtils.mapCoordinatePairToForm(new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ZERO, LongitudeDirection.EAST)
+    ), form.getFromCoordinateForm());
+    CoordinateUtils.mapCoordinatePairToForm(new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ZERO, LongitudeDirection.EAST)
+    ), form.getToCoordinateForm());
+    form.setDataForm(new PipelineIdentDataForm());
+    var ident = new PadPipelineIdent();
+    identService.updateIdent(ident, form);
+    verify(repository, times(1)).save(ident);
+    verify(identDataService, times(1)).updateIdentData(ident, form.getDataForm());
+
+    assertThat(ident.getFromCoordinates()).isEqualTo(
+        CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
+    assertThat(ident.getFromCoordinates()).isEqualTo(
+        CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
+    assertThat(ident.getFromLocation()).isEqualTo(form.getFromLocation());
+    assertThat(ident.getToLocation()).isEqualTo(form.getToLocation());
+    assertThat(ident.getLength()).isEqualTo(form.getLength());
+  }
+
+  @Test
+  public void mapEntityToForm() {
+    var form = new PipelineIdentForm();
+    var ident = new PadPipelineIdent();
+
+    ident.setFromLocation("from");
+    ident.setToLocation("to");
+    ident.setLength(BigDecimal.ONE);
+    ident.setFromCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ZERO, LongitudeDirection.EAST)
+    ));
+    ident.setToCoordinates(new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ZERO, LongitudeDirection.EAST)
+    ));
+    form.setDataForm(new PipelineIdentDataForm());
+
+    identService.mapEntityToForm(ident, form);
+
+    var coordinateFromForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), coordinateFromForm);
+    assertThat(form.getFromCoordinateForm()).isEqualTo(coordinateFromForm);
+
+    var coordinateToForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(ident.getToCoordinates(), coordinateToForm);
+    assertThat(form.getFromCoordinateForm()).isEqualTo(coordinateFromForm);
+
+    assertThat(form.getFromLocation()).isEqualTo(ident.getFromLocation());
+    assertThat(form.getToLocation()).isEqualTo(ident.getToLocation());
+    assertThat(form.getLength()).isEqualTo(ident.getLength());
+  }
+
+  @Test
+  public void validateSection_valid() {
+    var padPipeline = new PadPipeline();
+    when(repository.countAllByPadPipeline(padPipeline)).thenReturn(1L);
+    var valid = identService.isSectionValid(padPipeline);
+    assertThat(valid).isTrue();
+  }
+
+  @Test
+  public void validateSection_invalid() {
+    var padPipeline = new PadPipeline();
+    when(repository.countAllByPadPipeline(padPipeline)).thenReturn(0L);
+    var valid = identService.isSectionValid(padPipeline);
+    assertThat(valid).isFalse();
+  }
+
+  @Test
+  public void getIdentByIdentNumber_serviceInteraction() {
+    var pipeline = new PadPipeline();
+    var ident = new PadPipelineIdent();
+    when(repository.getByPadPipelineAndAndIdentNo(pipeline, 1)).thenReturn(Optional.of(ident));
+    var result = identService.getIdentByIdentNumber(pipeline, 1);
+    assertThat(result).isPresent();
+    assertThat(result.get()).isEqualTo(ident);
+  }
+
+  @Test
+  public void addIdentAtPosition_serviceInteractionAndCheckData() throws IllegalAccessException {
+
+    var form = new PipelineIdentForm();
+    form.setFromLocation("from");
+    var fromCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
+            new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
+        ), fromCoordinateForm
+    );
+    form.setFromCoordinateForm(fromCoordinateForm);
+    form.setToLocation("to");
+    var toCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(46, 46, BigDecimal.valueOf(46), LatitudeDirection.SOUTH),
+            new LongitudeCoordinate(6, 6, BigDecimal.valueOf(6.66), LongitudeDirection.WEST)
+        ), toCoordinateForm
+    );
+    form.setToCoordinateForm(toCoordinateForm);
+    form.setLength(BigDecimal.valueOf(65.5));
+
+    var dataForm = new PipelineIdentDataForm();
+    dataForm.setExternalDiameter(BigDecimal.valueOf(12.1));
+    dataForm.setInternalDiameter(BigDecimal.valueOf(12.1));
+    dataForm.setWallThickness(BigDecimal.valueOf(12.1));
+    dataForm.setMaop(BigDecimal.valueOf(12.1));
+    dataForm.setProductsToBeConveyed("prod");
+    dataForm.setComponentPartsDescription("component");
+    dataForm.setInsulationCoatingType("ins");
+    form.setDataForm(dataForm);
+
+    var pipeline = new PadPipeline();
+    var ident = new PadPipelineIdent();
+    ident.setIdentNo(1);
+
+    when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
+
+    identService.addIdentAtPosition(pipeline, form, 1);
+
+    assertThat(ident.getIdentNo()).isEqualTo(2);
+
+
+    var saveCaptor = ArgumentCaptor.forClass(PadPipelineIdent.class);
+    verify(repository, times(1)).save(saveCaptor.capture());
+    verify(repository, times(1)).saveAll(List.of(ident));
+    verify(identDataService, times(1)).addIdentData(saveCaptor.getValue(), form.getDataForm());
+
+    var newIdent = saveCaptor.getValue();
+
+    assertThat(newIdent.getIdentNo()).isEqualTo(1);
+    assertThat(newIdent.getPadPipeline()).isEqualTo(pipeline);
+    assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLatitudeDegrees")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLatitudeMinutes")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLatitudeSeconds")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLatitudeDirection")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLongitudeDegrees")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLongitudeMinutes")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLongitudeSeconds")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newIdent, "fromLongitudeDirection")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeDirection());
+
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLatitudeDegrees")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLatitudeMinutes")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLatitudeSeconds")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLatitudeDirection")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLongitudeDegrees")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLongitudeMinutes")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLongitudeSeconds")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newIdent, "toLongitudeDirection")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeDirection());
+
+    assertThat(newIdent.getLength()).isEqualTo(form.getLength());
   }
 
 }

@@ -55,6 +55,9 @@
                     <td class="govuk-table__cell">
                       <ul class="govuk-list">
                         <li><strong class="govuk-tag govuk-tag--blue">${item.padDisplayStatus}</strong></li>
+                        <#if item.caseOfficerName?has_content>
+                          <li>Case officer: ${item.caseOfficerName}</li>
+                        </#if>
                         <li>Status set: ${item.getFormattedStatusSetDatetime()}</li>
                         <#if item.wasSubmittedAsFastTrack()>
                           <li><strong class="govuk-tag govuk-tag--${item.isFastTrackAccepted()?then("green", "red")}">${item.getFastTrackLabelText()}</strong></li>

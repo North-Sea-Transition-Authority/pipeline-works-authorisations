@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
-import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.CrossingTypesFormValidator;
 
 @RunWith(SpringRunner.class)

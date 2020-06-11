@@ -45,8 +45,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
-import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
-import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CableCrossingController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))

@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ValidationUtils;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.AfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.BeforeDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;

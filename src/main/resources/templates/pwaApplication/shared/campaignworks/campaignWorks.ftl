@@ -1,12 +1,43 @@
 <#include '../../../layout.ftl'>
-<#import '../pipelines/pipelineOverview.ftl' as pipelineOverviewMacro>
+<#import 'workScheduleView.ftl' as workScheduleView>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="dependencySectionName" type="java.lang.String" -->
 <#-- @ftlvariable name="dependencySectionUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory" -->
 <#-- @ftlvariable name="workScheduleViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView>" -->
+<#-- @ftlvariable name="sectionValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksSummaryValidationResult" -->
 
+
+<#macro campaignWorkScheduleCard workSchedule cardIndex>
+    <#local hasErrors=sectionValidationResult.isWorkScheduleInvalid(workSchedule.getPadCampaignWorkScheduleId())/>
+
+    <@fdsCard.card cardClass=hasErrors?then("fds-card--error", "")>
+        <#local workScheduleFromTo="${workSchedule.getFormattedWorkStartDate()} to ${workSchedule.getFormattedWorkEndDate()}"/>
+
+        <@fdsCard.cardHeader cardHeadingText="Scheduled ${workScheduleFromTo}">
+            <@fdsCard.cardAction cardLinkText="Edit"
+            cardLinkScreenReaderText="Edit work schedule starting ${workScheduleFromTo}"
+            cardLinkUrl=springUrl(urlFactory.editWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
+            />
+            <@fdsCard.cardAction cardLinkText="Remove"
+            cardLinkScreenReaderText="Remove work schedule starting ${workScheduleFromTo}"
+            cardLinkUrl=springUrl(urlFactory.removeWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
+            />
+        </@fdsCard.cardHeader>
+
+        <#if hasErrors>
+          <span id="${workSchedule.getPadCampaignWorkScheduleId()}-error" class="govuk-error-message">
+            Edit this work schedule to fix validation errors
+          </span>
+
+        </#if>
+
+        <@workScheduleView.pipelineList workSchedule=workSchedule tableIdx=cardIndex/>
+
+    </@fdsCard.card>
+</#macro>
 
 <@defaultPage htmlTitle="Campaign works" pageHeading="Campaign works" breadcrumbs=true fullWidthColumn=true>
 
@@ -17,41 +48,17 @@
     <@fdsAction.link linkText="Add work schedule" linkUrl=springUrl(urlFactory.addWorkScheduleUrl()) linkClass="govuk-button govuk-button--blue"/>
 
     <#list workScheduleViewList as workSchedule>
-        <@fdsCard.card>
-            <@fdsCard.cardHeader cardHeadingText="Scheduled ${workSchedule.getFormattedWorkStartDate()} to ${workSchedule.getFormattedWorkEndDate()}">
-                <@fdsCard.cardAction cardLinkText="Edit"
-                  cardLinkScreenReaderText="Edit work schedule starting ${workSchedule.getFormattedWorkStartDate()} and ending ${workSchedule.getFormattedWorkEndDate()}"
-                  cardLinkUrl=springUrl(urlFactory.editWorkScheduleUrl(workSchedule.getPadCampaignWorkScheduleId()))
-                 />
-            </@fdsCard.cardHeader>
-
-            <#if workSchedule.getSchedulePipelines()?hasContent>
-                <table id="work-schedule-${workSchedule?index}" class="govuk-table">
-                    <thead class="govuk-table__head">
-                    <tr class="govuk-table__row">
-                        <th class="govuk-table__header" scope="col">Pipeline number</th>
-                        <th class="govuk-table__header" scope="col">Pipeline type</th>
-                        <th class="govuk-table__header" scope="col">From</th>
-                        <th class="govuk-table__header" scope="col">To</th>
-                        <th class="govuk-table__header" scope="col">Length</th>
-                    </tr>
-                    </thead>
-                    <tbody class="govuk-table__body">
-                    <#list workSchedule.schedulePipelines as pipeline>
-                        <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">${pipeline.pipelineNumber}</td>
-                            <td class="govuk-table__cell">${pipeline.pipelineTypeDisplayName}</td>
-                            <td class="govuk-table__cell">${pipeline.fromLocation}</td>
-                            <td class="govuk-table__cell">${pipeline.toLocation}</td>
-                            <td class="govuk-table__cell">${pipeline.metreLength}</td>
-                        </tr>
-                    </#list>
-                    </tbody>
-                </table>
-            <#else>
-                <p class="govuk-body">No pipelines have been added to this work schedule</p>
-            </#if>
-        </@fdsCard.card>
+        <@campaignWorkScheduleCard workSchedule=workSchedule cardIndex=workSchedule?index?string/>
     </#list>
+
+    <@fdsForm.htmlForm>
+        <@fdsAction.submitButtons
+        errorMessage=sectionValidationResult.getCompleteSectionErrorMessage()!""
+        primaryButtonText="Complete"
+        linkSecondaryAction=true
+        secondaryLinkText="Back to task list"
+        linkSecondaryActionUrl=springUrl(backUrl)
+        />
+    </@fdsForm.htmlForm>
 
 </@defaultPage>

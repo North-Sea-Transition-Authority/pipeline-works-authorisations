@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -94,22 +95,61 @@ public class PadPipelineIdentService {
 
     saveEntityUsingForm(ident, form);
 
-    identDataService.addIdentData(ident, form.getDataForm());
+  }
 
+  @Transactional
+  public void addIdentAtPosition(PadPipeline pipeline, PipelineIdentForm form, Integer position) {
+
+    var ident = new PadPipelineIdent(pipeline, position);
+
+    var idents = repository.getAllByPadPipeline(pipeline);
+    idents.stream()
+        .filter(existingIdent -> existingIdent.getIdentNo() >= position)
+        .forEachOrdered(existingIdent -> existingIdent.setIdentNo(existingIdent.getIdentNo() + 1));
+
+    repository.saveAll(idents);
+
+    saveEntityUsingForm(ident, form);
+
+  }
+
+  @Transactional
+  public Optional<PadPipelineIdent> getIdentByIdentNumber(PadPipeline pipeline, Integer identNumber) {
+    return repository.getByPadPipelineAndAndIdentNo(pipeline, identNumber);
+  }
+
+  @Transactional
+  public void updateIdent(PadPipelineIdent ident, PipelineIdentForm form) {
+    saveEntityUsingForm(ident, form);
+    identDataService.updateIdentData(ident, form.getDataForm());
   }
 
   public void saveEntityUsingForm(PadPipelineIdent ident, PipelineIdentForm form) {
 
     ident.setFromLocation(form.getFromLocation());
     ident.setFromCoordinates(CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
-
     ident.setToLocation(form.getToLocation());
     ident.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
-
     ident.setLength(form.getLength());
 
     repository.save(ident);
 
+    identDataService.addIdentData(ident, form.getDataForm());
+  }
+
+  public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form) {
+    var fromForm = new CoordinateForm();
+    var toForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), fromForm);
+    CoordinateUtils.mapCoordinatePairToForm(ident.getToCoordinates(), toForm);
+
+    form.setFromCoordinateForm(fromForm);
+    form.setToCoordinateForm(toForm);
+    form.setFromLocation(ident.getFromLocation());
+    form.setLength(ident.getLength());
+    form.setToLocation(ident.getToLocation());
+    var dataForm = identDataService.getDataFormOfIdent(ident);
+    form.setDataForm(dataForm);
   }
 
   @Transactional
@@ -123,6 +163,10 @@ public class PadPipelineIdentService {
         .forEachOrdered(ident -> ident.setIdentNo(ident.getIdentNo() - 1));
 
     repository.saveAll(remainingIdents);
+  }
+
+  public boolean isSectionValid(PadPipeline pipeline) {
+    return !repository.countAllByPadPipeline(pipeline).equals(0L);
   }
 
 }

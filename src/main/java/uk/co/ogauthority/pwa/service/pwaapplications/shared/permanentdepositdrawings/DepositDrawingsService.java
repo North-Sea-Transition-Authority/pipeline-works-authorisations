@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -27,7 +26,6 @@ import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -75,16 +73,18 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   public void mapEntityToForm(PwaApplicationDetail detail, PadDepositDrawing depositDrawing, PermanentDepositDrawingForm form) {
     var depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
-    var file = padFileService.getUploadedFileView(detail, depositDrawing.getFile().getFileId(),
-        ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
-
     form.setReference(depositDrawing.getReference());
     form.setSelectedDeposits(depositDrawingLinks
         .stream()
         .map(depositDrawingLink -> depositDrawingLink.getPadPermanentDeposit().getId().toString())
         .collect(Collectors.toSet()));
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
+
+    if (depositDrawing.getFile() != null) {
+      var file = padFileService.getUploadedFileView(detail, depositDrawing.getFile().getFileId(),
+          ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+      form.setUploadedFileWithDescriptionForms(List.of(
+          new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
+    }
   }
 
   @Transactional
@@ -93,6 +93,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         form, detail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES, webUserAccount);
     saveDrawingAndLinks(detail, form, new PadDepositDrawing());
   }
+
 
   private void saveDrawingAndLinks(PwaApplicationDetail detail, PermanentDepositDrawingForm form, PadDepositDrawing drawing) {
     // Validated form will always have 1 file
@@ -138,13 +139,16 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         .map(drawingLink -> drawingLink.getPadPermanentDeposit().getReference())
         .collect(Collectors.toUnmodifiableSet());
 
-    UploadedFileView fileView = fileViewList.stream()
-        .filter(uploadedFileView -> uploadedFileView.getFileId().equals(depositDrawing.getFile().getFileId()))
-        .findFirst()
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            "Unable to get UploadedFileView of file with ID: " + depositDrawing.getFile().getFileId()));
+    if (fileViewList.size() > 0 && depositDrawing.getFile() != null) {
+      UploadedFileView fileView = fileViewList.stream()
+          .filter(uploadedFileView -> uploadedFileView.getFileId().equals(depositDrawing.getFile().getFileId()))
+          .findFirst()
+          .orElseThrow(() -> new PwaEntityNotFoundException(
+              "Unable to get UploadedFileView of file with ID: " + depositDrawing.getFile().getFileId()));
+      return new PermanentDepositDrawingView(depositDrawing.getId(), depositDrawing.getReference(), depositReferences, fileView);
+    }
 
-    return new PermanentDepositDrawingView(depositDrawing.getId(), depositDrawing.getReference(), depositReferences, fileView);
+    return new PermanentDepositDrawingView(depositDrawing.getId(), depositDrawing.getReference(), depositReferences);
   }
 
   @Transactional
@@ -207,8 +211,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     return bindingResult;
   }
 
-  public BindingResult validate(Object form, BindingResult bindingResult,
-                                ValidationType validationType, PwaApplicationDetail pwaApplicationDetail, Integer padDepositDrawingId) {
+  public BindingResult validateDrawingEdit(Object form, BindingResult bindingResult, ValidationType validationType,
+                                           PwaApplicationDetail pwaApplicationDetail, Integer padDepositDrawingId) {
     permanentDepositsDrawingValidator.validate(form, bindingResult, this, pwaApplicationDetail, padDepositDrawingId);
     return bindingResult;
   }

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
@@ -31,18 +34,20 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.CampaignWorkScheduleValidationHint;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CampaignWorksServiceTest {
+
+  private static final int SCHEDULE_ID = 1;
+  private static final int INVALID_SCHEDULE_ID = 2;
 
   @Mock
   private PadProjectInformationService padProjectInformationService;
@@ -68,6 +73,8 @@ public class CampaignWorksServiceTest {
 
   private WorkScheduleForm workScheduleForm;
 
+  private PadCampaignWorkSchedule workSchedule;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
@@ -89,12 +96,23 @@ public class CampaignWorksServiceTest {
     padPipelineIdList = List.of(pipe1.getId(), pipe2.getId());
 
     workScheduleForm = new WorkScheduleForm();
+
     workScheduleForm.setWorkStart(new TwoFieldDateInput(2020, 2));
     workScheduleForm.setWorkEnd(new TwoFieldDateInput(2021, 1));
     workScheduleForm.setPadPipelineIds(padPipelineIdList);
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, padPipelineIdList)).thenReturn(padPipelineList);
     when(workScheduleFormValidator.supports(any())).thenCallRealMethod();
+
+    workSchedule = new PadCampaignWorkSchedule();
+    workSchedule.setId(SCHEDULE_ID);
+    workSchedule.setPwaApplicationDetail(pwaApplicationDetail);
+    workSchedule.setWorkFromDate(LocalDate.MIN);
+    workSchedule.setWorkToDate(LocalDate.MAX);
+
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, SCHEDULE_ID))
+        .thenReturn(Optional.of(workSchedule));
+
 
   }
 
@@ -110,7 +128,7 @@ public class CampaignWorksServiceTest {
   @Test
   public void canShowInTaskList_whennAppPipelines_andCampaignApproachIsUsed() {
     when(padProjectInformationService.isCampaignApproachBeingUsed(pwaApplicationDetail)).thenReturn(true);
-    when(padPipelineService.totalPipelineContainedInApplication(pwaApplicationDetail)).thenReturn(1L);
+    when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail)).thenReturn(1L);
 
     assertThat(campaignWorksService.canShowInTaskList(pwaApplicationDetail)).isTrue();
   }
@@ -118,7 +136,7 @@ public class CampaignWorksServiceTest {
   @Test
   public void canShowInTaskList_whenNoAppPipelines_andCampaignApproachIsUsed() {
     when(padProjectInformationService.isCampaignApproachBeingUsed(pwaApplicationDetail)).thenReturn(true);
-    when(padPipelineService.totalPipelineContainedInApplication(pwaApplicationDetail)).thenReturn(0L);
+    when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail)).thenReturn(0L);
 
     assertThat(campaignWorksService.canShowInTaskList(pwaApplicationDetail)).isFalse();
   }
@@ -180,11 +198,6 @@ public class CampaignWorksServiceTest {
     when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(schedule1Pipeline1, schedule2Pipeline1, schedule2Pipeline2));
 
-    var pipe1Overview = new PadPipelineOverview(pipe1, 1L);
-    var pipe2Overview = new PadPipelineOverview(pipe2, 2L);
-
-    when(padPipelineService.getPipelineOverviews(pwaApplicationDetail))
-        .thenReturn(List.of(pipe1Overview, pipe2Overview));
 
     var workScheduleViewList = campaignWorksService.getWorkScheduleViews(pwaApplicationDetail);
 
@@ -363,5 +376,177 @@ public class CampaignWorksServiceTest {
     assertThat(emptyForm.getWorkEnd()).isEqualTo(new TwoFieldDateInput(toDate));
 
   }
+
+  @Test(expected= PwaEntityNotFoundException.class)
+  public void getWorkScheduleOrError_unknownId(){
+
+    campaignWorksService.getWorkScheduleOrError(pwaApplicationDetail, 123);
+
+  }
+
+  @Test
+  public void getWorkScheduleOrError_validId(){
+
+    var workSchedule = campaignWorksService.getWorkScheduleOrError(pwaApplicationDetail, SCHEDULE_ID );
+
+  }
+
+  @Test
+  public void removeCampaignWorksSchedule_serviceInteractions(){
+
+    var schedulePipeline = new PadCampaignWorksPipeline(workSchedule, pipe1);
+
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
+        workSchedule)).thenReturn(List.of(schedulePipeline));
+    campaignWorksService.removeCampaignWorksSchedule(workSchedule);
+
+    var orderVerifier = Mockito.inOrder(padCampaignWorkScheduleRepository, padCampaignWorksPipelineRepository);
+    orderVerifier.verify(padCampaignWorksPipelineRepository).findAllByPadCampaignWorkSchedule(workSchedule);
+    orderVerifier.verify(padCampaignWorksPipelineRepository).deleteAll(eq(List.of(schedulePipeline)));
+    orderVerifier.verify(padCampaignWorkScheduleRepository).delete(workSchedule);
+    orderVerifier.verifyNoMoreInteractions();
+
+  }
+
+  @Test
+  public void createWorkScheduleView_singlePipeline(){
+    var schedulePipeline = new PadCampaignWorksPipeline(workSchedule, pipe1);
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
+        workSchedule)).thenReturn(List.of(schedulePipeline));
+
+    var workScheduleView = campaignWorksService.createWorkScheduleView(workSchedule);
+
+    assertThat(workScheduleView.getSchedulePipelines()).allSatisfy(
+        campaignWorkSchedulePipelineView -> {
+          assertThat(campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef());
+          assertThat(campaignWorkSchedulePipelineView.getFromLocation()).isEqualTo(pipe1.getFromLocation());
+          assertThat(campaignWorkSchedulePipelineView.getToLocation()).isEqualTo(pipe1.getToLocation());
+          assertThat(campaignWorkSchedulePipelineView.getPipelineTypeDisplayName())
+              .isEqualTo(pipe1.getPipelineType().getDisplayName());
+
+        }
+    );
+
+  }
+
+  @Test
+  public void createWorkScheduleView_zeroPipelines(){
+    var workScheduleView = campaignWorksService.createWorkScheduleView(workSchedule);
+    assertThat(workScheduleView.getSchedulePipelines()).isEmpty();
+  }
+
+  /* duplicate logic required for generation of validation result, and that used by the isComplete method. */
+  private void setupValidationResultMocks_whenAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationErrors(){
+    when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail))
+        .thenReturn(2L);
+
+    var schedulePipeline1 = new PadCampaignWorksPipeline(workSchedule, pipe1);
+    var schedulePipeline2 = new PadCampaignWorksPipeline(workSchedule, pipe2);
+
+    // support overall application schedule pipeline check
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(schedulePipeline1, schedulePipeline2));
+    // support form object construction
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(workSchedule))
+        .thenReturn(List.of(schedulePipeline1, schedulePipeline2));
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(workSchedule));
+
+  }
+
+  @Test
+  public void getCampaignWorksValidationResult_whenAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationErrors(){
+    setupValidationResultMocks_whenAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationErrors();
+    var result = campaignWorksService.getCampaignWorksValidationResult(pwaApplicationDetail);
+    assertThat(result.isComplete()).isTrue();
+  }
+
+  @Test
+  public void isComplete_whenAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationErrors(){
+    setupValidationResultMocks_whenAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationErrors();
+    assertThat(campaignWorksService.isComplete(pwaApplicationDetail)).isTrue();
+  }
+
+  /* duplicate logic required for generation of validation result, and that used by the isComplete method. */
+  private void setupValidationResultMocks_whenSubsetOfApplicationPipelineScheduled_andNoFormValidationErrors() {
+
+    when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail))
+        .thenReturn(2L);
+
+    var schedulePipeline1 = new PadCampaignWorksPipeline(workSchedule, pipe1);
+
+    // support overall application schedule pipeline check
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(schedulePipeline1));
+    // support form object construction
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(workSchedule))
+        .thenReturn(List.of(schedulePipeline1));
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(workSchedule));
+  }
+
+  @Test
+  public void getCampaignWorksValidationResult_whenSubsetOfApplicationPipelineScheduled_andNoFormValidationErrors(){
+    setupValidationResultMocks_whenSubsetOfApplicationPipelineScheduled_andNoFormValidationErrors();
+    var result = campaignWorksService.getCampaignWorksValidationResult(pwaApplicationDetail);
+    assertThat(result.isComplete()).isFalse();
+  }
+
+  @Test
+  public void isComplete_whenSubsetOfApplicationPipelineScheduled_andNoFormValidationErrors(){
+    setupValidationResultMocks_whenSubsetOfApplicationPipelineScheduled_andNoFormValidationErrors();
+    assertThat(campaignWorksService.isComplete(pwaApplicationDetail)).isFalse();
+  }
+
+  /* duplicate logic required for generation of validation result, and that used by the isComplete method. */
+  private void setupValidationResultMocks_whenAllApplicationPipelinesWithinAWorkSchedule_andFormValidationHasErrors() {
+    when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail))
+        .thenReturn(2L);
+
+    var schedulePipeline1 = new PadCampaignWorksPipeline(workSchedule, pipe1);
+    var schedulePipeline2 = new PadCampaignWorksPipeline(workSchedule, pipe2);
+
+    // support overall application schedule pipeline check
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(schedulePipeline1, schedulePipeline2));
+    // support form object construction
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(workSchedule))
+        .thenReturn(List.of(schedulePipeline1, schedulePipeline2));
+
+    var invalidWorkSchedule = new PadCampaignWorkSchedule();
+    invalidWorkSchedule.setId(INVALID_SCHEDULE_ID);
+    invalidWorkSchedule.setWorkFromDate(LocalDate.MIN);
+    invalidWorkSchedule.setWorkToDate(LocalDate.MAX);
+
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(workSchedule, invalidWorkSchedule));
+
+    // add fake error when form has no pipelines
+    doAnswer(invocationOnMock -> {
+      WorkScheduleForm form = invocationOnMock.getArgument(0);
+      Errors errors = invocationOnMock.getArgument(1);
+      if (form.getPadPipelineIds().isEmpty()) {
+        errors.rejectValue("padPipelineIds", "fake_error");
+      }
+      return errors;
+    }).when(workScheduleFormValidator).validate(any(), any(), any());
+  }
+
+  @Test
+  public void getCampaignWorksValidationResult_whenAllApplicationPipelinesWithinAWorkSchedule_andFormValidationErrors(){
+    setupValidationResultMocks_whenAllApplicationPipelinesWithinAWorkSchedule_andFormValidationHasErrors();
+    var result = campaignWorksService.getCampaignWorksValidationResult(pwaApplicationDetail);
+    assertThat(result.isComplete()).isFalse();
+    assertThat(result.isWorkScheduleInvalid(SCHEDULE_ID)).isFalse();
+    assertThat(result.isWorkScheduleInvalid(INVALID_SCHEDULE_ID)).isTrue();
+  }
+
+  @Test
+  public void isComplete_whenAllApplicationPipelinesWithinAWorkSchedule_andFormValidationErrors(){
+    setupValidationResultMocks_whenAllApplicationPipelinesWithinAWorkSchedule_andFormValidationHasErrors();
+    assertThat(campaignWorksService.isComplete(pwaApplicationDetail)).isFalse();
+  }
+
+
 
 }

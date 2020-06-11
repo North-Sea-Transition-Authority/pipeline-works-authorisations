@@ -71,8 +71,7 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(form.getCommercialAgreementYear()).isEqualTo(expectedForm.getCommercialAgreementYear());
 
     assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositRadioOption.LATER_APP);
-    assertThat(form.getFutureAppSubmissionMonth()).isEqualTo(expectedForm.getFutureAppSubmissionMonth());
-    assertThat(form.getFutureAppSubmissionYear()).isEqualTo(expectedForm.getFutureAppSubmissionYear());
+    assertThat(form.getFutureSubmissionDate()).isEqualTo(expectedForm.getFutureSubmissionDate());
     assertThat(form.getTemporaryDepositsMade()).isEqualTo(expectedForm.getTemporaryDepositsMade());
     assertThat(form.getTemporaryDepDescription()).isEqualTo(expectedForm.getTemporaryDepDescription());
   }
@@ -111,10 +110,10 @@ public class ProjectInformationEntityMappingServiceTest {
             true);
 
     assertThat(entity.getFutureAppSubmissionMonth()).isEqualTo(
-            expectedForm.getFutureAppSubmissionMonth());
+            Integer.parseInt(expectedForm.getFutureSubmissionDate().getMonth()));
 
     assertThat(entity.getFutureAppSubmissionYear()).isEqualTo(
-            expectedForm.getFutureAppSubmissionYear());
+            Integer.parseInt(expectedForm.getFutureSubmissionDate().getYear()));
 
     assertThat(entity.getTemporaryDepositsMade()).isEqualTo(
             expectedForm.getTemporaryDepositsMade());

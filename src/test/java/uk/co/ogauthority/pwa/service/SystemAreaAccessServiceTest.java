@@ -4,7 +4,7 @@ import java.util.Set;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
-import uk.co.ogauthority.pwa.util.AuthTestingUtils;
+import uk.co.ogauthority.pwa.testutils.AuthTestingUtils;
 
 public class SystemAreaAccessServiceTest {
 

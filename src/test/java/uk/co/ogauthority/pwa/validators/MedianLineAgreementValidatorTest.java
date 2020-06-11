@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 public class MedianLineAgreementValidatorTest {

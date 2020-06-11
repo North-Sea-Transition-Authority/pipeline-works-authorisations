@@ -12,8 +12,6 @@ public interface UserWorkflowTask {
    */
   String getTaskKey();
 
-  WorkflowType getWorkflowType();
-
   /**
    * Determines which type of user can be assigned the task.
    */

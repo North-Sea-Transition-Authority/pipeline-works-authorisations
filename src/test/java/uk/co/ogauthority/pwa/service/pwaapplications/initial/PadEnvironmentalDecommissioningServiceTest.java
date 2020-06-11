@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDeco
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -50,8 +50,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult;
-import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
-import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.AddBlockCrossingFormValidator;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.EditBlockCrossingFormValidator;
 

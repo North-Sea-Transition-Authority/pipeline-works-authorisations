@@ -8,7 +8,8 @@ public enum FieldValidationErrorCodes {
   AFTER_SOME_DATE(".afterDate"),
   INVALID(".invalid"),
   MAX_LENGTH_EXCEEDED(".maxLengthExceeded"),
-  REQUIRED(".required");
+  REQUIRED(".required"),
+  OUT_OF_TARGET_RANGE(".outOfTargetRange");
 
   private String code;
 
