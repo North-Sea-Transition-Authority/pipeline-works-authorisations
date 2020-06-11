@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskLis
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.repository.pipelines.PipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -36,10 +38,13 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 public class PadPipelineService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
+  private final PipelineRepository pipelineRepository;
 
   @Autowired
-  public PadPipelineService(PadPipelineRepository padPipelineRepository) {
+  public PadPipelineService(PadPipelineRepository padPipelineRepository,
+                            PipelineRepository pipelineRepository) {
     this.padPipelineRepository = padPipelineRepository;
+    this.pipelineRepository = pipelineRepository;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -126,14 +131,23 @@ public class PadPipelineService implements ApplicationFormSectionService {
   @Transactional
   public void addPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineHeaderForm form) {
 
-    var newPipeline = new PadPipeline(pwaApplicationDetail);
+    var newPipeline = new Pipeline(pwaApplicationDetail.getPwaApplication());
+    newPipeline = pipelineRepository.save(newPipeline);
+
+    var newPadPipeline = new PadPipeline(pwaApplicationDetail);
+    newPadPipeline.setPipeline(newPipeline);
 
     // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
     // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
     Long numberOfPipesForDetail = padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    newPipeline.setPipelineRef("TEMPORARY " + (numberOfPipesForDetail.intValue() + 1));
+    // TODO PWA-341 this could cause duplicate pipeline numbers e.g
+    // 1. Add new pipeline "TEMP 1"
+    // 2. Add new pipeline "TEMP 2"
+    // 3. Remove "TEMP 1"
+    // 4. Add new pipeline "TEMP 2"!
+    newPadPipeline.setPipelineRef("TEMPORARY " + (numberOfPipesForDetail.intValue() + 1));
 
-    saveEntityUsingForm(newPipeline, form);
+    saveEntityUsingForm(newPadPipeline, form);
 
   }
 
