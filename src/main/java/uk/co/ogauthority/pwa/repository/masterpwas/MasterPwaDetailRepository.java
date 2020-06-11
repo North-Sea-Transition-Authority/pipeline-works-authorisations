@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.repository.masterpwas;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -17,4 +18,7 @@ public interface MasterPwaDetailRepository extends CrudRepository<MasterPwaDetai
 
   @EntityGraph(attributePaths = {"masterPwa"})
   List<MasterPwaDetail> findByMasterPwaInAndEndInstantIsNull(Collection<MasterPwa> masterPwas);
+
+  @EntityGraph(attributePaths = {"masterPwa"})
+  Optional<MasterPwaDetail> findByMasterPwaAndEndInstantIsNull(MasterPwa masterPwa);
 }

@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -83,6 +84,9 @@ public class TaskListServiceIntegrationTestTest {
   @MockBean
   private PermanentDepositService permanentDepositService;
 
+  @MockBean
+  private MasterPwaViewService masterPwaViewService;
+
   @Before
   public void setup() {
 
@@ -93,7 +97,8 @@ public class TaskListServiceIntegrationTestTest {
         pwaApplicationRedirectService,
         breadcrumbService,
         taskCompletionService,
-        pwaContactService);
+        pwaContactService,
+        masterPwaViewService);
 
   }
 
