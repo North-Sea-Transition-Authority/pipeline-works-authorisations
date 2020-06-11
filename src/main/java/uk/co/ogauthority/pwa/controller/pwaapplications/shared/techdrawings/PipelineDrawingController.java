@@ -240,8 +240,8 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser(),
-        padFile -> padTechnicalDrawingService.getDrawingLinkedToPadFile(detail, padFile)
+    return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(), applicationContext.getUser(),
+        (padFile) -> padTechnicalDrawingService.getDrawingLinkedToPadFile(detail, padFile)
             .ifPresent(padTechnicalDrawingService::unlinkFile));
   }
 }

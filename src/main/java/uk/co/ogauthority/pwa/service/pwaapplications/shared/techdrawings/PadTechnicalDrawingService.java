@@ -188,7 +188,9 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     var drawing = getDrawing(detail, drawingId);
     padTechnicalDrawingLinkService.unlinkDrawing(detail, drawing);
     padTechnicalDrawingRepository.delete(drawing);
-    padFileService.processFileDeletion(drawing.getFile(), webUserAccount);
+    if (drawing.getFile() != null) {
+      padFileService.processFileDeletion(drawing.getFile(), webUserAccount);
+    }
   }
 
   @Transactional
@@ -241,7 +243,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     return bindingResult;
   }
 
-  private boolean drawingsValid(PwaApplicationDetail pwaApplicationDetail) {
+  @VisibleForTesting
+  public boolean drawingsValid(PwaApplicationDetail pwaApplicationDetail) {
     var drawings = getDrawings(pwaApplicationDetail);
 
     boolean allDrawingsLinkedToFile = drawings.stream()
@@ -254,7 +257,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     return drawing.getFile() != null;
   }
 
-  private boolean allPipelinesLinked(PwaApplicationDetail pwaApplicationDetail, List<PadTechnicalDrawing> drawings) {
+  @VisibleForTesting
+  public boolean allPipelinesLinked(PwaApplicationDetail pwaApplicationDetail, List<PadTechnicalDrawing> drawings) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings);
     var pipelines = padPipelineService.getPipelines(pwaApplicationDetail);
 

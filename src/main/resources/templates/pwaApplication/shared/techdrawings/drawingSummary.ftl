@@ -2,8 +2,9 @@
 
 <#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory" -->
+<#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory" -->
 
-<#macro drawingSummary summary urlFactory validatorFactory="" showReferenceAsKey=false showActions=false>
+<#macro drawingSummary summary urlFactory validatorFactory showReferenceAsKey=false showActions=false>
     <#if !showReferenceAsKey>
       <h3 class="govuk-heading-m">${summary.reference}</h3>
         <#if validatorFactory?has_content && !validatorFactory.isValid(summary)>

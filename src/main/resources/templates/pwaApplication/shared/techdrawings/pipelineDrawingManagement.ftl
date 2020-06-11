@@ -3,8 +3,9 @@
 
 <#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory" -->
+<#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory" -->
 
-<#macro pipelineDrawingManagement urlFactory pipelineDrawingSummaryViews=[] validatorFactory="">
+<#macro pipelineDrawingManagement urlFactory validatorFactory pipelineDrawingSummaryViews=[]>
   <h2 class="govuk-heading-l">
     Pipeline drawings
   </h2>
