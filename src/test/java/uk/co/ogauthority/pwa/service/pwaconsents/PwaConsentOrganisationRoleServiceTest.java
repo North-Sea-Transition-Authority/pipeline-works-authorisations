@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRe
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PwaConsentOrganisationRolesServiceTest {
+public class PwaConsentOrganisationRoleServiceTest {
 
   private static final int ORG_UNIT_ID_1 = 100;
   private static final int ORG_UNIT_ID_2 = 200;
@@ -57,7 +57,7 @@ public class PwaConsentOrganisationRolesServiceTest {
   @Mock
   private MasterPwa masterPwa;
 
-  private PwaConsentOrganisationRolesService pwaConsentOrganisationRolesService;
+  private PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
 
   private PwaConsentOrganisationRole pwaConsentHolderOrgRole;
 
@@ -73,7 +73,7 @@ public class PwaConsentOrganisationRolesServiceTest {
 
     when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(List.of(pwaConsent));
 
-    pwaConsentOrganisationRolesService = new PwaConsentOrganisationRolesService(
+    pwaConsentOrganisationRoleService = new PwaConsentOrganisationRoleService(
         pwaConsentOrganisationRoleRepository,
         pwaConsentRepository,
         portalOrganisationsAccessor
@@ -106,7 +106,7 @@ public class PwaConsentOrganisationRolesServiceTest {
         .thenReturn(List.of(pwaConsentHolderOrgRole));
 
     assertThat(
-        pwaConsentOrganisationRolesService.getPwaConsentsWhereCurrentHolderWasAdded(Set.of(organisationUnit1))
+        pwaConsentOrganisationRoleService.getPwaConsentsWhereCurrentHolderWasAdded(Set.of(organisationUnit1))
     ).containsExactly(pwaConsent);
   }
 
@@ -114,13 +114,13 @@ public class PwaConsentOrganisationRolesServiceTest {
   public void getPwaConsentsWhereCurrentHolderWasAdded_whenGivenOrgUnitIsNotAHolder() {
 
     assertThat(
-        pwaConsentOrganisationRolesService.getPwaConsentsWhereCurrentHolderWasAdded(Set.of(organisationUnit1))
+        pwaConsentOrganisationRoleService.getPwaConsentsWhereCurrentHolderWasAdded(Set.of(organisationUnit1))
     ).isEmpty();
   }
 
   @Test
   public void getCurrentHoldersOrgRolesForMasterPwa_whenZeroHolders() {
-    assertThat(pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa)).isEmpty();
+    assertThat(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa)).isEmpty();
   }
 
   @Test
@@ -134,7 +134,7 @@ public class PwaConsentOrganisationRolesServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(Set.of(ORG_UNIT_ID_1)))
         .thenReturn(List.of(organisationUnit1));
 
-    assertThat(pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa)).hasOnlyOneElementSatisfying(
+    assertThat(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa)).hasOnlyOneElementSatisfying(
         masterPwaHolderDto -> {
           assertThat(masterPwaHolderDto.getHolderOrganisationGroup()).containsSame(organisationGroup1);
           assertThat(masterPwaHolderDto.getMasterPwa()).isEqualTo(masterPwa);
@@ -157,7 +157,7 @@ public class PwaConsentOrganisationRolesServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(Set.of(ORG_UNIT_ID_1, ORG_UNIT_ID_2)))
         .thenReturn(List.of(organisationUnit1, organisationUnit2));
 
-    var masterPwaHolders =  pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
+    var masterPwaHolders =  pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
 
     assertThat(masterPwaHolders).hasSize(2);
 
@@ -187,7 +187,7 @@ public class PwaConsentOrganisationRolesServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(Set.of(ORG_UNIT_ID_1, ORG_UNIT_ID_2)))
         .thenReturn(List.of(organisationUnit1));
 
-    var masterPwaHolders =  pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
+    var masterPwaHolders =  pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
 
 
     assertThat(masterPwaHolders).hasOnlyOneElementSatisfying(masterPwaHolderDto -> {

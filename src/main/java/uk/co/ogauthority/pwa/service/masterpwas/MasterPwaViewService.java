@@ -27,7 +27,9 @@ public class MasterPwaViewService {
 
   private MasterPwaDetail getCurrentMasterPwaDetail(MasterPwa masterPwa) {
     return masterPwaDetailRepository.findByMasterPwaAndEndInstantIsNull(masterPwa)
-        .orElseThrow(() -> new PwaEntityNotFoundException("could not find "));
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "could not find current master pwa detail. masterPwaId: " + masterPwa.getId())
+        );
   }
 
 }

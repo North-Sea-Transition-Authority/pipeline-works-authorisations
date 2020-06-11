@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.MasterPwaHolderDto;
-import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRolesService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 /**
@@ -32,19 +32,19 @@ public class MasterPwaAuthorisationService {
   private final MasterPwaDetailRepository masterPwaDetailRepository;
   private final TeamService teamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final PwaConsentOrganisationRolesService pwaConsentOrganisationRolesService;
+  private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
 
   @Autowired
   public MasterPwaAuthorisationService(
       MasterPwaRepository masterPwaRepository,
       MasterPwaDetailRepository masterPwaDetailRepository, TeamService teamService,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
-      PwaConsentOrganisationRolesService pwaConsentOrganisationRolesService) {
+      PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService) {
     this.masterPwaRepository = masterPwaRepository;
     this.masterPwaDetailRepository = masterPwaDetailRepository;
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.pwaConsentOrganisationRolesService = pwaConsentOrganisationRolesService;
+    this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
   }
 
   /*
@@ -63,7 +63,7 @@ public class MasterPwaAuthorisationService {
     var masterPwa = masterPwaRepository.findById(masterPwaId).orElseThrow(() ->
         new PwaEntityNotFoundException("No master pwa with id:" + masterPwaId));
 
-    var masterPwaHolders = pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
+    var masterPwaHolders = pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
 
     // provided the organisation group user has role within holder team for master pwa, return the master pwa
     if (masterPwaHolders.stream()
@@ -105,7 +105,7 @@ public class MasterPwaAuthorisationService {
     );
 
     // 3. return the consent's master pwa when one of the user's holder org units matches the consent's holder
-    return pwaConsentOrganisationRolesService.getPwaConsentsWhereCurrentHolderWasAdded(
+    return pwaConsentOrganisationRoleService.getPwaConsentsWhereCurrentHolderWasAdded(
         potentialHolderOrganisationUnits
     ).stream()
         .map(PwaConsent::getMasterPwa)

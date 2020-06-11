@@ -50,7 +50,7 @@ public class MasterPwaViewServiceTest {
   }
 
   @Test
-  public void masterPwaViewService_whenrrentDetailFound() {
+  public void masterPwaViewService_whenCurrentDetailFound() {
     when(masterPwaDetailRepository.findByMasterPwaAndEndInstantIsNull(masterPwa)).thenReturn(Optional.of(masterPwaDetail));
     assertThat(masterPwaViewService.getCurrentMasterPwaView(pwaApplication)).satisfies(masterPwaView ->{
       assertThat(masterPwaView.getMasterPwaId()).isEqualTo(masterPwa.getId());

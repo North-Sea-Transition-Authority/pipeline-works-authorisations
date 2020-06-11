@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.MasterPwaHolderDto;
-import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRolesService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,7 +52,7 @@ public class MasterPwaAuthorisationServiceTest {
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Mock
-  private PwaConsentOrganisationRolesService pwaConsentOrganisationRolesService;
+  private PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
 
   @Mock
   private MasterPwa masterPwa;
@@ -93,7 +93,7 @@ public class MasterPwaAuthorisationServiceTest {
         masterPwaDetailRepository,
         teamService,
         portalOrganisationsAccessor,
-        pwaConsentOrganisationRolesService);
+        pwaConsentOrganisationRoleService);
 
     when(masterPwaRepository.findById(MASTER_PWA_ID)).thenReturn(Optional.of(masterPwa));
   }
@@ -103,7 +103,7 @@ public class MasterPwaAuthorisationServiceTest {
   public void getMasterPwaIfAuthorised_whenUserInHolderTeamforPwa() {
 
     var singleHolder = new MasterPwaHolderDto(teamOrgGrpOrgUnit, pwaConsent);
-    when(pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
+    when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of(singleHolder));
 
     assertThat(masterPwaAuthorisationService.getMasterPwaIfAuthorised(MASTER_PWA_ID, webUserAccount,
@@ -122,7 +122,7 @@ public class MasterPwaAuthorisationServiceTest {
     var otherOrgUnit = mock(PortalOrganisationUnit.class);
 
     var singleHolder = new MasterPwaHolderDto(otherOrgUnit, pwaConsent);
-    when(pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
+    when(pwaConsentOrganisationRoleService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of(singleHolder));
 
     masterPwaAuthorisationService.getMasterPwaIfAuthorised(MASTER_PWA_ID, webUserAccount,
@@ -140,7 +140,7 @@ public class MasterPwaAuthorisationServiceTest {
   @Test
   public void getMasterPwasWhereUserIsAuthorised_whenUserOrgUnitsCoverSingleConsent(){
 
-    when(pwaConsentOrganisationRolesService.getPwaConsentsWhereCurrentHolderWasAdded(any()))
+    when(pwaConsentOrganisationRoleService.getPwaConsentsWhereCurrentHolderWasAdded(any()))
     .thenReturn(Set.of(pwaConsent));
 
     var authorisedPwas = masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(

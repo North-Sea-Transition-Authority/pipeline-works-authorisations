@@ -19,16 +19,16 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRe
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 
 @Service
-public class PwaConsentOrganisationRolesService {
+public class PwaConsentOrganisationRoleService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PwaConsentOrganisationRolesService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaConsentOrganisationRoleService.class);
 
   private final PwaConsentOrganisationRoleRepository pwaConsentOrganisationRoleRepository;
   private final PwaConsentRepository pwaConsentRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Autowired
-  public PwaConsentOrganisationRolesService(
+  public PwaConsentOrganisationRoleService(
       PwaConsentOrganisationRoleRepository pwaConsentOrganisationRoleRepository,
       PwaConsentRepository pwaConsentRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor) {
