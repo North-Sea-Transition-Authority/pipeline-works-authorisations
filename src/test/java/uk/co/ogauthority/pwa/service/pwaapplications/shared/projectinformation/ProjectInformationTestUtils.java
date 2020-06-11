@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class ProjectInformationTestUtils {
 
@@ -58,8 +59,7 @@ public class ProjectInformationTestUtils {
     form.setUploadedFileWithDescriptionForms(new ArrayList<>());
 
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
-    form.setFutureAppSubmissionMonth(07);
-    form.setFutureAppSubmissionYear(2020);
+    form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 7));
     form.setTemporaryDepositsMade(true);
     form.setTemporaryDepDescription("some description..");
 

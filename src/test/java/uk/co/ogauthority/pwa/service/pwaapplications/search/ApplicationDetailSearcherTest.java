@@ -83,13 +83,13 @@ public class ApplicationDetailSearcherTest {
     );
     var statusFilter = Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    when(applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndAndPadStatusIn(any(), eq(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))))
+    when(applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusIn(any(), eq(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))))
         .thenReturn(fakePageResult);
 
     var resultPage = applicationDetailSearcher.searchByStatus(pageable, statusFilter);
 
     verify(applicationDetailSearchItemRepository, times(1))
-        .findAllByTipFlagIsTrueAndAndPadStatusIn(pageable, Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW));
+        .findAllByTipFlagIsTrueAndPadStatusIn(pageable, Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW));
 
     assertThat(resultPage).isEqualTo(fakePageResult);
   }

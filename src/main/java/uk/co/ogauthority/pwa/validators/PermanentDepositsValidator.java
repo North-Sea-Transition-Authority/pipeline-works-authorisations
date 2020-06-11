@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.validators;
 
-
 import io.micrometer.core.instrument.util.StringUtils;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +18,21 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDeposits
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
 @Service
 public class PermanentDepositsValidator implements SmartValidator {
 
+  private final TwoFieldDateInputValidator twoFieldDateInputValidator;
   private final CoordinateFormValidator coordinateFormValidator;
 
   @Autowired
-  public PermanentDepositsValidator(CoordinateFormValidator coordinateFormValidator) {
+  public PermanentDepositsValidator(TwoFieldDateInputValidator twoFieldDateInputValidator,
+                                    CoordinateFormValidator coordinateFormValidator) {
+    this.twoFieldDateInputValidator = twoFieldDateInputValidator;
     this.coordinateFormValidator = coordinateFormValidator;
   }
 
@@ -54,14 +63,14 @@ public class PermanentDepositsValidator implements SmartValidator {
           "depositReference", "Deposit reference must be unique, enter a different reference");
     }
 
-    boolean fromDateValid = ValidatorUtils.validateDateIsPresentOrFuture(
-        "from", "deposit from month / year",
-        form.getFromMonth(), form.getFromYear(), errors);
-
-    if (fromDateValid) {
+    validateDateIsFutureDate(errors, "From Date", "fromDate", form.getFromDate());
+    validateDateIsFutureDate(errors, "To Date", "toDate", form.getToDate());
+    if (form.getFromDate().getMonth() != null && form.getFromDate().getYear() != null
+        && form.getToDate().getMonth() != null && form.getToDate().getYear() != null) {
       ValidatorUtils.validateDateIsWithinRangeOfTarget(
-          "to", "deposit to month / year",
-          form.getToMonth(), form.getToYear(), form.getFromMonth(), form.getFromYear(), 12, errors);
+          "toDate.month", "deposit to month / year",
+          Integer.parseInt(form.getToDate().getMonth()), Integer.parseInt(form.getToDate().getYear()),
+            Integer.parseInt(form.getFromDate().getMonth()), Integer.parseInt(form.getFromDate().getYear()), 12, errors);
     }
 
 
@@ -127,6 +136,19 @@ public class PermanentDepositsValidator implements SmartValidator {
             "Enter a valid quantity for the material type");
       }
     }
+  }
+
+
+  public void validateDateIsFutureDate(Errors errors, String formLabel, String targetPath, TwoFieldDateInput formField) {
+    List<Object> toDateHints = new ArrayList<>();
+    toDateHints.add(new FormInputLabel(formLabel));
+    toDateHints.add(new OnOrAfterDateHint(LocalDate.now(), "current date"));
+    ValidatorUtils.invokeNestedValidator(
+        errors,
+        twoFieldDateInputValidator,
+        targetPath,
+        formField,
+        toDateHints.toArray());
   }
 
 

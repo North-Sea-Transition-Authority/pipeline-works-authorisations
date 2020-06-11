@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
@@ -13,7 +14,15 @@ public class PermanentDepositDrawingView {
   private String fileName;
   private Set<String> depositReferences;
 
+
   public PermanentDepositDrawingView() {
+  }
+
+  public PermanentDepositDrawingView(Integer depositDrawingId, String reference,
+                                     Set<String> depositReferences) {
+    this.depositDrawingId = depositDrawingId;
+    this.reference = reference;
+    this.depositReferences = depositReferences;
   }
 
   public PermanentDepositDrawingView(Integer depositDrawingId, String reference,
@@ -21,7 +30,7 @@ public class PermanentDepositDrawingView {
     this.depositDrawingId = depositDrawingId;
     this.reference = reference;
     this.depositReferences = depositReferences;
-    this.documentDescription = uploadedFileView.getFileDescription();
+    this.documentDescription = uploadedFileView != null ? uploadedFileView.getFileDescription() : "";
     this.fileId = uploadedFileView.getFileId();
     this.fileName = uploadedFileView.getFileName();
   }

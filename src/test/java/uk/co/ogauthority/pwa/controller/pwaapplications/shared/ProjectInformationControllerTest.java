@@ -44,7 +44,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.temp.model.form.ProjectInformationForm;
-import uk.co.ogauthority.pwa.util.ControllerTestUtils;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ProjectInformationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))

@@ -1,5 +1,19 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+
+import java.util.EnumSet;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +34,6 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -33,25 +46,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.util.ControllerTestUtils;
-import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
-import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
-
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
-
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PermanentDepositDrawingsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -428,7 +427,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postEditDepositDrawing_appTypeSmokeTest() {
-    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -441,7 +440,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postEditDepositDrawing_appStatusSmokeTest() {
-    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -454,7 +453,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postEditDepositDrawing_contactSmokeTest() {
-    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -469,8 +468,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postEditDepositDrawing_withInvalidForm() throws Exception {
     var bindingResult = new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form");
     bindingResult.addError(new ObjectError("fake", "fake"));
-    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(bindingResult);
-    ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("reference"));
+    when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(bindingResult);
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "Complete");
@@ -487,7 +485,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postEditDepositDrawing_withValidForm() throws Exception {
-    when(depositDrawingsService.validate(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
+    when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add("Complete", "Complete");
     }};
@@ -501,11 +499,8 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .andExpect(status().is3xxRedirection());
 
     verify(depositDrawingsService, times(1)).editDepositDrawing(anyInt(), any(), any(), any());
-    verify(depositDrawingsService, times(1)).validate(any(), any(), any(), any(), anyInt());
+    verify(depositDrawingsService, times(1)).validateDrawingEdit(any(), any(), any(), any(), anyInt());
   }
-
-
-
 
 
   private PermanentDepositDrawingView buildDepositDrawingView() {
@@ -519,7 +514,6 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
     return view;
   }
 
-  
 
 
 }

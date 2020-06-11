@@ -33,7 +33,7 @@ public class WorkAreaController {
    */
   @GetMapping("/work-area")
   public ModelAndView renderWorkArea(AuthenticatedUserAccount authenticatedUserAccount,
-                                     @RequestParam(defaultValue = "OPEN", name = "tab") WorkAreaTab tab,
+                                     @RequestParam(defaultValue = "OPEN_APPLICATIONS", name = "tab") WorkAreaTab tab,
                                      @RequestParam(defaultValue = "0", name = "page") Integer page) {
     return new ModelAndView("workArea")
         .addObject("prototypeApplicationUrl",

@@ -20,7 +20,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaHolderFormValidatorTest {

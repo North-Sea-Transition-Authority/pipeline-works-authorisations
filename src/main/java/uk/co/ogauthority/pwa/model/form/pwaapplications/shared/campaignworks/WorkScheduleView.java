@@ -4,7 +4,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 public class WorkScheduleView {
   private static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
@@ -18,19 +19,26 @@ public class WorkScheduleView {
 
   private final List<CampaignWorkSchedulePipelineView> schedulePipelines;
 
-  public WorkScheduleView(Integer padCampaignWorkScheduleId,
-                          LocalDate workStartDate,
-                          LocalDate workEndDate,
-                          List<PipelineOverview> linkedPipelines) {
+  private WorkScheduleView(Integer padCampaignWorkScheduleId,
+                           LocalDate workStartDate,
+                           LocalDate workEndDate,
+                           List<CampaignWorkSchedulePipelineView> linkedPipelines) {
     this.padCampaignWorkScheduleId = padCampaignWorkScheduleId;
     this.workStartDate = workStartDate;
     this.workEndDate = workEndDate;
     this.formattedWorkStartDate = workStartDate.format(DATETIME_FORMATTER);
     this.formattedWorkEndDate = workEndDate.format(DATETIME_FORMATTER);
-    this.schedulePipelines = linkedPipelines
-        .stream()
-        .map(CampaignWorkSchedulePipelineView::fromPipelineOverview)
-    .collect(Collectors.toList());
+    this.schedulePipelines = linkedPipelines;
+  }
+
+  public WorkScheduleView(PadCampaignWorkSchedule padCampaignWorkSchedule,
+                          List<PadPipeline> linkedPipelines) {
+    this(padCampaignWorkSchedule.getId(),
+        padCampaignWorkSchedule.getWorkFromDate(),
+        padCampaignWorkSchedule.getWorkToDate(),
+        linkedPipelines.stream()
+            .map(CampaignWorkSchedulePipelineView::fromPadPipeline)
+            .collect(Collectors.toList()));
   }
 
   public LocalDate getWorkStartDate() {

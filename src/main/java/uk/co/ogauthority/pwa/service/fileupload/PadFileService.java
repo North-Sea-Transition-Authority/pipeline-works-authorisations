@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -231,10 +230,9 @@ public class PadFileService {
    * @return a successful (or failed) file delete result
    */
   @Transactional
-  public FileDeleteResult processFileDeletion(PadFile padFile,
-                                              WebUserAccount user,
-                                              Consumer<PadFile> actionBeforeDelete) {
-
+  public FileDeleteResult processFileDeletionWithPreDeleteAction(PadFile padFile,
+                                                                 WebUserAccount user,
+                                                                 Consumer<PadFile> actionBeforeDelete) {
     var result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
 
     if (result.isValid()) {
@@ -243,7 +241,6 @@ public class PadFileService {
     }
 
     return result;
-
   }
 
   /**
@@ -255,15 +252,7 @@ public class PadFileService {
   @Transactional
   public FileDeleteResult processFileDeletion(PadFile padFile,
                                               WebUserAccount user) {
-
-    var result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
-
-    if (result.isValid()) {
-      padFileRepository.delete(padFile);
-    }
-
-    return result;
-
+    return processFileDeletionWithPreDeleteAction(padFile, user, padFileArg -> { });
   }
 
   public PadFile getPadFileByPwaApplicationDetailAndFileId(PwaApplicationDetail detail,

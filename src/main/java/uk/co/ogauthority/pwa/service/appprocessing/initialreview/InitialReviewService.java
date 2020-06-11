@@ -6,10 +6,13 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.notify.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.users.UserAccountService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -24,16 +27,22 @@ public class InitialReviewService {
   private final CamundaWorkflowService workflowService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final TeamManagementService teamManagementService;
+  private final NotifyService notifyService;
+  private final UserAccountService userAccountService;
 
   @Autowired
   public InitialReviewService(PwaApplicationDetailService applicationDetailService,
                               CamundaWorkflowService workflowService,
                               WorkflowAssignmentService workflowAssignmentService,
-                              TeamManagementService teamManagementService) {
+                              TeamManagementService teamManagementService,
+                              NotifyService notifyService,
+                              UserAccountService userAccountService) {
     this.applicationDetailService = applicationDetailService;
     this.workflowService = workflowService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.teamManagementService = teamManagementService;
+    this.notifyService = notifyService;
+    this.userAccountService = userAccountService;
   }
 
   @Transactional
@@ -49,11 +58,26 @@ public class InitialReviewService {
     applicationDetailService.setInitialReviewApproved(detail, acceptingUser);
     workflowService.completeTask(new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.APPLICATION_REVIEW));
 
+    var caseOfficer = teamManagementService.getPerson(caseOfficerPersonId);
+
     workflowAssignmentService.assign(
         detail.getPwaApplication(),
         PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
-        teamManagementService.getPerson(caseOfficerPersonId),
+        caseOfficer,
         acceptingUser.getLinkedPerson());
+
+    sendCaseOfficerAssignedEmail(detail, caseOfficer.getFullName());
+
+  }
+
+  private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, String caseOfficerName) {
+
+    var props = new CaseOfficerAssignedEmailProps(applicationDetail.getPwaApplicationRef(), caseOfficerName);
+
+    var submitterEmailAddress = userAccountService.getWebUserAccount(applicationDetail.getSubmittedByWuaId())
+        .getLinkedPerson().getEmailAddress();
+
+    notifyService.sendEmail(props, submitterEmailAddress);
 
   }
 

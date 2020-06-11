@@ -1,5 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositsdrawings;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +16,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
@@ -18,9 +26,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
@@ -28,18 +35,10 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class DepositDrawingsServiceTest {
@@ -124,6 +123,7 @@ public class DepositDrawingsServiceTest {
     var padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setId(2);
     when(permanentDepositService.getDepositById(2)).thenReturn(Optional.of(padPermanentDeposit));
+    when(padDepositDrawingRepository.save(any(PadDepositDrawing.class))).thenReturn(depositDrawing);
     depositDrawingsService.editDepositDrawing(1, pwaApplicationDetail, form, new WebUserAccount());
 
 
@@ -135,6 +135,9 @@ public class DepositDrawingsServiceTest {
 
     var captorDrawingLink = ArgumentCaptor.forClass(PadDepositDrawingLink.class);
     verify(padDepositDrawingLinkRepository, times(1)).save(captorDrawingLink.capture());
+
+    assertThat(captorDrawingLink.getValue()).extracting(PadDepositDrawingLink::getPadDepositDrawing, PadDepositDrawingLink::getPadPermanentDeposit)
+        .containsExactly(depositDrawing, padPermanentDeposit);
   }
 
 
@@ -221,37 +224,6 @@ public class DepositDrawingsServiceTest {
     depositDrawingsService.removeDrawingAndFile(1, new WebUserAccount());
     verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
     verify(padDepositDrawingRepository, times(1)).delete(any());
-  }
-
-
-  @Test
-  public void getEditUrlsForDepositDrawings() {
-    var expectedUrlMap = new HashMap<String, String>();
-    expectedUrlMap.put("1", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-        .renderEditDepositDrawing(
-            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
-            null, 1, null)));
-    var mockedEntity = new PadDepositDrawing();
-    mockedEntity.setId(1);
-
-    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
-    var actualUrlMap = depositDrawingsService.getEditUrlsForDepositDrawings(pwaApplicationDetail);
-    assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
-  }
-
-  @Test
-  public void getRemoveUrlsForDepositDrawings() {
-    var expectedUrlMap = new HashMap<String, String>();
-    expectedUrlMap.put("1", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-        .renderRemoveDepositDrawing(
-            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
-            null, 1, null)));
-    var mockedEntity = new PadDepositDrawing();
-    mockedEntity.setId(1);
-
-    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
-    var actualUrlMap = depositDrawingsService.getRemoveUrlsForDepositDrawings(pwaApplicationDetail);
-    assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
   }
 
 

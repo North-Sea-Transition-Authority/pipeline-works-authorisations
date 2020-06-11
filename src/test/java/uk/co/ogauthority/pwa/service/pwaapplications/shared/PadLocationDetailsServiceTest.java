@@ -148,6 +148,26 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getWithinLimitsOfDeviation()).isEqualTo(form.getWithinLimitsOfDeviation());
   }
 
+  @Test
+  public void saveEntityUsingForm_ashoreLocation_saved() {
+    var form = new LocationDetailsForm();
+    form.setFacilitiesOffshore(false);
+    form.setPipelineAshoreLocation("test");
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getPipelineAshoreLocation()).isEqualTo(form.getPipelineAshoreLocation());
+  }
+
+  @Test
+  public void saveEntityUsingForm_ashoreLocation_notSaved() {
+    var form = new LocationDetailsForm();
+    form.setFacilitiesOffshore(true);
+    form.setPipelineAshoreLocation("test");
+    var entity = new PadLocationDetails();
+    padLocationDetailsService.saveEntityUsingForm(entity, form);
+    assertThat(entity.getPipelineAshoreLocation()).isEqualTo(null);
+  }
+
   private LocationDetailsForm buildForm() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);

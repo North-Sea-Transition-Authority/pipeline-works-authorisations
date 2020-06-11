@@ -13,7 +13,6 @@ public class DepositDrawingUrlFactory {
   private final PwaApplicationType applicationType;
   private final Integer applicationId;
 
-  @Autowired
   public DepositDrawingUrlFactory(PwaApplicationType applicationType, Integer applicationId) {
     this.applicationType = applicationType;
     this.applicationId = applicationId;
@@ -27,6 +26,20 @@ public class DepositDrawingUrlFactory {
   public String getPipelineDrawingDownloadUrl(String fileId) {
     return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
         .handleDownload(applicationType, applicationId, fileId, null));
+  }
+
+  public String getEditDrawingUrl(int drawingId) {
+    return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderEditDepositDrawing(
+            this.applicationType, this.applicationId,
+            null, drawingId, null));
+  }
+
+  public String getRemoveDrawingUrl(int drawingId) {
+    return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderRemoveDepositDrawing(
+            this.applicationType, this.applicationId,
+            null, drawingId, null));
   }
 
 
