@@ -20,12 +20,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListServiceTest {
@@ -37,25 +36,19 @@ public class TaskListServiceTest {
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @Mock
-  private PwaApplicationDetailService pwaApplicationDetailService;
-
-  @Mock
-  private PadFastTrackService padFastTrackService;
-
-  @Mock
   private TaskCompletionService taskCompletionService;
 
   @Mock
   private PwaContactService pwaContactService;
 
   @Mock
-  private PermanentDepositService permanentDepositService;
-
-  @Mock
   protected ApplicationContext springApplicationContext;
 
   @Mock
   private ApplicationFormSectionService applicationFormSectionService;
+
+  @Mock
+  private MasterPwaViewService masterPwaViewService;
 
   private TaskListService taskListService;
 
@@ -77,7 +70,8 @@ public class TaskListServiceTest {
         pwaApplicationRedirectService,
         applicationBreadcrumbService,
         taskCompletionService,
-        pwaContactService);
+        pwaContactService,
+        masterPwaViewService);
   }
 
   @Test
@@ -262,10 +256,15 @@ public class TaskListServiceTest {
   @Test
   public void getTaskListModelAndView_generic() {
 
+    var masterPwaView = mock(MasterPwaView.class);
+    when(masterPwaView.getReference()).thenReturn("PWA-Example");
+
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
+
+    when(masterPwaViewService.getCurrentMasterPwaView(pwaApplication)).thenReturn(masterPwaView);
 
     PwaApplicationType.stream().forEach(applicationType -> {
 
@@ -279,9 +278,8 @@ public class TaskListServiceTest {
       assertThat(modelAndView.getModel().get("appInfoTasks")).isNotNull();
       assertThat(modelAndView.getModel().get("prepareAppTasks")).isNotNull();
 
-      // TODO: PWA-361 - Remove hard-coded "PWA-Example-BP-2".
       if (applicationType != PwaApplicationType.INITIAL) {
-        assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example-BP-2");
+        assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example");
       } else {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isNull();
       }
