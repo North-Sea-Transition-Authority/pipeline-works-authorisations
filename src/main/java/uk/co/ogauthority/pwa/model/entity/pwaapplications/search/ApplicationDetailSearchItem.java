@@ -60,6 +60,10 @@ public class ApplicationDetailSearchItem {
 
   private boolean submittedAsFastTrackFlag;
 
+  private Integer caseOfficerPersonId;
+
+  private String caseOfficerName;
+
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
   }
@@ -196,4 +200,19 @@ public class ApplicationDetailSearchItem {
     this.submittedAsFastTrackFlag = fastTrackFlag;
   }
 
+  public Integer getCaseOfficerPersonId() {
+    return caseOfficerPersonId;
+  }
+
+  public void setCaseOfficerPersonId(Integer caseOfficerPersonId) {
+    this.caseOfficerPersonId = caseOfficerPersonId;
+  }
+
+  public String getCaseOfficerName() {
+    return caseOfficerName;
+  }
+
+  public void setCaseOfficerName(String caseOfficerName) {
+    this.caseOfficerName = caseOfficerName;
+  }
 }

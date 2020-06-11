@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.enums.workflow;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 
@@ -20,11 +20,6 @@ public enum PwaApplicationWorkflowTask implements UserWorkflowTask {
   }
 
   @Override
-  public WorkflowType getWorkflowType() {
-    return WorkflowType.PWA_APPLICATION;
-  }
-
-  @Override
   public WorkflowAssignment getAssignment() {
     return workflowAssignment;
   }
@@ -40,10 +35,10 @@ public enum PwaApplicationWorkflowTask implements UserWorkflowTask {
   }
 
   public static PwaApplicationWorkflowTask getByTaskKey(String taskKey) {
-    return Arrays.stream(PwaApplicationWorkflowTask.values())
-        .filter(e -> e.getTaskKey().equals(taskKey))
+    return Stream.of(PwaApplicationWorkflowTask.values())
+        .filter(val -> val.getTaskKey().equals(taskKey))
         .findFirst()
-        .orElseThrow(() -> new ValueNotFoundException(String.format("Task key %s not found", taskKey)));
+        .orElseThrow(() -> new ValueNotFoundException(String.format("Couldn't get PwaApplicationWorkflowTask from taskKey: %s", taskKey)));
   }
 
 }

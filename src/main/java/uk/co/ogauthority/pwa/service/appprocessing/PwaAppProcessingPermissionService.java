@@ -41,6 +41,8 @@ public class PwaAppProcessingPermissionService {
 
             case ACCEPT_INITIAL_REVIEW:
               return roles.contains(PwaRegulatorRole.PWA_MANAGER);
+            case CASE_OFFICER_REVIEW:
+              return roles.contains(PwaRegulatorRole.CASE_OFFICER);
             default:
               return false;
 

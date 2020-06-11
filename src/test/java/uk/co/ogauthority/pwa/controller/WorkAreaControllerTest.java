@@ -75,7 +75,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN, 0);
+        .getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 0);
   }
 
 
@@ -87,7 +87,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN, 100);
+        .getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 100);
   }
 
 

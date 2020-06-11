@@ -23,4 +23,9 @@ public class IdentUrlFactory {
     return ReverseRouter.route(on(PipelineIdentsController.class)
         .renderRemoveIdent(applicationId, pwaApplicationType, pipelineId, null, identId));
   }
+
+  public String getInsertAboveUrl(Integer identId) {
+    return ReverseRouter.route(on(PipelineIdentsController.class)
+        .renderInsertIdentAbove(applicationId, pwaApplicationType, pipelineId, identId, null, null));
+  }
 }

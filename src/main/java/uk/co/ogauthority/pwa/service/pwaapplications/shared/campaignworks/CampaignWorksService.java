@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -20,7 +22,6 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.Cam
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -54,21 +55,78 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    // TODO PWA-372 do validation on all work schedules
-    // then we need to check at least one schedule and that every schedule has at least one pad pipeline AND valid schedule dates
-    return false;
+    return getCampaignWorksValidationResult(detail).isComplete();
+  }
+
+  public CampaignWorksSummaryValidationResult getCampaignWorksValidationResult(
+      PwaApplicationDetail pwaApplicationDetail) {
+
+    // create this once to avoid hitting the db for every form when the data will not have changed
+    var campaignWorksHint = createCampaignWorksValidationHint(pwaApplicationDetail);
+    var allCampaignWorkSchedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+
+    return new CampaignWorksSummaryValidationResult(pwaApplicationDetail,
+        allCampaignWorkSchedules,
+        padCampaignWorkSchedule -> getFormErrorsForCampaignWorkSchedule(padCampaignWorkSchedule, campaignWorksHint),
+        this::allApplicationPipelinesCoveredByWorkSchedules
+    );
   }
 
   @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
+  public BindingResult validate(Object form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
+
+    var campaignWorksHint = createCampaignWorksValidationHint(pwaApplicationDetail);
+
+    return validateForm((WorkScheduleForm) form, bindingResult, pwaApplicationDetail, campaignWorksHint);
+  }
+
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return padProjectInformationService.isCampaignApproachBeingUsed(pwaApplicationDetail)
+        && padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail) > 0L;
+  }
+
+  private boolean allApplicationPipelinesCoveredByWorkSchedules(PwaApplicationDetail pwaApplicationDetail) {
+
+    var distinctSchedulePadPipeline = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(
+        pwaApplicationDetail)
+        .stream()
+        .map(PadCampaignWorksPipeline::getPadPipeline)
+        .collect(Collectors.toSet());
+
+    var totalApplicationPipelines = padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail);
+
+    return Long.valueOf(distinctSchedulePadPipeline.size()).equals(totalApplicationPipelines);
+
+  }
+
+  private Errors getFormErrorsForCampaignWorkSchedule(PadCampaignWorkSchedule padCampaignWorkSchedule,
+                                                      CampaignWorkScheduleValidationHint campaignWorkScheduleValidationHint) {
+    var form = new WorkScheduleForm();
+    mapWorkScheduleToForm(form, padCampaignWorkSchedule);
+
+    var validationBindingResult = validateForm(
+        form,
+        new BeanPropertyBindingResult(form, "form"),
+        padCampaignWorkSchedule.getPwaApplicationDetail(),
+        campaignWorkScheduleValidationHint
+    );
+
+    return validationBindingResult;
+
+  }
+
+  private CampaignWorkScheduleValidationHint createCampaignWorksValidationHint(
+      PwaApplicationDetail pwaApplicationDetail) {
     var projectStartDate = padProjectInformationService.getProposedStartDate(pwaApplicationDetail)
         .map(instant -> LocalDate.ofInstant(instant, ZoneId.systemDefault()));
 
-    var campaignWorksHint = new CampaignWorkScheduleValidationHint(
+    return new CampaignWorkScheduleValidationHint(
         projectStartDate.orElse(null),
         pwaApplicationDetail.getPwaApplicationType());
-    return validateForm((WorkScheduleForm) form, bindingResult, pwaApplicationDetail, campaignWorksHint);
   }
 
   private BindingResult validateForm(WorkScheduleForm form,
@@ -86,7 +144,8 @@ public class CampaignWorksService implements ApplicationFormSectionService {
                                                         int workScheduleId) {
     return padCampaignWorkScheduleRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, workScheduleId)
         .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("work schedule id: %s not found for app_detail_id: %s", workScheduleId, pwaApplicationDetail.getId()))
+            String.format("work schedule id: %s not found for app_detail_id: %s", workScheduleId,
+                pwaApplicationDetail.getId()))
         );
   }
 
@@ -103,42 +162,40 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     form.setWorkEnd(new TwoFieldDateInput(padCampaignWorkSchedule.getWorkToDate()));
   }
 
-  public List<WorkScheduleView> getWorkScheduleViews(PwaApplicationDetail pwaApplicationDetail) {
+  public WorkScheduleView createWorkScheduleView(PadCampaignWorkSchedule padCampaignWorkSchedule) {
+    var schedulePadPipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
+        padCampaignWorkSchedule)
+        .stream()
+        .map(PadCampaignWorksPipeline::getPadPipeline)
+        .collect(Collectors.toList());
 
-    // is there a nicer way? potentially putting a link down to linked pipelines on the schedule entity would have made this much simpler.
-    // 1. get all pipelines for work schedules on the application
-    // 2. create a lookup from padPipelineId to pipelineOverview view
-    // 3. Organise the list of all pipelines on a schedule into a map so we can go from a single schedule to all its pipelines
-    // 4. for each schedule, create a schedule summary using the pipelineOverview lookup
+    return new WorkScheduleView(
+        padCampaignWorkSchedule,
+        schedulePadPipelines
+    );
+  }
+
+  public List<WorkScheduleView> getWorkScheduleViews(PwaApplicationDetail pwaApplicationDetail) {
 
     var allScheduledPipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(
         pwaApplicationDetail);
 
-    var padPipelineIds = allScheduledPipelines.stream()
-        .map(PadCampaignWorksPipeline::getPadPipeline)
-        .map(PadPipeline::getId)
-        .collect(Collectors.toSet());
-
-    var pipelineOverviewsMappedByPadPipelineId = padPipelineService.getPipelineOverviews(pwaApplicationDetail)
-        .stream()
-        .filter(po -> padPipelineIds.contains(po.getPadPipelineId()))
-        .collect(Collectors.toMap(PipelineOverview::getPadPipelineId, po -> po));
+    var allSchedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
 
     Map<PadCampaignWorkSchedule, List<PadPipeline>> scheduleToSchedulePipelineMap = allScheduledPipelines.stream()
         .collect(Collectors.groupingBy((PadCampaignWorksPipeline::getPadCampaignWorkSchedule),
             Collectors.mapping(PadCampaignWorksPipeline::getPadPipeline, Collectors.toList())
         ));
 
+    // need to add in any schedule with no pipeline so that removing the last pipeline from a schedule at the application level
+    // will still keep showing the schedule
+    allSchedules.forEach(padCampaignWorkSchedule -> scheduleToSchedulePipelineMap.putIfAbsent(padCampaignWorkSchedule, List.of()));
+
     var listOfWorkScheduleViews = new ArrayList<WorkScheduleView>();
     for (Map.Entry<PadCampaignWorkSchedule, List<PadPipeline>> entry : scheduleToSchedulePipelineMap.entrySet()) {
-      var schedulePipelineOverviews = entry.getValue().stream()
-          .map(padPipeline -> pipelineOverviewsMappedByPadPipelineId.get(padPipeline.getId()))
-          .collect(Collectors.toList());
       listOfWorkScheduleViews.add(new WorkScheduleView(
-          entry.getKey().getId(),
-          entry.getKey().getWorkFromDate(),
-          entry.getKey().getWorkToDate(),
-          schedulePipelineOverviews
+          entry.getKey(),
+          entry.getValue()
       ));
     }
 
@@ -163,8 +220,10 @@ public class CampaignWorksService implements ApplicationFormSectionService {
   public void updateCampaignWorksScheduleFromForm(WorkScheduleForm form,
                                                   PadCampaignWorkSchedule padCampaignWorkSchedule) {
 
-    var formPadPipelines = padPipelineService.getByIdList(padCampaignWorkSchedule.getPwaApplicationDetail(), form.getPadPipelineIds());
-    var oldSchedulePipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(padCampaignWorkSchedule);
+    var formPadPipelines = padPipelineService.getByIdList(padCampaignWorkSchedule.getPwaApplicationDetail(),
+        form.getPadPipelineIds());
+    var oldSchedulePipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
+        padCampaignWorkSchedule);
     padCampaignWorksPipelineRepository.deleteAll(oldSchedulePipelines);
 
     var updatedSchedule = setCampaignWorkScheduleValues(
@@ -174,9 +233,18 @@ public class CampaignWorksService implements ApplicationFormSectionService {
         padCampaignWorkSchedule);
   }
 
+  @Transactional
+  public void removeCampaignWorksSchedule(PadCampaignWorkSchedule padCampaignWorkSchedule) {
+
+    var schedulePipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
+        padCampaignWorkSchedule);
+    padCampaignWorksPipelineRepository.deleteAll(schedulePipelines);
+    padCampaignWorkScheduleRepository.delete(padCampaignWorkSchedule);
+  }
+
   private PadCampaignWorkSchedule setCampaignWorkScheduleValues(LocalDate workStart, LocalDate workEnd,
-                                                           List<PadPipeline> associatedPipelines,
-                                                           PadCampaignWorkSchedule schedule) {
+                                                                List<PadPipeline> associatedPipelines,
+                                                                PadCampaignWorkSchedule schedule) {
     schedule.setWorkFromDate(workStart);
     schedule.setWorkToDate(workEnd);
     schedule = padCampaignWorkScheduleRepository.save(schedule);
@@ -207,12 +275,6 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     padCampaignWorksPipeline.setPadPipeline(padPipeline);
     return padCampaignWorksPipeline;
 
-  }
-
-  @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return padProjectInformationService.isCampaignApproachBeingUsed(pwaApplicationDetail)
-        && padPipelineService.totalPipelineContainedInApplication(pwaApplicationDetail) > 0L;
   }
 
 }

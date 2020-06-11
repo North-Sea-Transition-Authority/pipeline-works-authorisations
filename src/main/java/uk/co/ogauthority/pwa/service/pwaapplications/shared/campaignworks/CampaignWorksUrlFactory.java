@@ -31,4 +31,12 @@ public class CampaignWorksUrlFactory {
         null,
         null));
   }
+
+  public String removeWorkScheduleUrl(int campaignWorksId) {
+    return ReverseRouter.route(on(CampaignWorksController.class).renderRemoveWorkSchedule(
+        this.applicationType,
+        this.applicationId,
+        campaignWorksId,
+        null));
+  }
 }
