@@ -16,6 +16,7 @@ import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 public class ValidatorUtilsTest {
 

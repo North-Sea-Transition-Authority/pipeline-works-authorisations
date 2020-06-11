@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineIdentFormValidatorTest {

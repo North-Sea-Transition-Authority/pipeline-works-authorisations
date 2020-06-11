@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.testutils;
 
 import java.util.Map;
 import java.util.Set;

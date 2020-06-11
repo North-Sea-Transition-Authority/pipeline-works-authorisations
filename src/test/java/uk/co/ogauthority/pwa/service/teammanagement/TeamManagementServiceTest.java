@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
-import uk.co.ogauthority.pwa.util.TeamTestingUtils;
+import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TeamManagementServiceTest {
