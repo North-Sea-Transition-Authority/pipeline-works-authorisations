@@ -251,7 +251,7 @@ public class PadFileService {
   @Transactional
   public FileDeleteResult processFileDeletion(PadFile padFile,
                                               WebUserAccount user) {
-    return processFileDeletionWithPreDeleteAction(padFile, user, padFileArg -> {});
+    return processFileDeletionWithPreDeleteAction(padFile, user, padFileArg -> { });
   }
 
   public PadFile getPadFileByPwaApplicationDetailAndFileId(PwaApplicationDetail detail,
