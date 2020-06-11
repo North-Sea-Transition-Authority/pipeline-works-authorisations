@@ -176,7 +176,6 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
         .addObject("depositDrawingUrlFactory", new DepositDrawingUrlFactory(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()))
-        .addObject("editDepositDrawingUrls", depositDrawingsService.getEditUrlsForDepositDrawings(pwaApplicationDetail))
         .addObject("depositDrawingSummaryViews", depositDrawingsService.getDepositDrawingSummaryViews(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,

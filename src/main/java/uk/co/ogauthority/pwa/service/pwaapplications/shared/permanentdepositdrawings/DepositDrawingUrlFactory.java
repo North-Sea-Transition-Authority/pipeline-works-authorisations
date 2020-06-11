@@ -29,6 +29,13 @@ public class DepositDrawingUrlFactory {
         .handleDownload(applicationType, applicationId, fileId, null));
   }
 
+  public String getEditDrawingUrl(int drawingId){
+    return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderEditDepositDrawing(
+            this.applicationType, this.applicationId,
+            null, drawingId, null));
+  }
+
 
 
 }
