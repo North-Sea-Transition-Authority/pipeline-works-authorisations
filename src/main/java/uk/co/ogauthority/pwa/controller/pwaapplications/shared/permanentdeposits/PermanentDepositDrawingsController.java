@@ -244,7 +244,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser(),
+    return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(), applicationContext.getUser(),
         padFile -> depositDrawingsService.getDrawingLinkedToPadFile(
             applicationContext.getApplicationDetail(), applicationContext.getPadFile())
             .ifPresent(depositDrawingsService::unlinkFile));

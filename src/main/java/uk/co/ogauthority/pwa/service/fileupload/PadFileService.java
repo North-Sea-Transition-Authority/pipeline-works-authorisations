@@ -226,8 +226,7 @@ public class PadFileService {
    * Delete an individual file for an application.
    * @param padFile file being deleted
    * @param user deleting file
-=======
->>>>>>> origin/develop
+   * @param actionBeforeDelete a consumer to run if the result is valid, prior to deletion.
    * @return a successful (or failed) file delete result
    */
   @Transactional
