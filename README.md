@@ -24,12 +24,12 @@
 | -------------------- |-------------|
 | DB_SCHEMA_NAME | Database schema to connect as. E.g. `PWA_XX` This schema will be created for you by Flyway|
 | CONTEXT_SUFFIX | A unique per developer suffix string to apply to the application context path. E.g. your initials |
-
+| PWA_GOVUK_NOTIFY_API_KEY | The API Key for GOV.UK Notify. ([TPM Link](https://tpm.fivium.local/index.php/pwd/view/1384)) |
+| PWA_TEST_EMAIL_RECIPIENT | Email address(es) CSV to send test emails to (use your own email address for local dev) |
 
 #### Create the Flyway user
 
 This must be your DB_SCHEMA_NAME with '_flyway' appended to the end.
-
 
 ```oraclesqlplus
 CREATE USER pwa_xx_flyway IDENTIFIED BY "dev1"
@@ -101,6 +101,9 @@ There are some debug endpoints to test your session integration:
 
 * `/session-info` - Shows the current session authentication status, and user account info.
 * `/requires-auth` - Same as `session-info` but requires authentication. Use this to test the Fox login/callback redirection process.
+
+### GOV.UK Notify setup
+To add new or modify email templates you will need to be invited to the GOV.UK notification service (https://www.notifications.service.gov.uk/) by a member of the team who already has access.
 
 ## Documentation
 

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.testutils;
 
 import java.util.HashSet;
 import java.util.Set;

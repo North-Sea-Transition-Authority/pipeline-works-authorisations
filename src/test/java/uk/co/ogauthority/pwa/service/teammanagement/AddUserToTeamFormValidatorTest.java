@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.form.teammanagement.AddUserToTeamForm;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
-import uk.co.ogauthority.pwa.util.TeamTestingUtils;
+import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddUserToTeamFormValidatorTest {

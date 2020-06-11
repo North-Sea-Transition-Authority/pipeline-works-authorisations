@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.initialreview;
 
+import static java.util.Map.entry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -10,6 +12,8 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
@@ -18,10 +22,13 @@ import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.notify.EmailProperties;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.users.UserAccountService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -41,56 +48,81 @@ public class InitialReviewServiceTest {
   @Mock
   private TeamManagementService teamManagementService;
 
+  @Mock
+  private NotifyService notifyService;
+
+  @Mock
+  private UserAccountService userAccountService;
+
+  @Captor
+  private ArgumentCaptor<EmailProperties> emailPropertiesArgumentCaptor;
+
   private InitialReviewService initialReviewService;
 
   private PwaApplicationDetail detail;
+
   private PwaApplication app;
-  private WebUserAccount user;
+
+  private Person industryPerson;
+  private WebUserAccount industryUser;
 
   private Person caseOfficerPerson;
 
   @Before
   public void setUp() {
 
-    var userPerson = new Person(1, null, null, null, null);
-    user = new WebUserAccount(1, userPerson);
+    industryPerson = new Person(1, null, null, "industry@pwa.co.uk", null);
+    industryUser = new WebUserAccount(1, industryPerson);
 
     app = new PwaApplication();
     app.setId(1);
+    app.setAppReference("PA/2/1");
 
     detail = new PwaApplicationDetail();
     detail.setPwaApplication(app);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    detail.setSubmittedByWuaId(industryUser.getWuaId());
 
-    caseOfficerPerson = new Person(555, null, null, null, null);
+    caseOfficerPerson = new Person(555, "Test", "CO", "case-officer@pwa.co.uk", null);
+
+    when(userAccountService.getWebUserAccount(industryUser.getWuaId())).thenReturn(industryUser);
 
     when(teamManagementService.getPerson(caseOfficerPerson.getId().asInt())).thenReturn(caseOfficerPerson);
 
-    initialReviewService = new InitialReviewService(detailService, camundaWorkflowService, assignmentService, teamManagementService);
+    initialReviewService = new InitialReviewService(detailService, camundaWorkflowService, assignmentService, teamManagementService, notifyService, userAccountService);
 
   }
 
   @Test
   public void acceptApplication_success() {
 
-    initialReviewService.acceptApplication(detail, caseOfficerPerson.getId().asInt(), user);
+    initialReviewService.acceptApplication(detail, caseOfficerPerson.getId().asInt(), industryUser);
 
-    verify(detailService, times(1)).setInitialReviewApproved(detail, user);
+    verify(detailService, times(1)).setInitialReviewApproved(detail, industryUser);
     verify(camundaWorkflowService, times(1))
         .completeTask(eq(new WorkflowTaskInstance(app, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
 
     verify(assignmentService, times(1)).assign(
-        app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, user.getLinkedPerson());
+        app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, industryUser.getLinkedPerson());
+
+    verify(notifyService, times(1)).sendEmail(emailPropertiesArgumentCaptor.capture(), eq(industryPerson.getEmailAddress()));
+
+    var emailProps = emailPropertiesArgumentCaptor.getValue();
+
+    assertThat(emailProps.getEmailPersonalisation()).contains(
+        entry("CASE_OFFICER_NAME", caseOfficerPerson.getFullName()),
+        entry("APPLICATION_REFERENCE", detail.getPwaApplicationRef())
+    );
 
   }
 
   @Test(expected = ActionAlreadyPerformedException.class)
   public void acceptApplication_failed_alreadyAccepted() {
 
-    initialReviewService.acceptApplication(detail, caseOfficerPerson.getId().asInt(), user);
+    initialReviewService.acceptApplication(detail, caseOfficerPerson.getId().asInt(), industryUser);
 
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    initialReviewService.acceptApplication(detail, caseOfficerPerson.getId().asInt(), user);
+    initialReviewService.acceptApplication(detail, caseOfficerPerson.getId().asInt(), industryUser);
 
   }
 
@@ -99,7 +131,7 @@ public class InitialReviewServiceTest {
 
     doThrow(new WorkflowAssignmentException("")).when(assignmentService).assign(any(), any(), any(), any());
 
-    initialReviewService.acceptApplication(detail, 999, user);
+    initialReviewService.acceptApplication(detail, 999, industryUser);
 
   }
 

@@ -25,7 +25,6 @@ import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescription
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
-import uk.co.ogauthority.pwa.util.LambdaUtils;
 
 /**
  * Service to handle file management for/linking files to PWA applications.
@@ -226,26 +225,13 @@ public class PadFileService {
    * Delete an individual file for an application.
    * @param padFile file being deleted
    * @param user deleting file
-   * @return a successful (or failed) file delete result
-   */
-  @Transactional
-  public FileDeleteResult processFileDeletion(PadFile padFile,
-                                              WebUserAccount user) {
-    return processFileDeletion(padFile, user, pf -> LambdaUtils.doNothing());
-  }
-
-  /**
-   * Delete an individual file for an application.
-   * @param padFile file being deleted
-   * @param user deleting file
    * @param actionBeforeDelete a consumer to run if the result is valid, prior to deletion.
    * @return a successful (or failed) file delete result
    */
   @Transactional
-  public FileDeleteResult processFileDeletion(PadFile padFile,
-                                              WebUserAccount user,
-                                              Consumer<PadFile> actionBeforeDelete) {
-
+  public FileDeleteResult processFileDeletionWithPreDeleteAction(PadFile padFile,
+                                                                 WebUserAccount user,
+                                                                 Consumer<PadFile> actionBeforeDelete) {
     var result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
 
     if (result.isValid()) {
@@ -254,7 +240,18 @@ public class PadFileService {
     }
 
     return result;
+  }
 
+  /**
+   * Delete an individual file for an application.
+   * @param padFile file being deleted
+   * @param user deleting file
+   * @return a successful (or failed) file delete result
+   */
+  @Transactional
+  public FileDeleteResult processFileDeletion(PadFile padFile,
+                                              WebUserAccount user) {
+    return processFileDeletionWithPreDeleteAction(padFile, user, padFileArg -> { });
   }
 
   public PadFile getPadFileByPwaApplicationDetailAndFileId(PwaApplicationDetail detail,

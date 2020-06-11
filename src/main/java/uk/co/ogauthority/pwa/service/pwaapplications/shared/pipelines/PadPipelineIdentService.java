@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
+import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -117,6 +118,12 @@ public class PadPipelineIdentService {
     return repository.getByPadPipelineAndAndIdentNo(pipeline, identNumber);
   }
 
+  @Transactional
+  public void updateIdent(PadPipelineIdent ident, PipelineIdentForm form) {
+    saveEntityUsingForm(ident, form);
+    identDataService.updateIdentData(ident, form.getDataForm());
+  }
+
   public void saveEntityUsingForm(PadPipelineIdent ident, PipelineIdentForm form) {
 
     ident.setFromLocation(form.getFromLocation());
@@ -128,6 +135,21 @@ public class PadPipelineIdentService {
     repository.save(ident);
 
     identDataService.addIdentData(ident, form.getDataForm());
+  }
+
+  public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form) {
+    var fromForm = new CoordinateForm();
+    var toForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), fromForm);
+    CoordinateUtils.mapCoordinatePairToForm(ident.getToCoordinates(), toForm);
+
+    form.setFromCoordinateForm(fromForm);
+    form.setToCoordinateForm(toForm);
+    form.setFromLocation(ident.getFromLocation());
+    form.setLength(ident.getLength());
+    form.setToLocation(ident.getToLocation());
+    var dataForm = identDataService.getDataFormOfIdent(ident);
+    form.setDataForm(dataForm);
   }
 
   @Transactional
