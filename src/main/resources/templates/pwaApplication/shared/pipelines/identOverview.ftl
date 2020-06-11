@@ -22,7 +22,7 @@
                     <#list connectedPipelineIdentView.identViews as identView>
                         <#assign timelineAction>
                             <@fdsAction.link linkText="Insert ident above" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getInsertAboveUrl(identView.identId)) linkScreenReaderText="Insert ident above" />
-                            <@fdsAction.link linkText="Edit ident" linkClass="govuk-link" linkUrl=springUrl("#") linkScreenReaderText="Edit ident ${identView.identNumber}" />
+                            <@fdsAction.link linkText="Edit ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getEditUrl(identView.identId)) linkScreenReaderText="Edit ident ${identView.identNumber}" />
                             <@fdsAction.link linkText="Remove ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getRemoveUrl(identView.identId)) linkScreenReaderText="Remove ident ${identView.identNumber}" />
                         </#assign>
                         <@fdsTimeline.timelineTimeStamp timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>

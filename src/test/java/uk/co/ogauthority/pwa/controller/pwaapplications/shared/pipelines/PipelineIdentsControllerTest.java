@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -514,6 +516,96 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
                 .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditIdent_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditIdent_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditIdent_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postEditIdent_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditIdent_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postEditIdent_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditIdent_failValidation() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineIdentsController.class)
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+
+    doAnswer(invocationOnMock -> {
+      var errors = (Errors) invocationOnMock.getArgument(1);
+      errors.reject("fake", "error");
+      return errors;
+    }).when(validator).validate(any(), any(), any());
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 

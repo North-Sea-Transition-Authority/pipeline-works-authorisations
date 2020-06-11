@@ -28,6 +28,12 @@ public class PadPipelineIdentDataService {
     saveEntityUsingForm(identData, dataForm);
   }
 
+  @Transactional
+  public void updateIdentData(PadPipelineIdent ident, PipelineIdentDataForm dataForm) {
+    var identData = getIdentData(ident);
+    saveEntityUsingForm(identData, dataForm);
+  }
+
   public Map<PadPipelineIdent, PadPipelineIdentData> getDataFromIdentList(List<PadPipelineIdent> identList) {
     return repository.getAllByPadPipelineIdentIn(identList)
         .stream()
@@ -59,4 +65,16 @@ public class PadPipelineIdentDataService {
     repository.delete(data);
   }
 
+  public PipelineIdentDataForm getDataFormOfIdent(PadPipelineIdent ident) {
+    var form = new PipelineIdentDataForm();
+    var identData = getIdentData(ident);
+    form.setComponentPartsDescription(identData.getComponentPartsDescription());
+    form.setExternalDiameter(identData.getExternalDiameter());
+    form.setInternalDiameter(identData.getInternalDiameter());
+    form.setWallThickness(identData.getWallThickness());
+    form.setMaop(identData.getMaop());
+    form.setInsulationCoatingType(identData.getInsulationCoatingType());
+    form.setProductsToBeConveyed(identData.getProductsToBeConveyed());
+    return form;
+  }
 }
