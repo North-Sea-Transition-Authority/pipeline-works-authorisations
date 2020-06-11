@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.controller.pwaapplications.rest.PearsRestController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -40,6 +41,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -259,13 +261,9 @@ public class BlockCrossingController {
 
   private ModelAndView createAddBlockCrossingFormModelAndView(PwaApplicationContext applicationContext) {
 
-    // TODO PWA-408 this eventually will be used by a search selector
-    var pickableBlocks = pearsBlockService.findOffshorePickablePearsBlocks("%", PageRequest.of(0, 50))
-        .stream()
-        .collect(StreamUtils.toLinkedHashMap(PickablePearsBlock::getData, PickablePearsBlock::getKey));
-
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/addBlockCrossing")
-        .addObject("pickableBlocks", pickableBlocks)
+        .addObject("blockSelectorUrl", SearchSelectorService.route(on(PearsRestController.class)
+            .searchBlocks(null)))
         .addObject("errorList", List.of());
 
     addGenericBlockCrossingModelAttributes(modelAndView);
