@@ -73,10 +73,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
 
 
-  public void mapEntityToForm(PwaApplicationDetail detail, Integer depositDrawingId, PermanentDepositDrawingForm form) {
-    var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId)));
+  public void mapEntityToForm(PwaApplicationDetail detail, PadDepositDrawing depositDrawing, PermanentDepositDrawingForm form) {
     var depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
     var file = padFileService.getUploadedFileView(detail, depositDrawing.getFile().getFileId(),
         ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
@@ -187,20 +184,10 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     padDepositDrawingRepository.save(depositDrawing);
   }
 
-
-
-  public Map<String, String> getEditUrlsForDepositDrawings(PwaApplicationDetail pwaApplicationDetail) {
-    Map<String, String>  depositDrawingUrls = new HashMap<>();
-    var depositDrawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
-
-    for (PadDepositDrawing depositDrawing: depositDrawings) {
-      depositDrawingUrls.put(depositDrawing.getId().toString(),
-          ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-              .renderEditDepositDrawing(
-                  pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
-                  null, depositDrawing.getId(), null)));
-    }
-    return depositDrawingUrls;
+  public PadDepositDrawing getDepositDrawing(Integer depositDrawingId) {
+    return padDepositDrawingRepository.findById(depositDrawingId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId)));
   }
 
 

@@ -13,7 +13,6 @@ public class DepositDrawingUrlFactory {
   private final PwaApplicationType applicationType;
   private final Integer applicationId;
 
-  @Autowired
   public DepositDrawingUrlFactory(PwaApplicationType applicationType, Integer applicationId) {
     this.applicationType = applicationType;
     this.applicationId = applicationId;

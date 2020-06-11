@@ -224,23 +224,6 @@ public class DepositDrawingsServiceTest {
 
 
   @Test
-  public void getEditUrlsForDepositDrawings() {
-    var expectedUrlMap = new HashMap<String, String>();
-    expectedUrlMap.put("1", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-        .renderEditDepositDrawing(
-            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
-            null, 1, null)));
-    var mockedEntity = new PadDepositDrawing();
-    mockedEntity.setId(1);
-
-    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(mockedEntity));
-    var actualUrlMap = depositDrawingsService.getEditUrlsForDepositDrawings(pwaApplicationDetail);
-    assertThat(actualUrlMap).isEqualTo(expectedUrlMap);
-  }
-
-
-
-  @Test
   public void isDrawingReferenceUniqueWithId_true() {
     assertThat(depositDrawingsService.isDrawingReferenceUnique("my new ref", 1, pwaApplicationDetail)).isTrue();
   }

@@ -109,7 +109,8 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                               PwaApplicationContext applicationContext,
                                                @PathVariable("depositDrawingId") Integer depositDrawingId,
                                               @ModelAttribute("form") PermanentDepositDrawingForm form) {
-    depositDrawingsService.mapEntityToForm(applicationContext.getApplicationDetail(), depositDrawingId, form);
+    var depositDrawing = depositDrawingsService.getDepositDrawing(depositDrawingId);
+    depositDrawingsService.mapEntityToForm(applicationContext.getApplicationDetail(), depositDrawing, form);
     return getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
   }
 
