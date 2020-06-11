@@ -23,7 +23,7 @@ public class PickedPwaRetrievalService {
   }
 
   /**
-   * A pick-able pwa is where the user has the application creator role within the PWA's holder team.
+   * A PWA is pickable if the user has the application creator role within the PWA's holder team.
    */
   public List<PickablePwaDto> getPickablePwasWhereAuthorised(WebUserAccount webUserAccount) {
     Set<MasterPwa> authorisedAccessPwas = masterPwaAuthorisationService.getMasterPwasWhereUserIsAuthorised(

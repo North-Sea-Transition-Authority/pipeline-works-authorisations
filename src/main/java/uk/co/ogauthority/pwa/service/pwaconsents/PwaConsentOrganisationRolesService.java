@@ -39,9 +39,9 @@ public class PwaConsentOrganisationRolesService {
 
 
   /**
-   * This will return consents where one of the given organisation units was added a a Holder.
+   * This will return consents where one of the given organisation units was added as a Holder.
    * This is not necessarily the same as the latest consent of a PWA as the Holder is still the holder
-   * if later consents add/replace other more holders.
+   * if later consents add/replace other holders.
    */
   public Set<PwaConsent> getPwaConsentsWhereCurrentHolderWasAdded(
       Collection<PortalOrganisationUnit> organisationUnits) {
@@ -80,7 +80,7 @@ public class PwaConsentOrganisationRolesService {
       } else {
         LOGGER.debug(
             String.format(
-                "Could not reconcile all holder with current org unit. MasterPwaId: %s pwaConsentOrgRoleId: %s",
+                "Could not reconcile all holders with current org unit. MasterPwaId: %s pwaConsentOrgRoleId: %s",
                 masterPwa.getId(),
                 holderRole.getId()
             )

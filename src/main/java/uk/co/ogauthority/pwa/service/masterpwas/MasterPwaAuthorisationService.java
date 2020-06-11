@@ -50,7 +50,7 @@ public class MasterPwaAuthorisationService {
   /*
    * Return PWA where the user has a given role within the PWA organisation team and where an organisation unit linked to
    * the team's organisation group is a current HOLDER of the PWA.
-   * */
+   */
   public MasterPwa getMasterPwaIfAuthorised(int masterPwaId, WebUserAccount requestingWebUserAccount,
                                             PwaOrganisationRole requiredOrganisationRole) {
     // get all operator teams where the user has the desired role
@@ -65,7 +65,7 @@ public class MasterPwaAuthorisationService {
 
     var masterPwaHolders = pwaConsentOrganisationRolesService.getCurrentHoldersOrgRolesForMasterPwa(masterPwa);
 
-    // provided the organisation group user has role within exists as holder for master pwa return the master pwa
+    // provided the organisation group user has role within holder team for master pwa, return the master pwa
     if (masterPwaHolders.stream()
         .map(MasterPwaHolderDto::getHolderOrganisationGroup)
         .map(optionalPortalOrg -> optionalPortalOrg.orElse(null))
@@ -89,8 +89,8 @@ public class MasterPwaAuthorisationService {
 
 
   /*
-   * Skeleton implementation until we have the authorisation model done
-   * */
+   * Return all MasterPwa's where the user exists in the desired role with the PWa's holder team.
+   */
   public Set<MasterPwa> getMasterPwasWhereUserIsAuthorised(WebUserAccount requestingWebUserAccount,
                                                            PwaOrganisationRole requiredOrganisationRole) {
     // 1. get all operator teams where the user has the desired role
