@@ -347,4 +347,22 @@ public class PadTechnicalDrawingServiceTest {
         .containsExactly("allPipelinesAdded" + FieldValidationErrorCodes.INVALID.getCode());
   }
 
+  @Test
+  public void getDrawingLinkedToPadFile() {
+    var optionalDrawing = Optional.of(new PadTechnicalDrawing());
+    var padFile = new PadFile();
+    when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, padFile))
+        .thenReturn(optionalDrawing);
+    var result = padTechnicalDrawingService.getDrawingLinkedToPadFile(pwaApplicationDetail, padFile);
+    assertThat(result).isEqualTo(optionalDrawing);
+  }
+
+  @Test
+  public void unlinkFile() {
+    var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, new PadFile(), "ref");
+    padTechnicalDrawingService.unlinkFile(drawing);
+    assertThat(drawing.getFile()).isNull();
+    verify(padTechnicalDrawingRepository, times(1)).save(drawing);
+  }
+
 }

@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescription
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
+import uk.co.ogauthority.pwa.util.LambdaUtils;
 
 /**
  * Service to handle file management for/linking files to PWA applications.
@@ -225,6 +226,18 @@ public class PadFileService {
    * Delete an individual file for an application.
    * @param padFile file being deleted
    * @param user deleting file
+   * @return a successful (or failed) file delete result
+   */
+  @Transactional
+  public FileDeleteResult processFileDeletion(PadFile padFile,
+                                              WebUserAccount user) {
+    return processFileDeletion(padFile, user, pf -> LambdaUtils.doNothing());
+  }
+
+  /**
+   * Delete an individual file for an application.
+   * @param padFile file being deleted
+   * @param user deleting file
    * @param actionBeforeDelete a consumer to run if the result is valid, prior to deletion.
    * @return a successful (or failed) file delete result
    */
@@ -237,26 +250,6 @@ public class PadFileService {
 
     if (result.isValid()) {
       actionBeforeDelete.accept(padFile);
-      padFileRepository.delete(padFile);
-    }
-
-    return result;
-
-  }
-
-  /**
-   * Delete an individual file for an application.
-   * @param padFile file being deleted
-   * @param user deleting file
-   * @return a successful (or failed) file delete result
-   */
-  @Transactional
-  public FileDeleteResult processFileDeletion(PadFile padFile,
-                                              WebUserAccount user) {
-
-    var result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
-
-    if (result.isValid()) {
       padFileRepository.delete(padFile);
     }
 
