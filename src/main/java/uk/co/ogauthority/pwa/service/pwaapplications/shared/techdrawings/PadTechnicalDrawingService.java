@@ -204,6 +204,19 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     return drawingsValid(detail);
   }
 
+  public PipelineDrawingValidationFactory getValidationFactory(PwaApplicationDetail detail) {
+
+    var drawings = getDrawings(detail);
+    var isComplete = drawingsValid(detail);
+
+    return new PipelineDrawingValidationFactory(
+        isComplete,
+        drawings,
+        this::isDrawingLinkedToFile,
+        drawing -> "This drawing does not have an uploaded file"
+    );
+  }
+
   @Override
   @Deprecated
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
@@ -232,9 +245,13 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     var drawings = getDrawings(pwaApplicationDetail);
 
     boolean allDrawingsLinkedToFile = drawings.stream()
-        .allMatch(drawing -> drawing.getFile() != null);
+        .allMatch(this::isDrawingLinkedToFile);
 
     return allDrawingsLinkedToFile && allPipelinesLinked(pwaApplicationDetail, drawings);
+  }
+
+  private boolean isDrawingLinkedToFile(PadTechnicalDrawing drawing) {
+    return drawing.getFile() != null;
   }
 
   private boolean allPipelinesLinked(PwaApplicationDetail pwaApplicationDetail, List<PadTechnicalDrawing> drawings) {
@@ -251,9 +268,9 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
   public BindingResult validateSection(BindingResult bindingResult, PwaApplicationDetail pwaApplicationDetail) {
 
-    if (!drawingsValid(pwaApplicationDetail)) {
+    if (!getValidationFactory(pwaApplicationDetail).isComplete()) {
       bindingResult.reject("allPipelinesAdded" + FieldValidationErrorCodes.INVALID.getCode(),
-          "Not all pipelines have been linked to a drawing, or have missing files");
+          "All pipelines must be linked to a drawing and all drawings must have a file uploaded");
     }
 
     return bindingResult;

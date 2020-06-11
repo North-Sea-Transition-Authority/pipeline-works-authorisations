@@ -6,7 +6,7 @@
 <#macro drawingSummary summary urlFactory validatorFactory="" showReferenceAsKey=false showActions=false>
     <#if !showReferenceAsKey>
       <h3 class="govuk-heading-m">${summary.reference}</h3>
-        <#if !validatorFactory.isValid(summary)>
+        <#if validatorFactory?has_content && !validatorFactory.isValid(summary)>
           <span class="govuk-error-message">${validatorFactory.getErrorMessage(summary)}</span>
         </#if>
         <#if showActions>
