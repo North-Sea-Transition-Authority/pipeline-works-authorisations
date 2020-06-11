@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.pickpwa;
 import java.util.Optional;
 import org.flywaydb.core.internal.util.StringUtils;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.migration.MigrationMasterPwa;
 
 public class PickablePwa {
 
@@ -35,18 +34,9 @@ public class PickablePwa {
     );
   }
 
-  PickablePwa(MigrationMasterPwa migrationMasterPwa) {
-    this(PickablePwaSource.MIGRATION,
-        PickablePwaSource.MIGRATION.getPickableStringPrefix() + migrationMasterPwa.getPadId(),
-        migrationMasterPwa.getPadId()
-    );
-  }
-
   private PickablePwaSource findPwaSourceFromPickableString(String inputString) {
     if (inputString.startsWith(PickablePwaSource.MASTER.getPickableStringPrefix())) {
       return PickablePwaSource.MASTER;
-    } else if (inputString.startsWith(PickablePwaSource.MIGRATION.getPickableStringPrefix())) {
-      return PickablePwaSource.MIGRATION;
     } else {
       return PickablePwaSource.UNKNOWN;
     }
@@ -59,9 +49,6 @@ public class PickablePwa {
       case MASTER:
         content = Optional.of(getPickableStringContentFrom(PickablePwaSource.MASTER, inputString));
         break;
-      case MIGRATION:
-        content = Optional.of(getPickableStringContentFrom(PickablePwaSource.MIGRATION, inputString));
-        break;
       default:
         content = Optional.empty();
     }
@@ -69,7 +56,6 @@ public class PickablePwa {
     return content
         .filter(StringUtils::isNumeric)
         .map(Integer::valueOf);
-
   }
 
   private String getPickableStringContentFrom(PickablePwaSource source, String pickedString) {
