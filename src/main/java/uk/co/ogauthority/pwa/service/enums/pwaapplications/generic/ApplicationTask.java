@@ -76,7 +76,7 @@ public enum ApplicationTask {
   ),
 
   PIPELINES_HUOO(
-      "Pipelines holders, users, operators and owners",
+      "Pipeline holders, users, operators and owners",
       PipelinesHuooController.class,
       PipelinesHuooService.class,
       75

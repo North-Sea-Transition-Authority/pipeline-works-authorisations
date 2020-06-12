@@ -55,7 +55,7 @@ public class PipelinesHuooController {
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
         .addObject("pageHeading", ApplicationTask.PIPELINES_HUOO.getDisplayName())
         .addObject("markCompleteErrorMessage", doValidation ? "Please correct errors" : null);
-    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Campaign Works");
+    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView,  ApplicationTask.PIPELINES_HUOO.getDisplayName());
 
     return modelAndView;
   }
