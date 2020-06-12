@@ -163,4 +163,16 @@ public class PadPipelineIdentDataServiceTest {
     verify(repository, times(1)).save(identData);
   }
 
+  @Test
+  public void updateIdentData_repositoryInteraction() {
+    var ident = new PadPipelineIdent();
+    var dataForm = new PipelineIdentDataForm();
+    var identData = new PadPipelineIdentData();
+
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(identData));
+
+    identDataService.updateIdentData(ident, dataForm);
+    verify(repository, times(1)).save(identData);
+  }
+
 }

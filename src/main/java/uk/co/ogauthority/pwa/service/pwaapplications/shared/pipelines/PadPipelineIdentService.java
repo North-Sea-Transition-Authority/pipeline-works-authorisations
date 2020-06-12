@@ -94,7 +94,6 @@ public class PadPipelineIdentService {
     var ident = new PadPipelineIdent(pipeline, numberOfIdents.intValue() + 1);
 
     saveEntityUsingForm(ident, form);
-
   }
 
   @Transactional
@@ -110,18 +109,16 @@ public class PadPipelineIdentService {
     repository.saveAll(idents);
 
     saveEntityUsingForm(ident, form);
-
-  }
-
-  @Transactional
-  public Optional<PadPipelineIdent> getIdentByIdentNumber(PadPipeline pipeline, Integer identNumber) {
-    return repository.getByPadPipelineAndAndIdentNo(pipeline, identNumber);
   }
 
   @Transactional
   public void updateIdent(PadPipelineIdent ident, PipelineIdentForm form) {
     saveEntityUsingForm(ident, form);
-    identDataService.updateIdentData(ident, form.getDataForm());
+  }
+
+  @Transactional
+  public Optional<PadPipelineIdent> getIdentByIdentNumber(PadPipeline pipeline, Integer identNumber) {
+    return repository.getByPadPipelineAndAndIdentNo(pipeline, identNumber);
   }
 
   public void saveEntityUsingForm(PadPipelineIdent ident, PipelineIdentForm form) {
@@ -134,7 +131,10 @@ public class PadPipelineIdentService {
 
     repository.save(ident);
 
-    identDataService.addIdentData(ident, form.getDataForm());
+    identDataService.getOptionalOfIdentData(ident)
+        .ifPresentOrElse(
+            (padPipelineIdentData) -> identDataService.updateIdentData(ident, form.getDataForm()),
+            () -> identDataService.addIdentData(ident, form.getDataForm()));
   }
 
   public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form) {
