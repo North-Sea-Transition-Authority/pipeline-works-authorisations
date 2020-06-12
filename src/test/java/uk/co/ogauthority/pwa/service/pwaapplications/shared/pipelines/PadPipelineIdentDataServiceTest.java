@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -161,6 +163,28 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(identData.getMaop()).isEqualTo(form.getMaop());
 
     verify(repository, times(1)).save(identData);
+  }
+
+  @Test
+  public void updateIdentData_repositoryInteraction() {
+    var ident = new PadPipelineIdent();
+    var dataForm = new PipelineIdentDataForm();
+    var identData = new PadPipelineIdentData();
+
+    when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(identData));
+
+    identDataService.updateIdentData(ident, dataForm);
+    verify(repository, times(1)).save(identData);
+  }
+
+  @Test
+  public void addIdentData_repositoryInteraction() {
+    var ident = new PadPipelineIdent();
+    var dataForm = new PipelineIdentDataForm();
+
+    identDataService.addIdentData(ident, dataForm);
+    verify(repository, times(1)).save(any());
+    verify(repository, never()).getByPadPipelineIdent(any());
   }
 
 }
