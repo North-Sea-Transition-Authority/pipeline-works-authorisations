@@ -65,6 +65,7 @@ public class PipelineHeaderFormValidatorTest {
         entry("length", Set.of("length.required")),
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
         entry("productsToBeConveyed", Set.of("productsToBeConveyed.required")),
+        entry("trenchedBuriedBackfilled", Set.of("trenchedBuriedBackfilled.required")),
         entry("pipelineFlexibility", Set.of("pipelineFlexibility.required")),
         entry("pipelineMaterial", Set.of("pipelineMaterial.required")),
         entry("pipelineDesignLife", Set.of("pipelineDesignLife.required"))
@@ -93,6 +94,15 @@ public class PipelineHeaderFormValidatorTest {
 
     assertThat(result).isEmpty();
 
+  }
+
+  @Test
+  public void valid_otherMaterialUsed() {
+    var form = buildForm();
+    form.setPipelineMaterial(PipelineMaterial.OTHER);
+    form.setOtherPipelineMaterialUsed("other material");
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    assertThat(result).doesNotContain(entry("otherPipelineMaterialUsed", Set.of("otherPipelineMaterialUsed.required")));
   }
 
   @Test

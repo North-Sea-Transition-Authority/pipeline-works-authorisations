@@ -16,6 +16,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -77,6 +78,7 @@ public class PadPipelineServiceTest {
     form.setProductsToBeConveyed("products");
     form.setTrenchedBuriedBackfilled(true);
     form.setTrenchingMethods("trench methods");
+    form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
 
     pipelinesService.addPipeline(detail, form);
 
@@ -112,6 +114,40 @@ public class PadPipelineServiceTest {
     assertThat(form.getTrenchingMethods()).isEqualTo(form.getTrenchingMethods());
 
   }
+
+  @Test
+  public void addPipeline_otherMaterialSelected() {
+    var detail = new PwaApplicationDetail();
+    var form = new PipelineHeaderForm();
+
+    form.setPipelineMaterial(PipelineMaterial.OTHER);
+    form.setOtherPipelineMaterialUsed("other material");
+    var fromCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
+            new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
+        ), fromCoordinateForm
+    );
+    form.setFromCoordinateForm(fromCoordinateForm);
+
+    form.setToLocation("to");
+    var toCoordinateForm = new CoordinateForm();
+    CoordinateUtils.mapCoordinatePairToForm(
+        new CoordinatePair(
+            new LatitudeCoordinate(46, 46, BigDecimal.valueOf(46), LatitudeDirection.SOUTH),
+            new LongitudeCoordinate(6, 6, BigDecimal.valueOf(6.66), LongitudeDirection.WEST)
+        ), toCoordinateForm
+    );
+    form.setToCoordinateForm(toCoordinateForm);
+    form.setTrenchedBuriedBackfilled(false);
+
+    pipelinesService.addPipeline(detail, form);
+    verify(repository, times(1)).save(pipelineCaptor.capture());
+    var newPipeline = pipelineCaptor.getValue();
+    assertThat(newPipeline.getOtherPipelineMaterialUsed()).isEqualTo(form.getOtherPipelineMaterialUsed());
+  }
+
 
   @Test
   public void isComplete_noPipes() {

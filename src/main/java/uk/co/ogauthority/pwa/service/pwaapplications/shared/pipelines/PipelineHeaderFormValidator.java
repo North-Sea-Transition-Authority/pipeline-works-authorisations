@@ -85,7 +85,7 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
     if (form.getPipelineDesignLife() != null && form.getPipelineDesignLife() < 1) {
       errors.rejectValue("pipelineDesignLife", "pipelineDesignLife.invalid",
-          "Design life of the pipeline must be a positive whole number.");
+          "Design life of the pipeline must be a positive whole number");
     }
 
   }
