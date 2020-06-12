@@ -215,14 +215,32 @@ public class DepositDrawingsServiceTest {
     assertThat(summaryView.getReference()).isEqualTo(depositDrawing.getReference());
   }
 
+
   @Test
-  public void removeDeposit_noEntityFound() {
+  public void removeDrawingAndFile_noEntityFound() {
     var entity = new PadDepositDrawing();
     when(padDepositDrawingRepository.findById(1)).thenReturn(Optional.of(entity));
     when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(entity)).thenReturn(List.of(new PadDepositDrawingLink()));
-    depositDrawingsService.deleteLinksAndEntity(1);
+    depositDrawingsService.removeDrawingAndFile(1, new WebUserAccount());
     verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
     verify(padDepositDrawingRepository, times(1)).delete(any());
+  }
+
+  @Test
+  public void removeDrawingAndFile_noFileFound() {
+    var entity = new PadDepositDrawing();
+    entity.setId(1);
+    entity.setReference("ref");
+    when(padDepositDrawingRepository.findById(1)).thenReturn(Optional.of(entity));
+
+    var drawingLink = new PadDepositDrawingLink();
+    drawingLink.setPadDepositDrawing(entity);
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(entity)).thenReturn(List.of(new PadDepositDrawingLink()));
+
+    depositDrawingsService.removeDrawingAndFile(1, new WebUserAccount());
+    verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
+    verify(padDepositDrawingRepository, times(1)).delete(any());
+    verify(padFileService,times(0)).processFileDeletion(any(), any());
   }
 
 

@@ -1,9 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -132,6 +130,21 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         .collect(Collectors.toList());
   }
 
+  public PermanentDepositDrawingView getDepositDrawingView(Integer depositDrawingId, PwaApplicationDetail pwaApplicationDetail) {
+    var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
+        .orElseThrow(() -> getDrawingNotFoundException(depositDrawingId));
+    var depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
+
+    List<UploadedFileView> fileViews = new ArrayList<>();
+    if (depositDrawing.getFile() != null) {
+      fileViews.add(padFileService.getUploadedFileView(pwaApplicationDetail, depositDrawing.getFile().getFileId(),
+          ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
+    }
+
+    return buildSummaryView(depositDrawing, depositDrawingLinks, fileViews);
+  }
+
+
   private PermanentDepositDrawingView buildSummaryView(PadDepositDrawing depositDrawing,
                                                       List<PadDepositDrawingLink> drawingLinks,
                                                       List<UploadedFileView> fileViewList) {
@@ -169,14 +182,16 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     saveDrawingAndLinks(detail, form, depositDrawing);
   }
 
-  public PadFile deleteLinksAndEntity(int depositDrawingId) {
+  public void removeDrawingAndFile(int depositDrawingId, WebUserAccount webUserAccount) {
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find permanent deposit drawing with ID: " + depositDrawingId));
-    var padFileDrawing = depositDrawing.getFile();
+        .orElseThrow(() -> getDrawingNotFoundException(depositDrawingId));
     List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
+    var padFile = depositDrawing.getFile();
     padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
     padDepositDrawingRepository.delete(depositDrawing);
-    return padFileDrawing;
+    if (padFile != null) {
+      padFileService.processFileDeletion(depositDrawing.getFile(), webUserAccount);
+    }
   }
 
   public Optional<PadDepositDrawing> getDrawingLinkedToPadFile(PwaApplicationDetail applicationDetail, PadFile padFile) {
@@ -193,7 +208,6 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId)));
   }
-
 
 
 
@@ -229,6 +243,11 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         pwaApplicationDetail, drawingRef);
     return existingDrawings.isEmpty()
         || (existingDrawings.get().getId() != null && existingDrawings.get().getId().equals(padDepositDrawingId));
+  }
+
+  private PwaEntityNotFoundException getDrawingNotFoundException(int depositDrawingId) {
+    return new PwaEntityNotFoundException(
+        String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId));
   }
 
 

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.util.Set;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.Before;
@@ -35,7 +36,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.permanentdepositdrawings.PadDepositDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -61,6 +64,9 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @MockBean
   private PermanentDepositService permanentDepositService;
+
+  @MockBean
+  private PadDepositDrawingRepository padDepositDrawingRepository;
 
   @MockBean
   private DepositDrawingsService depositDrawingsService;
@@ -293,6 +299,95 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
 
+  //REMOVE end points
+  @Test
+  public void renderRemovePermanentDeposits_success() throws Exception {
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
+      add("Complete", "Complete");
+    }};
+    mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderRemoveDepositDrawing(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, 1, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .params(params))
+        .andExpect(status().is3xxRedirection());
+  }
+
+  @Test
+  public void renderRemoveDepositDrawing_contactSmokeTest() {
+    when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(),  null, 1, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+  }
+
+  @Test
+  public void renderRemoveDepositDrawing_appTypeSmokeTest() {
+    when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemoveDepositDrawing_appStatusSmokeTest() {
+    when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .renderRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postRemoveDepositDrawing_appTypeSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postRemoveDepositDrawing_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postRemoveDepositDrawing_contactSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam("Complete", "Complete")
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+
+
+
+
 
 
   //EDIT endpoints
@@ -409,9 +504,16 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
 
-
-
-
+  private PermanentDepositDrawingView buildDepositDrawingView() {
+    var view = new PermanentDepositDrawingView();
+    view.setDepositDrawingId(1);
+    view.setDepositReferences(Set.of("dep ref"));
+    view.setReference("drawing ref");
+    view.setFileId("1");
+    view.setDocumentDescription("description");
+    view.setFileName("file name");
+    return view;
+  }
 
 
 
