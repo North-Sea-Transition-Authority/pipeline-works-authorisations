@@ -10,13 +10,19 @@
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Deposit drawing</dt>
             <dd class="govuk-summary-list__value"> 
-                <@fdsAction.link linkText=depositDrawingView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(depositDrawingView.fileId)) linkClass="govuk-link" linkScreenReaderText="Download ${depositDrawingView.fileName}" role=false start=false openInNewTab=true/>
+                <#if depositDrawingView.fileId??>
+                    <@fdsAction.link linkText=depositDrawingView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(depositDrawingView.fileId)) linkClass="govuk-link" linkScreenReaderText="Download ${depositDrawingView.fileName}" role=false start=false openInNewTab=true/>
+                <#else>
+                    <span> No file uploaded </span>
+                </#if>
             </dd>                    
         </div>
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">File description</dt>
-            <dd class="govuk-summary-list__value"> ${depositDrawingView.documentDescription}</dd>                 
-        </div>
+        <#if depositDrawingView.fileId??>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">File description</dt>
+                <dd class="govuk-summary-list__value"> ${depositDrawingView.documentDescription}</dd>                 
+            </div>
+        </#if>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Deposits on drawing</dt>
             <dd class="govuk-summary-list__value">

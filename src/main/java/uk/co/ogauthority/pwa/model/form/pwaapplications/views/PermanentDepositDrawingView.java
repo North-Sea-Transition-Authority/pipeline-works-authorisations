@@ -1,24 +1,42 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
-import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 
 public class PermanentDepositDrawingView {
 
+  private Integer depositDrawingId;
   private String reference;
   private String documentDescription;
   private String fileId;
   private String fileName;
   private Set<String> depositReferences;
 
-  public PermanentDepositDrawingView(String reference, Set<String> depositReferences, UploadedFileView uploadedFileView) {
+
+  public PermanentDepositDrawingView(Integer depositDrawingId, String reference,
+                                     Set<String> depositReferences) {
+    this.depositDrawingId = depositDrawingId;
     this.reference = reference;
     this.depositReferences = depositReferences;
-    this.documentDescription = uploadedFileView.getFileDescription();
+  }
+
+  public PermanentDepositDrawingView(Integer depositDrawingId, String reference,
+                                     Set<String> depositReferences, UploadedFileView uploadedFileView) {
+    this.depositDrawingId = depositDrawingId;
+    this.reference = reference;
+    this.depositReferences = depositReferences;
+    this.documentDescription = uploadedFileView != null ? uploadedFileView.getFileDescription() : "";
     this.fileId = uploadedFileView.getFileId();
     this.fileName = uploadedFileView.getFileName();
+  }
+
+  public Integer getDepositDrawingId() {
+    return depositDrawingId;
+  }
+
+  public void setDepositDrawingId(Integer depositDrawingId) {
+    this.depositDrawingId = depositDrawingId;
   }
 
   public String getReference() {
