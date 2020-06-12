@@ -121,7 +121,8 @@ public class TaskListServiceIntegrationTestTest {
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
-                ApplicationTask.PIPELINES.getDisplayName()
+                ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:
@@ -149,13 +150,15 @@ public class TaskListServiceIntegrationTestTest {
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
-                ApplicationTask.HUOO.getDisplayName()
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName()
             );
             break;
         }
