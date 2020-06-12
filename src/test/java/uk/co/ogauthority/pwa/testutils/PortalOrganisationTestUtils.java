@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.testutils;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;

@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 import java.math.BigDecimal;
 
@@ -67,10 +68,8 @@ public class PermanentDepositEntityMappingServiceTest {
     PermanentDepositsForm baseForm = new PermanentDepositsForm();
     baseForm.setEntityID(baseEntity.getId());
     baseForm.setDepositReference(baseEntity.getReference());
-    baseForm.setFromMonth(baseEntity.getFromMonth());
-    baseForm.setFromYear(baseEntity.getFromYear());
-    baseForm.setToMonth(baseEntity.getToMonth());
-    baseForm.setToYear(baseEntity.getToYear());
+    baseForm.setFromDate(new TwoFieldDateInput(baseEntity.getFromYear(), baseEntity.getFromMonth()));
+    baseForm.setToDate(new TwoFieldDateInput(baseEntity.getToYear(), baseEntity.getToMonth()));
 
     baseForm.setFromCoordinateForm(new CoordinateForm());
     baseForm.getFromCoordinateForm().setLatitudeDegrees(baseEntity.getFromLatitudeDegrees());
@@ -117,6 +116,7 @@ public class PermanentDepositEntityMappingServiceTest {
 
   public void setEntityOtherProperties(PadPermanentDeposit entity){
     entity.setMaterialType(MaterialType.OTHER);
+    entity.setOtherMaterialType("metal");
     entity.setMaterialSize("43");
   }
 
@@ -155,6 +155,7 @@ public class PermanentDepositEntityMappingServiceTest {
     var entity = buildBaseEntity();
     setEntityOtherProperties(entity);
     form.setMaterialType(MaterialType.OTHER);
+    form.setOtherMaterialType(entity.getOtherMaterialType());
     form.setOtherMaterialSize(entity.getMaterialSize());
     form.setQuantityOther(String.valueOf(entity.getQuantity()));
     form.setContingencyOtherAmount(entity.getContingencyAmount());

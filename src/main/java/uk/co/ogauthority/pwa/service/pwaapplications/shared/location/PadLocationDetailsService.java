@@ -59,9 +59,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     locationDetailsForm.setTransportsMaterialsToShore(padLocationDetails.getTransportsMaterialsToShore());
     locationDetailsForm.setTransportationMethod(padLocationDetails.getTransportationMethod());
     locationDetailsForm.setPipelineRouteDetails(padLocationDetails.getPipelineRouteDetails());
-    if (!BooleanUtils.isTrue(locationDetailsForm.getFacilitiesOffshore())) {
-      locationDetailsForm.setPipelineAshoreLocation(padLocationDetails.getPipelineAshoreLocation());
-    }
+    locationDetailsForm.setPipelineAshoreLocation(padLocationDetails.getPipelineAshoreLocation());
     DateUtils.setYearMonthDayFromInstant(
         locationDetailsForm::setSurveyConcludedYear,
         locationDetailsForm::setSurveyConcludedMonth,
@@ -81,8 +79,8 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
     padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());
     padLocationDetails.setPipelineRouteDetails(locationDetailsForm.getPipelineRouteDetails());
-    if (!BooleanUtils.isTrue(padLocationDetails.getFacilitiesOffshore())) {
-      padLocationDetails.setPipelineAshoreLocation(padLocationDetails.getPipelineAshoreLocation());
+    if (BooleanUtils.isFalse(locationDetailsForm.getFacilitiesOffshore())) {
+      padLocationDetails.setPipelineAshoreLocation(locationDetailsForm.getPipelineAshoreLocation());
     } else {
       padLocationDetails.setPipelineAshoreLocation(null);
     }

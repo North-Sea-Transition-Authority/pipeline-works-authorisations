@@ -22,13 +22,15 @@ public class WorkflowTaskInstance {
   public WorkflowTaskInstance(WorkflowSubject workflowSubject,
                               UserWorkflowTask userWorkflowTask) {
 
-    if (!userWorkflowTask.getWorkflowType().equals(workflowSubject.getWorkflowType())) {
+    var taskWorkflowType = WorkflowType.resolveFromTaskWorkflowClass(userWorkflowTask.getClass());
+
+    if (!taskWorkflowType.equals(workflowSubject.getWorkflowType())) {
       throw new WorkflowException(String.format(
           "Can't get task [%s] for %s with ID %s as workflow types don't match: task workflow [%s], subject workflow [%s]",
           userWorkflowTask.getTaskName(),
           workflowSubject.getClass().getName(),
           workflowSubject.getBusinessKey(),
-          userWorkflowTask.getWorkflowType(),
+          taskWorkflowType,
           workflowSubject.getWorkflowType()));
     }
 
@@ -42,7 +44,7 @@ public class WorkflowTaskInstance {
   }
 
   public WorkflowType getWorkflowType() {
-    return userWorkflowTask.getWorkflowType();
+    return workflowSubject.getWorkflowType();
   }
 
   public String getTaskKey() {

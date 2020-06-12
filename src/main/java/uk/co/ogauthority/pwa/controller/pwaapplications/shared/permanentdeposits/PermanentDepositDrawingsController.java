@@ -108,7 +108,8 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                               PwaApplicationContext applicationContext,
                                                @PathVariable("depositDrawingId") Integer depositDrawingId,
                                               @ModelAttribute("form") PermanentDepositDrawingForm form) {
-    depositDrawingsService.mapEntityToForm(applicationContext.getApplicationDetail(), depositDrawingId, form);
+    var depositDrawing = depositDrawingsService.getDepositDrawing(depositDrawingId);
+    depositDrawingsService.mapEntityToForm(applicationContext.getApplicationDetail(), depositDrawing, form);
     return getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
   }
 
@@ -166,10 +167,10 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                              @PathVariable("applicationId") Integer applicationId,
                                              PwaApplicationContext applicationContext,
                                              @PathVariable("depositDrawingId") Integer depositDrawingId,
-                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
-                                             BindingResult bindingResult,
-                                             ValidationType validationType) {
-    bindingResult = depositDrawingsService.validate(form,
+                                            @ModelAttribute("form") PermanentDepositDrawingForm form,
+                                            BindingResult bindingResult,
+                                            ValidationType validationType) {
+    bindingResult = depositDrawingsService.validateDrawingEdit(form,
         bindingResult, validationType, applicationContext.getApplicationDetail(), depositDrawingId);
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
@@ -202,8 +203,6 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
         .addObject("depositDrawingUrlFactory", new DepositDrawingUrlFactory(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()))
-        .addObject("editDepositDrawingUrls", depositDrawingsService.getEditUrlsForDepositDrawings(pwaApplicationDetail))
-        .addObject("removeDepositDrawingUrls", depositDrawingsService.getRemoveUrlsForDepositDrawings(pwaApplicationDetail))
         .addObject("depositDrawingSummaryViews", depositDrawingsService.getDepositDrawingSummaryViews(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
@@ -290,7 +289,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser(),
+    return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(), applicationContext.getUser(),
         padFile -> depositDrawingsService.getDrawingLinkedToPadFile(
             applicationContext.getApplicationDetail(), applicationContext.getPadFile())
             .ifPresent(depositDrawingsService::unlinkFile));

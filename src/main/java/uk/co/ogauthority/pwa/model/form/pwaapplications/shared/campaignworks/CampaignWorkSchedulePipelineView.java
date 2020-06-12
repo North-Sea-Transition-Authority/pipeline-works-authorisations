@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 /**
@@ -30,8 +31,17 @@ public class CampaignWorkSchedulePipelineView {
     this.pipelineTypeDisplayName = pipelineType.getDisplayName();
   }
 
-  // package private static constructor and private standard constructor to ensure only created by package campaign works code for now
-  static CampaignWorkSchedulePipelineView fromPipelineOverview(PipelineOverview pipelineOverview) {
+  public static CampaignWorkSchedulePipelineView fromPadPipeline(PadPipeline padPipeline) {
+    return new CampaignWorkSchedulePipelineView(
+        padPipeline.getPipelineRef(),
+        padPipeline.getFromLocation(),
+        padPipeline.getToLocation(),
+        padPipeline.getLength(),
+        padPipeline.getPipelineType()
+    );
+  }
+
+  public static CampaignWorkSchedulePipelineView fromPipelineOverview(PipelineOverview pipelineOverview) {
     return new CampaignWorkSchedulePipelineView(
         pipelineOverview.getPipelineNumber(),
         pipelineOverview.getFromLocation(),

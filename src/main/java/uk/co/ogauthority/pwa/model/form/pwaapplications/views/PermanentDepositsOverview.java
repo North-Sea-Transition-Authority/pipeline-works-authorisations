@@ -18,6 +18,7 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
   private Integer toYear;
 
   private MaterialType materialType;
+  private String otherMaterialType;
 
   private String rocksSize;
   private Integer groutBagsSize;
@@ -100,6 +101,14 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
 
   public MaterialType getMaterialType() {
     return materialType;
+  }
+
+  public String getOtherMaterialType() {
+    return otherMaterialType;
+  }
+
+  public void setOtherMaterialType(String otherMaterialType) {
+    this.otherMaterialType = otherMaterialType;
   }
 
   public void setMaterialType(MaterialType materialType) {
@@ -267,6 +276,7 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
         && Objects.equals(toMonth, that.toMonth)
         && Objects.equals(toYear, that.toYear)
         && materialType == that.materialType
+        && Objects.equals(otherMaterialType, that.otherMaterialType)
         && Objects.equals(rocksSize, that.rocksSize)
         && Objects.equals(groutBagsSize, that.groutBagsSize)
         && Objects.equals(otherMaterialSize, that.otherMaterialSize)
@@ -290,7 +300,7 @@ public class PermanentDepositsOverview extends UploadMultipleFilesWithDescriptio
   @Override
   public int hashCode() {
     return Objects.hash(entityID, depositReference, pipelineRefs, fromMonth, fromYear,
-        toMonth, toYear, materialType, rocksSize, groutBagsSize,
+        toMonth, toYear, materialType, otherMaterialType, rocksSize, groutBagsSize,
         otherMaterialSize, concreteMattressLength, concreteMattressWidth, concreteMattressDepth, groutBagsBioDegradable,
         bioGroutBagsNotUsedDescription, quantityConcrete, quantityRocks, quantityGroutBags, quantityOther,
         contingencyConcreteAmount, contingencyRocksAmount, contingencyGroutBagsAmount,
