@@ -5,16 +5,12 @@
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 
 <#macro blockCrossingManagement urlFactory blockCrossings=[] blockCrossingFileViews=[]>
-  <h2 class="govuk-heading-l">Block crossings</h2>
+  <h2 class="govuk-heading-l">Blocks</h2>
     <@fdsInsetText.insetText>
-      <span>Any crossed block not 100% owned by the PWA holder(s) requires a block crossing agreement document to be uploaded.</span>
-        <#if !blockCrossings?has_content>
-          <br/><br/>
-          <span>No block crossings have been added to this application.</span>
-        </#if>
+      <span>Add each block the pipelines are located in or will cross.</span>
     </@fdsInsetText.insetText>
 
-    <@fdsAction.link linkText="Add block crossing" linkUrl=springUrl(urlFactory.getAddBlockCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
+    <@fdsAction.link linkText="Add block" linkUrl=springUrl(urlFactory.getAddBlockCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
     <#if blockCrossings?has_content>
       <table class="govuk-table">
         <thead class="govuk-table__head">
@@ -50,15 +46,14 @@
         </tbody>
       </table>
     </#if>
+
   <h3 class="govuk-heading-m">Block crossing agreement documents</h3>
+    <@fdsInsetText.insetText>
+      <span>Any crossed block not 100% owned by the PWA holder(s) requires a block crossing agreement document to be uploaded.</span>
+    </@fdsInsetText.insetText>
+    <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     <#if blockCrossingFileViews?has_content>
-        <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
         <@fileUpload.uploadedFileList downloadUrl=springUrl(urlFactory.getFileDownloadUrl()) existingFiles=blockCrossingFileViews/>
-    <#else>
-        <@fdsInsetText.insetText>
-          No block crossing agreement documents have been added to this application.
-        </@fdsInsetText.insetText>
-        <@fdsAction.link linkText="Add, edit or remove block crossing documents" linkUrl=springUrl(urlFactory.getBlockCrossingDocumentsUrl()) linkClass="govuk-button govuk-button--blue"/>
     </#if>
 
 

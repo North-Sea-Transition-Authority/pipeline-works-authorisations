@@ -4,15 +4,17 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
+import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Component
-public class EditBlockCrossingFormValidator implements Validator {
+public class EditBlockCrossingFormValidator implements SmartValidator {
 
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
 
@@ -27,8 +29,15 @@ public class EditBlockCrossingFormValidator implements Validator {
   }
 
   @Override
+  @Deprecated
   public void validate(Object target, Errors errors) {
+
+  }
+
+  @Override
+  public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (EditBlockCrossingForm) target;
+    var licence = (PearsLicence) validationHints[0];
 
     if (form.getCrossedBlockOwner() != null
         && form.getCrossedBlockOwner().equals(CrossedBlockOwner.PORTAL_ORGANISATION)) {
@@ -39,13 +48,18 @@ public class EditBlockCrossingFormValidator implements Validator {
       );
     }
 
-    if (form.getCrossedBlockOwner() != null
-        && form.getCrossedBlockOwner().equals(CrossedBlockOwner.OTHER_ORGANISATION)) {
-      ValidationUtils.rejectIfEmpty(
-          errors, "operatorNotFoundFreeTextBox",
-          "operatorNotFoundFreeTextBox.required",
-          "You must provide a block owner"
-      );
+    if (form.getCrossedBlockOwner() != CrossedBlockOwner.UNLICENSED) {
+      if (licence == null) {
+        errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
+            "This block is unlicensed");
+      }
+    }
+
+    if (form.getCrossedBlockOwner() == CrossedBlockOwner.UNLICENSED) {
+      if (licence != null) {
+        errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
+            "You can't select this block because it is owned");
+      }
     }
 
     if (form.getBlockOwnersOuIdList() != null && !form.getBlockOwnersOuIdList().isEmpty()) {

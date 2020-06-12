@@ -5,11 +5,11 @@
 <#-- @ftlvariable name="blockSelectorUrl" type="java.lang.String" -->
 
 
-<@defaultPage htmlTitle="Add block crossing" pageHeading="Add block crossing" breadcrumbs=true>
+<@defaultPage htmlTitle="Add block" pageHeading="Add block crossing" breadcrumbs=true>
     <@fdsError.errorSummary errorItems=errorList />
 
     <@fdsForm.htmlForm>
-        <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="Which block has been crossed?" selectorMinInputLength=3/>
+        <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="What block is the pipeline located in or crossing?" selectorMinInputLength=3/>
         <@fdsRadio.radioGroup
         path="form.crossedBlockOwner"
         labelText="Who owns the block?"

@@ -136,7 +136,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
                                          EditBlockCrossingForm form) {
     var ownerList = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
 
-    if (CrossedBlockOwner.OTHER_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
+    if (CrossedBlockOwner.UNLICENSED.equals(padCrossedBlock.getBlockOwner())) {
       form.setOperatorNotFoundFreeTextBox(
           ownerList.stream()
               .filter(o -> o.getOwnerName() != null)
@@ -208,7 +208,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
       );
     }
 
-    if (CrossedBlockOwner.OTHER_ORGANISATION.equals(form.getCrossedBlockOwner())
+    if (CrossedBlockOwner.UNLICENSED.equals(form.getCrossedBlockOwner())
         && !StringUtils.isBlank(form.getOperatorNotFoundFreeTextBox())) {
       createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, null, form.getOperatorNotFoundFreeTextBox()));
     }
@@ -240,7 +240,8 @@ public class BlockCrossingService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return true;
+    return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(detail) > 0
+        && blockCrossingFileService.isComplete(detail);
   }
 
   @Override

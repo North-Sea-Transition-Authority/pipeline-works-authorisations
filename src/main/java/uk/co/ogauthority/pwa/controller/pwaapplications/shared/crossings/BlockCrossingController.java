@@ -180,7 +180,7 @@ public class BlockCrossingController {
         applicationContext.getApplicationDetail()
     );
 
-    editBlockCrossingFormValidator.validate(form, bindingResult);
+    editBlockCrossingFormValidator.validate(form, bindingResult, crossedBlock.getLicence());
 
     return ControllerUtils.checkErrorsAndRedirect(
         bindingResult,

@@ -3,8 +3,9 @@ package uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
+import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 
@@ -31,11 +32,19 @@ public class AddBlockCrossingFormValidator implements Validator {
   public void validate(Object target, Errors errors) {
     var form = (AddBlockCrossingForm) target;
 
-    if (form.getPickedBlock() != null
-        && pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(form.getPickedBlock()).isEmpty()) {
-      errors.rejectValue("pickedBlock", "pickedBlock.invalid", "You must pick a valid block");
+    PearsLicence licence;
+
+    if (form.getPickedBlock() != null) {
+      var optionalBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(form.getPickedBlock());
+      if (optionalBlock.isEmpty()) {
+        errors.rejectValue("pickedBlock", "pickedBlock.invalid", "You must pick a valid block");
+      }
+      licence = optionalBlock.map(PearsBlock::getPearsLicence)
+          .orElse(null);
+    } else {
+      licence = null;
     }
 
-    ValidationUtils.invokeValidator(editBlockCrossingFormValidator, form, errors);
+    editBlockCrossingFormValidator.validate(form, errors, licence);
   }
 }
