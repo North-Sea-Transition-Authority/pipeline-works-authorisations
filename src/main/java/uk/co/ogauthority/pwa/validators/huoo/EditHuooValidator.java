@@ -1,30 +1,42 @@
 package uk.co.ogauthority.pwa.validators.huoo;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
+
 
 @Service
 public class EditHuooValidator implements SmartValidator {
 
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final TeamService teamService;
 
   @Autowired
   public EditHuooValidator(
       PadOrganisationRoleService padOrganisationRoleService,
-      PortalOrganisationsAccessor portalOrganisationsAccessor) {
+      PortalOrganisationsAccessor portalOrganisationsAccessor,
+      TeamService teamService) {
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.teamService = teamService;
   }
 
   @Override
@@ -57,6 +69,24 @@ public class EditHuooValidator implements SmartValidator {
                 "The selected organisation is invalid");
             return null;
           });
+
+      if (validationHints.length >= 3 && validationHints[2] instanceof AuthenticatedUserAccount
+          && detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL)) {
+        var userCanAccessOrgUnit = false;
+        var user = (AuthenticatedUserAccount) validationHints[2];
+        for (var orgUnitUserCanAccess: getOrgUnitsUserCanAccess(user)) {
+          if (form.getOrganisationUnitId() == orgUnitUserCanAccess.getOuId()) {
+            userCanAccessOrgUnit = true;
+            break;
+          }
+        }
+        if (!userCanAccessOrgUnit) {
+          errors.rejectValue("organisationUnitId",
+              "organisationUnitId" + FieldValidationErrorCodes.INVALID.getCode(),
+              "You do not have access to the selected organisation.");
+        }
+      }
+
       if (SetUtils.emptyIfNull(form.getHuooRoles()).isEmpty()) {
         errors.rejectValue("huooRoles", "huooRoles.required",
             "You must select one or more roles");
@@ -127,4 +157,15 @@ public class EditHuooValidator implements SmartValidator {
       }
     }
   }
+
+
+  private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
+    var orgGroupsUserCanAccess = teamService.getOrganisationTeamListIfPersonInRole(
+        user.getLinkedPerson(),
+        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
+        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+        .collect(Collectors.toList());
+    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(orgGroupsUserCanAccess);
+  }
+
 }
