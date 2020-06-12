@@ -18,7 +18,6 @@ public class PortalRoleDto {
     this.displaySequence = displaySequence;
   }
 
-
   public int getResId() {
     return resId;
   }

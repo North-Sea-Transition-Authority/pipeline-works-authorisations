@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.testutils;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalRoleDto;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
@@ -10,9 +11,11 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
+import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 
 /**
  * Util class to ease testing of Teams service and associated services which use teams package objects.
@@ -118,6 +121,16 @@ public class TeamTestingUtils {
     }
 
     return portalOrganisationGroup;
+  }
+
+  public static PwaTeamMember createRegulatorTeamMember(PwaTeam regulatorTeam, Person person, Set<PwaRegulatorRole> regulatorRoles) {
+
+    var pwaRoles = regulatorRoles.stream()
+        .map(role -> new PwaRole(role.name(), "title", "desc", 10))
+        .collect(Collectors.toSet());
+
+    return new PwaTeamMember(regulatorTeam, person, pwaRoles);
+
   }
 
 }

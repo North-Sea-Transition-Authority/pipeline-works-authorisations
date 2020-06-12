@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaAuthorisationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaSource;
-import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalAndMigrationService;
+import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 
@@ -50,7 +50,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   private MasterPwaAuthorisationService masterPwaAuthorisationService;
 
   @MockBean
-  private PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
+  private PickedPwaRetrievalService pickedPwaRetrievalService;
 
   @MockBean
   private PickPwaForVariationService pickPwaForVariationService;
@@ -69,7 +69,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Before
   public void setup() {
 
-    when(masterPwaAuthorisationService.getMasterPwaIfAuthorised(anyInt(), any())).thenReturn(masterPwa);
+    when(masterPwaAuthorisationService.getMasterPwaIfAuthorised(anyInt(), any(), any())).thenReturn(masterPwa);
     // fake create application service so we get an app of the requested type back
     when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any())).thenAnswer(invocation -> {
           PwaApplicationType appType = Arrays.stream(invocation.getArguments())
