@@ -146,7 +146,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_appTypeSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -159,7 +159,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_appStatusSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -172,7 +172,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   @Test
   public void postDepositDrawingsOverview_contactSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
+    when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam("Complete", "Complete")
         .setEndpointUrlProducer((applicationDetail, type) ->

@@ -8,11 +8,14 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 
 
+
 @Repository
 public interface PadDepositDrawingLinkRepository extends CrudRepository<PadDepositDrawingLink, Integer> {
 
   List<PadDepositDrawingLink> getAllByPadDepositDrawingIn(List<PadDepositDrawing> drawings);
 
   List<PadDepositDrawingLink> getAllByPadDepositDrawing(PadDepositDrawing drawing);
+
+  List<PadDepositDrawingLink> getAllByPadPermanentDeposit(PadPermanentDeposit padPermanentDeposits);
 
 }
