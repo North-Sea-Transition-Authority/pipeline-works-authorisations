@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -99,6 +101,7 @@ public class PadPipelineIdentServiceTest {
     var newIdent = identCaptor.getValue();
 
     verify(identDataService, times(1)).addIdentData(newIdent, form.getDataForm());
+    verify(identDataService, never()).updateIdentData(any(), any());
 
     assertThat(newIdent.getPadPipeline()).isEqualTo(pipeline);
     assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());
@@ -293,6 +296,7 @@ public class PadPipelineIdentServiceTest {
     identService.updateIdent(ident, form);
     verify(repository, times(1)).save(ident);
     verify(identDataService, times(1)).updateIdentData(ident, form.getDataForm());
+    verify(identDataService, never()).addIdentData(any(), any());
 
     assertThat(ident.getFromCoordinates()).isEqualTo(
         CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
@@ -411,6 +415,7 @@ public class PadPipelineIdentServiceTest {
     verify(repository, times(1)).save(saveCaptor.capture());
     verify(repository, times(1)).saveAll(List.of(ident));
     verify(identDataService, times(1)).addIdentData(saveCaptor.getValue(), form.getDataForm());
+    verify(identDataService, never()).updateIdentData(any(), any());
 
     var newIdent = saveCaptor.getValue();
 
