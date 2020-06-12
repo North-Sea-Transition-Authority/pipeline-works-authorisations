@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaDto;
-import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalAndMigrationService;
+import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -47,16 +47,16 @@ public class PickExistingPwaController {
   );
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final PickedPwaRetrievalAndMigrationService masterPwaRetrievalAndMigrationService;
+  private final PickedPwaRetrievalService pickedPwaRetrievalService;
   private final PickPwaForVariationService pickPwaForVariationService;
 
   @Autowired
   public PickExistingPwaController(
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      PickedPwaRetrievalAndMigrationService pickPwaService,
+      PickedPwaRetrievalService pickPwaService,
       PickPwaForVariationService pickPwaForVariationService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.masterPwaRetrievalAndMigrationService = pickPwaService;
+    this.pickedPwaRetrievalService = pickPwaService;
     this.pickPwaForVariationService = pickPwaForVariationService;
   }
 
@@ -72,7 +72,7 @@ public class PickExistingPwaController {
 
   private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user) {
 
-    Map<String, String> selectablePwaMap = masterPwaRetrievalAndMigrationService.getPickablePwasWhereAuthorised(user)
+    Map<String, String> selectablePwaMap = pickedPwaRetrievalService.getPickablePwasWhereAuthorised(user)
         .stream()
         .sorted(Comparator.comparing(PickablePwaDto::getReference))
         .collect(StreamUtils.toLinkedHashMap(PickablePwaDto::getPickablePwaString, PickablePwaDto::getReference));

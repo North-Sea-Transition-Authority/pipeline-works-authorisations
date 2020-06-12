@@ -47,12 +47,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/portal-team-management", "/portal-team-management/**")
           .hasAnyAuthority(systemAreaAccessService.getValidTeamManagementGrantedAuthorities())
 
-        .antMatchers("/session-info", "/maps-test")
+        .antMatchers("/session-info", "/maps-test", "/notify/callback")
           .permitAll()
 
         .anyRequest()
           .authenticated();
 
+    http.csrf().ignoringAntMatchers("/notify/callback");
 
     try {
       // Redirect to FOX for login if the request is unauthenticated.
@@ -72,6 +73,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     } catch (Exception e) {
       throw new RuntimeException("Failed to configure HttpSecurity", e);
     }
+
   }
 
   @Override

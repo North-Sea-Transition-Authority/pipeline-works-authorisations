@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.notify;
 
-import uk.co.ogauthority.pwa.model.notify.EmailProperties;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 
 public interface NotifyService {
 
