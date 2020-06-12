@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.notify;
+package uk.co.ogauthority.pwa.model.notify.emailproperties;
 
 import java.util.Map;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
@@ -8,9 +8,10 @@ public class CaseOfficerAssignedEmailProps extends EmailProperties {
   private final String applicationReference;
   private final String caseOfficerName;
 
-  public CaseOfficerAssignedEmailProps(String applicationReference,
+  public CaseOfficerAssignedEmailProps(String recipientFullName,
+                                       String applicationReference,
                                        String caseOfficerName) {
-    super(NotifyTemplate.CASE_OFFICER_ASSIGNED);
+    super(NotifyTemplate.CASE_OFFICER_ASSIGNED, recipientFullName);
     this.applicationReference = applicationReference;
     this.caseOfficerName = caseOfficerName;
   }

@@ -5,7 +5,14 @@ package uk.co.ogauthority.pwa.model.enums.notify;
  */
 public enum NotifyTemplate {
 
-  CASE_OFFICER_ASSIGNED("CASE_OFFICER_ASSIGNED_V1");
+  // Application workflow changes
+  APPLICATION_SUBMITTED("APPLICATION_SUBMITTED_V1"),
+
+  // Assignment
+  CASE_OFFICER_ASSIGNED("CASE_OFFICER_ASSIGNED_V1"),
+
+  // Notify callbacks
+  EMAIL_DELIVERY_FAILED("EMAIL_DELIVERY_FAILED_V1");
 
   private final String templateName;
 
