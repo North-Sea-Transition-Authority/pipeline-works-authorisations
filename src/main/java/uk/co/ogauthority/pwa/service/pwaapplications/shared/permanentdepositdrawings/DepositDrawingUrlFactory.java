@@ -35,6 +35,13 @@ public class DepositDrawingUrlFactory {
             null, drawingId, null));
   }
 
+  public String getRemoveDrawingUrl(int drawingId) {
+    return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderRemoveDepositDrawing(
+            this.applicationType, this.applicationId,
+            null, drawingId, null));
+  }
+
 
 
 }
