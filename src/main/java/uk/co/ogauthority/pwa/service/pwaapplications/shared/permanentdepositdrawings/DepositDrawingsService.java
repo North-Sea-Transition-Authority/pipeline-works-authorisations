@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -134,10 +135,13 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         .orElseThrow(() -> getDrawingNotFoundException(depositDrawingId));
     var depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
 
-    UploadedFileView fileViews = padFileService.getUploadedFileView(pwaApplicationDetail, depositDrawing.getFile().getFileId(),
-        ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    List<UploadedFileView> fileViews = new ArrayList<>();
+    if (depositDrawing.getFile() != null) {
+      fileViews.add(padFileService.getUploadedFileView(pwaApplicationDetail, depositDrawing.getFile().getFileId(),
+          ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
+    }
 
-    return buildSummaryView(depositDrawing, depositDrawingLinks, List.of(fileViews));
+    return buildSummaryView(depositDrawing, depositDrawingLinks, fileViews);
   }
 
 
@@ -182,9 +186,12 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
         .orElseThrow(() -> getDrawingNotFoundException(depositDrawingId));
     List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
+    var padFile = depositDrawing.getFile();
     padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
     padDepositDrawingRepository.delete(depositDrawing);
-    padFileService.processFileDeletion(depositDrawing.getFile(), webUserAccount);
+    if (padFile != null) {
+      padFileService.processFileDeletion(depositDrawing.getFile(), webUserAccount);
+    }
   }
 
   public Optional<PadDepositDrawing> getDrawingLinkedToPadFile(PwaApplicationDetail applicationDetail, PadFile padFile) {
