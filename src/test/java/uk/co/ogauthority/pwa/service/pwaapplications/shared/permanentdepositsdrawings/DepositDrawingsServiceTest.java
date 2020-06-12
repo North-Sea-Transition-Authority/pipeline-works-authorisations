@@ -248,42 +248,57 @@ public class DepositDrawingsServiceTest {
 
   @Test
   public void isComplete_valid() {
+    var depositDrawing = new PadDepositDrawing();
+    var padFile = new PadFile();
+    padFile.setId(1);
+    padFile.setFileId("1");
+    depositDrawing.setFile(padFile);
+    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
+
+    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
+    when(padFileService.getUploadedFileView(pwaApplicationDetail,"1",
+        ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    deposit1.setReference("ref 1");
+
     assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
   }
 
   @Test
-  public void isComplete_invalid() {
+  public void isComplete_noFileLinkedInvalid() {
     var deposit1 = new PadPermanentDeposit();
     deposit1.setId(1);
     var deposit2 = new PadPermanentDeposit();
     deposit2.setId(2);
-    var deposits = List.of(deposit1, deposit2);
-    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(deposits);
-
-    var depositLink1 = new PadDepositDrawingLink();
-    depositLink1.setPadPermanentDeposit(deposit1);
-    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1));
 
     assertFalse(depositDrawingsService.isComplete(pwaApplicationDetail));
   }
 
   @Test
   public void isComplete_valid_multipleDrawingsOnSameDeposit() {
+    var depositDrawing = new PadDepositDrawing();
+    var padFile = new PadFile();
+    padFile.setId(1);
+    padFile.setFileId("1");
+    depositDrawing.setFile(padFile);
+    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
+
+    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
+    when(padFileService.getUploadedFileView(pwaApplicationDetail,"1",
+        ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+
     var deposit1 = new PadPermanentDeposit();
     deposit1.setId(1);
     var deposit2 = new PadPermanentDeposit();
     deposit2.setId(2);
-    var deposits = List.of(deposit1, deposit2);
-    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(deposits);
 
     var depositLink1 = new PadDepositDrawingLink();
     depositLink1.setPadPermanentDeposit(deposit1);
     var depositLink2 = new PadDepositDrawingLink();
     depositLink2.setPadPermanentDeposit(deposit2);
-    var depositLink3 = new PadDepositDrawingLink();
     depositLink2.setPadPermanentDeposit(deposit1);
-    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit1)).thenReturn(List.of(depositLink1, depositLink3));
-    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit2)).thenReturn(List.of(depositLink2));
 
     assertTrue(depositDrawingsService.isComplete(pwaApplicationDetail));
   }

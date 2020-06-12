@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -210,13 +211,19 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var permanentDeposits = permanentDepositService.getPermanentDeposits(detail);
-    for (var permanentDeposit: permanentDeposits) {
-      if (padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(permanentDeposit).isEmpty()) {
+    var depositDrawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(detail);
+    for (var depositDrawing: depositDrawings) {
+      var form = new PermanentDepositDrawingForm();
+      mapEntityToForm(detail, depositDrawing, form);
+
+      BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+      validateDrawingEdit(form, bindingResult, ValidationType.FULL, detail, depositDrawing.getId());
+      if (bindingResult.hasErrors()) {
         return false;
       }
     }
-    return true;
+
+    return depositDrawings.size() > 0;
   }
 
   @Override
