@@ -134,8 +134,7 @@ public class PadPipelineIdentService {
     identDataService.getOptionalOfIdentData(ident)
         .ifPresentOrElse(
             (padPipelineIdentData) -> identDataService.updateIdentData(ident, form.getDataForm()),
-            () -> identDataService.addIdentData(ident, form.getDataForm())
-        );
+            () -> identDataService.addIdentData(ident, form.getDataForm()));
   }
 
   public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form) {
