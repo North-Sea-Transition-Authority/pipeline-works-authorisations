@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,9 +41,13 @@ public class PadPipelineIdentDataService {
         .collect(StreamUtils.toLinkedHashMap(PadPipelineIdentData::getPadPipelineIdent, data -> data));
   }
 
+  public Optional<PadPipelineIdentData> getOptionalOfIdentData(PadPipelineIdent ident) {
+    return repository.getByPadPipelineIdent(ident);
+  }
+
   public PadPipelineIdentData getIdentData(PadPipelineIdent ident) {
-    return repository.getByPadPipelineIdent(ident)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Couldn't find data for ident with id: " + ident.getId()));
+    return getOptionalOfIdentData(ident).orElseThrow(() ->
+        new PwaEntityNotFoundException("Couldn't find data for ident with id: " + ident.getId()));
   }
 
   void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {

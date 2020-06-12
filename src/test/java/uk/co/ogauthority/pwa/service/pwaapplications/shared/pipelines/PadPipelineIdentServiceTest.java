@@ -293,6 +293,10 @@ public class PadPipelineIdentServiceTest {
     ), form.getToCoordinateForm());
     form.setDataForm(new PipelineIdentDataForm());
     var ident = new PadPipelineIdent();
+
+    var identData = new PadPipelineIdentData();
+    when(identDataService.getOptionalOfIdentData(ident)).thenReturn(Optional.of(identData));
+
     identService.updateIdent(ident, form);
     verify(repository, times(1)).save(ident);
     verify(identDataService, times(1)).updateIdentData(ident, form.getDataForm());
