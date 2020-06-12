@@ -7,7 +7,7 @@
 
 <@defaultPage htmlTitle="Remove pipeline drawing" pageHeading="Are you sure you want to remove this pipeline drawing?" breadcrumbs=true>
 
-    <@drawingSummary.drawingSummary summary=summary urlFactory=urlFactory showReferenceAsKey=true showActions=false />
+    <@drawingSummary.drawingSummary summary=summary urlFactory=urlFactory validatorFactory={} showReferenceAsKey=true showActions=false />
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline drawing" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
