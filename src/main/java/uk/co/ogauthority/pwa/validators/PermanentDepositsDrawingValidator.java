@@ -37,8 +37,9 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
     if (StringUtils.isNotBlank(form.getReference()) && validationHints[0] instanceof DepositDrawingsService) {
       var depositDrawingsService = (DepositDrawingsService) validationHints[0];
       var pwaApplicationDetail = (PwaApplicationDetail) validationHints[1];
+      var padDepositDrawingId = validationHints.length >= 3 && validationHints[2] instanceof Integer ? (Integer) validationHints[2] : null;
       ValidatorUtils.validateBooleanTrue(errors, depositDrawingsService.isDrawingReferenceUnique(
-          form.getReference(), pwaApplicationDetail),
+          form.getReference(), padDepositDrawingId, pwaApplicationDetail),
           "reference", "Drawing reference must be unique, enter a different reference");
     }
 

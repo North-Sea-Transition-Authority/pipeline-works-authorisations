@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -28,6 +31,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -35,6 +40,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -172,7 +178,7 @@ public class AddHuooController {
     var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
     editHuooValidator.validate(form, bindingResult, detail,
-        padOrganisationRoleService.getValidationViewForOrg(detail, orgUnit));
+        padOrganisationRoleService.getValidationViewForOrg(detail, orgUnit), user);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getEditHuooModelAndView(detail, HuooType.PORTAL_ORG), () -> {
           padOrganisationRoleService.updateEntityUsingForm(detail, orgUnit, form);
@@ -261,5 +267,11 @@ public class AddHuooController {
     return ReverseRouter.redirect(on(HuooController.class)
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }
+
+
+
+
+
+
 
 }

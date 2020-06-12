@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
@@ -76,6 +77,10 @@ public class TaskCompletionServiceIntegrationTest {
   @MockBean
   private CampaignWorksService campaignWorksService;
 
+
+  @MockBean
+  private PipelinesHuooService pipelinesHuooService;
+
   @Test
   public void isTaskComplete() {
 
@@ -108,9 +113,12 @@ public class TaskCompletionServiceIntegrationTest {
         case PIPELINES:
           service = padPipelineService;
           break;
+        case PIPELINES_HUOO:
+          service = pipelinesHuooService;
+          break;
         case CAMPAIGN_WORKS:
-            service = campaignWorksService;
-            break;
+          service = campaignWorksService;
+          break;
         case TECHNICAL_DRAWINGS:
           service = technicalDrawingSectionService;
           break;
