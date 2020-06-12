@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaconsents;
 
 
 import java.time.Instant;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -127,5 +128,21 @@ public class PwaConsentOrganisationRole {
 
   public void setEndTimestamp(Instant endTimestamp) {
     this.endTimestamp = endTimestamp;
+  }
+
+  @Override
+  public String toString() {
+    return "PwaConsentOrganisationRole{" +
+        "id=" + id +
+        ", addedByPwaConsentId=" + addedByPwaConsent.getId() +
+        ", endedByPwaConsentId=" + Optional.ofNullable(endedByPwaConsent).map(PwaConsent::getId).orElse(null) +
+        ", role=" + role +
+        ", type=" + type +
+        ", organisationUnitId=" + organisationUnitId +
+        ", migratedOrganisationName='" + migratedOrganisationName + '\'' +
+        ", agreement=" + agreement +
+        ", startTimestamp=" + startTimestamp +
+        ", endTimestamp=" + endTimestamp +
+        '}';
   }
 }

@@ -40,8 +40,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.util.ControllerTestUtils;
-import uk.co.ogauthority.pwa.util.TeamTestingUtils;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
+import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PortalTeamManagementController.class)

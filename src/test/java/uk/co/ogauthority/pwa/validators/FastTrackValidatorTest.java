@@ -7,7 +7,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 public class FastTrackValidatorTest {
 

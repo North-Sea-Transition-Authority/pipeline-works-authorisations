@@ -1,29 +1,39 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
+import static java.util.Map.entry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
-import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationSubmissionServiceTest {
@@ -34,12 +44,16 @@ public class PwaApplicationSubmissionServiceTest {
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
-  private PwaApplicationSubmissionService pwaApplicationSubmissionService;
+  @Mock
+  private NotifyService notifyService;
 
-  private Instant fixedInstant = LocalDate
-      .of(2020, 2, 6)
-      .atStartOfDay(ZoneId.systemDefault())
-      .toInstant();
+  @Mock
+  private TeamService teamService;
+
+  @Captor
+  private ArgumentCaptor<EmailProperties> emailPropsCaptor;
+
+  private PwaApplicationSubmissionService pwaApplicationSubmissionService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private WebUserAccount user = new WebUserAccount(1);
@@ -48,7 +62,9 @@ public class PwaApplicationSubmissionServiceTest {
   public void setup() {
     pwaApplicationSubmissionService = new PwaApplicationSubmissionService(
         pwaApplicationDetailService,
-        camundaWorkflowService
+        camundaWorkflowService,
+        notifyService,
+        teamService
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -89,11 +105,40 @@ public class PwaApplicationSubmissionServiceTest {
   @Test
   public void submitApplication_whenDetailIsTipDraft() {
 
-    ArgumentCaptor<PwaApplicationDetail> detailCapture = ArgumentCaptor.forClass(PwaApplicationDetail.class);
+    var teamMemberList = List.of(
+        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
+          new Person(1, "PWA", "Manager1", "manager1@pwa.co.uk", null),
+          Set.of(PwaRegulatorRole.PWA_MANAGER)),
+        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
+          new Person(2, "PWA", "Manager2", "manager2@pwa.co.uk", null),
+          Set.of(PwaRegulatorRole.PWA_MANAGER)),
+        TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
+          new Person(3, "PWA", "Case officer", "co@pwa.co.uk", null),
+          Set.of(PwaRegulatorRole.CASE_OFFICER))
+    );
+
+    when(teamService.getTeamMembers(teamService.getRegulatorTeam())).thenReturn(teamMemberList);
+
     pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
 
     verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.PREPARE_APPLICATION)));
+
+    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager1@pwa.co.uk"));
+    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo("PWA Manager1");
+
+    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager2@pwa.co.uk"));
+    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo("PWA Manager2");
+
+    emailPropsCaptor.getAllValues().forEach(emailProps -> {
+
+      assertThat(emailProps.getTemplate()).isEqualTo(NotifyTemplate.APPLICATION_SUBMITTED);
+      assertThat(emailProps.getEmailPersonalisation()).contains(
+          entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
+          entry("APPLICATION_TYPE", pwaApplicationDetail.getPwaApplicationType().getDisplayName())
+      );
+
+    });
 
   }
 

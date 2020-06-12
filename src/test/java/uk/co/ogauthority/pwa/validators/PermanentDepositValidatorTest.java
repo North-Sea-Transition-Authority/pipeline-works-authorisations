@@ -1,5 +1,12 @@
 package uk.co.ogauthority.pwa.validators;
 
+import static java.util.Map.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,18 +26,10 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
-
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.util.Map.entry;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositValidatorTest {

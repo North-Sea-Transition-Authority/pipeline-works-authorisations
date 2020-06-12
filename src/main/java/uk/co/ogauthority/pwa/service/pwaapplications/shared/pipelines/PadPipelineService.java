@@ -223,7 +223,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
                 PadPipeline::getPipelineRef));
   }
 
-  public long totalPipelineContainedInApplication(PwaApplicationDetail pwaApplicationDetail) {
+  public long getTotalPipelinesContainedInApplication(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 

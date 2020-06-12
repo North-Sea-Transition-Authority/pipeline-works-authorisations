@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -49,18 +50,21 @@ public class TaskListService {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final TaskCompletionService taskCompletionService;
   private final PwaContactService pwaContactService;
+  private final MasterPwaViewService masterPwaViewService;
 
   @Autowired
   public TaskListService(ApplicationContext applicationContext,
                          PwaApplicationRedirectService pwaApplicationRedirectService,
                          ApplicationBreadcrumbService breadcrumbService,
                          TaskCompletionService taskCompletionService,
-                         PwaContactService pwaContactService) {
+                         PwaContactService pwaContactService,
+                         MasterPwaViewService masterPwaViewService) {
     this.applicationContext = applicationContext;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.breadcrumbService = breadcrumbService;
     this.taskCompletionService = taskCompletionService;
     this.pwaContactService = pwaContactService;
+    this.masterPwaViewService = masterPwaViewService;
   }
 
   @VisibleForTesting
@@ -227,9 +231,9 @@ public class TaskListService {
         .addObject("prepareAppTasks", getPrepareAppTasks(pwaApplicationDetail))
         .addObject("submissionTask", getSubmissionTask(pwaApplicationDetail));
 
-    // TODO: PWA-361 - Remove hard-coded "PWA-Example-BP-2".
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
-      modelAndView.addObject("masterPwaReference", "PWA-Example-BP-2");
+      modelAndView.addObject("masterPwaReference",
+          masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
     }
 
     breadcrumbService.fromWorkArea(modelAndView, "Task list");

@@ -63,7 +63,7 @@ public class PermanentDepositDrawingValidatorTest {
     var form = new PermanentDepositDrawingForm();
     form.setReference("existing ref");
     when(service.isDrawingReferenceUnique(
-        form.getReference(), pwaApplicationDetail)).thenReturn(false);
+        form.getReference(), null, pwaApplicationDetail)).thenReturn(false);
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry("reference", Set.of("reference.required"))
     );
@@ -74,10 +74,25 @@ public class PermanentDepositDrawingValidatorTest {
     var form = new PermanentDepositDrawingForm();
     form.setReference("new ref");
     when(service.isDrawingReferenceUnique(
-        form.getReference(), pwaApplicationDetail)).thenReturn(true);
+        form.getReference(), null, pwaApplicationDetail)).thenReturn(true);
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).doesNotContain((entry("reference", Set.of("reference.required"))));
   }
+
+  @Test
+  public void validate_ref_existingDrawing_valid() {
+    var form = new PermanentDepositDrawingForm();
+    form.setReference("new ref");
+    when(service.isDrawingReferenceUnique(
+        form.getReference(), 1, pwaApplicationDetail)).thenReturn(true);
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+    validator.validate(form, errors, service, pwaApplicationDetail, 1);
+    Map<String, Set<String>> errorsMap =  errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+    assertThat(errorsMap).doesNotContain((entry("reference", Set.of("reference.required"))));
+  }
+
 
   @Test
   public void validate_files_moreThanOneUploaded() {

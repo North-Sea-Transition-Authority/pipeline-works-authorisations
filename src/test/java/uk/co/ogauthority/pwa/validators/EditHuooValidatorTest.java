@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
-import uk.co.ogauthority.pwa.util.PortalOrganisationTestUtils;
-import uk.co.ogauthority.pwa.util.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.huoo.EditHuooValidator;
 import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 

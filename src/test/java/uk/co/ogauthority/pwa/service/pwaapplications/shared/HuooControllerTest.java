@@ -37,9 +37,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.util.ControllerTestUtils;
-import uk.co.ogauthority.pwa.util.PwaApplicationEndpointTestBuilder;
-import uk.co.ogauthority.pwa.util.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(
