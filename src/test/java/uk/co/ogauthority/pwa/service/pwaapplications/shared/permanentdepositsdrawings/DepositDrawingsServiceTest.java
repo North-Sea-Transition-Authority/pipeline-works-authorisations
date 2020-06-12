@@ -75,8 +75,10 @@ public class DepositDrawingsServiceTest {
 
   @Before
   public void setUp() {
-    depositDrawingsService = new DepositDrawingsService(permanentDepositService, padDepositDrawingRepository,
+    depositDrawingsService = new DepositDrawingsService(padDepositDrawingRepository,
         padDepositDrawingLinkRepository, validator, springValidatorAdapter, padFileService);
+
+    this.depositDrawingsService.setPermanentDepositService(permanentDepositService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
@@ -158,12 +160,11 @@ public class DepositDrawingsServiceTest {
     padPermanentDeposit.setReference("my ref");
     drawingLink.setPadPermanentDeposit(padPermanentDeposit);
 
-    var drawingList = List.of(depositDrawing);
     var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(drawingList);
-    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawingList))
+        .thenReturn(List.of(depositDrawing));
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing))
         .thenReturn(List.of(drawingLink));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
@@ -198,12 +199,11 @@ public class DepositDrawingsServiceTest {
     padPermanentDeposit.setReference("my ref2");
     drawingLink2.setPadPermanentDeposit(padPermanentDeposit);
 
-    var drawingList = List.of(depositDrawing);
     var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(drawingList);
-    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawingList))
+        .thenReturn(List.of(depositDrawing));
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing))
         .thenReturn(List.of(drawingLink1, drawingLink2));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
@@ -215,6 +215,14 @@ public class DepositDrawingsServiceTest {
     assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
     assertThat(summaryView.getDepositReferences()).hasSize(2);
     assertThat(summaryView.getReference()).isEqualTo(depositDrawing.getReference());
+  }
+
+  @Test
+  public void removeDepositFromDrawing() {
+    var deposit = new PadPermanentDeposit();
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit)).thenReturn(List.of(new PadDepositDrawingLink()));
+    depositDrawingsService.removeDepositFromDrawing(deposit);
+    verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
   }
 
 

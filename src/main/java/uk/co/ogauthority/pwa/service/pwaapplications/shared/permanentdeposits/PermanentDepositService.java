@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipe
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -48,6 +49,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final PadPipelineRepository padPipelineRepository;
   private final PadDepositPipelineRepository padDepositPipelineRepository;
   private final PadProjectInformationRepository padProjectInformationRepository;
+  private DepositDrawingsService depositDrawingsService;
 
   @Autowired
   public PermanentDepositService(
@@ -65,6 +67,12 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     this.padPipelineRepository = padPipelineRepository;
     this.padDepositPipelineRepository = padDepositPipelineRepository;
     this.padProjectInformationRepository = padProjectInformationRepository;
+  }
+
+
+
+  public void setDepositsDrawingService(DepositDrawingsService depositDrawingsService) {
+    this.depositDrawingsService = depositDrawingsService;
   }
 
 
@@ -129,6 +137,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   public void removeDeposit(Integer depositId) {
     var permanentDeposit = permanentDepositInformationRepository.findById(depositId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find permanent deposit with ID: %s", depositId)));
+
+    depositDrawingsService.removeDepositFromDrawing(permanentDeposit);
 
     padDepositPipelineRepository.deleteAll(
         padDepositPipelineRepository.findAllByPermanentDepositInfoId(permanentDeposit.getId()));
