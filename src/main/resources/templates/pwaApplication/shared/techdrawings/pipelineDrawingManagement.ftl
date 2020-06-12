@@ -3,8 +3,9 @@
 
 <#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory" -->
+<#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory" -->
 
-<#macro pipelineDrawingManagement urlFactory pipelineDrawingSummaryViews=[]>
+<#macro pipelineDrawingManagement urlFactory validatorFactory pipelineDrawingSummaryViews=[]>
   <h2 class="govuk-heading-l">
     Pipeline drawings
   </h2>
@@ -12,7 +13,7 @@
         <@fdsAction.link linkText="Add pipeline drawing" linkUrl=springUrl(urlFactory.getAddPipelineDrawingUrl()) linkClass="govuk-button govuk-button--blue"/>
 
         <#list pipelineDrawingSummaryViews as summary>
-            <@drawingSummary.drawingSummary summary=summary urlFactory=urlFactory showReferenceAsKey=false showActions=true />
+            <@drawingSummary.drawingSummary summary=summary urlFactory=urlFactory validatorFactory=validatorFactory showReferenceAsKey=false showActions=true />
         </#list>
     <#else>
         <@fdsInsetText.insetText>

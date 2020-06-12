@@ -13,6 +13,15 @@ public class PipelineDrawingSummaryView {
   private final List<String> pipelineReferences;
   private final Integer drawingId;
 
+  public PipelineDrawingSummaryView(PadTechnicalDrawing technicalDrawing, List<String> pipelineReferences) {
+    this.reference = technicalDrawing.getReference();
+    this.documentDescription = null;
+    this.pipelineReferences = pipelineReferences;
+    this.fileId = null;
+    this.fileName = null;
+    this.drawingId = technicalDrawing.getId();
+  }
+
   public PipelineDrawingSummaryView(PadTechnicalDrawing technicalDrawing, List<String> pipelineReferences,
                                     UploadedFileView uploadedFileView) {
     this.reference = technicalDrawing.getReference();
