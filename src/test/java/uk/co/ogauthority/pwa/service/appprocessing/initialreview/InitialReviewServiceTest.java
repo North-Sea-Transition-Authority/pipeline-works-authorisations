@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.EmailProperties;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -71,7 +71,7 @@ public class InitialReviewServiceTest {
   @Before
   public void setUp() {
 
-    industryPerson = new Person(1, null, null, "industry@pwa.co.uk", null);
+    industryPerson = new Person(1, "Industry", "Person", "industry@pwa.co.uk", null);
     industryUser = new WebUserAccount(1, industryPerson);
 
     app = new PwaApplication();
@@ -110,6 +110,7 @@ public class InitialReviewServiceTest {
     var emailProps = emailPropertiesArgumentCaptor.getValue();
 
     assertThat(emailProps.getEmailPersonalisation()).contains(
+        entry("RECIPIENT_FULL_NAME", industryPerson.getFullName()),
         entry("CASE_OFFICER_NAME", caseOfficerPerson.getFullName()),
         entry("APPLICATION_REFERENCE", detail.getPwaApplicationRef())
     );

@@ -6,7 +6,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.ogauthority.pwa.model.notify.EmailProperties;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.gov.service.notify.NotificationClient;
 import uk.gov.service.notify.NotificationClientException;
 

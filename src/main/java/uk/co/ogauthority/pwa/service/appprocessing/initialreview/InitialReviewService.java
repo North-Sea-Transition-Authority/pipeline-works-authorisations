@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.CaseOfficerAssignedEmailProps;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -72,12 +72,12 @@ public class InitialReviewService {
 
   private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, String caseOfficerName) {
 
-    var props = new CaseOfficerAssignedEmailProps(applicationDetail.getPwaApplicationRef(), caseOfficerName);
+    var submitterPerson = userAccountService.getWebUserAccount(applicationDetail.getSubmittedByWuaId())
+        .getLinkedPerson();
 
-    var submitterEmailAddress = userAccountService.getWebUserAccount(applicationDetail.getSubmittedByWuaId())
-        .getLinkedPerson().getEmailAddress();
+    var props = new CaseOfficerAssignedEmailProps(submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficerName);
 
-    notifyService.sendEmail(props, submitterEmailAddress);
+    notifyService.sendEmail(props, submitterPerson.getEmailAddress());
 
   }
 

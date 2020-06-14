@@ -8,7 +8,6 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -37,8 +36,9 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
     if (StringUtils.isNotBlank(form.getReference()) && validationHints[0] instanceof DepositDrawingsService) {
       var depositDrawingsService = (DepositDrawingsService) validationHints[0];
       var pwaApplicationDetail = (PwaApplicationDetail) validationHints[1];
+      var padDepositDrawingId = validationHints.length >= 3 && validationHints[2] instanceof Integer ? (Integer) validationHints[2] : null;
       ValidatorUtils.validateBooleanTrue(errors, depositDrawingsService.isDrawingReferenceUnique(
-          form.getReference(), pwaApplicationDetail),
+          form.getReference(), padDepositDrawingId, pwaApplicationDetail),
           "reference", "Drawing reference must be unique, enter a different reference");
     }
 

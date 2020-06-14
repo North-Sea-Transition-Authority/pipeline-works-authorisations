@@ -4,7 +4,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdra
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -13,9 +12,9 @@ public class DepositDrawingUrlFactory {
   private final PwaApplicationType applicationType;
   private final Integer applicationId;
 
-  public DepositDrawingUrlFactory(PwaApplicationDetail pwaApplicationDetail) {
-    this.applicationType = pwaApplicationDetail.getPwaApplicationType();
-    this.applicationId = pwaApplicationDetail.getMasterPwaApplicationId();
+  public DepositDrawingUrlFactory(PwaApplicationType applicationType, Integer applicationId) {
+    this.applicationType = applicationType;
+    this.applicationId = applicationId;
   }
 
   public String getAddPipelineDrawingUrl() {
@@ -27,4 +26,21 @@ public class DepositDrawingUrlFactory {
     return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
         .handleDownload(applicationType, applicationId, fileId, null));
   }
+
+  public String getEditDrawingUrl(int drawingId) {
+    return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderEditDepositDrawing(
+            this.applicationType, this.applicationId,
+            null, drawingId, null));
+  }
+
+  public String getRemoveDrawingUrl(int drawingId) {
+    return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        .renderRemoveDepositDrawing(
+            this.applicationType, this.applicationId,
+            null, drawingId, null));
+  }
+
+
+
 }

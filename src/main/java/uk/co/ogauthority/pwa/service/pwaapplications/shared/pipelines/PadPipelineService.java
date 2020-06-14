@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -169,6 +170,13 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setTrenchingMethodsDescription(form.getTrenchingMethods());
     }
 
+    padPipeline.setPipelineFlexibility(form.getPipelineFlexibility());
+    padPipeline.setPipelineMaterial(form.getPipelineMaterial());
+    if (form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
+      padPipeline.setOtherPipelineMaterialUsed(form.getOtherPipelineMaterialUsed());
+    }
+    padPipeline.setPipelineDesignLife(form.getPipelineDesignLife());
+
     padPipelineRepository.save(padPipeline);
 
   }
@@ -194,6 +202,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
     Optional.ofNullable(form.getTrenchedBuriedBackfilled())
         .filter(tru -> tru)
         .ifPresent(t -> form.setTrenchingMethods(pipeline.getTrenchingMethodsDescription()));
+
+    form.setPipelineFlexibility(pipeline.getPipelineFlexibility());
+    form.setPipelineMaterial(pipeline.getPipelineMaterial());
+    form.setOtherPipelineMaterialUsed(pipeline.getOtherPipelineMaterialUsed());
+    form.setPipelineDesignLife(pipeline.getPipelineDesignLife());
 
   }
 

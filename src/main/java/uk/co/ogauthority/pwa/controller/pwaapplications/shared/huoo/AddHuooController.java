@@ -172,7 +172,7 @@ public class AddHuooController {
     var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(orgUnitId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
     editHuooValidator.validate(form, bindingResult, detail,
-        padOrganisationRoleService.getValidationViewForOrg(detail, orgUnit));
+        padOrganisationRoleService.getValidationViewForOrg(detail, orgUnit), user);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getEditHuooModelAndView(detail, HuooType.PORTAL_ORG), () -> {
           padOrganisationRoleService.updateEntityUsingForm(detail, orgUnit, form);
@@ -261,5 +261,11 @@ public class AddHuooController {
     return ReverseRouter.redirect(on(HuooController.class)
         .renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null, null));
   }
+
+
+
+
+
+
 
 }
