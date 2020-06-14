@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,33 +21,54 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRolePipelineGroupDto;
+import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinksRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadOrganisationRoleServiceTest {
 
   @Mock
-  private PadOrganisationRolesRepository repository;
+  private PadOrganisationRolesRepository padOrganisationRolesRepository;
+
+  @Mock
+  private PadPipelineOrgRoleLinksRepository padPipelineOrgRoleLinksRepository;
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
+  @Mock
+  private EntityManager entityManager;
+
   private PadOrganisationRoleService padOrganisationRoleService;
 
   private PwaApplicationDetail detail;
-  private PadOrganisationRole org1, org2, treaty1, treaty2;
+  private PadOrganisationRole padOrgUnit1UserRole, padOrgUnit2OwnerRole, padNorwayTreatyRole, padBelgiumTreatyRole;
   private PortalOrganisationUnitDetail org1Detail, org2Detail;
+
+  private PortalOrganisationUnit orgUnit1;
+  private PortalOrganisationUnit orgUnit2;
+
+  private PipelineId pipelineId1 = new PipelineId(1);
+  private PipelineId pipelineId2 = new PipelineId(2);
 
   @Captor
   private ArgumentCaptor<PadOrganisationRole> roleCaptor;
@@ -55,54 +78,65 @@ public class PadOrganisationRoleServiceTest {
 
   @Before
   public void setUp() {
+    when(entityManager.getReference(eq(Pipeline.class), any())).thenAnswer(invocation -> {
+      var p = new Pipeline();
+      p.setId(invocation.getArgument(1));
+      return p;
+    });
 
-    padOrganisationRoleService = new PadOrganisationRoleService(repository, portalOrganisationsAccessor);
+    // make sure that save all return the saved list as the repo will do.
+    when(padOrganisationRolesRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    detail = new PwaApplicationDetail();
-    detail.setPwaApplication(new PwaApplication());
-    detail.getPwaApplication().setApplicationType(PwaApplicationType.INITIAL);
+    padOrganisationRoleService = new PadOrganisationRoleService(
+        padOrganisationRolesRepository,
+        padPipelineOrgRoleLinksRepository,
+        portalOrganisationsAccessor,
+        entityManager);
+
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var orgGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1, "Group1", "G1");
     var orgGroup2 = PortalOrganisationTestUtils.generateOrganisationGroup(2, "Group2", "G2");
 
-    org1 = new PadOrganisationRole();
-    org1.setOrganisationUnit(PortalOrganisationTestUtils.generateOrganisationUnit(1, "ZZZ", orgGroup1));
-    org1.setPwaApplicationDetail(detail);
-    org1.setRole(HuooRole.USER);
-    org1.setType(HuooType.PORTAL_ORG);
+    orgUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(1, "ZZZ", orgGroup1);
+    orgUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(2, "AAA", orgGroup2);
 
-    org2 = new PadOrganisationRole();
-    org2.setOrganisationUnit(PortalOrganisationTestUtils.generateOrganisationUnit(2, "AAA", orgGroup2));
-    org2.setPwaApplicationDetail(detail);
-    org2.setRole(HuooRole.OWNER);
-    org2.setType(HuooType.PORTAL_ORG);
+    org1Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(orgUnit1, "add1", "111");
+    org2Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(orgUnit2, "add2", "222");
 
-    treaty1 = new PadOrganisationRole();
-    treaty1.setAgreement(TreatyAgreement.NORWAY);
-    treaty1.setRole(HuooRole.USER);
-    treaty1.setPwaApplicationDetail(detail);
-    treaty1.setType(HuooType.TREATY_AGREEMENT);
+    padOrgUnit1UserRole = PadOrganisationRole.fromOrganisationUnit(detail, orgUnit1, HuooRole.USER);
+    padOrgUnit2OwnerRole = PadOrganisationRole.fromOrganisationUnit(detail, orgUnit2, HuooRole.OWNER);
 
-    treaty2 = new PadOrganisationRole();
-    treaty2.setAgreement(TreatyAgreement.BELGIUM);
-    treaty2.setRole(HuooRole.USER);
-    treaty2.setPwaApplicationDetail(detail);
-    treaty2.setType(HuooType.TREATY_AGREEMENT);
+    padNorwayTreatyRole = new PadOrganisationRole();
+    padNorwayTreatyRole.setAgreement(TreatyAgreement.NORWAY);
+    padNorwayTreatyRole.setRole(HuooRole.USER);
+    padNorwayTreatyRole.setPwaApplicationDetail(detail);
+    padNorwayTreatyRole.setType(HuooType.TREATY_AGREEMENT);
 
-    when(repository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(org1, org2, treaty1, treaty2));
+    padBelgiumTreatyRole = new PadOrganisationRole();
+    padBelgiumTreatyRole.setAgreement(TreatyAgreement.BELGIUM);
+    padBelgiumTreatyRole.setRole(HuooRole.USER);
+    padBelgiumTreatyRole.setPwaApplicationDetail(detail);
+    padBelgiumTreatyRole.setType(HuooType.TREATY_AGREEMENT);
 
-    org1Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(org1.getOrganisationUnit(), "add1", "111");
-    org2Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(org2.getOrganisationUnit(), "add2", "222");
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(
+        List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole, padNorwayTreatyRole, padBelgiumTreatyRole));
+
+
+    when(portalOrganisationsAccessor.getOrganisationUnitsByOrganisationUnitIdIn(any()))
+        .thenReturn(
+            List.of(orgUnit1, orgUnit2)
+        );
 
   }
 
   @Test
   public void getHuooOrganisationUnitRoleViews() {
 
-    var rolesList = List.of(org1, org2, treaty1, treaty2);
+    var rolesList = List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole, padNorwayTreatyRole, padBelgiumTreatyRole);
 
-    org1.setRole(HuooRole.USER);
-    org2.setRole(HuooRole.OWNER);
+    padOrgUnit1UserRole.setRole(HuooRole.USER);
+    padOrgUnit2OwnerRole.setRole(HuooRole.OWNER);
 
     when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
         org1Detail,
@@ -113,17 +147,19 @@ public class PadOrganisationRoleServiceTest {
 
     assertThat(viewList.size()).isEqualTo(2);
 
-    var org1View = viewList.stream().filter(r -> r.getCompanyName().equals(org1.getOrganisationUnit().getName())).findFirst().orElseThrow();
-    var org2View = viewList.stream().filter(r -> r.getCompanyName().equals(org2.getOrganisationUnit().getName())).findFirst().orElseThrow();
+    var org1View = viewList.stream().filter(
+        r -> r.getCompanyName().equals(padOrgUnit1UserRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
+    var org2View = viewList.stream().filter(
+        r -> r.getCompanyName().equals(padOrgUnit2OwnerRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
 
     assertThat(org1View.getCompanyAddress()).isEqualTo(org1Detail.getLegalAddress());
     assertThat(org1View.getRegisteredNumber()).isEqualTo(org1Detail.getRegisteredNumber());
-    assertThat(org1View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(org1.getRole()));
+    assertThat(org1View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(padOrgUnit1UserRole.getRole()));
     assertThat(org1View.getRoles()).isEqualTo("User");
 
     assertThat(org2View.getCompanyAddress()).isEqualTo(org2Detail.getLegalAddress());
     assertThat(org2View.getRegisteredNumber()).isEqualTo(org2Detail.getRegisteredNumber());
-    assertThat(org2View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(org2.getRole()));
+    assertThat(org2View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(padOrgUnit2OwnerRole.getRole()));
     assertThat(org2View.getRoles()).isEqualTo("Owner");
 
   }
@@ -136,10 +172,13 @@ public class PadOrganisationRoleServiceTest {
         org2Detail
     ));
 
-    var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(org1, org2));
+    var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(
+        padOrgUnit1UserRole, padOrgUnit2OwnerRole));
 
-    var org1View = orgRoleViewList.stream().filter(r -> r.getCompanyName().equals(org1.getOrganisationUnit().getName())).findFirst().orElseThrow();
-    var org2View = orgRoleViewList.stream().filter(r -> r.getCompanyName().equals(org2.getOrganisationUnit().getName())).findFirst().orElseThrow();
+    var org1View = orgRoleViewList.stream().filter(
+        r -> r.getCompanyName().equals(padOrgUnit1UserRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
+    var org2View = orgRoleViewList.stream().filter(
+        r -> r.getCompanyName().equals(padOrgUnit2OwnerRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
 
     int comparison = org1View.compareTo(org2View);
 
@@ -161,12 +200,15 @@ public class PadOrganisationRoleServiceTest {
         org2Detail
     ));
 
-    org1.setRole(org2.getRole()); // equalise the roles between the two orgs
+    padOrgUnit1UserRole.setRole(padOrgUnit2OwnerRole.getRole()); // equalise the roles between the two orgs
 
-    var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(org1, org2));
+    var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(
+        padOrgUnit1UserRole, padOrgUnit2OwnerRole));
 
-    var org1View = orgRoleViewList.stream().filter(r -> r.getCompanyName().equals(org1.getOrganisationUnit().getName())).findFirst().orElseThrow();
-    var org2View = orgRoleViewList.stream().filter(r -> r.getCompanyName().equals(org2.getOrganisationUnit().getName())).findFirst().orElseThrow();
+    var org1View = orgRoleViewList.stream().filter(
+        r -> r.getCompanyName().equals(padOrgUnit1UserRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
+    var org2View = orgRoleViewList.stream().filter(
+        r -> r.getCompanyName().equals(padOrgUnit2OwnerRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
 
     int comparison = org1View.compareTo(org2View);
 
@@ -182,22 +224,24 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void getTreatyAgreementViews() {
 
-    var rolesList = List.of(org1, org2, treaty1, treaty2);
+    var rolesList = List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole, padNorwayTreatyRole, padBelgiumTreatyRole);
 
     var viewList = padOrganisationRoleService.getTreatyAgreementViews(detail, rolesList);
 
     assertThat(viewList.size()).isEqualTo(2);
 
-    var norway = viewList.stream().filter(r -> r.getCountry().equals(TreatyAgreement.NORWAY.getCountry())).findFirst().orElseThrow();
-    var belgium = viewList.stream().filter(r -> r.getCountry().equals(TreatyAgreement.BELGIUM.getCountry())).findFirst().orElseThrow();
+    var norway = viewList.stream().filter(
+        r -> r.getCountry().equals(TreatyAgreement.NORWAY.getCountry())).findFirst().orElseThrow();
+    var belgium = viewList.stream().filter(
+        r -> r.getCountry().equals(TreatyAgreement.BELGIUM.getCountry())).findFirst().orElseThrow();
 
     assertThat(norway.getTreatyAgreementText()).isEqualTo(TreatyAgreement.NORWAY.getAgreementText());
-    assertThat(norway.getRoles()).isEqualTo(treaty1.getRole().getDisplayText());
+    assertThat(norway.getRoles()).isEqualTo(padNorwayTreatyRole.getRole().getDisplayText());
     assertThat(norway.getRoles()).isEqualTo("User");
     assertThat(viewList.indexOf(norway)).isEqualTo(1); // sorted alphabetically
 
     assertThat(belgium.getTreatyAgreementText()).isEqualTo(TreatyAgreement.BELGIUM.getAgreementText());
-    assertThat(belgium.getRoles()).isEqualTo(treaty2.getRole().getDisplayText());
+    assertThat(belgium.getRoles()).isEqualTo(padBelgiumTreatyRole.getRole().getDisplayText());
     assertThat(belgium.getRoles()).isEqualTo("User");
     assertThat(viewList.indexOf(belgium)).isEqualTo(0); // sorted alphabetically
 
@@ -207,10 +251,11 @@ public class PadOrganisationRoleServiceTest {
   public void canRemoveOrganisationRole_multipleHolders() {
 
 
-    org1.setRole(HuooRole.HOLDER);
-    org2.setRole(HuooRole.HOLDER);
+    padOrgUnit1UserRole.setRole(HuooRole.HOLDER);
+    padOrgUnit2OwnerRole.setRole(HuooRole.HOLDER);
 
-    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, org1.getOrganisationUnit());
+    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail,
+        padOrgUnit1UserRole.getOrganisationUnit());
 
     assertThat(canRemove).isTrue();
 
@@ -219,13 +264,15 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void canRemoveOrganisationRole_singleHolder() {
 
-    org1.setRole(HuooRole.HOLDER);
-    org2.setRole(HuooRole.OWNER);
+    padOrgUnit1UserRole.setRole(HuooRole.HOLDER);
+    padOrgUnit2OwnerRole.setRole(HuooRole.OWNER);
 
-    when(repository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, org1.getOrganisationUnit()))
-        .thenReturn(List.of(org1, org2));
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail,
+        padOrgUnit1UserRole.getOrganisationUnit()))
+        .thenReturn(List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole));
 
-    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, org1.getOrganisationUnit());
+    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail,
+        padOrgUnit1UserRole.getOrganisationUnit());
 
     assertThat(canRemove).isFalse();
 
@@ -234,9 +281,10 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void canRemoveOrganisationRole_removingNonHolder() {
 
-    org2.setRole(HuooRole.OWNER);
+    padOrgUnit2OwnerRole.setRole(HuooRole.OWNER);
 
-    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail, org2.getOrganisationUnit());
+    boolean canRemove = padOrganisationRoleService.canRemoveOrgRoleFromUnit(detail,
+        padOrgUnit2OwnerRole.getOrganisationUnit());
 
     assertThat(canRemove).isTrue();
 
@@ -245,16 +293,16 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void mapPadOrganisationRoleToForm_org() {
 
-    when(repository.getAllByPwaApplicationDetailAndOrganisationUnit(eq(detail), any()))
-        .thenReturn(List.of(org1));
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(eq(detail), any()))
+        .thenReturn(List.of(padOrgUnit1UserRole));
 
     var form = new HuooForm();
 
-    padOrganisationRoleService.mapPortalOrgUnitRoleToForm(detail, org1.getOrganisationUnit(), form);
+    padOrganisationRoleService.mapPortalOrgUnitRoleToForm(detail, padOrgUnit1UserRole.getOrganisationUnit(), form);
 
-    assertThat(form.getHuooType()).isEqualTo(org1.getType());
-    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(org1.getRole()));
-    assertThat(form.getOrganisationUnitId()).isEqualTo(org1.getOrganisationUnit().getOuId());
+    assertThat(form.getHuooType()).isEqualTo(padOrgUnit1UserRole.getType());
+    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(padOrgUnit1UserRole.getRole()));
+    assertThat(form.getOrganisationUnitId()).isEqualTo(padOrgUnit1UserRole.getOrganisationUnit().getOuId());
     assertThat(form.getTreatyAgreement()).isNull();
 
   }
@@ -264,12 +312,12 @@ public class PadOrganisationRoleServiceTest {
 
     var form = new HuooForm();
 
-    padOrganisationRoleService.mapTreatyAgreementToForm(detail, treaty1, form);
+    padOrganisationRoleService.mapTreatyAgreementToForm(detail, padNorwayTreatyRole, form);
 
-    assertThat(form.getHuooType()).isEqualTo(treaty1.getType());
-    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(treaty1.getRole()));
+    assertThat(form.getHuooType()).isEqualTo(padNorwayTreatyRole.getType());
+    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(padNorwayTreatyRole.getRole()));
     assertThat(form.getOrganisationUnitId()).isNull();
-    assertThat(form.getTreatyAgreement()).isEqualTo(treaty1.getAgreement());
+    assertThat(form.getTreatyAgreement()).isEqualTo(padNorwayTreatyRole.getAgreement());
 
   }
 
@@ -288,7 +336,7 @@ public class PadOrganisationRoleServiceTest {
 
     padOrganisationRoleService.saveEntityUsingForm(detail, form);
 
-    verify(repository, times(1)).saveAll(roleListCaptor.capture());
+    verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
 
     var newRole = roleListCaptor.getValue().get(0);
 
@@ -311,7 +359,7 @@ public class PadOrganisationRoleServiceTest {
 
     padOrganisationRoleService.saveEntityUsingForm(detail, form);
 
-    verify(repository, times(1)).saveAll(roleListCaptor.capture());
+    verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
 
     var newRole = roleListCaptor.getValue().get(0);
 
@@ -328,20 +376,20 @@ public class PadOrganisationRoleServiceTest {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.OPERATOR));
-    form.setOrganisationUnitId(org2.getOrganisationUnit().getOuId());
+    form.setOrganisationUnitId(padOrgUnit2OwnerRole.getOrganisationUnit().getOuId());
 
     when(portalOrganisationsAccessor.getOrganisationUnitById(2))
-        .thenReturn(Optional.of(org2.getOrganisationUnit()));
+        .thenReturn(Optional.of(padOrgUnit2OwnerRole.getOrganisationUnit()));
 
-    padOrganisationRoleService.updateEntityUsingForm(detail, org1.getOrganisationUnit(), form);
+    padOrganisationRoleService.updateEntityUsingForm(detail, padOrgUnit1UserRole.getOrganisationUnit(), form);
 
-    verify(repository, times(1)).deleteAll(any());
-    verify(repository, times(1)).saveAll(roleListCaptor.capture());
+    verify(padOrganisationRolesRepository, times(1)).deleteAll(any());
+    verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
 
     var capture = roleListCaptor.getValue().get(0);
 
     assertThat(capture.getType()).isEqualTo(HuooType.PORTAL_ORG);
-    assertThat(capture.getOrganisationUnit()).isEqualTo(org2.getOrganisationUnit());
+    assertThat(capture.getOrganisationUnit()).isEqualTo(padOrgUnit2OwnerRole.getOrganisationUnit());
     assertThat(capture.getAgreement()).isNull();
     assertThat(capture.getRole()).isEqualTo(HuooRole.OPERATOR);
   }
@@ -357,7 +405,7 @@ public class PadOrganisationRoleServiceTest {
 
     padOrganisationRoleService.updateEntityUsingForm(detail, org, form);
 
-    verify(repository, times(1)).save(org);
+    verify(padOrganisationRolesRepository, times(1)).save(org);
 
     assertThat(org.getType()).isEqualTo(HuooType.TREATY_AGREEMENT);
     assertThat(org.getOrganisationUnit()).isNull();
@@ -372,7 +420,7 @@ public class PadOrganisationRoleServiceTest {
 
     padOrganisationRoleService.addHolder(detail, newOrgUnit);
 
-    verify(repository, times(1)).save(roleCaptor.capture());
+    verify(padOrganisationRolesRepository, times(1)).save(roleCaptor.capture());
 
     var newHolderRole = roleCaptor.getValue();
 
@@ -387,7 +435,7 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void getOrgRolesForDetail() {
     padOrganisationRoleService.getOrgRolesForDetail(detail);
-    verify(repository, times(1)).getAllByPwaApplicationDetail(detail);
+    verify(padOrganisationRolesRepository, times(1)).getAllByPwaApplicationDetail(detail);
   }
 
   @Test
@@ -413,10 +461,13 @@ public class PadOrganisationRoleServiceTest {
 
   @Test
   public void removeRolesOfUnit() {
-    when(repository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, org1.getOrganisationUnit()))
-        .thenReturn(List.of(org1, org2));
-    padOrganisationRoleService.removeRolesOfUnit(detail, org1.getOrganisationUnit());
-    verify(repository, times(1)).deleteAll(any());
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(
+        detail,
+        padOrgUnit1UserRole.getOrganisationUnit())
+    ).thenReturn(List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole));
+
+    padOrganisationRoleService.removeRolesOfUnit(detail, padOrgUnit1UserRole.getOrganisationUnit());
+    verify(padOrganisationRolesRepository, times(1)).deleteAll(any());
   }
 
   private PadOrganisationRole createOrgRole(HuooRole role) {
@@ -424,5 +475,90 @@ public class PadOrganisationRoleServiceTest {
     org.setRole(role);
     return org;
   }
+
+  @Test
+  public void createApplicationOrganisationRolesFromSummary_createsApplicationLevelAndPipelineLinkOrganisationRoles() {
+    var summaryDto = mock(PwaOrganisationRolesSummaryDto.class);
+
+    when(summaryDto.getAllOrganisationUnitsIdsWithRole())
+        .thenReturn(
+            Set.of(OrganisationUnitId.from(orgUnit1), OrganisationUnitId.from(orgUnit2))
+        );
+
+    var org1UserRolePipelineGroupDto = new OrganisationRolePipelineGroupDto(
+        new OrganisationRoleDto(padOrgUnit1UserRole), Set.of(pipelineId1, pipelineId2));
+
+    when(summaryDto.getUserOrganisationUnitGroups()).thenReturn(Set.of(org1UserRolePipelineGroupDto));
+    when(summaryDto.getOrganisationRolePipelineGroupBy(HuooRole.USER, OrganisationUnitId.from(orgUnit1)))
+        .thenReturn(Optional.of(org1UserRolePipelineGroupDto));
+
+    ArgumentCaptor<List<PadOrganisationRole>> padOrgRoleArgCapture = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<List<PadPipelineOrganisationRoleLink>> padOrgRolePipelineLinkArgCapture = ArgumentCaptor
+        .forClass(List.class);
+
+    padOrganisationRoleService.createApplicationOrganisationRolesFromSummary(detail, summaryDto);
+
+    verify(summaryDto, times(1)).getHolderOrganisationUnitGroups();
+    verify(summaryDto, times(1)).getUserOrganisationUnitGroups();
+    verify(summaryDto, times(1)).getOperatorOrganisationUnitGroups();
+    verify(summaryDto, times(1)).getOwnerOrganisationUnitGroups();
+
+    verify(padOrganisationRolesRepository, times(1)).saveAll(padOrgRoleArgCapture.capture());
+    verify(padPipelineOrgRoleLinksRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
+
+    // Assert that overall Role created correctly
+    assertThat(padOrgRoleArgCapture.getValue()).hasSize(1);
+
+    assertThat(padOrgRoleArgCapture.getValue()).anySatisfy(padOrgRole -> {
+      assertThat(padOrgRole.getOrganisationUnit()).isEqualTo(orgUnit1);
+      assertThat(padOrgRole.getAgreement()).isNull();
+      assertThat(padOrgRole.getRole()).isEqualTo(HuooRole.USER);
+      assertThat(padOrgRole.getType()).isEqualTo(HuooType.PORTAL_ORG);
+      assertThat(padOrgRole.getPwaApplicationDetail()).isEqualTo(detail);
+
+    });
+
+    //Assert all pipelines in role group has link correctly created
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).hasSize(2);
+
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).allSatisfy(padOrgRolePipelineLink -> {
+      // only one role created so all links must reference it
+      assertThat(padOrgRolePipelineLink.getPadOrgRole()).isEqualTo(padOrgRoleArgCapture.getValue().get(0));
+    });
+
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).anySatisfy(padOrgRolePipelineLink -> {
+      assertThat(padOrgRolePipelineLink.getPipeline().getId()).isEqualTo(pipelineId1.asInt());
+    });
+
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).anySatisfy(padOrgRolePipelineLink -> {
+      assertThat(padOrgRolePipelineLink.getPipeline().getId()).isEqualTo(pipelineId2.asInt());
+    });
+
+  }
+
+  @Test
+  public void createApplicationOrganisationRolesFromSummary_whenOrganisationRoleGroups() {
+    var summaryDto = mock(PwaOrganisationRolesSummaryDto.class);
+
+    ArgumentCaptor<List<PadOrganisationRole>> padOrgRoleArgCapture = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<List<PadPipelineOrganisationRoleLink>> padOrgRolePipelineLinkArgCapture = ArgumentCaptor
+        .forClass(List.class);
+
+    padOrganisationRoleService.createApplicationOrganisationRolesFromSummary(detail, summaryDto);
+
+    verify(summaryDto, times(1)).getHolderOrganisationUnitGroups();
+    verify(summaryDto, times(1)).getUserOrganisationUnitGroups();
+    verify(summaryDto, times(1)).getOperatorOrganisationUnitGroups();
+    verify(summaryDto, times(1)).getOwnerOrganisationUnitGroups();
+
+    verify(padOrganisationRolesRepository, times(1)).saveAll(padOrgRoleArgCapture.capture());
+    verify(padPipelineOrgRoleLinksRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
+
+    assertThat(padOrgRoleArgCapture.getValue()).isEmpty();
+    assertThat(padOrgRolePipelineLinkArgCapture.getValue()).isEmpty();
+
+
+  }
+
 
 }

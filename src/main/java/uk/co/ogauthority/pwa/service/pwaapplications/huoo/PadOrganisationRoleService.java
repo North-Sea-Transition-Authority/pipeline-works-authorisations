@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
+import static java.util.stream.Collectors.toMap;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +25,22 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRolePipelineGroupDto;
+import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUnitRoleView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinksRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -39,14 +50,20 @@ import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 public class PadOrganisationRoleService implements ApplicationFormSectionService {
 
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
+  private final PadPipelineOrgRoleLinksRepository padPipelineOrgRoleLinksRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final EntityManager entityManager;
 
   @Autowired
   public PadOrganisationRoleService(
       PadOrganisationRolesRepository padOrganisationRolesRepository,
-      PortalOrganisationsAccessor portalOrganisationsAccessor) {
+      PadPipelineOrgRoleLinksRepository padPipelineOrgRoleLinksRepository,
+      PortalOrganisationsAccessor portalOrganisationsAccessor,
+      EntityManager entityManager) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
+    this.padPipelineOrgRoleLinksRepository = padPipelineOrgRoleLinksRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.entityManager = entityManager;
   }
 
   public List<PadOrganisationRole> getOrgRolesForDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -71,7 +88,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     Map<Integer, PortalOrganisationUnitDetail> portalOrgUnitDetails = portalOrganisationsAccessor
         .getOrganisationUnitDetails(portalOrgUnits).stream()
-        .collect(Collectors.toMap(PortalOrganisationUnitDetail::getOuId, orgUnitDetail -> orgUnitDetail));
+        .collect(toMap(PortalOrganisationUnitDetail::getOuId, orgUnitDetail -> orgUnitDetail));
 
     return orgRoles.keySet()
         .stream()
@@ -266,6 +283,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   /**
    * Return a count of all organisation roles currently on the application.
+   *
    * @param pwaApplicationDetail The application detail.
    * @return A map with the role as key, and count as value.
    */
@@ -316,5 +334,101 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       }
     }
     return bindingResult;
+  }
+
+  /* Given a summary of organisation roles and associated pipelines, create application entities */
+  @Transactional
+  public void createApplicationOrganisationRolesFromSummary(PwaApplicationDetail pwaApplicationDetail,
+                                                            PwaOrganisationRolesSummaryDto pwaOrganisationRolesSummaryDto) {
+
+
+    var padOrgRoles = createPadOrganisationRoleForEveryOrganisationRoleGroup(
+        pwaOrganisationRolesSummaryDto,
+        pwaApplicationDetail);
+
+    var persistedPadOrgRoleIterable = IterableUtils.toList(padOrganisationRolesRepository.saveAll(padOrgRoles));
+    List<PadPipelineOrganisationRoleLink> padPipelineOrgRoleLinks = new ArrayList<>();
+
+    Map<PipelineId, Pipeline> pipelineLookup = new HashMap<>();
+
+    for (PadOrganisationRole padOrganisationRole : persistedPadOrgRoleIterable) {
+      var orgRolePipelineGroup = pwaOrganisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
+          padOrganisationRole.getRole(),
+          // this .get() is safe, but is that proveable?
+          OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit())
+      );
+
+      orgRolePipelineGroup.ifPresent(orgRoleGroup -> {
+        orgRoleGroup.getPipelines().forEach(pipelineId -> {
+
+          // create pipeline reference only when we dont have one in the same session.
+          // at this point should we just get the pipeline object itself? cost is extra db hits.
+          var pipeline = pipelineLookup.getOrDefault(pipelineId, entityManager.getReference(Pipeline.class, pipelineId.asInt()));
+          padPipelineOrgRoleLinks.add(
+              new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline)
+          );
+        });
+      });
+
+
+    }
+
+    padPipelineOrgRoleLinksRepository.saveAll(padPipelineOrgRoleLinks);
+
+  }
+
+
+  private List<PadOrganisationRole> createPadOrganisationRoleForEveryOrganisationRoleGroup(
+      PwaOrganisationRolesSummaryDto pwaOrganisationRolesSummaryDto,
+      PwaApplicationDetail pwaApplicationDetail) {
+
+    var allOrganisationUnitIdWithRoleList = pwaOrganisationRolesSummaryDto.getAllOrganisationUnitsIdsWithRole();
+    // just get org units once for easy lookup.
+    Map<OrganisationUnitId, PortalOrganisationUnit> ouIdLookup = portalOrganisationsAccessor.getOrganisationUnitsByOrganisationUnitIdIn(
+        allOrganisationUnitIdWithRoleList)
+        .stream()
+        .collect(toMap(OrganisationUnitId::from, ou -> ou));
+
+    List<PadOrganisationRole> newPadOrgRoleList = new ArrayList<>();
+
+    // might be a nicer/shorter way to do this eventually e.g eg get all org grop dtos as list from summary object. For now it will do
+    newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
+        pwaOrganisationRolesSummaryDto.getHolderOrganisationUnitGroups(),
+        pwaApplicationDetail,
+        ouIdLookup
+    ));
+
+    newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
+        pwaOrganisationRolesSummaryDto.getUserOrganisationUnitGroups(),
+        pwaApplicationDetail,
+        ouIdLookup
+    ));
+
+    newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
+        pwaOrganisationRolesSummaryDto.getOperatorOrganisationUnitGroups(),
+        pwaApplicationDetail,
+        ouIdLookup
+    ));
+
+    newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
+        pwaOrganisationRolesSummaryDto.getOwnerOrganisationUnitGroups(),
+        pwaApplicationDetail,
+        ouIdLookup
+    ));
+
+    return newPadOrgRoleList;
+  }
+
+  private List<PadOrganisationRole> createPadOrganisationRoleFromGroupDtos(
+      Collection<OrganisationRolePipelineGroupDto> organisationRolePipelineGroupDtos,
+      PwaApplicationDetail pwaApplicationDetail,
+      Map<OrganisationUnitId, PortalOrganisationUnit> orgUnitLookup) {
+    List<PadOrganisationRole> newPadOrgRoleList = new ArrayList<>();
+    organisationRolePipelineGroupDtos.forEach(o -> newPadOrgRoleList.add(PadOrganisationRole.fromOrganisationUnit(
+        pwaApplicationDetail,
+        orgUnitLookup.get(o.getOrganisationUnitId()),
+        o.getHuooRole()
+    )));
+    return newPadOrgRoleList;
   }
 }
