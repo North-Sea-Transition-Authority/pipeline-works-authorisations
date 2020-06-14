@@ -76,7 +76,6 @@ public class PwaApplicationCreationService {
     camundaWorkflowService.startWorkflow(application);
 
     var createHuooDataForAppTypes = EnumSet.of(
-        PwaApplicationType.INITIAL,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
         PwaApplicationType.HUOO_VARIATION

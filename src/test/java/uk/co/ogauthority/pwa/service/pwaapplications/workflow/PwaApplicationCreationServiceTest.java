@@ -117,8 +117,6 @@ public class PwaApplicationCreationServiceTest {
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
 
-    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
-    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
 
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
@@ -159,7 +157,6 @@ public class PwaApplicationCreationServiceTest {
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_noHuooOrgRolesExpectedToBeCreated() {
     var expectedHuooRoleCreationTypes = EnumSet.of(
-        PwaApplicationType.INITIAL,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
         PwaApplicationType.HUOO_VARIATION
