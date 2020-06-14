@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 /* Data object encapsulating link between an organisation's PWA role and a pipeline.
  *  Use Cases:
- *  a) building block object for creating application hupp data from consent model
+ *  a) building block object for creating application huoo data from consent model
  *  b) building block object for diffing application huoo data from consent model
  * */
 public class OrganisationPipelineRoleDto {

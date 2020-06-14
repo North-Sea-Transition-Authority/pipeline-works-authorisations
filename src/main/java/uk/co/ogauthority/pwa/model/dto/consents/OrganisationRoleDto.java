@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
 /**
  * Data class capturing an instance of an organisation's role for some PWA.
  * Use Cases:
- * a) building block object for creating application hupp data from consent model
+ * a) building block object for creating application huoo data from consent model
  * b) building block object for diffing application huoo data from consent model
  */
 public class OrganisationRoleDto {
