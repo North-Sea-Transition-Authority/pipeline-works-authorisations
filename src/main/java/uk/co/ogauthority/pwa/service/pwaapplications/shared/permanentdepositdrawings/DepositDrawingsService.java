@@ -71,6 +71,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   public void init() {
     permanentDepositService.setDepositsDrawingService(this);
   }
+
   public void setPermanentDepositService(
       PermanentDepositService permanentDepositService) {
     this.permanentDepositService = permanentDepositService;
@@ -125,7 +126,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   public List<PermanentDepositDrawingView> getDepositDrawingSummaryViews(PwaApplicationDetail pwaApplicationDetail) {
     Map<PadDepositDrawing, List<PadDepositDrawingLink>> linkMap = new HashMap<>();
-    for(var drawing: padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)) {
+    for (var drawing: padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)) {
       var links = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(drawing);
       linkMap.put(drawing, links);
     }
