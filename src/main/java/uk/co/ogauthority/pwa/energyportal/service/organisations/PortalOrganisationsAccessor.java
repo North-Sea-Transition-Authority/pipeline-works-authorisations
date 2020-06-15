@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.energyportal.service.organisations;
 
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.collections4.IterableUtils;
@@ -13,6 +15,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationGroupRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitDetailRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 
 /**
  * API to interact with Portal Organisations. This service should not be polluted with business logic, and
@@ -76,6 +79,16 @@ public class PortalOrganisationsAccessor {
    */
   public List<PortalOrganisationUnit> getOrganisationUnitsByIdIn(Iterable<Integer> organisationUnitList) {
     return IterableUtils.toList(organisationUnitRepository.findAllById(organisationUnitList));
+  }
+
+  /**
+   * Returns a list of Organisation units whose ouId matches a value in the param list.
+   */
+  public List<PortalOrganisationUnit> getOrganisationUnitsByOrganisationUnitIdIn(Iterable<OrganisationUnitId> organisationUnitList) {
+    var integerIdList = IterableUtils.toList(organisationUnitList)
+        .stream().map(OrganisationUnitId::asInt)
+        .collect(toList());
+    return getOrganisationUnitsByIdIn(integerIdList);
   }
 
   public List<PortalOrganisationUnitDetail> getOrganisationUnitDetails(List<PortalOrganisationUnit> unit) {

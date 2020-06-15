@@ -11,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRepository;
+import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 
 @Service
@@ -24,15 +26,18 @@ public class PwaConsentOrganisationRoleService {
   private static final Logger LOGGER = LoggerFactory.getLogger(PwaConsentOrganisationRoleService.class);
 
   private final PwaConsentOrganisationRoleRepository pwaConsentOrganisationRoleRepository;
+  private final PwaConsentPipelineOrganisationRoleLinkRepository pwaConsentPipelineOrganisationRoleLinkRepository;
   private final PwaConsentRepository pwaConsentRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Autowired
   public PwaConsentOrganisationRoleService(
       PwaConsentOrganisationRoleRepository pwaConsentOrganisationRoleRepository,
+      PwaConsentPipelineOrganisationRoleLinkRepository pwaConsentPipelineOrganisationRoleLinkRepository,
       PwaConsentRepository pwaConsentRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor) {
     this.pwaConsentOrganisationRoleRepository = pwaConsentOrganisationRoleRepository;
+    this.pwaConsentPipelineOrganisationRoleLinkRepository = pwaConsentPipelineOrganisationRoleLinkRepository;
     this.pwaConsentRepository = pwaConsentRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
   }
@@ -91,4 +96,17 @@ public class PwaConsentOrganisationRoleService {
     return masterPwaHolders;
 
   }
+
+
+  public PwaOrganisationRolesSummaryDto getOrganisationRoleSummary(MasterPwa masterPwa) {
+
+    var allOrganisationPipelineRoles = pwaConsentPipelineOrganisationRoleLinkRepository.findActiveOrganisationPipelineRolesByMasterPwa(
+        masterPwa
+    );
+
+    return PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(allOrganisationPipelineRoles);
+
+  }
+
+
 }
