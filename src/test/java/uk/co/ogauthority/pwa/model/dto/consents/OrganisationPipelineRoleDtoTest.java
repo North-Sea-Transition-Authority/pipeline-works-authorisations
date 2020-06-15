@@ -30,7 +30,7 @@ public class OrganisationPipelineRoleDtoTest {
 
         assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
         assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
-        assertThat(organisationPipelineRoleDto.getPipeline()).isEqualTo(new PipelineId(PIPELINE_ID));
+        assertThat(organisationPipelineRoleDto.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
         assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));
       }
 

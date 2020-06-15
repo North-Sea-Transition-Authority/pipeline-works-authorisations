@@ -131,7 +131,7 @@ public class PwaApplicationCreationServiceTest {
   }
 
 
-  // The below tests could be much better with a parameterised, repeated test ans only defined once. Would be good to figure out how to do this.
+  // The below tests could be much better with a parameterised, repeated test and only defined once. Would be good to figure out how to do this.
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory1() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_1_VARIATION);

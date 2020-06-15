@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
-/* Summarises all the organisation roles for a pwa and gives access bu huoo type or organisation unit*/
+/* Summarises all the organisation roles for a pwa and gives access by huoo type or organisation unit*/
 public class PwaOrganisationRolesSummaryDto {
 
   private final Map<HuooRole, Set<OrganisationRolePipelineGroupDto>> getNonPortalOrgRoleGroupsByHuooType;
@@ -32,7 +32,7 @@ public class PwaOrganisationRolesSummaryDto {
         .stream()
         .collect(groupingBy(
             OrganisationPipelineRoleDto::getOrganisationRoleDto,
-            Collectors.mapping(OrganisationPipelineRoleDto::getPipeline, Collectors.toSet())
+            Collectors.mapping(OrganisationPipelineRoleDto::getPipelineId, Collectors.toSet())
         ))
         // loop over each grouped entry to create a group object
         .entrySet()
@@ -71,7 +71,7 @@ public class PwaOrganisationRolesSummaryDto {
     return this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.OWNER, Set.of());
   }
 
-  public Set<OrganisationUnitId> getAllOrganisationUnitsIdsWithRole() {
+  public Set<OrganisationUnitId> getAllOrganisationUnitIdsWithRole() {
     return Collections.unmodifiableSet(this.allOrganisationUnitsWithRole);
   }
 

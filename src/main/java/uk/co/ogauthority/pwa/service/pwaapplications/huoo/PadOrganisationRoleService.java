@@ -40,7 +40,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUn
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinksRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -50,18 +50,18 @@ import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 public class PadOrganisationRoleService implements ApplicationFormSectionService {
 
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
-  private final PadPipelineOrgRoleLinksRepository padPipelineOrgRoleLinksRepository;
+  private final PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final EntityManager entityManager;
 
   @Autowired
   public PadOrganisationRoleService(
       PadOrganisationRolesRepository padOrganisationRolesRepository,
-      PadPipelineOrgRoleLinksRepository padPipelineOrgRoleLinksRepository,
+      PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       EntityManager entityManager) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
-    this.padPipelineOrgRoleLinksRepository = padPipelineOrgRoleLinksRepository;
+    this.padPipelineOrgRoleLinkRepository = padPipelineOrgRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.entityManager = entityManager;
   }
@@ -359,7 +359,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       );
 
       orgRolePipelineGroup.ifPresent(orgRoleGroup -> {
-        orgRoleGroup.getPipelines().forEach(pipelineId -> {
+        orgRoleGroup.getPipelineIds().forEach(pipelineId -> {
 
           // create pipeline reference only when we dont have one in the same session.
           // at this point should we just get the pipeline object itself? cost is extra db hits.
@@ -373,7 +373,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     }
 
-    padPipelineOrgRoleLinksRepository.saveAll(padPipelineOrgRoleLinks);
+    padPipelineOrgRoleLinkRepository.saveAll(padPipelineOrgRoleLinks);
 
   }
 
@@ -382,7 +382,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PwaOrganisationRolesSummaryDto pwaOrganisationRolesSummaryDto,
       PwaApplicationDetail pwaApplicationDetail) {
 
-    var allOrganisationUnitIdWithRoleList = pwaOrganisationRolesSummaryDto.getAllOrganisationUnitsIdsWithRole();
+    var allOrganisationUnitIdWithRoleList = pwaOrganisationRolesSummaryDto.getAllOrganisationUnitIdsWithRole();
     // just get org units once for easy lookup.
     Map<OrganisationUnitId, PortalOrganisationUnit> ouIdLookup = portalOrganisationsAccessor.getOrganisationUnitsByOrganisationUnitIdIn(
         allOrganisationUnitIdWithRoleList)
@@ -391,7 +391,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     List<PadOrganisationRole> newPadOrgRoleList = new ArrayList<>();
 
-    // might be a nicer/shorter way to do this eventually e.g eg get all org grop dtos as list from summary object. For now it will do
+    // might be a nicer/shorter way to do this eventually e.g get all org group dtos as list from summary object. For now it will do.
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
         pwaOrganisationRolesSummaryDto.getHolderOrganisationUnitGroups(),
         pwaApplicationDetail,

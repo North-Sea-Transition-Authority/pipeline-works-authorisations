@@ -58,6 +58,6 @@ public class OrganisationRolePipelineGroupDtoTest {
   @Test
   public void getPipelines_returnsConstructorArg() {
     var organisationRolePipelineGroupDto = new OrganisationRolePipelineGroupDto(organisationRoleDto, Set.of(pipelineId));
-    assertThat(organisationRolePipelineGroupDto.getPipelines()).isEqualTo(Set.of(pipelineId));
+    assertThat(organisationRolePipelineGroupDto.getPipelineIds()).isEqualTo(Set.of(pipelineId));
   }
 }

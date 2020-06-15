@@ -25,15 +25,15 @@ public class OrganisationRoleDtoTest {
   }
 
   @Test
-  public void isValidOrganisationRole_whenIdProvided() {
+  public void isPortalOrgRole_whenIdProvided() {
     var orgRole = new OrganisationRoleDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
-    assertThat(orgRole.isValidOrganisationRole()).isTrue();
+    assertThat(orgRole.isPortalOrgRole()).isTrue();
   }
 
   @Test
-  public void isValidOrganisationRole_whenIdNotProvided() {
+  public void isPortalOrgRole_whenIdNotProvided() {
     var orgRole = new OrganisationRoleDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
-    assertThat(orgRole.isValidOrganisationRole()).isFalse();
+    assertThat(orgRole.isPortalOrgRole()).isFalse();
   }
 
   @Test

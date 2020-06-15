@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
  * */
 public class OrganisationPipelineRoleDto {
   private final OrganisationRoleDto organisationRoleDto;
-  private final PipelineId pipeline;
+  private final PipelineId pipelineId;
 
 
   public OrganisationPipelineRoleDto(Integer organisationUnitId,
@@ -22,7 +22,7 @@ public class OrganisationPipelineRoleDto {
                                      HuooType huooType,
                                      int pipelineId) {
     this.organisationRoleDto = new OrganisationRoleDto(organisationUnitId, manualOrganisationName, huooRole, huooType);
-    this.pipeline = new PipelineId(pipelineId);
+    this.pipelineId = new PipelineId(pipelineId);
   }
 
   public OrganisationUnitId getOrganisationUnitId() {
@@ -30,7 +30,7 @@ public class OrganisationPipelineRoleDto {
   }
 
   public boolean hasValidOrganisationRole() {
-    return this.organisationRoleDto.isValidOrganisationRole();
+    return this.organisationRoleDto.isPortalOrgRole();
   }
 
   public HuooRole getHuooRole() {
@@ -41,8 +41,8 @@ public class OrganisationPipelineRoleDto {
     return this.organisationRoleDto.getHuooType();
   }
 
-  public PipelineId getPipeline() {
-    return this.pipeline;
+  public PipelineId getPipelineId() {
+    return this.pipelineId;
   }
 
   public OrganisationRoleDto getOrganisationRoleDto() {
@@ -59,12 +59,12 @@ public class OrganisationPipelineRoleDto {
     }
     OrganisationPipelineRoleDto that = (OrganisationPipelineRoleDto) o;
     return Objects.equals(organisationRoleDto, that.organisationRoleDto)
-        && Objects.equals(pipeline, that.pipeline);
+        && Objects.equals(pipelineId, that.pipelineId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationRoleDto, pipeline);
+    return Objects.hash(organisationRoleDto, pipelineId);
   }
 
 

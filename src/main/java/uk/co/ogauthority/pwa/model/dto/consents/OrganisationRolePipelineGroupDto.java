@@ -14,12 +14,12 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 public class OrganisationRolePipelineGroupDto {
 
   private final OrganisationRoleDto organisationRoleDto;
-  private final Set<PipelineId> pipelines;
+  private final Set<PipelineId> pipelineIds;
 
   public OrganisationRolePipelineGroupDto(OrganisationRoleDto organisationRoleDto,
-                                          Set<PipelineId> pipelines) {
+                                          Set<PipelineId> pipelineIds) {
     this.organisationRoleDto = organisationRoleDto;
-    this.pipelines = pipelines;
+    this.pipelineIds = pipelineIds;
   }
 
 
@@ -32,7 +32,7 @@ public class OrganisationRolePipelineGroupDto {
   }
 
   public boolean hasValidOrganisationRole() {
-    return this.organisationRoleDto.isValidOrganisationRole();
+    return this.organisationRoleDto.isPortalOrgRole();
   }
 
   public HuooRole getHuooRole() {
@@ -43,8 +43,8 @@ public class OrganisationRolePipelineGroupDto {
     return this.organisationRoleDto.getHuooType();
   }
 
-  public Set<PipelineId> getPipelines() {
-    return pipelines;
+  public Set<PipelineId> getPipelineIds() {
+    return pipelineIds;
   }
 
   @Override
@@ -57,19 +57,19 @@ public class OrganisationRolePipelineGroupDto {
     }
     OrganisationRolePipelineGroupDto that = (OrganisationRolePipelineGroupDto) o;
     return Objects.equals(organisationRoleDto, that.organisationRoleDto)
-        && Objects.equals(pipelines, that.pipelines);
+        && Objects.equals(pipelineIds, that.pipelineIds);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationRoleDto, pipelines);
+    return Objects.hash(organisationRoleDto, pipelineIds);
   }
 
   @Override
   public String toString() {
     return "OrganisationPipelineRoleGroupDto{" +
         "organisationRoleDto=" + organisationRoleDto +
-        ", pipelines=" + pipelines +
+        ", pipelineIds=" + pipelineIds +
         '}';
   }
 }

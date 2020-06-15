@@ -45,7 +45,7 @@ public class OrganisationRoleDto {
     return organisationUnitId;
   }
 
-  public boolean isValidOrganisationRole() {
+  public boolean isPortalOrgRole() {
     return organisationUnitId != null;
   }
 

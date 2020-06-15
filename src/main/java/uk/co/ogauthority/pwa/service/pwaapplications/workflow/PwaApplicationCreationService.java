@@ -81,8 +81,8 @@ public class PwaApplicationCreationService {
         PwaApplicationType.HUOO_VARIATION
     );
 
-    // Its possible this be done more cleverly if some simple link between app type and app task existed.
-    // Possible only with large effort to link appTask to businesss log code which currently sits at controller annotation level.
+    // Its possible this can be done more cleverly if some simple link between app type and app task existed.
+    // Possible only with large effort to link appTask to business logic code, current link sits at controller annotation level.
     if (createHuooDataForAppTypes.contains(applicationType)) {
       var consentedHuooSummary = pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa);
       padOrganisationRoleService.createApplicationOrganisationRolesFromSummary(detail, consentedHuooSummary);
