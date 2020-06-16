@@ -21,5 +21,8 @@ public interface PwaConsentOrganisationRoleRepository extends CrudRepository<Pwa
       Collection<PwaConsent> pwaConsents,
       Collection<HuooRole> roles);
 
+  Long countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
+      Collection<PwaConsent> pwaConsents,
+      Collection<HuooRole> roles);
 
 }

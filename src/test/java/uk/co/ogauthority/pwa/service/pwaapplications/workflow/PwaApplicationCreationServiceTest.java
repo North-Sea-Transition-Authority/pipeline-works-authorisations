@@ -101,6 +101,7 @@ public class PwaApplicationCreationServiceTest {
 
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
+    when(pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa)).thenReturn(Long.valueOf(3));
 
 
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
@@ -128,6 +129,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+    assertThat(createdApplication.getNumOfHolders()).isEqualTo(3);
   }
 
 

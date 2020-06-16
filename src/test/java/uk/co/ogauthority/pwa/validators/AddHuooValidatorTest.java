@@ -176,6 +176,45 @@ public class AddHuooValidatorTest {
 
   }
 
+
+  @Test
+  public void validateHolderCountLessThanOverallPwa_invalid() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+
+    detail.setNumOfHolders(1);
+    var padOrgRole1 = new PadOrganisationRole();
+    padOrgRole1.setRole(HuooRole.HOLDER);
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
+
+    assertThat(result).contains(
+        entry("huooRoles", Set.of("huooRoles.holderNotAllowed"))
+    );
+  }
+
+
+  @Test
+  public void validateHolderCountLessThanOverallPwa_valid() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+
+    detail.setNumOfHolders(2);
+    var padOrgRole1 = new PadOrganisationRole();
+    padOrgRole1.setRole(HuooRole.HOLDER);
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
+
+    assertThat(result).doesNotContain(
+        entry("huooRoles", Set.of("huooRoles.holderNotAllowed"))
+    );
+  }
+
+
   private HuooForm buildForm() {
 
     var form = new HuooForm();

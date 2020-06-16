@@ -108,5 +108,12 @@ public class PwaConsentOrganisationRoleService {
 
   }
 
+  public Long getNumberOfHolders(MasterPwa masterPwa) {
+    var pwaConsents = pwaConsentRepository.findByMasterPwa(masterPwa);
+    return pwaConsentOrganisationRoleRepository.countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
+        pwaConsents,
+        Set.of(HuooRole.HOLDER));
+  }
+
 
 }
