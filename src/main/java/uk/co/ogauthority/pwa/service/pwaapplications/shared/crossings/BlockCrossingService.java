@@ -7,9 +7,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
+import uk.co.ogauthority.pwa.service.licence.PickablePearsBlock;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
@@ -136,14 +137,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
                                          EditBlockCrossingForm form) {
     var ownerList = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
 
-    if (CrossedBlockOwner.UNLICENSED.equals(padCrossedBlock.getBlockOwner())) {
-      form.setOperatorNotFoundFreeTextBox(
-          ownerList.stream()
-              .filter(o -> o.getOwnerName() != null)
-              .map(PadCrossedBlockOwner::getOwnerName)
-              .findFirst()
-              .orElse(null)
-      );
+    if (CrossedBlockOwner.UNLICENCED.equals(padCrossedBlock.getBlockOwner())) {
       form.setBlockOwnersOuIdList(Collections.emptyList());
     } else if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
       form.setBlockOwnersOuIdList(
@@ -152,7 +146,6 @@ public class BlockCrossingService implements ApplicationFormSectionService {
               .map(PadCrossedBlockOwner::getOwnerOuId)
               .collect(Collectors.toList())
       );
-      form.setOperatorNotFoundFreeTextBox(null);
     }
 
     form.setCrossedBlockOwner(padCrossedBlock.getBlockOwner());
@@ -208,11 +201,6 @@ public class BlockCrossingService implements ApplicationFormSectionService {
       );
     }
 
-    if (CrossedBlockOwner.UNLICENSED.equals(form.getCrossedBlockOwner())
-        && !StringUtils.isBlank(form.getOperatorNotFoundFreeTextBox())) {
-      createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, null, form.getOperatorNotFoundFreeTextBox()));
-    }
-
     return createdBlockOwners;
 
   }
@@ -227,6 +215,14 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   private void deleteAllCrossedBlockOwners(PadCrossedBlock padCrossedBlock) {
     var existingBlockCrossingOwners = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
     padCrossedBlockOwnerRepository.deleteAll(existingBlockCrossingOwners);
+  }
+
+  public Optional<PickablePearsBlock> getPickablePearsBlockFromForm(AddBlockCrossingForm form) {
+    var block = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(form.getPickedBlock());
+    if (block.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(new PickablePearsBlock(block.get()));
   }
 
   @Override

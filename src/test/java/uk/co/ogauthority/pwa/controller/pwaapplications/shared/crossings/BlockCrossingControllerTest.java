@@ -378,7 +378,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(getValidEditBlockFormAsMap()))
         .andExpect(status().is3xxRedirection());
 
-    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any());
+    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
 
   }
 
@@ -400,7 +400,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
 
-    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any());
+    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
   }
 
   @Test

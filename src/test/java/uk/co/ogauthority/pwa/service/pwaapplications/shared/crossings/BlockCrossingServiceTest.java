@@ -206,7 +206,7 @@ public class BlockCrossingServiceTest {
   @Test
   public void getCrossedBlockViews_whenManualOrgIsOwner_andUnlicensedBlock() {
 
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENCED);
     var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
     when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padCrossedBlock));
@@ -281,8 +281,7 @@ public class BlockCrossingServiceTest {
   @Test
   public void updateAndSaveBlockCrossingAndOwnersFromForm_whenOtherOrgOwner() {
 
-    editBlockForm.setOperatorNotFoundFreeTextBox("OTHER");
-    editBlockForm.setCrossedBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    editBlockForm.setCrossedBlockOwner(CrossedBlockOwner.UNLICENCED);
 
     ArgumentCaptor<List<PadCrossedBlockOwner>> ownerCapture = ArgumentCaptor.forClass(List.class);
 
@@ -308,7 +307,7 @@ public class BlockCrossingServiceTest {
     });
 
     assertThat(blockCapture.getValue()).satisfies(padBlock -> {
-      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.OTHER_ORGANISATION);
+      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.UNLICENCED);
     });
   }
 
@@ -323,7 +322,6 @@ public class BlockCrossingServiceTest {
 
     assertThat(editBlockForm.getBlockOwnersOuIdList()).isEqualTo(List.of(PortalOrganisationTestUtils.DEFAULT_UNIT_ID));
     assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.PORTAL_ORGANISATION);
-    assertThat(editBlockForm.getOperatorNotFoundFreeTextBox()).isNull();
 
   }
 
@@ -332,13 +330,12 @@ public class BlockCrossingServiceTest {
 
     var orgUnitOwner = new PadCrossedBlockOwner(padCrossedBlock, null, "OTHER");
     when(padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock)).thenReturn(List.of(orgUnitOwner));
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENCED);
 
     blockCrossingService.mapBlockCrossingToEditForm(padCrossedBlock, editBlockForm);
 
     assertThat(editBlockForm.getBlockOwnersOuIdList()).isEmpty();
-    assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.OTHER_ORGANISATION);
-    assertThat(editBlockForm.getOperatorNotFoundFreeTextBox()).isEqualTo("OTHER");
+    assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.UNLICENCED);
 
   }
 
@@ -351,15 +348,13 @@ public class BlockCrossingServiceTest {
 
     assertThat(editBlockForm.getBlockOwnersOuIdList()).isEmpty();
     assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.HOLDER);
-    assertThat(editBlockForm.getOperatorNotFoundFreeTextBox()).isNull();
 
   }
 
   @Test
   public void createAndSaveBlockCrossingAndOwnersFromForm_whenOtherOrg_andLicensedBlock() {
 
-    addBlockForm.setOperatorNotFoundFreeTextBox("OTHER");
-    addBlockForm.setCrossedBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    addBlockForm.setCrossedBlockOwner(CrossedBlockOwner.UNLICENCED);
     addBlockForm.setPickedBlock(licensedBlock.getCompositeKey());
 
     ArgumentCaptor<List<PadCrossedBlockOwner>> ownerCapture = ArgumentCaptor.forClass(List.class);
@@ -378,7 +373,7 @@ public class BlockCrossingServiceTest {
       assertThat(padBlock.getSuffix()).isEqualTo(licensedBlock.getSuffix());
       assertThat(padBlock.getLicence()).isEqualTo(licensedBlock.getPearsLicence());
       assertThat(padBlock.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
-      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.OTHER_ORGANISATION);
+      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.UNLICENCED);
       assertThat(padBlock.getCreatedInstant()).isNotNull();
     });
 
@@ -393,7 +388,7 @@ public class BlockCrossingServiceTest {
 
   @Test
   public void getCrossedBlockView_Valid() {
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENCED);
     padCrossedBlock.setId(1);
     var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
     when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
@@ -408,7 +403,7 @@ public class BlockCrossingServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void getCrossedBlockView_Invalid() {
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.OTHER_ORGANISATION);
+    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENCED);
     padCrossedBlock.setId(1);
     var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
     when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
