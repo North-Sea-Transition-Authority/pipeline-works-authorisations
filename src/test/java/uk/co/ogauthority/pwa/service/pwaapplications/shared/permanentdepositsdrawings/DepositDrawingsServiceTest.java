@@ -164,7 +164,7 @@ public class DepositDrawingsServiceTest {
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(depositDrawing));
-    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing))
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(List.of(depositDrawing)))
         .thenReturn(List.of(drawingLink));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
@@ -180,13 +180,21 @@ public class DepositDrawingsServiceTest {
 
 
   @Test
-  public void getDepositDrawingSummaryViews_multipleViews() {
+  public void getDepositDrawingSummaryViews_viewsWithAndWithoutDeposits() {
     var depositDrawing = new PadDepositDrawing();
     depositDrawing.setReference("ref");
     depositDrawing.setPwaApplicationDetail(pwaApplicationDetail);
     depositDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     depositDrawing.setId(1);
+
+
+    var depositDrawing2 = new PadDepositDrawing();
+    depositDrawing2.setReference("ref");
+    depositDrawing2.setPwaApplicationDetail(pwaApplicationDetail);
+    depositDrawing2.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS,
+        ApplicationFileLinkStatus.FULL));
+    depositDrawing2.setId(2);
 
     var drawingLink1 = new PadDepositDrawingLink();
     drawingLink1.setPadDepositDrawing(depositDrawing);
@@ -202,8 +210,8 @@ public class DepositDrawingsServiceTest {
     var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
-        .thenReturn(List.of(depositDrawing));
-    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing))
+        .thenReturn(List.of(depositDrawing, depositDrawing2));
+    when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(List.of(depositDrawing, depositDrawing2)))
         .thenReturn(List.of(drawingLink1, drawingLink2));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
@@ -215,6 +223,9 @@ public class DepositDrawingsServiceTest {
     assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
     assertThat(summaryView.getDepositReferences()).hasSize(2);
     assertThat(summaryView.getReference()).isEqualTo(depositDrawing.getReference());
+
+    summaryView = result.get(1);
+    assertThat(summaryView.getDepositReferences()).hasSize(0);
   }
 
   @Test

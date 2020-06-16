@@ -125,10 +125,14 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
 
   public List<PermanentDepositDrawingView> getDepositDrawingSummaryViews(PwaApplicationDetail pwaApplicationDetail) {
-    Map<PadDepositDrawing, List<PadDepositDrawingLink>> linkMap = new HashMap<>();
-    for (var drawing: padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)) {
-      var links = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(drawing);
-      linkMap.put(drawing, links);
+    var drawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+    var links = padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawings);
+    Map<PadDepositDrawing, List<PadDepositDrawingLink>> linkMap = links.stream()
+        .collect(Collectors.groupingBy(PadDepositDrawingLink::getPadDepositDrawing));
+    for (var drawing: drawings) {
+      if (!linkMap.containsKey(drawing)) {
+        linkMap.put(drawing, new ArrayList<>());
+      }
     }
 
     List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,

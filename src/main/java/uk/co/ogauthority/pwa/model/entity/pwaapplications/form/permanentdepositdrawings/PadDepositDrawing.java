@@ -64,5 +64,26 @@ public class PadDepositDrawing {
   public String getReference() {
     return reference;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadDepositDrawing that = (PadDepositDrawing) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(file, that.file)
+         && Objects.equals(reference, that.reference);
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = Objects.hash(id, pwaApplicationDetail, file, reference);
+    return Objects.hash(id, pwaApplicationDetail, file, reference);
+  }
 }
 
