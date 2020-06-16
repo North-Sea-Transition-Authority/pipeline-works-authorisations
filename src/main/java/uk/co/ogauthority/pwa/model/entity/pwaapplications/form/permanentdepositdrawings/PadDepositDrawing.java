@@ -82,7 +82,6 @@ public class PadDepositDrawing {
 
   @Override
   public int hashCode() {
-    int hash = Objects.hash(id, pwaApplicationDetail, file, reference);
     return Objects.hash(id, pwaApplicationDetail, file, reference);
   }
 }
