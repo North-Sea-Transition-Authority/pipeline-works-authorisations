@@ -277,6 +277,21 @@ public class DepositDrawingsServiceTest {
   }
 
   @Test
+  public void isComplete_depositWithoutDrawing() {
+    var deposit1 = new PadPermanentDeposit();
+    deposit1.setId(1);
+    var deposit2 = new PadPermanentDeposit();
+    deposit2.setId(2);
+
+    var depositLink = new PadDepositDrawingLink();
+    depositLink.setPadPermanentDeposit(deposit1);
+    when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(List.of(deposit1, deposit2));
+    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(Optional.empty());
+
+    assertFalse(depositDrawingsService.isComplete(pwaApplicationDetail));
+  }
+
+  @Test
   public void isComplete_valid_multipleDrawingsOnSameDeposit() {
     var depositDrawing = new PadDepositDrawing();
     var padFile = new PadFile();
