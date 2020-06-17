@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Set;
+import javafx.application.Application;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -101,8 +103,7 @@ public class PwaApplicationCreationServiceTest {
 
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
-    when(pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa)).thenReturn(Long.valueOf(3));
-
+    when(pwaConsentOrganisationRoleService.getNumberOfHolders(any(MasterPwa.class), any(PwaApplicationDetail.class))).thenReturn(Long.valueOf(1));
 
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
 
@@ -129,7 +130,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
-    assertThat(createdApplication.getNumOfHolders()).isEqualTo(3);
+    assertThat(createdApplication.getNumOfHolders()).isEqualTo(1);
   }
 
 
@@ -168,7 +169,8 @@ public class PwaApplicationCreationServiceTest {
       pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, appType);
     }
 
-    verifyNoInteractions(pwaConsentOrganisationRoleService, padOrganisationRoleService);
+    verifyNoInteractions(padOrganisationRoleService);
+    verify(pwaConsentOrganisationRoleService, never()).getOrganisationRoleSummary(masterPwa);
   }
 
 

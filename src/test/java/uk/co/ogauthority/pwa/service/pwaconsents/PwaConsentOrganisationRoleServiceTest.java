@@ -21,11 +21,14 @@ import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisati
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaConsentOrganisationRoleServiceTest {
@@ -209,6 +212,29 @@ public class PwaConsentOrganisationRoleServiceTest {
     assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa)).isNotNull();
     verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1)).findActiveOrganisationPipelineRolesByMasterPwa(masterPwa);
 
+  }
+
+  @Test
+  public void getNumberOfHolders_initialPwa() {
+    var applicationParam = new PwaApplication(masterPwa, PwaApplicationType.INITIAL, 1);
+    var detailParam = new PwaApplicationDetail(applicationParam, 1, null, null);
+    Long holdersCount = pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa, detailParam);
+    assertThat(holdersCount).isEqualTo(1);
+  }
+
+  @Test
+  public void getNumberOfHolders_variationPwa() {
+    var applicationParam = new PwaApplication(masterPwa, PwaApplicationType.HUOO_VARIATION, 1);
+    var detailParam = new PwaApplicationDetail(applicationParam, 1, null, null);
+    var consents = List.of(new PwaConsent(), new PwaConsent());
+
+    when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(consents);
+    when(pwaConsentOrganisationRoleRepository.countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
+        consents,
+        Set.of(HuooRole.HOLDER))).thenReturn(2L);
+
+    Long holdersCount = pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa, detailParam);
+    assertThat(holdersCount).isEqualTo(2);
   }
 
 
