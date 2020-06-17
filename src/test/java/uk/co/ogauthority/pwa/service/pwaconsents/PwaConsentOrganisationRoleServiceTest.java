@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -22,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRepository;
+import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,6 +35,9 @@ public class PwaConsentOrganisationRoleServiceTest {
 
   @Mock
   private PwaConsentOrganisationRoleRepository pwaConsentOrganisationRoleRepository;
+
+  @Mock
+  private PwaConsentPipelineOrganisationRoleLinkRepository pwaConsentPipelineOrganisationRoleLinkRepository;
 
   @Mock
   private PwaConsentRepository pwaConsentRepository;
@@ -75,6 +81,7 @@ public class PwaConsentOrganisationRoleServiceTest {
 
     pwaConsentOrganisationRoleService = new PwaConsentOrganisationRoleService(
         pwaConsentOrganisationRoleRepository,
+        pwaConsentPipelineOrganisationRoleLinkRepository,
         pwaConsentRepository,
         portalOrganisationsAccessor
     );
@@ -196,6 +203,15 @@ public class PwaConsentOrganisationRoleServiceTest {
     });
 
   }
+
+  @Test
+  public void getOrganisationRoleSummary_serviceInteractions(){
+    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa)).isNotNull();
+    verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1)).findActiveOrganisationPipelineRolesByMasterPwa(masterPwa);
+
+  }
+
+
 
 
 }

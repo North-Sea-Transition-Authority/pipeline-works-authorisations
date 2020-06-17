@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -25,31 +27,50 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.repository.pipelines.PipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineServiceTest {
 
+  private static final int PIPELINE_ID = 100;
+
   @Mock
-  private PadPipelineRepository repository;
+  private PadPipelineRepository padPipelineRepository;
+
+  @Mock
+  private PipelineRepository pipelineRepository;
 
   private PadPipelineService pipelinesService;
 
+  private PwaApplicationDetail detail;
+
   @Captor
-  private ArgumentCaptor<PadPipeline> pipelineCaptor;
+  private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
 
   @Before
   public void setUp() {
-    pipelinesService = new PadPipelineService(repository);
+
+    // mimic save of new pipeline behaviour.
+    when(pipelineRepository.save(any())).thenAnswer(invocation -> {
+      var pipeline =(Pipeline) invocation.getArgument(0);
+      pipeline.setId(PIPELINE_ID);
+      return pipeline;
+    });
+
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    pipelinesService = new PadPipelineService(padPipelineRepository, pipelineRepository);
+
   }
 
   @Test
   public void addPipeline() throws IllegalAccessException {
-
-    var detail = new PwaApplicationDetail();
     var form = new PipelineHeaderForm();
 
     form.setFromLocation("from");
@@ -82,34 +103,35 @@ public class PadPipelineServiceTest {
 
     pipelinesService.addPipeline(detail, form);
 
-    verify(repository, times(1)).save(pipelineCaptor.capture());
+    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    verify(pipelineRepository, times(1)).save(any());
 
-    var newPipeline = pipelineCaptor.getValue();
+    var newPadPipeline = padPipelineArgumentCaptor.getValue();
+    assertThat(newPadPipeline.getPipeline().getId()).isEqualTo(PIPELINE_ID);
+    assertThat(newPadPipeline.getFromLocation()).isEqualTo(form.getFromLocation());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLongitudeDirection());
 
-    assertThat(newPipeline.getFromLocation()).isEqualTo(form.getFromLocation());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLatitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLatitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLatitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLatitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLatitudeDirection());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLongitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLongitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLongitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "fromLongitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLongitudeDirection());
+    assertThat(newPadPipeline.getToLocation()).isEqualTo(form.getToLocation());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeDirection")).isEqualTo(form.getToCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeDirection")).isEqualTo(form.getToCoordinateForm().getLongitudeDirection());
 
-    assertThat(newPipeline.getToLocation()).isEqualTo(form.getToLocation());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLatitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLatitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLatitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLatitudeDirection")).isEqualTo(form.getToCoordinateForm().getLatitudeDirection());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLongitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLongitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLongitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPipeline, "toLongitudeDirection")).isEqualTo(form.getToCoordinateForm().getLongitudeDirection());
-
-    assertThat(newPipeline.getLength()).isEqualTo(form.getLength());
-    assertThat(newPipeline.getPipelineType()).isEqualTo(form.getPipelineType());
-    assertThat(newPipeline.getProductsToBeConveyed()).isEqualTo(form.getProductsToBeConveyed());
-    assertThat(newPipeline.getComponentPartsDescription()).isEqualTo(form.getComponentPartsDescription());
+    assertThat(newPadPipeline.getLength()).isEqualTo(form.getLength());
+    assertThat(newPadPipeline.getPipelineType()).isEqualTo(form.getPipelineType());
+    assertThat(newPadPipeline.getProductsToBeConveyed()).isEqualTo(form.getProductsToBeConveyed());
+    assertThat(newPadPipeline.getComponentPartsDescription()).isEqualTo(form.getComponentPartsDescription());
     assertThat(form.getTrenchedBuriedBackfilled()).isEqualTo(form.getTrenchedBuriedBackfilled());
     assertThat(form.getTrenchingMethods()).isEqualTo(form.getTrenchingMethods());
 
@@ -117,7 +139,6 @@ public class PadPipelineServiceTest {
 
   @Test
   public void addPipeline_otherMaterialSelected() {
-    var detail = new PwaApplicationDetail();
     var form = new PipelineHeaderForm();
 
     form.setPipelineMaterial(PipelineMaterial.OTHER);
@@ -143,8 +164,8 @@ public class PadPipelineServiceTest {
     form.setTrenchedBuriedBackfilled(false);
 
     pipelinesService.addPipeline(detail, form);
-    verify(repository, times(1)).save(pipelineCaptor.capture());
-    var newPipeline = pipelineCaptor.getValue();
+    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    var newPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPipeline.getOtherPipelineMaterialUsed()).isEqualTo(form.getOtherPipelineMaterialUsed());
   }
 
@@ -153,7 +174,7 @@ public class PadPipelineServiceTest {
   public void isComplete_noPipes() {
 
     var detail = new PwaApplicationDetail();
-    when(repository.countAllByPwaApplicationDetail(detail)).thenReturn(0L);
+    when(padPipelineRepository.countAllByPwaApplicationDetail(detail)).thenReturn(0L);
 
     assertThat(pipelinesService.isComplete(detail)).isFalse();
 
@@ -163,8 +184,8 @@ public class PadPipelineServiceTest {
   public void isComplete_notAllPipesHaveIdents() {
 
     var detail = new PwaApplicationDetail();
-    when(repository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
-    when(repository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(1L);
+    when(padPipelineRepository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
+    when(padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(1L);
 
     assertThat(pipelinesService.isComplete(detail)).isFalse();
 
@@ -174,8 +195,8 @@ public class PadPipelineServiceTest {
   public void isComplete_allPipesHaveIdents() {
 
     var detail = new PwaApplicationDetail();
-    when(repository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
-    when(repository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(0L);
+    when(padPipelineRepository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
+    when(padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(0L);
 
     assertThat(pipelinesService.isComplete(detail)).isTrue();
 
@@ -199,7 +220,7 @@ public class PadPipelineServiceTest {
     pipeLinesExpected.put("2", "l2");
 
     var detail = new PwaApplicationDetail();
-    when(repository.getAllByPwaApplicationDetail(detail)).thenReturn(pipelinesMocked);
+    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(pipelinesMocked);
 
     assertThat(pipelinesService.getPipelineReferenceMap(detail)).isEqualTo(pipeLinesExpected);
   }

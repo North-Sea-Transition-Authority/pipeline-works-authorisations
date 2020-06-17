@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pipelines;
+package uk.co.ogauthority.pwa.model.entity.pwaconsents;
 
 import java.time.Instant;
 import javax.persistence.Entity;
@@ -8,12 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 
 @Entity
 @Table(name = "pipeline_org_role_links")
-public class PipelineOrgRoleLink {
+public class PwaConsentPipelineOrganisationRoleLink {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

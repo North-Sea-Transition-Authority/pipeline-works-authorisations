@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdra
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;

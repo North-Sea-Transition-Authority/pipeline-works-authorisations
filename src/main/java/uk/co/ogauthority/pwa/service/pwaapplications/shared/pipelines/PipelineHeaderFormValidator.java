@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.Optional;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
