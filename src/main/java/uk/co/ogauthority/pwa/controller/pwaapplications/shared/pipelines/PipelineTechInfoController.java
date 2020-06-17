@@ -1,0 +1,105 @@
+package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+
+
+@Controller
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/general-tech-details")
+@PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
+@PwaApplicationTypeCheck(types = {
+    PwaApplicationType.INITIAL,
+    PwaApplicationType.CAT_1_VARIATION
+})
+public class PipelineTechInfoController {
+
+  private final ApplicationBreadcrumbService applicationBreadcrumbService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final PadPipelineTechInfoService padPipelineTechInfoService;
+
+  @Autowired
+  public PipelineTechInfoController(ApplicationBreadcrumbService applicationBreadcrumbService,
+                                    PwaApplicationRedirectService pwaApplicationRedirectService,
+                                    PadPipelineTechInfoService padPipelineTechInfoService) {
+    this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.padPipelineTechInfoService = padPipelineTechInfoService;
+  }
+
+
+  @GetMapping
+  public ModelAndView renderAddPipelineTechInfo(@PathVariable("applicationType")
+                                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                      @PathVariable("applicationId") Integer applicationId,
+                                                      PwaApplicationContext applicationContext,
+                                                      @ModelAttribute("form") PipelineTechInfoForm form) {
+    var entity = padPipelineTechInfoService.getPipelineTechInfoEntity(applicationContext.getApplicationDetail());
+    padPipelineTechInfoService.mapEntityToForm(form, entity);
+    return getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail(), form);
+  }
+
+
+  @PostMapping
+  public ModelAndView postAddPipelineTechInfo(@PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            @PathVariable("applicationId") Integer applicationId,
+                                            PwaApplicationContext applicationContext,
+                                            @ModelAttribute("form") PipelineTechInfoForm form,
+                                            BindingResult bindingResult,
+                                            ValidationType validationType) {
+
+    bindingResult = padPipelineTechInfoService.validate(form,
+        bindingResult,
+        validationType,
+        applicationContext.getApplicationDetail());
+
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail(), form), () -> {
+          var entity = padPipelineTechInfoService.getPipelineTechInfoEntity(applicationContext.getApplicationDetail());
+          padPipelineTechInfoService.saveEntityUsingForm(form, entity);
+          return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+        });
+  }
+
+
+
+
+  private ModelAndView getAddPipelineTechInfoModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                          PipelineTechInfoForm form) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineTechInfoForm");
+    modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRedirect(pwaApplicationDetail.getPwaApplication()));
+
+    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        "General technical details");
+    return modelAndView;
+  }
+
+
+
+
+
+}
