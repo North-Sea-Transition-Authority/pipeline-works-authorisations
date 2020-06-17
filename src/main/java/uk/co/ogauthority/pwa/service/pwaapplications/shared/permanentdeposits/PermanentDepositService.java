@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -49,11 +50,12 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final PadPipelineRepository padPipelineRepository;
   private final PadDepositPipelineRepository padDepositPipelineRepository;
   private final PadProjectInformationRepository padProjectInformationRepository;
-  private DepositDrawingsService depositDrawingsService;
+  private final DepositDrawingsService depositDrawingsService;
 
   @Autowired
   public PermanentDepositService(
       PadPermanentDepositRepository permanentDepositInformationRepository,
+      @Lazy DepositDrawingsService depositDrawingsService,
       PermanentDepositEntityMappingService permanentDepositEntityMappingService,
       PermanentDepositsValidator permanentDepositsValidator,
       SpringValidatorAdapter groupValidator,
@@ -61,18 +63,13 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PadDepositPipelineRepository padDepositPipelineRepository,
       PadProjectInformationRepository padProjectInformationRepository) {
     this.permanentDepositInformationRepository = permanentDepositInformationRepository;
+    this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
     this.permanentDepositsValidator = permanentDepositsValidator;
     this.groupValidator = groupValidator;
     this.padPipelineRepository = padPipelineRepository;
     this.padDepositPipelineRepository = padDepositPipelineRepository;
     this.padProjectInformationRepository = padProjectInformationRepository;
-  }
-
-
-
-  public void setDepositsDrawingService(DepositDrawingsService depositDrawingsService) {
-    this.depositDrawingsService = depositDrawingsService;
   }
 
 

@@ -49,9 +49,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   private final PermanentDepositsDrawingValidator permanentDepositsDrawingValidator;
   private final SpringValidatorAdapter groupValidator;
   private final PadFileService padFileService;
-
-  @Autowired
-  private PermanentDepositService permanentDepositService;
+  private final PermanentDepositService permanentDepositService;
 
   @Autowired
   public DepositDrawingsService(
@@ -59,24 +57,15 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
       PadDepositDrawingLinkRepository padDepositDrawingLinkRepository,
       PermanentDepositsDrawingValidator permanentDepositsDrawingValidator,
       SpringValidatorAdapter groupValidator,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      PermanentDepositService permanentDepositService) {
     this.padDepositDrawingRepository = padDepositDrawingRepository;
     this.padDepositDrawingLinkRepository = padDepositDrawingLinkRepository;
     this.permanentDepositsDrawingValidator = permanentDepositsDrawingValidator;
     this.groupValidator = groupValidator;
     this.padFileService = padFileService;
-  }
-
-  @PostConstruct
-  public void init() {
-    permanentDepositService.setDepositsDrawingService(this);
-  }
-
-  public void setPermanentDepositService(
-      PermanentDepositService permanentDepositService) {
     this.permanentDepositService = permanentDepositService;
   }
-
 
 
   public void mapEntityToForm(PwaApplicationDetail detail, PadDepositDrawing depositDrawing, PermanentDepositDrawingForm form) {
@@ -131,7 +120,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         .collect(Collectors.groupingBy(PadDepositDrawingLink::getPadDepositDrawing));
     for (var drawing: drawings) {
       if (!linkMap.containsKey(drawing)) {
-        linkMap.put(drawing, new ArrayList<>());
+        linkMap.put(drawing, List.of());
       }
     }
 

@@ -76,10 +76,7 @@ public class DepositDrawingsServiceTest {
   @Before
   public void setUp() {
     depositDrawingsService = new DepositDrawingsService(padDepositDrawingRepository,
-        padDepositDrawingLinkRepository, validator, springValidatorAdapter, padFileService);
-
-    this.depositDrawingsService.setPermanentDepositService(permanentDepositService);
-
+        padDepositDrawingLinkRepository, validator, springValidatorAdapter, padFileService, permanentDepositService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
