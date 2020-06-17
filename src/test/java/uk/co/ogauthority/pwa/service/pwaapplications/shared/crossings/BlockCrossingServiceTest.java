@@ -118,8 +118,6 @@ public class BlockCrossingServiceTest {
     editBlockForm = new EditBlockCrossingForm();
 
     organisationUnit = PortalOrganisationTestUtils.getOrganisationUnit();
-
-    when(pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(licensedBlock.getCompositeKey())).thenReturn(licensedBlock);
   }
 
   @Test
@@ -279,7 +277,7 @@ public class BlockCrossingServiceTest {
   }
 
   @Test
-  public void updateAndSaveBlockCrossingAndOwnersFromForm_whenOtherOrgOwner() {
+  public void updateAndSaveBlockCrossingAndOwnersFromForm_whenUnlicenced() {
 
     editBlockForm.setCrossedBlockOwner(CrossedBlockOwner.UNLICENCED);
 
@@ -299,12 +297,7 @@ public class BlockCrossingServiceTest {
     verify(padCrossedBlockOwnerRepository, times(1)).saveAll(ownerCapture.capture());
     verify(padCrossedBlockRepository, times(1)).save(blockCapture.capture());
 
-    assertThat(ownerCapture.getValue().size()).isEqualTo(1);
-    assertThat(ownerCapture.getValue().get(0)).satisfies(o -> {
-      assertThat(o.getOwnerOuId()).isNull();
-      assertThat(o.getOwnerName()).isEqualTo("OTHER");
-      assertThat(o.getPadCrossedBlock()).isEqualTo(spyBlock);
-    });
+    assertThat(ownerCapture.getValue().size()).isEqualTo(0);
 
     assertThat(blockCapture.getValue()).satisfies(padBlock -> {
       assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.UNLICENCED);
@@ -348,41 +341,6 @@ public class BlockCrossingServiceTest {
 
     assertThat(editBlockForm.getBlockOwnersOuIdList()).isEmpty();
     assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.HOLDER);
-
-  }
-
-  @Test
-  public void createAndSaveBlockCrossingAndOwnersFromForm_whenOtherOrg_andLicensedBlock() {
-
-    addBlockForm.setCrossedBlockOwner(CrossedBlockOwner.UNLICENCED);
-    addBlockForm.setPickedBlock(licensedBlock.getCompositeKey());
-
-    ArgumentCaptor<List<PadCrossedBlockOwner>> ownerCapture = ArgumentCaptor.forClass(List.class);
-
-    ArgumentCaptor<PadCrossedBlock> blockCapture = ArgumentCaptor.forClass(PadCrossedBlock.class);
-
-    blockCrossingService.createAndSaveBlockCrossingAndOwnersFromForm(pwaApplicationDetail, addBlockForm);
-
-    verify(padCrossedBlockOwnerRepository, times(1)).saveAll(ownerCapture.capture());
-    verify(padCrossedBlockRepository, times(1)).save(blockCapture.capture());
-
-    assertThat(blockCapture.getValue()).satisfies(padBlock -> {
-      assertThat(padBlock.getBlockNumber()).isEqualTo(licensedBlock.getBlockNumber());
-      assertThat(padBlock.getBlockReference()).isEqualTo(licensedBlock.getBlockReference());
-      assertThat(padBlock.getQuadrantNumber()).isEqualTo(licensedBlock.getQuadrantNumber());
-      assertThat(padBlock.getSuffix()).isEqualTo(licensedBlock.getSuffix());
-      assertThat(padBlock.getLicence()).isEqualTo(licensedBlock.getPearsLicence());
-      assertThat(padBlock.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
-      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.UNLICENCED);
-      assertThat(padBlock.getCreatedInstant()).isNotNull();
-    });
-
-    assertThat(ownerCapture.getValue().size()).isEqualTo(1);
-    assertThat(ownerCapture.getValue().get(0)).satisfies(o -> {
-      assertThat(o.getOwnerOuId()).isNull();
-      assertThat(o.getOwnerName()).isEqualTo("OTHER");
-      assertThat(o.getPadCrossedBlock()).isNotNull();
-    });
 
   }
 
