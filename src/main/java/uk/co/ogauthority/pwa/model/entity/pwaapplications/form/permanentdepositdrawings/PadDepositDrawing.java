@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings;
 
 
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -63,4 +64,25 @@ public class PadDepositDrawing {
   public String getReference() {
     return reference;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadDepositDrawing that = (PadDepositDrawing) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(file, that.file)
+         && Objects.equals(reference, that.reference);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, file, reference);
+  }
 }
+
