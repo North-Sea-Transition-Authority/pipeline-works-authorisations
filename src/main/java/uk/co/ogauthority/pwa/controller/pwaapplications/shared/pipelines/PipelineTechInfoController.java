@@ -91,7 +91,7 @@ public class PipelineTechInfoController {
   private ModelAndView getAddPipelineTechInfoModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                           PipelineTechInfoForm form) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineTechInfoForm");
-    modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRedirect(pwaApplicationDetail.getPwaApplication()));
+    modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "General technical details");
