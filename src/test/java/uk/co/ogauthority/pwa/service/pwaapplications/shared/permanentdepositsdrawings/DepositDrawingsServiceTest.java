@@ -179,7 +179,7 @@ public class DepositDrawingsServiceTest {
   @Test
   public void getDepositDrawingSummaryViews_viewsWithAndWithoutDeposits() {
     var depositDrawing = new PadDepositDrawing();
-    depositDrawing.setReference("ref");
+    depositDrawing.setReference("drawing ref");
     depositDrawing.setPwaApplicationDetail(pwaApplicationDetail);
     depositDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
@@ -187,7 +187,7 @@ public class DepositDrawingsServiceTest {
 
 
     var depositDrawing2 = new PadDepositDrawing();
-    depositDrawing2.setReference("ref");
+    depositDrawing2.setReference("drawing ref 2");
     depositDrawing2.setPwaApplicationDetail(pwaApplicationDetail);
     depositDrawing2.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
@@ -200,9 +200,9 @@ public class DepositDrawingsServiceTest {
     drawingLink1.setPadPermanentDeposit(padPermanentDeposit);
     var drawingLink2 = new PadDepositDrawingLink();
     drawingLink2.setPadDepositDrawing(depositDrawing);
-    padPermanentDeposit = new PadPermanentDeposit();
-    padPermanentDeposit.setReference("my ref2");
-    drawingLink2.setPadPermanentDeposit(padPermanentDeposit);
+    var padPermanentDeposit2 = new PadPermanentDeposit();
+    padPermanentDeposit2.setReference("my ref2");
+    drawingLink2.setPadPermanentDeposit(padPermanentDeposit2);
 
     var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
 
