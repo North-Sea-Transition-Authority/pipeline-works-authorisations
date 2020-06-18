@@ -233,6 +233,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_contactSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padBundleService.isComplete(any())).thenReturn(true);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -247,6 +248,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_appTypeSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padBundleService.isComplete(any())).thenReturn(true);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -261,6 +263,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_appStatusSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padBundleService.isComplete(any())).thenReturn(true);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -272,9 +275,26 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_complete_notComplete() throws Exception {
+  public void postPipelinesOverview_complete_notComplete_bundles() throws Exception {
+
+    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padBundleService.isComplete(any())).thenReturn(false);
+
+    mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
+        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
+            pwaApplicationDetail.getPwaApplicationType(), null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/shared/pipelines/overview"));
+
+  }
+
+  @Test
+  public void postPipelinesOverview_complete_notComplete_pipelines() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
+    when(padBundleService.isComplete(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
@@ -290,6 +310,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_complete_isComplete() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padBundleService.isComplete(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
