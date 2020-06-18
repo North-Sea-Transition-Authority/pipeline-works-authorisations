@@ -63,7 +63,7 @@ public class PwaApplicationDetail {
 
   private Boolean submittedAsFastTrackFlag;
 
-  private Integer numOfHolders = 0;
+  private Integer numOfHolders;
 
 
   public PwaApplicationDetail() {
