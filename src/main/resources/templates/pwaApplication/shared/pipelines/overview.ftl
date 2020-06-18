@@ -19,7 +19,7 @@
 
     <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
     <#if canShowAddBundleButton>
-        <@linkButtonBlue text="Add bundle" url=springUrl(pipelineUrlFactory.getAddBundleUrl()) />
+        <@linkButtonBlue text="Add pipeline bundle" url=springUrl(pipelineUrlFactory.getAddBundleUrl()) />
     </#if>
 
     <#list pipelineTaskListItems as pipeline>

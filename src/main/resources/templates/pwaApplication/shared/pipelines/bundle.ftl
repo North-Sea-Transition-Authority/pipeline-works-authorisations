@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 
-<@defaultPage htmlTitle="${screenActionType.actionText} bundle" pageHeading="${screenActionType.actionText} bundle" breadcrumbs=true>
+<@defaultPage htmlTitle="${screenActionType.actionText} pipeline bundle" pageHeading="${screenActionType.actionText} pipeline bundle" breadcrumbs=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList />
@@ -20,7 +20,7 @@
             <@pipelineTableSelection.pipelineTableSelection path="form.pipelineIds" pipelineOverviews=pipelineOverviews />
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} bundle" secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline bundle" secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl)/>
 
     </@fdsForm.htmlForm>
 </@defaultPage>
