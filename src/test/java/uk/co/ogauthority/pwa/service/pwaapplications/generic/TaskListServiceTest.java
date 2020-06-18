@@ -151,7 +151,8 @@ public class TaskListServiceTest {
                 ApplicationTask.PIPELINES_HUOO.getDisplayName(),
                 ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
                 ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
-                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName(),
+                ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:

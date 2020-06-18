@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
+package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +13,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -59,7 +58,7 @@ public class PipelineTechInfoController {
                                                       @ModelAttribute("form") PipelineTechInfoForm form) {
     var entity = padPipelineTechInfoService.getPipelineTechInfoEntity(applicationContext.getApplicationDetail());
     padPipelineTechInfoService.mapEntityToForm(form, entity);
-    return getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail(), form);
+    return getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail());
   }
 
 
@@ -78,7 +77,7 @@ public class PipelineTechInfoController {
         applicationContext.getApplicationDetail());
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail(), form), () -> {
+        getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail()), () -> {
           var entity = padPipelineTechInfoService.getPipelineTechInfoEntity(applicationContext.getApplicationDetail());
           padPipelineTechInfoService.saveEntityUsingForm(form, entity);
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
@@ -88,8 +87,7 @@ public class PipelineTechInfoController {
 
 
 
-  private ModelAndView getAddPipelineTechInfoModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                          PipelineTechInfoForm form) {
+  private ModelAndView getAddPipelineTechInfoModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineTechInfoForm");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
 

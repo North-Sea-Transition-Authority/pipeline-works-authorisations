@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -11,7 +12,6 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineTechInfoValidator;
 
@@ -61,7 +61,13 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
   // Validation / Checking
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return true;
+    var pipelineTechInfo = getPipelineTechInfoEntity(detail);
+    var pipelineTechInfoForm = new PipelineTechInfoForm();
+    mapEntityToForm(pipelineTechInfoForm, pipelineTechInfo);
+    BindingResult bindingResult = new BeanPropertyBindingResult(pipelineTechInfoForm, "form");
+    validate(pipelineTechInfoForm, bindingResult, ValidationType.FULL, detail);
+
+    return !bindingResult.hasErrors();
   }
 
   @Override

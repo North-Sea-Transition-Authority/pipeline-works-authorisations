@@ -34,7 +34,7 @@ public class PipelineTechInfoMappingService {
     }
     entity.setCorrosionDescription(form.getCorrosionDescription());
     entity.setPlannedPipelineTieInPoints(form.getPlannedPipelineTieInPoints());
-    if(form.getPlannedPipelineTieInPoints()) {
+    if (form.getPlannedPipelineTieInPoints()) {
       entity.setTieInPointsDescription(form.getTieInPointsDescription());
     }
   }

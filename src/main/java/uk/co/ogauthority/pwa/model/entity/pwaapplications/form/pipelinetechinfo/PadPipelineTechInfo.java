@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo;
 
 
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -96,4 +97,28 @@ public class PadPipelineTechInfo {
   }
 
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadPipelineTechInfo that = (PadPipelineTechInfo) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(estimatedFieldLife, that.estimatedFieldLife)
+        && Objects.equals(pipelineDesignedToStandards, that.pipelineDesignedToStandards)
+        && Objects.equals(pipelineStandardsDescription, that.pipelineStandardsDescription)
+        && Objects.equals(corrosionDescription, that.corrosionDescription)
+        && Objects.equals(plannedPipelineTieInPoints, that.plannedPipelineTieInPoints)
+        && Objects.equals(tieInPointsDescription, that.tieInPointsDescription);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, estimatedFieldLife, pipelineDesignedToStandards,
+        pipelineStandardsDescription, corrosionDescription, plannedPipelineTieInPoints, tieInPointsDescription);
+  }
 }

@@ -23,15 +23,15 @@ public class PipelineTechInfoValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "estimatedFieldLife", "estimatedFieldLife.required",
         "You must enter a valid year for the estimated field life");
 
-   if (BooleanUtils.isTrue(form.getPipelineDesignedToStandards())) {
-     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineStandardsDescription", "pipelineStandardsDescription.required",
-         "You must enter details of the design codes/standards for the pipelines system");
-   } else if (form.getPipelineDesignedToStandards() == null) {
-     errors.rejectValue("pipelineDesignedToStandards", "pipelineDesignedToStandards.required",
-         "You must select whether pipeline systems have been designed in accordance with industry codes and standards");
-   }
+    if (BooleanUtils.isTrue(form.getPipelineDesignedToStandards())) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineStandardsDescription", "pipelineStandardsDescription.required",
+                "You must enter details of the design codes/standards for the pipelines system");
+    } else if (form.getPipelineDesignedToStandards() == null) {
+      errors.rejectValue("pipelineDesignedToStandards", "pipelineDesignedToStandards.required",
+           "You must select whether pipeline systems have been designed in accordance with industry codes and standards");
+    }
 
-   ValidationUtils.rejectIfEmptyOrWhitespace(errors, "corrosionDescription", "corrosionDescription.required",
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "corrosionDescription", "corrosionDescription.required",
         "You must enter a description of the corrosion management strategy");
 
     if (BooleanUtils.isTrue(form.getPlannedPipelineTieInPoints())) {
