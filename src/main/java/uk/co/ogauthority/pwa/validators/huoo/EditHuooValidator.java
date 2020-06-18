@@ -119,8 +119,7 @@ public class EditHuooValidator implements SmartValidator {
         .filter(
             padOrgRole -> padOrgRole.getOrganisationUnit().getOuId() != huooValidationView.getPortalOrganisationUnit().getOuId())
         .count();
-    // TODO: PWA-386 Change hard-coded 1 to match number of potential holders on an application.
-    if (holderCount >= 1) {
+    if (holderCount >= detail.getNumOfHolders()) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
         errors.rejectValue("huooRoles", "huooRoles.alreadyUsed",
             "You may only have one holder on an application");

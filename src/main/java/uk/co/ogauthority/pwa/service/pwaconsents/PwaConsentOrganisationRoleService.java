@@ -110,10 +110,7 @@ public class PwaConsentOrganisationRoleService {
 
   }
 
-  public Long getNumberOfHolders(MasterPwa masterPwa, PwaApplicationDetail detail) {
-    if (detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL)) {
-      return 1L;
-    }
+  public Long getNumberOfHolders(MasterPwa masterPwa) {
     var pwaConsents = pwaConsentRepository.findByMasterPwa(masterPwa);
     return pwaConsentOrganisationRoleRepository.countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
         pwaConsents,

@@ -102,7 +102,6 @@ public class PwaApplicationCreationServiceTest {
 
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
-    when(pwaConsentOrganisationRoleService.getNumberOfHolders(any(MasterPwa.class), any(PwaApplicationDetail.class))).thenReturn(Long.valueOf(1));
 
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
 

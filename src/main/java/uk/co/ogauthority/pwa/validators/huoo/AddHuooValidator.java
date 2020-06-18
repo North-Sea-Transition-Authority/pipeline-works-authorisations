@@ -67,7 +67,7 @@ public class AddHuooValidator implements SmartValidator {
     if (holderCount >= detail.getNumOfHolders()) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
         errors.rejectValue("huooRoles", "huooRoles.holderNotAllowed",
-            "You may only have one holder on an application");
+            "You may only have " + detail.getNumOfHolders() + " holder on an application");
       }
     }
     if (form.getHuooType() == HuooType.TREATY_AGREEMENT && SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {

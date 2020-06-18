@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.camunda.bpm.model.dmn.instance.OrganizationUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,6 +91,7 @@ public class EditHuooValidatorTest {
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OWNER));
     form.setOrganisationUnitId(portalOrgRoles.get(0).getOrganisationUnit().getOuId());
+    detail.setNumOfHolders(2);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles));
 
     verify(organisationRoleService, times(1)).getOrgRolesForDetail(detail);
@@ -160,6 +162,7 @@ public class EditHuooValidatorTest {
 
     form.setOrganisationUnitId(99);
 
+    detail.setNumOfHolders(2);
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, validationView);
@@ -263,6 +266,49 @@ public class EditHuooValidatorTest {
     );
   }
 
+
+  @Test
+  public void validateHolderCountLessThanOverallPwa_invalid() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+
+    detail.setNumOfHolders(1);
+    var padOrgRole1 = new PadOrganisationRole();
+    padOrgRole1.setRole(HuooRole.HOLDER);
+    padOrgRole1.setType(HuooType.PORTAL_ORG);
+    var orgUnit = new PortalOrganisationUnit(1, "");
+    padOrgRole1.setOrganisationUnit(orgUnit);
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles));
+
+    assertThat(result).contains(
+        entry("huooRoles", Set.of("huooRoles.alreadyUsed"))
+    );
+  }
+
+
+  @Test
+  public void validateHolderCountLessThanOverallPwa_valid() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+
+    detail.setNumOfHolders(2);
+    var padOrgRole1 = new PadOrganisationRole();
+    padOrgRole1.setRole(HuooRole.HOLDER);
+    padOrgRole1.setType(HuooType.PORTAL_ORG);
+    var orgUnit = new PortalOrganisationUnit(1, "");
+    padOrgRole1.setOrganisationUnit(orgUnit);
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles));
+
+    assertThat(result).doesNotContain(
+        entry("huooRoles", Set.of("huooRoles.alreadyUsed"))
+    );
+  }
 
 
   private HuooForm buildForm() {

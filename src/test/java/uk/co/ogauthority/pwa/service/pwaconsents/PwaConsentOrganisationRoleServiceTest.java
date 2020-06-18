@@ -214,26 +214,16 @@ public class PwaConsentOrganisationRoleServiceTest {
 
   }
 
-  @Test
-  public void getNumberOfHolders_initialPwa() {
-    var applicationParam = new PwaApplication(masterPwa, PwaApplicationType.INITIAL, 1);
-    var detailParam = new PwaApplicationDetail(applicationParam, 1, null, null);
-    Long holdersCount = pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa, detailParam);
-    assertThat(holdersCount).isEqualTo(1);
-  }
 
   @Test
   public void getNumberOfHolders_variationPwa() {
-    var applicationParam = new PwaApplication(masterPwa, PwaApplicationType.HUOO_VARIATION, 1);
-    var detailParam = new PwaApplicationDetail(applicationParam, 1, null, null);
     var consents = List.of(new PwaConsent(), new PwaConsent());
-
     when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(consents);
     when(pwaConsentOrganisationRoleRepository.countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
         consents,
         Set.of(HuooRole.HOLDER))).thenReturn(2L);
 
-    Long holdersCount = pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa, detailParam);
+    Long holdersCount = pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa);
     assertThat(holdersCount).isEqualTo(2);
   }
 
