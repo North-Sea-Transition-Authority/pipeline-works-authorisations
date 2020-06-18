@@ -5,14 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineTechInfoValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,18 +24,10 @@ public class PipelineTechInfoValidatorTest {
   }
 
 
-  public Map<String, Set<String>> getErrorMap(PipelineTechInfoForm form) {
-    var errors = new BeanPropertyBindingResult(form, "form");
-    validator.validate(form, errors);
-    return errors.getFieldErrors().stream()
-        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
-  }
-
-
   @Test
   public void validate_form_empty() {
     var form = new PipelineTechInfoForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")),
         entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required")),
@@ -56,7 +46,7 @@ public class PipelineTechInfoValidatorTest {
     form.setPlannedPipelineTieInPoints(true);
     form.setTieInPointsDescription("description");
 
-    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).isEmpty();
   }
 
@@ -65,7 +55,7 @@ public class PipelineTechInfoValidatorTest {
   public void pipelineStandardsDescription_notRequired() {
     var form = new PipelineTechInfoForm();
     form.setPipelineDesignedToStandards(false);
-    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).doesNotContain(
         entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required"))
     );
@@ -75,7 +65,7 @@ public class PipelineTechInfoValidatorTest {
   public void tieInPointsDescription_notRequired() {
     var form = new PipelineTechInfoForm();
     form.setPlannedPipelineTieInPoints(false);
-    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).doesNotContain(
         entry("tieInPointsDescription", Set.of("tieInPointsDescription.required"))
     );

@@ -2,14 +2,23 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo
 
 
 import java.util.Objects;
+import org.hibernate.validator.constraints.Length;
+import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
+import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 public class PipelineTechInfoForm  {
 
   private Integer estimatedFieldLife;
   private Boolean pipelineDesignedToStandards;
+  @Length(max = 4000, message = "Design codes/standards must be 4000 characters or fewer",
+      groups = {FullValidation.class, PartialValidation.class})
   private String pipelineStandardsDescription;
+  @Length(max = 4000, message = "Corrosion management strategy must be 4000 characters or fewer",
+      groups = {FullValidation.class, PartialValidation.class})
   private String corrosionDescription;
   private Boolean plannedPipelineTieInPoints;
+  @Length(max = 4000, message = "Tie-in points description must be 4000 characters or fewer",
+      groups = {FullValidation.class, PartialValidation.class})
   private String tieInPointsDescription;
 
 
