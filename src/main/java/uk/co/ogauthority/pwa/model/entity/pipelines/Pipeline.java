@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 @Entity
 @Table(name = "pipelines")
@@ -24,6 +25,10 @@ public class Pipeline {
   private MasterPwa masterPwa;
 
   public Pipeline() {
+  }
+
+  public Pipeline(PwaApplication pwaApplication) {
+    this.masterPwa = pwaApplication.getMasterPwa();
   }
 
   public Integer getId() {
