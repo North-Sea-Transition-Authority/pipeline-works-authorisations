@@ -137,7 +137,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
                                          EditBlockCrossingForm form) {
     var ownerList = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
 
-    if (CrossedBlockOwner.UNLICENCED.equals(padCrossedBlock.getBlockOwner())) {
+    if (CrossedBlockOwner.UNLICENSED.equals(padCrossedBlock.getBlockOwner())) {
       form.setBlockOwnersOuIdList(Collections.emptyList());
     } else if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
       form.setBlockOwnersOuIdList(

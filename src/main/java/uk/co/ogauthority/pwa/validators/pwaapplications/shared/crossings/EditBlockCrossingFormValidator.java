@@ -48,14 +48,14 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
       );
     }
 
-    if (form.getCrossedBlockOwner() != null && form.getCrossedBlockOwner() != CrossedBlockOwner.UNLICENCED) {
+    if (form.getCrossedBlockOwner() != null && form.getCrossedBlockOwner() != CrossedBlockOwner.UNLICENSED) {
       if (licence == null) {
         errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
             "Unlicensed blocks cannot have an owner");
       }
     }
 
-    if (form.getCrossedBlockOwner() == CrossedBlockOwner.UNLICENCED) {
+    if (form.getCrossedBlockOwner() == CrossedBlockOwner.UNLICENSED) {
       if (licence != null) {
         errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
             "Licensed blocks must have an owner");
