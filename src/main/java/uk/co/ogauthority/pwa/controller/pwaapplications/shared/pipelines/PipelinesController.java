@@ -83,7 +83,8 @@ public class PipelinesController {
             .collect(Collectors.toList()))
         .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))
         .addObject("canShowAddBundleButton", padBundleService.canAddBundle(detail))
-        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
+        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
+        .addObject("bundleSummaryViews", padBundleService.getBundleSummaryViews(detail));
 
     breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
 
@@ -105,11 +106,16 @@ public class PipelinesController {
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             PwaApplicationContext applicationContext) {
 
+    var detail = applicationContext.getApplicationDetail();
     // otherwise, make sure that all pipelines have header info and idents
-    if (!padPipelineService.isComplete(applicationContext.getApplicationDetail())) {
+    var pipelinesComplete = padPipelineService.isComplete(detail);
+    var bundlesComplete = padBundleService.isComplete(detail);
+
+    if (!pipelinesComplete || !bundlesComplete) {
       return getOverviewModelAndView(applicationContext.getApplicationDetail())
           .addObject("errorMessage",
-              "At least one pipeline must be added. Each pipeline must have at least one ident.");
+              "At least one pipeline must be added. Each pipeline must have at least one ident. All bundles must be valid.")
+          .addObject("bundleValidationFactory", padBundleService.getBundleValidationFactory(detail));
     }
 
     return applicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
