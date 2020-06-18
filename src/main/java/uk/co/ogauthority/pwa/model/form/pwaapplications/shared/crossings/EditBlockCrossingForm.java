@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.Crossed
 
 public class EditBlockCrossingForm {
 
-  @NotNull(message = "You must provide block owner details")
+  @NotNull(message = "Select a block owner")
   private CrossedBlockOwner crossedBlockOwner;
 
   private List<Integer> blockOwnersOuIdList = Collections.emptyList();

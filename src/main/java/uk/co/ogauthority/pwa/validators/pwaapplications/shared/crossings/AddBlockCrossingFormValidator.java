@@ -37,7 +37,7 @@ public class AddBlockCrossingFormValidator implements Validator {
     if (form.getPickedBlock() != null) {
       var optionalBlock = pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(form.getPickedBlock());
       if (optionalBlock.isEmpty()) {
-        errors.rejectValue("pickedBlock", "pickedBlock.invalid", "You must pick a valid block");
+        errors.rejectValue("pickedBlock", "pickedBlock.invalid", "Select a valid block");
       }
       licence = optionalBlock.map(PearsBlock::getPearsLicence)
           .orElse(null);

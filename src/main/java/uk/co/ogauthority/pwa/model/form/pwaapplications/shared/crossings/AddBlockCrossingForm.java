@@ -4,7 +4,7 @@ import javax.validation.constraints.NotNull;
 
 public class AddBlockCrossingForm extends EditBlockCrossingForm {
 
-  @NotNull(message = "You must provide a crossed block")
+  @NotNull(message = "Select a block")
   private String pickedBlock;
 
   public AddBlockCrossingForm() {

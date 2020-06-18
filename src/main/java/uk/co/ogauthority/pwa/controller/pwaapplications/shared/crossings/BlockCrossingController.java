@@ -111,9 +111,13 @@ public class BlockCrossingController {
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
+
     if (!blockCrossingFileService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
           .addObject("errorMessage", "You must add at least one document");
+    } else if (!blockCrossingService.isComplete(detail)) {
+      return createOverviewModelAndView(detail)
+          .addObject("errorMessage", "You must add at least one block");
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
@@ -232,10 +236,7 @@ public class BlockCrossingController {
   }
 
   private void addGenericBlockCrossingModelAttributes(ModelAndView modelAndView, PwaApplicationContext context) {
-    // TODO Convert to search selector when PWA-150 is complete. will improve performance by not loading entire dataset
-    var sortedOrganisationUnits = portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(
-        "", PageRequest.of(0, 50)
-    )
+    var sortedOrganisationUnits = portalOrganisationsAccessor.getAllOrganisationUnits()
         .stream()
         .sorted(Comparator.comparing(o -> o.getName().toLowerCase()))
         .collect(StreamUtils.toLinkedHashMap(o -> String.valueOf(o.getOuId()), PortalOrganisationUnit::getName));

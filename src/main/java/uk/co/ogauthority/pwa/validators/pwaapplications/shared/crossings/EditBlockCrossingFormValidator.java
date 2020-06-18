@@ -44,21 +44,21 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
       ValidationUtils.rejectIfEmpty(
           errors, "blockOwnersOuIdList",
           "blockOwnersOuIdList.required",
-          "You must provide a block owner"
+          "Select a block owner"
       );
     }
 
-    if (form.getCrossedBlockOwner() != CrossedBlockOwner.UNLICENCED) {
+    if (form.getCrossedBlockOwner() != null && form.getCrossedBlockOwner() != CrossedBlockOwner.UNLICENCED) {
       if (licence == null) {
         errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
-            "This block is unlicensed");
+            "Unlicensed blocks cannot have an owner");
       }
     }
 
     if (form.getCrossedBlockOwner() == CrossedBlockOwner.UNLICENCED) {
       if (licence != null) {
         errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
-            "You can't select this block because it is owned");
+            "Licensed blocks must have an owner");
       }
     }
 
@@ -72,7 +72,7 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
       for (int i = 0; i < form.getBlockOwnersOuIdList().size(); i++) {
         if (!validOrganisationUnitIdSet.contains(form.getBlockOwnersOuIdList().get(i))) {
           var field = "blockOwnersOuIdList[" + i + "]";
-          errors.rejectValue(field, field + ".invalid", "Please provide a valid organisation unit");
+          errors.rejectValue(field, field + ".invalid", "Select a valid organisation unit");
         }
       }
 
