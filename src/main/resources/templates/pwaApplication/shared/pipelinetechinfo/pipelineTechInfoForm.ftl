@@ -10,7 +10,7 @@
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsTextInput.textInput path="form.estimatedFieldLife" labelText="What is the estimated life of the field?" inputClass="govuk-input--width-5"/>
+        <@fdsTextInput.textInput path="form.estimatedFieldLife" labelText="What is the estimated life of the field?" suffix="years" inputClass="govuk-input--width-5"/>
 
         <@fdsRadio.radioGroup path="form.pipelineDesignedToStandards" labelText="Have the pipeline systems been designed in accordance with industry recognised codes and standards?" 
             hintText="For example, PD 8010 n2004 Part 2 Subsea Pipelines" hiddenContent=true>  
