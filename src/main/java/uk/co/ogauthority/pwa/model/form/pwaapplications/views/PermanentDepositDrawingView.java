@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 

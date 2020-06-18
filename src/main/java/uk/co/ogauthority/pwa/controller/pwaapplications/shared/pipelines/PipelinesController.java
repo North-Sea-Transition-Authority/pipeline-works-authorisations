@@ -16,6 +16,8 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -113,7 +115,9 @@ public class PipelinesController {
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class)
             .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
-        .addObject("screenActionType", type);
+        .addObject("screenActionType", type)
+        .addObject("pipelineFlexibilityTypes", PipelineFlexibility.asList())
+        .addObject("pipelineMaterialTypes", PipelineMaterial.asList());
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, type.getSubmitButtonText() + " pipeline");
 

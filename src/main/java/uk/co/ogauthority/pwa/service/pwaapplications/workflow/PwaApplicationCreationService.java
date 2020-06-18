@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
+import java.util.EnumSet;
 import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.RandomUtils;
@@ -17,6 +18,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 /**
@@ -31,6 +34,9 @@ public class PwaApplicationCreationService {
   private final PwaContactService pwaContactService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaApplicationReferencingService pwaApplicationReferencingService;
+  private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
+  private final PadOrganisationRoleService padOrganisationRoleService;
+
 
   @Autowired
   public PwaApplicationCreationService(MasterPwaManagementService masterPwaManagementService,
@@ -38,19 +44,23 @@ public class PwaApplicationCreationService {
                                        CamundaWorkflowService camundaWorkflowService,
                                        PwaContactService pwaContactService,
                                        PwaApplicationDetailService pwaApplicationDetailService,
-                                       PwaApplicationReferencingService pwaApplicationReferencingService) {
+                                       PwaApplicationReferencingService pwaApplicationReferencingService,
+                                       PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
+                                       PadOrganisationRoleService padOrganisationRoleService) {
     this.masterPwaManagementService = masterPwaManagementService;
     this.pwaApplicationRepository = pwaApplicationRepository;
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaApplicationReferencingService = pwaApplicationReferencingService;
+    this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
+    this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
   private PwaApplicationDetail createApplication(MasterPwa masterPwa,
-                                           PwaApplicationType applicationType,
-                                           int variationNo,
-                                           WebUserAccount createdByUser) {
+                                                 PwaApplicationType applicationType,
+                                                 int variationNo,
+                                                 WebUserAccount createdByUser) {
 
     var application = new PwaApplication(masterPwa, applicationType, variationNo);
     application.setAppReference(pwaApplicationReferencingService.createAppReference());
@@ -65,6 +75,19 @@ public class PwaApplicationCreationService {
 
     camundaWorkflowService.startWorkflow(application);
 
+    var createHuooDataForAppTypes = EnumSet.of(
+        PwaApplicationType.CAT_1_VARIATION,
+        PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.HUOO_VARIATION
+    );
+
+    // Its possible this can be done more cleverly if some simple link between app type and app task existed.
+    // Possible only with large effort to link appTask to business logic code, current link sits at controller annotation level.
+    if (createHuooDataForAppTypes.contains(applicationType)) {
+      var consentedHuooSummary = pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa);
+      padOrganisationRoleService.createApplicationOrganisationRolesFromSummary(detail, consentedHuooSummary);
+    }
+
     return detail;
 
   }
@@ -73,9 +96,9 @@ public class PwaApplicationCreationService {
   public PwaApplicationDetail createInitialPwaApplication(WebUserAccount createdByUser) {
 
     MasterPwaDetail masterPwaDetail = masterPwaManagementService.createMasterPwa(
-            MasterPwaDetailStatus.APPLICATION,
-             // TODO PWA-480 implement referencing
-             "New Pwa " + RandomUtils.nextInt()
+        MasterPwaDetailStatus.APPLICATION,
+        // TODO PWA-480 implement referencing
+        "New Pwa " + RandomUtils.nextInt()
     );
 
     var masterPwa = masterPwaDetail.getMasterPwa();
@@ -89,7 +112,9 @@ public class PwaApplicationCreationService {
                                                             MasterPwa masterPwa,
                                                             PwaApplicationType pwaApplicationType) {
 
-    return createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
+    var applicationDetail = createApplication(masterPwa, pwaApplicationType, 0, createdByUser);
+
+    return applicationDetail;
 
   }
 

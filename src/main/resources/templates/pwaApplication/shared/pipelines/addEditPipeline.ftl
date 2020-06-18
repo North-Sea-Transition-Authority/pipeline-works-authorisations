@@ -75,7 +75,36 @@
                 <@fdsRadio.radioNo path="form.trenchedBuriedBackfilled"/>
             </@fdsRadio.radioGroup>
 
+
+            <@fdsRadio.radioGroup path="form.pipelineFlexibility" labelText="Is this a flexible or rigid pipeline?" hiddenContent=true>                
+                <#assign firstItem=true/>
+                <#list pipelineFlexibilityTypes as  pipelineFlexibilityTypeOption>
+                    <@fdsRadio.radioItem path="form.pipelineFlexibility" itemMap={pipelineFlexibilityTypeOption : pipelineFlexibilityTypeOption.getDisplayText()} isFirstItem=firstItem/>   
+                <#assign firstItem=false/>
+                </#list>
+            </@fdsRadio.radioGroup>           
+
+
+            <@fdsRadio.radioGroup path="form.pipelineMaterial" labelText="What materials were used to construct the pipeline?" hiddenContent=true>                
+                <#assign firstItem=true/>
+                <#list pipelineMaterialTypes as  pipelineMaterialTypeOption>
+                    <@fdsRadio.radioItem path="form.pipelineMaterial" itemMap={pipelineMaterialTypeOption : pipelineMaterialTypeOption.getDisplayText()} isFirstItem=firstItem>  
+                        <#if pipelineMaterialTypeOption == "OTHER"> 
+                            <@fdsTextarea.textarea path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used"/>
+                        </#if>                    
+                    </@fdsRadio.radioItem>
+                <#assign firstItem=false/>
+                </#list>
+            </@fdsRadio.radioGroup>
+
+            <@fdsTextInput.textInput path="form.pipelineDesignLife" labelText="What is the design life of the pipeline?" suffix="years" inputClass="govuk-input--width-5"/>
+
         </@fdsFieldset.fieldset>
+
+
+
+
+
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

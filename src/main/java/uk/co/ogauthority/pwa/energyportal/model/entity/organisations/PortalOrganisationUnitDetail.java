@@ -43,4 +43,8 @@ public class PortalOrganisationUnitDetail {
     return registeredNumber;
   }
 
+  public String getOrganisationUnitName() {
+    return this.organisationUnit.getName();
+  }
+
 }
