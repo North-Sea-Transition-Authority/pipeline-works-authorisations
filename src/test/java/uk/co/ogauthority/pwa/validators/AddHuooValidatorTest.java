@@ -39,6 +39,7 @@ public class AddHuooValidatorTest {
   public void setUp() {
 
     detail = new PwaApplicationDetail();
+    detail.setNumOfHolders(2);
     orgRoles = List.of();
 
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(orgRoles);
@@ -165,6 +166,7 @@ public class AddHuooValidatorTest {
     orgRole.setType(HuooType.PORTAL_ORG);
     orgRole.setRole(HuooRole.HOLDER);
     orgRole.setOrganisationUnit(ou);
+    detail.setNumOfHolders(1);
 
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(orgRole));
 
@@ -201,8 +203,6 @@ public class AddHuooValidatorTest {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
-
-    detail.setNumOfHolders(2);
     var padOrgRole1 = new PadOrganisationRole();
     padOrgRole1.setRole(HuooRole.HOLDER);
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole1));

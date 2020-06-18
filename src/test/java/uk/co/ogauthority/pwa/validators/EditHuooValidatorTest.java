@@ -62,6 +62,7 @@ public class EditHuooValidatorTest {
   public void setUp() {
 
     detail = new PwaApplicationDetail();
+    detail.setNumOfHolders(2);
 
     var portalOrgRole = new PadOrganisationRole();
     portalOrgRole.setType(HuooType.PORTAL_ORG);
@@ -91,7 +92,6 @@ public class EditHuooValidatorTest {
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OWNER));
     form.setOrganisationUnitId(portalOrgRoles.get(0).getOrganisationUnit().getOuId());
-    detail.setNumOfHolders(2);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles));
 
     verify(organisationRoleService, times(1)).getOrgRolesForDetail(detail);
@@ -162,7 +162,6 @@ public class EditHuooValidatorTest {
 
     form.setOrganisationUnitId(99);
 
-    detail.setNumOfHolders(2);
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
 
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, validationView);
@@ -295,7 +294,6 @@ public class EditHuooValidatorTest {
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
 
-    detail.setNumOfHolders(2);
     var padOrgRole1 = new PadOrganisationRole();
     padOrgRole1.setRole(HuooRole.HOLDER);
     padOrgRole1.setType(HuooType.PORTAL_ORG);
