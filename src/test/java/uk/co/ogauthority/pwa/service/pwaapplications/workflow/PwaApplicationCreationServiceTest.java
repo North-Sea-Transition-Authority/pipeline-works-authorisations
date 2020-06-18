@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.EnumSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaManagementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,7 +60,15 @@ public class PwaApplicationCreationServiceTest {
   @Mock
   private PwaApplicationReferencingService pwaApplicationReferencingService;
 
+  @Mock
+  private PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
+
+  @Mock
+  private PadOrganisationRoleService padOrganisationRoleService;
+
   private PwaApplicationCreationService pwaApplicationCreationService;
+
+  private WebUserAccount user = new WebUserAccount(123);
 
   private Instant fixedInstant = LocalDate
       .of(2020, 2, 6)
@@ -76,7 +88,9 @@ public class PwaApplicationCreationServiceTest {
         camundaWorkflowService,
         pwaContactService,
         pwaApplicationDetailService,
-        pwaApplicationReferencingService);
+        pwaApplicationReferencingService,
+        pwaConsentOrganisationRoleService,
+        padOrganisationRoleService);
   }
 
 
@@ -103,6 +117,7 @@ public class PwaApplicationCreationServiceTest {
     verify(pwaContactService, times(1)).addContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
 
+
     // check application set up correctly
     assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
     assertThat(application.getApplicationType()).isEqualTo(PwaApplicationType.INITIAL);
@@ -116,13 +131,46 @@ public class PwaApplicationCreationServiceTest {
   }
 
 
+  // The below tests could be much better with a parameterised, repeated test and only defined once. Would be good to figure out how to do this.
   @Test
   public void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory1() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_1_VARIATION);
+    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+
   }
 
+  @Test
+  public void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory2() {
+    createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_2_VARIATION);
+    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+  }
+
+  @Test
+  public void createVariationPwaApplication_createsApplicationsAsExpected_whenHuoo() {
+    createVariationPwaApplication_assertUsingType(PwaApplicationType.HUOO_VARIATION);
+    assertThat(pwaConsentOrganisationRoleService.getOrganisationRoleSummary(masterPwa));
+    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+  }
+
+  @Test
+  public void createVariationPwaApplication_createsApplicationsAsExpected_noHuooOrgRolesExpectedToBeCreated() {
+    var expectedHuooRoleCreationTypes = EnumSet.of(
+        PwaApplicationType.CAT_1_VARIATION,
+        PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.HUOO_VARIATION
+    );
+
+    for(PwaApplicationType appType : EnumSet.complementOf(expectedHuooRoleCreationTypes)){
+      pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, appType);
+    }
+
+    verifyNoInteractions(pwaConsentOrganisationRoleService, padOrganisationRoleService);
+  }
+
+
   private void createVariationPwaApplication_assertUsingType(PwaApplicationType pwaApplicationType) {
-    WebUserAccount user = new WebUserAccount(123);
 
     MasterPwa masterPwa = new MasterPwa(fixedInstant);
     masterPwa.setId(1);

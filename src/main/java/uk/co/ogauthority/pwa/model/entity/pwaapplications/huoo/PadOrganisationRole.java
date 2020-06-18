@@ -8,13 +8,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-@Entity(name = "pad_organisation_roles")
+@Entity
+@Table(name = "pad_organisation_roles")
 public class PadOrganisationRole {
 
   @Id
@@ -48,6 +50,18 @@ public class PadOrganisationRole {
 
   public PwaApplicationDetail getPwaApplicationDetail() {
     return pwaApplicationDetail;
+  }
+
+  public static PadOrganisationRole fromOrganisationUnit(PwaApplicationDetail pwaApplicationDetail,
+                                                         PortalOrganisationUnit portalOrganisationUnit,
+                                                         HuooRole huooRole) {
+    var padOrganisationRole = new PadOrganisationRole();
+    padOrganisationRole.setOrganisationUnit(portalOrganisationUnit);
+    padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
+    padOrganisationRole.setType(HuooType.PORTAL_ORG);
+    padOrganisationRole.setRole(huooRole);
+    return padOrganisationRole;
+
   }
 
   public void setPwaApplicationDetail(
