@@ -38,4 +38,7 @@ public class BundleValidationFactory {
         .findFirst();
   }
 
+  public boolean isComplete() {
+    return isComplete;
+  }
 }
