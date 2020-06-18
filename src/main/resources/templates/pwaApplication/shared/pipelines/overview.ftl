@@ -2,6 +2,8 @@
 <#import 'pipelineOverview.ftl' as pipelineOverview>
 
 <#-- @ftlvariable name="pipelineTaskListItems" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem>" -->
+<#-- @ftlvariable name="bundleSummaryViews" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleSummaryView>" -->
+<#-- @ftlvariable name="bundleValidationFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.BundleValidationFactory" -->
 <#-- @ftlvariable name="pipelineUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory" -->
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
