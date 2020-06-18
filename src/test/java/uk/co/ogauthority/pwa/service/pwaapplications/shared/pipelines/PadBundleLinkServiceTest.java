@@ -47,12 +47,13 @@ public class PadBundleLinkServiceTest {
     bundle.setPwaApplicationDetail(pwaApplicationDetail);
 
     var form = new BundleForm();
-    form.setPipelineIds(List.of(1));
+    form.setPipelineIds(List.of(1, 2));
 
     var pipeline = new PadPipeline();
+    var pipeline2 = new PadPipeline();
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPipelineIds()))
-        .thenReturn(List.of(pipeline));
+        .thenReturn(List.of(pipeline, pipeline2));
 
     var listCapture = ArgumentCaptor.forClass(List.class);
     padBundleLinkService.createBundleLinks(bundle, form);
@@ -60,7 +61,10 @@ public class PadBundleLinkServiceTest {
     verify(padBundleLinkRepository, times(1)).saveAll(listCapture.capture());
 
     assertThat((List<PadBundleLink>) listCapture.getValue()).extracting(PadBundleLink::getBundle, PadBundleLink::getPipeline)
-        .containsExactly(tuple(bundle, pipeline));
+        .containsExactly(
+            tuple(bundle, pipeline),
+            tuple(bundle, pipeline2)
+        );
 
   }
 }

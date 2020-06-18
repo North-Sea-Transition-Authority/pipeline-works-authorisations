@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -27,7 +26,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -383,11 +381,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postAddBundle_failedValidation() {
 
-    doAnswer(invocation -> {
-      var errors = (BindingResult) invocation.getArgument(1);
-      errors.reject("fake", "error");
-      return null;
-    }).when(addBundleValidator).validate(any(), any(), any());
+    ControllerTestUtils.mockSmartValidatorErrors(addBundleValidator, List.of("bundleName"));
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
 

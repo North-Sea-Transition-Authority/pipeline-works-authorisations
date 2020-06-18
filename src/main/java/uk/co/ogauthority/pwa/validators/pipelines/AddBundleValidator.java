@@ -41,7 +41,7 @@ public class AddBundleValidator implements SmartValidator {
     var detail = (PwaApplicationDetail) validationHints[0];
     ValidationUtils.rejectIfEmpty(errors, "bundleName",
         "bundleName" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "You must provide a name for the bundle");
+        "Enter a name for the bundle");
 
     if (StringUtils.isNotBlank(form.getBundleName())) {
       var isNameUnique = padBundleRepository.getAllByPwaApplicationDetail(detail)
@@ -49,7 +49,7 @@ public class AddBundleValidator implements SmartValidator {
           .noneMatch(bundle -> bundle.getBundleName().equals(form.getBundleName()));
       if (!isNameUnique) {
         errors.rejectValue("bundleName", "bundleName" + FieldValidationErrorCodes.NOT_UNIQUE.getCode(),
-            "The bundle name must be unique");
+            "The bundle name must be unique on this application");
       }
     }
 

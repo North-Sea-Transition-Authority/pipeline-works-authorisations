@@ -45,7 +45,7 @@
     </#list>
 
     <#if pipelineTaskListItems?size gt 4>
-      ${addPipeButton}
+        <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
     </#if>
 
     <#if pipelineTaskListItems?has_content>
