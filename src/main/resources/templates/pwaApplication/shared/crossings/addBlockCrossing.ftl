@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="crossedBlockOwnerOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossedBlockOwner>" -->
 <#-- @ftlvariable name="orgUnits" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="blockSelectorUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 
 
 <@defaultPage htmlTitle="Add block" pageHeading="Add block" breadcrumbs=true>
