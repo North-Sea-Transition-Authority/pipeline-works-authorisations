@@ -231,7 +231,7 @@ public class PipelinesController {
 
   }
 
-  @GetMapping("/add-bundle")
+  @GetMapping("/bundle")
   public ModelAndView renderAddBundle(@PathVariable("applicationId") Integer applicationId,
                                       @PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -240,7 +240,7 @@ public class PipelinesController {
     return getBundleModelAndView(applicationContext, ScreenActionType.ADD);
   }
 
-  @PostMapping("/add-bundle")
+  @PostMapping("/bundle")
   public ModelAndView postAddBundle(@PathVariable("applicationId") Integer applicationId,
                                     @PathVariable("applicationType")
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
@@ -256,6 +256,20 @@ public class PipelinesController {
           return ReverseRouter.redirect(on(PipelinesController.class)
               .renderPipelinesOverview(applicationId, pwaApplicationType, null));
         });
+  }
+
+  @GetMapping("/bundle/{bundleId}/edit")
+  public ModelAndView renderEditBundle(@PathVariable("applicationId") Integer applicationId,
+                                      @PathVariable("applicationType")
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      @PathVariable("bundleId") Integer bundleId,
+                                      PwaApplicationContext applicationContext,
+                                      @ModelAttribute("form") BundleForm bundleForm) {
+
+    var bundleView = padBundleService.getBundleView(applicationContext.getApplicationDetail(), bundleId);
+    padBundleService.mapBundleViewToForm(bundleView, bundleForm);
+
+    return getBundleModelAndView(applicationContext, ScreenActionType.ADD);
   }
 
 }

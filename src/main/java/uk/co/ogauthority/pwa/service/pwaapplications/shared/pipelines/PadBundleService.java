@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundle;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundleLink;
@@ -69,6 +70,24 @@ public class PadBundleService implements ApplicationFormSectionService {
         .stream()
         .map((PadBundle bundle) -> new PadBundleView(bundle, bundleLinkMap.get(bundle)))
         .collect(Collectors.toUnmodifiableList());
+  }
+
+  public PadBundleView getBundleView(PwaApplicationDetail detail, Integer bundleId) {
+    PadBundle bundle = padBundleRepository.getByPwaApplicationDetailAndId(detail, bundleId)
+        .orElseThrow(
+            () -> new PwaEntityNotFoundException(
+                String.format("Unable to find pipeline bundle (%d) for app (%d)", bundleId, detail.getId())));
+    var links = padBundleLinkService.getLinksForBundle(bundle);
+    return new PadBundleView(bundle, links);
+  }
+
+  public void mapBundleViewToForm(PadBundleView bundleView, BundleForm bundleForm) {
+    bundleForm.setBundleName(bundleView.getBundle().getBundleName());
+    List<Integer> pipelineIds = bundleView.getLinks()
+        .stream()
+        .map(padBundleLink -> padBundleLink.getPipeline().getId())
+        .collect(Collectors.toUnmodifiableList());
+    bundleForm.setPipelineIds(pipelineIds);
   }
 
   private boolean isBundleViewValid(PadBundleView bundleView) {

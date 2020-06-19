@@ -30,6 +30,10 @@ public class PadBundleLinkService {
     return padBundleLinkRepository.getAllByBundle_PwaApplicationDetail(detail);
   }
 
+  public List<PadBundleLink> getLinksForBundle(PadBundle bundle) {
+    return padBundleLinkRepository.getAllByBundle(bundle);
+  }
+
   @Transactional
   public void createBundleLinks(PadBundle bundle, BundleForm form) {
     List<PadBundleLink> links = padPipelineService.getByIdList(bundle.getPwaApplicationDetail(), form.getPipelineIds())
