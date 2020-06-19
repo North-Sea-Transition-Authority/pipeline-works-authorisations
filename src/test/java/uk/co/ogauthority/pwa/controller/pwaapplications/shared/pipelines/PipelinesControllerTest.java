@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pipelines.AddBundleValidator;
+import uk.co.ogauthority.pwa.validators.pipelines.EditBundleValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelinesController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -59,6 +60,9 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
   @MockBean
   private AddBundleValidator addBundleValidator;
+
+  @MockBean
+  private EditBundleValidator editBundleValidator;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
