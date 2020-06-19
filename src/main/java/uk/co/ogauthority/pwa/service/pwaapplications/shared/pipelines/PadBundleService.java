@@ -60,9 +60,9 @@ public class PadBundleService implements ApplicationFormSectionService {
     Map<PadBundle, List<PadBundleLink>> bundleLinkMap = padBundleLinkService.getAllLinksForDetail(detail)
         .stream()
         .collect(Collectors.groupingBy(PadBundleLink::getBundle));
-    return bundleLinkMap.keySet()
+    return bundleLinkMap.entrySet()
         .stream()
-        .map((PadBundle bundle) -> new PadBundleSummaryView(bundle, bundleLinkMap.get(bundle)))
+        .map(entry -> new PadBundleSummaryView(entry.getKey(), entry.getValue()))
         .collect(Collectors.toUnmodifiableList());
   }
 
@@ -79,9 +79,9 @@ public class PadBundleService implements ApplicationFormSectionService {
     Map<PadBundle, List<PadBundleLink>> bundleLinkMap = padBundleLinkService.getAllLinksForDetail(detail)
         .stream()
         .collect(Collectors.groupingBy(PadBundleLink::getBundle));
-    return bundleLinkMap.keySet()
+    return bundleLinkMap.entrySet()
         .stream()
-        .map((PadBundle bundle) -> new PadBundleView(bundle, bundleLinkMap.get(bundle)))
+        .map(entry -> new PadBundleView(entry.getKey(), entry.getValue()))
         .collect(Collectors.toUnmodifiableList());
   }
 
@@ -101,6 +101,7 @@ public class PadBundleService implements ApplicationFormSectionService {
   }
 
   private boolean isBundleViewValid(PadBundleView bundleView) {
+    // TODO: PWA-619 - Remove hard-coded bundle size check
     if (bundleView.getLinks().size() < 2) {
       return false;
     }
@@ -108,6 +109,7 @@ public class PadBundleService implements ApplicationFormSectionService {
   }
 
   private String getBundleViewErrorMessage(PadBundleView bundleView) {
+    // TODO: PWA-619 - Remove hard-coded bundle size check
     if (bundleView.getLinks().size() < 2) {
       return "This bundle requires at least two pipelines";
     }
