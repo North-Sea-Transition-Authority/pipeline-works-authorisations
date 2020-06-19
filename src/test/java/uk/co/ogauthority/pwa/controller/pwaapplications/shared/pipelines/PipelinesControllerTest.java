@@ -419,4 +419,98 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
   }
 
+  @Test
+  public void renderEditBundle_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelinesController.class)
+                .renderEditBundle(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditBundle_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelinesController.class)
+                .renderEditBundle(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderEditBundle_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelinesController.class)
+                .renderEditBundle(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postEditBundle_contactSmokeTest() {
+
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelinesController.class)
+                .postEditBundle(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditBundle_appTypeSmokeTest() {
+
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelinesController.class)
+                .postEditBundle(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditBundle_appStatusSmokeTest() {
+
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelinesController.class)
+                .postEditBundle(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postEditBundle_failedValidation() {
+
+    ControllerTestUtils.mockSmartValidatorErrors(editBundleValidator, List.of("bundleName"));
+
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelinesController.class)
+                .postEditBundle(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
 }

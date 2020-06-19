@@ -74,4 +74,13 @@ public class PadBundleLinkServiceTest {
     verify(padBundleLinkRepository, times(1))
         .getAllByBundle_PwaApplicationDetail(pwaApplicationDetail);
   }
+
+  @Test
+  public void removeBundleLinks_repositoryInteraction() {
+    var bundle = new PadBundle();
+    var link = new PadBundleLink();
+    when(padBundleLinkRepository.getAllByBundle(bundle)).thenReturn(List.of(link));
+    padBundleLinkService.removeBundleLinks(bundle);
+    verify(padBundleLinkRepository, times(1)).deleteAll(List.of(link));
+  }
 }

@@ -7,12 +7,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundle;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundleLink;
@@ -56,6 +58,7 @@ public class PadBundleServiceTest {
     assertThat(bundleCaptor.getValue()).extracting(PadBundle::getBundleName, PadBundle::getPwaApplicationDetail)
         .containsExactly("bundle", pwaApplicationDetail);
 
+    verify(padBundleLinkService, times(1)).removeBundleLinks(bundleCaptor.getValue());
     verify(padBundleLinkService, times(1)).createBundleLinks(bundleCaptor.getValue(), form);
   }
 
@@ -107,5 +110,62 @@ public class PadBundleServiceTest {
     var results = padBundleService.getBundleSummaryViews(pwaApplicationDetail);
     assertThat(results).extracting(PadBundleSummaryView::getBundleName, PadBundleSummaryView::getPipelineReferences)
         .containsExactlyInAnyOrder(tuple("name", List.of("ref")));
+  }
+
+  @Test
+  public void updateBundleAndLinks() {
+    var form = new BundleForm();
+    form.setBundleName("bundle");
+    form.setPipelineIds(List.of(1, 2));
+
+    var bundle = new PadBundle();
+
+    padBundleService.updateBundleAndLinks(bundle, form);
+
+    verify(padBundleRepository, times(1)).save(bundle);
+    assertThat(bundle.getBundleName()).isEqualTo("bundle");
+
+    verify(padBundleLinkService, times(1)).removeBundleLinks(bundle);
+    verify(padBundleLinkService, times(1)).createBundleLinks(bundle, form);
+  }
+
+  @Test
+  public void mapBundleViewToForm() {
+    var bundle = new PadBundle();
+    bundle.setId(1);
+    bundle.setBundleName("bundle");
+
+    var link = new PadBundleLink();
+    var pipeline = new PadPipeline();
+    pipeline.setId(1);
+    link.setPipeline(pipeline);
+    link.setBundle(bundle);
+
+    var link2 = new PadBundleLink();
+    var pipeline2 = new PadPipeline();
+    pipeline2.setId(2);
+    link2.setPipeline(pipeline2);
+    link2.setBundle(bundle);
+
+    var bundleView = new PadBundleView(bundle, List.of(link, link2));
+    var form = new BundleForm();
+    padBundleService.mapBundleViewToForm(bundleView, form);
+
+    assertThat(form.getBundleName()).isEqualTo(bundle.getBundleName());
+    assertThat(form.getPipelineIds()).isEqualTo(List.of(pipeline.getId(), pipeline2.getId()));
+  }
+
+  @Test
+  public void getBundle_exists() {
+    var bundle = new PadBundle();
+    when(padBundleRepository.getByPwaApplicationDetailAndId(pwaApplicationDetail, 1)).thenReturn(Optional.of(bundle));
+    var result = padBundleService.getBundle(pwaApplicationDetail, 1);
+    assertThat(result).isEqualTo(bundle);
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getBundle_doesNotExist() {
+    when(padBundleRepository.getByPwaApplicationDetailAndId(pwaApplicationDetail, 1)).thenReturn(Optional.empty());
+    padBundleService.getBundle(pwaApplicationDetail, 1);
   }
 }
