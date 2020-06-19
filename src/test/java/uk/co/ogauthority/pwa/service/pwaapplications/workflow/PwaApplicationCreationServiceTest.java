@@ -80,7 +80,7 @@ public class PwaApplicationCreationServiceTest {
   public void setUp() {
     when(pwaApplicationReferencingService.createAppReference()).thenReturn("PA/1/1");
 
-    when(pwaApplicationDetailService.createFirstDetail(any(), any()))
+    when(pwaApplicationDetailService.createFirstDetail(any(), any(), any()))
         .thenAnswer(invocation -> new PwaApplicationDetail(invocation.getArgument(0), 1, 1, Instant.now()));
 
     pwaApplicationCreationService = new PwaApplicationCreationService(
@@ -108,7 +108,7 @@ public class PwaApplicationCreationServiceTest {
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user);
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
 
     PwaApplication application = applicationArgumentCaptor.getValue();
 
@@ -128,7 +128,6 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
-    assertThat(createdApplication.getNumOfHolders()).isEqualTo(1);
   }
 
 
@@ -186,7 +185,7 @@ public class PwaApplicationCreationServiceTest {
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user);
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
 
     PwaApplication application = applicationArgumentCaptor.getValue();
 
