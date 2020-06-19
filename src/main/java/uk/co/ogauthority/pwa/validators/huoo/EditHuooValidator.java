@@ -121,8 +121,9 @@ public class EditHuooValidator implements SmartValidator {
         .count();
     if (holderCount >= detail.getNumOfHolders()) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
+        var holdersTxt = detail.getNumOfHolders() > 1 ? "holders" : "holder";
         errors.rejectValue("huooRoles", "huooRoles.alreadyUsed",
-            "You may only have one holder on an application");
+            "You may only have " + detail.getNumOfHolders() + " " + holdersTxt +  " on an application");
       }
     }
 
