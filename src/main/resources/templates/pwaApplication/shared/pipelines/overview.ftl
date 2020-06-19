@@ -70,8 +70,8 @@
                   <span class="govuk-error-message">${bundleValidationFactory.getErrorMessage(bundle)}</span>
                 </#if>
                 <@fdsCard.cardHeader cardHeadingText=bundle.bundleName />
-
-              <br/>
+                <br/>
+                <h3 class="govuk-heading-s">Pipelines</h3>
 
               <ul class="govuk-list">
                   <#list bundle.pipelineReferences as pipelineReference>
@@ -83,7 +83,7 @@
         </#list>
     <#else>
         <@fdsInsetText.insetText>
-          At least two pipelines must be added to create a pipeline bundle.
+          At least two pipelines must be added before creating a pipeline bundle.
         </@fdsInsetText.insetText>
     </#if>
 
