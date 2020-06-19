@@ -234,7 +234,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
         .andExpect(status().isOk())
         .andExpect(model().attribute("screenActionType", ScreenActionType.ADD));
 
-    verify(padPipelineService, times(1)).getPipelineOverviews(pwaApplicationDetail);
+    verify(padPipelineService, times(1)).getApplicationPipelineOverviews(pwaApplicationDetail);
   }
 
   @Test
@@ -402,7 +402,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
         .andExpect(status().isOk())
         .andExpect(model().attribute("screenActionType", ScreenActionType.EDIT));
 
-    verify(padPipelineService, times(1)).getPipelineOverviews(pwaApplicationDetail);
+    verify(padPipelineService, times(1)).getApplicationPipelineOverviews(pwaApplicationDetail);
   }
 
 

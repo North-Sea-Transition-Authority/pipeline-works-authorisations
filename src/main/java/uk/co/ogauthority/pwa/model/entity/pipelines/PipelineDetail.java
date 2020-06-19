@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.pipelines;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,10 +14,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
+
 
 @Entity
 @Table(name = "pipeline_details")
@@ -210,6 +214,82 @@ public class PipelineDetail {
     this.fromLatitudeMinutes = fromLatitudeMinutes;
   }
 
+  public Optional<LatitudeCoordinate> getFromLatitudeCoordinate() {
+    return createLatitudeOptional(
+        this.fromLatitudeDegrees,
+        this.fromLatitudeMinutes,
+        this.fromLatitudeSeconds,
+        this.fromLatitudeDirection
+    );
+  }
+
+  public Optional<LongitudeCoordinate> getFromLongitudeCoordinate() {
+    return createLongitudeOptional(
+        this.fromLongitudeDegrees,
+        this.fromLongitudeMinutes,
+        this.fromLongitudeSeconds,
+        this.fromLongitudeDirection
+    );
+  }
+
+  public Optional<LatitudeCoordinate> getToLatitudeCoordinate() {
+    return createLatitudeOptional(
+        this.toLatitudeDegrees,
+        this.toLatitudeMinutes,
+        this.toLatitudeSeconds,
+        this.toLatitudeDirection
+    );
+  }
+
+  public Optional<LongitudeCoordinate> getToLongitudeCoordinate() {
+    return createLongitudeOptional(
+        this.toLongitudeDegrees,
+        this.toLongitudeMinutes,
+        this.toLongitudeSeconds,
+        this.toLongitudeDirection
+    );
+  }
+
+  private Optional<LatitudeCoordinate> createLatitudeOptional(Integer latitudeDegrees,
+                                                              Integer latitudeMinutes,
+                                                              BigDecimal latitudeSeconds,
+                                                              LatitudeDirection latitudeDirection) {
+    if (latitudeDegrees != null
+        && latitudeMinutes != null
+        && latitudeSeconds != null
+        && latitudeDirection != null
+    ) {
+      return Optional.of(new LatitudeCoordinate(
+          latitudeDegrees,
+          latitudeMinutes,
+          latitudeSeconds,
+          latitudeDirection
+      ));
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<LongitudeCoordinate> createLongitudeOptional(Integer longitudeDegrees,
+                                                                Integer longitudeMinutes,
+                                                                BigDecimal longitudeSeconds,
+                                                                LongitudeDirection longitudeDirection) {
+    if (longitudeDegrees != null
+        && longitudeMinutes != null
+        && longitudeSeconds != null
+        && longitudeDirection != null
+    ) {
+      return Optional.of(new LongitudeCoordinate(
+          longitudeDegrees,
+          longitudeMinutes,
+          longitudeSeconds,
+          longitudeDirection
+      ));
+    }
+
+    return Optional.empty();
+  }
+
   public BigDecimal getFromLatitudeSeconds() {
     return fromLatitudeSeconds;
   }
@@ -368,5 +448,9 @@ public class PipelineDetail {
 
   public void setTrenchingMethodsDesc(String trenchingMethodsDesc) {
     this.trenchingMethodsDesc = trenchingMethodsDesc;
+  }
+
+  public int getPipelineId() {
+    return this.getPipeline().getId();
   }
 }

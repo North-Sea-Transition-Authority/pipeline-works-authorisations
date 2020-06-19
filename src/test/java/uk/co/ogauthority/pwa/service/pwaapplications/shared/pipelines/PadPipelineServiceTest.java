@@ -46,6 +46,9 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineRepository pipelineRepository;
 
+  @Mock
+  private PipelineService pipelineService;
+
   private PadPipelineService pipelinesService;
 
   private PwaApplicationDetail detail;
@@ -65,7 +68,7 @@ public class PadPipelineServiceTest {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    pipelinesService = new PadPipelineService(padPipelineRepository, pipelineRepository);
+    pipelinesService = new PadPipelineService(padPipelineRepository, pipelineService);
 
   }
 
