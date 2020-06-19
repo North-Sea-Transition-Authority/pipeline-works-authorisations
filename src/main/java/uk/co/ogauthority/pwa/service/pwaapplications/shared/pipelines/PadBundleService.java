@@ -122,6 +122,7 @@ public class PadBundleService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
+    // TODO: PWA-619 - Remove hard-coded bundle size check
     return getBundleSummaryViews(detail)
         .stream()
         .allMatch(padBundleSummaryView -> padBundleSummaryView.getPipelineReferences().size() >= 2);
