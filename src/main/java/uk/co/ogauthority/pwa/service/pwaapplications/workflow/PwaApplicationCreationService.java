@@ -88,6 +88,10 @@ public class PwaApplicationCreationService {
       padOrganisationRoleService.createApplicationOrganisationRolesFromSummary(detail, consentedHuooSummary);
     }
 
+    var activeHoldersCount = detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL) ? 1
+        : pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa);
+    detail.setNumOfHolders(Math.toIntExact(activeHoldersCount));
+
     return detail;
 
   }

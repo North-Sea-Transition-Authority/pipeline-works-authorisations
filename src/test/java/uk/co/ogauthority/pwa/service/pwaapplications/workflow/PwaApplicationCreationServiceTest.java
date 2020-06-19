@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -102,7 +103,6 @@ public class PwaApplicationCreationServiceTest {
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaManagementService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
 
-
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(user);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
@@ -128,6 +128,7 @@ public class PwaApplicationCreationServiceTest {
     assertThat(application.getDecisionTimestamp()).isEmpty();
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+    assertThat(createdApplication.getNumOfHolders()).isEqualTo(1);
   }
 
 
@@ -166,7 +167,8 @@ public class PwaApplicationCreationServiceTest {
       pwaApplicationCreationService.createVariationPwaApplication(user, masterPwa, appType);
     }
 
-    verifyNoInteractions(pwaConsentOrganisationRoleService, padOrganisationRoleService);
+    verifyNoInteractions(padOrganisationRoleService);
+    verify(pwaConsentOrganisationRoleService, never()).getOrganisationRoleSummary(masterPwa);
   }
 
 
