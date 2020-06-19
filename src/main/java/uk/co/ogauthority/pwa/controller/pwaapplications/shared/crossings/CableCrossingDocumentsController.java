@@ -88,7 +88,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
     );
 
     modelAndView.addObject("pageTitle", "Cable crossing agreement documents")
-        .addObject("backButtonText", "Back to overview")
+        .addObject("backButtonText", "Back to cable crossings")
         .addObject("backUrl",
             crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, CrossingAgreementTask.CABLE_CROSSINGS));
     applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,

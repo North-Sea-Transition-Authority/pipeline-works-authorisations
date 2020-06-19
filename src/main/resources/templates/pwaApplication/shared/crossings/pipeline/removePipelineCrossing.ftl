@@ -21,6 +21,6 @@
     </table>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline crossing" secondaryLinkText="Back to crossings" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline crossing" secondaryLinkText="Back to pipeline crossings" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

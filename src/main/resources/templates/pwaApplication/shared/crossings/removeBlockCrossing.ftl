@@ -7,21 +7,23 @@
     </#if>
 
     <@fdsDataItems.dataItem>
-      <@fdsDataItems.dataValues key="UK block reference" value=crossing.blockReference/>
-      <@fdsDataItems.dataValues key="Licence" value=crossing.licenceReference/>
+        <@fdsDataItems.dataValues key="UK block reference" value=crossing.blockReference/>
+        <@fdsDataItems.dataValues key="Licence" value=crossing.licenceReference/>
     </@fdsDataItems.dataItem>
 
-    <h2 class="govuk-heading-s">Holders</h2>
-  <ul class="govuk-list">
-      <#if crossing.blockOwnedCompletelyByHolder>
-        <li>Holder owned</li>
-      </#if>
-      <#list crossing.blockOperatorList as operator>
-        <li>${operator}</li>
-      </#list>
-  </ul>
+    <#if crossing.blockOwnedCompletelyByHolder || crossing.blockOperatorList?has_content>
+      <h2 class="govuk-heading-s">Owner</h2>
+      <ul class="govuk-list">
+          <#if crossing.blockOwnedCompletelyByHolder>
+            <li>Holder owned</li>
+          </#if>
+          <#list crossing.blockOperatorList as operator>
+            <li>${operator}</li>
+          </#list>
+      </ul>
+    </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove block crossing" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove block crossing" secondaryLinkText="Back to licence and blocks" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 </@defaultPage>

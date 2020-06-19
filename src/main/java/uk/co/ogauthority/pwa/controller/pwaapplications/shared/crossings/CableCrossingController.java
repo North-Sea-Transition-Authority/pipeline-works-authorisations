@@ -75,7 +75,6 @@ public class CableCrossingController {
         .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
         .addObject("cableCrossingFiles",
             cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
                 null)));

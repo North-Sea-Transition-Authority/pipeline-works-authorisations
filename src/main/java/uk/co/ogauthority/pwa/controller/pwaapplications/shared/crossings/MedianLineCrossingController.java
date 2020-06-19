@@ -90,7 +90,6 @@ public class MedianLineCrossingController {
         .addObject("medianLineUrlFactory", new MedianLineCrossingUrlFactory(detail))
         .addObject("medianLineFiles",
             medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
                 null)));

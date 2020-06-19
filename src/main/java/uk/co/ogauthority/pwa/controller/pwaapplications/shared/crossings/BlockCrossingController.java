@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -110,9 +111,13 @@ public class BlockCrossingController {
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
+
     if (!blockCrossingFileService.isComplete(detail)) {
       return createOverviewModelAndView(detail)
           .addObject("errorMessage", "You must add at least one document");
+    } else if (!blockCrossingService.isComplete(detail)) {
+      return createOverviewModelAndView(detail)
+          .addObject("errorMessage", "You must add at least one block");
     }
     return ReverseRouter.redirect(on(CrossingAgreementsController.class)
         .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
@@ -126,7 +131,7 @@ public class BlockCrossingController {
       @ModelAttribute("form") AddBlockCrossingForm form,
       PwaApplicationContext applicationContext) {
 
-    return createAddBlockCrossingFormModelAndView(applicationContext);
+    return createAddBlockCrossingFormModelAndView(applicationContext, form);
   }
 
   @PostMapping("/new")
@@ -141,7 +146,7 @@ public class BlockCrossingController {
 
     return ControllerUtils.checkErrorsAndRedirect(
         bindingResult,
-        createAddBlockCrossingFormModelAndView(applicationContext),
+        createAddBlockCrossingFormModelAndView(applicationContext, form),
         () -> {
           blockCrossingService.createAndSaveBlockCrossingAndOwnersFromForm(applicationContext.getApplicationDetail(),
               form);
@@ -180,7 +185,7 @@ public class BlockCrossingController {
         applicationContext.getApplicationDetail()
     );
 
-    editBlockCrossingFormValidator.validate(form, bindingResult);
+    editBlockCrossingFormValidator.validate(form, bindingResult, crossedBlock.getLicence());
 
     return ControllerUtils.checkErrorsAndRedirect(
         bindingResult,
@@ -204,8 +209,8 @@ public class BlockCrossingController {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/removeBlockCrossing")
         .addObject("crossing", blockCrossingService.getCrossedBlockView(detail, blockCrossingId))
         .addObject("backUrl",
-            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS));
-    breadcrumbService.fromCrossingSection(detail, modelAndView, CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS,
+            crossingAgreementsTaskListService.getRoute(detail, CrossingAgreementTask.LICENCE_AND_BLOCKS));
+    breadcrumbService.fromCrossingSection(detail, modelAndView, CrossingAgreementTask.LICENCE_AND_BLOCKS,
         "Remove block crossing");
     return modelAndView;
   }
@@ -227,20 +232,19 @@ public class BlockCrossingController {
   private ModelAndView redirectToCrossingOverview(PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
     return crossingAgreementsTaskListService.getOverviewRedirect(detail,
-        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS);
+        CrossingAgreementTask.LICENCE_AND_BLOCKS);
   }
 
-  private void addGenericBlockCrossingModelAttributes(ModelAndView modelAndView) {
-    // TODO Convert to search selector when PWA-150 is complete. will improve performance by not loading entire dataset
-    var sortedOrganisationUnits = portalOrganisationsAccessor.findOrganisationUnitsWhereNameContains(
-        "", PageRequest.of(0, 50)
-    )
+  private void addGenericBlockCrossingModelAttributes(ModelAndView modelAndView, PwaApplicationContext context) {
+    var sortedOrganisationUnits = portalOrganisationsAccessor.getAllOrganisationUnits()
         .stream()
         .sorted(Comparator.comparing(o -> o.getName().toLowerCase()))
         .collect(StreamUtils.toLinkedHashMap(o -> String.valueOf(o.getOuId()), PortalOrganisationUnit::getName));
 
     modelAndView.addObject("crossedBlockOwnerOptions", CrossedBlockOwner.asList());
     modelAndView.addObject("orgUnits", sortedOrganisationUnits);
+    modelAndView.addObject("backUrl", ReverseRouter.route(on(BlockCrossingController.class)
+        .renderBlockCrossingOverview(context.getApplicationType(), context.getMasterPwaApplicationId(), null, null)));
 
   }
 
@@ -251,24 +255,31 @@ public class BlockCrossingController {
         .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
         .addObject("blockCrossingFiles",
             blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
-        .addObject("crossingAgreementValidationResult", crossingAgreementsService.getValidationResult(detail))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
                 null)));
-    breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Licence and block numbers");
+    breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Licence and blocks");
     return modelAndView;
   }
 
-  private ModelAndView createAddBlockCrossingFormModelAndView(PwaApplicationContext applicationContext) {
+  private ModelAndView createAddBlockCrossingFormModelAndView(PwaApplicationContext applicationContext,
+                                                              AddBlockCrossingForm form) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/addBlockCrossing")
         .addObject("blockSelectorUrl", SearchSelectorService.route(on(PearsRestController.class)
             .searchBlocks(null)))
         .addObject("errorList", List.of());
 
-    addGenericBlockCrossingModelAttributes(modelAndView);
+    if (form.getPickedBlock() != null) {
+      blockCrossingService.getPickablePearsBlockFromForm(form)
+          .ifPresent(block -> {
+            modelAndView.addObject("preselectedBlock", Map.of(block.getSelectionId(), block.getSelectionText()));
+          });
+    }
+
+    addGenericBlockCrossingModelAttributes(modelAndView, applicationContext);
     breadcrumbService.fromCrossingSection(applicationContext.getApplicationDetail(), modelAndView,
-        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS, "Add block crossing");
+        CrossingAgreementTask.LICENCE_AND_BLOCKS, "Add block crossing");
     return modelAndView;
   }
 
@@ -287,9 +298,9 @@ public class BlockCrossingController {
         .addObject("licenceReference",
             crossedBlock.getLicence() != null ? crossedBlock.getLicence().getLicenceName() : "Unlicensed");
 
-    addGenericBlockCrossingModelAttributes(modelAndView);
+    addGenericBlockCrossingModelAttributes(modelAndView, applicationContext);
     breadcrumbService.fromCrossingSection(applicationContext.getApplicationDetail(), modelAndView,
-        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS, "Edit block crossing");
+        CrossingAgreementTask.LICENCE_AND_BLOCKS, "Edit block crossing");
     return modelAndView;
   }
 }

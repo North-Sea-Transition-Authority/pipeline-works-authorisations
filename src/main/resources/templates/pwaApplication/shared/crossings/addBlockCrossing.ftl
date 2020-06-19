@@ -3,13 +3,14 @@
 <#-- @ftlvariable name="crossedBlockOwnerOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossedBlockOwner>" -->
 <#-- @ftlvariable name="orgUnits" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="blockSelectorUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 
 
-<@defaultPage htmlTitle="Add block crossing" pageHeading="Add block crossing" breadcrumbs=true>
+<@defaultPage htmlTitle="Add block" pageHeading="Add block" breadcrumbs=true>
     <@fdsError.errorSummary errorItems=errorList />
 
     <@fdsForm.htmlForm>
-        <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="Which block has been crossed?" selectorMinInputLength=3/>
+        <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="What block is the pipeline located in or crossing?" selectorMinInputLength=3 preselectedItems=preselectedBlock/>
         <@fdsRadio.radioGroup
         path="form.crossedBlockOwner"
         labelText="Who owns the block?"
@@ -20,13 +21,11 @@
                 <@fdsRadio.radioItem path="form.crossedBlockOwner" itemMap={crossedBlock : crossedBlock.getDisplayName()} isFirstItem=firstItem>
                     <#if crossedBlock == "PORTAL_ORGANISATION">
                         <@fdsSearchSelector.searchSelectorEnhanced path="form.blockOwnersOuIdList" options=orgUnits labelText="Select block owner" nestingPath="form.crossedBlockOwner" />
-                    <#elseif crossedBlock == "OTHER_ORGANISATION">
-                        <@fdsTextarea.textarea path="form.operatorNotFoundFreeTextBox" labelText="Provide details of block owner" nestingPath="form.crossedBlockOwner" />
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem=false/>
             </#list>
         </@fdsRadio.radioGroup>
-        <@fdsAction.button buttonText="Add block crossing" />
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Add block crossing" secondaryLinkText="Back to licence and blocks" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 </@defaultPage>
