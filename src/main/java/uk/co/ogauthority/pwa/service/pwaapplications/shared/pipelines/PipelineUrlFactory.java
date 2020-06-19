@@ -27,4 +27,9 @@ public class PipelineUrlFactory {
         .renderAddPipeline(applicationId, applicationType, null, null));
   }
 
+  public String getEditBundleUrl(Integer id) {
+    return ReverseRouter.route(on(PipelinesController.class)
+        .renderEditBundle(applicationId, applicationType, id, null, null));
+  }
+
 }

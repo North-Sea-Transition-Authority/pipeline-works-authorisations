@@ -43,6 +43,12 @@ public class PadBundleLinkService {
     padBundleLinkRepository.saveAll(links);
   }
 
+  @Transactional
+  public void removeBundleLinks(PadBundle bundle) {
+    var links = padBundleLinkRepository.getAllByBundle(bundle);
+    padBundleLinkRepository.deleteAll(links);
+  }
+
   private PadBundleLink buildBundleLink(PadBundle bundle, PadPipeline pipeline) {
     var link = new PadBundleLink();
     link.setBundle(bundle);

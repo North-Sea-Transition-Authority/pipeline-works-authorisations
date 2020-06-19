@@ -34,12 +34,25 @@ public class PadBundleService implements ApplicationFormSectionService {
     this.padPipelineService = padPipelineService;
   }
 
+  public PadBundle getBundle(PwaApplicationDetail detail, Integer bundleId) {
+    return padBundleRepository.getByPwaApplicationDetailAndId(detail, bundleId)
+        .orElseThrow(
+            () -> new PwaEntityNotFoundException(
+                String.format("Unable to find pipeline bundle (%d) for app (%d)", bundleId, detail.getId())));
+  }
+
   @Transactional
   public void createBundleAndLinks(PwaApplicationDetail detail, BundleForm form) {
     var bundle = new PadBundle();
-    bundle.setBundleName(form.getBundleName());
     bundle.setPwaApplicationDetail(detail);
+    updateBundleAndLinks(bundle, form);
+  }
+
+  @Transactional
+  public void updateBundleAndLinks(PadBundle bundle, BundleForm form) {
+    bundle.setBundleName(form.getBundleName());
     padBundleRepository.save(bundle);
+    padBundleLinkService.removeBundleLinks(bundle);
     padBundleLinkService.createBundleLinks(bundle, form);
   }
 
@@ -73,10 +86,7 @@ public class PadBundleService implements ApplicationFormSectionService {
   }
 
   public PadBundleView getBundleView(PwaApplicationDetail detail, Integer bundleId) {
-    PadBundle bundle = padBundleRepository.getByPwaApplicationDetailAndId(detail, bundleId)
-        .orElseThrow(
-            () -> new PwaEntityNotFoundException(
-                String.format("Unable to find pipeline bundle (%d) for app (%d)", bundleId, detail.getId())));
+    var bundle = getBundle(detail, bundleId);
     var links = padBundleLinkService.getLinksForBundle(bundle);
     return new PadBundleView(bundle, links);
   }

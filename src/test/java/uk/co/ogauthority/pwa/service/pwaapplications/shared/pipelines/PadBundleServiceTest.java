@@ -60,7 +60,7 @@ public class PadBundleServiceTest {
   }
 
   @Test
-  public void canAddBundle() {
+  public void canAddBundle_twoPipelines() {
     when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail)).thenReturn(2L);
     assertThat(padBundleService.canAddBundle(pwaApplicationDetail)).isTrue();
   }

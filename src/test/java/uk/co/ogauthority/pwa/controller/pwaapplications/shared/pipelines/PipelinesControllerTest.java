@@ -275,7 +275,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_complete_notComplete_bundles() throws Exception {
+  public void postPipelinesOverview_validationFail_pipelineBundlesInvalid() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
     when(padBundleService.isComplete(any())).thenReturn(false);
@@ -291,7 +291,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_complete_notComplete_pipelines() throws Exception {
+  public void postPipelinesOverview_validationFail_pipelinesInvalid() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
     when(padBundleService.isComplete(any())).thenReturn(true);
@@ -307,7 +307,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_complete_isComplete() throws Exception {
+  public void postPipelinesOverview_validationPass() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
     when(padBundleService.isComplete(any())).thenReturn(true);

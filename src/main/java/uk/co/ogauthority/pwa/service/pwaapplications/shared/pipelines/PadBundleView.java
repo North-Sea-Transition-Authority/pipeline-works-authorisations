@@ -6,8 +6,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBund
 
 public class PadBundleView {
 
-  private PadBundle bundle;
-  private List<PadBundleLink> links;
+  private final PadBundle bundle;
+  private final List<PadBundleLink> links;
 
   public PadBundleView(PadBundle bundle,
                        List<PadBundleLink> links) {

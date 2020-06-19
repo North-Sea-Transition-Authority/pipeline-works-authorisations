@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pipelines.AddBundleValidator;
+import uk.co.ogauthority.pwa.validators.pipelines.EditBundleValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/pipelines")
@@ -59,6 +60,7 @@ public class PipelinesController {
   private final PwaApplicationRedirectService applicationRedirectService;
   private final PadBundleService padBundleService;
   private final AddBundleValidator addBundleValidator;
+  private final EditBundleValidator editBundleValidator;
 
   @Autowired
   public PipelinesController(PadPipelineService padPipelineService,
@@ -66,13 +68,15 @@ public class PipelinesController {
                              PipelineHeaderFormValidator pipelineHeaderFormValidator,
                              PwaApplicationRedirectService applicationRedirectService,
                              PadBundleService padBundleService,
-                             AddBundleValidator addBundleValidator) {
+                             AddBundleValidator addBundleValidator,
+                             EditBundleValidator editBundleValidator) {
     this.padPipelineService = padPipelineService;
     this.breadcrumbService = breadcrumbService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.applicationRedirectService = applicationRedirectService;
     this.padBundleService = padBundleService;
     this.addBundleValidator = addBundleValidator;
+    this.editBundleValidator = editBundleValidator;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
@@ -260,16 +264,34 @@ public class PipelinesController {
 
   @GetMapping("/bundle/{bundleId}/edit")
   public ModelAndView renderEditBundle(@PathVariable("applicationId") Integer applicationId,
-                                      @PathVariable("applicationType")
-                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                      @PathVariable("bundleId") Integer bundleId,
-                                      PwaApplicationContext applicationContext,
-                                      @ModelAttribute("form") BundleForm bundleForm) {
+                                       @PathVariable("applicationType")
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @PathVariable("bundleId") Integer bundleId,
+                                       PwaApplicationContext applicationContext,
+                                       @ModelAttribute("form") BundleForm bundleForm) {
 
     var bundleView = padBundleService.getBundleView(applicationContext.getApplicationDetail(), bundleId);
     padBundleService.mapBundleViewToForm(bundleView, bundleForm);
 
-    return getBundleModelAndView(applicationContext, ScreenActionType.ADD);
+    return getBundleModelAndView(applicationContext, ScreenActionType.EDIT);
+  }
+
+  @PostMapping("/bundle/{bundleId}/edit")
+  public ModelAndView postEditBundle(@PathVariable("applicationId") Integer applicationId,
+                                     @PathVariable("applicationType")
+                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                     @PathVariable("bundleId") Integer bundleId,
+                                     PwaApplicationContext applicationContext,
+                                     @ModelAttribute("form") BundleForm bundleForm,
+                                     BindingResult bindingResult) {
+    var bundle = padBundleService.getBundle(applicationContext.getApplicationDetail(), bundleId);
+    editBundleValidator.validate(bundleForm, bindingResult, applicationContext.getApplicationDetail(), bundle);
+    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+        getBundleModelAndView(applicationContext, ScreenActionType.EDIT), () -> {
+          padBundleService.updateBundleAndLinks(bundle, bundleForm);
+          return ReverseRouter.redirect(on(PipelinesController.class)
+              .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+        });
   }
 
 }
