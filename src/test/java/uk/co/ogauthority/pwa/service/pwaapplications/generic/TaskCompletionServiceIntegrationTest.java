@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdraw
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
@@ -77,9 +78,11 @@ public class TaskCompletionServiceIntegrationTest {
   @MockBean
   private CampaignWorksService campaignWorksService;
 
-
   @MockBean
   private PipelinesHuooService pipelinesHuooService;
+
+  @MockBean
+  private PadPipelineTechInfoService padPipelineTechInfoService;
 
   @Test
   public void isTaskComplete() {
@@ -127,6 +130,9 @@ public class TaskCompletionServiceIntegrationTest {
           break;
         case PERMANENT_DEPOSIT_DRAWINGS:
           service = depositDrawingsService;
+          break;
+        case GENERAL_TECH_DETAILS:
+          service = padPipelineTechInfoService;
           break;
         default:
           throw new AssertionError(task);
