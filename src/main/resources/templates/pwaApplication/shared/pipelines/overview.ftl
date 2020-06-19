@@ -2,13 +2,14 @@
 <#import 'pipelineOverview.ftl' as pipelineOverview>
 
 <#-- @ftlvariable name="pipelineTaskListItems" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem>" -->
-<#-- @ftlvariable name="addPipelineUrl" type="String" -->
+<#-- @ftlvariable name="pipelineUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory" -->
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
+<#-- @ftlvariable name="canShowAddBundleButton" type="Boolean" -->
 
-<#assign addPipeButton>
-    <@fdsAction.link linkText="Add pipeline" linkUrl=springUrl(addPipelineUrl) linkClass="govuk-button govuk-button--blue" />
-</#assign>
+<#macro linkButtonBlue text url>
+    <@fdsAction.link linkText=text linkUrl=url linkClass="govuk-button govuk-button--blue" />
+</#macro>
 
 <@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true breadcrumbs=true>
 
@@ -16,7 +17,10 @@
         <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
     </#if>
 
-    ${addPipeButton}
+    <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
+    <#if canShowAddBundleButton>
+        <@linkButtonBlue text="Add pipeline bundle" url=springUrl(pipelineUrlFactory.getAddBundleUrl()) />
+    </#if>
 
     <#list pipelineTaskListItems as pipeline>
 
@@ -41,7 +45,7 @@
     </#list>
 
     <#if pipelineTaskListItems?size gt 4>
-      ${addPipeButton}
+        <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
     </#if>
 
     <#if pipelineTaskListItems?has_content>
