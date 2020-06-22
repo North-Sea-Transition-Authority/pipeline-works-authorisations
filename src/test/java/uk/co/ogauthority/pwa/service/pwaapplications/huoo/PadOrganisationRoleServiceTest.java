@@ -471,9 +471,15 @@ public class PadOrganisationRoleServiceTest {
   }
 
   private PadOrganisationRole createOrgRole(HuooRole role) {
-    var org = new PadOrganisationRole();
-    org.setRole(role);
-    return org;
+    var organisationRole = new PadOrganisationRole();
+    organisationRole.setRole(role);
+    return organisationRole;
+  }
+
+  private PadOrganisationRole createOrgRole(HuooRole role, PortalOrganisationUnit portalOrganisationUnit) {
+    var orgRole = createOrgRole(role);
+    orgRole.setOrganisationUnit(portalOrganisationUnit);
+    return orgRole;
   }
 
   @Test
@@ -557,6 +563,53 @@ public class PadOrganisationRoleServiceTest {
     assertThat(padOrgRoleArgCapture.getValue()).isEmpty();
     assertThat(padOrgRolePipelineLinkArgCapture.getValue()).isEmpty();
 
+
+  }
+
+  @Test
+  public void getOrgRolesForDetailByOrganisationIdAndRole_whenNoOrgRoleFound(){
+
+    assertThat(padOrganisationRoleService.getOrgRolesForDetailByOrganisationIdAndRole(
+        detail,
+        Set.of(OrganisationUnitId.from(orgUnit1)),
+        HuooRole.HOLDER
+    )).isEmpty();
+
+  }
+
+  @Test
+  public void getOrgRolesForDetailByOrganisationIdAndRole_whenOrgRolesFound(){
+
+    var org1HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit1);
+    var org1OwnerRole = createOrgRole(HuooRole.OWNER, orgUnit1);
+    var org2HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit2);
+
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(
+        List.of(org1HolderRole, org1OwnerRole, org2HolderRole)
+    );
+
+    assertThat(padOrganisationRoleService.getOrgRolesForDetailByOrganisationIdAndRole(
+        detail,
+        Set.of(OrganisationUnitId.from(orgUnit1)),
+        HuooRole.HOLDER
+    )).containsExactly(org1HolderRole);
+
+  }
+
+  @Test
+  public void createPadPipelineOrganisationRoleLink_createsAndSavesExpectedLink(){
+    var org1HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit1);
+    var pipeline = new Pipeline();
+
+    var argCapture = ArgumentCaptor.forClass(PadPipelineOrganisationRoleLink.class);
+    padOrganisationRoleService.createPadPipelineOrganisationRoleLink(org1HolderRole, pipeline);
+
+    verify(padPipelineOrgRoleLinkRepository, times(1)).save(argCapture.capture());
+
+    assertThat(argCapture.getValue()).satisfies(padPipelineOrganisationRoleLink -> {
+      assertThat(padPipelineOrganisationRoleLink.getPipeline()).isEqualTo(pipeline);
+      assertThat(padPipelineOrganisationRoleLink.getPadOrgRole()).isEqualTo(org1HolderRole);
+    });
 
   }
 
