@@ -77,7 +77,6 @@ public class PickablePipelineService {
 
   /* Pickable pipelines form the application are where the pipeline has been newly added or imported from consented model for update  */
   public Set<PickablePipelineOption> getPickablePipelinesFromApplication(PwaApplicationDetail pwaApplicationDetail) {
-
     // for now just filter from the entire set. performance concerns should be minimal. important thing is api exists.
     return getAllPickablePipelinesForApplication(pwaApplicationDetail)
         .stream()

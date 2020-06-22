@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -115,6 +117,15 @@ public abstract class PwaApplicationContextAbstractControllerTest {
       fileUploadProperties.setAllowedExtensions(List.of("txt", "xls", "doc"));
       return fileUploadProperties;
     }
+
+    // for controllers using session scoped attributes
+    @Bean
+    public CustomScopeConfigurer customScopeConfigurer() {
+      CustomScopeConfigurer configurer = new CustomScopeConfigurer();
+      configurer.addScope("session", new SimpleThreadScope());
+      return configurer;
+    }
+
   }
 
 }

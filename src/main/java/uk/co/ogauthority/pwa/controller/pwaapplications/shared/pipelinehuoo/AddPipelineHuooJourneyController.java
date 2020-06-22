@@ -22,7 +22,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -54,7 +53,7 @@ public class AddPipelineHuooJourneyController {
   private static final String SELECT_PIPELINES_QUESTION_FORMAT = "On which pipelines do you want to assign %ss?";
   private static final String SELECT_PIPELINES_BACK_LINK_TEXT = "Back to " + ApplicationTask.PIPELINES_HUOO.getDisplayName().toLowerCase();
 
-  private static final String UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT = "Back to pipeline selection";
+  public static final String UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT = "Back to pipeline selection";
   private static final String UPDATE_PIPELINE_ORG_ROLES_SUBMIT_BUTTON_FORMAT = "Update %ss for pipelines";
   private static final String UPDATE_PIPELINE_ORG_ROLES_QUESTION_FORMAT = " Who are the %ss for the selected pipelines";
 
@@ -66,21 +65,18 @@ public class AddPipelineHuooJourneyController {
   }
 
   @Resource(name = "addPipelineHuooJourneyData")
-  AddPipelineHuooJourneyData addPipelineHuooJourneyData;
+  private AddPipelineHuooJourneyData addPipelineHuooJourneyData;
 
   private final PipelinesHuooService pipelinesHuooService;
   private final PickablePipelineService pickablePipelineService;
-  private final PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Autowired
   public AddPipelineHuooJourneyController(
       PipelinesHuooService pipelinesHuooService,
-      PickablePipelineService pickablePipelineService,
-      PortalOrganisationsAccessor portalOrganisationsAccessor) {
+      PickablePipelineService pickablePipelineService) {
     this.pipelinesHuooService = pipelinesHuooService;
 
     this.pickablePipelineService = pickablePipelineService;
-    this.portalOrganisationsAccessor = portalOrganisationsAccessor;
   }
 
   @GetMapping("/pipelines")
@@ -137,6 +133,7 @@ public class AddPipelineHuooJourneyController {
                                                          PwaApplicationContext applicationContext,
                                                          @ModelAttribute("form") PickHuooPipelinesForm form) {
     addPipelineHuooJourneyData.updateFormWithPipelineJourneyData(huooRole, form);
+    addPipelineHuooJourneyData.updateFormWithOrganisationRoleJourneyData(huooRole, form);
 
     var modelAndView = getUpdatePipelineOrgRoleModelAndView(applicationContext, huooRole);
 
@@ -244,7 +241,7 @@ public class AddPipelineHuooJourneyController {
     var orgUnitDetails = pipelinesHuooService.getAvailableOrgUnitDetailsForRole(
         applicationContext.getApplicationDetail(), huooRole);
 
-    var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/addPipelineHuooAssociateOrgnisations")
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/addPipelineHuooAssociateOrganisations")
         .addObject("pageHeading",
             String.format(UPDATE_PIPELINE_ORG_ROLES_QUESTION_FORMAT, huooRole.getDisplayText().toLowerCase()))
         .addObject("submitButtonText",
