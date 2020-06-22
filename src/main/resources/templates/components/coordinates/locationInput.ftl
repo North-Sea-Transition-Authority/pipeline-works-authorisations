@@ -70,8 +70,7 @@ captionClass="govuk-caption-m">
                       <label class="govuk-label govuk-date-input__label" for="hemisphere-north">
                         Hemisphere (north / south)
                       </label>
-                      <input
-                        class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-3 govuk-input--read-only"
+                      <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-3 govuk-input--read-only"
                         id="hemisphere-north" name="hemisphere-north" type="text" disabled value="North">
                     </div>
                   </div>
