@@ -7,13 +7,13 @@
 
 <@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=true>
   <h2 class="govuk-heading-m">Holders</h2>
-    <@fdsAction.link linkText="Select pipelines and assign holders"  linkUrl=springUrl(urlFactory.getAddHolderPipelineRoleUrl()) linkClass="govuk-button govuk-button--secondary"/>
+    <@fdsAction.link linkText="Select pipelines and assign holders"  linkUrl=springUrl(urlFactory.getAddHolderPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
   <h2 class="govuk-heading-m">Users</h2>
-    <@fdsAction.link linkText="Select pipelines and assign users"  linkUrl=springUrl(urlFactory.getAddUserPipelineRoleUrl()) linkClass="govuk-button govuk-button--secondary"/>
+    <@fdsAction.link linkText="Select pipelines and assign users"  linkUrl=springUrl(urlFactory.getAddUserPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
   <h2 class="govuk-heading-m">Operators</h2>
-    <@fdsAction.link linkText="Select pipelines and assign operators"  linkUrl=springUrl(urlFactory.getAddOperatorPipelineRoleUrl()) linkClass="govuk-button govuk-button--secondary"/>
+    <@fdsAction.link linkText="Select pipelines and assign operators"  linkUrl=springUrl(urlFactory.getAddOperatorPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
   <h2 class="govuk-heading-m">Owners</h2>
-    <@fdsAction.link linkText="Select pipelines and assign owners"  linkUrl=springUrl(urlFactory.getAddOwnerPipelineRoleUrl()) linkClass="govuk-button govuk-button--secondary"/>
+    <@fdsAction.link linkText="Select pipelines and assign owners"  linkUrl=springUrl(urlFactory.getAddOwnerPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
 
 
     <@fdsForm.htmlForm>

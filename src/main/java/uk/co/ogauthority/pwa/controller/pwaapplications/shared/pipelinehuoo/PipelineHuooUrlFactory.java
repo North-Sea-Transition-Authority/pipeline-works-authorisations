@@ -35,6 +35,6 @@ public class PipelineHuooUrlFactory {
 
   private String getAddPipelineRoleUrl(HuooRole huooRole) {
     return ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
-        .renderAddPipelineHuoo(applicationType, applicationId, huooRole, null, null));
+        .renderPipelinesForHuooAssignment(applicationType, applicationId, huooRole, null, null));
   }
 }

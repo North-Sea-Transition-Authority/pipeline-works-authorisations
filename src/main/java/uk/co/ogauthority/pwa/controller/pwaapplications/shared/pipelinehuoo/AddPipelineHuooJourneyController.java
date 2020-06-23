@@ -55,7 +55,7 @@ public class AddPipelineHuooJourneyController {
 
   public static final String UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT = "Back to pipeline selection";
   private static final String UPDATE_PIPELINE_ORG_ROLES_SUBMIT_BUTTON_FORMAT = "Update %ss for pipelines";
-  private static final String UPDATE_PIPELINE_ORG_ROLES_QUESTION_FORMAT = " Who are the %ss for the selected pipelines";
+  private static final String UPDATE_PIPELINE_ORG_ROLES_QUESTION_FORMAT = " Who are the %ss for the selected pipelines?";
 
 
   @Bean
@@ -80,7 +80,7 @@ public class AddPipelineHuooJourneyController {
   }
 
   @GetMapping("/pipelines")
-  public ModelAndView renderAddPipelineHuoo(@PathVariable("applicationType")
+  public ModelAndView renderPipelinesForHuooAssignment(@PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             @PathVariable("applicationId") int applicationId,
                                             @PathVariable("huooRole") HuooRole huooRole,
@@ -94,7 +94,7 @@ public class AddPipelineHuooJourneyController {
   }
 
   @PostMapping("/pipelines")
-  public ModelAndView addPipelineHuoo(@PathVariable("applicationType")
+  public ModelAndView selectPipelinesForHuooAssignment(@PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       @PathVariable("applicationId") int applicationId,
                                       @PathVariable("huooRole") HuooRole huooRole,
@@ -114,19 +114,17 @@ public class AddPipelineHuooJourneyController {
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getSelectPipelineModelAndView(applicationContext, huooRole),
-        () -> ReverseRouter.redirect(on(AddPipelineHuooJourneyController.class).renderAddPipelineHuooOrganisations(
+        () -> ReverseRouter.redirect(on(AddPipelineHuooJourneyController.class).renderOrganisationsForPipelineHuooAssignment(
             pwaApplicationType,
             applicationId,
             huooRole,
             null,
             null
         )));
-
-
   }
 
   @GetMapping("/pipelines/organisations")
-  public ModelAndView renderAddPipelineHuooOrganisations(@PathVariable("applicationType")
+  public ModelAndView renderOrganisationsForPipelineHuooAssignment(@PathVariable("applicationType")
                                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                          @PathVariable("applicationId") int applicationId,
                                                          @PathVariable("huooRole") HuooRole huooRole,
@@ -142,7 +140,7 @@ public class AddPipelineHuooJourneyController {
   }
 
   @PostMapping(value = "/pipelines/organisations")
-  public ModelAndView updatePipelineOrganisationRoles(@PathVariable("applicationType")
+  public ModelAndView selectOrganisationsForPipelineHuooAssignment(@PathVariable("applicationType")
                                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                       @PathVariable("applicationId") int applicationId,
                                                       @PathVariable("huooRole") HuooRole huooRole,
@@ -202,7 +200,7 @@ public class AddPipelineHuooJourneyController {
 
     addPipelineHuooJourneyData.updateJourneyOrganisationData(huooRole, form.getOrganisationUnitIds());
 
-    return ReverseRouter.redirect(on(AddPipelineHuooJourneyController.class).renderAddPipelineHuoo(
+    return ReverseRouter.redirect(on(AddPipelineHuooJourneyController.class).renderPipelinesForHuooAssignment(
         pwaApplicationType,
         applicationId,
         huooRole,

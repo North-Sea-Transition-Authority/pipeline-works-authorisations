@@ -111,7 +111,7 @@ public class PickablePipelineService {
     return reconcilePickablePipelineIds(pickablePipelineIds);
   }
 
-  /* Pickable pipeline form the master pwa are where the consented pipeline has not been imported into the application for update. */
+  /* Pickable pipelines from the master pwa are where the consented pipeline has not been imported into the application for update. */
   public Set<PickablePipelineOption> getPickablePipelinesFromApplicationMasterPwa(
       PwaApplicationDetail pwaApplicationDetail) {
 

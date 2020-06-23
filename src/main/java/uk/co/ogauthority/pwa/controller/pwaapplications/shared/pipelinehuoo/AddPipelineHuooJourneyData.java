@@ -11,8 +11,8 @@ public class AddPipelineHuooJourneyData implements Serializable {
   // If this file changes in a way that means any serialised object would be incompatible, this needs to change.
   // Examples of changes are renaming/adding/removing/changing type of member variables
   // Its likely there would need to be a patch that clears the session variable table after any such change
-  // TODO Is there an automated way to do this?
-  private static final long serialVersionUID = 2304563456472348796L;
+  // TODO PWA-633
+  private static final long serialVersionUID = 1L;
   private HuooRole journeyRoleType;
   private Set<String> pickedPipelineIds = new HashSet<>();
   private Set<Integer> organisationUnitIds = new HashSet<>();
