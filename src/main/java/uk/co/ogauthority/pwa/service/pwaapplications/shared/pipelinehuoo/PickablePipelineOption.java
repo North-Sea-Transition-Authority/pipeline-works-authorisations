@@ -27,6 +27,21 @@ public class PickablePipelineOption {
 
   private final String pickableString;
 
+
+  @VisibleForTesting
+  PickablePipelineOption(int id, PickablePipelineType type, String pipelineNumber) {
+    this(id,
+        type,
+        pipelineNumber,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
+  }
+
   @VisibleForTesting
   PickablePipelineOption(Pipeline pipeline) {
     this(pipeline.getId(),
