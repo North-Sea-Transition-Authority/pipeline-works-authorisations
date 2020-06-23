@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,7 @@ public class PadBundleService implements ApplicationFormSectionService {
   public List<PadBundleSummaryView> getBundleSummaryViews(PwaApplicationDetail detail) {
     Map<PadBundle, List<PadBundleLink>> bundleLinkMap = padBundleLinkService.getAllLinksForDetail(detail)
         .stream()
+        .sorted(Comparator.comparing(padBundleLink -> padBundleLink.getBundle().getBundleName()))
         .collect(Collectors.groupingBy(PadBundleLink::getBundle));
     return bundleLinkMap.entrySet()
         .stream()
@@ -93,11 +96,11 @@ public class PadBundleService implements ApplicationFormSectionService {
 
   public void mapBundleViewToForm(PadBundleView bundleView, BundleForm bundleForm) {
     bundleForm.setBundleName(bundleView.getBundle().getBundleName());
-    List<Integer> pipelineIds = bundleView.getLinks()
+    Set<Integer> padPipelineIds = bundleView.getLinks()
         .stream()
         .map(padBundleLink -> padBundleLink.getPipeline().getId())
-        .collect(Collectors.toUnmodifiableList());
-    bundleForm.setPipelineIds(pipelineIds);
+        .collect(Collectors.toUnmodifiableSet());
+    bundleForm.setPadPipelineIds(padPipelineIds);
   }
 
   private boolean isBundleViewValid(PadBundleView bundleView) {

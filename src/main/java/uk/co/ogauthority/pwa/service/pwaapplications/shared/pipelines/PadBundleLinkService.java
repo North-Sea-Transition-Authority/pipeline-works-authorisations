@@ -36,7 +36,7 @@ public class PadBundleLinkService {
 
   @Transactional
   public void createBundleLinks(PadBundle bundle, BundleForm form) {
-    List<PadBundleLink> links = padPipelineService.getByIdList(bundle.getPwaApplicationDetail(), form.getPipelineIds())
+    List<PadBundleLink> links = padPipelineService.getByIdList(bundle.getPwaApplicationDetail(), List.copyOf(form.getPadPipelineIds()))
         .stream()
         .map(pipeline -> buildBundleLink(bundle, pipeline))
         .collect(Collectors.toUnmodifiableList());

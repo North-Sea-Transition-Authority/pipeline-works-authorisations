@@ -8,11 +8,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -49,7 +51,7 @@ public class PadBundleServiceTest {
   public void createBundleAndLinks_serviceInteraction() {
     var form = new BundleForm();
     form.setBundleName("bundle");
-    form.setPipelineIds(List.of(1));
+    form.setPadPipelineIds(Set.of(1));
 
     padBundleService.createBundleAndLinks(pwaApplicationDetail, form);
 
@@ -116,7 +118,7 @@ public class PadBundleServiceTest {
   public void updateBundleAndLinks() {
     var form = new BundleForm();
     form.setBundleName("bundle");
-    form.setPipelineIds(List.of(1, 2));
+    form.setPadPipelineIds(Set.of(1, 2));
 
     var bundle = new PadBundle();
 
@@ -125,8 +127,10 @@ public class PadBundleServiceTest {
     verify(padBundleRepository, times(1)).save(bundle);
     assertThat(bundle.getBundleName()).isEqualTo("bundle");
 
-    verify(padBundleLinkService, times(1)).removeBundleLinks(bundle);
-    verify(padBundleLinkService, times(1)).createBundleLinks(bundle, form);
+    var inOrder = Mockito.inOrder(padBundleLinkService);
+    inOrder.verify(padBundleLinkService, times(1)).removeBundleLinks(bundle);
+    inOrder.verify(padBundleLinkService, times(1)).createBundleLinks(bundle, form);
+    inOrder.verifyNoMoreInteractions();
   }
 
   @Test
@@ -152,7 +156,7 @@ public class PadBundleServiceTest {
     padBundleService.mapBundleViewToForm(bundleView, form);
 
     assertThat(form.getBundleName()).isEqualTo(bundle.getBundleName());
-    assertThat(form.getPipelineIds()).isEqualTo(List.of(pipeline.getId(), pipeline2.getId()));
+    assertThat(form.getPadPipelineIds()).isEqualTo(Set.of(pipeline.getId(), pipeline2.getId()));
   }
 
   @Test
