@@ -2,6 +2,8 @@
 <#import 'pipelineOverview.ftl' as pipelineOverview>
 
 <#-- @ftlvariable name="pipelineTaskListItems" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem>" -->
+<#-- @ftlvariable name="bundleSummaryViews" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleSummaryView>" -->
+<#-- @ftlvariable name="bundleValidationFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.BundleValidationFactory" -->
 <#-- @ftlvariable name="pipelineUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory" -->
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
@@ -11,7 +13,9 @@
     <@fdsAction.link linkText=text linkUrl=url linkClass="govuk-button govuk-button--blue" />
 </#macro>
 
-<@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle="Pipelines and pipeline bundles" pageHeading="Pipelines and pipeline bundles" fullWidthColumn=true breadcrumbs=true>
+
+  <h2 class="govuk-heading-l">Pipelines</h2>
 
     <#if !pipelineTaskListItems?has_content>
         <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
@@ -26,10 +30,10 @@
 
         <@fdsCard.card>
 
-            <span class="govuk-caption-l">${pipeline.length}m ${pipeline.pipelineType.displayName}</span>
+          <span class="govuk-caption-l">${pipeline.length}m ${pipeline.pipelineType.displayName}</span>
             <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineNumber}" />
 
-            <hr class="govuk-section-break govuk-section-break--m"/>
+          <hr class="govuk-section-break govuk-section-break--m"/>
 
             <@fdsTaskList.taskList>
                 <#list pipeline.getTaskList() as task>
@@ -49,7 +53,42 @@
     </#if>
 
     <#if pipelineTaskListItems?has_content>
-        <hr class="govuk-section-break govuk-section-break--l"/>
+      <hr class="govuk-section-break govuk-section-break--l"/>
+    </#if>
+
+  <h2 class="govuk-heading-l">Pipeline bundles</h2>
+  <!-- Show bundles if not empty in case there's a validation error -->
+    <#if canShowAddBundleButton || bundleSummaryViews?size gt 0>
+
+        <#if canShowAddBundleButton>
+          <@linkButtonBlue text="Add pipeline bundle" url=springUrl(pipelineUrlFactory.getAddBundleUrl()) />
+        </#if>
+
+        <#list bundleSummaryViews as bundle>
+            <@fdsCard.card cardClass=(!bundleValidationFactory?has_content || bundleValidationFactory.isValid(bundle))?string("", "fds-card--error")>
+                <#if bundleValidationFactory?has_content && !bundleValidationFactory.isValid(bundle)>
+                  <span class="govuk-error-message">${bundleValidationFactory.getErrorMessage(bundle)}</span>
+                </#if>
+                <@fdsCard.cardHeader cardHeadingText=bundle.bundleName />
+                <br/>
+                <h3 class="govuk-heading-s">Pipelines</h3>
+
+              <ul class="govuk-list">
+                  <#list bundle.pipelineReferences as pipelineReference>
+                    <li>${pipelineReference}</li>
+                  </#list>
+              </ul>
+            </@fdsCard.card>
+
+        </#list>
+    <#else>
+        <@fdsInsetText.insetText>
+          At least two pipelines must be added before creating a pipeline bundle.
+        </@fdsInsetText.insetText>
+    </#if>
+
+    <#if bundleSummaryViews?has_content>
+      <hr class="govuk-section-break govuk-section-break--l"/>
     </#if>
 
     <@fdsForm.htmlForm>

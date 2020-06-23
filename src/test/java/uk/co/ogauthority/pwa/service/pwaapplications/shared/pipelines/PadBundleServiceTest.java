@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundle;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundleLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.BundleForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadBundleRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -66,5 +69,43 @@ public class PadBundleServiceTest {
   public void canAddBundle_notEnoughPipelines() {
     when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail)).thenReturn(1L);
     assertThat(padBundleService.canAddBundle(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void getBundleViews_whenLinksExist() {
+    var bundle = new PadBundle();
+    bundle.setBundleName("name");
+
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
+    var link = new PadBundleLink();
+    link.setBundle(bundle);
+    link.setPipeline(pipeline);
+
+    var linkList = List.of(link);
+
+    when(padBundleLinkService.getAllLinksForDetail(pwaApplicationDetail)).thenReturn(linkList);
+    var results = padBundleService.getBundleViews(pwaApplicationDetail);
+    assertThat(results).extracting(PadBundleView::getBundle, PadBundleView::getLinks)
+        .containsExactlyInAnyOrder(tuple(bundle, linkList));
+  }
+
+  @Test
+  public void getBundleSummaryViews_whenLinksExists() {
+    var bundle = new PadBundle();
+    bundle.setBundleName("name");
+
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineRef("ref");
+
+    var link = new PadBundleLink();
+    link.setBundle(bundle);
+    link.setPipeline(pipeline);
+
+    when(padBundleLinkService.getAllLinksForDetail(pwaApplicationDetail)).thenReturn(List.of(link));
+    var results = padBundleService.getBundleSummaryViews(pwaApplicationDetail);
+    assertThat(results).extracting(PadBundleSummaryView::getBundleName, PadBundleSummaryView::getPipelineReferences)
+        .containsExactlyInAnyOrder(tuple("name", List.of("ref")));
   }
 }

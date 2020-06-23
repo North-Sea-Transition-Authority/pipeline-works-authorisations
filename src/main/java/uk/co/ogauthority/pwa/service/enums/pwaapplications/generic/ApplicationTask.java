@@ -71,7 +71,7 @@ public enum ApplicationTask {
       60),
 
   PIPELINES(
-    "Pipelines",
+    "Pipelines and pipeline bundles",
       PipelinesController.class,
       PadPipelineService.class,
       70

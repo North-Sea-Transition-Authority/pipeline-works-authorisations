@@ -67,4 +67,11 @@ public class PadBundleLinkServiceTest {
         );
 
   }
+
+  @Test
+  public void getAllLinksForDetail_serviceInteraction() {
+    padBundleLinkService.getAllLinksForDetail(pwaApplicationDetail);
+    verify(padBundleLinkRepository, times(1))
+        .getAllByBundle_PwaApplicationDetail(pwaApplicationDetail);
+  }
 }

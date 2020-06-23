@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundle;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -23,6 +24,10 @@ public class PadBundleLinkService {
       PadPipelineService padPipelineService) {
     this.padBundleLinkRepository = padBundleLinkRepository;
     this.padPipelineService = padPipelineService;
+  }
+
+  public List<PadBundleLink> getAllLinksForDetail(PwaApplicationDetail detail) {
+    return padBundleLinkRepository.getAllByBundle_PwaApplicationDetail(detail);
   }
 
   @Transactional
