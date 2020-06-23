@@ -72,7 +72,7 @@ public class PadBundleServiceTest {
   }
 
   @Test
-  public void getBundleViews() {
+  public void getBundleViews_whenLinksExist() {
     var bundle = new PadBundle();
     bundle.setBundleName("name");
 
@@ -92,7 +92,7 @@ public class PadBundleServiceTest {
   }
 
   @Test
-  public void getBundleSummaryViews() {
+  public void getBundleSummaryViews_whenLinksExists() {
     var bundle = new PadBundle();
     bundle.setBundleName("name");
 
