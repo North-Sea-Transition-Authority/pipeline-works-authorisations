@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
@@ -40,6 +41,15 @@ public class PipelineDetail {
   private String pipelineStatus;
   private String detailStatus;
   private String pipelineNumber;
+
+  public PipelineDetail() {
+    // default for hibernate
+  }
+
+  @VisibleForTesting
+  public PipelineDetail(Pipeline pipeline) {
+    this.setPipeline(pipeline);
+  }
 
   @ManyToOne
   @JoinColumn(name = "pwa_consent_id")

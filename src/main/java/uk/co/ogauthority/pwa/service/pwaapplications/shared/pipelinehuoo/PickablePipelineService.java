@@ -17,13 +17,14 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 
-/*8 get or resolve pipelines using the PickablePipelineOption class. */
+/**
+ * get or resolve pipelines using the PickablePipelineOption class.
+ */
 @Service
 public class PickablePipelineService {
 
   private final PipelineService pipelineService;
   private final PadPipelineService padPipelineService;
-
 
   @Autowired
   public PickablePipelineService(
@@ -42,7 +43,7 @@ public class PickablePipelineService {
   }
 
   /* Get pipeline entities for pickablePipelineIds */
-  public Set<Pipeline> getPickedPipelines(Set<PickablePipelineId> pickedPipelineIds) {
+  private Set<Pipeline> getPickedPipelines(Set<PickablePipelineId> pickedPipelineIds) {
     var pipelineIds = reconcilePickablePipelineIds(pickedPipelineIds)
         .stream()
         .map(ReconciledPickablePipeline::getPipelineId)
@@ -74,17 +75,6 @@ public class PickablePipelineService {
 
   }
 
-
-  /* Pickable pipelines form the application are where the pipeline has been newly added or imported from consented model for update  */
-  public Set<PickablePipelineOption> getPickablePipelinesFromApplication(PwaApplicationDetail pwaApplicationDetail) {
-    // for now just filter from the entire set. performance concerns should be minimal. important thing is api exists.
-    return getAllPickablePipelinesForApplication(pwaApplicationDetail)
-        .stream()
-        .filter(ppo -> PickablePipelineType.CONSENTED.equals(ppo.getPickablePipelineType()))
-        .collect(toSet());
-
-  }
-
   private Set<ReconciledPickablePipeline> reconcilePickablePipelineIds(Set<PickablePipelineId> pickablePipelineIds) {
 
     var consentedReconciledPickablePipelineIds = pickablePipelineIds.stream()
@@ -111,7 +101,7 @@ public class PickablePipelineService {
 
   }
 
-  public Set<ReconciledPickablePipeline> reconcilePickablePipelineOptions(
+  Set<ReconciledPickablePipeline> reconcilePickablePipelineOptions(
       Set<PickablePipelineOption> pickablePipelineOptions) {
 
     var pickablePipelineIds = pickablePipelineOptions.stream()
@@ -125,6 +115,16 @@ public class PickablePipelineService {
   public Set<PickablePipelineOption> getPickablePipelinesFromApplicationMasterPwa(
       PwaApplicationDetail pwaApplicationDetail) {
 
+    // for now just filter from the entire set. performance concerns should be minimal. important thing is api exists.
+    return getAllPickablePipelinesForApplication(pwaApplicationDetail)
+        .stream()
+        .filter(ppo -> PickablePipelineType.CONSENTED.equals(ppo.getPickablePipelineType()))
+        .collect(toSet());
+  }
+
+
+  /* Pickable pipelines form the application are where the pipeline has been newly added or imported from consented model for update  */
+  public Set<PickablePipelineOption> getPickablePipelinesFromApplication(PwaApplicationDetail pwaApplicationDetail) {
     // for now just filter from the entire set. performance concerns should be minimal. important thing is api exists.
     return getAllPickablePipelinesForApplication(pwaApplicationDetail)
         .stream()
