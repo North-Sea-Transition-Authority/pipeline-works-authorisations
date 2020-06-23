@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PipelinesHuooServiceTest {
+public class PadPipelinesHuooServiceTest {
 
   private final int CONSENTED_PIPELINE_ID = 10;
   private final int APPLICATION_PIPELINE_ID = 20;
@@ -73,7 +73,7 @@ public class PipelinesHuooServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     form = new PickHuooPipelinesForm();
 
-    pipelinesHuooService = new PipelinesHuooService(
+    pipelinesHuooService = new PadPipelinesHuooService(
         pickablePipelineService,
         portalOrganisationsAccessor,
         padOrganisationRoleService,
@@ -100,7 +100,7 @@ public class PipelinesHuooServiceTest {
 
   }
 
-  private PipelinesHuooService pipelinesHuooService;
+  private PadPipelinesHuooService pipelinesHuooService;
 
   @Test
   public void validateAddPipelineHuooForm_serviceInteraction() {

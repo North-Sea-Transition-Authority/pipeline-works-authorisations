@@ -30,9 +30,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOption;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelinesHuooService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -67,14 +67,14 @@ public class AddPipelineHuooJourneyController {
   @Resource(name = "addPipelineHuooJourneyData")
   private AddPipelineHuooJourneyData addPipelineHuooJourneyData;
 
-  private final PipelinesHuooService pipelinesHuooService;
+  private final PadPipelinesHuooService padPipelinesHuooService;
   private final PickablePipelineService pickablePipelineService;
 
   @Autowired
   public AddPipelineHuooJourneyController(
-      PipelinesHuooService pipelinesHuooService,
+      PadPipelinesHuooService padPipelinesHuooService,
       PickablePipelineService pickablePipelineService) {
-    this.pipelinesHuooService = pipelinesHuooService;
+    this.padPipelinesHuooService = padPipelinesHuooService;
 
     this.pickablePipelineService = pickablePipelineService;
   }
@@ -104,7 +104,7 @@ public class AddPipelineHuooJourneyController {
 
     addPipelineHuooJourneyData.updateJourneyPipelineData(huooRole, form.getPickedPipelineStrings());
 
-    pipelinesHuooService.validateAddPipelineHuooForm(
+    padPipelinesHuooService.validateAddPipelineHuooForm(
         applicationContext.getApplicationDetail(),
         form,
         bindingResult,
@@ -152,7 +152,7 @@ public class AddPipelineHuooJourneyController {
     addPipelineHuooJourneyData.updateJourneyOrganisationData(huooRole, form.getOrganisationUnitIds());
     addPipelineHuooJourneyData.updateFormWithPipelineJourneyData(huooRole, form);
 
-    pipelinesHuooService.validateAddPipelineHuooForm(
+    padPipelinesHuooService.validateAddPipelineHuooForm(
         applicationContext.getApplicationDetail(),
         form,
         bindingResult,
@@ -168,12 +168,12 @@ public class AddPipelineHuooJourneyController {
           // This is not direct form -> entity mapping so diverges from project standard imo.
           // actual mapping between form elements and entities is still captured in the service code.
           var pipelines = pickablePipelineService.getPickedPipelinesFromStrings(form.getPickedPipelineStrings());
-          var organisationRoles = pipelinesHuooService.getPadOrganisationRolesFrom(
+          var organisationRoles = padPipelinesHuooService.getPadOrganisationRolesFrom(
               applicationContext.getApplicationDetail(),
               huooRole,
               form.getOrganisationUnitIds());
 
-          pipelinesHuooService.createPipelineOrganisationRoles(
+          padPipelinesHuooService.createPipelineOrganisationRoles(
               applicationContext.getApplicationDetail(),
               organisationRoles,
               pipelines);
@@ -225,7 +225,7 @@ public class AddPipelineHuooJourneyController {
 
   private List<PickablePipelineOption> getSortedPickablePipelines(PwaApplicationDetail pwaApplicationDetail,
                                                                   HuooRole huooRole) {
-    return pipelinesHuooService.getPickablePipelineOptionsWithNoRoleOfType(pwaApplicationDetail, huooRole)
+    return padPipelinesHuooService.getPickablePipelineOptionsWithNoRoleOfType(pwaApplicationDetail, huooRole)
         .stream()
         .sorted(Comparator.comparing(PickablePipelineOption::getPipelineNumber))
         .collect(Collectors.toList());
@@ -236,7 +236,7 @@ public class AddPipelineHuooJourneyController {
                                                             HuooRole huooRole) {
     var sortedPickablePipelineOptions = getSortedPickablePipelines(applicationContext.getApplicationDetail(), huooRole);
 
-    var orgUnitDetails = pipelinesHuooService.getAvailableOrgUnitDetailsForRole(
+    var orgUnitDetails = padPipelinesHuooService.getAvailableOrgUnitDetailsForRole(
         applicationContext.getApplicationDetail(), huooRole);
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/addPipelineHuooAssociateOrganisations")

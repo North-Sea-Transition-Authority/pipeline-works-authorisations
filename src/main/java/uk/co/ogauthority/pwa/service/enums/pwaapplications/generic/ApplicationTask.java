@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelinesHuooService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -80,7 +80,7 @@ public enum ApplicationTask {
   PIPELINES_HUOO(
       "Pipeline holders, users, operators and owners",
       PipelinesHuooController.class,
-      PipelinesHuooService.class,
+      PadPipelinesHuooService.class,
       75
   ),
 

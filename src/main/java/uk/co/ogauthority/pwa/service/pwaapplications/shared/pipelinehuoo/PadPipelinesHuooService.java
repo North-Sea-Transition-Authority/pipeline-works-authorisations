@@ -32,8 +32,8 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValidator;
 
 @Service
-public class PipelinesHuooService implements ApplicationFormSectionService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PipelinesHuooService.class);
+public class PadPipelinesHuooService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelinesHuooService.class);
 
   private final PickablePipelineService pickablePipelineService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -42,7 +42,7 @@ public class PipelinesHuooService implements ApplicationFormSectionService {
 
 
   @Autowired
-  public PipelinesHuooService(
+  public PadPipelinesHuooService(
       PickablePipelineService pickablePipelineService,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       PadOrganisationRoleService padOrganisationRoleService,
