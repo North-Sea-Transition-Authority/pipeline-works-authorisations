@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -191,6 +192,9 @@ public class TaskListService {
       case PERMANENT_DEPOSIT_DRAWINGS:
         return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
             .renderDepositDrawingsOverview(applicationType, applicationId, null, null));
+      case GENERAL_TECH_DETAILS:
+        return ReverseRouter.route(on(PipelineTechInfoController.class)
+            .renderAddPipelineTechInfo(applicationType, applicationId, null, null));
       default:
         return "";
     }

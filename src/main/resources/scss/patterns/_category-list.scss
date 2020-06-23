@@ -1,0 +1,11 @@
+.category-list {
+
+  &__item {
+    @include govuk-responsive-margin(7, 'bottom');
+  }
+
+  &__link {
+    @include govuk-font(24, "bold");
+  }
+
+}

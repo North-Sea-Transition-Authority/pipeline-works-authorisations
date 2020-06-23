@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 public class CrossingAgreementsService implements ApplicationFormSectionService {
 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
-  private final BlockCrossingFileService blockCrossingFileService;
+  private final BlockCrossingService blockCrossingService;
   private final PadCableCrossingService padCableCrossingService;
   private final PadPipelineCrossingService padPipelineCrossingService;
   private final CrossingTypesService crossingTypesService;
@@ -31,13 +31,13 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   @Autowired
   public CrossingAgreementsService(
       PadMedianLineAgreementService padMedianLineAgreementService,
-      BlockCrossingFileService blockCrossingFileService,
+      BlockCrossingService blockCrossingService,
       PadCableCrossingService padCableCrossingService,
       PadPipelineCrossingService padPipelineCrossingService,
       CrossingTypesService crossingTypesService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
-    this.blockCrossingFileService = blockCrossingFileService;
+    this.blockCrossingService = blockCrossingService;
     this.padCableCrossingService = padCableCrossingService;
     this.padPipelineCrossingService = padPipelineCrossingService;
     this.crossingTypesService = crossingTypesService;
@@ -51,7 +51,7 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
       validSections.add(CrossingAgreementsSection.CROSSING_TYPES);
     }
 
-    if (blockCrossingFileService.isComplete(detail)) {
+    if (blockCrossingService.isComplete(detail)) {
       validSections.add(CrossingAgreementsSection.BLOCK_CROSSINGS);
     }
 

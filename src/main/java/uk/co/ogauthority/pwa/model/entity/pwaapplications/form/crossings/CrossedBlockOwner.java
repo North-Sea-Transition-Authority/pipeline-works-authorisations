@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 
 public enum CrossedBlockOwner {
   HOLDER("PWA Holder(s) own 100% of block"),
-  PORTAL_ORGANISATION("Non-PWA Holder organisation"),
-  OTHER_ORGANISATION("Non-PWA Holder organisation not available for selection");
+  PORTAL_ORGANISATION("The block is not owned by the PWA Holder(s)"),
+  UNLICENSED("The block is unlicensed");
 
   private final String displayName;
 

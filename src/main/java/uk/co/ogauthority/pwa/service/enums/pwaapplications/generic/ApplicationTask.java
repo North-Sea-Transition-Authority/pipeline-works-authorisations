@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdraw
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
@@ -69,7 +71,7 @@ public enum ApplicationTask {
       60),
 
   PIPELINES(
-    "Pipelines",
+    "Pipelines and pipeline bundles",
       PipelinesController.class,
       PadPipelineService.class,
       70
@@ -108,6 +110,13 @@ public enum ApplicationTask {
       PermanentDepositDrawingsController.class,
       DepositDrawingsService.class,
       110
+  ),
+
+  GENERAL_TECH_DETAILS(
+      "General technical details",
+      PipelineTechInfoController.class,
+      PadPipelineTechInfoService.class,
+      120
   );
 
 

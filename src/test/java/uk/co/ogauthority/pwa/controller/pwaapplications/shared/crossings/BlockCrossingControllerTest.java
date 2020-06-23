@@ -378,7 +378,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(getValidEditBlockFormAsMap()))
         .andExpect(status().is3xxRedirection());
 
-    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any());
+    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
 
   }
 
@@ -400,7 +400,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
 
-    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any());
+    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
   }
 
   @Test
@@ -620,7 +620,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             ReverseRouter.route(on(BlockCrossingController.class)
                 .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
   }
 
   @Test
@@ -633,7 +633,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             ReverseRouter.route(on(BlockCrossingController.class)
                 .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
 
   @Test
@@ -646,7 +646,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             ReverseRouter.route(on(BlockCrossingController.class)
                 .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
   }
 
 }

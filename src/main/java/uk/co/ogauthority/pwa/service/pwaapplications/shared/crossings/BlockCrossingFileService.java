@@ -68,7 +68,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
     // return 'true' for full validation if non holder organisations listed as crossed block owners
     return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerIn(
         pwaApplicationDetail,
-        List.of(CrossedBlockOwner.PORTAL_ORGANISATION, CrossedBlockOwner.OTHER_ORGANISATION)
+        List.of(CrossedBlockOwner.PORTAL_ORGANISATION)
     ) > 0;
   }
 

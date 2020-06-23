@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import org.hibernate.annotations.ColumnDefault;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -61,6 +62,9 @@ public class PwaApplicationDetail {
   private Boolean medianLineCrossed;
 
   private Boolean submittedAsFastTrackFlag;
+
+  private Integer numOfHolders;
+
 
   public PwaApplicationDetail() {
   }
@@ -247,6 +251,14 @@ public class PwaApplicationDetail {
     this.submittedAsFastTrackFlag = fastTrackFlag;
   }
 
+  public Integer getNumOfHolders() {
+    return numOfHolders;
+  }
+
+  public void setNumOfHolders(Integer numOfHolders) {
+    this.numOfHolders = numOfHolders;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -274,7 +286,8 @@ public class PwaApplicationDetail {
         && Objects.equals(pipelinesCrossed, that.pipelinesCrossed)
         && Objects.equals(cablesCrossed, that.cablesCrossed)
         && Objects.equals(medianLineCrossed, that.medianLineCrossed)
-        && Objects.equals(submittedAsFastTrackFlag, that.submittedAsFastTrackFlag);
+        && Objects.equals(submittedAsFastTrackFlag, that.submittedAsFastTrackFlag)
+        && Objects.equals(numOfHolders, that.numOfHolders);
   }
 
   @Override
@@ -282,6 +295,6 @@ public class PwaApplicationDetail {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
-        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag);
+        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders);
   }
 }

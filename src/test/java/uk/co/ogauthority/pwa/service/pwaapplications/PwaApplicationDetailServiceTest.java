@@ -109,7 +109,7 @@ public class PwaApplicationDetailServiceTest {
   public void createFirstDetail_attributesSetAsExpected(){
 
     var master = new PwaApplication();
-    var detail = pwaApplicationDetailService.createFirstDetail(master, user);
+    var detail = pwaApplicationDetailService.createFirstDetail(master, user, 1L);
     assertThat(detail.getPwaApplication()).isEqualTo(master);
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.DRAFT);
     assertThat(detail.isTipFlag()).isTrue();

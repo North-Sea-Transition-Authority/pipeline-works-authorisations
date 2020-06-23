@@ -88,7 +88,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
     );
 
     modelAndView.addObject("pageTitle", "Pipeline crossing agreement documents")
-        .addObject("backButtonText", "Back to overview")
+        .addObject("backButtonText", "Back to pipeline crossings")
         .addObject("backUrl",
             crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, CrossingAgreementTask.PIPELINE_CROSSINGS));
     applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,

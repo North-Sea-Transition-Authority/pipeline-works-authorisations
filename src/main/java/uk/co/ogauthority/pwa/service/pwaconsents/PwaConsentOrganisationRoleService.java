@@ -14,11 +14,13 @@ import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisati
 import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class PwaConsentOrganisationRoleService {
@@ -106,6 +108,13 @@ public class PwaConsentOrganisationRoleService {
 
     return PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(allOrganisationPipelineRoles);
 
+  }
+
+  public Long getNumberOfHolders(MasterPwa masterPwa) {
+    var pwaConsents = pwaConsentRepository.findByMasterPwa(masterPwa);
+    return pwaConsentOrganisationRoleRepository.countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
+        pwaConsents,
+        Set.of(HuooRole.HOLDER));
   }
 
 

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
+import uk.co.ogauthority.pwa.controller.teams.ManageTeamsController;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -33,8 +33,8 @@ public class TopMenuService {
     }
 
     if (systemAreaAccessService.canAccessTeamManagement(user)) {
-      menuItems.add(new TopMenuItem(TEAM_MANAGEMENT_TITLE, ReverseRouter.route(on(PortalTeamManagementController.class)
-          .renderManageableTeams(null)))
+      menuItems.add(new TopMenuItem(TEAM_MANAGEMENT_TITLE, ReverseRouter.route(on(ManageTeamsController.class)
+          .renderTeamTypes(null)))
       );
     }
 

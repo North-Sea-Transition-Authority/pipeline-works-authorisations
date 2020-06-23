@@ -71,7 +71,10 @@ public class PwaApplicationCreationService {
         createdByUser.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
 
-    var detail = pwaApplicationDetailService.createFirstDetail(application, createdByUser);
+    var activeHoldersCount = application.getApplicationType().equals(PwaApplicationType.INITIAL) ? 1
+        : pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa);
+
+    var detail = pwaApplicationDetailService.createFirstDetail(application, createdByUser, activeHoldersCount);
 
     camundaWorkflowService.startWorkflow(application);
 

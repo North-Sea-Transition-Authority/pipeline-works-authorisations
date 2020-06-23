@@ -126,7 +126,7 @@ public class TeamTestingUtils {
   public static PwaTeamMember createRegulatorTeamMember(PwaTeam regulatorTeam, Person person, Set<PwaRegulatorRole> regulatorRoles) {
 
     var pwaRoles = regulatorRoles.stream()
-        .map(role -> new PwaRole(role.name(), "title", "desc", 10))
+        .map(role -> new PwaRole(role.getPortalTeamRoleName(), "title", "desc", 10))
         .collect(Collectors.toSet());
 
     return new PwaTeamMember(regulatorTeam, person, pwaRoles);

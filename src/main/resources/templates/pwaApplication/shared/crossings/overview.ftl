@@ -31,20 +31,17 @@
         <@blockCrossingManagement.blockCrossingManagement
         blockCrossings=blockCrossings
         blockCrossingFileViews=blockCrossingFiles
-        urlFactory=blockCrossingUrlFactory
-        isCompleted=crossingAgreementValidationResult.isSectionValid("BLOCK_CROSSINGS") />
+        urlFactory=blockCrossingUrlFactory/>
     <#elseif overview == "PIPELINE_CROSSINGS">
         <@pipelineCrossingManagement.pipelineCrossingManagement
         urlFactory=pipelineCrossingUrlFactory
         pipelineCrossingFileViews=pipelineCrossingFiles
-        pipelineCrossings=pipelineCrossings
-        isCompleted=crossingAgreementValidationResult.isSectionValid("PIPELINE_CROSSINGS") />
+        pipelineCrossings=pipelineCrossings/>
     <#elseif overview == "CABLE_CROSSINGS">
         <@cableCrossingManagement.cableCrossingManagement
         cableCrossingViews=cableCrossings
         cableCrossingFileViews=cableCrossingFiles
-        urlFactory=cableCrossingUrlFactory
-        isCompleted=crossingAgreementValidationResult.isSectionValid("CABLE_CROSSINGS") />
+        urlFactory=cableCrossingUrlFactory/>
     <#elseif overview == "MEDIAN_LINE_CROSSING">
         <@medianLineCrossingManagement.medianLineCrossingManagement
         urlFactory=medianLineUrlFactory
