@@ -68,7 +68,6 @@ public class PickablePipelineOption {
         null,
         null
     );
-
   }
 
   private PickablePipelineOption(int rawId,
@@ -97,27 +96,15 @@ public class PickablePipelineOption {
 
 
   public static PickablePipelineOption from(PipelineDetail pipelineDetail) {
-    var fromCoords = pipelineDetail.getFromLatitudeCoordinate().isPresent() && pipelineDetail.getFromLongitudeCoordinate().isPresent()
-        ? new CoordinatePair(
-        pipelineDetail.getFromLatitudeCoordinate().get(),
-        pipelineDetail.getFromLongitudeCoordinate().get()
-    ) : null;
-
-    var toCoords = pipelineDetail.getToLatitudeCoordinate().isPresent() && pipelineDetail.getToLongitudeCoordinate().isPresent()
-        ? new CoordinatePair(
-        pipelineDetail.getToLatitudeCoordinate().get(),
-        pipelineDetail.getToLongitudeCoordinate().get()
-    ) : null;
-
     return new PickablePipelineOption(
         pipelineDetail.getPipelineId(),
         PickablePipelineType.CONSENTED,
         pipelineDetail.getPipelineNumber(),
         pipelineDetail.getPipelineType(),
         pipelineDetail.getFromLocation(),
-        fromCoords,
+        pipelineDetail.getFromCoordinates(),
         pipelineDetail.getToLocation(),
-        toCoords,
+        pipelineDetail.getToCoordinates(),
         pipelineDetail.getLength()
     );
   }
