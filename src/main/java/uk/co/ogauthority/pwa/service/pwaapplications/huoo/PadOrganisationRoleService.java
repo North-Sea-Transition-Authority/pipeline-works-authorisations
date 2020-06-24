@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRolePipelineGroupDto;
-import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.PwaOrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;

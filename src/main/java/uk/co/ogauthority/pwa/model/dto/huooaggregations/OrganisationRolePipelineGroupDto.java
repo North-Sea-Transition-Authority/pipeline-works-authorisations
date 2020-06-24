@@ -1,8 +1,10 @@
-package uk.co.ogauthority.pwa.model.dto.consents;
+package uk.co.ogauthority.pwa.model.dto.huooaggregations;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -27,6 +29,10 @@ public class OrganisationRolePipelineGroupDto {
     return this.organisationRoleDto != null ? this.organisationRoleDto.getOrganisationUnitId() : null;
   }
 
+  public OrganisationRoleDto getOrganisationRoleDto() {
+    return this.organisationRoleDto;
+  }
+
   public Optional<String> getManualOrganisationName() {
     return this.organisationRoleDto.getManualOrganisationName();
   }
@@ -44,7 +50,7 @@ public class OrganisationRolePipelineGroupDto {
   }
 
   public Set<PipelineId> getPipelineIds() {
-    return pipelineIds;
+    return Collections.unmodifiableSet(pipelineIds);
   }
 
   @Override

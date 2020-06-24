@@ -11,16 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.PwaOrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class PwaConsentOrganisationRoleService {

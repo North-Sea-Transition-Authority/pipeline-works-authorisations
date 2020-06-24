@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.consents;
+package uk.co.ogauthority.pwa.model.dto.huooaggregations;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
@@ -56,19 +57,27 @@ public class PwaOrganisationRolesSummaryDto {
   }
 
   public Set<OrganisationRolePipelineGroupDto> getHolderOrganisationUnitGroups() {
-    return this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.HOLDER, Set.of());
+    return Collections.unmodifiableSet(
+        this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.HOLDER, Set.of())
+    );
   }
 
   public Set<OrganisationRolePipelineGroupDto> getUserOrganisationUnitGroups() {
-    return this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.USER, Set.of());
+    return  Collections.unmodifiableSet(
+        this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.USER, Set.of())
+    );
   }
 
   public Set<OrganisationRolePipelineGroupDto> getOperatorOrganisationUnitGroups() {
-    return this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.OPERATOR, Set.of());
+    return  Collections.unmodifiableSet(
+        this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.OPERATOR, Set.of())
+    );
   }
 
   public Set<OrganisationRolePipelineGroupDto> getOwnerOrganisationUnitGroups() {
-    return this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.OWNER, Set.of());
+    return  Collections.unmodifiableSet(
+        this.orgRolesGroupsByHuooType.getOrDefault(HuooRole.OWNER, Set.of())
+    );
   }
 
   public Set<OrganisationUnitId> getAllOrganisationUnitIdsWithRole() {
