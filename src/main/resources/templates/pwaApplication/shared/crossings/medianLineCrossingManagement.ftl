@@ -6,8 +6,8 @@
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
 
 <#-- NOTE: You must pass in a default value to medianLineAgreementView to stop freemarker throwing an error if null. -->
-<#macro medianLineCrossingManagement urlFactory medianLineAgreementView medianLineFileViews=[] isCompleted=false>
-  <h2 class="govuk-heading-l">Median line agreement <@completedTag.completedTag isCompleted/></h2>
+<#macro medianLineCrossingManagement urlFactory medianLineAgreementView medianLineFileViews=[]>
+  <h2 class="govuk-heading-l">Median line agreement</h2>
     <#if medianLineAgreementView?has_content>
         <@fdsAction.link linkText="Update median line agreement" linkUrl=springUrl(urlFactory.getAddMedianLineCrossingUrl()) role=true linkClass="govuk-button govuk-button--blue"/>
       <table class="govuk-table">

@@ -104,7 +104,7 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
           form,
           applicationContext.getUser());
       return crossingAgreementsTaskListService.getOverviewRedirect(detail,
-          CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS);
+          CrossingAgreementTask.LICENCE_AND_BLOCKS);
     });
   }
 
@@ -126,12 +126,12 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
     );
 
     modelAndView.addObject("pageTitle", "Block crossing agreement documents")
-        .addObject("backButtonText", "Back to overview")
+        .addObject("backButtonText", "Back to licence and blocks")
         .addObject("backUrl",
             crossingAgreementsTaskListService.getRoute(pwaApplicationDetail,
-                CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS));
+                CrossingAgreementTask.LICENCE_AND_BLOCKS));
     applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,
-        CrossingAgreementTask.LICENCE_AND_BLOCK_NUMBERS,
+        CrossingAgreementTask.LICENCE_AND_BLOCKS,
         "Block crossing agreement documents");
     return modelAndView;
   }

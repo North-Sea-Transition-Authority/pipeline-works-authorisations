@@ -39,6 +39,7 @@ public class AddHuooValidatorTest {
   public void setUp() {
 
     detail = new PwaApplicationDetail();
+    detail.setNumOfHolders(2);
     orgRoles = List.of();
 
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(orgRoles);
@@ -165,6 +166,7 @@ public class AddHuooValidatorTest {
     orgRole.setType(HuooType.PORTAL_ORG);
     orgRole.setRole(HuooRole.HOLDER);
     orgRole.setOrganisationUnit(ou);
+    detail.setNumOfHolders(1);
 
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(orgRole));
 
@@ -175,6 +177,43 @@ public class AddHuooValidatorTest {
     );
 
   }
+
+
+  @Test
+  public void validateHolderCountLessThanOverallPwa_invalid() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+
+    detail.setNumOfHolders(1);
+    var padOrgRole1 = new PadOrganisationRole();
+    padOrgRole1.setRole(HuooRole.HOLDER);
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
+
+    assertThat(result).contains(
+        entry("huooRoles", Set.of("huooRoles.holderNotAllowed"))
+    );
+  }
+
+
+  @Test
+  public void validateHolderCountLessThanOverallPwa_valid() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
+    var padOrgRole1 = new PadOrganisationRole();
+    padOrgRole1.setRole(HuooRole.HOLDER);
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
+
+    assertThat(result).doesNotContain(
+        entry("huooRoles", Set.of("huooRoles.holderNotAllowed"))
+    );
+  }
+
 
   private HuooForm buildForm() {
 

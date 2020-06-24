@@ -14,6 +14,6 @@
             <@fdsSearchSelector.searchSelectorRest path="form.pipelineOwners" labelText="Who are the owners of the pipeline being crossed?" restUrl=springUrl(orgsRestUrl) multiSelect=true preselectedItems=preselectedOwners nestingPath="form.pipelineFullyOwnedByOrganisation"/>
           </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline crossing" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline crossing" secondaryLinkText="Back to pipeline crossings" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

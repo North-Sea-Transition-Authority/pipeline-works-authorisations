@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.P
 
 public enum CrossingAgreementTask {
 
-  LICENCE_AND_BLOCK_NUMBERS("Licence and block numbers", BlockCrossingService.class, 10),
+  LICENCE_AND_BLOCKS("Licence and blocks", BlockCrossingService.class, 10),
   CROSSING_TYPES("Types of crossing", CrossingTypesService.class, 20),
   PIPELINE_CROSSINGS("Pipeline crossings", PadPipelineCrossingService.class, 30),
   CABLE_CROSSINGS("Cable crossings", PadCableCrossingService.class, 40),

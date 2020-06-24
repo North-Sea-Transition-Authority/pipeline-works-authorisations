@@ -138,8 +138,9 @@ public class PwaApplicationDetailService {
    * @return Saved app detail.
    */
   @Transactional
-  public PwaApplicationDetail createFirstDetail(PwaApplication application, WebUserAccount webUserAccount) {
+  public PwaApplicationDetail createFirstDetail(PwaApplication application, WebUserAccount webUserAccount, Long activeHoldersCount) {
     var pwaApplicationDetail = new PwaApplicationDetail(application, 1, webUserAccount.getWuaId(), clock.instant());
+    pwaApplicationDetail.setNumOfHolders(Math.toIntExact(activeHoldersCount));
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 

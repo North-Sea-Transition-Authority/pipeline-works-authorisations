@@ -64,11 +64,11 @@ public class AddHuooValidator implements SmartValidator {
     var holderCount = roles.stream()
         .filter(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER))
         .count();
-    // TODO: PWA-386 Change hard-coded 1 to match number of potential holders on an application.
-    if (holderCount >= 1) {
+    if (holderCount >= detail.getNumOfHolders()) {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
+        var holdersTxt = detail.getNumOfHolders() > 1 ? "holders" : "holder";
         errors.rejectValue("huooRoles", "huooRoles.holderNotAllowed",
-            "You may only have one holder on an application");
+            "You may only have " + detail.getNumOfHolders() + " " + holdersTxt +  " on an application");
       }
     }
     if (form.getHuooType() == HuooType.TREATY_AGREEMENT && SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {

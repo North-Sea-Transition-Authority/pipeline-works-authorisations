@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="pickableBlocks" type="java.util.Map<String, String>" -->
 
 
-<@defaultPage htmlTitle="Edit block crossing" pageHeading="Edit block crossing" breadcrumbs=true>
+<@defaultPage htmlTitle="Edit block" pageHeading="Edit block" breadcrumbs=true>
     <@fdsError.errorSummary errorItems=errorList />
     <@fdsDataItems.dataItem>
         <@fdsDataItems.dataValues key="Block reference" value=blockReference/>
@@ -26,13 +26,11 @@
                 <@fdsRadio.radioItem path="form.crossedBlockOwner" itemMap={crossedBlock : crossedBlock.getDisplayName()} isFirstItem=firstItem>
                     <#if crossedBlock == "PORTAL_ORGANISATION">
                         <@fdsSelect.select path="form.blockOwnersOuIdList" options=orgUnits labelText="Select block owner" nestingPath="form.crossedBlockOwner"/>
-                    <#elseif crossedBlock == "OTHER_ORGANISATION">
-                        <@fdsTextarea.textarea path="form.operatorNotFoundFreeTextBox" labelText="Provide details of block owner" nestingPath="form.crossedBlockOwner" />
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem=false/>
             </#list>
         </@fdsRadio.radioGroup>
-        <@fdsAction.button buttonText="Save block crossing" />
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Save block crossing" secondaryLinkText="Back to licence and blocks" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 </@defaultPage>
