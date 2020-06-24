@@ -1,6 +1,9 @@
 <#include '../../../layout.ftl'>
+<#include 'waxContentQuestion.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
+<#-- @ftlvariable name="properties" type="java.util.List<OtherPipelineProperty>" -->
+<#-- @ftlvariable name="waxContentOptions" type="java.util.List<WaxContentOption>" -->
 
 
 
@@ -12,7 +15,10 @@
 
 
     <@fdsForm.htmlForm>
-       
+
+        <#list properties as property>
+            <@waxContentQuestion property waxContentOptions/>
+        </#list>        
         
 
 

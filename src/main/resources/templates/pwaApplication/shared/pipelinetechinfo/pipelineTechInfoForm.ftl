@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#include 'minMaxInput.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="backUrl" type=" java.lang.String"-->

@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo;
 
-import java.util.Optional;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
@@ -8,6 +8,5 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.
 
 public interface PadPipelineOtherPropertiesRepository extends CrudRepository<PadPipelineOtherProperties, Integer> {
 
-  Optional<PadPipelineOtherProperties> findByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
-
+  List<PadPipelineOtherProperties> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 }
