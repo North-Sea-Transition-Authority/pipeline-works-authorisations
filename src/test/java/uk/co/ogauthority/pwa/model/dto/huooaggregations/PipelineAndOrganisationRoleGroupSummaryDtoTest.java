@@ -32,7 +32,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   private OrganisationPipelineRoleDto operatorRole;
   private OrganisationPipelineRoleDto ownerRole;
 
-  private PipelineAndOrganisationHuooRoleGroupSummaryDto pipelineAndOrganisationHuooRoleGroupSummaryDto;
+  private PipelineAndOrganisationRoleGroupSummaryDto pipelineAndOrganisationRoleGroupSummaryDto;
 
   @Before
   public void setup() {
@@ -51,7 +51,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     for (HuooRole role : HuooRole.values()) {
       try {
         var pipelineOrgRole = OrganisationRoleDtoTestUtil.createPipelineRole(role, OU_ID1, PIPELINE_ID1);
-        var summary = PipelineAndOrganisationHuooRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
             Set.of(pipelineOrgRole)
         );
 
@@ -79,7 +79,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     for (HuooRole role : HuooRole.values()) {
       try {
         var pipelineOrgRole = OrganisationRoleDtoTestUtil.createPipelineRole(role, OU_ID1, PIPELINE_ID1);
-        var summary = PipelineAndOrganisationHuooRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
             Set.of(pipelineOrgRole)
         );
 
@@ -99,7 +99,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
     for (HuooRole role : HuooRole.values()) {
       try {
-        var summary = PipelineAndOrganisationHuooRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
             Set.of()
         );
 
@@ -122,7 +122,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   @Test
   public void aggregateOrganisationPipelineRoleDtos_singleHolderAndPipelineGroup_withSingleOrgAndPipeline() {
 
-    var summary = PipelineAndOrganisationHuooRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderRole));
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).hasOnlyOneElementSatisfying(
         pipelineAndOrganisationRoleGroupDto -> {
@@ -146,7 +146,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var holder2Pipeline1 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID1);
     var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
 
-    var summary = PipelineAndOrganisationHuooRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holder1Pipeline1,
             holder1Pipeline2,
             holder2Pipeline1,
@@ -179,7 +179,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
     var holder2Pipeline3 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID3);
 
-    var summary = PipelineAndOrganisationHuooRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holder1Pipeline1,
             holder1Pipeline2,
             holder2Pipeline2,

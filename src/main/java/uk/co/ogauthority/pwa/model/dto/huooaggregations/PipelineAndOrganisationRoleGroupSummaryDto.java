@@ -15,11 +15,11 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 // do the processing of pipeline huoo data in order to create many-many groups of pipelines which share huoo organisations
-public class PipelineAndOrganisationHuooRoleGroupSummaryDto {
+public class PipelineAndOrganisationRoleGroupSummaryDto {
 
   private final Map<HuooRole, Set<PipelineAndOrganisationRoleGroupDto>> groupedPipelineOrgRoleGroups;
 
-  private PipelineAndOrganisationHuooRoleGroupSummaryDto(
+  private PipelineAndOrganisationRoleGroupSummaryDto(
       Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos) {
     this.groupedPipelineOrgRoleGroups = new HashMap<>();
     Map<HuooRole, Set<OrganisationPipelineRoleDto>> orgPipelineRolesByType = portalOrganisationPipelineRoleDtos.stream()
@@ -39,11 +39,11 @@ public class PipelineAndOrganisationHuooRoleGroupSummaryDto {
     return Collections.unmodifiableSet(this.groupedPipelineOrgRoleGroups.getOrDefault(huooRole, Set.of()));
   }
 
-  public static PipelineAndOrganisationHuooRoleGroupSummaryDto aggregateOrganisationPipelineRoleDtos(
+  public static PipelineAndOrganisationRoleGroupSummaryDto aggregateOrganisationPipelineRoleDtos(
       Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos
   ) {
 
-    return new PipelineAndOrganisationHuooRoleGroupSummaryDto(portalOrganisationPipelineRoleDtos);
+    return new PipelineAndOrganisationRoleGroupSummaryDto(portalOrganisationPipelineRoleDtos);
   }
 
   /**
