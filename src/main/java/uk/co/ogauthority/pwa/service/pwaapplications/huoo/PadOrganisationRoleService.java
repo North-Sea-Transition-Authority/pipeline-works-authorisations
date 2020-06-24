@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisati
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
-import uk.co.ogauthority.pwa.model.dto.huooaggregations.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -356,11 +356,11 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   /* Given a summary of organisation roles and associated pipelines, create application entities */
   @Transactional
   public void createApplicationOrganisationRolesFromSummary(PwaApplicationDetail pwaApplicationDetail,
-                                                            PwaOrganisationRolesSummaryDto pwaOrganisationRolesSummaryDto) {
+                                                            OrganisationRolesSummaryDto organisationRolesSummaryDto) {
 
 
     var padOrgRoles = createPadOrganisationRoleForEveryOrganisationRoleGroup(
-        pwaOrganisationRolesSummaryDto,
+        organisationRolesSummaryDto,
         pwaApplicationDetail);
 
     var persistedPadOrgRoleIterable = IterableUtils.toList(padOrganisationRolesRepository.saveAll(padOrgRoles));
@@ -369,7 +369,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     Map<PipelineId, Pipeline> pipelineLookup = new HashMap<>();
 
     for (PadOrganisationRole padOrganisationRole : persistedPadOrgRoleIterable) {
-      var orgRolePipelineGroup = pwaOrganisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
+      var orgRolePipelineGroup = organisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
           padOrganisationRole.getRole(),
           OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit())
       );
@@ -413,10 +413,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
 
   private List<PadOrganisationRole> createPadOrganisationRoleForEveryOrganisationRoleGroup(
-      PwaOrganisationRolesSummaryDto pwaOrganisationRolesSummaryDto,
+      OrganisationRolesSummaryDto organisationRolesSummaryDto,
       PwaApplicationDetail pwaApplicationDetail) {
 
-    var allOrganisationUnitIdWithRoleList = pwaOrganisationRolesSummaryDto.getAllOrganisationUnitIdsWithRole();
+    var allOrganisationUnitIdWithRoleList = organisationRolesSummaryDto.getAllOrganisationUnitIdsWithRole();
     // just get org units once for easy lookup.
     Map<OrganisationUnitId, PortalOrganisationUnit> ouIdLookup = portalOrganisationsAccessor.getOrganisationUnitsByOrganisationUnitIdIn(
         allOrganisationUnitIdWithRoleList)
@@ -427,25 +427,25 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     // might be a nicer/shorter way to do this eventually e.g get all org group dtos as list from summary object. For now it will do.
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getHolderOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getHolderOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));
 
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getUserOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getUserOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));
 
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getOperatorOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getOperatorOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));
 
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getOwnerOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getOwnerOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));

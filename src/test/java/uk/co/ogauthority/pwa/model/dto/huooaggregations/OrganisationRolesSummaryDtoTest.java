@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PwaOrganisationRolesSummaryDtoTest {
+public class OrganisationRolesSummaryDtoTest {
 
   private static final int OU_ID1 = 10;
   private static final int PIPELINE_ID1 = 20;
@@ -45,7 +45,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test
   public void getHolderOrganisationUnitGroups_whenSingleGroup() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderRole, userRole, operatorRole, ownerRole));
     assertThat(summary.getHolderOrganisationUnitGroups())
         .containsExactly(
@@ -57,7 +57,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getHolderOrganisationUnitGroups_cannotModifyPopulatedSet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderRole));
     assertThat(summary.getHolderOrganisationUnitGroups()).hasSize(1);
     summary.getHolderOrganisationUnitGroups().add(
@@ -68,7 +68,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getHolderOrganisationUnitGroups_cannotModifyEmptySet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of());
     assertThat(summary.getHolderOrganisationUnitGroups()).hasSize(0);
     summary.getHolderOrganisationUnitGroups().add(
@@ -78,7 +78,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test
   public void getUserOrganisationUnitGroups_whenSingleGroup() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderRole, userRole, operatorRole, ownerRole));
     assertThat(summary.getUserOrganisationUnitGroups())
         .containsExactly(new OrganisationRolePipelineGroupDto(userRole.getOrganisationRoleDto(), Set.of(pipelineId1)));
@@ -88,7 +88,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getUserOrganisationUnitGroups_cannotModifyPopulatedSet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(userRole));
     assertThat(summary.getUserOrganisationUnitGroups()).hasSize(1);
     summary.getUserOrganisationUnitGroups().add(
@@ -99,7 +99,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getUserOrganisationUnitGroups_cannotModifyEmptySet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of());
     assertThat(summary.getUserOrganisationUnitGroups()).hasSize(0);
     summary.getUserOrganisationUnitGroups().add(
@@ -109,7 +109,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test
   public void getOperatorOrganisationUnitGroups_whenSingleGroup() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderRole, userRole, operatorRole, ownerRole));
     assertThat(summary.getOperatorOrganisationUnitGroups())
         .containsExactly(new OrganisationRolePipelineGroupDto(operatorRole.getOrganisationRoleDto(), Set.of(
@@ -120,7 +120,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getOperatorOrganisationUnitGroups_cannotModifyPopulatedSet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(operatorRole));
     assertThat(summary.getOperatorOrganisationUnitGroups()).hasSize(1);
     summary.getOperatorOrganisationUnitGroups().add(
@@ -131,7 +131,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getOperatorOrganisationUnitGroups_cannotModifyEmptySet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of());
     assertThat(summary.getOperatorOrganisationUnitGroups()).hasSize(0);
     summary.getOperatorOrganisationUnitGroups().add(
@@ -141,7 +141,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test
   public void getOwnerOrganisationGroups_whenSingleGroup() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderRole, userRole, operatorRole, ownerRole));
     assertThat(summary.getOwnerOrganisationUnitGroups())
         .containsExactly(new OrganisationRolePipelineGroupDto(ownerRole.getOrganisationRoleDto(), Set.of(pipelineId1)));
@@ -151,7 +151,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getOwnerOrganisationUnitGroups_cannotModifyPopulatedSet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(ownerRole));
     assertThat(summary.getOwnerOrganisationUnitGroups()).hasSize(1);
     summary.getOwnerOrganisationUnitGroups().add(
@@ -162,7 +162,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getOwnerOrganisationUnitGroups_cannotModifyEmptySet() {
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of());
     assertThat(summary.getOwnerOrganisationUnitGroups()).hasSize(0);
     summary.getOwnerOrganisationUnitGroups().add(
@@ -174,7 +174,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   public void getHolderOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(secondOrganisationPipelineRole, holderRole, userRole, operatorRole, ownerRole)
     );
     assertThat(summary.getHolderOrganisationUnitGroups())
@@ -191,7 +191,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   public void getUserOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.USER, OU_ID2, PIPELINE_ID2);
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(secondOrganisationPipelineRole, holderRole, userRole, operatorRole, ownerRole)
     );
 
@@ -210,7 +210,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   public void getOperatorOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OPERATOR, OU_ID2, PIPELINE_ID2);
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(secondOrganisationPipelineRole, holderRole, userRole, operatorRole, ownerRole)
     );
 
@@ -229,7 +229,7 @@ public class PwaOrganisationRolesSummaryDtoTest {
   public void getOwnerOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OWNER, OU_ID2, PIPELINE_ID2);
 
-    var summary = PwaOrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(secondOrganisationPipelineRole, holderRole, userRole, operatorRole, ownerRole)
     );
 

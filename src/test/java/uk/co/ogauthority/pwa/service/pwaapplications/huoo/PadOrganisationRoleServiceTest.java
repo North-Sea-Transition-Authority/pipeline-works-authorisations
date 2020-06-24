@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
-import uk.co.ogauthority.pwa.model.dto.huooaggregations.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -484,7 +484,7 @@ public class PadOrganisationRoleServiceTest {
 
   @Test
   public void createApplicationOrganisationRolesFromSummary_createsApplicationLevelAndPipelineLinkOrganisationRoles() {
-    var summaryDto = mock(PwaOrganisationRolesSummaryDto.class);
+    var summaryDto = mock(OrganisationRolesSummaryDto.class);
 
     when(summaryDto.getAllOrganisationUnitIdsWithRole())
         .thenReturn(
@@ -544,7 +544,7 @@ public class PadOrganisationRoleServiceTest {
 
   @Test
   public void createApplicationOrganisationRolesFromSummary_whenOrganisationRoleGroups() {
-    var summaryDto = mock(PwaOrganisationRolesSummaryDto.class);
+    var summaryDto = mock(OrganisationRolesSummaryDto.class);
 
     ArgumentCaptor<List<PadOrganisationRole>> padOrgRoleArgCapture = ArgumentCaptor.forClass(List.class);
     ArgumentCaptor<List<PadPipelineOrganisationRoleLink>> padOrgRolePipelineLinkArgCapture = ArgumentCaptor

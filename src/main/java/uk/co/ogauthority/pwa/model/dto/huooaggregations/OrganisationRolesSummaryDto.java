@@ -15,13 +15,13 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 /* Summarises all the organisation roles for a pwa and gives access by huoo type or organisation unit*/
-public class PwaOrganisationRolesSummaryDto {
+public class OrganisationRolesSummaryDto {
 
   private final Map<HuooRole, Set<OrganisationRolePipelineGroupDto>> getNonPortalOrgRoleGroupsByHuooType;
   private final Map<HuooRole, Set<OrganisationRolePipelineGroupDto>> orgRolesGroupsByHuooType;
   private final Set<OrganisationUnitId> allOrganisationUnitsWithRole;
 
-  private PwaOrganisationRolesSummaryDto(Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos) {
+  private OrganisationRolesSummaryDto(Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos) {
     this.allOrganisationUnitsWithRole = new HashSet<>();
 
     portalOrganisationPipelineRoleDtos.stream()
@@ -51,9 +51,9 @@ public class PwaOrganisationRolesSummaryDto {
         .collect(groupingBy(OrganisationRolePipelineGroupDto::getHuooRole, toSet()));
   }
 
-  public static PwaOrganisationRolesSummaryDto aggregateOrganisationPipelineRoles(
+  public static OrganisationRolesSummaryDto aggregateOrganisationPipelineRoles(
       Collection<OrganisationPipelineRoleDto> organisationPipelineRoleDtos) {
-    return new PwaOrganisationRolesSummaryDto(organisationPipelineRoleDtos);
+    return new OrganisationRolesSummaryDto(organisationPipelineRoleDtos);
   }
 
   public Set<OrganisationRolePipelineGroupDto> getHolderOrganisationUnitGroups() {

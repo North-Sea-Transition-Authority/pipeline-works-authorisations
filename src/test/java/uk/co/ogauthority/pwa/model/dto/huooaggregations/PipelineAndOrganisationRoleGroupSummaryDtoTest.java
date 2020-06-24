@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PipelineAndOrganisationHuooRoleGroupSummaryDtoTest {
+public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
   private static final int OU_ID1 = 10;
   private static final int PIPELINE_ID1 = 100;
