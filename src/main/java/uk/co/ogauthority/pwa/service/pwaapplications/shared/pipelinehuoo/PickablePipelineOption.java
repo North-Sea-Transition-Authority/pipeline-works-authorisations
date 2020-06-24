@@ -1,14 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /* Captures all the info required by the pipeline picker list view. Used by templates to render pipeline info */
@@ -27,59 +24,15 @@ public class PickablePipelineOption {
 
   private final String pickableString;
 
-
-  @VisibleForTesting
-  PickablePipelineOption(int id, PickablePipelineType type, String pipelineNumber) {
-    this(id,
-        type,
-        pipelineNumber,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-    );
-  }
-
-  @VisibleForTesting
-  PickablePipelineOption(Pipeline pipeline) {
-    this(pipeline.getId(),
-        PickablePipelineType.CONSENTED,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-    );
-  }
-
-  @VisibleForTesting
-  PickablePipelineOption(PadPipeline padPipeline) {
-    this(padPipeline.getId(),
-        PickablePipelineType.APPLICATION,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-    );
-
-  }
-
-  private PickablePipelineOption(int rawId,
-                                 PickablePipelineType pickablePipelineType,
-                                 String pipelineNumber,
-                                 PipelineType pipelineType,
-                                 String fromLocation,
-                                 CoordinatePair fromCoordinates,
-                                 String toLocation,
-                                 CoordinatePair toCoordinates,
-                                 BigDecimal length) {
+  PickablePipelineOption(int rawId,
+                         PickablePipelineType pickablePipelineType,
+                         String pipelineNumber,
+                         PipelineType pipelineType,
+                         String fromLocation,
+                         CoordinatePair fromCoordinates,
+                         String toLocation,
+                         CoordinatePair toCoordinates,
+                         BigDecimal length) {
     this.rawId = rawId;
     this.pickablePipelineType = pickablePipelineType;
     this.pipelineNumber = pipelineNumber;

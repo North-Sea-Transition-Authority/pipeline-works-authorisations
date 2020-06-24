@@ -37,11 +37,11 @@ public class PipelinesHuooServiceTest {
   private final int CONSENTED_PIPELINE_ID = 10;
   private final int APPLICATION_PIPELINE_ID = 20;
   private final int APPLICATION_PAD_PIPELINE_ID = 30;
-  private final PickablePipelineOption PIPELINE_WITH_ROLE = new PickablePipelineOption(
+  private final PickablePipelineOption PIPELINE_WITH_ROLE = PickablePipelineOptionTestUtil.createOption(
       CONSENTED_PIPELINE_ID,
       PickablePipelineType.CONSENTED,
       "PL1");
-  private final PickablePipelineOption PIPELINE_WITHOUT_ROLE = new PickablePipelineOption(
+  private final PickablePipelineOption PIPELINE_WITHOUT_ROLE = PickablePipelineOptionTestUtil.createOption(
       APPLICATION_PAD_PIPELINE_ID,
       PickablePipelineType.APPLICATION,
       "TEMP_1");
