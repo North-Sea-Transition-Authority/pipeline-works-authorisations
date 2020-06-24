@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
@@ -83,7 +84,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
             Set.of(pipelineOrgRole)
         );
 
-        assertThatThrownBy(() -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationRoleGroupDto(Set.of(), Set.of())))
+        assertThatThrownBy(
+            () -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationRoleGroupDto(Set.of(), Set.of())))
             .isInstanceOf(UnsupportedOperationException.class);
 
       } catch (AssertionError e) {
@@ -103,7 +105,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
             Set.of()
         );
 
-        assertThatThrownBy(() -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationRoleGroupDto(Set.of(), Set.of())))
+        assertThatThrownBy(
+            () -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationRoleGroupDto(Set.of(), Set.of())))
             .isInstanceOf(UnsupportedOperationException.class);
 
       } catch (AssertionError e) {
@@ -216,4 +219,59 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID3));
         });
   }
+
+  @Test
+  public void getAllOrganisationUnitIdsInSummary_whenSingleOrganisationHasMultipleRoles() {
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holderRole, userRole, operatorRole, ownerRole)
+    );
+    assertThat(summary.getAllOrganisationUnitIdsInSummary()).containsExactly(new OrganisationUnitId(OU_ID1));
+  }
+
+  @Test
+  public void getAllOrganisationUnitIdsInSummary_whenMultipleOrganisationHaveMultipleRoles() {
+    var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
+    var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
+
+    var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
+    var holder2Pipeline3 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID3);
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holder1Pipeline1, holder1Pipeline2, holder2Pipeline2, holder2Pipeline3)
+    );
+    assertThat(summary.getAllOrganisationUnitIdsInSummary()).containsExactlyInAnyOrder(
+        new OrganisationUnitId(OU_ID1),
+        new OrganisationUnitId(OU_ID2)
+    );
+  }
+
+  @Test
+  public void getAllPipelineIdsInSummary_whenSinglePipelineHasMultipleRoles() {
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holderRole, userRole, operatorRole, ownerRole)
+    );
+    assertThat(summary.getAllPipelineIdsInSummary()).containsExactly(new PipelineId(PIPELINE_ID1));
+  }
+
+  @Test
+  public void getAllPipelineIdsInSummary_whenMultiplePipelinesHaveMultipleRoles() {
+
+    var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
+    var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
+
+    var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
+    var holder2Pipeline3 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID2, PIPELINE_ID3);
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holder1Pipeline1, holder1Pipeline2, holder2Pipeline2, holder2Pipeline3)
+    );
+
+    assertThat(summary.getAllPipelineIdsInSummary()).containsExactlyInAnyOrder(
+        new PipelineId(PIPELINE_ID1),
+        new PipelineId(PIPELINE_ID2),
+        new PipelineId(PIPELINE_ID3)
+    );
+  }
+
 }

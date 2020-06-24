@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
@@ -19,9 +20,20 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
 
   private final Map<HuooRole, Set<PipelineAndOrganisationRoleGroupDto>> groupedPipelineOrgRoleGroups;
 
+  private final Set<PipelineId> allPipelineIdsInSummary;
+  private final Set<OrganisationUnitId> allOrganisationUnitIdsInSummary;
+
   private PipelineAndOrganisationRoleGroupSummaryDto(
       Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos) {
     this.groupedPipelineOrgRoleGroups = new HashMap<>();
+    this.allPipelineIdsInSummary = new HashSet<>();
+    this.allOrganisationUnitIdsInSummary = new HashSet<>();
+
+    portalOrganisationPipelineRoleDtos.forEach(o -> {
+      allPipelineIdsInSummary.add(o.getPipelineId());
+      allOrganisationUnitIdsInSummary.add(o.getOrganisationUnitId());
+    });
+
     Map<HuooRole, Set<OrganisationPipelineRoleDto>> orgPipelineRolesByType = portalOrganisationPipelineRoleDtos.stream()
         .collect(groupingBy(
             OrganisationPipelineRoleDto::getHuooRole,
@@ -90,6 +102,14 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
         .map(entry -> new PipelineAndOrganisationRoleGroupDto(entry.getKey(), entry.getValue()))
         .collect(Collectors.toSet());
 
+  }
+
+  public Set<PipelineId> getAllPipelineIdsInSummary() {
+    return Collections.unmodifiableSet(allPipelineIdsInSummary);
+  }
+
+  public Set<OrganisationUnitId> getAllOrganisationUnitIdsInSummary() {
+    return Collections.unmodifiableSet(allOrganisationUnitIdsInSummary);
   }
 }
 
