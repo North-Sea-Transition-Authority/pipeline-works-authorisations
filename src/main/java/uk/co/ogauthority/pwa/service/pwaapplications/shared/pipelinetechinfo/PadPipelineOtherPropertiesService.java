@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
+import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineOtherPropertiesValidator;
 
 
 /* Service providing simplified API for Pipelines Other Properties app form */
@@ -24,14 +25,14 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 public class PadPipelineOtherPropertiesService implements ApplicationFormSectionService {
 
   private final PadPipelineOtherPropertiesRepository padPipelineOtherPropertiesRepository;
-  private final SpringValidatorAdapter groupValidator;
+  private final PipelineOtherPropertiesValidator pipelineOtherPropertiesValidator;
 
   @Autowired
   public PadPipelineOtherPropertiesService(
       PadPipelineOtherPropertiesRepository padPipelineOtherPropertiesRepository,
-      SpringValidatorAdapter groupValidator) {
+      PipelineOtherPropertiesValidator pipelineOtherPropertiesValidator) {
     this.padPipelineOtherPropertiesRepository = padPipelineOtherPropertiesRepository;
-    this.groupValidator = groupValidator;
+    this.pipelineOtherPropertiesValidator = pipelineOtherPropertiesValidator;
   }
 
   // Entity/Form Mapping/Retrieval
@@ -85,11 +86,8 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, PartialValidation.class);
-    } else {
-      groupValidator.validate(form, bindingResult, FullValidation.class);
-      //validator.validate(form, bindingResult);
+    if (validationType.equals(ValidationType.FULL)) {
+      pipelineOtherPropertiesValidator.validate(form, bindingResult, pwaApplicationDetail);
     }
     return bindingResult;
   }

@@ -15,11 +15,6 @@
                 <#if propertyAvailabilityOption == "AVAILABLE">
                     <@minMaxInput minFormPath="form.propertyDataFormMap[${property}].minMaxInput.minValue" maxFormPath="form.propertyDataFormMap[${property}].minMaxInput.maxValue"
                     nestedPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText=""/>
-                    <#--  <@fdsNumberInput.twoNumberInputs pathOne="form.propertyDataFormMap[${property}].minMaxInput.minValue" pathTwo="form.propertyDataFormMap[${property}].minMaxInput.maxValue" formId="min-max-values" 
-                     nestingPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText="" >
-                        <@fdsNumberInput.numberInputItem path="form.propertyDataFormMap[${property}].minMaxInput.minValue" labelText="min" inputClass="govuk-input--width-5"/>
-                        <@fdsNumberInput.numberInputItem path="form.propertyDataFormMap[${property}].minMaxInput.maxValue" labelText="max" inputClass="govuk-input--width-5"/>
-                    </@fdsNumberInput.twoNumberInputs>  -->
                 </#if>
                 
             </@fdsRadio.radioItem>
