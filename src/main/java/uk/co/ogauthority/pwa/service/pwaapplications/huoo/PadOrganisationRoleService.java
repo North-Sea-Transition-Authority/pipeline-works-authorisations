@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -70,6 +72,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
+  public List<PadOrganisationRole> getOrgRolesForDetailByOrganisationIdAndRole(
+      PwaApplicationDetail pwaApplicationDetail,
+      Set<OrganisationUnitId> organisationUnitIds,
+      HuooRole huooRole) {
+    // performance is probably fine due to the relatively small numbers of roles expected per application on average
+    return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
+        .stream()
+        .filter(por -> por.getRole().equals(huooRole))
+        .filter(padOrganisationRole -> organisationUnitIds.contains(
+            OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit())
+        ))
+        .collect(toList());
+  }
+
+
   public PadOrganisationRole getOrganisationRole(PwaApplicationDetail pwaApplicationDetail, Integer id) {
     return padOrganisationRolesRepository.getByPwaApplicationDetailAndId(pwaApplicationDetail, id)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find org role with ID: " + id));
@@ -112,7 +129,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
         })
         .sorted()
-        .collect(Collectors.toList());
+        .collect(toList());
 
   }
 
@@ -149,7 +166,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
             getEditHuooUrl(detail, treatyRole),
             getRemoveHuooUrl(detail, treatyRole)))
         .sorted(Comparator.comparing(HuooTreatyAgreementView::getCountry))
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   /**
@@ -354,7 +371,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     for (PadOrganisationRole padOrganisationRole : persistedPadOrgRoleIterable) {
       var orgRolePipelineGroup = pwaOrganisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
           padOrganisationRole.getRole(),
-          // this .get() is safe, but is that proveable?
           OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit())
       );
 
@@ -363,7 +379,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
           // create pipeline reference only when we dont have one in the same session.
           // at this point should we just get the pipeline object itself? cost is extra db hits.
-          var pipeline = pipelineLookup.getOrDefault(pipelineId, entityManager.getReference(Pipeline.class, pipelineId.asInt()));
+          var pipeline = pipelineLookup.getOrDefault(pipelineId,
+              entityManager.getReference(Pipeline.class, pipelineId.asInt()));
+          pipelineLookup.putIfAbsent(pipelineId, pipeline);
           padPipelineOrgRoleLinks.add(
               new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline)
           );
@@ -375,6 +393,22 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     padPipelineOrgRoleLinkRepository.saveAll(padPipelineOrgRoleLinks);
 
+  }
+
+  @Transactional
+  public PadPipelineOrganisationRoleLink createPadPipelineOrganisationRoleLink(PadOrganisationRole padOrganisationRole,
+                                                                               Pipeline pipeline) {
+    return padPipelineOrgRoleLinkRepository.save(new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
+  }
+
+  public Set<PipelineId> getPipelineIdsWhereRoleOfTypeSet(PwaApplicationDetail pwaApplicationDetail,
+                                                          HuooRole huooRole) {
+    return padPipelineOrgRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
+        pwaApplicationDetail, huooRole)
+        .stream()
+        .map(PadPipelineOrganisationRoleLink::getPipeline)
+        .map(p -> new PipelineId(p.getId()))
+        .collect(toSet());
   }
 
 

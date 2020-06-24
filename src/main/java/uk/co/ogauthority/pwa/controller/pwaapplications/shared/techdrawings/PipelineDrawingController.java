@@ -81,7 +81,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         detail,
         filePurpose,
         form)
-        .addObject("pipelineViews", padPipelineService.getPipelineOverviews(detail))
+        .addObject("pipelineViews", padPipelineService.getApplicationPipelineOverviews(detail))
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
         .addObject("actionType", actionType);

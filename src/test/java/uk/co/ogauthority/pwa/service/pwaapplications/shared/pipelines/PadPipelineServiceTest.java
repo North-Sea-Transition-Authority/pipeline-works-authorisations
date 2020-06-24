@@ -20,6 +20,7 @@ import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -46,6 +47,9 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineRepository pipelineRepository;
 
+  @Mock
+  private PipelineService pipelineService;
+
   private PadPipelineService pipelinesService;
 
   private PwaApplicationDetail detail;
@@ -57,15 +61,19 @@ public class PadPipelineServiceTest {
   public void setUp() {
 
     // mimic save of new pipeline behaviour.
-    when(pipelineRepository.save(any())).thenAnswer(invocation -> {
-      var pipeline =(Pipeline) invocation.getArgument(0);
+    when(pipelineService.createApplicationPipeline(any())).thenAnswer(invocation -> {
+      var app = (PwaApplication) invocation.getArgument(0);
+      var pipeline = new Pipeline(app);
       pipeline.setId(PIPELINE_ID);
       return pipeline;
     });
 
+
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    pipelinesService = new PadPipelineService(padPipelineRepository, pipelineRepository);
+    pipelinesService = new PadPipelineService(padPipelineRepository, pipelineService);
+
+
 
   }
 
@@ -104,7 +112,7 @@ public class PadPipelineServiceTest {
     pipelinesService.addPipeline(detail, form);
 
     verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
-    verify(pipelineRepository, times(1)).save(any());
+    verify(pipelineService, times(1)).createApplicationPipeline(detail.getPwaApplication());
 
     var newPadPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPadPipeline.getPipeline().getId()).isEqualTo(PIPELINE_ID);
