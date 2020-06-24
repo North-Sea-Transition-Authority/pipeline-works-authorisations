@@ -10,8 +10,6 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionInfoValidator;
 
 

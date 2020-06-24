@@ -18,6 +18,7 @@ public class PipelineDetailIdent {
   private Integer id;
   private String pipelineDetailId;
   private String identNo;
+
   private String fromLocation;
 
   @Column(name = "from_lat_deg")
