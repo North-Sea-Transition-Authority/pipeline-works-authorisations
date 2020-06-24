@@ -79,6 +79,7 @@ public enum ApplicationTask {
 
   PIPELINES_HUOO(
       "Pipeline holders, users, operators and owners",
+      "Pipeline HUOOs",
       PipelinesHuooController.class,
       PipelinesHuooService.class,
       75
@@ -122,21 +123,33 @@ public enum ApplicationTask {
 
 
   private final String displayName;
+  private final String shortenedDisplayName;
   private final Class<?> controllerClass;
   private final Class<? extends ApplicationFormSectionService> serviceClass;
   private final int displayOrder;
 
-  ApplicationTask(String displayName, Class<?> controllerClass,
+  ApplicationTask(String displayName, String shortenedDisplayName, Class<?> controllerClass,
                   Class<? extends ApplicationFormSectionService> serviceClass,
                   int displayOrder) {
     this.displayName = displayName;
+    this.shortenedDisplayName = shortenedDisplayName;
     this.controllerClass = controllerClass;
     this.serviceClass = serviceClass;
     this.displayOrder = displayOrder;
   }
 
+  ApplicationTask(String displayName, Class<?> controllerClass,
+                  Class<? extends ApplicationFormSectionService> serviceClass,
+                  int displayOrder) {
+    this(displayName, displayName, controllerClass, serviceClass, displayOrder);
+  }
+
   public String getDisplayName() {
     return displayName;
+  }
+
+  public String getShortenedDisplayName() {
+    return shortenedDisplayName;
   }
 
   public Class<?> getControllerClass() {
