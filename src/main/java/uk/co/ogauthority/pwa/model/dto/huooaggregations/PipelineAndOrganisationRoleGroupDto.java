@@ -6,11 +6,11 @@ import java.util.Set;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 
-public class PipelineAndOrganisationHuooRoleGroupDto {
+public class PipelineAndOrganisationRoleGroupDto {
   private final Set<OrganisationRoleDto> organisationRoleDtoSet;
   private final Set<PipelineId> pipelineIdSet;
 
-  PipelineAndOrganisationHuooRoleGroupDto(
+  PipelineAndOrganisationRoleGroupDto(
       Set<OrganisationRoleDto> organisationRoleDtoSet,
       Set<PipelineId> pipelineIdSet) {
     this.organisationRoleDtoSet = organisationRoleDtoSet;
@@ -33,7 +33,7 @@ public class PipelineAndOrganisationHuooRoleGroupDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PipelineAndOrganisationHuooRoleGroupDto that = (PipelineAndOrganisationHuooRoleGroupDto) o;
+    PipelineAndOrganisationRoleGroupDto that = (PipelineAndOrganisationRoleGroupDto) o;
     return Objects.equals(organisationRoleDtoSet, that.organisationRoleDtoSet)
         && Objects.equals(pipelineIdSet, that.pipelineIdSet);
   }

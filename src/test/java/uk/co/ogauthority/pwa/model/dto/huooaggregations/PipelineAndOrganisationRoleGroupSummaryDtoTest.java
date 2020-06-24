@@ -56,10 +56,10 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         );
 
         assertThat(summary.getGroupsByHuooRole(role)).hasOnlyOneElementSatisfying(
-            pipelineAndOrganisationHuooRoleGroupDto -> {
-              assertThat(pipelineAndOrganisationHuooRoleGroupDto.getOrganisationRoleDtoSet())
+            pipelineAndOrganisationRoleGroupDto -> {
+              assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleDtoSet())
                   .containsExactly(pipelineOrgRole.getOrganisationRoleDto());
-              assertThat(pipelineAndOrganisationHuooRoleGroupDto.getPipelineIdSet())
+              assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
                   .containsExactly(new PipelineId(PIPELINE_ID1));
             });
 
@@ -83,7 +83,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
             Set.of(pipelineOrgRole)
         );
 
-        assertThatThrownBy(() -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationHuooRoleGroupDto(Set.of(), Set.of())))
+        assertThatThrownBy(() -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationRoleGroupDto(Set.of(), Set.of())))
             .isInstanceOf(UnsupportedOperationException.class);
 
       } catch (AssertionError e) {
@@ -103,7 +103,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
             Set.of()
         );
 
-        assertThatThrownBy(() -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationHuooRoleGroupDto(Set.of(), Set.of())))
+        assertThatThrownBy(() -> summary.getGroupsByHuooRole(role).add(new PipelineAndOrganisationRoleGroupDto(Set.of(), Set.of())))
             .isInstanceOf(UnsupportedOperationException.class);
 
       } catch (AssertionError e) {
@@ -125,10 +125,10 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var summary = PipelineAndOrganisationHuooRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderRole));
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).hasOnlyOneElementSatisfying(
-        pipelineAndOrganisationHuooRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getOrganisationRoleDtoSet())
+        pipelineAndOrganisationRoleGroupDto -> {
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleDtoSet())
               .containsExactly(holderRole.getOrganisationRoleDto());
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactly(new PipelineId(PIPELINE_ID1));
         });
   }
@@ -155,11 +155,11 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     );
 
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).hasOnlyOneElementSatisfying(
-        pipelineAndOrganisationHuooRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getOrganisationRoleDtoSet())
+        pipelineAndOrganisationRoleGroupDto -> {
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleDtoSet())
               .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleDto(),
                   holder2Pipeline1.getOrganisationRoleDto());
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID1), new PipelineId(PIPELINE_ID2));
         });
   }
@@ -190,29 +190,29 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).hasSize(3);
     // group containing holder 1 and pipeline 1
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).anySatisfy(
-        pipelineAndOrganisationHuooRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getOrganisationRoleDtoSet())
+        pipelineAndOrganisationRoleGroupDto -> {
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleDtoSet())
               .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleDto());
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID1));
         });
 
     // group containing holder 1 AND holder 2 and pipeline 2
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).anySatisfy(
-        pipelineAndOrganisationHuooRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getOrganisationRoleDtoSet())
+        pipelineAndOrganisationRoleGroupDto -> {
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleDtoSet())
               .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleDto(),
                   holder2Pipeline2.getOrganisationRoleDto());
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID2));
         });
 
     // group containing holder 2 and pipeline 3
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).anySatisfy(
-        pipelineAndOrganisationHuooRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getOrganisationRoleDtoSet())
+        pipelineAndOrganisationRoleGroupDto -> {
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleDtoSet())
               .containsExactlyInAnyOrder(holder2Pipeline2.getOrganisationRoleDto());
-          assertThat(pipelineAndOrganisationHuooRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID3));
         });
   }

@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 // do the processing of pipeline huoo data in order to create many-many groups of pipelines which share huoo organisations
 public class PipelineAndOrganisationHuooRoleGroupSummaryDto {
 
-  private final Map<HuooRole, Set<PipelineAndOrganisationHuooRoleGroupDto>> groupedPipelineOrgRoleGroups;
+  private final Map<HuooRole, Set<PipelineAndOrganisationRoleGroupDto>> groupedPipelineOrgRoleGroups;
 
   private PipelineAndOrganisationHuooRoleGroupSummaryDto(
       Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos) {
@@ -28,8 +28,6 @@ public class PipelineAndOrganisationHuooRoleGroupSummaryDto {
             Collectors.mapping(o -> o, Collectors.toSet())
         ));
 
-    Map<HuooRole, Set<PipelineAndOrganisationHuooRoleGroupDto>> endGame = new HashMap<>();
-
     for (HuooRole role : HuooRole.values()) {
       var orgPipelineRoles = orgPipelineRolesByType.getOrDefault(role, Set.of());
       this.groupedPipelineOrgRoleGroups.put(role, createPipelineAndOrganisationHuooRoleGroups(orgPipelineRoles));
@@ -37,7 +35,7 @@ public class PipelineAndOrganisationHuooRoleGroupSummaryDto {
 
   }
 
-  public Set<PipelineAndOrganisationHuooRoleGroupDto> getGroupsByHuooRole(HuooRole huooRole) {
+  public Set<PipelineAndOrganisationRoleGroupDto> getGroupsByHuooRole(HuooRole huooRole) {
     return Collections.unmodifiableSet(this.groupedPipelineOrgRoleGroups.getOrDefault(huooRole, Set.of()));
   }
 
@@ -52,7 +50,7 @@ public class PipelineAndOrganisationHuooRoleGroupSummaryDto {
    * For a given set of organisation role and associated pipeline, find groups with the same pipeline set and same organisation with role,
    * then create and return the groups using a Set of PipelineAndOrganisationHuooRoleGroupDto.
    */
-  private Set<PipelineAndOrganisationHuooRoleGroupDto> createPipelineAndOrganisationHuooRoleGroups(
+  private Set<PipelineAndOrganisationRoleGroupDto> createPipelineAndOrganisationHuooRoleGroups(
       Set<OrganisationPipelineRoleDto> organisationPipelineRoleDtos) {
 
     Map<PipelineId, Set<OrganisationRoleDto>> pipelineIdToOrgRolesMap = organisationPipelineRoleDtos.stream()
@@ -89,7 +87,7 @@ public class PipelineAndOrganisationHuooRoleGroupSummaryDto {
 
     return matchingPipelinesAndOrganisationGroups.entrySet()
         .stream()
-        .map(entry -> new PipelineAndOrganisationHuooRoleGroupDto(entry.getKey(), entry.getValue()))
+        .map(entry -> new PipelineAndOrganisationRoleGroupDto(entry.getKey(), entry.getValue()))
         .collect(Collectors.toSet());
 
   }
