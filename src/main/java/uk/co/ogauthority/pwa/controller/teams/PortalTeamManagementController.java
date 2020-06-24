@@ -232,7 +232,7 @@ public class PortalTeamManagementController {
       return function.apply(team);
     } else {
       throw new AccessDeniedException(String.format(
-          "User with wua id %s attempted to mange resId %s but does not have the correct privs", currentUser.getWuaId(), team.getId()
+          "User with wua id %s attempted to manage resId %s but does not have the correct privs", currentUser.getWuaId(), team.getId()
       ));
     }
   }

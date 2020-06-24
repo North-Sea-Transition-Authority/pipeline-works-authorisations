@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
@@ -51,8 +52,8 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
 @SessionAttributes("addPipelineHuooJourneyData")
 public class AddPipelineHuooJourneyController {
   private static final String SELECT_PIPELINES_QUESTION_FORMAT = "On which pipelines do you want to assign %ss?";
-  private static final String SELECT_PIPELINES_BACK_LINK_TEXT = "Back to " + ApplicationTask.PIPELINES_HUOO.getDisplayName().toLowerCase();
-
+  private static final String SELECT_PIPELINES_BACK_LINK_TEXT = "Back to " + StringUtils.uncapitalize(
+      ApplicationTask.PIPELINES_HUOO.getShortenedDisplayName());
   public static final String UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT = "Back to pipeline selection";
   private static final String UPDATE_PIPELINE_ORG_ROLES_SUBMIT_BUTTON_FORMAT = "Update %ss for pipelines";
   private static final String UPDATE_PIPELINE_ORG_ROLES_QUESTION_FORMAT = " Who are the %ss for the selected pipelines?";

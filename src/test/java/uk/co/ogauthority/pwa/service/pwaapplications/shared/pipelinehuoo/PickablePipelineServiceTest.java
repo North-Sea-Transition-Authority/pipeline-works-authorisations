@@ -248,9 +248,9 @@ public class PickablePipelineServiceTest {
   @Test
   public void reconcilePickablePipelineOptions_correctlyAssociatesPickableIdToPipelineId(){
 
-    var consentedOption = new PickablePipelineOption(consentedPipeline);
-    var newPipelineOption = new PickablePipelineOption(applicationNewPadPipeline);
-    var importedPipelineOption = new PickablePipelineOption(applicationImportedPadPipeline);
+    var consentedOption = PickablePipelineOptionTestUtil.createOption(consentedPipeline);
+    var newPipelineOption = PickablePipelineOptionTestUtil.createOption(applicationNewPadPipeline);
+    var importedPipelineOption = PickablePipelineOptionTestUtil.createOption(applicationImportedPadPipeline);
 
     var reconciledPipelines = pickablePipelineService.reconcilePickablePipelineOptions(
         Set.of(consentedOption, newPipelineOption, importedPipelineOption)

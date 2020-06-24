@@ -48,6 +48,10 @@ public class ConsulteeGroupDetail {
     return consulteeGroup;
   }
 
+  public Integer getConsulteeGroupId() {
+    return consulteeGroup.getId();
+  }
+
   public void setConsulteeGroup(ConsulteeGroup consulteeGroup) {
     this.consulteeGroup = consulteeGroup;
   }

@@ -21,6 +21,9 @@ caption=""
 captionClass="govuk-caption-m">
     <@spring.bind degreesLocationPath/>
     <#local hasErrorDegrees=(spring.status.errorMessages?size > 0)>
+    <#assign degreesError>
+        <@fdsError.inputError inputId="${formId}-degrees"/>
+    </#assign>
     <#if optionalLabel=="true">
         <#local optionalFlag=true>
     <#elseif optionalLabel=="false">
@@ -30,13 +33,30 @@ captionClass="govuk-caption-m">
     </#if>
     <@spring.bind minutesLocationPath/>
     <#local hasErrorMinutes=(spring.status.errorMessages?size > 0)>
+    <#assign minutesError>
+        <@fdsError.inputError inputId="${formId}-minutes"/>
+    </#assign>
     <@spring.bind secondsLocationPath/>
     <#local hasErrorSeconds=(spring.status.errorMessages?size > 0)>
+    <#assign secondsError>
+        <@fdsError.inputError inputId="${formId}-seconds"/>
+    </#assign>
     <#local hasError=hasErrorDegrees || hasErrorMinutes || hasErrorSeconds>
+    <#assign errorDisplay>
+        <#if hasErrorDegrees>
+            ${degreesError}
+        </#if>
+        <#if hasErrorMinutes>
+            ${minutesError}
+        </#if>
+        <#if hasErrorSeconds>
+            ${secondsError}
+        </#if>
+    </#assign>
   <div class="govuk-form-group ${formGroupClass}<#if hasError>govuk-form-group--error</#if>">
       <@fdsFieldset.fieldset legendHeading=labelText legendHeadingSize=fieldsetHeadingSize legendHeadingClass=fieldsetHeadingClass caption=caption captionClass=captionClass optionalLabel=optionalFlag hintText=hintText>
           <#if hasError>
-              <@fdsError.inputError inputId="${formId}"/>
+              ${errorDisplay}
           </#if>
         <div class="govuk-date-input" id="${formId}-number-input">
             <@fdsNumberInput.numberInputItem path=degreesLocationPath labelText="Degrees"/>
@@ -50,7 +70,8 @@ captionClass="govuk-caption-m">
                       <label class="govuk-label govuk-date-input__label" for="hemisphere-north">
                         Hemisphere (north / south)
                       </label>
-                      <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-3 govuk-input--read-only" id="hemisphere-north" name="hemisphere-north" type="text" disabled value="North">
+                      <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-3 govuk-input--read-only"
+                        id="hemisphere-north" name="hemisphere-north" type="text" disabled value="North">
                     </div>
                   </div>
                 <#elseif direction=="NS_MANUAL">
@@ -63,8 +84,8 @@ captionClass="govuk-caption-m">
         </div>
       </@fdsFieldset.fieldset>
   </div>
-  <#--Rebind your form when a component is used inside show/hide radio groups-->
-  <#if nestingPath?has_content>
-    <@spring.bind nestingPath/>
-  </#if>
+<#--Rebind your form when a component is used inside show/hide radio groups-->
+    <#if nestingPath?has_content>
+        <@spring.bind nestingPath/>
+    </#if>
 </#macro>
