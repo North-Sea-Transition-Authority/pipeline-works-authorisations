@@ -39,7 +39,7 @@ public class EditBundleValidatorTest {
   }
 
   @Test
-  public void passValidation() {
+  public void validate_passValidation() {
     var form = new BundleForm("name", Set.of(1, 2));
     var bundle = new PadBundle();
     when(padPipelineService.getCountOfPipelinesByIdList(pwaApplicationDetail, List.copyOf(form.getPadPipelineIds())))
@@ -49,7 +49,7 @@ public class EditBundleValidatorTest {
   }
 
   @Test
-  public void noValues() {
+  public void validate_noValues() {
     var form = new BundleForm();
     var bundle = new PadBundle();
 
@@ -61,7 +61,7 @@ public class EditBundleValidatorTest {
   }
 
   @Test
-  public void nameNotUnique() {
+  public void validate_nameNotUnique() {
     var bundleName = "name";
     var form = new BundleForm(bundleName, Set.of(1, 2));
     var bundle = new PadBundle();
@@ -81,7 +81,7 @@ public class EditBundleValidatorTest {
   }
 
   @Test
-  public void notEnoughPipelines() {
+  public void validate_notEnoughPipelines() {
     var bundle = new PadBundle();
     var form = new BundleForm("name", Set.of(1));
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, bundle);
@@ -91,7 +91,7 @@ public class EditBundleValidatorTest {
   }
 
   @Test
-  public void notAllPipelinesFound() {
+  public void validate_notAllPipelinesFound() {
     var bundle = new PadBundle();
     var form = new BundleForm("name", Set.of(1, 2));
     when(padPipelineService.getCountOfPipelinesByIdList(pwaApplicationDetail, List.copyOf(form.getPadPipelineIds())))
