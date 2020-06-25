@@ -65,7 +65,8 @@ public class PipelineBundleController {
         .addObject("screenActionType", type)
         .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
             .renderPipelinesOverview(context.getMasterPwaApplicationId(), context.getApplicationType(), null)))
-        .addObject("pipelineOverviews", padPipelineService.getPipelineOverviews(context.getApplicationDetail()));
+        .addObject("pipelineOverviews",
+            padPipelineService.getApplicationPipelineOverviews(context.getApplicationDetail()));
     breadcrumbService.fromPipelinesOverview(context.getPwaApplication(), modelAndView,
         type.getActionText() + " bundle");
     return modelAndView;
