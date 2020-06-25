@@ -65,6 +65,8 @@ public class PwaApplicationDetail {
 
   private Integer numOfHolders;
 
+  private String pipelinePhaseProperties;
+
 
   public PwaApplicationDetail() {
   }
@@ -259,6 +261,14 @@ public class PwaApplicationDetail {
     this.numOfHolders = numOfHolders;
   }
 
+  public String getPipelinePhaseProperties() {
+    return pipelinePhaseProperties;
+  }
+
+  public void setPipelinePhaseProperties(String pipelinePhaseProperties) {
+    this.pipelinePhaseProperties = pipelinePhaseProperties;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -287,7 +297,8 @@ public class PwaApplicationDetail {
         && Objects.equals(cablesCrossed, that.cablesCrossed)
         && Objects.equals(medianLineCrossed, that.medianLineCrossed)
         && Objects.equals(submittedAsFastTrackFlag, that.submittedAsFastTrackFlag)
-        && Objects.equals(numOfHolders, that.numOfHolders);
+        && Objects.equals(numOfHolders, that.numOfHolders)
+        && Objects.equals(pipelinePhaseProperties, that.pipelinePhaseProperties);
   }
 
   @Override
@@ -295,6 +306,6 @@ public class PwaApplicationDetail {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
-        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders);
+        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders, pipelinePhaseProperties);
   }
 }

@@ -20,6 +20,17 @@
             <@waxContentQuestion property waxContentOptions/>
         </#list>        
         
+        
+        <h3>Phases present</h3>
+        <@fdsCheckbox.checkbox path="form.oilPresent" labelText="Oil"/>
+        <@fdsCheckbox.checkbox path="form.condensatePresent" labelText="Condensate"/>
+        <@fdsCheckbox.checkbox path="form.gasPresent" labelText="Gas"/>
+        <@fdsCheckbox.checkbox path="form.waterPresent" labelText="Water"/>
+        <@fdsCheckbox.checkbox path="form.otherPresent" labelText="Other">
+            <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.otherPresent"/>
+        </@fdsCheckbox.checkbox>
+        
+
 
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
