@@ -90,7 +90,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         pwaApplicationDetail);
     when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
-
   }
 
   @Test

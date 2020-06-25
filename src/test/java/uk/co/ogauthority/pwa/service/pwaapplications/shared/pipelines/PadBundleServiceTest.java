@@ -172,4 +172,12 @@ public class PadBundleServiceTest {
     when(padBundleRepository.getByPwaApplicationDetailAndId(pwaApplicationDetail, 1)).thenReturn(Optional.empty());
     padBundleService.getBundle(pwaApplicationDetail, 1);
   }
+
+  @Test
+  public void removeBundle_verifyInteractions() {
+    var bundle = new PadBundle();
+    padBundleService.removeBundle(bundle);
+    verify(padBundleLinkService, times(1)).removeBundleLinks(bundle);
+    verify(padBundleRepository, times(1)).delete(bundle);
+  }
 }

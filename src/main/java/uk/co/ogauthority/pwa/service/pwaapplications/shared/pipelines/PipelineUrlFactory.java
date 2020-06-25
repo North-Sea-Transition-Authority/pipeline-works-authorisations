@@ -33,4 +33,9 @@ public class PipelineUrlFactory {
         .renderEditBundle(applicationId, applicationType, id, null, null));
   }
 
+  public String getRemoveBundleUrl(Integer id) {
+    return ReverseRouter.route(on(PipelineBundleController.class)
+        .renderRemoveBundle(applicationId, applicationType, id, null));
+  }
+
 }

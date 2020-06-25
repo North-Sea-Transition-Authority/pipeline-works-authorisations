@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -23,8 +24,10 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleSummaryView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pipelines.AddBundleValidator;
 import uk.co.ogauthority.pwa.validators.pipelines.EditBundleValidator;
@@ -69,6 +72,15 @@ public class PipelineBundleController {
             padPipelineService.getApplicationPipelineOverviews(context.getApplicationDetail()));
     breadcrumbService.fromPipelinesOverview(context.getPwaApplication(), modelAndView,
         type.getActionText() + " bundle");
+    return modelAndView;
+  }
+
+  private ModelAndView getRemoveBundleModelAndView(PwaApplicationContext context, PadBundleSummaryView summaryView) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/removeBundle")
+        .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
+            .renderPipelinesOverview(context.getMasterPwaApplicationId(), context.getApplicationType(), null)))
+        .addObject("summaryView", summaryView);
+    breadcrumbService.fromPipelinesOverview(context.getPwaApplication(), modelAndView, "Remove bundle");
     return modelAndView;
   }
 
@@ -129,6 +141,32 @@ public class PipelineBundleController {
           return ReverseRouter.redirect(on(PipelinesController.class)
               .renderPipelinesOverview(applicationId, pwaApplicationType, null));
         });
+  }
+
+  @GetMapping("/{bundleId}/remove")
+  public ModelAndView renderRemoveBundle(@PathVariable("applicationId") Integer applicationId,
+                                         @PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable("bundleId") Integer bundleId,
+                                         PwaApplicationContext applicationContext) {
+    var summaryView = padBundleService.getBundleSummaryView(applicationContext.getApplicationDetail(), bundleId);
+    return getRemoveBundleModelAndView(applicationContext, summaryView);
+  }
+
+  @PostMapping("/{bundleId}/remove")
+  public ModelAndView postRemoveBundle(@PathVariable("applicationId") Integer applicationId,
+                                       @PathVariable("applicationType")
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @PathVariable("bundleId") Integer bundleId,
+                                       PwaApplicationContext applicationContext,
+                                       RedirectAttributes redirectAttributes) {
+
+    var bundle = padBundleService.getBundle(applicationContext.getApplicationDetail(), bundleId);
+    padBundleService.removeBundle(bundle);
+    FlashUtils.info(redirectAttributes,
+        String.format("Removed bundle (%s) from application", bundle.getBundleName()));
+    return ReverseRouter.redirect(on(PipelinesController.class)
+        .renderPipelinesOverview(applicationId, pwaApplicationType, null));
   }
 
 }

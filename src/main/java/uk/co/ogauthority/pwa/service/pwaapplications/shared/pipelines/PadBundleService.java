@@ -69,6 +69,12 @@ public class PadBundleService implements ApplicationFormSectionService {
         .collect(Collectors.toUnmodifiableList());
   }
 
+  public PadBundleSummaryView getBundleSummaryView(PwaApplicationDetail detail, Integer bundleId) {
+    var bundle = getBundle(detail, bundleId);
+    var links = padBundleLinkService.getLinksForBundle(bundle);
+    return new PadBundleSummaryView(bundle, links);
+  }
+
   public BundleValidationFactory getBundleValidationFactory(PwaApplicationDetail detail) {
     return new BundleValidationFactory(
         isComplete(detail),
@@ -121,6 +127,12 @@ public class PadBundleService implements ApplicationFormSectionService {
 
   public boolean canAddBundle(PwaApplicationDetail detail) {
     return padPipelineService.getTotalPipelinesContainedInApplication(detail) >= 2;
+  }
+
+  @Transactional
+  public void removeBundle(PadBundle bundle) {
+    padBundleLinkService.removeBundleLinks(bundle);
+    padBundleRepository.delete(bundle);
   }
 
   @Override

@@ -71,6 +71,7 @@
                 </#if>
                 <@fdsCard.cardHeader cardHeadingText=bundle.bundleName>
                     <@fdsCard.cardAction cardLinkText="Edit" cardLinkUrl=springUrl(pipelineUrlFactory.getEditBundleUrl(bundle.bundleId)) />
+                    <@fdsCard.cardAction cardLinkText="Remove" cardLinkUrl=springUrl(pipelineUrlFactory.getRemoveBundleUrl(bundle.bundleId)) />
                 </@fdsCard.cardHeader>
 
               <br/><h3 class="govuk-heading-s">Pipelines</h3>
