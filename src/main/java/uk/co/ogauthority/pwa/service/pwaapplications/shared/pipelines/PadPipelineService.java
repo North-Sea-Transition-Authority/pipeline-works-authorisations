@@ -10,11 +10,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 import javax.transaction.Transactional;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -314,12 +315,12 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .map(pipelineId -> {
           // this will blow up if we fail to find a reference from the application detail or the consented model for the pipelineId
           if (currentPadPipelinesFromSummary.containsKey(pipelineId)) {
-            return new Pair<PipelineId, String>(
+            return new ImmutablePair<PipelineId, String>(
                 pipelineId,
                 currentPadPipelinesFromSummary.get(pipelineId).getPipelineRef());
           }
 
-          return new Pair<PipelineId, String>(
+          return new ImmutablePair<PipelineId, String>(
               pipelineId,
               currentPipelineDetailsFromSummary.get(pipelineId).getPipelineNumber()
           );
