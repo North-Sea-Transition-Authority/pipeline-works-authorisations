@@ -49,13 +49,34 @@ public class MinMaxInput {
     return maxValue.compareTo(minValue) == 1;
   }
 
+
   public boolean minHasValidDecimalPlaces(int maxDecimalPlaces) {
-    return minValue.remainder(BigDecimal.ONE).precision() > maxDecimalPlaces;
+    return Math.max(0, minValue.stripTrailingZeros().scale()) <= maxDecimalPlaces;
   }
 
   public boolean maxHasValidDecimalPlaces(int maxDecimalPlaces) {
-    return maxValue.remainder(BigDecimal.ONE).precision() > maxDecimalPlaces;
+    return Math.max(0, maxValue.stripTrailingZeros().scale()) <= maxDecimalPlaces;
   }
+
+
+  public boolean isMinPositive() {
+    return minValue.compareTo(BigDecimal.ZERO) == 1;
+  }
+
+  public boolean isMaxPositive() {
+    return maxValue.compareTo(BigDecimal.ZERO) == 1;
+  }
+
+  public boolean isMinInteger() {
+    return minValue.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0;
+  }
+
+  public boolean isMaxInteger() {
+    return maxValue.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0;
+  }
+
+
+
 
 
   //Getters/Setters
