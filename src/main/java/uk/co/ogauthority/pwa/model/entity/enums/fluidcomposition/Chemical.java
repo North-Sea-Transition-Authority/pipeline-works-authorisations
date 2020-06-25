@@ -5,8 +5,9 @@ import java.util.List;
 
 public enum Chemical {
 
-  H2O("H2O"),
-  N2("N2"),
+  CO2("CO₂"),
+  H2O("H₂O"),
+  N2("N₂"),
   C1("C1"),
   C2("C2"),
   C3("C3"),
@@ -33,4 +34,5 @@ public enum Chemical {
   public static List<Chemical> asList() {
     return Arrays.asList(Chemical.values());
   }
+
 }

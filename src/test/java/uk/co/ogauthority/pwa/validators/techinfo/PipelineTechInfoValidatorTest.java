@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.validators.techinfo;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;

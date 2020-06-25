@@ -7,7 +7,7 @@ public enum FluidCompositionOption {
 
     NONE("Not present"),
     TRACE("Trace (less than 0.01 mole %)"),
-    HIGHER_AMOUNT("Provide mole %");
+    HIGHER_AMOUNT("0.01 mole % or more");
 
   private final String displayText;
 

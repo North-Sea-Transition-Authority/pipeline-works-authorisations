@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo;
 
-
+import java.math.BigDecimal;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -13,6 +14,7 @@ import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+
 
 @Entity
 @Table(name = "pad_fluid_composition_info")
@@ -30,7 +32,19 @@ public class PadFluidCompositionInfo {
   private Chemical chemicalName;
   @Enumerated(EnumType.STRING)
   private FluidCompositionOption fluidCompositionOption;
-  private double moleValue;
+  private BigDecimal moleValue;
+
+
+  public PadFluidCompositionInfo() {
+    // default constructor required by hibernate
+  }
+
+  public PadFluidCompositionInfo(
+      PwaApplicationDetail pwaApplicationDetail,
+      Chemical chemicalName) {
+    this.pwaApplicationDetail = pwaApplicationDetail;
+    this.chemicalName = chemicalName;
+  }
 
 
   public Integer getId() {
@@ -67,11 +81,37 @@ public class PadFluidCompositionInfo {
     this.fluidCompositionOption = fluidCompositionOption;
   }
 
-  public double getMoleValue() {
+  public BigDecimal getMoleValue() {
     return moleValue;
   }
 
-  public void setMoleValue(double moleValue) {
+  public void setMoleValue(BigDecimal moleValue) {
     this.moleValue = moleValue;
   }
+
+
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadFluidCompositionInfo that = (PadFluidCompositionInfo) o;
+    return Objects.equals(moleValue, that.moleValue)
+        && Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && chemicalName == that.chemicalName
+        && fluidCompositionOption == that.fluidCompositionOption;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, chemicalName, fluidCompositionOption, moleValue);
+  }
+
+
 }

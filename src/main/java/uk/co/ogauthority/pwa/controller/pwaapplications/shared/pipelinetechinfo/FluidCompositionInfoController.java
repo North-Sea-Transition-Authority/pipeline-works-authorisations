@@ -13,8 +13,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
+import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionInfoForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -56,7 +57,9 @@ public class FluidCompositionInfoController {
                                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                       @PathVariable("applicationId") Integer applicationId,
                                                       PwaApplicationContext applicationContext,
-                                                      @ModelAttribute("form") FluidCompositionInfoForm form) {
+                                                      @ModelAttribute("form") FluidCompositionForm form) {
+    var entities = padFluidCompositionInfoService.getPadFluidCompositionInfoEntities(applicationContext.getApplicationDetail());
+    padFluidCompositionInfoService.mapEntitiesToForm(form, entities);
     return getAddFluidCompositionInfoModelAndView(applicationContext.getApplicationDetail());
   }
 
@@ -66,18 +69,18 @@ public class FluidCompositionInfoController {
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             @PathVariable("applicationId") Integer applicationId,
                                             PwaApplicationContext applicationContext,
-                                            @ModelAttribute("form") FluidCompositionInfoForm form,
+                                            @ModelAttribute("form") FluidCompositionForm form,
                                             BindingResult bindingResult,
                                             ValidationType validationType) {
 
-    bindingResult = padFluidCompositionInfoService.validate(form,
-        bindingResult,
-        validationType,
-        applicationContext.getApplicationDetail());
-
+    bindingResult = padFluidCompositionInfoService.validate(form, bindingResult, validationType, applicationContext.getApplicationDetail());
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getAddFluidCompositionInfoModelAndView(applicationContext.getApplicationDetail()), () ->
-            pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication()));
+        getAddFluidCompositionInfoModelAndView(applicationContext.getApplicationDetail()), () -> {
+          var entities = padFluidCompositionInfoService.getPadFluidCompositionInfoEntities(applicationContext.getApplicationDetail());
+          padFluidCompositionInfoService.saveEntitiesUsingForm(form, entities);
+          return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+        });
+
   }
 
 
@@ -86,7 +89,8 @@ public class FluidCompositionInfoController {
   private ModelAndView getAddFluidCompositionInfoModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/fluidCompositionForm");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("chemicals", Chemical.asList());
+        .addObject("chemicals", Chemical.asList())
+        .addObject("fluidCompositionOptions", FluidCompositionOption.asList());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Fluid composition");
