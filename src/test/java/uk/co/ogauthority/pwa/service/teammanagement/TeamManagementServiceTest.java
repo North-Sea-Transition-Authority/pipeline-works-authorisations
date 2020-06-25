@@ -64,7 +64,7 @@ public class TeamManagementServiceTest {
   private AuthenticatedUserAccount manageAnyOrgRegulatorUser;
   private AuthenticatedUserAccount manageRegTeamRegulatorUser;
   private AuthenticatedUserAccount workareaOnlyUser;
-  private AuthenticatedUserAccount mangeAllTeamsUser;
+  private AuthenticatedUserAccount manageAllTeamsUser;
   private WebUserAccount someWebUserAccount = new WebUserAccount(99);
   private UserRolesForm userRolesForm;
   private TeamManagementService teamManagementService;
@@ -105,7 +105,7 @@ public class TeamManagementServiceTest {
         .thenReturn(List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
     var manageAllTeamsPerson = new Person(6, "all", "manage", "all@manage.com", "0");
-    mangeAllTeamsUser = new AuthenticatedUserAccount(new WebUserAccount(6, manageAllTeamsPerson), List.of());
+    manageAllTeamsUser = new AuthenticatedUserAccount(new WebUserAccount(6, manageAllTeamsPerson), List.of());
     when(teamService.getAllUserPrivilegesForPerson(manageAllTeamsPerson))
         .thenReturn(List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN, PwaUserPrivilege.PWA_REG_ORG_MANAGE));
 
@@ -261,7 +261,7 @@ public class TeamManagementServiceTest {
 
   @Test
   public void getAllIrsTeamsUserCanManage_userCanManageRegulatorTeamAndAllOrgs() {
-    List<PwaTeam> manageableTeams = teamManagementService.getAllPwaTeamsUserCanManage(mangeAllTeamsUser);
+    List<PwaTeam> manageableTeams = teamManagementService.getAllPwaTeamsUserCanManage(manageAllTeamsUser);
     assertThat(manageableTeams).containsExactly(regulatorTeam, organisationTeam1, organisationTeam2);
   }
 

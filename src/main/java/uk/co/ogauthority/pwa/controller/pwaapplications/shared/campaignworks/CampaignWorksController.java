@@ -69,7 +69,7 @@ public class CampaignWorksController {
         .addObject("cancelUrl", ReverseRouter.route(on(CampaignWorksController.class)
             .renderSummary(applicationContext.getApplicationType(), applicationContext.getMasterPwaApplicationId(),
                 null)))
-        .addObject("pipelineViews", padPipelineService.getPipelineOverviews(applicationContext.getApplicationDetail()))
+        .addObject("pipelineViews", padPipelineService.getApplicationPipelineOverviews(applicationContext.getApplicationDetail()))
         .addObject("screenActionType", screenActionType);
 
     applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,

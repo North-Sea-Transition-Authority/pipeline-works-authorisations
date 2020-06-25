@@ -53,20 +53,24 @@ public class PipelinesHuooController {
   private ModelAndView createSummaryModelAndView(PwaApplicationContext applicationContext, boolean doValidation) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/pipelineHuooSummary")
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
-        .addObject("pageHeading", ApplicationTask.PIPELINES_HUOO.getDisplayName())
-        .addObject("markCompleteErrorMessage", doValidation ? "Please correct errors" : null);
-    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView,  ApplicationTask.PIPELINES_HUOO.getDisplayName());
+        .addObject("pageHeading", ApplicationTask.PIPELINES_HUOO.getDisplayName() + " (HUOO)")
+        .addObject("markCompleteErrorMessage", doValidation ? "Please correct errors" : null)
+        .addObject("urlFactory", new PipelineHuooUrlFactory(
+            applicationContext.getMasterPwaApplicationId(),
+            applicationContext.getApplicationType())
+        );
+    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView,
+        ApplicationTask.PIPELINES_HUOO.getDisplayName());
 
     return modelAndView;
   }
 
   @PostMapping
   public ModelAndView postSummary(@PathVariable("applicationType")
-                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                    @PathVariable("applicationId") int applicationId,
-                                    PwaApplicationContext applicationContext) {
+                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                  @PathVariable("applicationId") int applicationId,
+                                  PwaApplicationContext applicationContext) {
     return createSummaryModelAndView(applicationContext, true);
   }
-
 
 }

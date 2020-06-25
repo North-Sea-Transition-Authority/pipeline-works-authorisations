@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationGroupRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitDetailRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 
 /**
@@ -93,6 +95,13 @@ public class PortalOrganisationsAccessor {
 
   public List<PortalOrganisationUnitDetail> getOrganisationUnitDetails(List<PortalOrganisationUnit> unit) {
     return organisationUnitDetailRepository.getAllByOrganisationUnitIn(unit);
+  }
+
+  public List<OrganisationUnitDetailDto> getOrganisationUnitDetailDtos(List<PortalOrganisationUnit> organisationUnits) {
+    return organisationUnitDetailRepository.getAllByOrganisationUnitIn(organisationUnits)
+        .stream()
+        .map(OrganisationUnitDetailDto::from)
+        .collect(Collectors.toList());
   }
 
   /**

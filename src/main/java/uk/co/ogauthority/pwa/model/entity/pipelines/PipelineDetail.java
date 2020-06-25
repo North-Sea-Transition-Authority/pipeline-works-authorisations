@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import java.time.Instant;
 import javax.persistence.Column;
@@ -11,12 +12,19 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import org.apache.commons.lang3.ObjectUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.temp.model.service.PipelineType;
+
 
 @Entity
 @Table(name = "pipeline_details")
@@ -105,6 +113,22 @@ public class PipelineDetail {
   private String productsToBeConveyed;
   private Boolean trenchedBuriedFilledFlag;
   private String trenchingMethodsDesc;
+
+  @Transient
+  private CoordinatePair fromCoordinates;
+
+  @Transient
+  private CoordinatePair toCoordinates;
+
+  public PipelineDetail() {
+    // default for hibernate
+  }
+
+  @VisibleForTesting
+  public PipelineDetail(Pipeline pipeline) {
+    this.setPipeline(pipeline);
+  }
+
 
   public Integer getId() {
     return id;
@@ -198,64 +222,32 @@ public class PipelineDetail {
     return fromLatitudeDegrees;
   }
 
-  public void setFromLatitudeDegrees(Integer fromLatitudeDegrees) {
-    this.fromLatitudeDegrees = fromLatitudeDegrees;
-  }
-
   public Integer getFromLatitudeMinutes() {
     return fromLatitudeMinutes;
-  }
-
-  public void setFromLatitudeMinutes(Integer fromLatitudeMinutes) {
-    this.fromLatitudeMinutes = fromLatitudeMinutes;
   }
 
   public BigDecimal getFromLatitudeSeconds() {
     return fromLatitudeSeconds;
   }
 
-  public void setFromLatitudeSeconds(BigDecimal fromLatitudeSeconds) {
-    this.fromLatitudeSeconds = fromLatitudeSeconds;
-  }
-
   public LatitudeDirection getFromLatitudeDirection() {
     return fromLatitudeDirection;
-  }
-
-  public void setFromLatitudeDirection(LatitudeDirection fromLatitudeDirection) {
-    this.fromLatitudeDirection = fromLatitudeDirection;
   }
 
   public Integer getFromLongitudeDegrees() {
     return fromLongitudeDegrees;
   }
 
-  public void setFromLongitudeDegrees(Integer fromLongitudeDegrees) {
-    this.fromLongitudeDegrees = fromLongitudeDegrees;
-  }
-
   public Integer getFromLongitudeMinutes() {
     return fromLongitudeMinutes;
-  }
-
-  public void setFromLongitudeMinutes(Integer fromLongitudeMinutes) {
-    this.fromLongitudeMinutes = fromLongitudeMinutes;
   }
 
   public BigDecimal getFromLongitudeSeconds() {
     return fromLongitudeSeconds;
   }
 
-  public void setFromLongitudeSeconds(BigDecimal fromLongitudeSeconds) {
-    this.fromLongitudeSeconds = fromLongitudeSeconds;
-  }
-
   public LongitudeDirection getFromLongitudeDirection() {
     return fromLongitudeDirection;
-  }
-
-  public void setFromLongitudeDirection(LongitudeDirection fromLongitudeDirection) {
-    this.fromLongitudeDirection = fromLongitudeDirection;
   }
 
   public String getToLocation() {
@@ -270,64 +262,32 @@ public class PipelineDetail {
     return toLatitudeDegrees;
   }
 
-  public void setToLatitudeDegrees(Integer toLatitudeDegrees) {
-    this.toLatitudeDegrees = toLatitudeDegrees;
-  }
-
   public Integer getToLatitudeMinutes() {
     return toLatitudeMinutes;
-  }
-
-  public void setToLatitudeMinutes(Integer toLatitudeMinutes) {
-    this.toLatitudeMinutes = toLatitudeMinutes;
   }
 
   public BigDecimal getToLatitudeSeconds() {
     return toLatitudeSeconds;
   }
 
-  public void setToLatitudeSeconds(BigDecimal toLatitudeSeconds) {
-    this.toLatitudeSeconds = toLatitudeSeconds;
-  }
-
   public LatitudeDirection getToLatitudeDirection() {
     return toLatitudeDirection;
-  }
-
-  public void setToLatitudeDirection(LatitudeDirection toLatitudeDirection) {
-    this.toLatitudeDirection = toLatitudeDirection;
   }
 
   public Integer getToLongitudeDegrees() {
     return toLongitudeDegrees;
   }
 
-  public void setToLongitudeDegrees(Integer toLongitudeDegrees) {
-    this.toLongitudeDegrees = toLongitudeDegrees;
-  }
-
   public Integer getToLongitudeMinutes() {
     return toLongitudeMinutes;
-  }
-
-  public void setToLongitudeMinutes(Integer toLongitudeMinutes) {
-    this.toLongitudeMinutes = toLongitudeMinutes;
   }
 
   public BigDecimal getToLongitudeSeconds() {
     return toLongitudeSeconds;
   }
 
-  public void setToLongitudeSeconds(BigDecimal toLongitudeSeconds) {
-    this.toLongitudeSeconds = toLongitudeSeconds;
-  }
-
   public LongitudeDirection getToLongitudeDirection() {
     return toLongitudeDirection;
-  }
-
-  public void setToLongitudeDirection(LongitudeDirection toLongitudeDirection) {
-    this.toLongitudeDirection = toLongitudeDirection;
   }
 
   public String getComponentPartsDesc() {
@@ -369,4 +329,97 @@ public class PipelineDetail {
   public void setTrenchingMethodsDesc(String trenchingMethodsDesc) {
     this.trenchingMethodsDesc = trenchingMethodsDesc;
   }
+
+  public int getPipelineId() {
+    return this.getPipeline().getId();
+  }
+
+  private void updateFromCoordinateValues() {
+    this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
+    this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
+    this.fromLatitudeSeconds = this.fromCoordinates.getLatitude().getSeconds();
+    this.fromLatitudeDirection = this.fromCoordinates.getLatitude().getDirection();
+
+    this.fromLongitudeDegrees = this.fromCoordinates.getLongitude().getDegrees();
+    this.fromLongitudeMinutes = this.fromCoordinates.getLongitude().getMinutes();
+    this.fromLongitudeSeconds = this.fromCoordinates.getLongitude().getSeconds();
+    this.fromLongitudeDirection = this.fromCoordinates.getLongitude().getDirection();
+  }
+
+  private void updateToCoordinateValues() {
+    this.toLatitudeDegrees = this.toCoordinates.getLatitude().getDegrees();
+    this.toLatitudeMinutes = this.toCoordinates.getLatitude().getMinutes();
+    this.toLatitudeSeconds = this.toCoordinates.getLatitude().getSeconds();
+    this.toLatitudeDirection = this.toCoordinates.getLatitude().getDirection();
+
+    this.toLongitudeDegrees = this.toCoordinates.getLongitude().getDegrees();
+    this.toLongitudeMinutes = this.toCoordinates.getLongitude().getMinutes();
+    this.toLongitudeSeconds = this.toCoordinates.getLongitude().getSeconds();
+    this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
+  }
+
+  public CoordinatePair getFromCoordinates() {
+    return fromCoordinates;
+  }
+
+  public void setFromCoordinates(CoordinatePair fromCoordinates) {
+    this.fromCoordinates = fromCoordinates;
+    updateFromCoordinateValues();
+  }
+
+  public CoordinatePair getToCoordinates() {
+    return toCoordinates;
+  }
+
+  public void setToCoordinates(CoordinatePair toCoordinates) {
+    this.toCoordinates = toCoordinates;
+    updateToCoordinateValues();
+  }
+
+  @PostLoad
+  public void postLoad() {
+    // this method needs to be able to handle nulls given we could be dealing with migrated data
+    if (ObjectUtils.allNotNull(
+        this.fromLatitudeDegrees, this.fromLatitudeMinutes, this.fromLatitudeSeconds, this.fromLatitudeDirection,
+        this.fromLongitudeDegrees, this.fromLongitudeMinutes, this.fromLongitudeSeconds, this.fromLongitudeDirection
+    )) {
+      this.fromCoordinates = new CoordinatePair(
+          new LatitudeCoordinate(
+              this.fromLatitudeDegrees,
+              this.fromLatitudeMinutes,
+              this.fromLatitudeSeconds,
+              this.fromLatitudeDirection
+          ),
+          new LongitudeCoordinate(
+              this.fromLongitudeDegrees,
+              this.fromLongitudeMinutes,
+              this.fromLongitudeSeconds,
+              this.fromLongitudeDirection
+          )
+      );
+    }
+
+    if (ObjectUtils.allNotNull(
+        this.toLatitudeDegrees, this.toLatitudeMinutes, this.toLatitudeSeconds, this.toLatitudeDirection,
+        this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection
+    )) {
+      this.toCoordinates = new CoordinatePair(
+          new LatitudeCoordinate(
+              this.toLatitudeDegrees,
+              this.toLatitudeMinutes,
+              this.toLatitudeSeconds,
+              this.toLatitudeDirection
+          ),
+          new LongitudeCoordinate(
+              this.toLongitudeDegrees,
+              this.toLongitudeMinutes,
+              this.toLongitudeSeconds,
+              this.toLongitudeDirection
+          )
+      );
+    }
+
+
+  }
+
 }

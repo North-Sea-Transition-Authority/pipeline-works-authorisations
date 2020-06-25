@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.FluidCompositionInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdraw
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
@@ -79,6 +81,7 @@ public enum ApplicationTask {
 
   PIPELINES_HUOO(
       "Pipeline holders, users, operators and owners",
+      "Pipeline HUOOs",
       PipelinesHuooController.class,
       PipelinesHuooService.class,
       75
@@ -117,26 +120,45 @@ public enum ApplicationTask {
       PipelineTechInfoController.class,
       PadPipelineTechInfoService.class,
       120
+  ),
+
+  FLUID_COMPOSITION(
+      "Fluid composition",
+      FluidCompositionInfoController.class,
+      PadFluidCompositionInfoService.class,
+      130
   );
 
 
 
   private final String displayName;
+  private final String shortenedDisplayName;
   private final Class<?> controllerClass;
   private final Class<? extends ApplicationFormSectionService> serviceClass;
   private final int displayOrder;
 
-  ApplicationTask(String displayName, Class<?> controllerClass,
+  ApplicationTask(String displayName, String shortenedDisplayName, Class<?> controllerClass,
                   Class<? extends ApplicationFormSectionService> serviceClass,
                   int displayOrder) {
     this.displayName = displayName;
+    this.shortenedDisplayName = shortenedDisplayName;
     this.controllerClass = controllerClass;
     this.serviceClass = serviceClass;
     this.displayOrder = displayOrder;
   }
 
+  ApplicationTask(String displayName, Class<?> controllerClass,
+                  Class<? extends ApplicationFormSectionService> serviceClass,
+                  int displayOrder) {
+    this(displayName, displayName, controllerClass, serviceClass, displayOrder);
+  }
+
   public String getDisplayName() {
     return displayName;
+  }
+
+  public String getShortenedDisplayName() {
+    return shortenedDisplayName;
   }
 
   public Class<?> getControllerClass() {
