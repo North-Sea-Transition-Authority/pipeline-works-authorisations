@@ -30,13 +30,23 @@ public class PadBundleLinkService {
     return padBundleLinkRepository.getAllByBundle_PwaApplicationDetail(detail);
   }
 
+  public List<PadBundleLink> getLinksForBundle(PadBundle bundle) {
+    return padBundleLinkRepository.getAllByBundle(bundle);
+  }
+
   @Transactional
   public void createBundleLinks(PadBundle bundle, BundleForm form) {
-    List<PadBundleLink> links = padPipelineService.getByIdList(bundle.getPwaApplicationDetail(), form.getPipelineIds())
+    List<PadBundleLink> links = padPipelineService.getByIdList(bundle.getPwaApplicationDetail(), List.copyOf(form.getPadPipelineIds()))
         .stream()
         .map(pipeline -> buildBundleLink(bundle, pipeline))
         .collect(Collectors.toUnmodifiableList());
     padBundleLinkRepository.saveAll(links);
+  }
+
+  @Transactional
+  public void removeBundleLinks(PadBundle bundle) {
+    var links = padBundleLinkRepository.getAllByBundle(bundle);
+    padBundleLinkRepository.deleteAll(links);
   }
 
   private PadBundleLink buildBundleLink(PadBundle bundle, PadPipeline pipeline) {

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,12 +48,12 @@ public class PadBundleLinkServiceTest {
     bundle.setPwaApplicationDetail(pwaApplicationDetail);
 
     var form = new BundleForm();
-    form.setPipelineIds(List.of(1, 2));
+    form.setPadPipelineIds(Set.of(1, 2));
 
     var pipeline = new PadPipeline();
     var pipeline2 = new PadPipeline();
 
-    when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPipelineIds()))
+    when(padPipelineService.getByIdList(pwaApplicationDetail, List.copyOf(form.getPadPipelineIds())))
         .thenReturn(List.of(pipeline, pipeline2));
 
     var listCapture = ArgumentCaptor.forClass(List.class);
@@ -73,5 +74,14 @@ public class PadBundleLinkServiceTest {
     padBundleLinkService.getAllLinksForDetail(pwaApplicationDetail);
     verify(padBundleLinkRepository, times(1))
         .getAllByBundle_PwaApplicationDetail(pwaApplicationDetail);
+  }
+
+  @Test
+  public void removeBundleLinks_repositoryInteraction() {
+    var bundle = new PadBundle();
+    var link = new PadBundleLink();
+    when(padBundleLinkRepository.getAllByBundle(bundle)).thenReturn(List.of(link));
+    padBundleLinkService.removeBundleLinks(bundle);
+    verify(padBundleLinkRepository, times(1)).deleteAll(List.of(link));
   }
 }

@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AddBundleValidatorTest {
+public class EditBundleValidatorTest {
 
   @Mock
   private PadBundleRepository padBundleRepository;
@@ -29,29 +29,31 @@ public class AddBundleValidatorTest {
   @Mock
   private PadPipelineService padPipelineService;
 
-  private AddBundleValidator validator;
+  private EditBundleValidator validator;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
-    validator = new AddBundleValidator(padBundleRepository, padPipelineService);
+    validator = new EditBundleValidator(padBundleRepository, padPipelineService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
   @Test
-  public void passValidation() {
+  public void validate_passValidation() {
     var form = new BundleForm("name", Set.of(1, 2));
+    var bundle = new PadBundle();
     when(padPipelineService.getCountOfPipelinesByIdList(pwaApplicationDetail, List.copyOf(form.getPadPipelineIds())))
         .thenReturn(2L);
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, bundle);
     assertThat(errors).isEmpty();
   }
 
   @Test
-  public void noValues() {
+  public void validate_noValues() {
     var form = new BundleForm();
+    var bundle = new PadBundle();
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, bundle);
     assertThat(errors).containsValues(
         Set.of("bundleName" + FieldValidationErrorCodes.REQUIRED.getCode()),
         Set.of("padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode())
@@ -59,39 +61,45 @@ public class AddBundleValidatorTest {
   }
 
   @Test
-  public void nameNotUnique() {
+  public void validate_nameNotUnique() {
     var bundleName = "name";
     var form = new BundleForm(bundleName, Set.of(1, 2));
+    var bundle = new PadBundle();
+    bundle.setId(1);
 
     var existingBundle = new PadBundle();
     existingBundle.setBundleName(bundleName);
+    existingBundle.setId(2);
 
     when(padBundleRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(existingBundle));
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, bundle);
     assertThat(errors).containsValues(
         Set.of("bundleName" + FieldValidationErrorCodes.NOT_UNIQUE.getCode())
     );
   }
 
   @Test
-  public void notEnoughPipelines() {
+  public void validate_notEnoughPipelines() {
+    var bundle = new PadBundle();
     var form = new BundleForm("name", Set.of(1));
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, bundle);
     assertThat(errors).containsValues(
         Set.of("padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode())
     );
   }
 
   @Test
-  public void notAllPipelinesFound() {
+  public void validate_notAllPipelinesFound() {
+    var bundle = new PadBundle();
     var form = new BundleForm("name", Set.of(1, 2));
     when(padPipelineService.getCountOfPipelinesByIdList(pwaApplicationDetail, List.copyOf(form.getPadPipelineIds())))
         .thenReturn(1L);
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, pwaApplicationDetail, bundle);
     assertThat(errors).containsValues(
         Set.of("padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode())
     );
   }
+
 }

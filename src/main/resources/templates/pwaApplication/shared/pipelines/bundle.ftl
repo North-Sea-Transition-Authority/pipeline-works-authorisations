@@ -17,7 +17,7 @@
         <@fdsTextInput.textInput path="form.bundleName" labelText="What is the name of the bundle?" />
 
         <@fdsFieldset.fieldset legendHeading="Which pipelines are in this bundle?">
-            <@pipelineTableSelection.pipelineTableSelection path="form.pipelineIds" pipelineOverviews=pipelineOverviews />
+            <@pipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineOverviews />
         </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline bundle" secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl)/>

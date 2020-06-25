@@ -9,5 +9,4 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.
 public interface PadFluidCompositionInfoRepository extends CrudRepository<PadFluidCompositionInfo, Integer> {
 
   List<PadFluidCompositionInfo> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
-
 }
