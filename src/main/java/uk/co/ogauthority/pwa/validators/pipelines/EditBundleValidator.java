@@ -10,19 +10,20 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundle;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.BundleForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadBundleRepository;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 @Service
-public class AddBundleValidator implements SmartValidator {
+public class EditBundleValidator implements SmartValidator {
 
   private final PadBundleRepository padBundleRepository;
   private final PadPipelineService padPipelineService;
 
   @Autowired
-  public AddBundleValidator(
+  public EditBundleValidator(
       PadBundleRepository padBundleRepository,
       PadPipelineService padPipelineService) {
     this.padBundleRepository = padBundleRepository;
@@ -44,6 +45,7 @@ public class AddBundleValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
     var form = (BundleForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
+    var existingBundle = (PadBundle) validationHints[1];
     ValidationUtils.rejectIfEmpty(errors, "bundleName",
         "bundleName" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "Enter a name for the bundle");
@@ -51,6 +53,7 @@ public class AddBundleValidator implements SmartValidator {
     if (StringUtils.isNotBlank(form.getBundleName())) {
       var isNameUnique = padBundleRepository.getAllByPwaApplicationDetail(detail)
           .stream()
+          .filter(bundle -> !bundle.getId().equals(existingBundle.getId()))
           .noneMatch(bundle -> bundle.getBundleName().equals(form.getBundleName()));
       if (!isNameUnique) {
         errors.rejectValue("bundleName", "bundleName" + FieldValidationErrorCodes.NOT_UNIQUE.getCode(),

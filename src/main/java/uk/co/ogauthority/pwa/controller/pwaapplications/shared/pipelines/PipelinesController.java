@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.BundleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -40,7 +39,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUr
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.pipelines.AddBundleValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/pipelines")
@@ -58,21 +56,18 @@ public class PipelinesController {
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PwaApplicationRedirectService applicationRedirectService;
   private final PadBundleService padBundleService;
-  private final AddBundleValidator addBundleValidator;
 
   @Autowired
   public PipelinesController(PadPipelineService padPipelineService,
                              ApplicationBreadcrumbService breadcrumbService,
                              PipelineHeaderFormValidator pipelineHeaderFormValidator,
                              PwaApplicationRedirectService applicationRedirectService,
-                             PadBundleService padBundleService,
-                             AddBundleValidator addBundleValidator) {
+                             PadBundleService padBundleService) {
     this.padPipelineService = padPipelineService;
     this.breadcrumbService = breadcrumbService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.applicationRedirectService = applicationRedirectService;
     this.padBundleService = padBundleService;
-    this.addBundleValidator = addBundleValidator;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
@@ -147,17 +142,6 @@ public class PipelinesController {
     return modelAndView;
   }
 
-  private ModelAndView getBundleModelAndView(PwaApplicationContext context, ScreenActionType type) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/bundle")
-        .addObject("screenActionType", type)
-        .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
-            .renderPipelinesOverview(context.getMasterPwaApplicationId(), context.getApplicationType(), null)))
-        .addObject("pipelineOverviews", padPipelineService.getApplicationPipelineOverviews(context.getApplicationDetail()));
-    breadcrumbService.fromPipelinesOverview(context.getPwaApplication(), modelAndView,
-        type.getActionText() + " bundle");
-    return modelAndView;
-  }
-
   @GetMapping("/add-pipeline")
   public ModelAndView renderAddPipeline(@PathVariable("applicationId") Integer applicationId,
                                         @PathVariable("applicationType")
@@ -229,33 +213,6 @@ public class PipelinesController {
 
         });
 
-  }
-
-  @GetMapping("/add-bundle")
-  public ModelAndView renderAddBundle(@PathVariable("applicationId") Integer applicationId,
-                                      @PathVariable("applicationType")
-                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                      PwaApplicationContext applicationContext,
-                                      @ModelAttribute("form") BundleForm bundleForm) {
-    return getBundleModelAndView(applicationContext, ScreenActionType.ADD);
-  }
-
-  @PostMapping("/add-bundle")
-  public ModelAndView postAddBundle(@PathVariable("applicationId") Integer applicationId,
-                                    @PathVariable("applicationType")
-                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                    PwaApplicationContext applicationContext,
-                                    @ModelAttribute("form") BundleForm bundleForm,
-                                    BindingResult bindingResult) {
-
-    addBundleValidator.validate(bundleForm, bindingResult, applicationContext.getApplicationDetail());
-
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
-        getBundleModelAndView(applicationContext, ScreenActionType.ADD), () -> {
-          padBundleService.createBundleAndLinks(applicationContext.getApplicationDetail(), bundleForm);
-          return ReverseRouter.redirect(on(PipelinesController.class)
-              .renderPipelinesOverview(applicationId, pwaApplicationType, null));
-        });
   }
 
 }

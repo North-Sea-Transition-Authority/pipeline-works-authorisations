@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.pipelines.AddBundleValidator;
+import uk.co.ogauthority.pwa.validators.pipelines.EditBundleValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelinesController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -59,6 +60,9 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
   @MockBean
   private AddBundleValidator addBundleValidator;
+
+  @MockBean
+  private EditBundleValidator editBundleValidator;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -275,7 +279,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_complete_notComplete_bundles() throws Exception {
+  public void postPipelinesOverview_validationFail_pipelineBundlesInvalid() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
     when(padBundleService.isComplete(any())).thenReturn(false);
@@ -291,7 +295,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_complete_notComplete_pipelines() throws Exception {
+  public void postPipelinesOverview_validationFail_pipelinesInvalid() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
     when(padBundleService.isComplete(any())).thenReturn(true);
@@ -307,7 +311,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_complete_isComplete() throws Exception {
+  public void postPipelinesOverview_validationPass() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
     when(padBundleService.isComplete(any())).thenReturn(true);
@@ -318,100 +322,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
-
-  }
-
-  @Test
-  public void renderAddBundle_contactSmokeTest() {
-
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .renderAddBundle(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
-
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
-
-  }
-
-  @Test
-  public void renderAddBundle_appTypeSmokeTest() {
-
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .renderAddBundle(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
-
-    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
-
-  }
-
-  @Test
-  public void renderAddBundle_appStatusSmokeTest() {
-
-    endpointTester.setRequestMethod(HttpMethod.GET)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .renderAddBundle(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
-
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
-
-  }
-
-  @Test
-  public void postAddBundle_contactSmokeTest() {
-
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .postAddBundle(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
-
-    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
-
-  }
-
-  @Test
-  public void postAddBundle_appTypeSmokeTest() {
-
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .postAddBundle(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
-
-    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
-
-  }
-
-  @Test
-  public void postAddBundle_appStatusSmokeTest() {
-
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .postAddBundle(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
-
-  }
-
-  @Test
-  public void postAddBundle_failedValidation() {
-
-    ControllerTestUtils.mockSmartValidatorErrors(addBundleValidator, List.of("bundleName"));
-
-    when(padPipelineService.isComplete(any())).thenReturn(true);
-
-    endpointTester.setRequestMethod(HttpMethod.POST)
-        .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PipelinesController.class)
-                .postAddBundle(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
-
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 

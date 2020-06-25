@@ -7,14 +7,20 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBund
 
 public class PadBundleSummaryView {
 
+  private final Integer bundleId;
   private final String bundleName;
   private final List<String> pipelineReferences;
 
   public PadBundleSummaryView(PadBundle bundle, List<PadBundleLink> links) {
+    this.bundleId = bundle.getId();
     this.bundleName = bundle.getBundleName();
     this.pipelineReferences = links.stream()
         .map(padBundleLink -> padBundleLink.getPipeline().getPipelineRef())
         .collect(Collectors.toUnmodifiableList());
+  }
+
+  public Integer getBundleId() {
+    return bundleId;
   }
 
   public String getBundleName() {

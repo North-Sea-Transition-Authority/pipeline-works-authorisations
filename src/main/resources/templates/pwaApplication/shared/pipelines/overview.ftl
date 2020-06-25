@@ -69,9 +69,11 @@
                 <#if bundleValidationFactory?has_content && !bundleValidationFactory.isValid(bundle)>
                   <span class="govuk-error-message">${bundleValidationFactory.getErrorMessage(bundle)}</span>
                 </#if>
-                <@fdsCard.cardHeader cardHeadingText=bundle.bundleName />
-                <br/>
-                <h3 class="govuk-heading-s">Pipelines</h3>
+                <@fdsCard.cardHeader cardHeadingText=bundle.bundleName>
+                    <@fdsCard.cardAction cardLinkText="Edit" cardLinkUrl=springUrl(pipelineUrlFactory.getEditBundleUrl(bundle.bundleId)) />
+                </@fdsCard.cardHeader>
+
+              <br/><h3 class="govuk-heading-s">Pipelines</h3>
 
               <ul class="govuk-list">
                   <#list bundle.pipelineReferences as pipelineReference>

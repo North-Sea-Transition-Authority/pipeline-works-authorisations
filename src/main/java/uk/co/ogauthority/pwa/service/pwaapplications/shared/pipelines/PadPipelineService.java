@@ -234,6 +234,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return IterableUtils.toList(padPipelineRepository.findAllById(padPipelineIds));
   }
 
+  public Long getCountOfPipelinesByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
+    return padPipelineRepository.countAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
+  }
+
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L
