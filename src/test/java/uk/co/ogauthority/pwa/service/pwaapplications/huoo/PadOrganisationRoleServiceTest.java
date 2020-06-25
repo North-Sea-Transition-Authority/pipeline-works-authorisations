@@ -38,7 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadP
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinkRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -50,7 +50,7 @@ public class PadOrganisationRoleServiceTest {
   private PadOrganisationRolesRepository padOrganisationRolesRepository;
 
   @Mock
-  private PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository;
+  private PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -89,7 +89,7 @@ public class PadOrganisationRoleServiceTest {
 
     padOrganisationRoleService = new PadOrganisationRoleService(
         padOrganisationRolesRepository,
-        padPipelineOrgRoleLinkRepository,
+        padPipelineOrganisationRoleLinkRepository,
         portalOrganisationsAccessor,
         entityManager);
 
@@ -510,7 +510,7 @@ public class PadOrganisationRoleServiceTest {
     verify(summaryDto, times(1)).getOwnerOrganisationUnitGroups();
 
     verify(padOrganisationRolesRepository, times(1)).saveAll(padOrgRoleArgCapture.capture());
-    verify(padPipelineOrgRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
 
     // Assert that overall Role created correctly
     assertThat(padOrgRoleArgCapture.getValue()).hasSize(1);
@@ -558,7 +558,7 @@ public class PadOrganisationRoleServiceTest {
     verify(summaryDto, times(1)).getOwnerOrganisationUnitGroups();
 
     verify(padOrganisationRolesRepository, times(1)).saveAll(padOrgRoleArgCapture.capture());
-    verify(padPipelineOrgRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
 
     assertThat(padOrgRoleArgCapture.getValue()).isEmpty();
     assertThat(padOrgRolePipelineLinkArgCapture.getValue()).isEmpty();
@@ -604,7 +604,7 @@ public class PadOrganisationRoleServiceTest {
     var argCapture = ArgumentCaptor.forClass(PadPipelineOrganisationRoleLink.class);
     padOrganisationRoleService.createPadPipelineOrganisationRoleLink(org1HolderRole, pipeline);
 
-    verify(padPipelineOrgRoleLinkRepository, times(1)).save(argCapture.capture());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).save(argCapture.capture());
 
     assertThat(argCapture.getValue()).satisfies(padPipelineOrganisationRoleLink -> {
       assertThat(padPipelineOrganisationRoleLink.getPipeline()).isEqualTo(pipeline);

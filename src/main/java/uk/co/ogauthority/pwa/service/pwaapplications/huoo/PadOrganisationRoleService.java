@@ -42,7 +42,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUn
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinkRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -52,18 +52,18 @@ import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 public class PadOrganisationRoleService implements ApplicationFormSectionService {
 
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
-  private final PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository;
+  private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final EntityManager entityManager;
 
   @Autowired
   public PadOrganisationRoleService(
       PadOrganisationRolesRepository padOrganisationRolesRepository,
-      PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository,
+      PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       EntityManager entityManager) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
-    this.padPipelineOrgRoleLinkRepository = padPipelineOrgRoleLinkRepository;
+    this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.entityManager = entityManager;
   }
@@ -391,19 +391,19 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     }
 
-    padPipelineOrgRoleLinkRepository.saveAll(padPipelineOrgRoleLinks);
+    padPipelineOrganisationRoleLinkRepository.saveAll(padPipelineOrgRoleLinks);
 
   }
 
   @Transactional
   public PadPipelineOrganisationRoleLink createPadPipelineOrganisationRoleLink(PadOrganisationRole padOrganisationRole,
                                                                                Pipeline pipeline) {
-    return padPipelineOrgRoleLinkRepository.save(new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
+    return padPipelineOrganisationRoleLinkRepository.save(new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
   }
 
   public Set<PipelineId> getPipelineIdsWhereRoleOfTypeSet(PwaApplicationDetail pwaApplicationDetail,
                                                           HuooRole huooRole) {
-    return padPipelineOrgRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
+    return padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
         pwaApplicationDetail, huooRole)
         .stream()
         .map(PadPipelineOrganisationRoleLink::getPipeline)

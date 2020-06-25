@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
@@ -58,6 +59,9 @@ public class PadPipelinesHuooServiceTest {
   @Mock
   private PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
 
+  @Mock
+  private PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private PickHuooPipelinesForm form;
 
@@ -77,8 +81,8 @@ public class PadPipelinesHuooServiceTest {
         pickablePipelineService,
         portalOrganisationsAccessor,
         padOrganisationRoleService,
-        pickHuooPipelinesFormValidator
-    );
+        pickHuooPipelinesFormValidator,
+        padPipelineOrganisationRoleLinkRepository);
 
     when(padOrganisationRoleService.getPipelineIdsWhereRoleOfTypeSet(pwaApplicationDetail, HuooRole.OWNER))
         .thenReturn(Set.of(new PipelineId(CONSENTED_PIPELINE_ID)));
