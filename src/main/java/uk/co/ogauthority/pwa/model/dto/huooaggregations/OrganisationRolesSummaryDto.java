@@ -14,7 +14,10 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
-/* Summarises all the organisation roles for a pwa and gives access by huoo type or organisation unit*/
+/**
+ *  Summarises all the organisation roles for a pwa and gives access by huoo type or organisation unit.
+ *  "For each HUOO role, group pipelines by the organisations with that role."
+ **/
 public class OrganisationRolesSummaryDto {
 
   private final Map<HuooRole, Set<OrganisationRolePipelineGroupDto>> getNonPortalOrgRoleGroupsByHuooType;

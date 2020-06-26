@@ -298,13 +298,13 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public Map<PipelineId, String> getApplicationOrConsentedPipelineNumberLookup(
       PwaApplicationDetail pwaApplicationDetail,
       Set<PipelineId> pipelineIds) {
-    Map<PipelineId, PipelineDetail> currentPipelineDetailsFromSummary = pipelineService.getActivePipelineDetailsForApplicationMasterPwaById(
+    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineService.getActivePipelineDetailsForApplicationMasterPwaById(
         pwaApplicationDetail.getPwaApplication(),
         pipelineIds
     ).stream()
         .collect(Collectors.toMap(PipelineId::from, p -> p));
 
-    Map<PipelineId, PadPipeline> currentPadPipelinesFromSummary = getByApplicationDetailAndPipelineId(
+    Map<PipelineId, PadPipeline> padPipelinesLookup = getByApplicationDetailAndPipelineId(
         pwaApplicationDetail,
         pipelineIds
     ).stream()
@@ -314,15 +314,15 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .stream()
         .map(pipelineId -> {
           // this will blow up if we fail to find a reference from the application detail or the consented model for the pipelineId
-          if (currentPadPipelinesFromSummary.containsKey(pipelineId)) {
+          if (padPipelinesLookup.containsKey(pipelineId)) {
             return new ImmutablePair<PipelineId, String>(
                 pipelineId,
-                currentPadPipelinesFromSummary.get(pipelineId).getPipelineRef());
+                padPipelinesLookup.get(pipelineId).getPipelineRef());
           }
 
           return new ImmutablePair<PipelineId, String>(
               pipelineId,
-              currentPipelineDetailsFromSummary.get(pipelineId).getPipelineNumber()
+              pipelineDetailsLookup.get(pipelineId).getPipelineNumber()
           );
 
         })
