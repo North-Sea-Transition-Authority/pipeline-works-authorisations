@@ -1,20 +1,26 @@
 package uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,13 +31,18 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.ConsulteeGroupTeamView;
+import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
@@ -212,6 +223,30 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
+  public void renderMemberRoles_rolesPreFilled() throws Exception {
+
+    var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
+        ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER));
+
+    when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson()))
+        .thenReturn(Optional.of(member));
+
+    var form = (UserRolesForm) Objects.requireNonNull(mockMvc.perform(
+        get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+            .renderMemberRoles(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null,
+                user)))
+            .with(authenticatedUserAndSession(user)))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView())
+        .getModel()
+        .get("form");
+
+    assertThat(form.getUserRoles()).containsExactlyInAnyOrder("RECIPIENT", "RESPONDER");
+
+  }
+
+  @Test
   public void handleMemberRolesUpdate() throws Exception {
 
     mockMvc.perform(
@@ -223,7 +258,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
         .andExpect(status().is3xxRedirection());
 
     verify(consulteeGroupTeamService, times(1))
-        .updateUserRoles(eq(emtGroupDetail), eq(user.getLinkedPerson()), any(), any());
+        .updateUserRoles(eq(emtGroupDetail.getConsulteeGroup()), eq(user.getLinkedPerson()), any());
 
   }
 
@@ -238,6 +273,95 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("teamManagement/memberRoles"));
+
+  }
+
+  @Test
+  public void renderRemoveMemberScreen() throws Exception {
+
+    var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
+        ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER));
+
+    when(consulteeGroupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(member);
+
+    doCallRealMethod().when(consulteeGroupTeamService).mapGroupMemberToTeamMemberView(any());
+
+    mockMvc.perform(
+        get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+            .renderRemoveMemberScreen(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
+            .with(authenticatedUserAndSession(user)))
+        .andExpect(status().isOk());
+
+  }
+
+  @Test
+  public void renderRemoveMemberScreen_notMember() throws Exception {
+
+    when(consulteeGroupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenThrow(
+        new PwaEntityNotFoundException(""));
+
+    mockMvc.perform(
+        get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+            .renderRemoveMemberScreen(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
+            .with(authenticatedUserAndSession(user)))
+        .andExpect(status().isNotFound());
+
+  }
+
+  @Test
+  public void removeMember() throws Exception {
+
+    var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
+        ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER));
+
+    when(consulteeGroupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(member);
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+            .removeMember(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().is3xxRedirection());
+
+    verify(consulteeGroupTeamService, times(1)).removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
+
+  }
+
+  @Test
+  public void removeMember_notMember() throws Exception {
+
+    doThrow(new PwaEntityNotFoundException(""))
+        .when(consulteeGroupTeamService).removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+            .removeMember(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isNotFound());
+
+  }
+
+  @Test
+  public void removeMember_lastAccessManager() throws Exception {
+
+    var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
+        ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
+
+    when(consulteeGroupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(member);
+
+    doThrow(new LastAdministratorException(""))
+        .when(consulteeGroupTeamService).removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
+
+    doCallRealMethod().when(consulteeGroupTeamService).mapGroupMemberToTeamMemberView(any());
+
+    mockMvc.perform(
+        post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+            .removeMember(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("error"));
 
   }
 

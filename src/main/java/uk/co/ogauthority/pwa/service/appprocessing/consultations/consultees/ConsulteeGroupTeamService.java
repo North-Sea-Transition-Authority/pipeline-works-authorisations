@@ -1,15 +1,19 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -19,8 +23,10 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupTeamMemberRepository;
+import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 
@@ -89,7 +95,7 @@ public class ConsulteeGroupTeamService {
         .collect(Collectors.toList());
   }
 
-  private TeamMemberView mapGroupMemberToTeamMemberView(ConsulteeGroupTeamMember groupTeamMember) {
+  public TeamMemberView mapGroupMemberToTeamMemberView(ConsulteeGroupTeamMember groupTeamMember) {
 
     var roleSet = groupTeamMember.getRoles().stream()
         .map(role -> new TeamRoleView(role.name(), role.getDisplayName(), role.getDescription(), role.getDisplayOrder()))
@@ -97,26 +103,105 @@ public class ConsulteeGroupTeamService {
 
     return new TeamMemberView(
         groupTeamMember.getPerson(),
-        "#", // TODO later update
-        "#",
+        getEditUrl(groupTeamMember),
+        getRemoveUrl(groupTeamMember),
         roleSet
     );
 
   }
 
+  private String getEditUrl(ConsulteeGroupTeamMember groupTeamMember) {
+    return ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class).renderMemberRoles(
+        groupTeamMember.getConsulteeGroup().getId(),
+        groupTeamMember.getPerson().getId().asInt(),
+        null,
+        null));
+  }
+
+  private String getRemoveUrl(ConsulteeGroupTeamMember groupTeamMember) {
+    return ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+        .renderRemoveMemberScreen(groupTeamMember.getConsulteeGroup().getId(),
+            groupTeamMember.getPerson().getId().asInt(),
+            null));
+  }
+
+  private void addMember(ConsulteeGroup consulteeGroup, Person person, Set<ConsulteeGroupMemberRole> roles) {
+
+    if (roles.isEmpty()) {
+      throw new IllegalStateException("Can't add a new ConsulteeGroupTeamMember when given an empty role set");
+    }
+
+    var newTeamMember = new ConsulteeGroupTeamMember(consulteeGroup, person, roles);
+    groupTeamMemberRepository.save(newTeamMember);
+
+  }
+
+  private void updateMemberRoles(ConsulteeGroupTeamMember teamMember, Set<ConsulteeGroupMemberRole> roles) {
+
+    if (roles.isEmpty()) {
+      throw new IllegalStateException("Can't update ConsulteeGroupTeamMember when given an empty role set");
+    }
+
+    long numberOfAccessManagers = getNumberOfAccessManagersForGroup(teamMember.getConsulteeGroup());
+
+    if (teamMember.getRoles().contains(ConsulteeGroupMemberRole.ACCESS_MANAGER)
+        && numberOfAccessManagers == 1
+        && !roles.contains(ConsulteeGroupMemberRole.ACCESS_MANAGER)) {
+      throw new LastAdministratorException("Operation would result in 0 access managers");
+    }
+
+    teamMember.setRoles(roles);
+    groupTeamMemberRepository.save(teamMember);
+
+  }
+
   @Transactional
-  public void updateUserRoles(ConsulteeGroupDetail consulteeGroupDetail,
+  public void updateUserRoles(ConsulteeGroup consulteeGroup,
                               Person person,
-                              UserRolesForm form,
-                              AuthenticatedUserAccount currentUser) {
+                              UserRolesForm form) {
 
     var roleSet = form.getUserRoles().stream()
         .map(roleString -> EnumUtils.getEnumValue(ConsulteeGroupMemberRole.class, roleString))
         .collect(Collectors.toSet());
 
-    var newTeamMember = new ConsulteeGroupTeamMember(consulteeGroupDetail.getConsulteeGroup(), person, roleSet);
+    getTeamMemberByGroupAndPerson(consulteeGroup, person).ifPresentOrElse(
+        member -> updateMemberRoles(member, roleSet),
+        () -> addMember(consulteeGroup, person, roleSet)
+    );
 
-    groupTeamMemberRepository.save(newTeamMember);
+  }
+
+  public Optional<ConsulteeGroupTeamMember> getTeamMemberByGroupAndPerson(ConsulteeGroup consulteeGroup, Person person) {
+    return groupTeamMemberRepository.findByConsulteeGroupAndPerson(consulteeGroup, person);
+  }
+
+  public ConsulteeGroupTeamMember getTeamMemberOrError(ConsulteeGroup consulteeGroup, Person person) {
+    return getTeamMemberByGroupAndPerson(consulteeGroup, person)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find team member for consultee group id [%s] and person id [%s]",
+                consulteeGroup.getId(),
+                person.getId())));
+  }
+
+  private long getNumberOfAccessManagersForGroup(ConsulteeGroup consulteeGroup) {
+    return groupTeamMemberRepository.findAllByConsulteeGroup(consulteeGroup).stream()
+        .flatMap(m -> m.getRoles().stream())
+        .filter(r -> r.equals(ConsulteeGroupMemberRole.ACCESS_MANAGER))
+        .count();
+  }
+
+  @Transactional
+  public void removeTeamMember(ConsulteeGroup consulteeGroup, Person person) {
+
+    var member = getTeamMemberOrError(consulteeGroup, person);
+
+    long numberOfAccessManagers = getNumberOfAccessManagersForGroup(consulteeGroup);
+
+    if (member.getRoles().contains(ConsulteeGroupMemberRole.ACCESS_MANAGER) && numberOfAccessManagers == 1) {
+      throw new LastAdministratorException("Operation would result in 0 access managers");
+    }
+
+    groupTeamMemberRepository.delete(member);
 
   }
 

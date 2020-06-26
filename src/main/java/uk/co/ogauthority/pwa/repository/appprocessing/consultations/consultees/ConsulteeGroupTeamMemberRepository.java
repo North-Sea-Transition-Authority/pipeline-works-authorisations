@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
@@ -14,5 +15,8 @@ public interface ConsulteeGroupTeamMemberRepository extends CrudRepository<Consu
 
   @EntityGraph(attributePaths = {"consulteeGroup", "person"})
   List<ConsulteeGroupTeamMember> findAllByConsulteeGroup(ConsulteeGroup consulteeGroup);
+
+  @EntityGraph(attributePaths = {"consulteeGroup", "person"})
+  Optional<ConsulteeGroupTeamMember> findByConsulteeGroupAndPerson(ConsulteeGroup consulteeGroup, Person person);
 
 }

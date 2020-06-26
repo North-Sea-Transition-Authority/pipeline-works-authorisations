@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
@@ -158,7 +159,16 @@ public class ConsulteeGroupTeamManagementController {
 
       var person = teamManagementService.getPerson(personId);
 
-      // TODO later pre-populate roles
+      consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consulteeGroupDetail.getConsulteeGroup(), person)
+          .ifPresent(member -> {
+
+            List<String> roleList = member.getRoles().stream()
+                .map(Enum::name)
+                .collect(Collectors.toList());
+
+            form.setUserRoles(roleList);
+
+          });
 
       return getMemberRolesModelAndView(consulteeGroupDetail, person, form);
 
@@ -180,7 +190,7 @@ public class ConsulteeGroupTeamManagementController {
       }
 
       try {
-        consulteeGroupTeamService.updateUserRoles(consulteeGroupDetail, person, form, currentUser);
+        consulteeGroupTeamService.updateUserRoles(consulteeGroupDetail.getConsulteeGroup(), person, form);
         return ReverseRouter.redirect(on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(consulteeGroupId, null));
       } catch (LastAdministratorException e) {
         bindingResult.rejectValue("userRoles", "userRoles.invalid", "You cannot remove the last access manager from a team");
@@ -202,6 +212,61 @@ public class ConsulteeGroupTeamManagementController {
         .addObject("cancelUrl", ReverseRouter.route(
             on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(consulteeGroupDetail.getConsulteeGroupId(), null))
         );
+
+  }
+
+  private ModelAndView getRemoveMemberScreenModelAndView(ConsulteeGroupDetail detail, ConsulteeGroupTeamMember member) {
+
+    return new ModelAndView("teamManagement/removeMember")
+        .addObject("cancelUrl",
+            ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+                .renderTeamMembers(detail.getConsulteeGroupId(), null)))
+        .addObject("showTopNav", true)
+        .addObject("teamName", detail.getName())
+        .addObject("teamMember", consulteeGroupTeamService.mapGroupMemberToTeamMemberView(member));
+
+  }
+
+  @GetMapping("/{consulteeGroupId}/member/{personId}/remove")
+  public ModelAndView renderRemoveMemberScreen(@PathVariable Integer consulteeGroupId,
+                                               @PathVariable Integer personId,
+                                               AuthenticatedUserAccount user) {
+
+    return withManageableTeam(consulteeGroupId, user, consulteeGroupDetail -> {
+
+      var person = teamManagementService.getPerson(personId);
+      var member = consulteeGroupTeamService.getTeamMemberOrError(consulteeGroupDetail.getConsulteeGroup(), person);
+      return getRemoveMemberScreenModelAndView(consulteeGroupDetail, member);
+
+    });
+
+  }
+
+  @PostMapping("/{consulteeGroupId}/member/{personId}/remove")
+  public ModelAndView removeMember(@PathVariable Integer consulteeGroupId,
+                                   @PathVariable Integer personId,
+                                   AuthenticatedUserAccount user) {
+
+    return withManageableTeam(consulteeGroupId, user, consulteeGroupDetail -> {
+
+      var person = teamManagementService.getPerson(personId);
+
+      try {
+
+        consulteeGroupTeamService.removeTeamMember(consulteeGroupDetail.getConsulteeGroup(), person);
+        return ReverseRouter.redirect(on(ConsulteeGroupTeamManagementController.class)
+            .renderTeamMembers(consulteeGroupDetail.getConsulteeGroupId(), null));
+
+      } catch (LastAdministratorException e) {
+
+        var teamMember = consulteeGroupTeamService.getTeamMemberOrError(consulteeGroupDetail.getConsulteeGroup(), person);
+        return getRemoveMemberScreenModelAndView(consulteeGroupDetail, teamMember)
+            .addObject("error",
+                "This person cannot be removed from the team as they are currently the only person in the access manager role.");
+
+      }
+
+    });
 
   }
 
