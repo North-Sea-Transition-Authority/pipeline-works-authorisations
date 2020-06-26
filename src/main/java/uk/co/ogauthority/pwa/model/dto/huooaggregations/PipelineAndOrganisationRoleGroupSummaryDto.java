@@ -72,7 +72,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
             Collectors.mapping(OrganisationPipelineRoleDto::getOrganisationRoleDto, Collectors.toSet())
         ));
 
-    // Using a Set as the key will provided a consistent hash provided the set is not changed mid process.
+    // Using a Set as the key will provide a consistent hash provided the set is not changed mid process.
     // All sets have been set as immutable final elements and are not modifiable. Enforced with unit tests of base objects.
     // the order of elements in a set does not affect the result of equals or hashcode so the group itself will provide the consistent
     // key.
