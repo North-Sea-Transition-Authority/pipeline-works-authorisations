@@ -4,7 +4,7 @@ import java.util.List;
 import org.apache.commons.collections4.ListUtils;
 
 /**
- * Used by Pipeline Huoo overview screen to show summarised pipline huoos.
+ * Used by Pipeline Huoo overview screen to show summarised pipeline huoos.
  */
 public class PipelineAndOrgRoleGroupViewsByRole {
 
