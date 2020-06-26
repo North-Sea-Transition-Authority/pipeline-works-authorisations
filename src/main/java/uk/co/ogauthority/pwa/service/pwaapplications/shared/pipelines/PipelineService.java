@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,16 @@ public class PipelineService {
     return pipelineDetailRepository.findAllByPipeline_MasterPwaAndEndTimestampIsNull(
         pwaApplication.getMasterPwa()
     );
+  }
+
+  public List<PipelineDetail> getActivePipelineDetailsForApplicationMasterPwaById(PwaApplication pwaApplication,
+                                                                                  Set<PipelineId> pipelineIds) {
+    //revisit if performance is bad
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndEndTimestampIsNull(
+        pwaApplication.getMasterPwa()
+    ).stream()
+        .filter(pd -> pipelineIds.contains(new PipelineId(pd.getPipelineId())))
+        .collect(Collectors.toList());
   }
 
   public Set<Pipeline> getPipelinesFromIds(Set<PipelineId> pipelineIds) {

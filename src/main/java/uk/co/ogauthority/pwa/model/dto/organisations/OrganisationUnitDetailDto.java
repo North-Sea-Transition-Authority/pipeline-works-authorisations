@@ -12,7 +12,7 @@ public class OrganisationUnitDetailDto implements PickableOrganisationUnitDetail
   private final String companyName;
   private final String companyAddress;
 
-  private OrganisationUnitDetailDto(int organisationUnitId,
+  OrganisationUnitDetailDto(int organisationUnitId,
                                     String registeredNumber,
                                     String companyName,
                                     String companyAddress) {

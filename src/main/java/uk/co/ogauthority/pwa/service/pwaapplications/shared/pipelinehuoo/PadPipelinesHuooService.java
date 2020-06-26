@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PickHuooPipelinesForm;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -32,25 +34,28 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValidator;
 
 @Service
-public class PipelinesHuooService implements ApplicationFormSectionService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PipelinesHuooService.class);
+public class PadPipelinesHuooService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelinesHuooService.class);
 
   private final PickablePipelineService pickablePipelineService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
+  private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
 
 
   @Autowired
-  public PipelinesHuooService(
+  public PadPipelinesHuooService(
       PickablePipelineService pickablePipelineService,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       PadOrganisationRoleService padOrganisationRoleService,
-      PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator) {
+      PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator,
+      PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository) {
     this.pickablePipelineService = pickablePipelineService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.pickHuooPipelinesFormValidator = pickHuooPipelinesFormValidator;
+    this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
   }
 
 
@@ -154,5 +159,14 @@ public class PipelinesHuooService implements ApplicationFormSectionService {
     return portalOrganisationsAccessor.getOrganisationUnitDetailDtos(orgUnitsForRole);
 
   }
+
+  public PipelineAndOrganisationRoleGroupSummaryDto createPipelineAndOrganisationRoleGroupSummary(
+      PwaApplicationDetail pwaApplicationDetail) {
+
+    var allPipelineRolesForApp = padPipelineOrganisationRoleLinkRepository.findOrganisationPipelineRoleDtoByPwaApplicationDetail(
+        pwaApplicationDetail);
+    return PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(allPipelineRolesForApp);
+  }
+
 
 }

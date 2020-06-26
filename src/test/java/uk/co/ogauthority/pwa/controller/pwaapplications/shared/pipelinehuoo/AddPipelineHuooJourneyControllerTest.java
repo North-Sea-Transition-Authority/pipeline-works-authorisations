@@ -44,8 +44,8 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PipelinesHuooService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -69,7 +69,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   @MockBean
-  private PipelinesHuooService pipelinesHuooService;
+  private PadPipelinesHuooService padPipelinesHuooService;
 
   @MockBean
   private PickablePipelineService pickablePipelineService;
@@ -208,7 +208,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
       ((BindingResult) invocation.getArgument(2)).rejectValue(FORM_PICKED_PIPELINE_ATTR,
           FORM_PICKED_PIPELINE_ATTR + ".invalid", "blah");
       return invocation;
-    }).when(pipelinesHuooService).validateAddPipelineHuooForm(any(), any(), any(), any(), any());
+    }).when(padPipelinesHuooService).validateAddPipelineHuooForm(any(), any(), any(), any(), any());
 
     mockMvc.perform(post(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
@@ -308,7 +308,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
     var pickedPipelines = Set.of(new Pipeline(), new Pipeline());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
     when(pickablePipelineService.getPickedPipelinesFromStrings(any())).thenReturn(pickedPipelines);
-    when(pipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any())).thenReturn(foundPadOrgRoles);
+    when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any())).thenReturn(foundPadOrgRoles);
 
     mockMvc.perform(post(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
@@ -329,9 +329,9 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
         .andExpect(status().is3xxRedirection());
 
     verify(pickablePipelineService, times(1)).getPickedPipelinesFromStrings(PICKED_PIPELINE_IDS);
-    verify(pipelinesHuooService, times(1)).getPadOrganisationRolesFrom(pwaApplicationDetail, DEFAULT_ROLE,
+    verify(padPipelinesHuooService, times(1)).getPadOrganisationRolesFrom(pwaApplicationDetail, DEFAULT_ROLE,
         PICKED_ORG_IDS);
-    verify(pipelinesHuooService, times(1)).createPipelineOrganisationRoles(pwaApplicationDetail, foundPadOrgRoles,
+    verify(padPipelinesHuooService, times(1)).createPipelineOrganisationRoles(pwaApplicationDetail, foundPadOrgRoles,
         pickedPipelines);
 
   }
@@ -344,7 +344,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
       ((BindingResult) invocation.getArgument(2)).rejectValue(FORM_PICKED_PIPELINE_ATTR,
           FORM_PICKED_PIPELINE_ATTR + ".invalid", "blah");
       return invocation;
-    }).when(pipelinesHuooService).validateAddPipelineHuooForm(any(), any(), any(), any(), any());
+    }).when(padPipelinesHuooService).validateAddPipelineHuooForm(any(), any(), any(), any(), any());
 
     mockMvc.perform(post(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
         .selectOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null, null
@@ -355,7 +355,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
     )
         .andExpect(status().isOk());
 
-    verify(pipelinesHuooService, times(0)).createPipelineOrganisationRoles(any(), any(), any());
+    verify(padPipelinesHuooService, times(0)).createPipelineOrganisationRoles(any(), any(), any());
 
   }
 

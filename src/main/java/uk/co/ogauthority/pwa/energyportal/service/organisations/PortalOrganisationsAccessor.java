@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.energyportal.service.organisations;
 
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -86,7 +88,8 @@ public class PortalOrganisationsAccessor {
   /**
    * Returns a list of Organisation units whose ouId matches a value in the param list.
    */
-  public List<PortalOrganisationUnit> getOrganisationUnitsByOrganisationUnitIdIn(Iterable<OrganisationUnitId> organisationUnitList) {
+  public List<PortalOrganisationUnit> getOrganisationUnitsByOrganisationUnitIdIn(
+      Iterable<OrganisationUnitId> organisationUnitList) {
     var integerIdList = IterableUtils.toList(organisationUnitList)
         .stream().map(OrganisationUnitId::asInt)
         .collect(toList());
@@ -94,11 +97,24 @@ public class PortalOrganisationsAccessor {
   }
 
   public List<PortalOrganisationUnitDetail> getOrganisationUnitDetails(List<PortalOrganisationUnit> unit) {
-    return organisationUnitDetailRepository.getAllByOrganisationUnitIn(unit);
+    return organisationUnitDetailRepository.findByOrganisationUnitIn(unit);
   }
 
   public List<OrganisationUnitDetailDto> getOrganisationUnitDetailDtos(List<PortalOrganisationUnit> organisationUnits) {
-    return organisationUnitDetailRepository.getAllByOrganisationUnitIn(organisationUnits)
+    return organisationUnitDetailRepository.findByOrganisationUnitIn(organisationUnits)
+        .stream()
+        .map(OrganisationUnitDetailDto::from)
+        .collect(Collectors.toList());
+  }
+
+  public List<OrganisationUnitDetailDto> getOrganisationUnitDetailDtosByOrganisationUnitId(
+      Collection<OrganisationUnitId> organisationUnitIds) {
+
+    var idsAsInts = organisationUnitIds.stream()
+        .map(OrganisationUnitId::asInt)
+        .collect(toSet());
+
+    return organisationUnitDetailRepository.findByOrganisationUnit_ouIdIn(idsAsInts)
         .stream()
         .map(OrganisationUnitDetailDto::from)
         .collect(Collectors.toList());
@@ -108,7 +124,7 @@ public class PortalOrganisationsAccessor {
    * Return a list of all organisation groups.
    */
   public List<PortalOrganisationGroup> getAllOrganisationGroups() {
-    return  IterableUtils.toList(organisationGroupRepository.findAll());
+    return IterableUtils.toList(organisationGroupRepository.findAll());
   }
 
   /**
@@ -128,7 +144,8 @@ public class PortalOrganisationsAccessor {
   /**
    * Returns a list of organisation units which belong to organisation groups in the provided list.
    */
-  public List<PortalOrganisationUnit> getOrganisationUnitsForOrganisationGroupsIn(List<PortalOrganisationGroup> organisationGroups) {
+  public List<PortalOrganisationUnit> getOrganisationUnitsForOrganisationGroupsIn(
+      List<PortalOrganisationGroup> organisationGroups) {
     return organisationUnitRepository.findByPortalOrganisationGroupIn(organisationGroups);
   }
 

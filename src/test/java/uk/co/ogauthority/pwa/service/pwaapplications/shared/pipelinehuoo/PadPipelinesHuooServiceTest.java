@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
@@ -32,7 +33,7 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PipelinesHuooServiceTest {
+public class PadPipelinesHuooServiceTest {
 
   private final int CONSENTED_PIPELINE_ID = 10;
   private final int APPLICATION_PIPELINE_ID = 20;
@@ -58,6 +59,9 @@ public class PipelinesHuooServiceTest {
   @Mock
   private PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
 
+  @Mock
+  private PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private PickHuooPipelinesForm form;
 
@@ -73,12 +77,12 @@ public class PipelinesHuooServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     form = new PickHuooPipelinesForm();
 
-    pipelinesHuooService = new PipelinesHuooService(
+    pipelinesHuooService = new PadPipelinesHuooService(
         pickablePipelineService,
         portalOrganisationsAccessor,
         padOrganisationRoleService,
-        pickHuooPipelinesFormValidator
-    );
+        pickHuooPipelinesFormValidator,
+        padPipelineOrganisationRoleLinkRepository);
 
     when(padOrganisationRoleService.getPipelineIdsWhereRoleOfTypeSet(pwaApplicationDetail, HuooRole.OWNER))
         .thenReturn(Set.of(new PipelineId(CONSENTED_PIPELINE_ID)));
@@ -100,7 +104,7 @@ public class PipelinesHuooServiceTest {
 
   }
 
-  private PipelinesHuooService pipelinesHuooService;
+  private PadPipelinesHuooService pipelinesHuooService;
 
   @Test
   public void validateAddPipelineHuooForm_serviceInteraction() {

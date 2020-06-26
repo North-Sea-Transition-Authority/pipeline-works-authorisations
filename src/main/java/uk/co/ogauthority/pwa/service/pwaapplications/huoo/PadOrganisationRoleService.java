@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRolePipelineGroupDto;
-import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -42,7 +42,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUn
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinkRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -52,18 +52,18 @@ import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 public class PadOrganisationRoleService implements ApplicationFormSectionService {
 
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
-  private final PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository;
+  private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final EntityManager entityManager;
 
   @Autowired
   public PadOrganisationRoleService(
       PadOrganisationRolesRepository padOrganisationRolesRepository,
-      PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository,
+      PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       EntityManager entityManager) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
-    this.padPipelineOrgRoleLinkRepository = padPipelineOrgRoleLinkRepository;
+    this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.entityManager = entityManager;
   }
@@ -356,11 +356,11 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   /* Given a summary of organisation roles and associated pipelines, create application entities */
   @Transactional
   public void createApplicationOrganisationRolesFromSummary(PwaApplicationDetail pwaApplicationDetail,
-                                                            PwaOrganisationRolesSummaryDto pwaOrganisationRolesSummaryDto) {
+                                                            OrganisationRolesSummaryDto organisationRolesSummaryDto) {
 
 
     var padOrgRoles = createPadOrganisationRoleForEveryOrganisationRoleGroup(
-        pwaOrganisationRolesSummaryDto,
+        organisationRolesSummaryDto,
         pwaApplicationDetail);
 
     var persistedPadOrgRoleIterable = IterableUtils.toList(padOrganisationRolesRepository.saveAll(padOrgRoles));
@@ -369,7 +369,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     Map<PipelineId, Pipeline> pipelineLookup = new HashMap<>();
 
     for (PadOrganisationRole padOrganisationRole : persistedPadOrgRoleIterable) {
-      var orgRolePipelineGroup = pwaOrganisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
+      var orgRolePipelineGroup = organisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
           padOrganisationRole.getRole(),
           OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit())
       );
@@ -391,19 +391,19 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     }
 
-    padPipelineOrgRoleLinkRepository.saveAll(padPipelineOrgRoleLinks);
+    padPipelineOrganisationRoleLinkRepository.saveAll(padPipelineOrgRoleLinks);
 
   }
 
   @Transactional
   public PadPipelineOrganisationRoleLink createPadPipelineOrganisationRoleLink(PadOrganisationRole padOrganisationRole,
                                                                                Pipeline pipeline) {
-    return padPipelineOrgRoleLinkRepository.save(new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
+    return padPipelineOrganisationRoleLinkRepository.save(new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
   }
 
   public Set<PipelineId> getPipelineIdsWhereRoleOfTypeSet(PwaApplicationDetail pwaApplicationDetail,
                                                           HuooRole huooRole) {
-    return padPipelineOrgRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
+    return padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
         pwaApplicationDetail, huooRole)
         .stream()
         .map(PadPipelineOrganisationRoleLink::getPipeline)
@@ -413,10 +413,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
 
   private List<PadOrganisationRole> createPadOrganisationRoleForEveryOrganisationRoleGroup(
-      PwaOrganisationRolesSummaryDto pwaOrganisationRolesSummaryDto,
+      OrganisationRolesSummaryDto organisationRolesSummaryDto,
       PwaApplicationDetail pwaApplicationDetail) {
 
-    var allOrganisationUnitIdWithRoleList = pwaOrganisationRolesSummaryDto.getAllOrganisationUnitIdsWithRole();
+    var allOrganisationUnitIdWithRoleList = organisationRolesSummaryDto.getAllOrganisationUnitIdsWithRole();
     // just get org units once for easy lookup.
     Map<OrganisationUnitId, PortalOrganisationUnit> ouIdLookup = portalOrganisationsAccessor.getOrganisationUnitsByOrganisationUnitIdIn(
         allOrganisationUnitIdWithRoleList)
@@ -427,25 +427,25 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
     // might be a nicer/shorter way to do this eventually e.g get all org group dtos as list from summary object. For now it will do.
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getHolderOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getHolderOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));
 
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getUserOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getUserOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));
 
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getOperatorOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getOperatorOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));
 
     newPadOrgRoleList.addAll(createPadOrganisationRoleFromGroupDtos(
-        pwaOrganisationRolesSummaryDto.getOwnerOrganisationUnitGroups(),
+        organisationRolesSummaryDto.getOwnerOrganisationUnitGroups(),
         pwaApplicationDetail,
         ouIdLookup
     ));
