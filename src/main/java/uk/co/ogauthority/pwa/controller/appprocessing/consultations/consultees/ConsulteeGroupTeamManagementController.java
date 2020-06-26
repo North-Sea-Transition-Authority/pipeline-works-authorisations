@@ -21,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -31,7 +32,6 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -43,7 +43,8 @@ public class ConsulteeGroupTeamManagementController {
   private final AddConsulteeGroupTeamMemberFormValidator addMemberFormValidator;
   private final TeamManagementService teamManagementService;
 
-  private final Map<String, String> rolesMap;
+  private final Map<String, String> rolesCheckboxMap;
+  private final Map<String, String> allRolesMap;
 
   @Autowired
   public ConsulteeGroupTeamManagementController(ConsulteeGroupTeamService consulteeGroupTeamService,
@@ -54,9 +55,13 @@ public class ConsulteeGroupTeamManagementController {
     this.addMemberFormValidator = addMemberFormValidator;
     this.teamManagementService = teamManagementService;
 
-    rolesMap = ConsulteeGroupMemberRole.stream()
+    rolesCheckboxMap = ConsulteeGroupMemberRole.stream()
         .sorted(Comparator.comparing(ConsulteeGroupMemberRole::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, ConsulteeGroupMemberRole::getDescription));
+
+    allRolesMap = ConsulteeGroupMemberRole.stream()
+        .sorted(Comparator.comparing(ConsulteeGroupMemberRole::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(ConsulteeGroupMemberRole::getDisplayName, ConsulteeGroupMemberRole::getDescription));
 
   }
 
@@ -102,7 +107,8 @@ public class ConsulteeGroupTeamManagementController {
         ))
         .addObject("showBreadcrumbs", false)
         .addObject("userCanManageAccess", true)
-        .addObject("showTopNav", true);
+        .addObject("showTopNav", true)
+        .addObject("allRoles", allRolesMap);
 
   }
 
@@ -192,8 +198,9 @@ public class ConsulteeGroupTeamManagementController {
       try {
         consulteeGroupTeamService.updateUserRoles(consulteeGroupDetail.getConsulteeGroup(), person, form);
         return ReverseRouter.redirect(on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(consulteeGroupId, null));
-      } catch (LastAdministratorException e) {
-        bindingResult.rejectValue("userRoles", "userRoles.invalid", "You cannot remove the last access manager from a team");
+      } catch (LastUserInRoleRemovedException e) {
+        bindingResult.rejectValue("userRoles", "userRoles.invalid",
+            "This update would leave no users in the following roles: " + e.getMessage());
         return getMemberRolesModelAndView(consulteeGroupDetail, person, form);
       }
 
@@ -205,7 +212,7 @@ public class ConsulteeGroupTeamManagementController {
     return new ModelAndView("teamManagement/memberRoles")
         .addObject("teamId", consulteeGroupDetail.getConsulteeGroupId())
         .addObject("form", form)
-        .addObject("roles", rolesMap)
+        .addObject("roles", rolesCheckboxMap)
         .addObject("teamName", consulteeGroupDetail.getName())
         .addObject("userName", person.getFullName())
         .addObject("showTopNav", true)
@@ -257,12 +264,14 @@ public class ConsulteeGroupTeamManagementController {
         return ReverseRouter.redirect(on(ConsulteeGroupTeamManagementController.class)
             .renderTeamMembers(consulteeGroupDetail.getConsulteeGroupId(), null));
 
-      } catch (LastAdministratorException e) {
+      } catch (LastUserInRoleRemovedException e) {
 
         var teamMember = consulteeGroupTeamService.getTeamMemberOrError(consulteeGroupDetail.getConsulteeGroup(), person);
         return getRemoveMemberScreenModelAndView(consulteeGroupDetail, teamMember)
-            .addObject("error",
-                "This person cannot be removed from the team as they are currently the only person in the access manager role.");
+            .addObject("error", String.format(
+                "This person cannot be removed from the team as they are currently the only person in the following roles: %s",
+                e.getMessage()
+            ));
 
       }
 

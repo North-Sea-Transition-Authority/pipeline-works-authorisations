@@ -23,6 +23,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -251,8 +252,10 @@ public class ConsulteeGroupTeamServiceTest {
   public void removeTeamMember_successfulRemoval() {
 
     var member = new ConsulteeGroupTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
+    var member2 = new ConsulteeGroupTeamMember(oduGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(Optional.of(member));
+    when(groupTeamMemberRepository.findAllByConsulteeGroup(oduGroupDetail.getConsulteeGroup())).thenReturn(List.of(member, member2));
 
     groupTeamService.removeTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
 
@@ -270,13 +273,13 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void removeTeamMember_notLastAccessManager() {
+  public void removeTeamMember_notLastInRoles() {
 
-    var allRolesMember = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), EnumSet.allOf(ConsulteeGroupMemberRole.class));
-    var additionalAccessManager = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
+    var allRolesMember = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), EnumSet.allOf(ConsulteeGroupMemberRole.class));
+    var additionalAccessManager = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(
-        Optional.of(allRolesMember));
+        Optional.of(additionalAccessManager));
 
     when(groupTeamMemberRepository.findAllByConsulteeGroup(emtGroupDetail.getConsulteeGroup())).thenReturn(
         List.of(allRolesMember, additionalAccessManager)
@@ -284,31 +287,40 @@ public class ConsulteeGroupTeamServiceTest {
 
     groupTeamService.removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
 
-    verify(groupTeamMemberRepository, times(1)).delete(allRolesMember);
-
-  }
-
-  @Test(expected = LastAdministratorException.class)
-  public void removeTeamMember_lastAccessManager() {
-
-    var accessManagerMember = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
-    var nonAccessManagerMember = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.RESPONDER));
-
-    when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(Optional.of(accessManagerMember));
-    when(groupTeamMemberRepository.findAllByConsulteeGroup(emtGroupDetail.getConsulteeGroup())).thenReturn(
-        List.of(accessManagerMember, nonAccessManagerMember)
-    );
-
-    groupTeamService.removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
+    verify(groupTeamMemberRepository, times(1)).delete(additionalAccessManager);
 
   }
 
   @Test
-  public void updateUsersRoles_successfulUpdate() {
+  public void removeTeamMember_lastInRoles() {
+
+    var accessRecipient = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RECIPIENT));
+    var responder = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.RESPONDER));
+
+    when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(Optional.of(accessRecipient));
+    when(groupTeamMemberRepository.findAllByConsulteeGroup(emtGroupDetail.getConsulteeGroup())).thenReturn(
+        List.of(accessRecipient, responder)
+    );
+
+    boolean thrown = false;
+    try {
+      groupTeamService.removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
+    } catch (LastUserInRoleRemovedException e) {
+      thrown = true;
+      assertThat(e.getMessage()).contains("Access managers, Consultation recipients");
+    }
+
+    assertThat(thrown).isTrue();
+
+  }
+
+  @Test
+  public void updateUsersRoles() {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(Optional.of(member));
+    when(groupTeamMemberRepository.findAllByConsulteeGroup(emtGroupDetail.getConsulteeGroup())).thenReturn(List.of(member));
 
     var newRoles = Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RECIPIENT);
     var form = getRolesFormWithRoles(newRoles);
@@ -360,10 +372,10 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void updateUsersRoles_changeAccessManager_notLastAccessManager() {
+  public void updateUsersRoles_changeRoles_notLastinRoles() {
 
-    var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
-    var additionalAccessManager = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
+    var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
+    var additionalAccessManager = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
 
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(Optional.of(member));
     when(groupTeamMemberRepository.findAllByConsulteeGroup(emtGroupDetail.getConsulteeGroup())).thenReturn(
@@ -383,11 +395,11 @@ public class ConsulteeGroupTeamServiceTest {
 
   }
 
-  @Test(expected = LastAdministratorException.class)
-  public void updateUsersRoles_changeAccessManager_lastAccessManager() {
+  @Test
+  public void updateUsersRoles_changeRoles_lastInRoles() {
 
     var member = new ConsulteeGroupTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson(),
-        Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
+        Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
 
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(oduGroupDetail.getConsulteeGroup(),
         user.getLinkedPerson())).thenReturn(Optional.of(member));
@@ -395,7 +407,16 @@ public class ConsulteeGroupTeamServiceTest {
         List.of(member));
 
     var form = getRolesFormWithRoles(Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-    groupTeamService.updateUserRoles(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), form);
+
+    boolean thrown = false;
+    try {
+      groupTeamService.updateUserRoles(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), form);
+    } catch (LastUserInRoleRemovedException e) {
+      thrown = true;
+      assertThat(e.getMessage()).contains("Access managers, Consultation responders");
+    }
+
+    assertThat(thrown).isTrue();
 
   }
 

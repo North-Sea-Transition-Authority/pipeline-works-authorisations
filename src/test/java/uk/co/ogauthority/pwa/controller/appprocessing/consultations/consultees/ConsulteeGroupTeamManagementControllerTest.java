@@ -27,10 +27,14 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -277,6 +281,37 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
+  public void handleMemberRolesUpdate_lastInRoles() throws Exception {
+
+    doThrow(new LastUserInRoleRemovedException("Access managers, Consultation responders"))
+        .when(consulteeGroupTeamService).updateUserRoles(eq(emtGroupDetail.getConsulteeGroup()), eq(user.getLinkedPerson()), any());
+
+    doCallRealMethod().when(consulteeGroupTeamService).mapGroupMemberToTeamMemberView(any());
+
+    var bindingResult = (BeanPropertyBindingResult) Objects.requireNonNull(mockMvc.perform(
+        post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
+            .handleMemberRolesUpdate(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null,
+                null, user)))
+            .with(authenticatedUserAndSession(user))
+            .param("userRoles", "RECIPIENT")
+            .with(csrf()))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView())
+        .getModel()
+        .values()
+        .stream()
+        .filter(val -> val instanceof BindingResult)
+        .findFirst()
+        .orElseThrow();
+
+    assertThat(bindingResult.getFieldError("userRoles"))
+        .extracting(FieldError::getDefaultMessage)
+        .isEqualTo("This update would leave no users in the following roles: Access managers, Consultation responders");
+
+  }
+
+  @Test
   public void renderRemoveMemberScreen() throws Exception {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
@@ -343,14 +378,14 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
-  public void removeMember_lastAccessManager() throws Exception {
+  public void removeMember_LastInRoles() throws Exception {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
 
     when(consulteeGroupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(member);
 
-    doThrow(new LastAdministratorException(""))
+    doThrow(new LastUserInRoleRemovedException("Access managers, Consultation responders"))
         .when(consulteeGroupTeamService).removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
 
     doCallRealMethod().when(consulteeGroupTeamService).mapGroupMemberToTeamMemberView(any());
@@ -361,7 +396,9 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(model().attributeExists("error"));
+        .andExpect(model().attribute(
+            "error",
+            "This person cannot be removed from the team as they are currently the only person in the following roles: Access managers, Consultation responders"));
 
   }
 

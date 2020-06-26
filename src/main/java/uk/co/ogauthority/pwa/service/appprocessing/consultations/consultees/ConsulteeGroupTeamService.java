@@ -4,8 +4,10 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -136,22 +139,42 @@ public class ConsulteeGroupTeamService {
 
   }
 
-  private void updateMemberRoles(ConsulteeGroupTeamMember teamMember, Set<ConsulteeGroupMemberRole> roles) {
+  private void updateMemberRoles(ConsulteeGroupTeamMember teamMember, Set<ConsulteeGroupMemberRole> newRoles) {
 
-    if (roles.isEmpty()) {
+    if (newRoles.isEmpty()) {
       throw new IllegalStateException("Can't update ConsulteeGroupTeamMember when given an empty role set");
     }
 
-    long numberOfAccessManagers = getNumberOfAccessManagersForGroup(teamMember.getConsulteeGroup());
+    assertNoEmptyRolesAfterUpdate(teamMember, newRoles);
 
-    if (teamMember.getRoles().contains(ConsulteeGroupMemberRole.ACCESS_MANAGER)
-        && numberOfAccessManagers == 1
-        && !roles.contains(ConsulteeGroupMemberRole.ACCESS_MANAGER)) {
-      throw new LastAdministratorException("Operation would result in 0 access managers");
-    }
-
-    teamMember.setRoles(roles);
+    teamMember.setRoles(newRoles);
     groupTeamMemberRepository.save(teamMember);
+
+  }
+
+  private void assertNoEmptyRolesAfterUpdate(ConsulteeGroupTeamMember teamMember, Set<ConsulteeGroupMemberRole> newRoles) {
+
+    // get number of users in each consultee role for group
+    Map<ConsulteeGroupMemberRole, Long> roleToNumberOfUsersMap = getTeamMembersForGroup(teamMember.getConsulteeGroup()).stream()
+        .flatMap(member -> member.getRoles().stream())
+        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+    // get a list of roles that would be empty if this user's roles were updated to the newRoles
+    var emptyRoles = teamMember.getRoles().stream()
+        .filter(role -> roleToNumberOfUsersMap.get(role) == 1 && !newRoles.contains(role))
+        .collect(Collectors.toList());
+
+    // if there's one or more roles that would now have no users in it, throw exception
+    if (emptyRoles.size() > 0) {
+
+      String emptyRolesCsv = emptyRoles.stream()
+          .map(role -> role.getDisplayName() + "s")
+          .sorted(Comparator.comparing(roleString -> roleString))
+          .collect(Collectors.joining(", "));
+
+      throw new LastUserInRoleRemovedException(emptyRolesCsv);
+
+    }
 
   }
 
@@ -183,23 +206,12 @@ public class ConsulteeGroupTeamService {
                 person.getId())));
   }
 
-  private long getNumberOfAccessManagersForGroup(ConsulteeGroup consulteeGroup) {
-    return groupTeamMemberRepository.findAllByConsulteeGroup(consulteeGroup).stream()
-        .flatMap(m -> m.getRoles().stream())
-        .filter(r -> r.equals(ConsulteeGroupMemberRole.ACCESS_MANAGER))
-        .count();
-  }
-
   @Transactional
   public void removeTeamMember(ConsulteeGroup consulteeGroup, Person person) {
 
     var member = getTeamMemberOrError(consulteeGroup, person);
 
-    long numberOfAccessManagers = getNumberOfAccessManagersForGroup(consulteeGroup);
-
-    if (member.getRoles().contains(ConsulteeGroupMemberRole.ACCESS_MANAGER) && numberOfAccessManagers == 1) {
-      throw new LastAdministratorException("Operation would result in 0 access managers");
-    }
+    assertNoEmptyRolesAfterUpdate(member, Set.of());
 
     groupTeamMemberRepository.delete(member);
 

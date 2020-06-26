@@ -7,9 +7,9 @@ import java.util.stream.Stream;
  */
 public enum ConsulteeGroupMemberRole {
 
-  ACCESS_MANAGER("Access manager", "Can add, update and remove users in this team (Access manager)", 10),
-  RECIPIENT("Recipient", "Can receive consultation requests for applications and assign to responders (Recipient)", 20),
-  RESPONDER("Responder", "Can (re)assign responder for a consultation request and send response (Responder)", 30);
+  ACCESS_MANAGER("Access manager", "Control who can receive and respond on consultations from the OGA (Access manager)", 10),
+  RECIPIENT("Consultation recipient", "Receives PWA consultation requests from the OGA (Consultation recipient)", 20),
+  RESPONDER("Consultation responder", "Responds to the OGA on PWA consultations (Consultation responder)", 30);
 
   private final String displayName;
   private final String description;

@@ -51,7 +51,8 @@ public class PwaContactController {
   private final TeamManagementService teamManagementService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
 
-  private final Map<String, String> rolesMap;
+  private final Map<String, String> rolesCheckboxMap;
+  private final Map<String, String> allRolesMap;
 
   @Autowired
   public PwaContactController(PwaContactService pwaContactService,
@@ -65,9 +66,13 @@ public class PwaContactController {
     this.teamManagementService = teamManagementService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
 
-    rolesMap = PwaContactRole.stream()
+    rolesCheckboxMap = PwaContactRole.stream()
         .sorted(Comparator.comparing(PwaContactRole::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaContactRole::getRoleDescription));
+
+    allRolesMap = PwaContactRole.stream()
+        .sorted(Comparator.comparing(PwaContactRole::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(PwaContactRole::getRoleName, PwaContactRole::getRoleDescription));
 
   }
 
@@ -94,7 +99,7 @@ public class PwaContactController {
           .addObject("showTopNav", false)
           .addObject("userCanManageAccess", pwaContactService
               .personHasContactRoleForPwaApplication(pwaApplication, user.getLinkedPerson(), PwaContactRole.ACCESS_MANAGER))
-          .addObject("allRoles", rolesMap)
+          .addObject("allRoles", allRolesMap)
           .addObject("backUrl",
                   ReverseRouter.route(on(InitialTaskListController.class)
                           .viewTaskList(pwaApplication.getId(), null)));
@@ -171,7 +176,7 @@ public class PwaContactController {
     return new ModelAndView("teamManagement/memberRoles")
         .addObject("teamName", detail.getPwaApplicationRef())
         .addObject("form", form)
-        .addObject("roles", rolesMap)
+        .addObject("roles", rolesCheckboxMap)
         .addObject("userName", person.getFullName())
         .addObject("showTopNav", false)
         .addObject("cancelUrl", ReverseRouter.route(

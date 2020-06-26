@@ -12,18 +12,14 @@
 
     <#if allRoles??>
       <@fdsDetails.summaryDetails summaryTitle="What can each role do?" >
-        <table class="govuk-table">
-            <tbody class="govuk-table__body">
+        <@fdsCheckAnswers.checkAnswers summaryListClass="">
             <#list allRoles as propName, propValue>
-              <#assign name = propName?lower_case?cap_first?replace("_"," ") >
               <#assign description = propValue?keep_before("(") >
-                  <tr class="govuk-table__row">
-                      <td class="govuk-table__cell"> ${name} </td>
-                      <td class="govuk-table__cell"> ${description} </td>
-                  </tr>
+                  <@fdsCheckAnswers.checkAnswersRow keyText="${propName}" actionText="" actionUrl="" screenReaderActionText="">
+                    ${description}
+                  </@fdsCheckAnswers.checkAnswersRow>
             </#list>
-            </tbody>
-        </table>
+        </@fdsCheckAnswers.checkAnswers>
       </@fdsDetails.summaryDetails>
     </#if>
 
@@ -65,10 +61,18 @@
               <td class="govuk-table__cell">
                 <ul class="govuk-list">
                   <li>
-                      <@fdsAction.link linkText="Edit" linkUrl=springUrl(teamMemberView.editRoute) linkClass="govuk-link"></@fdsAction.link>
+                      <@fdsAction.link
+                        linkUrl=springUrl(teamMemberView.editRoute)
+                        linkText="Edit"
+                        linkScreenReaderText="Edit ${teamMemberView.fullName} user"
+                        linkClass="govuk-link govuk-link--no-visited-state"/>
                   </li>
                   <li>
-                      <@fdsAction.link linkText="Remove" linkUrl=springUrl(teamMemberView.removeRoute) linkClass="govuk-link"></@fdsAction.link>
+                      <@fdsAction.link
+                        linkUrl=springUrl(teamMemberView.removeRoute)
+                        linkText="Remove"
+                        linkScreenReaderText="Remove ${teamMemberView.fullName} user"
+                        linkClass="govuk-link govuk-link--no-visited-state"/>
                   </li>
                 </ul>
               </td>
