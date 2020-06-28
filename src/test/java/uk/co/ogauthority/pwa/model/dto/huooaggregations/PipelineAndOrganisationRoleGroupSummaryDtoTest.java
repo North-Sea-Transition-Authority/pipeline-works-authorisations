@@ -25,15 +25,10 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
   private static final int PIPELINE_ID3 = 300;
 
-  private PipelineId pipelineId1;
-  private PipelineId pipelineId2;
-
   private OrganisationPipelineRoleDto holderRole;
   private OrganisationPipelineRoleDto userRole;
   private OrganisationPipelineRoleDto operatorRole;
   private OrganisationPipelineRoleDto ownerRole;
-
-  private PipelineAndOrganisationRoleGroupSummaryDto pipelineAndOrganisationRoleGroupSummaryDto;
 
   @Before
   public void setup() {
@@ -41,9 +36,6 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     userRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.USER, OU_ID1, PIPELINE_ID1);
     operatorRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OPERATOR, OU_ID1, PIPELINE_ID1);
     ownerRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OWNER, OU_ID1, PIPELINE_ID1);
-
-    pipelineId1 = new PipelineId(PIPELINE_ID1);
-    pipelineId2 = new PipelineId(PIPELINE_ID2);
   }
 
   @Test
@@ -272,6 +264,84 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         new PipelineId(PIPELINE_ID2),
         new PipelineId(PIPELINE_ID3)
     );
+  }
+
+  @Test
+  public void getPipelineIdsWithAssignedRole_whenNoPipelinesForRole() {
+
+    var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
+    var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holder1Pipeline1, holder1Pipeline2)
+    );
+
+    assertThat(summary.getPipelineIdsWithAssignedRole(HuooRole.USER)).isEmpty();
+  }
+
+  @Test
+  public void getPipelineIdsWithAssignedRole_whenPipelinesForRole() {
+
+    var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
+    var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holder1Pipeline1, holder1Pipeline2)
+    );
+
+    assertThat(summary.getPipelineIdsWithAssignedRole(HuooRole.HOLDER)).containsExactlyInAnyOrder(
+        new PipelineId(PIPELINE_ID1),
+        new PipelineId(PIPELINE_ID2)
+    );
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void getPipelineIdsWithAssignedRole_unmodifiableSetReturned() {
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of()
+    );
+
+    summary.getPipelineIdsWithAssignedRole(HuooRole.HOLDER).add(new PipelineId(1));
+  }
+
+  //
+  @Test
+  public void getOrganisationUnitIdsWitAssignedRole_whenNoOrgsForRole() {
+
+    var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
+    var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holder1Pipeline1, holder1Pipeline2)
+    );
+
+    assertThat(summary.getOrganisationUnitIdsWitAssignedRole(HuooRole.USER)).isEmpty();
+  }
+
+  @Test
+  public void getOrganisationUnitIdsWitAssignedRole_whenOrgsForRole() {
+
+    var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
+    var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holder1Pipeline1, holder1Pipeline2)
+    );
+
+    assertThat(summary.getOrganisationUnitIdsWitAssignedRole(HuooRole.HOLDER)).containsExactlyInAnyOrder(
+        holder1Pipeline1.getOrganisationUnitId()
+    );
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void getOrganisationUnitIdsWitAssignedRole_unmodifiableSetReturned() {
+
+    var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of()
+    );
+
+    summary.getOrganisationUnitIdsWitAssignedRole(HuooRole.HOLDER).add(new OrganisationUnitId(1));
   }
 
 }
