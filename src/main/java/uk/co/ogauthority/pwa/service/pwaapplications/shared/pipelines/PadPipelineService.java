@@ -1,19 +1,17 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
-import static java.util.stream.Collectors.toSet;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,19 +236,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return List.of();
   }
 
-  public List<PadPipeline> getByApplicationDetailAndPipelineId(PwaApplicationDetail detail,
-                                                               Set<PipelineId> pipelineIds) {
-    var pipelinesIdsAsInts = SetUtils.emptyIfNull(pipelineIds).stream()
-        .map(PipelineId::asInt)
-        .collect(toSet());
-
-    if (pipelinesIdsAsInts.size() > 0) {
-      return padPipelineRepository.getAllByPwaApplicationDetailAndPipeline_idIn(detail, pipelinesIdsAsInts);
-    }
-
-    return List.of();
-  }
-
   public List<PadPipeline> getPadPipelinesByPadPipelineIds(Collection<Integer> padPipelineIds) {
     return IterableUtils.toList(padPipelineRepository.findAllById(padPipelineIds));
   }
@@ -292,25 +277,28 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
 
   /**
+   * Get a lookup of by pipeline id to pipeline number.
    * If a pipeline has been imported in the application, map pipelineId to the application's pipeline number,
    * else use the consented model pipeline number.
    */
   public Map<PipelineId, String> getApplicationOrConsentedPipelineNumberLookup(
-      PwaApplicationDetail pwaApplicationDetail,
-      Set<PipelineId> pipelineIds) {
-    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineService.getActivePipelineDetailsForApplicationMasterPwaById(
-        pwaApplicationDetail.getPwaApplication(),
-        pipelineIds
+      PwaApplicationDetail pwaApplicationDetail) {
+    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineService.getActivePipelineDetailsForApplicationMasterPwa(
+        pwaApplicationDetail.getPwaApplication()
     ).stream()
         .collect(Collectors.toMap(PipelineId::from, p -> p));
 
-    Map<PipelineId, PadPipeline> padPipelinesLookup = getByApplicationDetailAndPipelineId(
-        pwaApplicationDetail,
-        pipelineIds
+    Map<PipelineId, PadPipeline> padPipelinesLookup = padPipelineRepository.getAllByPwaApplicationDetail(
+        pwaApplicationDetail
     ).stream()
         .collect(Collectors.toMap(PipelineId::from, p -> p));
 
-    return pipelineIds
+    var allPipelineIds = Sets.union(
+        pipelineDetailsLookup.keySet(),
+        padPipelinesLookup.keySet()
+    );
+
+    return allPipelineIds
         .stream()
         .map(pipelineId -> {
           // this will blow up if we fail to find a reference from the application detail or the consented model for the pipelineId
@@ -328,5 +316,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
+
 
 }

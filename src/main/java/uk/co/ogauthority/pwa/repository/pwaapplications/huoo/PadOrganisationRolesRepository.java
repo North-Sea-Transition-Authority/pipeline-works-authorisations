@@ -6,14 +6,22 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 
 @Repository
-public interface PadOrganisationRolesRepository extends CrudRepository<PadOrganisationRole, Integer> {
+public interface PadOrganisationRolesRepository extends CrudRepository<PadOrganisationRole, Integer>,
+    PadOrganisationRolesDtoRepository {
 
   @EntityGraph(attributePaths = "organisationUnit")
   List<PadOrganisationRole> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+
+  @EntityGraph(attributePaths = {"organisationUnit", "organisationUnit.portalOrganisationGroup"})
+  List<PadOrganisationRole> getAllByPwaApplicationDetailAndRoleAndType(PwaApplicationDetail pwaApplicationDetail,
+                                                                       HuooRole role,
+                                                                       HuooType type);
 
   List<PadOrganisationRole> getAllByPwaApplicationDetailAndOrganisationUnit(PwaApplicationDetail pwaApplicationDetail,
                                                                             PortalOrganisationUnit organisationUnit);

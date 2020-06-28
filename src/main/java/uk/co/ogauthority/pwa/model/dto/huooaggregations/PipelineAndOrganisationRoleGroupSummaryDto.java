@@ -162,7 +162,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
     return Collections.unmodifiableSet(this.pipelinesByAssociatedRole.get(huooRole));
   }
 
-  public Set<OrganisationUnitId> getOrganisationUnitIdsWitAssignedRole(HuooRole huooRole) {
+  public Set<OrganisationUnitId> getOrganisationUnitIdsWithAssignedRole(HuooRole huooRole) {
     return Collections.unmodifiableSet(this.organisationsByAssociatedRole.get(huooRole));
   }
 }

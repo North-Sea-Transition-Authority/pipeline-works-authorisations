@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -90,6 +91,23 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   public PadOrganisationRole getOrganisationRole(PwaApplicationDetail pwaApplicationDetail, Integer id) {
     return padOrganisationRolesRepository.getByPwaApplicationDetailAndId(pwaApplicationDetail, id)
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find org role with ID: " + id));
+  }
+
+  private Set<OrganisationRoleDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
+    return new HashSet<>(
+        padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(pwaApplicationDetail)
+    );
+
+  }
+
+  public Set<OrganisationRoleDto> getOrganisationRoleDtosByRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                 HuooRole huooRole,
+                                                                HuooType huooType) {
+    return getOrganisationRoleDtos(pwaApplicationDetail).stream()
+        .filter(o -> huooRole.equals(o.getHuooRole()))
+        .filter(o -> huooType.equals(o.getHuooType()))
+        .collect(Collectors.toSet());
+
   }
 
   public List<HuooOrganisationUnitRoleView> getHuooOrganisationUnitRoleViews(PwaApplicationDetail detail,
@@ -398,7 +416,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   @Transactional
   public PadPipelineOrganisationRoleLink createPadPipelineOrganisationRoleLink(PadOrganisationRole padOrganisationRole,
                                                                                Pipeline pipeline) {
-    return padPipelineOrganisationRoleLinkRepository.save(new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
+    return padPipelineOrganisationRoleLinkRepository.save(
+        new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
   }
 
   public Set<PipelineId> getPipelineIdsWhereRoleOfTypeSet(PwaApplicationDetail pwaApplicationDetail,
@@ -464,5 +483,12 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         o.getHuooRole()
     )));
     return newPadOrgRoleList;
+  }
+
+  public List<PadOrganisationRole> getPadOrganisationRolesInstances(PwaApplicationDetail pwaApplicationDetail,
+                                                                    HuooRole huooRole,
+                                                                    HuooType huooType) {
+    return padOrganisationRolesRepository.getAllByPwaApplicationDetailAndRoleAndType(pwaApplicationDetail, huooRole,
+        huooType);
   }
 }

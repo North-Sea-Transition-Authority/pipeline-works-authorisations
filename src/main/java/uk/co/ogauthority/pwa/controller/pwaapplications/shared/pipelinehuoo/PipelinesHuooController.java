@@ -63,10 +63,16 @@ public class PipelinesHuooController {
     var pipelineAndOrgGroupAppSummary = padPipelinesHuooService.createPipelineAndOrganisationRoleGroupSummary(
         applicationContext.getApplicationDetail());
 
+    var pipelineHuooSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgsGroupsByRoleView(
+        applicationContext.getApplicationDetail(),
+        pipelineAndOrgGroupAppSummary
+    );
+
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/pipelineHuooSummary")
-        .addObject("orgGroupViews", pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgsGroupsByRoleView(
-            applicationContext.getApplicationDetail(),
-            pipelineAndOrgGroupAppSummary))
+        .addObject("holderSummary", pipelineHuooSummaryView.getHolderRoleSummaryView())
+        .addObject("userSummary", pipelineHuooSummaryView.getUserRoleSumaryView())
+        .addObject("operatorSummary", pipelineHuooSummaryView.getOperatorRoleSummaryView())
+        .addObject("ownerSummary", pipelineHuooSummaryView.getOwnerRoleSummaryView())
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
         .addObject("pageHeading", ApplicationTask.PIPELINES_HUOO.getDisplayName() + " (HUOO)")
         .addObject("markCompleteErrorMessage", doValidation ? "Please correct errors" : null)

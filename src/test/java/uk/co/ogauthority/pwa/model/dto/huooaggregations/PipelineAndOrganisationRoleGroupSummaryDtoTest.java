@@ -316,7 +316,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         Set.of(holder1Pipeline1, holder1Pipeline2)
     );
 
-    assertThat(summary.getOrganisationUnitIdsWitAssignedRole(HuooRole.USER)).isEmpty();
+    assertThat(summary.getOrganisationUnitIdsWithAssignedRole(HuooRole.USER)).isEmpty();
   }
 
   @Test
@@ -329,7 +329,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         Set.of(holder1Pipeline1, holder1Pipeline2)
     );
 
-    assertThat(summary.getOrganisationUnitIdsWitAssignedRole(HuooRole.HOLDER)).containsExactlyInAnyOrder(
+    assertThat(summary.getOrganisationUnitIdsWithAssignedRole(HuooRole.HOLDER)).containsExactlyInAnyOrder(
         holder1Pipeline1.getOrganisationUnitId()
     );
   }
@@ -341,7 +341,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         Set.of()
     );
 
-    summary.getOrganisationUnitIdsWitAssignedRole(HuooRole.HOLDER).add(new OrganisationUnitId(1));
+    summary.getOrganisationUnitIdsWithAssignedRole(HuooRole.HOLDER).add(new OrganisationUnitId(1));
   }
 
 }
