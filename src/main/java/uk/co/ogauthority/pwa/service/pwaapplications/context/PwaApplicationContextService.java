@@ -158,20 +158,15 @@ public class PwaApplicationContextService {
    */
   private void getAndSetPadFile(PwaApplicationContext context, String fileId) {
 
-    try {
-      var padFile = padFileService.getPadFileByPwaApplicationDetailAndFileId(context.getApplicationDetail(), fileId);
-      if (!Objects.equals(padFile.getPwaApplicationDetail(), context.getApplicationDetail())) {
-        throw new AccessDeniedException(
-            String.format("PadFile app detail (%s) didn't match the app context's app detail (%s)",
-                padFile.getPwaApplicationDetail().getId(),
-                context.getApplicationDetail().getId()));
-      }
-      context.setPadFile(padFile);
-    } catch (Exception e) {
-      // Ignore this error for now
-      // TODO: PWA-588 - Remove this try/catch block.
-      LOGGER.error("Failed to get PadFile for context", e);
+    var padFile = padFileService.getPadFileByPwaApplicationDetailAndFileId(context.getApplicationDetail(), fileId);
+    if (!Objects.equals(padFile.getPwaApplicationDetail(), context.getApplicationDetail())) {
+      throw new AccessDeniedException(
+          String.format("PadFile app detail (%s) didn't match the app context's app detail (%s)",
+              padFile.getPwaApplicationDetail().getId(),
+              context.getApplicationDetail().getId()));
     }
+    context.setPadFile(padFile);
+
   }
 
 }

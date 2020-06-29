@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
-import javax.persistence.EntityManager;
 import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,37 +17,22 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadPipelineCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineCrossingFileServiceTest {
 
-  private final String FILE_ID = "1234567890qwertyuiop";
-
-  @Mock
-  private PadPipelineCrossingFileRepository padPipelineCrossingFileRepository;
-
   @Mock
   private PadPipelineCrossingRepository padPipelineCrossingRepository;
-
-  @Mock
-  private FileUploadService fileUploadService;
-
-  @Mock
-  private EntityManager entityManager;
 
   @Mock
   private PadFileService padFileService;
@@ -60,33 +44,16 @@ public class PipelineCrossingFileServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  private PadPipelineCrossingFile file;
-
-  private WebUserAccount wua = new WebUserAccount(1);
-
-  private UploadedFileView fileView = new UploadedFileView(
-      FILE_ID,
-      "NAME",
-      100L,
-      "DESC",
-      Instant.now(),
-      "");
-
   private CrossingDocumentsForm form = new CrossingDocumentsForm();
 
   @Before
   public void setUp() {
 
     pipelineCrossingFileService = new PipelineCrossingFileService(
-        padPipelineCrossingFileRepository,
         padPipelineCrossingRepository,
-        fileUploadService,
-        entityManager,
         springValidatorAdapter, padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    file = new PadPipelineCrossingFile();
-    file.setFileId(FILE_ID);
 
   }
 

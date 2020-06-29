@@ -83,10 +83,7 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
     mapEntityToForm(medianLineAgreement, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     validate(form, bindingResult, ValidationType.FULL, detail);
-    if (form.getAgreementStatus() != MedianLineStatus.NOT_CROSSED) {
-      medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, detail);
-    }
-    return !bindingResult.hasErrors();
+    return !bindingResult.hasErrors() && medianLineCrossingFileService.isComplete(detail);
 
   }
 
