@@ -1,42 +1,57 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 
 import java.util.List;
-import org.apache.commons.collections4.ListUtils;
 
 /**
  * Used by Pipeline Huoo overview screen to show summarised pipeline huoos.
  */
 public class PipelineAndOrgRoleGroupViewsByRole {
 
-  private final List<PipelinesAndOrgRoleGroupView> holderGroups;
-  private final List<PipelinesAndOrgRoleGroupView> userGroups;
-  private final List<PipelinesAndOrgRoleGroupView> operatorGroups;
-  private final List<PipelinesAndOrgRoleGroupView> ownerGroups;
+  private final PipelineHuooRoleSummaryView holderRoleSummaryView;
+  private final PipelineHuooRoleSummaryView userRoleSumaryView;
+  private final PipelineHuooRoleSummaryView operatorRoleSummaryView;
+  private final PipelineHuooRoleSummaryView ownerRoleSummaryView;
 
   PipelineAndOrgRoleGroupViewsByRole(
-      List<PipelinesAndOrgRoleGroupView> holderGroups,
-      List<PipelinesAndOrgRoleGroupView> userGroups,
-      List<PipelinesAndOrgRoleGroupView> operatorGroups,
-      List<PipelinesAndOrgRoleGroupView> ownerGroups) {
-    this.holderGroups = ListUtils.emptyIfNull(holderGroups);
-    this.userGroups = ListUtils.emptyIfNull(userGroups);
-    this.operatorGroups = ListUtils.emptyIfNull(operatorGroups);
-    this.ownerGroups = ListUtils.emptyIfNull(ownerGroups);
+      PipelineHuooRoleSummaryView holderRoleSummaryView,
+      PipelineHuooRoleSummaryView userRoleSumaryView,
+      PipelineHuooRoleSummaryView operatorRoleSummaryView,
+      PipelineHuooRoleSummaryView ownerRoleSummaryView) {
+    this.holderRoleSummaryView = holderRoleSummaryView;
+    this.userRoleSumaryView = userRoleSumaryView;
+    this.operatorRoleSummaryView = operatorRoleSummaryView;
+    this.ownerRoleSummaryView = ownerRoleSummaryView;
   }
 
   public List<PipelinesAndOrgRoleGroupView> getHolderGroups() {
-    return holderGroups;
+    return holderRoleSummaryView.getPipelinesAndOrgRoleGroupViews();
   }
 
   public List<PipelinesAndOrgRoleGroupView> getUserGroups() {
-    return userGroups;
+    return userRoleSumaryView.getPipelinesAndOrgRoleGroupViews();
   }
 
   public List<PipelinesAndOrgRoleGroupView> getOperatorGroups() {
-    return operatorGroups;
+    return operatorRoleSummaryView.getPipelinesAndOrgRoleGroupViews();
   }
 
   public List<PipelinesAndOrgRoleGroupView> getOwnerGroups() {
-    return ownerGroups;
+    return ownerRoleSummaryView.getPipelinesAndOrgRoleGroupViews();
+  }
+
+  public PipelineHuooRoleSummaryView getHolderRoleSummaryView() {
+    return holderRoleSummaryView;
+  }
+
+  public PipelineHuooRoleSummaryView getUserRoleSumaryView() {
+    return userRoleSumaryView;
+  }
+
+  public PipelineHuooRoleSummaryView getOperatorRoleSummaryView() {
+    return operatorRoleSummaryView;
+  }
+
+  public PipelineHuooRoleSummaryView getOwnerRoleSummaryView() {
+    return ownerRoleSummaryView;
   }
 }

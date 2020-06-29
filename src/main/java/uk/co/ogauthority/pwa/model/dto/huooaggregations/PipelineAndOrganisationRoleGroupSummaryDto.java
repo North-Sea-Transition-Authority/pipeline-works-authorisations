@@ -25,6 +25,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
 
   private final Set<PipelineId> allPipelineIdsInSummary;
   private final Set<OrganisationUnitId> allOrganisationUnitIdsInSummary;
+  private final Map<HuooRole, Set<PipelineId>> pipelinesByAssociatedRole;
+  private final Map<HuooRole, Set<OrganisationUnitId>> organisationsByAssociatedRole;
 
   // Private constructor. This is doing the aggregation of whatever OrganisationPipelineRoleDto are given,
   // but constructor are not very semantic when reading code. We also done want arbitrary constructions of this object to take place.
@@ -34,13 +36,11 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
     this.groupedPipelineOrgRoleGroups = new HashMap<>();
     this.allPipelineIdsInSummary = new HashSet<>();
     this.allOrganisationUnitIdsInSummary = new HashSet<>();
+    this.pipelinesByAssociatedRole = new HashMap<>();
+    this.organisationsByAssociatedRole = new HashMap<>();
 
-    // loop through non-aggregated organisation roles for pipelines and extract distinct organisation units and
-    // distinct top level pipeline ids.
-    portalOrganisationPipelineRoleDtos.forEach(o -> {
-      allPipelineIdsInSummary.add(o.getPipelineId());
-      allOrganisationUnitIdsInSummary.add(o.getOrganisationUnitId());
-    });
+    // populate simple maps and sets of pipelines and orgs upfront
+    createPipelineAndOrganisationsRoleMaterialisations(portalOrganisationPipelineRoleDtos);
 
     // Do an initial grouping of organisation role instances by HUOO role
     Map<HuooRole, Set<OrganisationPipelineRoleDto>> orgPipelineRolesByType = portalOrganisationPipelineRoleDtos.stream()
@@ -55,6 +55,27 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
       this.groupedPipelineOrgRoleGroups.put(role, createPipelineAndOrganisationHuooRoleGroups(orgPipelineRoles));
     }
 
+  }
+
+
+  private void createPipelineAndOrganisationsRoleMaterialisations(
+      Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos) {
+
+    // seed maps with all roles
+    HuooRole.stream()
+        .forEach(role -> {
+          this.pipelinesByAssociatedRole.put(role, new HashSet<>());
+          this.organisationsByAssociatedRole.put(role, new HashSet<>());
+        });
+
+    // loop through non-aggregated organisation roles for pipelines and extract distinct organisation units and
+    // distinct top level pipeline ids.
+    portalOrganisationPipelineRoleDtos.forEach(o -> {
+      this.allPipelineIdsInSummary.add(o.getPipelineId());
+      this.pipelinesByAssociatedRole.get(o.getHuooRole()).add(o.getPipelineId());
+      this.allOrganisationUnitIdsInSummary.add(o.getOrganisationUnitId());
+      this.organisationsByAssociatedRole.get(o.getHuooRole()).add(o.getOrganisationUnitId());
+    });
   }
 
   /**
@@ -135,6 +156,14 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
    */
   public Set<OrganisationUnitId> getAllOrganisationUnitIdsInSummary() {
     return Collections.unmodifiableSet(allOrganisationUnitIdsInSummary);
+  }
+
+  public Set<PipelineId> getPipelineIdsWithAssignedRole(HuooRole huooRole) {
+    return Collections.unmodifiableSet(this.pipelinesByAssociatedRole.get(huooRole));
+  }
+
+  public Set<OrganisationUnitId> getOrganisationUnitIdsWithAssignedRole(HuooRole huooRole) {
+    return Collections.unmodifiableSet(this.organisationsByAssociatedRole.get(huooRole));
   }
 }
 

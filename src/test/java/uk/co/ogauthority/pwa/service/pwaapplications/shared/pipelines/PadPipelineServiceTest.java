@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,7 +10,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -30,7 +32,6 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.repository.pipelines.PipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -45,9 +46,6 @@ public class PadPipelineServiceTest {
 
   @Mock
   private PadPipelineRepository padPipelineRepository;
-
-  @Mock
-  private PipelineRepository pipelineRepository;
 
   @Mock
   private PipelineService pipelineService;
@@ -70,11 +68,9 @@ public class PadPipelineServiceTest {
       return pipeline;
     });
 
-
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService);
-
 
   }
 
@@ -235,10 +231,70 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getByApplicationDetailAndPipelineId_serviceInteractions() {
-    padPipelineService.getByApplicationDetailAndPipelineId(detail, Set.of(new PipelineId(1), new PipelineId(2)));
-    verify(padPipelineRepository, times(1))
-        .getAllByPwaApplicationDetailAndPipeline_idIn(detail, Set.of(1, 2));
+  public void getApplicationOrConsentedPipelineNumberLookup_whenNoConsentedPipelines() {
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+
+    var padPipeline = new PadPipeline(detail);
+    padPipeline.setPipeline(pipeline);
+    padPipeline.setId(10);
+    padPipeline.setPipelineRef("PIPELINE_1");
+
+    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(padPipeline));
+
+    assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
+    .containsExactly(
+        entry(new PipelineId(1), "PIPELINE_1")
+
+    );
+
+  }
+
+  @Test
+  public void getApplicationOrConsentedPipelineNumberLookup_whenPadPipelineImportedFromConsentedModel() {
+
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+
+    var padPipeline = new PadPipeline(detail);
+    padPipeline.setPipeline(pipeline);
+    padPipeline.setId(10);
+    padPipeline.setPipelineRef("APP_PIPELINE_1");
+
+    var pipelineDetail = new PipelineDetail(pipeline);
+    pipelineDetail.setPipelineNumber("CONSENTED_PIPELINE_1");
+
+
+    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(padPipeline));
+
+    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
+        .thenReturn(List.of(pipelineDetail));
+
+    assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
+        .containsExactly(
+            entry(PipelineId.from(pipeline), "APP_PIPELINE_1")
+
+        );
+
+  }
+
+  @Test
+  public void getApplicationOrConsentedPipelineNumberLookup_whenNoAppPipelines() {
+
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    var pipelineDetail = new PipelineDetail(pipeline);
+    pipelineDetail.setPipelineNumber("CONSENTED_PIPELINE_1");
+
+    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
+        .thenReturn(List.of(pipelineDetail));
+
+    assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
+        .containsExactly(
+            entry(PipelineId.from(pipeline), "CONSENTED_PIPELINE_1")
+
+        );
+
   }
 
 
