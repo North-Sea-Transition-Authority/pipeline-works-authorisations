@@ -63,7 +63,7 @@ public class PipelinesHuooController {
     var pipelineAndOrgGroupAppSummary = padPipelinesHuooService.createPipelineAndOrganisationRoleGroupSummary(
         applicationContext.getApplicationDetail());
 
-    var pipelineHuooSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgsGroupsByRoleView(
+    var pipelineHuooSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
         applicationContext.getApplicationDetail(),
         pipelineAndOrgGroupAppSummary
     );

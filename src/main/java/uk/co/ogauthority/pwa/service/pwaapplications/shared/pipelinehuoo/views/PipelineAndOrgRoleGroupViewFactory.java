@@ -46,11 +46,11 @@ public class PipelineAndOrgRoleGroupViewFactory {
   private Map<OrganisationUnitId, String> createOrganisationNameLookupFromOrgRoles(
       PwaApplicationDetail pwaApplicationDetail) {
 
-    Set<OrganisationUnitId> allOrgsWithRole = padOrganisationRoleService.getOrgRolesForDetail(
+    Set<OrganisationUnitId> allOrgsWithRole = padOrganisationRoleService.getOrganisationRoleDtos(
         pwaApplicationDetail
     ).stream()
-        .filter(padOrganisationRole -> HuooType.PORTAL_ORG.equals(padOrganisationRole.getType()))
-        .map(por -> OrganisationUnitId.from(por.getOrganisationUnit()))
+        .filter(organisationRoleDto -> HuooType.PORTAL_ORG.equals(organisationRoleDto.getHuooType()))
+        .map(OrganisationRoleDto::getOrganisationUnitId)
         .collect(Collectors.toSet());
 
     return portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(
@@ -62,7 +62,7 @@ public class PipelineAndOrgRoleGroupViewFactory {
 
   }
 
-  public PipelineAndOrgRoleGroupViewsByRole createPipelineAndOrgsGroupsByRoleView(
+  public PipelineAndOrgRoleGroupViewsByRole createPipelineAndOrgGroupViewsByRole(
       PwaApplicationDetail pwaApplicationDetail,
       PipelineAndOrganisationRoleGroupSummaryDto pipelineAndOrganisationRoleGroupSummaryDto) {
 

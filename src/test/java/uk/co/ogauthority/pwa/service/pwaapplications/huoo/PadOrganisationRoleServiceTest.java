@@ -441,12 +441,12 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void getRoleCountMap() {
     when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        createOrgRole(HuooRole.HOLDER),
-        createOrgRole(HuooRole.USER),
-        createOrgRole(HuooRole.USER),
-        createOrgRole(HuooRole.OPERATOR),
-        createOrgRole(HuooRole.OPERATOR),
-        createOrgRole(HuooRole.OPERATOR)
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR)
     ));
 
     var result = padOrganisationRoleService.getRoleCountMap(detail);
@@ -470,17 +470,7 @@ public class PadOrganisationRoleServiceTest {
     verify(padOrganisationRolesRepository, times(1)).deleteAll(any());
   }
 
-  private PadOrganisationRole createOrgRole(HuooRole role) {
-    var organisationRole = new PadOrganisationRole();
-    organisationRole.setRole(role);
-    return organisationRole;
-  }
 
-  private PadOrganisationRole createOrgRole(HuooRole role, PortalOrganisationUnit portalOrganisationUnit) {
-    var orgRole = createOrgRole(role);
-    orgRole.setOrganisationUnit(portalOrganisationUnit);
-    return orgRole;
-  }
 
   @Test
   public void createApplicationOrganisationRolesFromSummary_createsApplicationLevelAndPipelineLinkOrganisationRoles() {
@@ -580,9 +570,9 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void getOrgRolesForDetailByOrganisationIdAndRole_whenOrgRolesFound(){
 
-    var org1HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit1);
-    var org1OwnerRole = createOrgRole(HuooRole.OWNER, orgUnit1);
-    var org2HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit2);
+    var org1HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1);
+    var org1OwnerRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1);
+    var org2HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit2);
 
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(
         List.of(org1HolderRole, org1OwnerRole, org2HolderRole)
@@ -598,7 +588,7 @@ public class PadOrganisationRoleServiceTest {
 
   @Test
   public void createPadPipelineOrganisationRoleLink_createsAndSavesExpectedLink(){
-    var org1HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit1);
+    var org1HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1);
     var pipeline = new Pipeline();
 
     var argCapture = ArgumentCaptor.forClass(PadPipelineOrganisationRoleLink.class);

@@ -93,7 +93,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find org role with ID: " + id));
   }
 
-  private Set<OrganisationRoleDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
+  public  Set<OrganisationRoleDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
     return new HashSet<>(
         padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(pwaApplicationDetail)
     );

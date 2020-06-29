@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,10 +38,10 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
   private static final int PIPELINE_2_ID = 200;
   private static final String PIPELINE_2_NUMBER = "PL2";
 
-  private OrganisationPipelineRoleDto holderRole;
-  private OrganisationPipelineRoleDto userRole;
-  private OrganisationPipelineRoleDto operatorRole;
-  private OrganisationPipelineRoleDto ownerRole;
+  private OrganisationPipelineRoleDto holderOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleDto userOrg2Pipeline2RoleDto;
+  private OrganisationPipelineRoleDto operatorOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleDto ownerOrg1Pipeline1RoleDto;
 
   private OrganisationUnitDetailDto ou1DetailDto = OrganisationsDtoTestUtil.createDetailDto(OU_ID1, "OU_1", "12345");
   private OrganisationUnitDetailDto ou2DetailDto = OrganisationsDtoTestUtil.createDetailDto(OU_ID2, "OU_2", null);
@@ -63,13 +64,24 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
   @Before
   public void setup() {
 
-    holderRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_1_ID);
-    userRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.USER, OU_ID2, PIPELINE_2_ID);
-    operatorRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OPERATOR, OU_ID1, PIPELINE_1_ID);
-    ownerRole = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
+    holderOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_1_ID);
+    userOrg2Pipeline2RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.USER, OU_ID2, PIPELINE_2_ID);
+    operatorOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OPERATOR, OU_ID1,
+        PIPELINE_1_ID);
+    ownerOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
+
+    var orgRoleDtos = Set.of(
+        holderOrg1Pipeline1RoleDto.getOrganisationRoleDto(),
+        userOrg2Pipeline2RoleDto.getOrganisationRoleDto(),
+        operatorOrg1Pipeline1RoleDto.getOrganisationRoleDto(),
+        ownerOrg1Pipeline1RoleDto.getOrganisationRoleDto()
+    );
+    when(padOrganisationRoleService.getOrganisationRoleDtos(any()))
+        .thenReturn(orgRoleDtos);
 
     when(portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(any()))
         .thenReturn(List.of(ou1DetailDto, ou2DetailDto));
+
     var pipelineMap = new HashMap<PipelineId, String>();
     pipelineMap.put(new PipelineId(PIPELINE_1_ID), PIPELINE_1_NUMBER);
     pipelineMap.put(new PipelineId(PIPELINE_2_ID), PIPELINE_2_NUMBER);
@@ -78,34 +90,71 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
         .thenReturn(pipelineMap);
 
     pipelineAndOrganisationRoleGroupSummaryDto = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
-        Set.of(holderRole, userRole, operatorRole, ownerRole));
+        Set.of(holderOrg1Pipeline1RoleDto, userOrg2Pipeline2RoleDto, operatorOrg1Pipeline1RoleDto,
+            ownerOrg1Pipeline1RoleDto));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    pipelineAndOrgRoleGroupViewFactory = new PipelineAndOrgRoleGroupViewFactory(
-        portalOrganisationsAccessor,
-        padPipelineService,
-        padOrganisationRoleService);
+        pipelineAndOrgRoleGroupViewFactory = new PipelineAndOrgRoleGroupViewFactory(
+            portalOrganisationsAccessor,
+            padPipelineService,
+            padOrganisationRoleService);
 
   }
 
-  //TODO PWA-422 fix/replace text
-//  @Test
-//  public void createPipelineAndOrgsGroupsByRoleView_serviceInteractions_dataRetrievedForAllPipelinesAndOrgsInSummary() {
-//    pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgsGroupsByRoleView(pwaApplicationDetail,
-//        pipelineAndOrganisationRoleGroupSummaryDto);
-//    verify(padPipelineService, times(1)).getApplicationOrConsentedPipelineNumberLookup(
-//        pwaApplicationDetail,
-//        Set.of(new PipelineId(PIPELINE_1_ID), new PipelineId(PIPELINE_2_ID)));
-//
-//    verify(portalOrganisationsAccessor, times(1)).getOrganisationUnitDetailDtosByOrganisationUnitId(
-//        Set.of(new OrganisationUnitId(OU_ID1), new OrganisationUnitId(OU_ID2)));
-//
-//  }
+  @Test
+  public void createPipelineAndOrgGroupViewsByRole_containsNotNullViews() {
+    var summaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
+        pwaApplicationDetail,
+        pipelineAndOrganisationRoleGroupSummaryDto);
+
+    assertThat(summaryView.getHolderRoleSummaryView()).isNotNull();
+    assertThat(summaryView.getUserRoleSumaryView()).isNotNull();
+    assertThat(summaryView.getOperatorRoleSummaryView()).isNotNull();
+    assertThat(summaryView.getOwnerRoleSummaryView()).isNotNull();
+  }
+
 
   @Test
-  public void createPipelineAndOrgsGroupsByRoleView_constructsViewsAsExpected() {
-    var view = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgsGroupsByRoleView(pwaApplicationDetail,
+  public void createPipelineAndOrgGroupViewsByRole_holderSummaryViewWhenTwoPipelinesButOneHolderRole() {
+    var holderSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
+        pwaApplicationDetail,
+        pipelineAndOrganisationRoleGroupSummaryDto).getHolderRoleSummaryView();
+
+    assertThat(holderSummaryView.getHuooRole()).isEqualTo(HuooRole.HOLDER);
+    assertThat(holderSummaryView.getUnassignedPipelineNumberMapForRole()).containsExactly(
+        entry(new PipelineId(PIPELINE_2_ID), PIPELINE_2_NUMBER)
+    );
+    assertThat(holderSummaryView.getUnassignedOrganisationNameMapForRole()).isEmpty();
+  }
+
+  @Test
+  public void createPipelineAndOrgGroupViewsByRole_holderSummaryViewWhenTwoHoldersButOneHolderHasRole() {
+    var holderOrg1Pipeline2Role = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1,
+        PIPELINE_2_ID);
+
+    var holderOrg2Role = OrganisationRoleDtoTestUtil.createOrgRole(HuooRole.HOLDER, OU_ID2);
+
+    when(padOrganisationRoleService.getOrganisationRoleDtosByRole(any(), any(), any()))
+        .thenReturn(Set.of(holderOrg1Pipeline2Role.getOrganisationRoleDto(), holderOrg2Role));
+
+    pipelineAndOrganisationRoleGroupSummaryDto = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(holderOrg1Pipeline1RoleDto, holderOrg1Pipeline2Role));
+
+    var holderSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
+        pwaApplicationDetail,
+        pipelineAndOrganisationRoleGroupSummaryDto).getHolderRoleSummaryView();
+
+    assertThat(holderSummaryView.getHuooRole()).isEqualTo(HuooRole.HOLDER);
+    assertThat(holderSummaryView.getUnassignedPipelineNumberMapForRole()).isEmpty();
+    assertThat(holderSummaryView.getUnassignedOrganisationNameMapForRole()).containsExactly(
+        entry(new OrganisationUnitId(OU_ID2), ou2DetailDto.getCompanyName())
+    );
+  }
+
+  @Test
+  public void createPipelineAndOrgGroupViewsByRole_constructsViewsAsExpected() {
+    var view = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(pwaApplicationDetail,
         pipelineAndOrganisationRoleGroupSummaryDto);
 
     //holder, Operator, Owner groups checked as same input
@@ -119,6 +168,7 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
           PIPELINE_1_NUMBER
       );
     });
+
     assertThat(view.getOperatorGroups()).hasOnlyOneElementSatisfying(pipelinesAndOrgRoleGroupView -> {
       assertPipelineAndOrgRoleGroupMatchesSingle(
           pipelinesAndOrgRoleGroupView,

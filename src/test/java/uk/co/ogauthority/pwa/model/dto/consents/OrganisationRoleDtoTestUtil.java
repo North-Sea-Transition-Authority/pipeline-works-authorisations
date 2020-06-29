@@ -13,4 +13,12 @@ public class OrganisationRoleDtoTestUtil {
         HuooType.PORTAL_ORG,
         pipelineId);
   }
+
+  public static OrganisationRoleDto createOrgRole(HuooRole huooRole, int ouId) {
+    return new OrganisationRoleDto(
+        ouId,
+        null,
+        huooRole,
+        HuooType.PORTAL_ORG);
+  }
 }
