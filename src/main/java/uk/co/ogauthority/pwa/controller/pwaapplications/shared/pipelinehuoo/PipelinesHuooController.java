@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -36,18 +36,18 @@ public class PipelinesHuooController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadPipelinesHuooService padPipelinesHuooService;
-  private final PipelineAndOrgRoleGroupViewFactory pipelineAndOrgRoleGroupViewFactory;
+  private final PadPipelineHuooViewFactory padPipelineHuooViewFactory;
 
   @Autowired
   public PipelinesHuooController(
       ApplicationBreadcrumbService breadcrumbService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PadPipelinesHuooService padPipelinesHuooService,
-      PipelineAndOrgRoleGroupViewFactory pipelineAndOrgRoleGroupViewFactory) {
+      PadPipelineHuooViewFactory padPipelineHuooViewFactory) {
     this.breadcrumbService = breadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPipelinesHuooService = padPipelinesHuooService;
-    this.pipelineAndOrgRoleGroupViewFactory = pipelineAndOrgRoleGroupViewFactory;
+    this.padPipelineHuooViewFactory = padPipelineHuooViewFactory;
   }
 
   @GetMapping
@@ -63,7 +63,7 @@ public class PipelinesHuooController {
     var pipelineAndOrgGroupAppSummary = padPipelinesHuooService.createPipelineAndOrganisationRoleGroupSummary(
         applicationContext.getApplicationDetail());
 
-    var pipelineHuooSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
+    var pipelineHuooSummaryView = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(
         applicationContext.getApplicationDetail(),
         pipelineAndOrgGroupAppSummary
     );

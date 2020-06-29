@@ -25,15 +25,17 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleSer
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 @Service
-//TODO PWA-422 rename service to something more appropriate PadPipelineHuooOrgRoleSummaryViewCreator
-public class PipelineAndOrgRoleGroupViewFactory {
+/**
+ * Service which constructs view objects over application pipeline huoo data designed to be consumed in Templates
+ */
+public class PadPipelineHuooViewFactory {
 
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PadPipelineService padPipelineService;
   private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
-  public PipelineAndOrgRoleGroupViewFactory(
+  public PadPipelineHuooViewFactory(
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       PadPipelineService padPipelineService,
       PadOrganisationRoleService padOrganisationRoleService) {

@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PipelineAndOrgRoleGroupViewFactoryTest {
+public class PadPipelineHuooViewFactoryTest {
 
   private static final int OU_ID1 = 10;
   private static final int PIPELINE_1_ID = 100;
@@ -55,7 +55,7 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
 
-  private PipelineAndOrgRoleGroupViewFactory pipelineAndOrgRoleGroupViewFactory;
+  private PadPipelineHuooViewFactory padPipelineHuooViewFactory;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -95,7 +95,7 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-        pipelineAndOrgRoleGroupViewFactory = new PipelineAndOrgRoleGroupViewFactory(
+        padPipelineHuooViewFactory = new PadPipelineHuooViewFactory(
             portalOrganisationsAccessor,
             padPipelineService,
             padOrganisationRoleService);
@@ -104,7 +104,7 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
 
   @Test
   public void createPipelineAndOrgGroupViewsByRole_containsNotNullViews() {
-    var summaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
+    var summaryView = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(
         pwaApplicationDetail,
         pipelineAndOrganisationRoleGroupSummaryDto);
 
@@ -117,7 +117,7 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
 
   @Test
   public void createPipelineAndOrgGroupViewsByRole_holderSummaryViewWhenTwoPipelinesButOneHolderRole() {
-    var holderSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
+    var holderSummaryView = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(
         pwaApplicationDetail,
         pipelineAndOrganisationRoleGroupSummaryDto).getHolderRoleSummaryView();
 
@@ -141,7 +141,7 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
     pipelineAndOrganisationRoleGroupSummaryDto = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1RoleDto, holderOrg1Pipeline2Role));
 
-    var holderSummaryView = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(
+    var holderSummaryView = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(
         pwaApplicationDetail,
         pipelineAndOrganisationRoleGroupSummaryDto).getHolderRoleSummaryView();
 
@@ -154,7 +154,7 @@ public class PipelineAndOrgRoleGroupViewFactoryTest {
 
   @Test
   public void createPipelineAndOrgGroupViewsByRole_constructsViewsAsExpected() {
-    var view = pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgGroupViewsByRole(pwaApplicationDetail,
+    var view = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(pwaApplicationDetail,
         pipelineAndOrganisationRoleGroupSummaryDto);
 
     //holder, Operator, Owner groups checked as same input
