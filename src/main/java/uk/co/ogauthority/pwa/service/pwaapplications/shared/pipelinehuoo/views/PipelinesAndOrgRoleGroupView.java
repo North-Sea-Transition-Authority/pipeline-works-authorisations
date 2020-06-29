@@ -7,17 +7,16 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 
 public class PipelinesAndOrgRoleGroupView {
 
-  // TODO PWA-422 PWA turn the independant sets and lists into maps.
   private final Set<PipelineId> pipelineIdSet;
   private final Set<OrganisationUnitId> organisationUnitIdSet;
   private final List<String> pipelineNumbers;
   private final List<String> organisationNames;
 
-  public PipelinesAndOrgRoleGroupView(
-                                      Set<PipelineId> pipelineIdSet,
-                                      Set<OrganisationUnitId> organisationUnitIdSet,
-                                      List<String> pipelineNumbers,
-                                      List<String> organisationNames) {
+  PipelinesAndOrgRoleGroupView(
+      Set<PipelineId> pipelineIdSet,
+      Set<OrganisationUnitId> organisationUnitIdSet,
+      List<String> pipelineNumbers,
+      List<String> organisationNames) {
     this.pipelineIdSet = pipelineIdSet;
     this.organisationUnitIdSet = organisationUnitIdSet;
     this.pipelineNumbers = pipelineNumbers;
