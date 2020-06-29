@@ -485,10 +485,4 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return newPadOrgRoleList;
   }
 
-  public List<PadOrganisationRole> getPadOrganisationRolesInstances(PwaApplicationDetail pwaApplicationDetail,
-                                                                    HuooRole huooRole,
-                                                                    HuooType huooType) {
-    return padOrganisationRolesRepository.getAllByPwaApplicationDetailAndRoleAndType(pwaApplicationDetail, huooRole,
-        huooType);
-  }
 }

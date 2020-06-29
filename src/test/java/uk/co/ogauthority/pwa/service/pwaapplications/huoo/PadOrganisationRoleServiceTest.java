@@ -613,5 +613,21 @@ public class PadOrganisationRoleServiceTest {
 
   }
 
+  @Test
+  public void getOrganisationRoleDtosByRole_filtersCorrectly(){
+    when(padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(detail))
+    .thenReturn(List.of(
+        new OrganisationRoleDto(null, null, HuooRole.USER, HuooType.TREATY_AGREEMENT),
+        new OrganisationRoleDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG)
+    ));
+
+
+    assertThat(padOrganisationRoleService.getOrganisationRoleDtosByRole(detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
+    .containsExactly(
+        new OrganisationRoleDto(null, null, HuooRole.USER, HuooType.TREATY_AGREEMENT)
+    );
+
+  }
+
 
 }
