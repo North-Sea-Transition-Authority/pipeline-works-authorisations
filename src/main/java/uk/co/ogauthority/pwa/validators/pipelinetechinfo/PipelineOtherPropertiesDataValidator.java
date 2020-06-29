@@ -78,7 +78,7 @@ public class PipelineOtherPropertiesDataValidator implements SmartValidator {
       validationHints = List.of(new PositiveNumberHint(), new DecimalPlacesHint(2));
 
     } else if (formProperty.equals(OtherPipelineProperty.POUR_POINT)) {
-      validationHints = List.of(new PositiveNumberHint());
+      validationHints = List.of(new IntegerHint());
 
     } else if (formProperty.equals(OtherPipelineProperty.SOLID_CONTENT)) {
       validationHints = List.of(new PositiveNumberHint(), new DecimalPlacesHint(2));
@@ -91,7 +91,7 @@ public class PipelineOtherPropertiesDataValidator implements SmartValidator {
     }
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "minMaxInput", minMaxInput, formProperty, validationHints);
+        "minMaxInput", minMaxInput, formProperty.getDisplayText(), validationHints);
 
   }
 

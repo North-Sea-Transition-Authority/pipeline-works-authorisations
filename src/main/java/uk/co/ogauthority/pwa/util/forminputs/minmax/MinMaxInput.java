@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.util.forminputs.minmax;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +44,6 @@ public class MinMaxInput {
   public boolean minSmallerOrEqualToMax() {
     int comparedResult = minValue.compareTo(maxValue);
     return comparedResult == -1 || comparedResult == 0;
-  }
-
-  public boolean maxLargerThanMin() {
-    return maxValue.compareTo(minValue) == 1;
   }
 
 
@@ -94,5 +91,28 @@ public class MinMaxInput {
 
   public void setMaxValue(BigDecimal maxValue) {
     this.maxValue = maxValue;
+  }
+
+
+
+
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MinMaxInput that = (MinMaxInput) o;
+    return Objects.equals(minValue, that.minValue)
+        && Objects.equals(maxValue, that.maxValue);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(minValue, maxValue);
   }
 }

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo
 
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -97,5 +98,28 @@ public class PadPipelineOtherProperties {
 
   public void setMaxValue(BigDecimal maxValue) {
     this.maxValue = maxValue;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadPipelineOtherProperties that = (PadPipelineOtherProperties) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && propertyName == that.propertyName
+        && availabilityOption == that.availabilityOption
+        && Objects.equals(minValue, that.minValue)
+        && Objects.equals(maxValue, that.maxValue);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, propertyName, availabilityOption, minValue, maxValue);
   }
 }

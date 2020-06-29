@@ -166,4 +166,12 @@ public class PwaApplicationDetailService {
     pwaApplicationDetailRepository.save(detail);
   }
 
+  @Transactional
+  public void setPhasesPresent(PwaApplicationDetail pwaApplicationDetail, String phasesPresent, String otherPhaseDescription) {
+    pwaApplicationDetail.setPipelinePhaseProperties(phasesPresent);
+    pwaApplicationDetail.setOtherPhaseDescription(otherPhaseDescription);
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
+
 }

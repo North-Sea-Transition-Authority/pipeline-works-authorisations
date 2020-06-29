@@ -1,9 +1,10 @@
 <#include '../../../layout.ftl'>
-<#include 'waxContentQuestion.ftl'>
+<#include 'propertyQuestion.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="properties" type="java.util.List<OtherPipelineProperty>" -->
-<#-- @ftlvariable name="waxContentOptions" type="java.util.List<WaxContentOption>" -->
+<#-- @ftlvariable name="propertyAvailabilityOptions" type="java.util.List<PropertyAvailabilityOption>" -->
+<#-- @ftlvariable name="propertyUnitMeasurements" type="java.util.List<PropertyUnitMeasurement>" -->
 
 
 
@@ -17,19 +18,24 @@
     <@fdsForm.htmlForm>
 
         <#list properties as property>
-            <@waxContentQuestion property waxContentOptions/>
+            <#assign unitMeasurement="">
+            <#list propertyUnitMeasurements as propertyUnitMeasurement>
+                <#if propertyUnitMeasurement == property>
+                    <#assign unitMeasurement=propertyUnitMeasurement.getDisplayText()>
+                </#if>
+            </#list> 
+            
+            <@propertyQuestion property=property propertyAvailabilityOptions=propertyAvailabilityOptions unitMeasurement=unitMeasurement />
         </#list>        
         
         
-        <h3>Phases present</h3>
+        <h3 class="govuk-heading-m">Phases present</h3>
         <@fdsCheckbox.checkbox path="form.oilPresent" labelText="Oil"/>
         <@fdsCheckbox.checkbox path="form.condensatePresent" labelText="Condensate"/>
         <@fdsCheckbox.checkbox path="form.gasPresent" labelText="Gas"/>
         <@fdsCheckbox.checkbox path="form.waterPresent" labelText="Water"/>
-        <@fdsCheckbox.checkbox path="form.otherPresent" labelText="Other">
-            <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.otherPresent"/>
-        </@fdsCheckbox.checkbox>
-        
+        <@fdsCheckbox.checkbox path="form.otherPresent" labelText="Other"/>
+        <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.otherPresent"/>
 
 
 

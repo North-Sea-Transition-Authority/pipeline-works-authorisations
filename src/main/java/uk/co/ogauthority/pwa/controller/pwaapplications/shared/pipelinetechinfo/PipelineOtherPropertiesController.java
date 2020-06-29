@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyUnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -58,8 +59,8 @@ public class PipelineOtherPropertiesController {
                                                       @PathVariable("applicationId") Integer applicationId,
                                                       PwaApplicationContext applicationContext,
                                                       @ModelAttribute("form") PipelineOtherPropertiesForm form) {
-    var entity = padPipelineOtherPropertiesService.getPipelineOtherPropertiesEntity(applicationContext.getApplicationDetail());
-    padPipelineOtherPropertiesService.mapEntityToForm(form, entity);
+    var entities = padPipelineOtherPropertiesService.getPipelineOtherPropertyEntities(applicationContext.getApplicationDetail());
+    padPipelineOtherPropertiesService.mapEntitiesToForm(form, entities, applicationContext.getApplicationDetail());
     return getAddPipelineOtherPropertiesModelAndView(applicationContext.getApplicationDetail());
   }
 
@@ -80,8 +81,8 @@ public class PipelineOtherPropertiesController {
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddPipelineOtherPropertiesModelAndView(applicationContext.getApplicationDetail()), () -> {
-          var entity = padPipelineOtherPropertiesService.getPipelineOtherPropertiesEntity(applicationContext.getApplicationDetail());
-          padPipelineOtherPropertiesService.saveEntityUsingForm(form, entity);
+          var entities = padPipelineOtherPropertiesService.getPipelineOtherPropertyEntities(applicationContext.getApplicationDetail());
+          padPipelineOtherPropertiesService.saveEntitiesUsingForm(form, entities, applicationContext.getApplicationDetail());
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
         });
   }
@@ -92,7 +93,8 @@ public class PipelineOtherPropertiesController {
   private ModelAndView getAddPipelineOtherPropertiesModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineOtherProperties");
     modelAndView.addObject("properties", OtherPipelineProperty.asList())
-        .addObject("waxContentOptions", PropertyAvailabilityOption.asList());
+        .addObject("propertyAvailabilityOptions", PropertyAvailabilityOption.asList())
+        .addObject("propertyUnitMeasurements", PropertyUnitMeasurement.asList());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Other properties");

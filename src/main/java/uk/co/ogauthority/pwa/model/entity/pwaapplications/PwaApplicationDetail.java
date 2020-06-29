@@ -11,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import org.hibernate.annotations.ColumnDefault;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -66,6 +65,8 @@ public class PwaApplicationDetail {
   private Integer numOfHolders;
 
   private String pipelinePhaseProperties;
+
+  private String otherPhaseDescription;
 
 
   public PwaApplicationDetail() {
@@ -269,6 +270,14 @@ public class PwaApplicationDetail {
     this.pipelinePhaseProperties = pipelinePhaseProperties;
   }
 
+  public String getOtherPhaseDescription() {
+    return otherPhaseDescription;
+  }
+
+  public void setOtherPhaseDescription(String otherPhaseDescription) {
+    this.otherPhaseDescription = otherPhaseDescription;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -298,7 +307,8 @@ public class PwaApplicationDetail {
         && Objects.equals(medianLineCrossed, that.medianLineCrossed)
         && Objects.equals(submittedAsFastTrackFlag, that.submittedAsFastTrackFlag)
         && Objects.equals(numOfHolders, that.numOfHolders)
-        && Objects.equals(pipelinePhaseProperties, that.pipelinePhaseProperties);
+        && Objects.equals(pipelinePhaseProperties, that.pipelinePhaseProperties)
+        && Objects.equals(otherPhaseDescription, that.otherPhaseDescription);
   }
 
   @Override
@@ -306,6 +316,7 @@ public class PwaApplicationDetail {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
-        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders, pipelinePhaseProperties);
+        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
+        pipelinePhaseProperties, otherPhaseDescription);
   }
 }
