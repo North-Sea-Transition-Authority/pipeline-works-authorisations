@@ -65,7 +65,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
   private final PermanentDepositService permanentDepositService;
   private final PadFileService padFileService;
 
-  private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.DEPOSIT_DRAWINGS;
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.DEPOSIT_DRAWINGS;
 
   @Autowired
   public PermanentDepositDrawingsController(ApplicationBreadcrumbService applicationBreadcrumbService,
@@ -214,7 +214,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                                             PermanentDepositDrawingForm form, ScreenActionType type) {
     var modelAndView = this.createModelAndView("pwaApplication/shared/permanentdepositdrawings/depositDrawingsForm",
         pwaApplicationDetail,
-        filePurpose,
+        FILE_PURPOSE,
         form);
     modelAndView.addObject("backUrl", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
             .renderDepositDrawingsOverview(
@@ -226,7 +226,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
-    padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, filePurpose);
+    padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE);
     return modelAndView;
   }
 
@@ -234,7 +234,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                                            PermanentDepositDrawingForm form, Integer depositDrawingId) {
     var modelAndView = this.createModelAndView("pwaApplication/shared/permanentdepositdrawings/depositDrawingRemove",
         pwaApplicationDetail,
-        filePurpose,
+        FILE_PURPOSE,
         form);
     modelAndView.addObject("backUrl", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
         .renderDepositDrawingsOverview(
@@ -245,7 +245,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
-    padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, filePurpose);
+    padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE);
     return modelAndView;
   }
 
@@ -265,7 +265,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
     return padFileService.processInitialUpload(
         file,
         applicationContext.getApplicationDetail(),
-        filePurpose,
+        FILE_PURPOSE,
         applicationContext.getUser());
   }
 

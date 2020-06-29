@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -30,8 +32,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
@@ -51,20 +53,18 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 })
 public class CableCrossingDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
-  private final PwaApplicationFileService applicationFileService;
   private final CableCrossingFileService cableCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.CABLE_CROSSINGS;
 
   @Autowired
   public CableCrossingDocumentsController(
-      PwaApplicationFileService applicationFileService,
       CableCrossingFileService cableCrossingFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
       PadFileService padFileService) {
     super(padFileService);
-    this.applicationFileService = applicationFileService;
     this.cableCrossingFileService = cableCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
@@ -84,7 +84,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
         // only load fully linked (saved) files
-        cableCrossingFileService.getUpdatedCableCrossingFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE)
     );
 
     modelAndView.addObject("pageTitle", "Cable crossing agreement documents")
@@ -103,7 +103,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
       @ModelAttribute("form") CrossingDocumentsForm form,
       PwaApplicationContext applicationContext) {
 
-    cableCrossingFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
+    padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(), FILE_PURPOSE);
     return createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
@@ -113,7 +113,8 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") CrossingDocumentsForm form,
       BindingResult bindingResult,
-      PwaApplicationContext applicationContext) {
+      PwaApplicationContext applicationContext,
+      AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
     cableCrossingFileService.validate(
@@ -125,10 +126,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
     var modelAndView = createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
     return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      cableCrossingFileService.updateOrDeleteLinkedFilesUsingForm(
-          applicationContext.getApplicationDetail(),
-          form,
-          applicationContext.getUser());
+      padFileService.updateFiles(form, detail, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES, user);
       return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
   }
@@ -141,9 +139,7 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    var cableCrossingFile = cableCrossingFileService.getCableCrossingFile(fileId,
-        applicationContext.getApplicationDetail());
-    return serveFile(applicationFileService.getUploadedFile(cableCrossingFile));
+    return serveFile(applicationContext.getPadFile());
   }
 
   @PostMapping("/files/upload")
@@ -154,13 +150,12 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
       @RequestParam("file") MultipartFile file,
       PwaApplicationContext applicationContext) {
 
-    // not creating full link until Save is clicked.
-    return applicationFileService.processApplicationFileUpload(
+    return padFileService.processInitialUpload(
         file,
-        applicationContext.getUser(),
         applicationContext.getApplicationDetail(),
-        cableCrossingFileService::createUploadedFileLink
-    );
+        FILE_PURPOSE,
+        applicationContext.getUser());
+
   }
 
   @PostMapping("/files/delete/{fileId}")
@@ -170,11 +165,6 @@ public class CableCrossingDocumentsController extends PwaApplicationDataFileUplo
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    return applicationFileService.processApplicationFileDelete(
-        fileId,
-        applicationContext.getApplicationDetail(),
-        applicationContext.getUser(),
-        cableCrossingFileService::deleteUploadedFileLink
-    );
+    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
   }
 }

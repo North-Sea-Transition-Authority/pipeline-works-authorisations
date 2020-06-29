@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadMedianLineCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
@@ -38,6 +39,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadMedianLin
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,6 +53,8 @@ public class MedianLineCrossingFileServiceTest {
   private FileUploadService fileUploadService;
   @Mock
   private EntityManager entityManager;
+  @Mock
+  private PadFileService padFileService;
 
   private SpringValidatorAdapter springValidatorAdapter = new SpringValidatorAdapter(
       Validation.buildDefaultValidatorFactory().getValidator());
@@ -80,7 +84,7 @@ public class MedianLineCrossingFileServiceTest {
         padMedianLineCrossingFileRepository,
         fileUploadService,
         entityManager,
-        springValidatorAdapter);
+        springValidatorAdapter, padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     file = new PadMedianLineCrossingFile();
@@ -251,6 +255,13 @@ public class MedianLineCrossingFileServiceTest {
         ApplicationFileLinkStatus.FULL)).thenReturn(1);
     var result = medianLineCrossingFileService.getFullFileCount(pwaApplicationDetail);
     assertThat(result).isEqualTo(1);
+  }
+
+  @Test
+  public void isComplete_serviceInteraction() {
+    var result = medianLineCrossingFileService.isComplete(pwaApplicationDetail);
+    verify(padFileService, times(1)).mapFilesToForm(any(), eq(pwaApplicationDetail), eq(ApplicationFilePurpose.MEDIAN_LINE_CROSSING));
+    assertThat(result).isTrue();
   }
 
 }

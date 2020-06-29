@@ -405,4 +405,8 @@ public class PwaApplicationEndpointTestBuilder {
   public Set<PwaApplicationStatus> getAllowedStatuses() {
     return allowedStatuses;
   }
+
+  public Set<PwaContactRole> getContactRoles() {
+    return contactRolesGivenAccess;
+  }
 }

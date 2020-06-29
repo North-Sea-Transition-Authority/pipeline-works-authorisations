@@ -40,7 +40,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final SpringValidatorAdapter groupValidator;
   private final PadFileService padFileService;
 
-  private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.PROJECT_INFORMATION;
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
   public PadProjectInformationService(
@@ -72,7 +72,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
                               ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
-    padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), filePurpose);
+    padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
   }
 
 
@@ -86,7 +86,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                   WebUserAccount user) {
     projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
-    padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), filePurpose,
+    padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
   }
 

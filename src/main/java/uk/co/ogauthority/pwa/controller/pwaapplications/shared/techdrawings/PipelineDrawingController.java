@@ -58,7 +58,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final PadFileService padFileService;
 
-  private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.PIPELINE_DRAWINGS;
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PIPELINE_DRAWINGS;
 
   @Autowired
   public PipelineDrawingController(
@@ -79,7 +79,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     var modelAndView = this.createModelAndView(
         "pwaApplication/shared/techdrawings/addPipelineDrawing",
         detail,
-        filePurpose,
+        FILE_PURPOSE,
         form)
         .addObject("pipelineViews", padPipelineService.getApplicationPipelineOverviews(detail))
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
@@ -89,7 +89,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
         actionType.getActionText() + " pipeline drawing");
 
-    padFileService.getFilesLinkedToForm(form, detail, filePurpose);
+    padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
   }
 
@@ -129,7 +129,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
-          filePurpose,
+          FILE_PURPOSE,
           FileUpdateMode.KEEP_UNLINKED_FILES,
           applicationContext.getUser());
       padTechnicalDrawingService.addDrawing(applicationContext.getApplicationDetail(), form);
@@ -193,7 +193,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
-          filePurpose,
+          FILE_PURPOSE,
           FileUpdateMode.KEEP_UNLINKED_FILES,
           applicationContext.getUser());
       padTechnicalDrawingService.updateDrawing(applicationContext.getApplicationDetail(), drawingId, user, form);
@@ -214,7 +214,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     return padFileService.processInitialUpload(
         file,
         applicationContext.getApplicationDetail(),
-        filePurpose,
+        FILE_PURPOSE,
         applicationContext.getUser());
   }
 

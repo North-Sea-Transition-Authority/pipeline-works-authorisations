@@ -63,7 +63,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
   private final PadLocationDetailsService padLocationDetailsService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
-  private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.LOCATION_DETAILS;
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.LOCATION_DETAILS;
 
   @Autowired
   public LocationDetailsController(
@@ -86,7 +86,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
     var modelAndView = this.createModelAndView(
         "pwaApplication/shared/locationDetails",
         detail,
-        filePurpose,
+        FILE_PURPOSE,
         form
     );
 
@@ -115,7 +115,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
     var facilities = padFacilityService.getFacilities(applicationContext.getApplicationDetail());
     padLocationDetailsService.mapEntityToForm(locationDetail, form);
 
-    padFileService.mapFilesToForm(form, detail, filePurpose);
+    padFileService.mapFilesToForm(form, detail, FILE_PURPOSE);
     var modelAndView = getLocationModelAndView(applicationContext.getApplicationDetail(), form);
     padFacilityService.mapFacilitiesToView(facilities, form, modelAndView);
     return modelAndView;
@@ -142,7 +142,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
-          filePurpose,
+          FILE_PURPOSE,
           FileUpdateMode.DELETE_UNLINKED_FILES,
           applicationContext.getUser());
 
@@ -163,7 +163,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
     return padFileService.processInitialUpload(
         file,
         applicationContext.getApplicationDetail(),
-        filePurpose,
+        FILE_PURPOSE,
         applicationContext.getUser());
 
   }

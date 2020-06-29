@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
@@ -30,9 +31,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
@@ -55,22 +56,20 @@ public class MedianLineCrossingController {
 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final MedianLineCrossingFileService medianLineCrossingFileService;
-  private final CrossingAgreementsService crossingAgreementsService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+  private final PadFileService padFileService;
 
   @Autowired
   public MedianLineCrossingController(
       PadMedianLineAgreementService padMedianLineAgreementService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       MedianLineCrossingFileService medianLineCrossingFileService,
-      CrossingAgreementsService crossingAgreementsService,
-      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService,
+      PadFileService padFileService) {
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.medianLineCrossingFileService = medianLineCrossingFileService;
-    this.crossingAgreementsService = crossingAgreementsService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
+    this.padFileService = padFileService;
   }
 
   private ModelAndView getFormModelAndView(PwaApplicationDetail detail) {
@@ -89,7 +88,8 @@ public class MedianLineCrossingController {
         .addObject("overview", CrossingOverview.MEDIAN_LINE_CROSSING)
         .addObject("medianLineUrlFactory", new MedianLineCrossingUrlFactory(detail))
         .addObject("medianLineFiles",
-            medianLineCrossingFileService.getMedianLineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.MEDIAN_LINE_CROSSING,
+                ApplicationFileLinkStatus.FULL))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
                 null)));

@@ -55,15 +55,15 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
       validSections.add(CrossingAgreementsSection.BLOCK_CROSSINGS);
     }
 
-    if (padMedianLineAgreementService.isComplete(detail) || !BooleanUtils.isTrue(detail.getMedianLineCrossed())) {
+    if (padMedianLineAgreementService.isComplete(detail) || BooleanUtils.isFalse(detail.getMedianLineCrossed())) {
       validSections.add(CrossingAgreementsSection.MEDIAN_LINE);
     }
 
-    if (padCableCrossingService.isComplete(detail) || !BooleanUtils.isTrue(detail.getCablesCrossed())) {
+    if (padCableCrossingService.isComplete(detail) || BooleanUtils.isFalse(detail.getCablesCrossed())) {
       validSections.add(CrossingAgreementsSection.CABLE_CROSSINGS);
     }
 
-    if (padPipelineCrossingService.isComplete(detail) || !BooleanUtils.isTrue(detail.getPipelinesCrossed())) {
+    if (padPipelineCrossingService.isComplete(detail) || BooleanUtils.isFalse(detail.getPipelinesCrossed())) {
       validSections.add(CrossingAgreementsSection.PIPELINE_CROSSINGS);
     }
 

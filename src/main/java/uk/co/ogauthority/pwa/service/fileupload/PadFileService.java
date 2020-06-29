@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,9 +45,10 @@ public class PadFileService {
 
   /**
    * Retrieve a list of file views for every file that is present on the provided file upload form.
+   *
    * @param uploadForm containing files
-   * @param detail to get files for
-   * @param purpose to get files for
+   * @param detail     to get files for
+   * @param purpose    to get files for
    * @return list of files with populated descriptions
    */
   public List<UploadedFileView> getFilesLinkedToForm(UploadMultipleFilesWithDescriptionForm uploadForm,
@@ -60,22 +62,25 @@ public class PadFileService {
         .collect(Collectors.toList());
 
     return formFileViewList.stream()
-        .peek(fileView -> fileView.setFileDescription(fileIdToFormMap.get(fileView.getFileId()).getUploadedFileDescription()))
+        .peek(fileView -> fileView.setFileDescription(
+            fileIdToFormMap.get(fileView.getFileId()).getUploadedFileDescription()))
         .collect(Collectors.toList());
 
   }
 
   /**
    * Populate a file upload form with fully linked application files which have a specific purpose.
+   *
    * @param uploadForm to populate
-   * @param detail we are getting files for
-   * @param purpose of the files we are getting
+   * @param detail     we are getting files for
+   * @param purpose    of the files we are getting
    */
   public void mapFilesToForm(UploadMultipleFilesWithDescriptionForm uploadForm,
                              PwaApplicationDetail detail,
                              ApplicationFilePurpose purpose) {
 
-    List<UploadFileWithDescriptionForm> fileFormViewList = getUploadedFileViews(detail, purpose, ApplicationFileLinkStatus.FULL).stream()
+    List<UploadFileWithDescriptionForm> fileFormViewList = getUploadedFileViews(detail, purpose,
+        ApplicationFileLinkStatus.FULL).stream()
         .map(fileUploadService::createUploadFileWithDescriptionFormFromView)
         .collect(Collectors.toList());
 
@@ -85,10 +90,11 @@ public class PadFileService {
 
   /**
    * Upload a file and create a temporary link between the file and the application it was uploaded to, alongside the file purpose.
-   * @param file being uploaded
+   *
+   * @param file                 being uploaded
    * @param pwaApplicationDetail to link it to
-   * @param purpose for the file
-   * @param user uploading the file
+   * @param purpose              for the file
+   * @param user                 uploading the file
    * @return a successful (or failed) upload result
    */
   @Transactional
@@ -111,11 +117,12 @@ public class PadFileService {
 
   /**
    * Fully link temporary files that are still present, update file descriptions, delete files that have been deleted onscreen.
-   * @param uploadForm containing files to update
+   *
+   * @param uploadForm           containing files to update
    * @param pwaApplicationDetail we are updating files for
-   * @param updateMode the mode used when updating files
-   * @param purpose of files being updated
-   * @param user updating the files
+   * @param updateMode           the mode used when updating files
+   * @param purpose              of files being updated
+   * @param user                 updating the files
    */
   @Transactional
   public void updateFiles(UploadMultipleFilesWithDescriptionForm uploadForm,
@@ -154,7 +161,8 @@ public class PadFileService {
 
   }
 
-  private Map<String, UploadFileWithDescriptionForm> getFileIdToFormMap(UploadMultipleFilesWithDescriptionForm uploadForm) {
+  private Map<String, UploadFileWithDescriptionForm> getFileIdToFormMap(
+      UploadMultipleFilesWithDescriptionForm uploadForm) {
     return uploadForm.getUploadedFileWithDescriptionForms().stream()
         .collect(Collectors.toMap(UploadFileWithDescriptionForm::getUploadedFileId, f -> f));
   }
@@ -188,8 +196,8 @@ public class PadFileService {
    * Get files for an application with a specified purpose and link status as uploaded file views.
    */
   public List<UploadedFileView> getUploadedFileViews(PwaApplicationDetail pwaApplicationDetail,
-                                                      ApplicationFilePurpose purpose,
-                                                      ApplicationFileLinkStatus fileLinkStatus) {
+                                                     ApplicationFilePurpose purpose,
+                                                     ApplicationFileLinkStatus fileLinkStatus) {
 
     return padFileRepository.findAllAsFileViewByAppDetailAndPurposeAndFileLinkStatus(
         pwaApplicationDetail, purpose, fileLinkStatus).stream()
@@ -202,11 +210,11 @@ public class PadFileService {
    * Get a file for an application with a specified purpose and link status as an uploaded file view.
    */
   public UploadedFileView getUploadedFileView(PwaApplicationDetail pwaApplicationDetail,
-                                                     String fileId,
-                                                     ApplicationFilePurpose purpose,
-                                                     ApplicationFileLinkStatus fileLinkStatus) {
+                                              String fileId,
+                                              ApplicationFilePurpose purpose,
+                                              ApplicationFileLinkStatus fileLinkStatus) {
 
-    var fileView =  padFileRepository.findAsFileViewByAppDetailAndFileIdAndPurposeAndFileLinkStatus(
+    var fileView = padFileRepository.findAsFileViewByAppDetailAndFileIdAndPurposeAndFileLinkStatus(
         pwaApplicationDetail, fileId, purpose, fileLinkStatus);
     fileView.setFileUrl(getDownloadUrl(pwaApplicationDetail, purpose, fileView.getFileId()));
     return fileView;
@@ -224,8 +232,9 @@ public class PadFileService {
 
   /**
    * Delete an individual file for an application.
-   * @param padFile file being deleted
-   * @param user deleting file
+   *
+   * @param padFile            file being deleted
+   * @param user               deleting file
    * @param actionBeforeDelete a consumer to run if the result is valid, prior to deletion.
    * @return a successful (or failed) file delete result
    */
@@ -245,23 +254,31 @@ public class PadFileService {
 
   /**
    * Delete an individual file for an application.
+   *
    * @param padFile file being deleted
-   * @param user deleting file
+   * @param user    deleting file
    * @return a successful (or failed) file delete result
    */
   @Transactional
   public FileDeleteResult processFileDeletion(PadFile padFile,
                                               WebUserAccount user) {
-    return processFileDeletionWithPreDeleteAction(padFile, user, padFileArg -> { });
+    return processFileDeletionWithPreDeleteAction(padFile, user, padFileArg -> {
+    });
   }
 
   public PadFile getPadFileByPwaApplicationDetailAndFileId(PwaApplicationDetail detail,
-                                             String fileId) {
+                                                           String fileId) {
     return padFileRepository.findByPwaApplicationDetailAndFileId(detail, fileId)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format(
             "Couldn't find a PadFile for app detail with ID: %s and fileId: %s",
             detail.getId(),
             fileId)));
+  }
+
+  public void validateFiles(UploadMultipleFilesWithDescriptionForm form, PwaApplicationDetail detail,
+                            boolean atLeastOneFileRequired,
+                            @Nullable int maxFileCount) {
+
   }
 
 }

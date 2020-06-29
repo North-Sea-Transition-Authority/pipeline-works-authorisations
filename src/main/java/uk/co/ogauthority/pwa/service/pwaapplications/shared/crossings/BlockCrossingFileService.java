@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCr
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadBlockCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
@@ -44,24 +46,22 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
   private final FileUploadService fileUploadService;
   private final EntityManager entityManager;
   private final SpringValidatorAdapter groupValidator;
+  private final PadFileService padFileService;
 
   @Autowired
   public BlockCrossingFileService(PadBlockCrossingFileRepository padBlockCrossingFileRepository,
                                   PadCrossedBlockRepository padCrossedBlockRepository,
                                   FileUploadService fileUploadService,
                                   EntityManager entityManager,
-                                  SpringValidatorAdapter groupValidator) {
+                                  SpringValidatorAdapter groupValidator,
+                                  PadFileService padFileService) {
     this.padBlockCrossingFileRepository = padBlockCrossingFileRepository;
     this.padCrossedBlockRepository = padCrossedBlockRepository;
     this.fileUploadService = fileUploadService;
     this.entityManager = entityManager;
 
     this.groupValidator = groupValidator;
-  }
-
-  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, CrossingDocumentsForm form) {
-    var fileFormViewList = getUploadedFileListAsFormList(pwaApplicationDetail, ApplicationFileLinkStatus.FULL);
-    form.setUploadedFileWithDescriptionForms(fileFormViewList);
+    this.padFileService = padFileService;
   }
 
   public boolean requiresFullValidation(PwaApplicationDetail pwaApplicationDetail) {
@@ -283,7 +283,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new CrossingDocumentsForm();
-    mapDocumentsToForm(detail, form);
+    padFileService.mapFilesToForm(form, detail, ApplicationFilePurpose.BLOCK_CROSSINGS);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }

@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCr
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossingFile;
@@ -30,6 +31,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingR
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadCableCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
@@ -43,23 +45,20 @@ public class CableCrossingFileService implements ApplicationFormSectionService {
   private final FileUploadService fileUploadService;
   private final EntityManager entityManager;
   private final SpringValidatorAdapter groupValidator;
+  private final PadFileService padFileService;
 
   @Autowired
   public CableCrossingFileService(
       PadCableCrossingFileRepository padCableCrossingFileRepository,
       PadCableCrossingRepository padCableCrossingRepository,
       FileUploadService fileUploadService, EntityManager entityManager,
-      SpringValidatorAdapter groupValidator) {
+      SpringValidatorAdapter groupValidator, PadFileService padFileService) {
     this.padCableCrossingFileRepository = padCableCrossingFileRepository;
     this.padCableCrossingRepository = padCableCrossingRepository;
     this.fileUploadService = fileUploadService;
     this.entityManager = entityManager;
     this.groupValidator = groupValidator;
-  }
-
-  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, CrossingDocumentsForm form) {
-    var fileFormViewList = getUploadedFileListAsFormList(pwaApplicationDetail, ApplicationFileLinkStatus.FULL);
-    form.setUploadedFileWithDescriptionForms(fileFormViewList);
+    this.padFileService = padFileService;
   }
 
   /**
@@ -261,7 +260,7 @@ public class CableCrossingFileService implements ApplicationFormSectionService {
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new CrossingDocumentsForm();
-    mapDocumentsToForm(detail, form);
+    padFileService.mapFilesToForm(form, detail, ApplicationFilePurpose.CABLE_CROSSINGS);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }

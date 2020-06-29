@@ -52,7 +52,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadProjectInformationService padProjectInformationService;
 
-  private final ApplicationFilePurpose filePurpose = ApplicationFilePurpose.PROJECT_INFORMATION;
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
   public ProjectInformationController(ApplicationBreadcrumbService applicationBreadcrumbService,
@@ -108,7 +108,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
     var modelAndView = this.createModelAndView(
         "pwaApplication/shared/projectInformation",
         pwaApplicationDetail,
-        filePurpose,
+        FILE_PURPOSE,
         form
     );
 
@@ -146,7 +146,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
     return padFileService.processInitialUpload(
         file,
         applicationContext.getApplicationDetail(),
-        filePurpose,
+        FILE_PURPOSE,
         applicationContext.getUser());
 
   }

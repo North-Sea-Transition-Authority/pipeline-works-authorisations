@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgre
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
@@ -38,6 +39,9 @@ public class PadMedianLineAgreementServiceTest {
   @Mock
   private MedianLineCrossingFileService medianLineCrossingFileService;
 
+  @Mock
+  private PadFileService padFileService;
+
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -47,7 +51,7 @@ public class PadMedianLineAgreementServiceTest {
     padMedianLineAgreementService = new PadMedianLineAgreementService(
         padMedianLineAgreementRepository,
         medianLineAgreementValidator,
-        medianLineCrossingFileService);
+        medianLineCrossingFileService, padFileService);
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 
@@ -210,7 +214,6 @@ public class PadMedianLineAgreementServiceTest {
           padMedianLineAgreementService.isComplete(pwaApplicationDetail);
           // Have to use atLeastOnce() inside forEach, otherwise additional iterations increase times().
           verify(medianLineAgreementValidator, atLeastOnce()).validate(any(), any(), eq(FullValidation.class));
-          verify(medianLineCrossingFileService, atLeastOnce()).getFullFileCount(pwaApplicationDetail);
         });
   }
 

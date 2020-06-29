@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianL
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadMedianLineCrossingFile;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadMedianLineCrossingFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
@@ -41,21 +43,18 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
   private final FileUploadService fileUploadService;
   private final EntityManager entityManager;
   private final SpringValidatorAdapter groupValidator;
+  private final PadFileService padFileService;
 
   @Autowired
   public MedianLineCrossingFileService(
       PadMedianLineCrossingFileRepository padMedianLineCrossingFileRepository,
       FileUploadService fileUploadService, EntityManager entityManager,
-      SpringValidatorAdapter groupValidator) {
+      SpringValidatorAdapter groupValidator, PadFileService padFileService) {
     this.padMedianLineCrossingFileRepository = padMedianLineCrossingFileRepository;
     this.fileUploadService = fileUploadService;
     this.entityManager = entityManager;
     this.groupValidator = groupValidator;
-  }
-
-  public void mapDocumentsToForm(PwaApplicationDetail pwaApplicationDetail, CrossingDocumentsForm form) {
-    var fileFormViewList = getUploadedFileListAsFormList(pwaApplicationDetail, ApplicationFileLinkStatus.FULL);
-    form.setUploadedFileWithDescriptionForms(fileFormViewList);
+    this.padFileService = padFileService;
   }
 
   /**
@@ -257,7 +256,7 @@ public class MedianLineCrossingFileService implements ApplicationFormSectionServ
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new CrossingDocumentsForm();
-    mapDocumentsToForm(detail, form);
+    padFileService.mapFilesToForm(form, detail, ApplicationFilePurpose.MEDIAN_LINE_CROSSING);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }

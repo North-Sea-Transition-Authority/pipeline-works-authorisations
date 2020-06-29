@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossingFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
@@ -39,6 +40,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadCableCros
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,6 +59,9 @@ public class CableCrossingFileServiceTest {
 
   @Mock
   private EntityManager entityManager;
+
+  @Mock
+  private PadFileService padFileService;
 
   private SpringValidatorAdapter springValidatorAdapter = new SpringValidatorAdapter(
       Validation.buildDefaultValidatorFactory().getValidator());
@@ -87,7 +92,7 @@ public class CableCrossingFileServiceTest {
         padCableCrossingRepository,
         fileUploadService,
         entityManager,
-        springValidatorAdapter);
+        springValidatorAdapter, padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     file = new PadCableCrossingFile();
@@ -248,6 +253,13 @@ public class CableCrossingFileServiceTest {
     cableCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
     assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void isComplete_serviceInteraction() {
+    var result = cableCrossingFileService.isComplete(pwaApplicationDetail);
+    verify(padFileService, times(1)).mapFilesToForm(any(), eq(pwaApplicationDetail), eq(ApplicationFilePurpose.CABLE_CROSSINGS));
+    assertThat(result).isTrue();
   }
 
 }
