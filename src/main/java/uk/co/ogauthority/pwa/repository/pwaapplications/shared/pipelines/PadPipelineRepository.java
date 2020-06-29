@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -9,8 +10,12 @@ public interface PadPipelineRepository extends CrudRepository<PadPipeline, Integ
 
   List<PadPipeline> getAllByPwaApplicationDetail(PwaApplicationDetail detail);
 
-  List<PadPipeline> getAllByPwaApplicationDetailAndIdIn(PwaApplicationDetail detail, List<Integer> ids);
+  List<PadPipeline> getAllByPwaApplicationDetailAndIdIn(PwaApplicationDetail detail, List<Integer> padPipelineIds);
+
+  List<PadPipeline> getAllByPwaApplicationDetailAndPipeline_idIn(PwaApplicationDetail detail, Collection<Integer> pipelineIds);
 
   Long countAllByPwaApplicationDetail(PwaApplicationDetail detail);
+
+  Long countAllByPwaApplicationDetailAndIdIn(PwaApplicationDetail detail, List<Integer> ids);
 
 }

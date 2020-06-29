@@ -17,6 +17,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -33,13 +35,19 @@ public class PipelinesHuooController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final PadPipelinesHuooService padPipelinesHuooService;
+  private final PipelineAndOrgRoleGroupViewFactory pipelineAndOrgRoleGroupViewFactory;
 
   @Autowired
   public PipelinesHuooController(
       ApplicationBreadcrumbService breadcrumbService,
-      PwaApplicationRedirectService pwaApplicationRedirectService) {
+      PwaApplicationRedirectService pwaApplicationRedirectService,
+      PadPipelinesHuooService padPipelinesHuooService,
+      PipelineAndOrgRoleGroupViewFactory pipelineAndOrgRoleGroupViewFactory) {
     this.breadcrumbService = breadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.padPipelinesHuooService = padPipelinesHuooService;
+    this.pipelineAndOrgRoleGroupViewFactory = pipelineAndOrgRoleGroupViewFactory;
   }
 
   @GetMapping
@@ -51,22 +59,33 @@ public class PipelinesHuooController {
   }
 
   private ModelAndView createSummaryModelAndView(PwaApplicationContext applicationContext, boolean doValidation) {
+
+    var pipelineAndOrgGroupAppSummary = padPipelinesHuooService.createPipelineAndOrganisationRoleGroupSummary(
+        applicationContext.getApplicationDetail());
+
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinehuoo/pipelineHuooSummary")
+        .addObject("orgGroupViews", pipelineAndOrgRoleGroupViewFactory.createPipelineAndOrgsGroupsByRoleView(
+            applicationContext.getApplicationDetail(),
+            pipelineAndOrgGroupAppSummary))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
-        .addObject("pageHeading", ApplicationTask.PIPELINES_HUOO.getDisplayName())
-        .addObject("markCompleteErrorMessage", doValidation ? "Please correct errors" : null);
-    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView,  ApplicationTask.PIPELINES_HUOO.getDisplayName());
+        .addObject("pageHeading", ApplicationTask.PIPELINES_HUOO.getDisplayName() + " (HUOO)")
+        .addObject("markCompleteErrorMessage", doValidation ? "Please correct errors" : null)
+        .addObject("urlFactory", new PipelineHuooUrlFactory(
+            applicationContext.getMasterPwaApplicationId(),
+            applicationContext.getApplicationType())
+        );
+    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView,
+        ApplicationTask.PIPELINES_HUOO.getDisplayName());
 
     return modelAndView;
   }
 
   @PostMapping
   public ModelAndView postSummary(@PathVariable("applicationType")
-                                    @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                    @PathVariable("applicationId") int applicationId,
-                                    PwaApplicationContext applicationContext) {
+                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                  @PathVariable("applicationId") int applicationId,
+                                  PwaApplicationContext applicationContext) {
     return createSummaryModelAndView(applicationContext, true);
   }
-
 
 }

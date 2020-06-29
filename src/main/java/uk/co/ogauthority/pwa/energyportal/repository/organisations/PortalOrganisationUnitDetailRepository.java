@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.energyportal.repository.organisations;
 
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
@@ -10,7 +11,10 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 @Repository
 public interface PortalOrganisationUnitDetailRepository extends CrudRepository<PortalOrganisationUnitDetail, Integer> {
 
-  @EntityGraph(attributePaths = "organisationUnit")
-  List<PortalOrganisationUnitDetail> getAllByOrganisationUnitIn(List<PortalOrganisationUnit> portalOrganisationUnits);
+  @EntityGraph(attributePaths = {"organisationUnit", "organisationUnit.portalOrganisationGroup"})
+  List<PortalOrganisationUnitDetail> findByOrganisationUnitIn(List<PortalOrganisationUnit> portalOrganisationUnits);
+
+  @EntityGraph(attributePaths = {"organisationUnit", "organisationUnit.portalOrganisationGroup"})
+  List<PortalOrganisationUnitDetail> findByOrganisationUnit_ouIdIn(Collection<Integer> portalOrganisationUnitOuIds);
 
 }

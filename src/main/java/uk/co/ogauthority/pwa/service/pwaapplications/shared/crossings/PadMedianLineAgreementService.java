@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgre
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
@@ -22,15 +23,18 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
   private final PadMedianLineAgreementRepository padMedianLineAgreementRepository;
   private final MedianLineAgreementValidator medianLineAgreementValidator;
   private final MedianLineCrossingFileService medianLineCrossingFileService;
+  private final PadFileService padFileService;
 
   @Autowired
   public PadMedianLineAgreementService(
       PadMedianLineAgreementRepository padMedianLineAgreementRepository,
       MedianLineAgreementValidator medianLineAgreementValidator,
-      MedianLineCrossingFileService medianLineCrossingFileService) {
+      MedianLineCrossingFileService medianLineCrossingFileService,
+      PadFileService padFileService) {
     this.padMedianLineAgreementRepository = padMedianLineAgreementRepository;
     this.medianLineAgreementValidator = medianLineAgreementValidator;
     this.medianLineCrossingFileService = medianLineCrossingFileService;
+    this.padFileService = padFileService;
   }
 
   public PadMedianLineAgreement getMedianLineAgreement(PwaApplicationDetail pwaApplicationDetail) {
@@ -79,13 +83,7 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
     mapEntityToForm(medianLineAgreement, form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     validate(form, bindingResult, ValidationType.FULL, detail);
-    if (form.getAgreementStatus() != MedianLineStatus.NOT_CROSSED) {
-      if (medianLineCrossingFileService.getFullFileCount(detail) == 0) {
-        return false;
-      }
-      medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, detail);
-    }
-    return !bindingResult.hasErrors();
+    return !bindingResult.hasErrors() && medianLineCrossingFileService.isComplete(detail);
 
   }
 

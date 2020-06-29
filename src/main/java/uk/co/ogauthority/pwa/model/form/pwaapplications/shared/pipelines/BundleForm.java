@@ -1,19 +1,19 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class BundleForm {
 
   private String bundleName;
-  private List<Integer> pipelineIds;
+  private Set<Integer> padPipelineIds;
 
   public BundleForm() {
   }
 
-  public BundleForm(String name, List<Integer> pipelineIds) {
+  public BundleForm(String name, Set<Integer> padPipelineIds) {
     this.bundleName = name;
-    this.pipelineIds = pipelineIds;
+    this.padPipelineIds = padPipelineIds;
   }
 
   public String getBundleName() {
@@ -24,12 +24,12 @@ public class BundleForm {
     this.bundleName = name;
   }
 
-  public List<Integer> getPipelineIds() {
-    return pipelineIds;
+  public Set<Integer> getPadPipelineIds() {
+    return padPipelineIds;
   }
 
-  public void setPipelineIds(List<Integer> pipelineIds) {
-    this.pipelineIds = pipelineIds;
+  public void setPadPipelineIds(Set<Integer> padPipelineIds) {
+    this.padPipelineIds = padPipelineIds;
   }
 
   @Override
@@ -42,11 +42,11 @@ public class BundleForm {
     }
     BundleForm that = (BundleForm) o;
     return Objects.equals(bundleName, that.bundleName) 
-        && Objects.equals(pipelineIds, that.pipelineIds);
+        && Objects.equals(padPipelineIds, that.padPipelineIds);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(bundleName, pipelineIds);
+    return Objects.hash(bundleName, padPipelineIds);
   }
 }

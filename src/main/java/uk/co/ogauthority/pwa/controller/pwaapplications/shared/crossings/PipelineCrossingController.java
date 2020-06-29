@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
@@ -27,13 +28,11 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingOwnerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
@@ -57,10 +56,8 @@ public class PipelineCrossingController {
   private final PadPipelineCrossingOwnerService padPipelineCrossingOwnerService;
   private final PipelineCrossingFormValidator pipelineCrossingFormValidator;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final PwaApplicationRedirectService pwaApplicationRedirectService;
-  private final PipelineCrossingFileService pipelineCrossingFileService;
-  private final CrossingAgreementsService crossingAgreementsService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+  private final PadFileService padFileService;
 
   @Autowired
   public PipelineCrossingController(
@@ -68,18 +65,14 @@ public class PipelineCrossingController {
       PadPipelineCrossingOwnerService padPipelineCrossingOwnerService,
       PipelineCrossingFormValidator pipelineCrossingFormValidator,
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PwaApplicationRedirectService pwaApplicationRedirectService,
-      PipelineCrossingFileService pipelineCrossingFileService,
-      CrossingAgreementsService crossingAgreementsService,
-      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService,
+      PadFileService padFileService) {
     this.padPipelineCrossingService = padPipelineCrossingService;
     this.padPipelineCrossingOwnerService = padPipelineCrossingOwnerService;
     this.pipelineCrossingFormValidator = pipelineCrossingFormValidator;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.pipelineCrossingFileService = pipelineCrossingFileService;
-    this.crossingAgreementsService = crossingAgreementsService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
+    this.padFileService = padFileService;
   }
 
   private ModelAndView getCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
@@ -90,7 +83,8 @@ public class PipelineCrossingController {
             crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, CrossingAgreementTask.PIPELINE_CROSSINGS))
         .addObject("orgsRestUrl", SearchSelectorService.route(on(PortalOrganisationUnitRestController.class)
             .searchPortalOrgUnits(null)));
-    applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView, CrossingAgreementTask.PIPELINE_CROSSINGS,
+    applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,
+        CrossingAgreementTask.PIPELINE_CROSSINGS,
         screenActionType.getActionText() + " pipeline crossing");
     return modelAndView;
   }
@@ -101,9 +95,11 @@ public class PipelineCrossingController {
         .addObject("pipelineCrossings", padPipelineCrossingService.getPipelineCrossingViews(detail))
         .addObject("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(detail))
         .addObject("pipelineCrossingFiles",
-            pipelineCrossingFileService.getPipelineCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.PIPELINE_CROSSINGS,
+                ApplicationFileLinkStatus.FULL))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(),
+                detail.getMasterPwaApplicationId(), null,
                 null)));
     applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView,
         "Pipeline crossings");

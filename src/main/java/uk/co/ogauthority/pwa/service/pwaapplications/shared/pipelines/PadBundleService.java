@@ -1,13 +1,16 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundle;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadBundleLink;
@@ -33,23 +36,43 @@ public class PadBundleService implements ApplicationFormSectionService {
     this.padPipelineService = padPipelineService;
   }
 
+  public PadBundle getBundle(PwaApplicationDetail detail, Integer bundleId) {
+    return padBundleRepository.getByPwaApplicationDetailAndId(detail, bundleId)
+        .orElseThrow(
+            () -> new PwaEntityNotFoundException(
+                String.format("Unable to find pipeline bundle (%d) for app (%d)", bundleId, detail.getId())));
+  }
+
   @Transactional
   public void createBundleAndLinks(PwaApplicationDetail detail, BundleForm form) {
     var bundle = new PadBundle();
-    bundle.setBundleName(form.getBundleName());
     bundle.setPwaApplicationDetail(detail);
+    updateBundleAndLinks(bundle, form);
+  }
+
+  @Transactional
+  public void updateBundleAndLinks(PadBundle bundle, BundleForm form) {
+    bundle.setBundleName(form.getBundleName());
     padBundleRepository.save(bundle);
+    padBundleLinkService.removeBundleLinks(bundle);
     padBundleLinkService.createBundleLinks(bundle, form);
   }
 
   public List<PadBundleSummaryView> getBundleSummaryViews(PwaApplicationDetail detail) {
     Map<PadBundle, List<PadBundleLink>> bundleLinkMap = padBundleLinkService.getAllLinksForDetail(detail)
         .stream()
+        .sorted(Comparator.comparing(padBundleLink -> padBundleLink.getBundle().getBundleName()))
         .collect(Collectors.groupingBy(PadBundleLink::getBundle));
     return bundleLinkMap.entrySet()
         .stream()
         .map(entry -> new PadBundleSummaryView(entry.getKey(), entry.getValue()))
         .collect(Collectors.toUnmodifiableList());
+  }
+
+  public PadBundleSummaryView getBundleSummaryView(PwaApplicationDetail detail, Integer bundleId) {
+    var bundle = getBundle(detail, bundleId);
+    var links = padBundleLinkService.getLinksForBundle(bundle);
+    return new PadBundleSummaryView(bundle, links);
   }
 
   public BundleValidationFactory getBundleValidationFactory(PwaApplicationDetail detail) {
@@ -71,6 +94,21 @@ public class PadBundleService implements ApplicationFormSectionService {
         .collect(Collectors.toUnmodifiableList());
   }
 
+  public PadBundleView getBundleView(PwaApplicationDetail detail, Integer bundleId) {
+    var bundle = getBundle(detail, bundleId);
+    var links = padBundleLinkService.getLinksForBundle(bundle);
+    return new PadBundleView(bundle, links);
+  }
+
+  public void mapBundleViewToForm(PadBundleView bundleView, BundleForm bundleForm) {
+    bundleForm.setBundleName(bundleView.getBundle().getBundleName());
+    Set<Integer> padPipelineIds = bundleView.getLinks()
+        .stream()
+        .map(padBundleLink -> padBundleLink.getPipeline().getId())
+        .collect(Collectors.toUnmodifiableSet());
+    bundleForm.setPadPipelineIds(padPipelineIds);
+  }
+
   private boolean isBundleViewValid(PadBundleView bundleView) {
     // TODO: PWA-619 - Remove hard-coded bundle size check
     if (bundleView.getLinks().size() < 2) {
@@ -89,6 +127,12 @@ public class PadBundleService implements ApplicationFormSectionService {
 
   public boolean canAddBundle(PwaApplicationDetail detail) {
     return padPipelineService.getTotalPipelinesContainedInApplication(detail) >= 2;
+  }
+
+  @Transactional
+  public void removeBundle(PadBundle bundle) {
+    padBundleLinkService.removeBundleLinks(bundle);
+    padBundleRepository.delete(bundle);
   }
 
   @Override

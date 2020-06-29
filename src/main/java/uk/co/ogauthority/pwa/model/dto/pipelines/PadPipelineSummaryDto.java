@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 /**
  * Class designed to be constructed from jpa query to summarise a single PadPipeline.
  **/
-public final class PadPipelineSummaryDto {
+public class PadPipelineSummaryDto {
 
   private final Integer padPipelineId;
 

@@ -18,7 +18,11 @@
             ${team.description?has_content?then(team.description, "")}
         </td>
         <td class="govuk-table__cell">
-          <a class="govuk-link" href="${springUrl(team.getSelectRoute())}">Manage team</a>
+            <@fdsAction.link
+            linkUrl=springUrl(team.getSelectRoute())
+            linkText="Manage team"
+            linkScreenReaderText="Manage ${team.name} team"
+            linkClass="govuk-link govuk-link--no-visited-state"/>
         </td>
       </tr>
     </#list>

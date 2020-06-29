@@ -1,22 +1,31 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -26,7 +35,6 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskLis
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.pipelines.PipelineRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -39,13 +47,14 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 public class PadPipelineService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
-  private final PipelineRepository pipelineRepository;
+  private final PipelineService pipelineService;
+
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
-                            PipelineRepository pipelineRepository) {
+                            PipelineService pipelineService) {
     this.padPipelineRepository = padPipelineRepository;
-    this.pipelineRepository = pipelineRepository;
+    this.pipelineService = pipelineService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -56,10 +65,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     return padPipelineRepository.findPipelineAsSummaryDtoByPadPipeline(padPipeline)
         .map(PadPipelineOverview::from)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
   }
 
-  public List<PipelineOverview> getPipelineOverviews(PwaApplicationDetail detail) {
+  public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()
         .map(PadPipelineOverview::from)
@@ -70,7 +80,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail) {
 
-    return getPipelineOverviews(detail)
+    return getApplicationPipelineOverviews(detail)
         .stream()
         .map(pipelineOverview -> new PadPipelineTaskListItem(
                 pipelineOverview,
@@ -110,21 +120,21 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   }
 
-  private String getEditPipelineHeaderUrl(int applicationId, PwaApplicationType applicationType, int pipelineId) {
+  private String getEditPipelineHeaderUrl(int applicationId, PwaApplicationType applicationType, int padPipelineId) {
     return ReverseRouter.route(on(PipelinesController.class).renderEditPipeline(
         applicationId,
         applicationType,
-        pipelineId,
+        padPipelineId,
         null,
         null
     ));
   }
 
-  private String getPipelineIdentOverviewUrl(int applicationId, PwaApplicationType applicationType, int pipelineId) {
+  private String getPipelineIdentOverviewUrl(int applicationId, PwaApplicationType applicationType, int padPipelineId) {
     return ReverseRouter.route(on(PipelineIdentsController.class).renderIdentOverview(
         applicationId,
         applicationType,
-        pipelineId,
+        padPipelineId,
         null
     ));
   }
@@ -132,8 +142,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   @Transactional
   public void addPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineHeaderForm form) {
 
-    var newPipeline = new Pipeline(pwaApplicationDetail.getPwaApplication());
-    newPipeline = pipelineRepository.save(newPipeline);
+    var newPipeline = pipelineService.createApplicationPipeline(pwaApplicationDetail.getPwaApplication());
 
     var newPadPipeline = new PadPipeline(pwaApplicationDetail);
     newPadPipeline.setPipeline(newPipeline);
@@ -221,12 +230,33 @@ public class PadPipelineService implements ApplicationFormSectionService {
             String.format("Couldn't find PadPipeline with ID: %s", padPipelineId)));
   }
 
-  public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
-    var list = ListUtils.emptyIfNull(pipelineIds);
-    if (list.size() > 0) {
-      return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, list);
+  public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> padPipelineIds) {
+    var padPipelineIdList = ListUtils.emptyIfNull(padPipelineIds);
+    if (padPipelineIdList.size() > 0) {
+      return padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, padPipelineIdList);
     }
     return List.of();
+  }
+
+  public List<PadPipeline> getByApplicationDetailAndPipelineId(PwaApplicationDetail detail,
+                                                               Set<PipelineId> pipelineIds) {
+    var pipelinesIdsAsInts = SetUtils.emptyIfNull(pipelineIds).stream()
+        .map(PipelineId::asInt)
+        .collect(toSet());
+
+    if (pipelinesIdsAsInts.size() > 0) {
+      return padPipelineRepository.getAllByPwaApplicationDetailAndPipeline_idIn(detail, pipelinesIdsAsInts);
+    }
+
+    return List.of();
+  }
+
+  public List<PadPipeline> getPadPipelinesByPadPipelineIds(Collection<Integer> padPipelineIds) {
+    return IterableUtils.toList(padPipelineRepository.findAllById(padPipelineIds));
+  }
+
+  public Long getCountOfPipelinesByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
+    return padPipelineRepository.countAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
   }
 
   @Override
@@ -252,6 +282,51 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public long getTotalPipelinesContainedInApplication(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+  }
+
+  public List<PadPipelineSummaryDto> getAllPadPipelineSummaryDtosForApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(
+        pwaApplicationDetail);
+  }
+
+
+  /**
+   * If a pipeline has been imported in the application, map pipelineId to the application's pipeline number,
+   * else use the consented model pipeline number.
+   */
+  public Map<PipelineId, String> getApplicationOrConsentedPipelineNumberLookup(
+      PwaApplicationDetail pwaApplicationDetail,
+      Set<PipelineId> pipelineIds) {
+    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineService.getActivePipelineDetailsForApplicationMasterPwaById(
+        pwaApplicationDetail.getPwaApplication(),
+        pipelineIds
+    ).stream()
+        .collect(Collectors.toMap(PipelineId::from, p -> p));
+
+    Map<PipelineId, PadPipeline> padPipelinesLookup = getByApplicationDetailAndPipelineId(
+        pwaApplicationDetail,
+        pipelineIds
+    ).stream()
+        .collect(Collectors.toMap(PipelineId::from, p -> p));
+
+    return pipelineIds
+        .stream()
+        .map(pipelineId -> {
+          // this will blow up if we fail to find a reference from the application detail or the consented model for the pipelineId
+          if (padPipelinesLookup.containsKey(pipelineId)) {
+            return new ImmutablePair<PipelineId, String>(
+                pipelineId,
+                padPipelinesLookup.get(pipelineId).getPipelineRef());
+          }
+
+          return new ImmutablePair<PipelineId, String>(
+              pipelineId,
+              pipelineDetailsLookup.get(pipelineId).getPipelineNumber()
+          );
+
+        })
+        .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
 }

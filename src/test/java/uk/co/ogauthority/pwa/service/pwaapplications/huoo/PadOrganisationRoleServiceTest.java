@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRolePipelineGroupDto;
-import uk.co.ogauthority.pwa.model.dto.consents.PwaOrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -38,7 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadP
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrgRoleLinkRepository;
+import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -50,7 +50,7 @@ public class PadOrganisationRoleServiceTest {
   private PadOrganisationRolesRepository padOrganisationRolesRepository;
 
   @Mock
-  private PadPipelineOrgRoleLinkRepository padPipelineOrgRoleLinkRepository;
+  private PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -89,7 +89,7 @@ public class PadOrganisationRoleServiceTest {
 
     padOrganisationRoleService = new PadOrganisationRoleService(
         padOrganisationRolesRepository,
-        padPipelineOrgRoleLinkRepository,
+        padPipelineOrganisationRoleLinkRepository,
         portalOrganisationsAccessor,
         entityManager);
 
@@ -471,14 +471,20 @@ public class PadOrganisationRoleServiceTest {
   }
 
   private PadOrganisationRole createOrgRole(HuooRole role) {
-    var org = new PadOrganisationRole();
-    org.setRole(role);
-    return org;
+    var organisationRole = new PadOrganisationRole();
+    organisationRole.setRole(role);
+    return organisationRole;
+  }
+
+  private PadOrganisationRole createOrgRole(HuooRole role, PortalOrganisationUnit portalOrganisationUnit) {
+    var orgRole = createOrgRole(role);
+    orgRole.setOrganisationUnit(portalOrganisationUnit);
+    return orgRole;
   }
 
   @Test
   public void createApplicationOrganisationRolesFromSummary_createsApplicationLevelAndPipelineLinkOrganisationRoles() {
-    var summaryDto = mock(PwaOrganisationRolesSummaryDto.class);
+    var summaryDto = mock(OrganisationRolesSummaryDto.class);
 
     when(summaryDto.getAllOrganisationUnitIdsWithRole())
         .thenReturn(
@@ -504,7 +510,7 @@ public class PadOrganisationRoleServiceTest {
     verify(summaryDto, times(1)).getOwnerOrganisationUnitGroups();
 
     verify(padOrganisationRolesRepository, times(1)).saveAll(padOrgRoleArgCapture.capture());
-    verify(padPipelineOrgRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
 
     // Assert that overall Role created correctly
     assertThat(padOrgRoleArgCapture.getValue()).hasSize(1);
@@ -538,7 +544,7 @@ public class PadOrganisationRoleServiceTest {
 
   @Test
   public void createApplicationOrganisationRolesFromSummary_whenOrganisationRoleGroups() {
-    var summaryDto = mock(PwaOrganisationRolesSummaryDto.class);
+    var summaryDto = mock(OrganisationRolesSummaryDto.class);
 
     ArgumentCaptor<List<PadOrganisationRole>> padOrgRoleArgCapture = ArgumentCaptor.forClass(List.class);
     ArgumentCaptor<List<PadPipelineOrganisationRoleLink>> padOrgRolePipelineLinkArgCapture = ArgumentCaptor
@@ -552,11 +558,58 @@ public class PadOrganisationRoleServiceTest {
     verify(summaryDto, times(1)).getOwnerOrganisationUnitGroups();
 
     verify(padOrganisationRolesRepository, times(1)).saveAll(padOrgRoleArgCapture.capture());
-    verify(padPipelineOrgRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).saveAll(padOrgRolePipelineLinkArgCapture.capture());
 
     assertThat(padOrgRoleArgCapture.getValue()).isEmpty();
     assertThat(padOrgRolePipelineLinkArgCapture.getValue()).isEmpty();
 
+
+  }
+
+  @Test
+  public void getOrgRolesForDetailByOrganisationIdAndRole_whenNoOrgRoleFound(){
+
+    assertThat(padOrganisationRoleService.getOrgRolesForDetailByOrganisationIdAndRole(
+        detail,
+        Set.of(OrganisationUnitId.from(orgUnit1)),
+        HuooRole.HOLDER
+    )).isEmpty();
+
+  }
+
+  @Test
+  public void getOrgRolesForDetailByOrganisationIdAndRole_whenOrgRolesFound(){
+
+    var org1HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit1);
+    var org1OwnerRole = createOrgRole(HuooRole.OWNER, orgUnit1);
+    var org2HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit2);
+
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(
+        List.of(org1HolderRole, org1OwnerRole, org2HolderRole)
+    );
+
+    assertThat(padOrganisationRoleService.getOrgRolesForDetailByOrganisationIdAndRole(
+        detail,
+        Set.of(OrganisationUnitId.from(orgUnit1)),
+        HuooRole.HOLDER
+    )).containsExactly(org1HolderRole);
+
+  }
+
+  @Test
+  public void createPadPipelineOrganisationRoleLink_createsAndSavesExpectedLink(){
+    var org1HolderRole = createOrgRole(HuooRole.HOLDER, orgUnit1);
+    var pipeline = new Pipeline();
+
+    var argCapture = ArgumentCaptor.forClass(PadPipelineOrganisationRoleLink.class);
+    padOrganisationRoleService.createPadPipelineOrganisationRoleLink(org1HolderRole, pipeline);
+
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).save(argCapture.capture());
+
+    assertThat(argCapture.getValue()).satisfies(padPipelineOrganisationRoleLink -> {
+      assertThat(padPipelineOrganisationRoleLink.getPipeline()).isEqualTo(pipeline);
+      assertThat(padPipelineOrganisationRoleLink.getPadOrgRole()).isEqualTo(org1HolderRole);
+    });
 
   }
 

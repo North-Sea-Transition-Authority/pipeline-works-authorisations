@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgre
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.validators.MedianLineAgreementValidator;
 
@@ -38,6 +38,9 @@ public class PadMedianLineAgreementServiceTest {
   @Mock
   private MedianLineCrossingFileService medianLineCrossingFileService;
 
+  @Mock
+  private PadFileService padFileService;
+
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -47,7 +50,7 @@ public class PadMedianLineAgreementServiceTest {
     padMedianLineAgreementService = new PadMedianLineAgreementService(
         padMedianLineAgreementRepository,
         medianLineAgreementValidator,
-        medianLineCrossingFileService);
+        medianLineCrossingFileService, padFileService);
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 
@@ -195,7 +198,7 @@ public class PadMedianLineAgreementServiceTest {
     agreement.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
     padMedianLineAgreementService.isComplete(pwaApplicationDetail);
     verify(medianLineAgreementValidator, times(1)).validate(any(), any(), eq(FullValidation.class));
-    verify(medianLineCrossingFileService, never()).getFullFileCount(pwaApplicationDetail);
+    verify(medianLineCrossingFileService, times(1)).isComplete(pwaApplicationDetail);
   }
 
   @Test
@@ -210,7 +213,7 @@ public class PadMedianLineAgreementServiceTest {
           padMedianLineAgreementService.isComplete(pwaApplicationDetail);
           // Have to use atLeastOnce() inside forEach, otherwise additional iterations increase times().
           verify(medianLineAgreementValidator, atLeastOnce()).validate(any(), any(), eq(FullValidation.class));
-          verify(medianLineCrossingFileService, atLeastOnce()).getFullFileCount(pwaApplicationDetail);
+          verify(medianLineCrossingFileService, atLeastOnce()).isComplete(pwaApplicationDetail);
         });
   }
 

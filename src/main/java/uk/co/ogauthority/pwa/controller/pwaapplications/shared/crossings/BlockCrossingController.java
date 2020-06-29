@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
@@ -34,6 +35,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.service.licence.PickablePearsBlock;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -41,7 +43,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -68,9 +69,8 @@ public class BlockCrossingController {
   private final PearsBlockService pearsBlockService;
   private final BlockCrossingService blockCrossingService;
   private final BlockCrossingFileService blockCrossingFileService;
-  private final CrossingAgreementsService crossingAgreementsService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
-
+  private final PadFileService padFileService;
 
   @Autowired
   public BlockCrossingController(
@@ -81,8 +81,8 @@ public class BlockCrossingController {
       PearsBlockService pearsBlockService,
       BlockCrossingService blockCrossingService,
       BlockCrossingFileService blockCrossingFileService,
-      CrossingAgreementsService crossingAgreementsService,
-      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService,
+      PadFileService padFileService) {
     this.breadcrumbService = breadcrumbService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.addBlockCrossingFormValidator = addBlockCrossingFormValidator;
@@ -90,8 +90,8 @@ public class BlockCrossingController {
     this.pearsBlockService = pearsBlockService;
     this.blockCrossingService = blockCrossingService;
     this.blockCrossingFileService = blockCrossingFileService;
-    this.crossingAgreementsService = crossingAgreementsService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
+    this.padFileService = padFileService;
   }
 
   @GetMapping
@@ -254,7 +254,8 @@ public class BlockCrossingController {
         .addObject("blockCrossings", blockCrossingService.getCrossedBlockViews(detail))
         .addObject("blockCrossingUrlFactory", new BlockCrossingUrlFactory(detail))
         .addObject("blockCrossingFiles",
-            blockCrossingFileService.getBlockCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.BLOCK_CROSSINGS,
+                ApplicationFileLinkStatus.FULL))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
                 null)));

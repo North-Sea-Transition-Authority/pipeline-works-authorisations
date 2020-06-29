@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -21,6 +24,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -106,6 +111,9 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
                 .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+    verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
+        eq(ApplicationFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -122,6 +130,9 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
                 .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+    verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
+        eq(ApplicationFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -138,6 +149,9 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
                 .renderOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+    verify(padFileService, times(endpointTester.getContactRoles().size())).getUploadedFileViews(any(),
+        eq(ApplicationFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test

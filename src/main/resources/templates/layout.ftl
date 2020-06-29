@@ -12,6 +12,7 @@
 <#import 'components/cartographic/maps.ftl' as maps>
 <#import 'components/utils/string.ftl' as stringUtils>
 <#import 'components/widgets/pipelineTableSelection.ftl' as pwaPipelineTableSelection/>
+<#import 'components/widgets/organisationUnitDetailTableSelection.ftl' as pwaOrgDetailTableSelection/>
 
 
 <#function springUrl url>

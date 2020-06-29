@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
@@ -25,12 +26,11 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -50,22 +50,19 @@ public class CableCrossingController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadCableCrossingService padCableCrossingService;
-  private final CableCrossingFileService cableCrossingFileService;
-  private final CrossingAgreementsService crossingAgreementsService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+  private final PadFileService padFileService;
 
   @Autowired
   public CableCrossingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadCableCrossingService padCableCrossingService,
-      CableCrossingFileService cableCrossingFileService,
-      CrossingAgreementsService crossingAgreementsService,
-      CrossingAgreementsTaskListService crossingAgreementsTaskListService) {
+      CrossingAgreementsTaskListService crossingAgreementsTaskListService,
+      PadFileService padFileService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padCableCrossingService = padCableCrossingService;
-    this.cableCrossingFileService = cableCrossingFileService;
-    this.crossingAgreementsService = crossingAgreementsService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
+    this.padFileService = padFileService;
   }
 
   private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail) {
@@ -74,9 +71,11 @@ public class CableCrossingController {
         .addObject("cableCrossings", padCableCrossingService.getCableCrossingViews(detail))
         .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
         .addObject("cableCrossingFiles",
-            cableCrossingFileService.getCableCrossingFileViews(detail, ApplicationFileLinkStatus.FULL))
+            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.CABLE_CROSSINGS,
+                ApplicationFileLinkStatus.FULL))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(),
+                detail.getMasterPwaApplicationId(), null,
                 null)));
     applicationBreadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Cable crossings");
     return modelAndView;

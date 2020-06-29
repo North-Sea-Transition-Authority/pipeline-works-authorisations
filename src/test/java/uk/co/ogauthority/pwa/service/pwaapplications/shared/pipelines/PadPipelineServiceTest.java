@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +18,11 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -46,7 +49,10 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineRepository pipelineRepository;
 
-  private PadPipelineService pipelinesService;
+  @Mock
+  private PipelineService pipelineService;
+
+  private PadPipelineService padPipelineService;
 
   private PwaApplicationDetail detail;
 
@@ -57,15 +63,18 @@ public class PadPipelineServiceTest {
   public void setUp() {
 
     // mimic save of new pipeline behaviour.
-    when(pipelineRepository.save(any())).thenAnswer(invocation -> {
-      var pipeline =(Pipeline) invocation.getArgument(0);
+    when(pipelineService.createApplicationPipeline(any())).thenAnswer(invocation -> {
+      var app = (PwaApplication) invocation.getArgument(0);
+      var pipeline = new Pipeline(app);
       pipeline.setId(PIPELINE_ID);
       return pipeline;
     });
 
+
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    pipelinesService = new PadPipelineService(padPipelineRepository, pipelineRepository);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService);
+
 
   }
 
@@ -101,10 +110,10 @@ public class PadPipelineServiceTest {
     form.setTrenchingMethods("trench methods");
     form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
 
-    pipelinesService.addPipeline(detail, form);
+    padPipelineService.addPipeline(detail, form);
 
     verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
-    verify(pipelineRepository, times(1)).save(any());
+    verify(pipelineService, times(1)).createApplicationPipeline(detail.getPwaApplication());
 
     var newPadPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPadPipeline.getPipeline().getId()).isEqualTo(PIPELINE_ID);
@@ -163,7 +172,7 @@ public class PadPipelineServiceTest {
     form.setToCoordinateForm(toCoordinateForm);
     form.setTrenchedBuriedBackfilled(false);
 
-    pipelinesService.addPipeline(detail, form);
+    padPipelineService.addPipeline(detail, form);
     verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
     var newPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPipeline.getOtherPipelineMaterialUsed()).isEqualTo(form.getOtherPipelineMaterialUsed());
@@ -176,7 +185,7 @@ public class PadPipelineServiceTest {
     var detail = new PwaApplicationDetail();
     when(padPipelineRepository.countAllByPwaApplicationDetail(detail)).thenReturn(0L);
 
-    assertThat(pipelinesService.isComplete(detail)).isFalse();
+    assertThat(padPipelineService.isComplete(detail)).isFalse();
 
   }
 
@@ -187,7 +196,7 @@ public class PadPipelineServiceTest {
     when(padPipelineRepository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
     when(padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(1L);
 
-    assertThat(pipelinesService.isComplete(detail)).isFalse();
+    assertThat(padPipelineService.isComplete(detail)).isFalse();
 
   }
 
@@ -198,7 +207,7 @@ public class PadPipelineServiceTest {
     when(padPipelineRepository.countAllByPwaApplicationDetail(detail)).thenReturn(1L);
     when(padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail)).thenReturn(0L);
 
-    assertThat(pipelinesService.isComplete(detail)).isTrue();
+    assertThat(padPipelineService.isComplete(detail)).isTrue();
 
   }
 
@@ -215,14 +224,22 @@ public class PadPipelineServiceTest {
     PadPipeline.setPipelineRef("l2");
     pipelinesMocked.add(PadPipeline);
 
-    var pipeLinesExpected = new HashMap<String, String >();
+    var pipeLinesExpected = new HashMap<String, String>();
     pipeLinesExpected.put("1", "l1");
     pipeLinesExpected.put("2", "l2");
 
     var detail = new PwaApplicationDetail();
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(pipelinesMocked);
 
-    assertThat(pipelinesService.getPipelineReferenceMap(detail)).isEqualTo(pipeLinesExpected);
+    assertThat(padPipelineService.getPipelineReferenceMap(detail)).isEqualTo(pipeLinesExpected);
   }
+
+  @Test
+  public void getByApplicationDetailAndPipelineId_serviceInteractions() {
+    padPipelineService.getByApplicationDetailAndPipelineId(detail, Set.of(new PipelineId(1), new PipelineId(2)));
+    verify(padPipelineRepository, times(1))
+        .getAllByPwaApplicationDetailAndPipeline_idIn(detail, Set.of(1, 2));
+  }
+
 
 }

@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.model.dto.pipelines;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 /* Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.*/
 public final class PipelineId {
@@ -8,6 +11,18 @@ public final class PipelineId {
 
   public PipelineId(int id) {
     this.id = id;
+  }
+
+  public static PipelineId from(Pipeline pipeline) {
+    return new PipelineId(pipeline.getId());
+  }
+
+  public static PipelineId from(PipelineDetail pipelineDetail) {
+    return new PipelineId(pipelineDetail.getPipelineId());
+  }
+
+  public static PipelineId from(PadPipeline padPipeline) {
+    return from(padPipeline.getPipeline());
   }
 
   public int asInt() {
