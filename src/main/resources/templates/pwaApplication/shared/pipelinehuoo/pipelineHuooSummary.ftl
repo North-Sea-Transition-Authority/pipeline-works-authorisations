@@ -25,6 +25,7 @@
 
     <@fdsAction.link linkText="Select pipelines and assign operators"  linkUrl=springUrl(urlFactory.getAddOperatorPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
   <h2 class="govuk-heading-m">Owners</h2>
+    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=ownerSummary />
 
     <@fdsAction.link linkText="Select pipelines and assign owners"  linkUrl=springUrl(urlFactory.getAddOwnerPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
 
