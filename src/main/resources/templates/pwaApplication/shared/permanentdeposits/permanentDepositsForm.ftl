@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#import '../../../components/coordinates/coordinateInput.ftl' as coordinateInput/>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelines" type="java.util.Map<String, String>" -->
@@ -74,13 +75,13 @@
 
 
         <@fdsFieldset.fieldset legendHeading="Where is the start location?">
-            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
+            <@coordinateInput.latitudeInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
                                           minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
                                           secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
                                           formId="fromLatitude"
                                           labelText="Start point latitude"/>
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.longitudeDegrees"
+            <@coordinateInput.longitudeInput degreesLocationPath="form.fromCoordinateForm.longitudeDegrees"
                                           minutesLocationPath="form.fromCoordinateForm.longitudeMinutes"
                                           secondsLocationPath="form.fromCoordinateForm.longitudeSeconds"
                                           direction="EW"
@@ -91,13 +92,13 @@
         </@fdsFieldset.fieldset> 
 
         <@fdsFieldset.fieldset legendHeading="Where is the end location?">
-            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
+            <@coordinateInput.latitudeInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
                                           minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
                                           secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
                                           formId="toLatitude" 
                                           labelText="Finish point latitude"/>
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.longitudeDegrees"
+            <@coordinateInput.longitudeInput degreesLocationPath="form.toCoordinateForm.longitudeDegrees"
                                           minutesLocationPath="form.toCoordinateForm.longitudeMinutes"
                                           secondsLocationPath="form.toCoordinateForm.longitudeSeconds"
                                           direction="EW"

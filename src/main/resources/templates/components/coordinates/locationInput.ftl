@@ -1,6 +1,7 @@
 <#--PWA Coordinate input-->
 <#import '/spring.ftl' as spring>
 <#include '../../layout.ftl'>
+<#import '../../components/numberInput/numberInput.ftl' as numberInput>
 
 <#macro locationInput
 degreesLocationPath
@@ -54,14 +55,14 @@ captionClass="govuk-caption-m">
         </#if>
     </#assign>
   <div class="govuk-form-group ${formGroupClass}<#if hasError>govuk-form-group--error</#if>">
-      <@fdsFieldset.fieldset legendHeading=labelText legendHeadingSize=fieldsetHeadingSize legendHeadingClass=fieldsetHeadingClass caption=caption captionClass=captionClass optionalLabel=optionalFlag hintText=hintText>
+      <@fdsFieldset.fieldset legendHeading="${labelText} in WGS 84" legendHeadingSize=fieldsetHeadingSize legendHeadingClass=fieldsetHeadingClass caption=caption captionClass=captionClass optionalLabel=optionalFlag hintText=hintText>
           <#if hasError>
               ${errorDisplay}
           </#if>
         <div class="govuk-date-input" id="${formId}-number-input">
-            <@fdsNumberInput.numberInputItem path=degreesLocationPath labelText="Degrees"/>
-            <@fdsNumberInput.numberInputItem path=minutesLocationPath labelText="Minutes"/>
-            <@fdsNumberInput.numberInputItem path=secondsLocationPath labelText="Seconds"/>
+            <@numberInput.numberInputItem path=degreesLocationPath labelText="Degrees" leftPadAmount=2 leftPadCharacter="0" inputClass="govuk-input--width-3"/>
+            <@numberInput.numberInputItem path=minutesLocationPath labelText="Minutes" leftPadAmount=2 leftPadCharacter="0" inputClass="govuk-input--width-3"/>
+            <@numberInput.numberInputItem path=secondsLocationPath labelText="Seconds" leftPadAmount=2 leftPadCharacter="0" inputClass="govuk-input--width-3"/>
           <div class="govuk-date-input__item">
             <div class="govuk-form-group">
                 <#if direction=="NS">

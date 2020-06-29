@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#import '../../../components/coordinates/coordinateInput.ftl' as coordinateInput/>
 
 <#-- @ftlvariable name="longDirections" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm" -->
@@ -12,30 +13,34 @@
         <@fdsError.errorSummary errorItems=errorList />
     </#if>
 
+    <#assign coordinateGuidance>
+        <@fdsDetails.details detailsTitle="When should I provide ident coordinates?" detailsText="Provide coordinates if this is a key point along the pipeline route." />
+    </#assign>
+
     <@fdsForm.htmlForm>
 
         <@fdsFieldset.fieldset legendHeading="Where does the ident start?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
 
             <@fdsTextInput.textInput path="form.fromLocation" labelText="Structure" />
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
-                                          minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
-                                          secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
-                                          optionalLabel="true"
-                                          hintText="Provide coordinates if this is a key point along the pipeline route"
-                                          formId="fromLatitude"
-                                          labelText="Start point latitude"/>
+            ${coordinateGuidance}
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.fromCoordinateForm.longitudeDegrees"
-                                          minutesLocationPath="form.fromCoordinateForm.longitudeMinutes"
-                                          secondsLocationPath="form.fromCoordinateForm.longitudeSeconds"
-                                          optionalLabel="true"
-                                          hintText="Provide coordinates if this is a key point along the pipeline route"
-                                          direction="EW"
-                                          directionPath="form.fromCoordinateForm.longitudeDirection"
-                                          directionList=longDirections
-                                          formId="fromLongitude"
-                                          labelText="Start point longitude"/>
+            <@coordinateInput.latitudeInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
+                                    minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
+                                    secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
+                                    optionalLabel="true"
+                                    formId="fromLatitude"
+                                    labelText="Start point latitude"/>
+
+            <@coordinateInput.longitudeInput degreesLocationPath="form.fromCoordinateForm.longitudeDegrees"
+                                    minutesLocationPath="form.fromCoordinateForm.longitudeMinutes"
+                                    secondsLocationPath="form.fromCoordinateForm.longitudeSeconds"
+                                    optionalLabel="true"
+                                    direction="EW"
+                                    directionPath="form.fromCoordinateForm.longitudeDirection"
+                                    directionList=longDirections
+                                    formId="fromLongitude"
+                                    labelText="Start point longitude"/>
 
         </@fdsFieldset.fieldset>
 
@@ -43,24 +48,24 @@
 
             <@fdsTextInput.textInput path="form.toLocation" labelText="Structure" />
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
-                                          minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
-                                          secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
-                                          optionalLabel="true"
-                                          hintText="Provide coordinates if this is a key point along the pipeline route"
-                                          formId="toLatitude"
-                                          labelText="Finish point latitude"/>
+            ${coordinateGuidance}
 
-            <@pwaLocationInput.locationInput degreesLocationPath="form.toCoordinateForm.longitudeDegrees"
-                                          minutesLocationPath="form.toCoordinateForm.longitudeMinutes"
-                                          secondsLocationPath="form.toCoordinateForm.longitudeSeconds"
-                                          optionalLabel="true"
-                                          hintText="Provide coordinates if this is a key point along the pipeline route"
-                                          direction="EW"
-                                          directionPath="form.toCoordinateForm.longitudeDirection"
-                                          directionList=longDirections
-                                          formId="toLongitude"
-                                          labelText="Finish point longitude"/>
+            <@coordinateInput.latitudeInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
+                                    minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
+                                    secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
+                                    optionalLabel="true"
+                                    formId="toLatitude"
+                                    labelText="Finish point latitude"/>
+
+            <@coordinateInput.longitudeInput degreesLocationPath="form.toCoordinateForm.longitudeDegrees"
+                                    minutesLocationPath="form.toCoordinateForm.longitudeMinutes"
+                                    secondsLocationPath="form.toCoordinateForm.longitudeSeconds"
+                                    optionalLabel="true"
+                                    direction="EW"
+                                    directionPath="form.toCoordinateForm.longitudeDirection"
+                                    directionList=longDirections
+                                    formId="toLongitude"
+                                    labelText="Finish point longitude"/>
 
         </@fdsFieldset.fieldset>
 
