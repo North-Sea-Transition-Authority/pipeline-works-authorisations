@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.converters.PipelinePropertyPhaseConverter;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -66,7 +70,8 @@ public class PwaApplicationDetail {
 
   private Integer numOfHolders;
 
-  private String pipelinePhaseProperties;
+  @Convert(converter = PipelinePropertyPhaseConverter.class)
+  private Set<PropertyPhase> pipelinePhaseProperties;
 
   private String otherPhaseDescription;
 
@@ -264,11 +269,12 @@ public class PwaApplicationDetail {
     this.numOfHolders = numOfHolders;
   }
 
-  public String getPipelinePhaseProperties() {
+  public Set<PropertyPhase> getPipelinePhaseProperties() {
     return pipelinePhaseProperties;
   }
 
-  public void setPipelinePhaseProperties(String pipelinePhaseProperties) {
+  public void setPipelinePhaseProperties(
+      Set<PropertyPhase> pipelinePhaseProperties) {
     this.pipelinePhaseProperties = pipelinePhaseProperties;
   }
 

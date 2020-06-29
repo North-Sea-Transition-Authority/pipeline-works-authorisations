@@ -4,7 +4,6 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="properties" type="java.util.List<OtherPipelineProperty>" -->
 <#-- @ftlvariable name="propertyAvailabilityOptions" type="java.util.List<PropertyAvailabilityOption>" -->
-<#-- @ftlvariable name="propertyUnitMeasurements" type="java.util.List<PropertyUnitMeasurement>" -->
 
 
 
@@ -18,14 +17,7 @@
     <@fdsForm.htmlForm>
 
         <#list properties as property>
-            <#assign unitMeasurement="">
-            <#list propertyUnitMeasurements as propertyUnitMeasurement>
-                <#if propertyUnitMeasurement == property>
-                    <#assign unitMeasurement=propertyUnitMeasurement.getDisplayText()>
-                </#if>
-            </#list> 
-            
-            <@propertyQuestion property=property propertyAvailabilityOptions=propertyAvailabilityOptions unitMeasurement=unitMeasurement />
+            <@propertyQuestion property=property propertyAvailabilityOptions=propertyAvailabilityOptions />
         </#list>        
         
         

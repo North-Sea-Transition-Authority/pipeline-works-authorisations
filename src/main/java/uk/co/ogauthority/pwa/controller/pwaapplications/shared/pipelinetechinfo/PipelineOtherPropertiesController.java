@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyUnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -93,8 +92,7 @@ public class PipelineOtherPropertiesController {
   private ModelAndView getAddPipelineOtherPropertiesModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineOtherProperties");
     modelAndView.addObject("properties", OtherPipelineProperty.asList())
-        .addObject("propertyAvailabilityOptions", PropertyAvailabilityOption.asList())
-        .addObject("propertyUnitMeasurements", PropertyUnitMeasurement.asList());
+        .addObject("propertyAvailabilityOptions", PropertyAvailabilityOption.asList());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Other properties");

@@ -4,10 +4,9 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" --> 
 <#-- @ftlvariable name="property" type="java.util.List<OtherPipelineProperty>" -->
 <#-- @ftlvariable name="propertyAvailabilityOptions" type="java.util.List<PropertyAvailabilityOption>" -->
-<#-- @ftlvariable name="unitMeasurement" type="java.lang.String" -->
 
 
-<#macro propertyQuestion property propertyAvailabilityOptions unitMeasurement>
+<#macro propertyQuestion property propertyAvailabilityOptions>
     <@fdsRadio.radioGroup path="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText=property.getDisplayText() hiddenContent=true>
         <#assign firstItem=true/>
         <#list propertyAvailabilityOptions as  propertyAvailabilityOption>
@@ -15,7 +14,7 @@
 
                 <#if propertyAvailabilityOption == "AVAILABLE">
                     <@minMaxInput minFormPath="form.propertyDataFormMap[${property}].minMaxInput.minValue" maxFormPath="form.propertyDataFormMap[${property}].minMaxInput.maxValue"
-                    nestedPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText="" unitMeasurement=unitMeasurement/>
+                    nestedPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText="" unitMeasurement=property.getUnitMeasurement()/>
                 </#if>
                 
             </@fdsRadio.radioItem>

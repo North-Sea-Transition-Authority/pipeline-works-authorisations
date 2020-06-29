@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,11 +57,11 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
 
   public void mapEntitiesToForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    var phasesStr = pwaApplicationDetail.getPipelinePhaseProperties();
-    var phasesList = phasesStr == null ? new String[0] : phasesStr.split(",");
-    for (var phase : phasesList) {
+//    var phasesStr = pwaApplicationDetail.getPipelinePhaseProperties();
+//    var phasesList = phasesStr == null ? new String[0] : phasesStr.split(",");
+    for (var phase : pwaApplicationDetail.getPipelinePhaseProperties()) {
       setPhaseTrueIfExists(form, phase);
-      if (PropertyPhase.valueOf(phase).equals(PropertyPhase.OTHER)) {
+      if (phase.equals(PropertyPhase.OTHER)) {
         form.setOtherPhaseDescription(pwaApplicationDetail.getOtherPhaseDescription());
       }
     }
@@ -76,16 +77,16 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
     }
   }
 
-  private void setPhaseTrueIfExists(PipelineOtherPropertiesForm form, String phaseValue) {
-    if (PropertyPhase.valueOf(phaseValue).equals(PropertyPhase.OIL)) {
+  private void setPhaseTrueIfExists(PipelineOtherPropertiesForm form, PropertyPhase propertyPhase) {
+    if (propertyPhase.equals(PropertyPhase.OIL)) {
       form.setOilPresent(true);
-    } else if (PropertyPhase.valueOf(phaseValue).equals(PropertyPhase.CONDENSATE)) {
+    } else if (propertyPhase.equals(PropertyPhase.CONDENSATE)) {
       form.setCondensatePresent(true);
-    } else if (PropertyPhase.valueOf(phaseValue).equals(PropertyPhase.GAS)) {
+    } else if (propertyPhase.equals(PropertyPhase.GAS)) {
       form.setGasPresent(true);
-    } else if (PropertyPhase.valueOf(phaseValue).equals(PropertyPhase.WATER)) {
+    } else if (propertyPhase.equals(PropertyPhase.WATER)) {
       form.setWaterPresent(true);
-    } else if (PropertyPhase.valueOf(phaseValue).equals(PropertyPhase.OTHER)) {
+    } else if (propertyPhase.equals(PropertyPhase.OTHER)) {
       form.setOtherPresent(true);
     }
   }
@@ -93,7 +94,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   public void saveEntitiesUsingForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                     PwaApplicationDetail pwaApplicationDetail) {
     var otherPhaseDescription = form.getOtherPresent() ? form.getOtherPhaseDescription() : "";
-    pwaApplicationDetailService.setPhasesPresent(pwaApplicationDetail, createPhasesCsv(form), otherPhaseDescription);
+    pwaApplicationDetailService.setPhasesPresent(pwaApplicationDetail, getPhasesPresent(form), otherPhaseDescription);
 
     for (PadPipelineOtherProperties entity: entities) {
       var pipelineOtherPropertiesDataForm = form.getPropertyDataFormMap().get(entity.getPropertyName());
@@ -107,20 +108,29 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
     padPipelineOtherPropertiesRepository.saveAll(entities);
   }
 
-  private String usePhaseIfPresent(PropertyPhase propertyPhase, boolean phasePresent) {
-    if (phasePresent) {
-      return propertyPhase.name() + ",";
-    }
-    return  "";
-  }
+//  private String usePhaseIfPresent(PropertyPhase propertyPhase, boolean phasePresent) {
+//    if (phasePresent) {
+//      return propertyPhase.name() + ",";
+//    }
+//    return  "";
+//  }
+//
+//  private String createPhasesCsv(PipelineOtherPropertiesForm form) {
+//    String phasesCsv = usePhaseIfPresent(PropertyPhase.OIL, form.getOilPresent()) +
+//        usePhaseIfPresent(PropertyPhase.CONDENSATE, form.getCondensatePresent()) +
+//        usePhaseIfPresent(PropertyPhase.GAS, form.getGasPresent()) +
+//        usePhaseIfPresent(PropertyPhase.WATER, form.getWaterPresent()) +
+//        usePhaseIfPresent(PropertyPhase.OTHER, form.getOtherPresent());
+//    return StringUtils.removeEnd(phasesCsv, ",");
+//  }
 
-  private String createPhasesCsv(PipelineOtherPropertiesForm form) {
-    String phasesCsv = usePhaseIfPresent(PropertyPhase.OIL, form.getOilPresent()) +
-        usePhaseIfPresent(PropertyPhase.CONDENSATE, form.getCondensatePresent()) +
-        usePhaseIfPresent(PropertyPhase.GAS, form.getGasPresent()) +
-        usePhaseIfPresent(PropertyPhase.WATER, form.getWaterPresent()) +
-        usePhaseIfPresent(PropertyPhase.OTHER, form.getOtherPresent());
-    return StringUtils.removeEnd(phasesCsv, ",");
+
+
+  private Set<PropertyPhase> getPhasesPresent(PipelineOtherPropertiesForm form) {
+    Set<PropertyPhase> propertyPhases = Set.of();
+    //check if phase is present in form, then add to set.
+
+    return propertyPhases;
   }
 
 
