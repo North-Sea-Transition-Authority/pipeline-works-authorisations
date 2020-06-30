@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -25,41 +27,31 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.C
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupTeamMemberRepository;
-import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 
 @Service
 public class ConsulteeGroupTeamService {
 
-  private final TeamService teamService;
   private final ConsulteeGroupDetailRepository groupDetailRepository;
   private final ConsulteeGroupTeamMemberRepository groupTeamMemberRepository;
 
   @Autowired
-  public ConsulteeGroupTeamService(TeamService teamService,
-                                   ConsulteeGroupDetailRepository groupDetailRepository,
+  public ConsulteeGroupTeamService(ConsulteeGroupDetailRepository groupDetailRepository,
                                    ConsulteeGroupTeamMemberRepository groupTeamMemberRepository) {
-    this.teamService = teamService;
     this.groupDetailRepository = groupDetailRepository;
     this.groupTeamMemberRepository = groupTeamMemberRepository;
   }
 
-  public List<ConsulteeGroupDetail> getManageableGroupDetailsForUser(WebUserAccount user) {
+  public List<ConsulteeGroupDetail> getManageableGroupDetailsForUser(AuthenticatedUserAccount user) {
 
-    Set<PwaRegulatorRole> userRegRoles = teamService
-        .getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())
-        .map(member -> member.getRoleSet().stream()
-            .map(role -> PwaRegulatorRole.getValueByPortalTeamRoleName(role.getName()))
-            .collect(Collectors.toSet()))
-        .orElse(Set.of());
+    boolean isOgaTeamAdmin = user.getUserPrivileges().stream()
+        .anyMatch(priv -> priv.equals(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
     // if user is an OGA team admin, they can administer any consultee group
-    if (userRegRoles.contains(PwaRegulatorRole.TEAM_ADMINISTRATOR)) {
+    if (isOgaTeamAdmin) {
       return groupDetailRepository.findAllByEndTimestampIsNull();
     }
 
@@ -70,7 +62,7 @@ public class ConsulteeGroupTeamService {
 
   }
 
-  public List<ConsulteeGroupTeamView> getManageableGroupTeamViewsForUser(WebUserAccount user) {
+  public List<ConsulteeGroupTeamView> getManageableGroupTeamViewsForUser(AuthenticatedUserAccount user) {
     return getManageableGroupDetailsForUser(user).stream()
         .map(this::convertDetailToTeamView)
         .sorted(Comparator.comparing(ConsulteeGroupTeamView::getName))
@@ -78,7 +70,7 @@ public class ConsulteeGroupTeamService {
   }
 
   public Set<ConsulteeGroup> getGroupsUserHasRoleFor(WebUserAccount user, ConsulteeGroupMemberRole role) {
-    return groupTeamMemberRepository.findAllByPerson(user.getLinkedPerson()).stream()
+    return getTeamMembersByPerson(user.getLinkedPerson()).stream()
         .filter(member -> member.getRoles().contains(role))
         .map(ConsulteeGroupTeamMember::getConsulteeGroup)
         .collect(Collectors.toSet());
@@ -215,6 +207,10 @@ public class ConsulteeGroupTeamService {
 
     groupTeamMemberRepository.delete(member);
 
+  }
+
+  public List<ConsulteeGroupTeamMember> getTeamMembersByPerson(Person person) {
+    return groupTeamMemberRepository.findAllByPerson(person);
   }
 
 }

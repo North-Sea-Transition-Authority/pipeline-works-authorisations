@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -27,12 +28,15 @@ public class TeamService {
 
   private final PortalTeamAccessor portalTeamAccessor;
   private final PwaTeamsDtoFactory pwaTeamsDtoFactory;
+  private final PwaUserPrivilegeService pwaUserPrivilegeService;
 
   @Autowired
   public TeamService(PortalTeamAccessor portalTeamAccessor,
-                     PwaTeamsDtoFactory pwaTeamsDtoFactory) {
+                     PwaTeamsDtoFactory pwaTeamsDtoFactory,
+                     PwaUserPrivilegeService pwaUserPrivilegeService) {
     this.portalTeamAccessor = portalTeamAccessor;
     this.pwaTeamsDtoFactory = pwaTeamsDtoFactory;
+    this.pwaUserPrivilegeService = pwaUserPrivilegeService;
   }
 
   /**
@@ -179,9 +183,19 @@ public class TeamService {
   }
 
   public List<PwaUserPrivilege> getAllUserPrivilegesForPerson(Person person) {
-    return pwaTeamsDtoFactory.createPwaUserPrivilegeList(
+
+    // get privs available to the user through res type role membership
+    var portalPrivSet = pwaTeamsDtoFactory.createPwaUserPrivilegeSet(
         portalTeamAccessor.getAllPortalSystemPrivilegesForPerson(person)
     );
+
+    // get privs available to the user through PWA-only constructs
+    var appPrivSet = pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(person);
+
+    var combinedPrivSet = SetUtils.union(portalPrivSet, appPrivSet);
+
+    return List.copyOf(combinedPrivSet);
+
   }
 
 }

@@ -20,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
 import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
@@ -44,6 +45,9 @@ public class TeamServiceTest {
   @Mock
   private PwaTeamsDtoFactory pwaTeamsDtoFactory;
 
+  @Mock
+  private PwaUserPrivilegeService pwaUserPrivilegeService;
+
   @Captor
   private ArgumentCaptor<List<String>> stringListCaptor;
 
@@ -65,7 +69,7 @@ public class TeamServiceTest {
     regulatorPerson = new Person(1, "reg", "person", "reg@person.com", "0");
     organisationPerson = new Person(2, "org", "person", "org@person.com", "0");
 
-    teamService = new TeamService(portalTeamAccessor, pwaTeamsDtoFactory);
+    teamService = new TeamService(portalTeamAccessor, pwaTeamsDtoFactory, pwaUserPrivilegeService);
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
     regulatorTeamAsPortalTeamDto = TeamTestingUtils.portalTeamDtoFrom(regulatorTeam);
@@ -310,6 +314,58 @@ public class TeamServiceTest {
         .collect(Collectors.toList());
 
     assertThat(stringListCaptor.getValue()).containsExactlyInAnyOrderElementsOf(expectedRoles);
+  }
+
+  @Test
+  public void getAllUserPrivilegesForPerson_portalPrivs_noAppPrivs() {
+
+    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE));
+
+    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of());
+
+    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
+
+    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
+
+  }
+
+  @Test
+  public void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_noOverlap() {
+
+    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
+
+    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA));
+
+    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
+
+    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
+
+  }
+
+  @Test
+  public void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_overlap() {
+
+    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_WORKAREA));
+
+    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA));
+
+    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
+
+    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
+
+  }
+
+  @Test
+  public void getAllUserPrivilegesForPerson_NoPortalPrivs_appPrivs() {
+
+    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of());
+
+    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN));
+
+    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
+
+    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN);
+
   }
 
 }

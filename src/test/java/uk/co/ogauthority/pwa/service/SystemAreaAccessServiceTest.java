@@ -13,7 +13,7 @@ public class SystemAreaAccessServiceTest {
   @Test
   public void canAccessTeamManagement() {
     AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
-        Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_REGULATOR_ADMIN, PwaUserPrivilege.PWA_ORG_ADMIN),
+        Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_REGULATOR_ADMIN, PwaUserPrivilege.PWA_ORG_ADMIN, PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN),
         systemAreaAccessService::canAccessTeamManagement
     );
   }

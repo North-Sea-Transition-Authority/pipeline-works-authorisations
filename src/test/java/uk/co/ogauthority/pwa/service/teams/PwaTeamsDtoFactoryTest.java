@@ -202,8 +202,8 @@ public class PwaTeamsDtoFactoryTest {
 
 
   @Test
-  public void createPwaUserPrivilegeList_mapsPrivAsExpected_andRemovesDuplicates() {
-    List<PwaUserPrivilege> privs = pwaTeamsDtoFactory.createPwaUserPrivilegeList(List.of(
+  public void createPwaUserPrivilegeSet_mapsPrivAsExpected_andRemovesDuplicates() {
+    Set<PwaUserPrivilege> privs = pwaTeamsDtoFactory.createPwaUserPrivilegeSet(List.of(
         new PortalSystemPrivilegeDto(PwaTeamType.REGULATOR.getPortalTeamType(), "SomeRole",
             PwaUserPrivilege.PWA_WORKAREA.name()),
         new PortalSystemPrivilegeDto(PwaTeamType.ORGANISATION.getPortalTeamType(), "SomeOtherRole",

@@ -192,9 +192,10 @@ class PwaTeamsDtoFactory {
    * Consume collection of PortalSystemPrivilegeDtos (which may contains duplicates through membership of multiple teams and roles)
    * and return a list.
    */
-  List<PwaUserPrivilege> createPwaUserPrivilegeList(Collection<PortalSystemPrivilegeDto> portalSystemPrivilegeDtos) {
+  Set<PwaUserPrivilege> createPwaUserPrivilegeSet(Collection<PortalSystemPrivilegeDto> portalSystemPrivilegeDtos) {
 
     Set<PwaUserPrivilege> privileges = new HashSet<>();
+
     for (PortalSystemPrivilegeDto portalSystemPrivDto: portalSystemPrivilegeDtos) {
       try {
         var pwaPriv = PwaUserPrivilege.valueOf(portalSystemPrivDto.getGrantedPrivilege());
@@ -205,7 +206,8 @@ class PwaTeamsDtoFactory {
       }
     }
 
-    return new ArrayList<>(privileges);
+    return privileges;
+
   }
 
 }

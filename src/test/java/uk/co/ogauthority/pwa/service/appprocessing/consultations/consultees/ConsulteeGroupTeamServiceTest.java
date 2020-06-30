@@ -20,6 +20,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -32,20 +34,13 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.C
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupTeamMemberRepository;
-import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConsulteeGroupTeamServiceTest {
-
-  @Mock
-  private TeamService teamService;
 
   @Mock
   private ConsulteeGroupDetailRepository groupDetailRepository;
@@ -59,6 +54,7 @@ public class ConsulteeGroupTeamServiceTest {
   private ConsulteeGroupTeamService groupTeamService;
 
   private WebUserAccount user;
+  private AuthenticatedUserAccount authenticatedUserAccount;
 
   private ConsulteeGroupDetail emtGroupDetail;
   private ConsulteeGroupDetail oduGroupDetail;
@@ -71,22 +67,19 @@ public class ConsulteeGroupTeamServiceTest {
 
     when(groupDetailRepository.findAllByEndTimestampIsNull()).thenReturn(List.of(emtGroupDetail, oduGroupDetail));
 
-    groupTeamService = new ConsulteeGroupTeamService(teamService, groupDetailRepository, groupTeamMemberRepository);
+    groupTeamService = new ConsulteeGroupTeamService(groupDetailRepository, groupTeamMemberRepository);
 
     user = new WebUserAccount(1, new Person(1, "forename", "surname", null, null));
+    authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of());
 
   }
 
   @Test
   public void getManageableGroupDetailsForUser_isRegulatorAdmin() {
 
-    var adminTeamMember = TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(), user.getLinkedPerson(),
-        Set.of(PwaRegulatorRole.TEAM_ADMINISTRATOR));
+    authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson()))
-        .thenReturn(Optional.of(adminTeamMember));
-
-    assertThat(groupTeamService.getManageableGroupDetailsForUser(user)).containsExactlyInAnyOrder(emtGroupDetail, oduGroupDetail);
+    assertThat(groupTeamService.getManageableGroupDetailsForUser(authenticatedUserAccount)).containsExactlyInAnyOrder(emtGroupDetail, oduGroupDetail);
 
   }
 
@@ -101,20 +94,16 @@ public class ConsulteeGroupTeamServiceTest {
     when(groupTeamMemberRepository.findAllByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
     when(groupDetailRepository.findAllByConsulteeGroupInAndEndTimestampIsNull(any())).thenReturn(List.of(emtGroupDetail));
 
-    assertThat(groupTeamService.getManageableGroupDetailsForUser(user)).containsExactly(emtGroupDetail);
+    assertThat(groupTeamService.getManageableGroupDetailsForUser(authenticatedUserAccount)).containsExactly(emtGroupDetail);
 
   }
 
   @Test
   public void getManageableGroupTeamViewsForUser_isRegulatorAdmin() {
 
-    var adminTeamMember = TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(), user.getLinkedPerson(),
-        Set.of(PwaRegulatorRole.TEAM_ADMINISTRATOR));
+    authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
-    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson()))
-        .thenReturn(Optional.of(adminTeamMember));
-
-    assertThat(groupTeamService.getManageableGroupTeamViewsForUser(user))
+    assertThat(groupTeamService.getManageableGroupTeamViewsForUser(authenticatedUserAccount))
         .extracting(ConsulteeGroupTeamView::getConsulteeGroupId, ConsulteeGroupTeamView::getName, ConsulteeGroupTeamView::getManageUrl)
         .containsExactlyInAnyOrder(
             tuple(emtGroupDetail.getConsulteeGroupId(), emtGroupDetail.getName(), ReverseRouter
@@ -136,7 +125,7 @@ public class ConsulteeGroupTeamServiceTest {
     when(groupTeamMemberRepository.findAllByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
     when(groupDetailRepository.findAllByConsulteeGroupInAndEndTimestampIsNull(any())).thenReturn(List.of(emtGroupDetail));
 
-    assertThat(groupTeamService.getManageableGroupTeamViewsForUser(user))
+    assertThat(groupTeamService.getManageableGroupTeamViewsForUser(authenticatedUserAccount))
         .extracting(ConsulteeGroupTeamView::getConsulteeGroupId, ConsulteeGroupTeamView::getName, ConsulteeGroupTeamView::getManageUrl)
         .containsExactlyInAnyOrder(
             tuple(emtGroupDetail.getConsulteeGroupId(), emtGroupDetail.getName(), ReverseRouter
