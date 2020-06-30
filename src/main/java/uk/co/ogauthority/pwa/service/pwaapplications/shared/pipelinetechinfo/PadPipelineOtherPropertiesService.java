@@ -1,8 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -57,81 +56,40 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
 
   public void mapEntitiesToForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                 PwaApplicationDetail pwaApplicationDetail) {
-//    var phasesStr = pwaApplicationDetail.getPipelinePhaseProperties();
-//    var phasesList = phasesStr == null ? new String[0] : phasesStr.split(",");
-    for (var phase : pwaApplicationDetail.getPipelinePhaseProperties()) {
-      setPhaseTrueIfExists(form, phase);
-      if (phase.equals(PropertyPhase.OTHER)) {
-        form.setOtherPhaseDescription(pwaApplicationDetail.getOtherPhaseDescription());
-      }
+    var phasesPresent = pwaApplicationDetail.getPipelinePhaseProperties();
+    form.setPhasesPresent(phasesPresent != null ? phasesPresent : new HashSet<>());
+    if (form.getPhasesPresent().contains(PropertyPhase.OTHER)) {
+      form.setOtherPhaseDescription(pwaApplicationDetail.getOtherPhaseDescription());
     }
 
     for (PadPipelineOtherProperties entity: entities) {
       var pipelineOtherPropertiesDataForm = new PipelineOtherPropertiesDataForm();
       pipelineOtherPropertiesDataForm.setPropertyAvailabilityOption(entity.getAvailabilityOption());
       if (entity.getAvailabilityOption() != null && entity.getAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
-        var minMaxInput = new MinMaxInput(entity.getMinValue(), entity.getMaxValue());
+        var minMaxInput = new MinMaxInput(String.valueOf(entity.getMinValue()), String.valueOf(entity.getMaxValue()));
         pipelineOtherPropertiesDataForm.setMinMaxInput(minMaxInput);
       }
       form.addPropertyData(entity.getPropertyName(), pipelineOtherPropertiesDataForm);
     }
   }
 
-  private void setPhaseTrueIfExists(PipelineOtherPropertiesForm form, PropertyPhase propertyPhase) {
-    if (propertyPhase.equals(PropertyPhase.OIL)) {
-      form.setOilPresent(true);
-    } else if (propertyPhase.equals(PropertyPhase.CONDENSATE)) {
-      form.setCondensatePresent(true);
-    } else if (propertyPhase.equals(PropertyPhase.GAS)) {
-      form.setGasPresent(true);
-    } else if (propertyPhase.equals(PropertyPhase.WATER)) {
-      form.setWaterPresent(true);
-    } else if (propertyPhase.equals(PropertyPhase.OTHER)) {
-      form.setOtherPresent(true);
-    }
-  }
-
   public void saveEntitiesUsingForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                     PwaApplicationDetail pwaApplicationDetail) {
-    var otherPhaseDescription = form.getOtherPresent() ? form.getOtherPhaseDescription() : "";
-    pwaApplicationDetailService.setPhasesPresent(pwaApplicationDetail, getPhasesPresent(form), otherPhaseDescription);
+    var otherPhaseDescription = form.getPhasesPresent().contains(PropertyPhase.OTHER) ? form.getOtherPhaseDescription() : null;
+    pwaApplicationDetailService.setPhasesPresent(pwaApplicationDetail, form.getPhasesPresent(), otherPhaseDescription);
 
     for (PadPipelineOtherProperties entity: entities) {
       var pipelineOtherPropertiesDataForm = form.getPropertyDataFormMap().get(entity.getPropertyName());
       entity.setAvailabilityOption(pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption());
       if (pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption() != null
           && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
-        entity.setMinValue(pipelineOtherPropertiesDataForm.getMinMaxInput().getMinValue());
-        entity.setMaxValue(pipelineOtherPropertiesDataForm.getMinMaxInput().getMaxValue());
+        entity.setMinValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMinOrNull());
+        entity.setMaxValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMaxOrNull());
       }
     }
     padPipelineOtherPropertiesRepository.saveAll(entities);
   }
 
-//  private String usePhaseIfPresent(PropertyPhase propertyPhase, boolean phasePresent) {
-//    if (phasePresent) {
-//      return propertyPhase.name() + ",";
-//    }
-//    return  "";
-//  }
-//
-//  private String createPhasesCsv(PipelineOtherPropertiesForm form) {
-//    String phasesCsv = usePhaseIfPresent(PropertyPhase.OIL, form.getOilPresent()) +
-//        usePhaseIfPresent(PropertyPhase.CONDENSATE, form.getCondensatePresent()) +
-//        usePhaseIfPresent(PropertyPhase.GAS, form.getGasPresent()) +
-//        usePhaseIfPresent(PropertyPhase.WATER, form.getWaterPresent()) +
-//        usePhaseIfPresent(PropertyPhase.OTHER, form.getOtherPresent());
-//    return StringUtils.removeEnd(phasesCsv, ",");
-//  }
-
-
-
-  private Set<PropertyPhase> getPhasesPresent(PipelineOtherPropertiesForm form) {
-    Set<PropertyPhase> propertyPhases = Set.of();
-    //check if phase is present in form, then add to set.
-
-    return propertyPhases;
-  }
 
 
 

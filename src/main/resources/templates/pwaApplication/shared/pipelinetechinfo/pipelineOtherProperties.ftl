@@ -3,7 +3,8 @@
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="properties" type="java.util.List<OtherPipelineProperty>" -->
-<#-- @ftlvariable name="propertyAvailabilityOptions" type="java.util.List<PropertyAvailabilityOption>" -->
+<#-- @ftlvariable name="propertyAvailabilityOptions" type="java.util.List<PropertyAvailabilityOption>" -->  
+<#-- @ftlvariable name="propertyPhases" type="java.util.LinkedHashMap<PropertyPhase, String>" --> 
 
 
 
@@ -20,14 +21,11 @@
             <@propertyQuestion property=property propertyAvailabilityOptions=propertyAvailabilityOptions />
         </#list>        
         
-        
-        <h3 class="govuk-heading-m">Phases present</h3>
-        <@fdsCheckbox.checkbox path="form.oilPresent" labelText="Oil"/>
-        <@fdsCheckbox.checkbox path="form.condensatePresent" labelText="Condensate"/>
-        <@fdsCheckbox.checkbox path="form.gasPresent" labelText="Gas"/>
-        <@fdsCheckbox.checkbox path="form.waterPresent" labelText="Water"/>
-        <@fdsCheckbox.checkbox path="form.otherPresent" labelText="Other"/>
-        <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.otherPresent"/>
+
+        <@fdsFieldset.fieldset legendHeading="Phases present" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
+            <@fdsCheckbox.checkboxes path="form.phasesPresent" checkboxes=propertyPhases />
+            <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present"/>
+        </@fdsFieldset.fieldset>
 
 
 

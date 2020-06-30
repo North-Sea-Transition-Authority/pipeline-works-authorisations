@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
@@ -70,25 +72,18 @@ public class OtherPropertiesEntityBuilder {
     return pipelineOtherPropertiesList;
   }
 
-  public String getPhaseDataForAppDetail() {
-    String separator = ",";
-    return PropertyPhase.OIL + separator +
-        PropertyPhase.CONDENSATE + separator +
-        PropertyPhase.OTHER;
+  public Set<PropertyPhase> getPhaseDataForAppDetail() {
+    return PropertyPhase.stream().collect(Collectors.toSet());
   }
 
   public void setPhaseDataOnAppDetail(PwaApplicationDetail pwaApplicationDetail) {
-    String phases = getPhaseDataForAppDetail();
-    pwaApplicationDetail.setPipelinePhaseProperties(phases);
+    pwaApplicationDetail.setPipelinePhaseProperties(getPhaseDataForAppDetail());
     pwaApplicationDetail.setOtherPhaseDescription(getOtherPhaseDescription());
   }
 
   public void setPhaseDataOnAppDetail_otherPhaseExcluded(PwaApplicationDetail pwaApplicationDetail) {
-    String separator = ",";
-    String phases = PropertyPhase.OIL + separator +
-        PropertyPhase.OIL + separator +
-        PropertyPhase.CONDENSATE;
-
+    var phases = getPhaseDataForAppDetail();
+    phases.remove(PropertyPhase.OTHER);
     pwaApplicationDetail.setPipelinePhaseProperties(phases);
     pwaApplicationDetail.setOtherPhaseDescription(getOtherPhaseDescription());
   }

@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.validators.pipelineotherproperties;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -45,7 +44,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   private PipelineOtherPropertiesDataForm createForm(double min, double max) {
     var form = new PipelineOtherPropertiesDataForm();
     form.setPropertyAvailabilityOption(PropertyAvailabilityOption.AVAILABLE);
-    form.setMinMaxInput(new MinMaxInput(BigDecimal.valueOf(min), BigDecimal.valueOf(max)));
+    form.setMinMaxInput(new MinMaxInput(String.valueOf(min), String.valueOf(max)));
     return form;
   }
 
@@ -61,11 +60,32 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
+  public void validate_valid_waxContent() {
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
+        createForm(3, 5.2), OtherPipelineProperty.WAX_CONTENT);
+
+    assertThat(errorsMap).doesNotContain(
+        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode(),
+            "maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
+    );
+  }
+
+  @Test
   public void validate_invalid_waxAppearanceTemp() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(2.3, 5.2), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE);
 
     assertThat(errorsMap).contains(
+        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_valid_waxAppearanceTemp() {
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
+        createForm(2, 5), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE);
+
+    assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode()))
     );
   }
@@ -93,11 +113,34 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
+  public void validate_valid_viscosity() {
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
+        createForm(4, 5.2), OtherPipelineProperty.VISCOSITY);
+
+    assertThat(errorsMap).doesNotContain(
+        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+    );
+  }
+
+  @Test
   public void validate_invalid_densityGravity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-4, 5.22), OtherPipelineProperty.DENSITY_GRAVITY);
 
     assertThat(errorsMap).contains(
+        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+    );
+  }
+
+
+  @Test
+  public void validate_valid_densityGravity() {
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
+        createForm(4, 5), OtherPipelineProperty.DENSITY_GRAVITY);
+
+    assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
             "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
@@ -152,6 +195,17 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.232), OtherPipelineProperty.H20);
 
     assertThat(errorsMap).contains(
+        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_valid_H20() {
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
+        createForm(4, 5.), OtherPipelineProperty.H20);
+
+    assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
             "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
     );

@@ -38,7 +38,7 @@ public class MinMaxInputValidatorTest {
   public void validate_minSmallerOrEqualToMax() {
     var validationRequiredHints = List.of();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(BigDecimal.valueOf(5), BigDecimal.valueOf(4)), "My Property", validationRequiredHints);
+        validator, new MinMaxInput(String.valueOf(5), String.valueOf(4)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
         Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode()))
@@ -49,7 +49,7 @@ public class MinMaxInputValidatorTest {
   public void validate_positiveNumber() {
     var validationRequiredHints = List.of(new PositiveNumberHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(BigDecimal.valueOf(-2), BigDecimal.valueOf(5)), "My Property", validationRequiredHints);
+        validator, new MinMaxInput(String.valueOf(-2), String.valueOf(5)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
         Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
@@ -60,7 +60,7 @@ public class MinMaxInputValidatorTest {
   public void validate_integer() {
     var validationRequiredHints = List.of(new IntegerHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(BigDecimal.valueOf(3), BigDecimal.valueOf(5.6)), "My Property", validationRequiredHints);
+        validator, new MinMaxInput(String.valueOf(3), String.valueOf(5.6)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
         Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode()))
@@ -71,10 +71,22 @@ public class MinMaxInputValidatorTest {
   public void validate_decimalPlaces_2dp() {
     var validationRequiredHints = List.of(new DecimalPlacesHint(2));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(BigDecimal.valueOf(3), BigDecimal.valueOf(5.644)), "My Property", validationRequiredHints);
+        validator, new MinMaxInput(String.valueOf(3), String.valueOf(5.644)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
         Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_positiveAndDecimalPlaces_2dp() {
+    var validationRequiredHints = List.of(new PositiveNumberHint(), new DecimalPlacesHint(2));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
+        validator, new MinMaxInput(String.valueOf(-3), String.valueOf(5.644)), "My Property", validationRequiredHints);
+
+    assertThat(errorsMap).contains(
+        Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 

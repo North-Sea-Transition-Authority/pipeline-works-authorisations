@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 
@@ -92,7 +94,9 @@ public class PipelineOtherPropertiesController {
   private ModelAndView getAddPipelineOtherPropertiesModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineOtherProperties");
     modelAndView.addObject("properties", OtherPipelineProperty.asList())
-        .addObject("propertyAvailabilityOptions", PropertyAvailabilityOption.asList());
+        .addObject("propertyAvailabilityOptions", PropertyAvailabilityOption.asList())
+        .addObject("propertyPhases", PropertyPhase.stream()
+          .collect(StreamUtils.toLinkedHashMap(Enum::name, PropertyPhase::getDisplayText)));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Other properties");

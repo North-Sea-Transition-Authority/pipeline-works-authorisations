@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -36,15 +37,11 @@ public class PipelineOtherPropertiesValidator implements SmartValidator {
           "propertyDataFormMap[" + propertyEntry.getKey() + "]", propertyEntry.getValue(), propertyEntry.getKey());
     }
 
-    if (!pipelineOtherPropertiesForm.getOilPresent()
-        && !pipelineOtherPropertiesForm.getCondensatePresent()
-        && !pipelineOtherPropertiesForm.getGasPresent()
-        && !pipelineOtherPropertiesForm.getWaterPresent()
-        && !pipelineOtherPropertiesForm.getOtherPresent()) {
-      errors.rejectValue("oilPresent", "oilPresent" + FieldValidationErrorCodes.REQUIRED.getCode(),
+    if (pipelineOtherPropertiesForm.getPhasesPresent().isEmpty()) {
+      errors.rejectValue("phasesPresent", "phasesPresent" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select at least one phase");
     }
-    if (pipelineOtherPropertiesForm.getOtherPresent()) {
+    if (pipelineOtherPropertiesForm.getPhasesPresent().contains(PropertyPhase.OTHER)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPhaseDescription", "otherPhaseDescription.required",
           "You must enter the other phase present");
     }

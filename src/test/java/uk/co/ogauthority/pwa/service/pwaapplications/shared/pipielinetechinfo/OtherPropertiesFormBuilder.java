@@ -3,8 +3,11 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesDataForm;
@@ -26,14 +29,11 @@ public class OtherPropertiesFormBuilder {
 
 
 
-  private void setPhasesFormData(PipelineOtherPropertiesForm form) {
-    form.setOilPresent(true);
-    form.setCondensatePresent(true);
-    form.setGasPresent(false);
-    form.setWaterPresent(false);
-    form.setOtherPresent(true);
+  public void setPhasesFormData(PipelineOtherPropertiesForm form) {
+    form.setPhasesPresent(PropertyPhase.stream().collect(Collectors.toSet()));
     form.setOtherPhaseDescription("my description");
   }
+
 
   private void setPropertyFormMapData (PipelineOtherPropertiesForm form) {
     form.addPropertyData(OtherPipelineProperty.WAX_CONTENT, createDataForm(PropertyAvailabilityOption.NOT_AVAILABLE));
@@ -45,9 +45,9 @@ public class OtherPropertiesFormBuilder {
     form.addPropertyData(OtherPipelineProperty.POUR_POINT, createDataForm(PropertyAvailabilityOption.NOT_PRESENT));
     form.addPropertyData(OtherPipelineProperty.SOLID_CONTENT, createDataForm(PropertyAvailabilityOption.NOT_PRESENT));
     form.addPropertyData(OtherPipelineProperty.MERCURY, createDataForm(PropertyAvailabilityOption.AVAILABLE,
-        new MinMaxInput(BigDecimal.valueOf(3), BigDecimal.valueOf(5))));
+        new MinMaxInput(String.valueOf(3), String.valueOf(5))));
     form.addPropertyData(OtherPipelineProperty.H20, createDataForm(PropertyAvailabilityOption.AVAILABLE,
-        new MinMaxInput(BigDecimal.valueOf(12), BigDecimal.valueOf(15))));
+        new MinMaxInput(String.valueOf(12), String.valueOf(15))));
   }
 
 
@@ -64,6 +64,7 @@ public class OtherPropertiesFormBuilder {
     dataForm.setPropertyAvailabilityOption(availabilityOption);
     return dataForm;
   }
+
 
 
 

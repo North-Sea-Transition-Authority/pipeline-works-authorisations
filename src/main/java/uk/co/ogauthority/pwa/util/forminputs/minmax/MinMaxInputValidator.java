@@ -29,7 +29,10 @@ public class MinMaxInputValidator implements SmartValidator {
     var propertyName = (String) objects[0];
     var validationRequiredHints = (List<Object>) objects [1];
 
-    if (validateNotEmpty(errors, minMaxInput, propertyName)) {
+    if (!minMaxInput.isMinNumeric() || !minMaxInput.isMaxNumeric()) {
+      errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Enter a valid minimum and maximum value for " + propertyName.toLowerCase());
+    } else {
       validateMinSmallerOrEqualToMax(errors, minMaxInput, propertyName);
 
       for (var validationRequired: validationRequiredHints) {
@@ -47,17 +50,6 @@ public class MinMaxInputValidator implements SmartValidator {
       }
     }
 
-  }
-
-
-
-  private boolean validateNotEmpty(Errors errors, MinMaxInput minMaxInput, String property) {
-    if (minMaxInput.isMinEmpty() || minMaxInput.isMaxEmpty()) {
-      errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a minimum and maximum value for " + property.toLowerCase());
-    }
-
-    return !minMaxInput.isMinEmpty() && !minMaxInput.isMaxEmpty();
   }
 
 

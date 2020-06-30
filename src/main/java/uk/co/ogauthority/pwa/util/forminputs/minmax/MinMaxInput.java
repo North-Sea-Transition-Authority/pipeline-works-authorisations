@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.util.forminputs.minmax;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,88 +16,101 @@ public class MinMaxInput {
       MinMaxInput.class);
 
 
-  private BigDecimal minValue;
-  private BigDecimal maxValue;
+  private String minValue;
+  private String maxValue;
 
   public MinMaxInput() { // default constructor required by hibernate
   }
 
-  public MinMaxInput(BigDecimal minValue, BigDecimal maxValue) {
+  public MinMaxInput(String minValue, String maxValue) {
     this.minValue = minValue;
     this.maxValue = maxValue;
   }
 
 
   //Utils
-  public boolean isMinEmpty() {
-    return minValue == null;
+  public boolean isMinNumeric() {
+    return createMinOrNull() != null;
   }
 
-  public boolean isMaxEmpty() {
-    return maxValue == null;
+  public boolean isMaxNumeric() {
+    return createMaxOrNull() != null;
   }
 
 
   public boolean minSmallerThanMax() {
-    return minValue.compareTo(maxValue) == -1;
+    return createMinOrNull().compareTo(createMaxOrNull()) == -1;
   }
 
   public boolean minSmallerOrEqualToMax() {
-    int comparedResult = minValue.compareTo(maxValue);
+    int comparedResult = createMinOrNull().compareTo(createMaxOrNull());
     return comparedResult == -1 || comparedResult == 0;
   }
 
 
   public boolean minHasValidDecimalPlaces(int maxDecimalPlaces) {
-    return Math.max(0, minValue.stripTrailingZeros().scale()) <= maxDecimalPlaces;
+    return Math.max(0, createMinOrNull().stripTrailingZeros().scale()) <= maxDecimalPlaces;
   }
 
   public boolean maxHasValidDecimalPlaces(int maxDecimalPlaces) {
-    return Math.max(0, maxValue.stripTrailingZeros().scale()) <= maxDecimalPlaces;
+    return Math.max(0, createMaxOrNull().stripTrailingZeros().scale()) <= maxDecimalPlaces;
   }
 
 
   public boolean isMinPositive() {
-    return minValue.compareTo(BigDecimal.ZERO) == 1;
+    return createMinOrNull().compareTo(BigDecimal.ZERO) == 1;
   }
 
   public boolean isMaxPositive() {
-    return maxValue.compareTo(BigDecimal.ZERO) == 1;
+    return createMaxOrNull().compareTo(BigDecimal.ZERO) == 1;
   }
 
   public boolean isMinInteger() {
-    return minValue.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0;
+    return createMinOrNull().remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0;
   }
 
   public boolean isMaxInteger() {
-    return maxValue.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0;
+    return createMaxOrNull().remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0;
   }
-
-
-
 
 
   //Getters/Setters
-  public BigDecimal getMinValue() {
+  public String getMinValue() {
     return minValue;
   }
 
-  public void setMinValue(BigDecimal minValue) {
+  public void setMinValue(String minValue) {
     this.minValue = minValue;
   }
 
-  public BigDecimal getMaxValue() {
+  public String getMaxValue() {
     return maxValue;
   }
 
-  public void setMaxValue(BigDecimal maxValue) {
+  public void setMaxValue(String maxValue) {
     this.maxValue = maxValue;
   }
 
+  public BigDecimal createMinOrNull() {
+    return this.createBigDecimal(minValue)
+        .orElse(null);
+  }
+
+  public BigDecimal createMaxOrNull() {
+    return this.createBigDecimal(maxValue)
+        .orElse(null);
+  }
 
 
-
-
+  public Optional<BigDecimal> createBigDecimal(String valueStr) {
+    try {
+      var createdNum = valueStr != null ? new BigDecimal(valueStr) : null;
+      return Optional.ofNullable(createdNum);
+    } catch (NumberFormatException e) {
+      LOGGER.debug("Could not convert minimum/maximum values to valid numbers. " + this.toString(), e);
+      return Optional.empty();
+    }
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -115,4 +129,8 @@ public class MinMaxInput {
   public int hashCode() {
     return Objects.hash(minValue, maxValue);
   }
+
+
 }
+
+

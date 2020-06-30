@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
@@ -93,7 +94,7 @@ public class PadPipelineOtherPropertiesServiceTest {
     entityBuilder.setPhaseDataOnAppDetail_otherPhaseExcluded(pwaApplicationDetail);
 
     var expectedForm = formBuilder.createFullForm();
-    expectedForm.setOtherPresent(false);
+    expectedForm.getPhasesPresent().remove(PropertyPhase.OTHER);
     expectedForm.setOtherPhaseDescription(null);
 
     padPipelineOtherPropertiesService.mapEntitiesToForm(actualForm, entityBuilder.createAllEntities(pwaApplicationDetail), pwaApplicationDetail);

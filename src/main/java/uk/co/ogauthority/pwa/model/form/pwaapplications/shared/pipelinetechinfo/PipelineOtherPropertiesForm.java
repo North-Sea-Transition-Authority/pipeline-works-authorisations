@@ -2,18 +2,17 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo
 
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 
 public class PipelineOtherPropertiesForm {
 
   private Map<OtherPipelineProperty, PipelineOtherPropertiesDataForm> propertyDataFormMap = new HashMap<>();
-  private boolean oilPresent;
-  private boolean condensatePresent;
-  private boolean gasPresent;
-  private boolean waterPresent;
-  private boolean otherPresent;
+  private Set<PropertyPhase> phasesPresent = new HashSet<>();
   private String otherPhaseDescription;
 
 
@@ -31,54 +30,24 @@ public class PipelineOtherPropertiesForm {
     propertyDataFormMap.put(otherPipelineProperty, pipelineOtherPropertiesDataForm);
   }
 
-
-  public boolean getOilPresent() {
-    return oilPresent;
-  }
-
-  public void setOilPresent(boolean oilPresent) {
-    this.oilPresent = oilPresent;
-  }
-
-  public boolean getCondensatePresent() {
-    return condensatePresent;
-  }
-
-  public void setCondensatePresent(boolean condensatePresent) {
-    this.condensatePresent = condensatePresent;
-  }
-
-  public boolean getGasPresent() {
-    return gasPresent;
-  }
-
-  public void setGasPresent(boolean gasPresent) {
-    this.gasPresent = gasPresent;
-  }
-
-  public boolean getWaterPresent() {
-    return waterPresent;
-  }
-
-  public void setWaterPresent(boolean waterPresent) {
-    this.waterPresent = waterPresent;
-  }
-
-  public boolean getOtherPresent() {
-    return otherPresent;
-  }
-
-  public void setOtherPresent(boolean otherPresent) {
-    this.otherPresent = otherPresent;
-  }
-
   public String getOtherPhaseDescription() {
     return otherPhaseDescription;
+  }
+
+  public Set<PropertyPhase> getPhasesPresent() {
+    return phasesPresent;
+  }
+
+  public void setPhasesPresent(
+      Set<PropertyPhase> phasesPresent) {
+    this.phasesPresent = phasesPresent;
   }
 
   public void setOtherPhaseDescription(String otherPhaseDescription) {
     this.otherPhaseDescription = otherPhaseDescription;
   }
+
+
 
 
   @Override
@@ -90,18 +59,13 @@ public class PipelineOtherPropertiesForm {
       return false;
     }
     PipelineOtherPropertiesForm that = (PipelineOtherPropertiesForm) o;
-    return oilPresent == that.oilPresent
-        && condensatePresent == that.condensatePresent
-        && gasPresent == that.gasPresent
-        && waterPresent == that.waterPresent
-        && otherPresent == that.otherPresent
-        && Objects.equals(propertyDataFormMap, that.propertyDataFormMap)
+    return Objects.equals(propertyDataFormMap, that.propertyDataFormMap)
+        && Objects.equals(phasesPresent, that.phasesPresent)
         && Objects.equals(otherPhaseDescription, that.otherPhaseDescription);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(propertyDataFormMap, oilPresent, condensatePresent, gasPresent, waterPresent, otherPresent,
-        otherPhaseDescription);
+    return Objects.hash(propertyDataFormMap, phasesPresent, otherPhaseDescription);
   }
 }
