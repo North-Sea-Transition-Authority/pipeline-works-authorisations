@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.dto.consents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -46,5 +47,13 @@ public class OrganisationRoleInstanceDtoTest {
   public void getManualOrganisationName_whenNameNotProvided() {
     var orgRole = new OrganisationRoleInstanceDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getManualOrganisationName()).isEmpty();
+  }
+
+  @Test
+  public void testEquals(){
+
+    EqualsVerifier.forClass(OrganisationRoleInstanceDto.class)
+       .withNonnullFields("huooType")
+        .verify();
   }
 }

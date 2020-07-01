@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
  *  a) building block object for creating application huoo data from consent model
  *  b) building block object for diffing application huoo data from consent model
  * */
-public class OrganisationPipelineRoleInstanceDto {
+public final class OrganisationPipelineRoleInstanceDto {
   private final OrganisationRoleInstanceDto organisationRoleInstanceDto;
   private final PipelineId pipelineId;
 

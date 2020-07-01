@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.dto.consents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -61,5 +62,12 @@ public class OrganisationPipelineRoleInstanceDtoTest {
         PIPELINE_ID);
 
     assertThat(organisationPipelineRoleDto.hasValidOrganisationRole()).isFalse();
+  }
+
+  @Test
+  public void testEquals(){
+
+    EqualsVerifier.forClass(OrganisationPipelineRoleInstanceDto.class)
+        .verify();
   }
 }
