@@ -66,7 +66,9 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
       var pipelineOtherPropertiesDataForm = new PipelineOtherPropertiesDataForm();
       pipelineOtherPropertiesDataForm.setPropertyAvailabilityOption(entity.getAvailabilityOption());
       if (entity.getAvailabilityOption() != null && entity.getAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
-        var minMaxInput = new MinMaxInput(String.valueOf(entity.getMinValue()), String.valueOf(entity.getMaxValue()));
+        var minValue = entity.getMinValue() == null ? null : String.valueOf(entity.getMinValue());
+        var maxValue = entity.getMaxValue() == null ? null : String.valueOf(entity.getMaxValue());
+        var minMaxInput = new MinMaxInput(minValue, maxValue);
         pipelineOtherPropertiesDataForm.setMinMaxInput(minMaxInput);
       }
       form.addPropertyData(entity.getPropertyName(), pipelineOtherPropertiesDataForm);
