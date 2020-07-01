@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
  *  b) building block object for diffing application huoo data from consent model
  * */
 public class OrganisationPipelineRoleInstanceDto {
-  private final OrganisationRoleDto organisationRoleDto;
+  private final OrganisationRoleInstanceDto organisationRoleInstanceDto;
   private final PipelineId pipelineId;
 
 
@@ -21,32 +21,32 @@ public class OrganisationPipelineRoleInstanceDto {
                                              HuooRole huooRole,
                                              HuooType huooType,
                                              int pipelineId) {
-    this.organisationRoleDto = new OrganisationRoleDto(organisationUnitId, manualOrganisationName, huooRole, huooType);
+    this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(organisationUnitId, manualOrganisationName, huooRole, huooType);
     this.pipelineId = new PipelineId(pipelineId);
   }
 
   public OrganisationUnitId getOrganisationUnitId() {
-    return this.organisationRoleDto.getOrganisationUnitId();
+    return this.organisationRoleInstanceDto.getOrganisationUnitId();
   }
 
   public boolean hasValidOrganisationRole() {
-    return this.organisationRoleDto.isPortalOrgRole();
+    return this.organisationRoleInstanceDto.isPortalOrgRole();
   }
 
   public HuooRole getHuooRole() {
-    return this.organisationRoleDto.getHuooRole();
+    return this.organisationRoleInstanceDto.getHuooRole();
   }
 
   public HuooType getHuooType() {
-    return this.organisationRoleDto.getHuooType();
+    return this.organisationRoleInstanceDto.getHuooType();
   }
 
   public PipelineId getPipelineId() {
     return this.pipelineId;
   }
 
-  public OrganisationRoleDto getOrganisationRoleDto() {
-    return this.organisationRoleDto;
+  public OrganisationRoleInstanceDto getOrganisationRoleInstanceDto() {
+    return this.organisationRoleInstanceDto;
   }
 
   @Override
@@ -58,13 +58,13 @@ public class OrganisationPipelineRoleInstanceDto {
       return false;
     }
     OrganisationPipelineRoleInstanceDto that = (OrganisationPipelineRoleInstanceDto) o;
-    return Objects.equals(organisationRoleDto, that.organisationRoleDto)
+    return Objects.equals(organisationRoleInstanceDto, that.organisationRoleInstanceDto)
         && Objects.equals(pipelineId, that.pipelineId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationRoleDto, pipelineId);
+    return Objects.hash(organisationRoleInstanceDto, pipelineId);
   }
 
 

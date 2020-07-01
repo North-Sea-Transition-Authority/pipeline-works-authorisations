@@ -14,17 +14,17 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
  * a) building block object for creating application huoo data from consent model
  * b) building block object for diffing application huoo data from consent model
  */
-public class OrganisationRoleDto {
+public class OrganisationRoleInstanceDto {
 
   private final OrganisationUnitId organisationUnitId;
   private final String manualOrganisationName;
   private final HuooRole huooRole;
   private final HuooType huooType;
 
-  public OrganisationRoleDto(Integer organisationUnitId,
-                             String manualOrganisationName,
-                             HuooRole huooRole,
-                             HuooType huooType) {
+  public OrganisationRoleInstanceDto(Integer organisationUnitId,
+                                     String manualOrganisationName,
+                                     HuooRole huooRole,
+                                     HuooType huooType) {
     this.organisationUnitId = organisationUnitId != null ? new OrganisationUnitId(organisationUnitId) : null;
     this.manualOrganisationName = manualOrganisationName;
     this.huooRole = huooRole;
@@ -33,7 +33,7 @@ public class OrganisationRoleDto {
 
 
   @VisibleForTesting
-  public OrganisationRoleDto(PadOrganisationRole padOrganisationRole) {
+  public OrganisationRoleInstanceDto(PadOrganisationRole padOrganisationRole) {
     this(padOrganisationRole.getOrganisationUnit().getOuId(),
         null,
         padOrganisationRole.getRole(),
@@ -69,7 +69,7 @@ public class OrganisationRoleDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    OrganisationRoleDto that = (OrganisationRoleDto) o;
+    OrganisationRoleInstanceDto that = (OrganisationRoleInstanceDto) o;
     return Objects.equals(organisationUnitId,
         that.organisationUnitId)
         && huooRole == that.huooRole

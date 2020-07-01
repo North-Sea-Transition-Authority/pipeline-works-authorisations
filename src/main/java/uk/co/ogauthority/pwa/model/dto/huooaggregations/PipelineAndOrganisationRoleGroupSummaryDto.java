@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -87,17 +87,17 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
       Set<OrganisationPipelineRoleInstanceDto> organisationPipelineRoleInstanceDtos) {
 
     // For each pipeline map the associated organisaiton roles
-    Map<PipelineId, Set<OrganisationRoleDto>> pipelineIdToOrgRolesMap = organisationPipelineRoleInstanceDtos.stream()
+    Map<PipelineId, Set<OrganisationRoleInstanceDto>> pipelineIdToOrgRolesMap = organisationPipelineRoleInstanceDtos.stream()
         .collect(groupingBy(
             OrganisationPipelineRoleInstanceDto::getPipelineId,
-            Collectors.mapping(OrganisationPipelineRoleInstanceDto::getOrganisationRoleDto, Collectors.toSet())
+            Collectors.mapping(OrganisationPipelineRoleInstanceDto::getOrganisationRoleInstanceDto, Collectors.toSet())
         ));
 
     // Using a Set as the key will provide a consistent hash provided the set is not changed mid process.
     // All sets have been set as immutable final elements and are not modifiable. Enforced with unit tests of base objects.
     // the order of elements in a set does not affect the result of equals or hashcode so the group itself will provide the consistent
     // key.
-    Map<Set<OrganisationRoleDto>, Set<PipelineId>> matchingPipelinesAndOrganisationGroups = new HashMap<>();
+    Map<Set<OrganisationRoleInstanceDto>, Set<PipelineId>> matchingPipelinesAndOrganisationGroups = new HashMap<>();
 
     // For each pipeline and set of org roles, add the org role set as a key, then add the pipelines to the associated set.
     // Once the loop is complete, all the pipelines which have the same associated organisation roles will be grouped together.

@@ -12,7 +12,7 @@ import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
@@ -52,7 +52,7 @@ public class PadPipelineHuooViewFactory {
         pwaApplicationDetail
     ).stream()
         .filter(organisationRoleDto -> HuooType.PORTAL_ORG.equals(organisationRoleDto.getHuooType()))
-        .map(OrganisationRoleDto::getOrganisationUnitId)
+        .map(OrganisationRoleInstanceDto::getOrganisationUnitId)
         .collect(Collectors.toSet());
 
     return portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(
@@ -128,7 +128,7 @@ public class PadPipelineHuooViewFactory {
         huooRole,
         HuooType.PORTAL_ORG
     ).stream()
-        .map(OrganisationRoleDto::getOrganisationUnitId)
+        .map(OrganisationRoleInstanceDto::getOrganisationUnitId)
         .collect(Collectors.toSet());
 
     // Minus organisations attached to a pipeline role from the complete list of organisations with the role on App
@@ -183,7 +183,7 @@ public class PadPipelineHuooViewFactory {
           .sorted(Comparator.comparing(String::toLowerCase))
           .collect(Collectors.toList());
 
-      var orgNameList = roleGroup.getOrganisationRoleDtoSet().stream()
+      var orgNameList = roleGroup.getOrganisationRoleInstanceDtoSet().stream()
           .map(o -> organisationUnitNameLookup.get(o.getOrganisationUnitId()))
           .sorted(Comparator.comparing(String::toLowerCase))
           .collect(Collectors.toList());
@@ -191,8 +191,8 @@ public class PadPipelineHuooViewFactory {
       var roleGroupView = new PipelinesAndOrgRoleGroupView(
 
           roleGroup.getPipelineIdSet(),
-          roleGroup.getOrganisationRoleDtoSet().stream()
-              .map(OrganisationRoleDto::getOrganisationUnitId).collect(Collectors.toSet()),
+          roleGroup.getOrganisationRoleInstanceDtoSet().stream()
+              .map(OrganisationRoleInstanceDto::getOrganisationUnitId).collect(Collectors.toSet()),
           pipelineNumberList,
           orgNameList
       );

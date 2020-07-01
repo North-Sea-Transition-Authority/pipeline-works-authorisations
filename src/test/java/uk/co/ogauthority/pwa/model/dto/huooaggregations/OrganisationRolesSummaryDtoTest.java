@@ -49,7 +49,7 @@ public class OrganisationRolesSummaryDtoTest {
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
     assertThat(summary.getHolderOrganisationUnitGroups())
         .containsExactly(
-            new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(pipelineId1)));
+            new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)));
 
   }
 
@@ -62,7 +62,7 @@ public class OrganisationRolesSummaryDtoTest {
     assertThat(summary.getHolderOrganisationUnitGroups()).hasSize(1);
     summary.getHolderOrganisationUnitGroups().add(
         // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -72,7 +72,7 @@ public class OrganisationRolesSummaryDtoTest {
         Set.of());
     assertThat(summary.getHolderOrganisationUnitGroups()).hasSize(0);
     summary.getHolderOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
   @Test
@@ -81,7 +81,7 @@ public class OrganisationRolesSummaryDtoTest {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
     assertThat(summary.getUserOrganisationUnitGroups())
-        .containsExactly(new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(pipelineId1)));
+        .containsExactly(new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)));
 
   }
 
@@ -93,7 +93,7 @@ public class OrganisationRolesSummaryDtoTest {
     assertThat(summary.getUserOrganisationUnitGroups()).hasSize(1);
     summary.getUserOrganisationUnitGroups().add(
         // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -103,7 +103,7 @@ public class OrganisationRolesSummaryDtoTest {
         Set.of());
     assertThat(summary.getUserOrganisationUnitGroups()).hasSize(0);
     summary.getUserOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
   @Test
@@ -112,7 +112,7 @@ public class OrganisationRolesSummaryDtoTest {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
     assertThat(summary.getOperatorOrganisationUnitGroups())
-        .containsExactly(new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(
+        .containsExactly(new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(
             pipelineId1)));
 
   }
@@ -125,7 +125,7 @@ public class OrganisationRolesSummaryDtoTest {
     assertThat(summary.getOperatorOrganisationUnitGroups()).hasSize(1);
     summary.getOperatorOrganisationUnitGroups().add(
         // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -135,7 +135,7 @@ public class OrganisationRolesSummaryDtoTest {
         Set.of());
     assertThat(summary.getOperatorOrganisationUnitGroups()).hasSize(0);
     summary.getOperatorOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
   @Test
@@ -144,7 +144,7 @@ public class OrganisationRolesSummaryDtoTest {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
     assertThat(summary.getOwnerOrganisationUnitGroups())
-        .containsExactly(new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(pipelineId1)));
+        .containsExactly(new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)));
 
   }
 
@@ -156,7 +156,7 @@ public class OrganisationRolesSummaryDtoTest {
     assertThat(summary.getOwnerOrganisationUnitGroups()).hasSize(1);
     summary.getOwnerOrganisationUnitGroups().add(
         // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -166,7 +166,7 @@ public class OrganisationRolesSummaryDtoTest {
         Set.of());
     assertThat(summary.getOwnerOrganisationUnitGroups()).hasSize(0);
     summary.getOwnerOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of()));
+        new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
   }
 
 
@@ -180,9 +180,9 @@ public class OrganisationRolesSummaryDtoTest {
     );
     assertThat(summary.getHolderOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(pipelineId1)),
+            new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)),
             new OrganisationRolePipelineGroupDto(
-                secondOrganisationPipelineRole.getOrganisationRoleDto(), Set.of(pipelineId2)
+                secondOrganisationPipelineRole.getOrganisationRoleInstanceDto(), Set.of(pipelineId2)
             )
         );
 
@@ -199,9 +199,9 @@ public class OrganisationRolesSummaryDtoTest {
 
     assertThat(summary.getUserOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(pipelineId1)),
+            new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)),
             new OrganisationRolePipelineGroupDto(
-                secondOrganisationPipelineRole.getOrganisationRoleDto(), Set.of(pipelineId2)
+                secondOrganisationPipelineRole.getOrganisationRoleInstanceDto(), Set.of(pipelineId2)
             )
 
         );
@@ -219,9 +219,9 @@ public class OrganisationRolesSummaryDtoTest {
 
     assertThat(summary.getOperatorOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(pipelineId1)),
+            new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)),
             new OrganisationRolePipelineGroupDto(
-                secondOrganisationPipelineRole.getOrganisationRoleDto(), Set.of(pipelineId2)
+                secondOrganisationPipelineRole.getOrganisationRoleInstanceDto(), Set.of(pipelineId2)
             )
 
         );
@@ -239,9 +239,9 @@ public class OrganisationRolesSummaryDtoTest {
 
     assertThat(summary.getOwnerOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleDto(), Set.of(pipelineId1)),
+            new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)),
             new OrganisationRolePipelineGroupDto(
-                secondOrganisationPipelineRole.getOrganisationRoleDto(), Set.of(pipelineId2)
+                secondOrganisationPipelineRole.getOrganisationRoleInstanceDto(), Set.of(pipelineId2)
             )
 
         );

@@ -71,10 +71,10 @@ public class PadPipelineHuooViewFactoryTest {
     ownerOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
 
     var orgRoleDtos = Set.of(
-        holderOrg1Pipeline1RoleDto.getOrganisationRoleDto(),
-        userOrg2Pipeline2RoleDto.getOrganisationRoleDto(),
-        operatorOrg1Pipeline1RoleDto.getOrganisationRoleDto(),
-        ownerOrg1Pipeline1RoleDto.getOrganisationRoleDto()
+        holderOrg1Pipeline1RoleDto.getOrganisationRoleInstanceDto(),
+        userOrg2Pipeline2RoleDto.getOrganisationRoleInstanceDto(),
+        operatorOrg1Pipeline1RoleDto.getOrganisationRoleInstanceDto(),
+        ownerOrg1Pipeline1RoleDto.getOrganisationRoleInstanceDto()
     );
     when(padOrganisationRoleService.getOrganisationRoleDtos(any()))
         .thenReturn(orgRoleDtos);
@@ -133,10 +133,10 @@ public class PadPipelineHuooViewFactoryTest {
     var holderOrg1Pipeline2Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1,
         PIPELINE_2_ID);
 
-    var holderOrg2Role = OrganisationRoleDtoTestUtil.createOrgRole(HuooRole.HOLDER, OU_ID2);
+    var holderOrg2Role = OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(HuooRole.HOLDER, OU_ID2);
 
     when(padOrganisationRoleService.getOrganisationRoleDtosByRole(any(), any(), any()))
-        .thenReturn(Set.of(holderOrg1Pipeline2Role.getOrganisationRoleDto(), holderOrg2Role));
+        .thenReturn(Set.of(holderOrg1Pipeline2Role.getOrganisationRoleInstanceDto(), holderOrg2Role));
 
     pipelineAndOrganisationRoleGroupSummaryDto = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1RoleDto, holderOrg1Pipeline2Role));

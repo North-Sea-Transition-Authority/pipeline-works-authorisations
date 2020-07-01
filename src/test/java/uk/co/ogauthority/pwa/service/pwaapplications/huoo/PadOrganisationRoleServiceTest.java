@@ -24,7 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -482,7 +482,7 @@ public class PadOrganisationRoleServiceTest {
         );
 
     var org1UserRolePipelineGroupDto = new OrganisationRolePipelineGroupDto(
-        new OrganisationRoleDto(padOrgUnit1UserRole), Set.of(pipelineId1, pipelineId2));
+        new OrganisationRoleInstanceDto(padOrgUnit1UserRole), Set.of(pipelineId1, pipelineId2));
 
     when(summaryDto.getUserOrganisationUnitGroups()).thenReturn(Set.of(org1UserRolePipelineGroupDto));
     when(summaryDto.getOrganisationRolePipelineGroupBy(HuooRole.USER, OrganisationUnitId.from(orgUnit1)))
@@ -607,14 +607,14 @@ public class PadOrganisationRoleServiceTest {
   public void getOrganisationRoleDtosByRole_filtersCorrectly(){
     when(padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(detail))
     .thenReturn(List.of(
-        new OrganisationRoleDto(null, null, HuooRole.USER, HuooType.TREATY_AGREEMENT),
-        new OrganisationRoleDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG)
+        new OrganisationRoleInstanceDto(null, null, HuooRole.USER, HuooType.TREATY_AGREEMENT),
+        new OrganisationRoleInstanceDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG)
     ));
 
 
     assertThat(padOrganisationRoleService.getOrganisationRoleDtosByRole(detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
     .containsExactly(
-        new OrganisationRoleDto(null, null, HuooRole.USER, HuooType.TREATY_AGREEMENT)
+        new OrganisationRoleInstanceDto(null, null, HuooRole.USER, HuooType.TREATY_AGREEMENT)
     );
 
   }

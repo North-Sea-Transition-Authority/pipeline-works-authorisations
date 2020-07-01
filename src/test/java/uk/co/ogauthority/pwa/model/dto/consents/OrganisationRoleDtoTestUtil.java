@@ -14,8 +14,8 @@ public class OrganisationRoleDtoTestUtil {
         pipelineId);
   }
 
-  public static OrganisationRoleDto createOrgRole(HuooRole huooRole, int ouId) {
-    return new OrganisationRoleDto(
+  public static OrganisationRoleInstanceDto createOrganisationUnitOrgRoleInstance(HuooRole huooRole, int ouId) {
+    return new OrganisationRoleInstanceDto(
         ouId,
         null,
         huooRole,

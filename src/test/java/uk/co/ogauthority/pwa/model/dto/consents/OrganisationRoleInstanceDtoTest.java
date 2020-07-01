@@ -10,41 +10,41 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OrganisationRoleDtoTest {
+public class OrganisationRoleInstanceDtoTest {
 
   @Test
   public void getOrganisationUnitId_whenIdProvided() {
-    var orgRole = new OrganisationRoleDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
+    var orgRole = new OrganisationRoleInstanceDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(1));
   }
 
   @Test
   public void getOrganisationUnitId_whenIdNotProvided() {
-    var orgRole = new OrganisationRoleDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
+    var orgRole = new OrganisationRoleInstanceDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getOrganisationUnitId()).isNull();
   }
 
   @Test
   public void isPortalOrgRole_whenIdProvided() {
-    var orgRole = new OrganisationRoleDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
+    var orgRole = new OrganisationRoleInstanceDto(1, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.isPortalOrgRole()).isTrue();
   }
 
   @Test
   public void isPortalOrgRole_whenIdNotProvided() {
-    var orgRole = new OrganisationRoleDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
+    var orgRole = new OrganisationRoleInstanceDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.isPortalOrgRole()).isFalse();
   }
 
   @Test
   public void getManualOrganisationName_whenNameProvided() {
-    var orgRole = new OrganisationRoleDto(null, "some name", HuooRole.HOLDER, HuooType.PORTAL_ORG);
+    var orgRole = new OrganisationRoleInstanceDto(null, "some name", HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getManualOrganisationName()).containsSame("some name");
   }
 
   @Test
   public void getManualOrganisationName_whenNameNotProvided() {
-    var orgRole = new OrganisationRoleDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
+    var orgRole = new OrganisationRoleInstanceDto(null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getManualOrganisationName()).isEmpty();
   }
 }

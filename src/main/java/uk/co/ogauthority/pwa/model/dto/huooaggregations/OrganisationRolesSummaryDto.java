@@ -35,7 +35,7 @@ public class OrganisationRolesSummaryDto {
         // group pipeline org role instances by the overall org role
         .stream()
         .collect(groupingBy(
-            OrganisationPipelineRoleInstanceDto::getOrganisationRoleDto,
+            OrganisationPipelineRoleInstanceDto::getOrganisationRoleInstanceDto,
             Collectors.mapping(OrganisationPipelineRoleInstanceDto::getPipelineId, Collectors.toSet())
         ))
         // loop over each grouped entry to create a group object
