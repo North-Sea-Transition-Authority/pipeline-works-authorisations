@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdraw
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -88,6 +89,9 @@ public class TaskCompletionServiceIntegrationTest {
   @MockBean
   private PadFluidCompositionInfoService padFluidCompositionInfoService;
 
+  @MockBean
+  private PadDesignOpConditionsService padDesignOpConditionsService;
+
   @Test
   public void isTaskComplete() {
 
@@ -140,6 +144,9 @@ public class TaskCompletionServiceIntegrationTest {
           break;
         case FLUID_COMPOSITION:
           service = padFluidCompositionInfoService;
+          break;
+        case DESIGN_OP_CONDITIONS:
+          service = padDesignOpConditionsService;
           break;
         default:
           throw new AssertionError(task);
