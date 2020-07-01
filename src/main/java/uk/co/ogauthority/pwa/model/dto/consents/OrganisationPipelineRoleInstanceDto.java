@@ -5,6 +5,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 /* Data object encapsulating link between an organisation's PWA role and a pipeline.
  *  Use Cases:
@@ -18,10 +19,17 @@ public final class OrganisationPipelineRoleInstanceDto {
 
   public OrganisationPipelineRoleInstanceDto(Integer organisationUnitId,
                                              String manualOrganisationName,
+                                             TreatyAgreement treatyAgreement,
                                              HuooRole huooRole,
                                              HuooType huooType,
                                              int pipelineId) {
-    this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(organisationUnitId, manualOrganisationName, huooRole, huooType);
+    this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(
+        organisationUnitId,
+        manualOrganisationName,
+        treatyAgreement,
+        huooRole,
+        huooType
+    );
     this.pipelineId = new PipelineId(pipelineId);
   }
 

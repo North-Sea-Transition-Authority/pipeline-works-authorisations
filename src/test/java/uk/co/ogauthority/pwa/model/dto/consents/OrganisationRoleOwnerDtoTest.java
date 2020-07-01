@@ -15,9 +15,9 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 public class OrganisationRoleOwnerDtoTest {
 
   @Test
-  public void createOrganisationUnitRoleOwner_setsAttributesAsExpected() {
+  public void organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenPortalOrg() {
 
-    var orgRoleOwner = OrganisationRoleOwnerDto.createOrganisationUnitRoleOwner(new OrganisationUnitId(1));
+    var orgRoleOwner =  new OrganisationRoleOwnerDto(HuooType.PORTAL_ORG, new OrganisationUnitId(1), null, null);
 
     assertThat(orgRoleOwner.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
     assertThat(orgRoleOwner.getManualOrganisationName()).isNull();
@@ -26,9 +26,9 @@ public class OrganisationRoleOwnerDtoTest {
   }
 
   @Test
-  public void createTreatyRoleOwner_setsAttributesAsExpected() {
+  public void  organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenTreatyAgreement() {
 
-    var orgRoleOwner = OrganisationRoleOwnerDto.createTreatyRoleOwner(TreatyAgreement.BELGIUM);
+    var orgRoleOwner = new OrganisationRoleOwnerDto(HuooType.TREATY_AGREEMENT, null, null, TreatyAgreement.BELGIUM);
 
     assertThat(orgRoleOwner.getHuooType()).isEqualTo(HuooType.TREATY_AGREEMENT);
     assertThat(orgRoleOwner.getManualOrganisationName()).isNull();
@@ -37,9 +37,9 @@ public class OrganisationRoleOwnerDtoTest {
   }
 
   @Test
-  public void createMigratedOrganisationRoleOwner_setsAttributesAsExpected() {
+  public void  organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenMigratedOrg() {
 
-    var orgRoleOwner = OrganisationRoleOwnerDto.createMigratedOrganisationRoleOwner("MigratedOrg");
+    var orgRoleOwner = new OrganisationRoleOwnerDto(HuooType.PORTAL_ORG, null, "MigratedOrg",null);
 
     assertThat(orgRoleOwner.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
     assertThat(orgRoleOwner.getManualOrganisationName()).isEqualTo("MigratedOrg");

@@ -6,6 +6,7 @@ import java.util.Optional;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 
 /**
@@ -16,19 +17,24 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
  */
 public final class OrganisationRoleInstanceDto {
 
-  private final OrganisationUnitId organisationUnitId;
-  private final String manualOrganisationName;
+  private final OrganisationRoleOwnerDto organisationRoleOwnerDto;
   private final HuooRole huooRole;
-  private final HuooType huooType;
 
   public OrganisationRoleInstanceDto(Integer organisationUnitId,
                                      String manualOrganisationName,
+                                     TreatyAgreement treatyAgreement,
                                      HuooRole huooRole,
                                      HuooType huooType) {
-    this.organisationUnitId = organisationUnitId != null ? new OrganisationUnitId(organisationUnitId) : null;
-    this.manualOrganisationName = manualOrganisationName;
+
+    this.organisationRoleOwnerDto = new OrganisationRoleOwnerDto(
+        huooType,
+        organisationUnitId != null ? new OrganisationUnitId(organisationUnitId) : null,
+        manualOrganisationName,
+        treatyAgreement
+    );
+
     this.huooRole = huooRole;
-    this.huooType = huooType;
+
   }
 
 
@@ -36,21 +42,29 @@ public final class OrganisationRoleInstanceDto {
   public OrganisationRoleInstanceDto(PadOrganisationRole padOrganisationRole) {
     this(padOrganisationRole.getOrganisationUnit().getOuId(),
         null,
+        null,
         padOrganisationRole.getRole(),
         padOrganisationRole.getType());
   }
 
 
+  public OrganisationRoleOwnerDto getOrganisationRoleOwnerDto() {
+    return organisationRoleOwnerDto;
+  }
+
+  // TODO PWA-637 this is probably not going to be needed whe treaties are fully supported
   public OrganisationUnitId getOrganisationUnitId() {
-    return organisationUnitId;
+    return this.organisationRoleOwnerDto.getOrganisationUnitId();
   }
 
+  // TODO PWA-637 this is probably not going to be needed whe treaties are fully supported
   public boolean isPortalOrgRole() {
-    return organisationUnitId != null;
+    return this.organisationRoleOwnerDto.getOrganisationUnitId() != null;
   }
 
+  // TODO PWA-637 this is probably not going to be needed whe treaties are fully supported
   public Optional<String> getManualOrganisationName() {
-    return Optional.ofNullable(this.manualOrganisationName);
+    return Optional.ofNullable(this.organisationRoleOwnerDto.getManualOrganisationName());
   }
 
   public HuooRole getHuooRole() {
@@ -58,7 +72,7 @@ public final class OrganisationRoleInstanceDto {
   }
 
   public HuooType getHuooType() {
-    return huooType;
+    return this.organisationRoleOwnerDto.getHuooType();
   }
 
   @Override
@@ -70,14 +84,12 @@ public final class OrganisationRoleInstanceDto {
       return false;
     }
     OrganisationRoleInstanceDto that = (OrganisationRoleInstanceDto) o;
-    return Objects.equals(organisationUnitId, that.organisationUnitId)
-        && Objects.equals(manualOrganisationName, that.manualOrganisationName)
-        && huooRole == that.huooRole
-        && huooType == that.huooType;
+    return Objects.equals(organisationRoleOwnerDto, that.organisationRoleOwnerDto)
+        && huooRole == that.huooRole;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationUnitId, manualOrganisationName, huooRole, huooType);
+    return Objects.hash(organisationRoleOwnerDto, huooRole);
   }
 }

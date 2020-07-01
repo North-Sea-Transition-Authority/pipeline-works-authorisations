@@ -21,6 +21,7 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
             "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
             "  cor.organisationUnitId, " +
             "  cor.migratedOrganisationName, " +
+            "  cor.agreement, " +
             "  cor.role, " +
             "  cor.type," +
             "  cporl.pipeline.id" +

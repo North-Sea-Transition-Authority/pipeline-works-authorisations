@@ -16,25 +16,14 @@ public final class OrganisationRoleOwnerDto {
   private final String manualOrganisationName;
   private final TreatyAgreement treatyAgreement;
 
-  private OrganisationRoleOwnerDto(HuooType huooType,
-                                   OrganisationUnitId organisationUnitId, String manualOrganisationName,
-                                   TreatyAgreement treatyAgreement) {
+  public OrganisationRoleOwnerDto(HuooType huooType,
+                                  OrganisationUnitId organisationUnitId,
+                                  String manualOrganisationName,
+                                  TreatyAgreement treatyAgreement) {
     this.huooType = huooType;
     this.organisationUnitId = organisationUnitId;
     this.manualOrganisationName = manualOrganisationName;
     this.treatyAgreement = treatyAgreement;
-  }
-
-  public static OrganisationRoleOwnerDto createOrganisationUnitRoleOwner(OrganisationUnitId organisationUnitId) {
-    return new OrganisationRoleOwnerDto(HuooType.PORTAL_ORG, organisationUnitId, null, null);
-  }
-
-  public static OrganisationRoleOwnerDto createTreatyRoleOwner(TreatyAgreement treatyAgreement) {
-    return new OrganisationRoleOwnerDto(HuooType.TREATY_AGREEMENT, null, null, treatyAgreement);
-  }
-
-  public static OrganisationRoleOwnerDto createMigratedOrganisationRoleOwner(String migratedOrgName) {
-    return new OrganisationRoleOwnerDto(HuooType.PORTAL_ORG, null, migratedOrgName, null);
   }
 
   public HuooType getHuooType() {

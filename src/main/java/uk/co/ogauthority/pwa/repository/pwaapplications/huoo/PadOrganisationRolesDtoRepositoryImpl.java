@@ -23,7 +23,8 @@ public class PadOrganisationRolesDtoRepositoryImpl implements PadOrganisationRol
     var query = entityManager.createQuery("SELECT " +
             "new uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto( " +
             "  por.organisationUnit.ouId " +
-            ", '' " + // migration name will never be available on app roles
+            ", '' " +
+            ", por.agreement " + // migration name will never be available on app roles
             ", por.role " +
             ", por.type ) " +
             "FROM PadOrganisationRole por " +

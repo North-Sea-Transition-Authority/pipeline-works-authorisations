@@ -25,6 +25,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
         var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
             OU_ID,
             null,
+            null,
             role,
             type,
             PIPELINE_ID);
@@ -42,24 +43,22 @@ public class OrganisationPipelineRoleInstanceDtoTest {
 
   @Test
   public void hasValidOrganisationRole_whenGivenOrgUnitId() {
-    var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
-        OU_ID,
-        null,
+    var organisationPipelineRoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.HOLDER,
-        HuooType.PORTAL_ORG,
-        PIPELINE_ID);
+        OU_ID,
+        PIPELINE_ID
+    );
 
     assertThat(organisationPipelineRoleDto.hasValidOrganisationRole()).isTrue();
   }
 
   @Test
   public void hasValidOrganisationRole_whenNotGivenOrgUnitId() {
-    var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
-        null,
-        "some name",
+    var organisationPipelineRoleDto = OrganisationRoleDtoTestUtil.createMigratedOrgUnitPipelineRoleInstance(
         HuooRole.HOLDER,
-        HuooType.PORTAL_ORG,
-        PIPELINE_ID);
+        "someName",
+        PIPELINE_ID
+    );
 
     assertThat(organisationPipelineRoleDto.hasValidOrganisationRole()).isFalse();
   }
