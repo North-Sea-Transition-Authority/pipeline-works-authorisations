@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OrganisationPipelineRoleDtoTest {
+public class OrganisationPipelineRoleInstanceDtoTest {
   private static int OU_ID = 1;
   private static int PIPELINE_ID = 2;
 
@@ -21,7 +21,7 @@ public class OrganisationPipelineRoleDtoTest {
 
     for (HuooRole role : HuooRole.values()) {
       for (HuooType type : HuooType.values()) {
-        var organisationPipelineRoleDto = new OrganisationPipelineRoleDto(
+        var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
             OU_ID,
             null,
             role,
@@ -41,7 +41,7 @@ public class OrganisationPipelineRoleDtoTest {
 
   @Test
   public void hasValidOrganisationRole_whenGivenOrgUnitId() {
-    var organisationPipelineRoleDto = new OrganisationPipelineRoleDto(
+    var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
         OU_ID,
         null,
         HuooRole.HOLDER,
@@ -53,7 +53,7 @@ public class OrganisationPipelineRoleDtoTest {
 
   @Test
   public void hasValidOrganisationRole_whenNotGivenOrgUnitId() {
-    var organisationPipelineRoleDto = new OrganisationPipelineRoleDto(
+    var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
         null,
         "some name",
         HuooRole.HOLDER,

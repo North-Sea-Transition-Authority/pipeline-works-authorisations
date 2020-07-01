@@ -5,8 +5,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 public class OrganisationRoleDtoTestUtil {
 
-  public static OrganisationPipelineRoleDto createPipelineRole(HuooRole huooRole, int ouId, int pipelineId) {
-    return new OrganisationPipelineRoleDto(
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineRoleInstance(HuooRole huooRole, int ouId, int pipelineId) {
+    return new OrganisationPipelineRoleInstanceDto(
         ouId,
         null,
         huooRole,

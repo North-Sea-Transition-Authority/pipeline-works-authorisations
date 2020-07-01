@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
@@ -38,10 +38,10 @@ public class PadPipelineHuooViewFactoryTest {
   private static final int PIPELINE_2_ID = 200;
   private static final String PIPELINE_2_NUMBER = "PL2";
 
-  private OrganisationPipelineRoleDto holderOrg1Pipeline1RoleDto;
-  private OrganisationPipelineRoleDto userOrg2Pipeline2RoleDto;
-  private OrganisationPipelineRoleDto operatorOrg1Pipeline1RoleDto;
-  private OrganisationPipelineRoleDto ownerOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleInstanceDto holderOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleInstanceDto userOrg2Pipeline2RoleDto;
+  private OrganisationPipelineRoleInstanceDto operatorOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleInstanceDto ownerOrg1Pipeline1RoleDto;
 
   private OrganisationUnitDetailDto ou1DetailDto = OrganisationsDtoTestUtil.createDetailDto(OU_ID1, "OU_1", "12345");
   private OrganisationUnitDetailDto ou2DetailDto = OrganisationsDtoTestUtil.createDetailDto(OU_ID2, "OU_2", null);
@@ -64,11 +64,11 @@ public class PadPipelineHuooViewFactoryTest {
   @Before
   public void setup() {
 
-    holderOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_1_ID);
-    userOrg2Pipeline2RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.USER, OU_ID2, PIPELINE_2_ID);
-    operatorOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OPERATOR, OU_ID1,
+    holderOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_1_ID);
+    userOrg2Pipeline2RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.USER, OU_ID2, PIPELINE_2_ID);
+    operatorOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OPERATOR, OU_ID1,
         PIPELINE_1_ID);
-    ownerOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
+    ownerOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
 
     var orgRoleDtos = Set.of(
         holderOrg1Pipeline1RoleDto.getOrganisationRoleDto(),
@@ -130,7 +130,7 @@ public class PadPipelineHuooViewFactoryTest {
 
   @Test
   public void createPipelineAndOrgGroupViewsByRole_holderSummaryViewWhenTwoHoldersButOneHolderHasRole() {
-    var holderOrg1Pipeline2Role = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1,
+    var holderOrg1Pipeline2Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1,
         PIPELINE_2_ID);
 
     var holderOrg2Role = OrganisationRoleDtoTestUtil.createOrgRole(HuooRole.HOLDER, OU_ID2);

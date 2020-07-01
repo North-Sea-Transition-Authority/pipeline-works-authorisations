@@ -11,16 +11,16 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
  *  a) building block object for creating application huoo data from consent model
  *  b) building block object for diffing application huoo data from consent model
  * */
-public class OrganisationPipelineRoleDto {
+public class OrganisationPipelineRoleInstanceDto {
   private final OrganisationRoleDto organisationRoleDto;
   private final PipelineId pipelineId;
 
 
-  public OrganisationPipelineRoleDto(Integer organisationUnitId,
-                                     String manualOrganisationName,
-                                     HuooRole huooRole,
-                                     HuooType huooType,
-                                     int pipelineId) {
+  public OrganisationPipelineRoleInstanceDto(Integer organisationUnitId,
+                                             String manualOrganisationName,
+                                             HuooRole huooRole,
+                                             HuooType huooType,
+                                             int pipelineId) {
     this.organisationRoleDto = new OrganisationRoleDto(organisationUnitId, manualOrganisationName, huooRole, huooType);
     this.pipelineId = new PipelineId(pipelineId);
   }
@@ -57,7 +57,7 @@ public class OrganisationPipelineRoleDto {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    OrganisationPipelineRoleDto that = (OrganisationPipelineRoleDto) o;
+    OrganisationPipelineRoleInstanceDto that = (OrganisationPipelineRoleInstanceDto) o;
     return Objects.equals(organisationRoleDto, that.organisationRoleDto)
         && Objects.equals(pipelineId, that.pipelineId);
   }
