@@ -2,17 +2,15 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo
 
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 
 public class PipelineOtherPropertiesForm {
 
   private Map<OtherPipelineProperty, PipelineOtherPropertiesDataForm> propertyDataFormMap = new HashMap<>();
-  private Set<PropertyPhase> phasesPresent = new HashSet<>();
+  private Map<PropertyPhase, String> phasesSelection = new HashMap<>();
   private String otherPhaseDescription;
 
 
@@ -34,21 +32,18 @@ public class PipelineOtherPropertiesForm {
     return otherPhaseDescription;
   }
 
-  public Set<PropertyPhase> getPhasesPresent() {
-    return phasesPresent;
-  }
-
-  public void setPhasesPresent(
-      Set<PropertyPhase> phasesPresent) {
-    this.phasesPresent = phasesPresent;
-  }
-
   public void setOtherPhaseDescription(String otherPhaseDescription) {
     this.otherPhaseDescription = otherPhaseDescription;
   }
 
+  public Map<PropertyPhase, String> getPhasesSelection() {
+    return phasesSelection;
+  }
 
-
+  public void setPhasesSelection(
+      Map<PropertyPhase, String> phasesSelection) {
+    this.phasesSelection = phasesSelection;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -60,12 +55,12 @@ public class PipelineOtherPropertiesForm {
     }
     PipelineOtherPropertiesForm that = (PipelineOtherPropertiesForm) o;
     return Objects.equals(propertyDataFormMap, that.propertyDataFormMap)
-        && Objects.equals(phasesPresent, that.phasesPresent)
+        && Objects.equals(phasesSelection, that.phasesSelection)
         && Objects.equals(otherPhaseDescription, that.otherPhaseDescription);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(propertyDataFormMap, phasesPresent, otherPhaseDescription);
+    return Objects.hash(propertyDataFormMap, phasesSelection, otherPhaseDescription);
   }
 }

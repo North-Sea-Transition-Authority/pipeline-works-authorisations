@@ -37,11 +37,11 @@ public class PipelineOtherPropertiesValidator implements SmartValidator {
           "propertyDataFormMap[" + propertyEntry.getKey() + "]", propertyEntry.getValue(), propertyEntry.getKey());
     }
 
-    if (pipelineOtherPropertiesForm.getPhasesPresent().isEmpty()) {
-      errors.rejectValue("phasesPresent", "phasesPresent" + FieldValidationErrorCodes.REQUIRED.getCode(),
+    if (pipelineOtherPropertiesForm.getPhasesSelection().isEmpty()) {
+      errors.rejectValue("phasesSelection", "phasesSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select at least one phase");
     }
-    if (pipelineOtherPropertiesForm.getPhasesPresent().contains(PropertyPhase.OTHER)) {
+    if (pipelineOtherPropertiesForm.getPhasesSelection().containsKey(PropertyPhase.OTHER)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPhaseDescription", "otherPhaseDescription.required",
           "You must enter the other phase present");
     }
@@ -52,8 +52,6 @@ public class PipelineOtherPropertiesValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     validate(o, errors);
   }
-
-
 
 
 

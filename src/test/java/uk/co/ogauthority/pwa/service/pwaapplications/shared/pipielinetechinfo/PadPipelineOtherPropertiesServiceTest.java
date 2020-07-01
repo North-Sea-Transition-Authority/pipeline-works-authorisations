@@ -94,7 +94,7 @@ public class PadPipelineOtherPropertiesServiceTest {
     entityBuilder.setPhaseDataOnAppDetail_otherPhaseExcluded(pwaApplicationDetail);
 
     var expectedForm = formBuilder.createFullForm();
-    expectedForm.getPhasesPresent().remove(PropertyPhase.OTHER);
+    expectedForm.getPhasesSelection().remove(PropertyPhase.OTHER);
     expectedForm.setOtherPhaseDescription(null);
 
     padPipelineOtherPropertiesService.mapEntitiesToForm(actualForm, entityBuilder.createAllEntities(pwaApplicationDetail), pwaApplicationDetail);

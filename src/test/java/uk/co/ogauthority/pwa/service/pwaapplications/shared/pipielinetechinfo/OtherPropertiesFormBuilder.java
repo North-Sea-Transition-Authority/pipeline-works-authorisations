@@ -30,7 +30,9 @@ public class OtherPropertiesFormBuilder {
 
 
   public void setPhasesFormData(PipelineOtherPropertiesForm form) {
-    form.setPhasesPresent(PropertyPhase.stream().collect(Collectors.toSet()));
+    for (var phase: PropertyPhase.asList()) {
+      form.getPhasesSelection().put(phase, "true");
+    }
     form.setOtherPhaseDescription("my description");
   }
 

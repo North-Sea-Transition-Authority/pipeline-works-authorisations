@@ -95,8 +95,7 @@ public class PipelineOtherPropertiesController {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineOtherProperties");
     modelAndView.addObject("properties", OtherPipelineProperty.asList())
         .addObject("propertyAvailabilityOptions", PropertyAvailabilityOption.asList())
-        .addObject("propertyPhases", PropertyPhase.stream()
-          .collect(StreamUtils.toLinkedHashMap(Enum::name, PropertyPhase::getDisplayText)));
+        .addObject("propertyPhases", PropertyPhase.asList());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Other properties");

@@ -37,17 +37,17 @@ public class PipelineOtherPropertiesValidatorTest {
     var form = new PipelineOtherPropertiesForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
-        entry("phasesPresent", Set.of("phasesPresent.required"))
+        entry("phasesSelection", Set.of("phasesSelection.required"))
     );
   }
 
   @Test
   public void validate_formPhases_valid() {
     var form = new PipelineOtherPropertiesForm();
-    form.setPhasesPresent(Set.of(PropertyPhase.OIL));
+    form.getPhasesSelection().put(PropertyPhase.OIL, "true");
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errorsMap).doesNotContain(entry("phasesPresent", Set.of("phasesPresent.required")));
+    assertThat(errorsMap).doesNotContain(entry("phasesSelection", Set.of("phasesSelection.required")));
   }
 
   @Test
@@ -56,14 +56,14 @@ public class PipelineOtherPropertiesValidatorTest {
     formBuilder.setPhasesFormData(form);
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errorsMap).doesNotContain(entry("phasesPresent", Set.of("phasesPresent.required")));
+    assertThat(errorsMap).doesNotContain(entry("phasesSelection", Set.of("phasesSelection.required")));
   }
 
 
   @Test
   public void validate_formPhases_invalid_otherSelected() {
     var form = new PipelineOtherPropertiesForm();
-    form.getPhasesPresent().add(PropertyPhase.OTHER);
+    form.getPhasesSelection().put(PropertyPhase.OTHER, "true");
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(entry("otherPhaseDescription", Set.of("otherPhaseDescription.required")));
