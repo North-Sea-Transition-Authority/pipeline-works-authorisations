@@ -3,22 +3,22 @@ package uk.co.ogauthority.pwa.model.dto.huooaggregations;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 
 public class PipelineAndOrganisationRoleGroupDto {
-  private final Set<OrganisationRoleInstanceDto> organisationRoleInstanceDtoSet;
+  private final Set<OrganisationRoleOwnerDto> organisationRoleOwnerDtoSet;
   private final Set<PipelineId> pipelineIdSet;
 
   PipelineAndOrganisationRoleGroupDto(
-      Set<OrganisationRoleInstanceDto> organisationRoleInstanceDtoSet,
+      Set<OrganisationRoleOwnerDto> organisationRoleOwnerDtoSet,
       Set<PipelineId> pipelineIdSet) {
-    this.organisationRoleInstanceDtoSet = organisationRoleInstanceDtoSet;
+    this.organisationRoleOwnerDtoSet = organisationRoleOwnerDtoSet;
     this.pipelineIdSet = pipelineIdSet;
   }
 
-  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtoSet() {
-    return Collections.unmodifiableSet(organisationRoleInstanceDtoSet);
+  public Set<OrganisationRoleOwnerDto> getOrganisationRoleOwnerDtoSet() {
+    return Collections.unmodifiableSet(organisationRoleOwnerDtoSet);
   }
 
   public Set<PipelineId> getPipelineIdSet() {
@@ -34,12 +34,12 @@ public class PipelineAndOrganisationRoleGroupDto {
       return false;
     }
     PipelineAndOrganisationRoleGroupDto that = (PipelineAndOrganisationRoleGroupDto) o;
-    return Objects.equals(organisationRoleInstanceDtoSet, that.organisationRoleInstanceDtoSet)
+    return Objects.equals(organisationRoleOwnerDtoSet, that.organisationRoleOwnerDtoSet)
         && Objects.equals(pipelineIdSet, that.pipelineIdSet);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationRoleInstanceDtoSet, pipelineIdSet);
+    return Objects.hash(organisationRoleOwnerDtoSet, pipelineIdSet);
   }
 }

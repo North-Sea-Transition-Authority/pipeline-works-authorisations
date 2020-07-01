@@ -100,12 +100,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   }
 
-  public Set<OrganisationRoleInstanceDto> getOrganisationRoleDtosByRole(PwaApplicationDetail pwaApplicationDetail,
-                                                                        HuooRole huooRole,
-                                                                        HuooType huooType) {
+  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                                HuooRole huooRole) {
     return getOrganisationRoleDtos(pwaApplicationDetail).stream()
         .filter(o -> huooRole.equals(o.getHuooRole()))
-        .filter(o -> huooType.equals(o.getHuooType()))
         .collect(Collectors.toSet());
 
   }

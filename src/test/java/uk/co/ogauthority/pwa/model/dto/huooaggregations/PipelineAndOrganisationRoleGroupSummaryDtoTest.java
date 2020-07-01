@@ -10,9 +10,9 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
@@ -29,6 +29,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   private OrganisationPipelineRoleInstanceDto userOrg1Pipeline1Role;
   private OrganisationPipelineRoleInstanceDto operatorOrg1Pipeline1Role;
   private OrganisationPipelineRoleInstanceDto ownerOrg1Pipeline1Role;
+  private OrganisationPipelineRoleInstanceDto ownerBelgiumPipeline1Role;
 
   @Before
   public void setup() {
@@ -36,6 +37,11 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     userOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.USER, OU_ID1, PIPELINE_ID1);
     operatorOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OPERATOR, OU_ID1, PIPELINE_ID1);
     ownerOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OWNER, OU_ID1, PIPELINE_ID1);
+    ownerBelgiumPipeline1Role = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+        HuooRole.OWNER,
+        TreatyAgreement.BELGIUM,
+        PIPELINE_ID1
+        );
   }
 
   @Test
@@ -43,15 +49,18 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
     for (HuooRole role : HuooRole.values()) {
       try {
-        var pipelineOrgRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(role, OU_ID1, PIPELINE_ID1);
+        var pipelineOrgRole = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+            role,
+            TreatyAgreement.NETHERLANDS,
+            PIPELINE_ID1);
         var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
             Set.of(pipelineOrgRole)
         );
 
         assertThat(summary.getGroupsByHuooRole(role)).hasOnlyOneElementSatisfying(
             pipelineAndOrganisationRoleGroupDto -> {
-              assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleInstanceDtoSet())
-                  .containsExactly(pipelineOrgRole.getOrganisationRoleInstanceDto());
+              assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
+                  .containsExactly(pipelineOrgRole.getOrganisationRoleOwnerDto());
               assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
                   .containsExactly(new PipelineId(PIPELINE_ID1));
             });
@@ -121,8 +130,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         Set.of(holderOrg1Pipeline1Role));
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).hasOnlyOneElementSatisfying(
         pipelineAndOrganisationRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleInstanceDtoSet())
-              .containsExactly(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto());
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
+              .containsExactly(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
           assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactly(new PipelineId(PIPELINE_ID1));
         });
@@ -130,7 +139,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
   /**
    * WHEN there are 2 pipelines
-   * AND 2 organisation share a role on both pipelines
+   * AND 2 organisation role owners share a role on both pipelines
    * THEN there is 1 group with both pipelines and both organisation roles
    */
   @Test
@@ -138,8 +147,10 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
-    var holder2Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID2, PIPELINE_ID1);
-    var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
+    var holder2Pipeline1 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID1);
+    var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID2);
 
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holder1Pipeline1,
@@ -151,9 +162,10 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).hasOnlyOneElementSatisfying(
         pipelineAndOrganisationRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleInstanceDtoSet())
-              .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleInstanceDto(),
-                  holder2Pipeline1.getOrganisationRoleInstanceDto());
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
+              .containsExactlyInAnyOrder(
+                  holder1Pipeline1.getOrganisationRoleOwnerDto(),
+                  holder2Pipeline1.getOrganisationRoleOwnerDto());
           assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID1), new PipelineId(PIPELINE_ID2));
         });
@@ -171,8 +183,10 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
 
-    var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
-    var holder2Pipeline3 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID2, PIPELINE_ID3);
+    var holder2Pipeline2 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID2);
+    var holder2Pipeline3 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER, TreatyAgreement.BELGIUM, PIPELINE_ID3);
 
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holder1Pipeline1,
@@ -186,8 +200,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     // group containing holder 1 and pipeline 1
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).anySatisfy(
         pipelineAndOrganisationRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleInstanceDtoSet())
-              .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleInstanceDto());
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
+              .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleOwnerDto());
           assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID1));
         });
@@ -195,9 +209,9 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     // group containing holder 1 AND holder 2 and pipeline 2
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).anySatisfy(
         pipelineAndOrganisationRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleInstanceDtoSet())
-              .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleInstanceDto(),
-                  holder2Pipeline2.getOrganisationRoleInstanceDto());
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
+              .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleOwnerDto(),
+                  holder2Pipeline2.getOrganisationRoleOwnerDto());
           assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID2));
         });
@@ -205,23 +219,24 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     // group containing holder 2 and pipeline 3
     assertThat(summary.getGroupsByHuooRole(HuooRole.HOLDER)).anySatisfy(
         pipelineAndOrganisationRoleGroupDto -> {
-          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleInstanceDtoSet())
-              .containsExactlyInAnyOrder(holder2Pipeline2.getOrganisationRoleInstanceDto());
+          assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
+              .containsExactlyInAnyOrder(holder2Pipeline2.getOrganisationRoleOwnerDto());
           assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID3));
         });
   }
 
   @Test
-  public void getAllOrganisationUnitIdsInSummary_whenSingleOrganisationHasMultipleRoles() {
+  public void getAllOrganisationRoleOwnersInSummary_whenSingleOrganisationHasMultipleRoles() {
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role)
     );
-    assertThat(summary.getAllOrganisationUnitIdsInSummary()).containsExactly(new OrganisationUnitId(OU_ID1));
+    assertThat(summary.getAllOrganisationRoleOwnersInSummary()).containsExactly(
+        OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID1));
   }
 
   @Test
-  public void getAllOrganisationUnitIdsInSummary_whenMultipleOrganisationHaveMultipleRoles() {
+  public void getAllOrganisationRoleOwnersInSummary_whenMultipleOrganisationHaveMultipleRoles() {
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
 
@@ -231,9 +246,9 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holder1Pipeline1, holder1Pipeline2, holder2Pipeline2, holder2Pipeline3)
     );
-    assertThat(summary.getAllOrganisationUnitIdsInSummary()).containsExactlyInAnyOrder(
-        new OrganisationUnitId(OU_ID1),
-        new OrganisationUnitId(OU_ID2)
+    assertThat(summary.getAllOrganisationRoleOwnersInSummary()).containsExactlyInAnyOrder(
+        OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID1),
+        OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID2)
     );
   }
 
@@ -305,9 +320,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     summary.getPipelineIdsWithAssignedRole(HuooRole.HOLDER).add(new PipelineId(1));
   }
 
-  //
   @Test
-  public void getOrganisationUnitIdsWitAssignedRole_whenNoOrgsForRole() {
+  public void getOrganisationRoleOwnersWithAssignedRole_whenNoOrgsForRole() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -316,11 +330,11 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         Set.of(holder1Pipeline1, holder1Pipeline2)
     );
 
-    assertThat(summary.getOrganisationUnitIdsWithAssignedRole(HuooRole.USER)).isEmpty();
+    assertThat(summary.getOrganisationRoleOwnersWithAssignedRole(HuooRole.USER)).isEmpty();
   }
 
   @Test
-  public void getOrganisationUnitIdsWitAssignedRole_whenOrgsForRole() {
+  public void getOrganisationRoleOwnersWithAssignedRole_whenOrgsForRole() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -329,19 +343,21 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         Set.of(holder1Pipeline1, holder1Pipeline2)
     );
 
-    assertThat(summary.getOrganisationUnitIdsWithAssignedRole(HuooRole.HOLDER)).containsExactlyInAnyOrder(
-        holder1Pipeline1.getOrganisationUnitId()
+    assertThat(summary.getOrganisationRoleOwnersWithAssignedRole(HuooRole.HOLDER)).containsExactlyInAnyOrder(
+        holder1Pipeline1.getOrganisationRoleOwnerDto()
     );
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void getOrganisationUnitIdsWitAssignedRole_unmodifiableSetReturned() {
+  public void getOrganisationRoleOwnersWithAssignedRole_unmodifiableSetReturned() {
 
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of()
     );
 
-    summary.getOrganisationUnitIdsWithAssignedRole(HuooRole.HOLDER).add(new OrganisationUnitId(1));
+    summary.getOrganisationRoleOwnersWithAssignedRole(HuooRole.HOLDER).add(
+        OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID1)
+    );
   }
 
 }
