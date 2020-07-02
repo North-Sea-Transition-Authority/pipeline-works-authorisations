@@ -21,8 +21,8 @@ class PadPipelineOrganisationRoleLinkDtoRepositoryImpl implements PadPipelineOrg
     var query = entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
             "  por.organisationUnit.ouId, " +
-            "  '', " +
-            "  por.agreement, " + // empty migrated name as for apps only valid org unit roles exist
+            "  '', " + // empty migrated name as for apps only valid org unit roles exist
+            "  por.agreement, " +
             "  por.role, " +
             "  por.type," +
             "  pporl.pipeline.id" +
