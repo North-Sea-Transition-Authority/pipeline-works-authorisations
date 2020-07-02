@@ -614,7 +614,7 @@ public class PadOrganisationRoleServiceTest {
 
     assertThat(
         padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(detail, HuooRole.USER))
-        .containsExactly(
+        .containsExactlyInAnyOrder(
             OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(HuooRole.USER, TreatyAgreement.BELGIUM),
             OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(HuooRole.USER, 1)
         );
