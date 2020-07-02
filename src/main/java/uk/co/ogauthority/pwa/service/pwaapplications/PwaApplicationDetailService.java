@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Set;
 import java.util.function.Function;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
@@ -165,5 +167,13 @@ public class PwaApplicationDetailService {
     updateStatus(detail, PwaApplicationStatus.CASE_OFFICER_REVIEW, acceptingUser);
     pwaApplicationDetailRepository.save(detail);
   }
+
+  @Transactional
+  public void setPhasesPresent(PwaApplicationDetail pwaApplicationDetail, Set<PropertyPhase> phasesPresent, String otherPhaseDescription) {
+    pwaApplicationDetail.setPipelinePhaseProperties(phasesPresent);
+    pwaApplicationDetail.setOtherPhaseDescription(otherPhaseDescription);
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
 
 }

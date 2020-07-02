@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.Pe
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -90,7 +91,11 @@ public class TaskCompletionServiceIntegrationTest {
   private PadFluidCompositionInfoService padFluidCompositionInfoService;
 
   @MockBean
+  private PadPipelineOtherPropertiesService padPipelineOtherPropertiesService;
+
+  @MockBean
   private PadDesignOpConditionsService padDesignOpConditionsService;
+
 
   @Test
   public void isTaskComplete() {
@@ -144,6 +149,9 @@ public class TaskCompletionServiceIntegrationTest {
           break;
         case FLUID_COMPOSITION:
           service = padFluidCompositionInfoService;
+          break;
+        case PIPELINE_OTHER_PROPERTIES:
+          service = padPipelineOtherPropertiesService;
           break;
         case DESIGN_OP_CONDITIONS:
           service = padDesignOpConditionsService;
