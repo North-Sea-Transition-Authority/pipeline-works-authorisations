@@ -44,6 +44,18 @@ public class MinMaxInputValidatorTest {
     );
   }
 
+
+  @Test
+  public void validate_minSmallerOrEqualToMax_noRestriction() {
+    var validationRequiredHints = List.of();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
+        validator, new MinMaxInput(String.valueOf(5), String.valueOf(4), false), "My Property", validationRequiredHints);
+
+    assertThat(errorsMap).doesNotContain(
+        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode()))
+    );
+  }
+
   @Test
   public void validate_positiveNumber() {
     var validationRequiredHints = List.of(new PositiveNumberHint());

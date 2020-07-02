@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#include 'minMaxInput.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="backUrl" type=" java.lang.String"-->
@@ -11,7 +12,12 @@
 
     <@fdsForm.htmlForm>
         
-        
+        <@minMaxInput minFormPath="form.temperatureOpMinMax.minValue" maxFormPath="form.temperatureOpMinMax.maxValue"
+                    nestedPath="" labelText="" unitMeasurement="" altMinLabel="" altMaxLabel=""/>
+
+        <@minMaxInput minFormPath="form.pressureOpInternalValue.minValue" maxFormPath="form.pressureOpInternalValue.maxValue"
+                    nestedPath="" labelText="" unitMeasurement="" altMinLabel="Internal" altMaxLabel="External"/>
+                
 
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>

@@ -54,7 +54,7 @@ public class MinMaxInputValidator implements SmartValidator {
 
 
   private void validateMinSmallerOrEqualToMax(Errors errors, MinMaxInput minMaxInput, String property) {
-    if (!minMaxInput.minSmallerOrEqualToMax()) {
+    if (minMaxInput.minSmallerOrEqualRestriction() && !minMaxInput.minSmallerOrEqualToMax()) {
       errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode(),
           "The minimum value must be smaller or equal to the maximum value for " + property.toLowerCase());
     }
