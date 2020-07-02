@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo;
 
 
+import java.util.Objects;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 
 public class DesignOpConditionsForm {
@@ -80,4 +81,30 @@ public class DesignOpConditionsForm {
   }
 
 
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DesignOpConditionsForm that = (DesignOpConditionsForm) o;
+    return Objects.equals(temperatureOpMinMax, that.temperatureOpMinMax)
+        && Objects.equals(temperatureDesignMinMax, that.temperatureDesignMinMax)
+        && Objects.equals(pressureOpMinMax, that.pressureOpMinMax)
+        && Objects.equals(pressureDesignMinMax, that.pressureDesignMinMax)
+        && Objects.equals(flowrateOpMinMax, that.flowrateOpMinMax)
+        && Objects.equals(flowrateDesignMinMax, that.flowrateDesignMinMax)
+        && Objects.equals(uvalueOp, that.uvalueOp)
+        && Objects.equals(uvalueDesign, that.uvalueDesign);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(temperatureOpMinMax, temperatureDesignMinMax, pressureOpMinMax, pressureDesignMinMax,
+        flowrateOpMinMax, flowrateDesignMinMax, uvalueOp, uvalueDesign);
+  }
 }
