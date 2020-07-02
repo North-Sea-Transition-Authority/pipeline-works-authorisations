@@ -34,7 +34,7 @@
                     </@fdsCheckbox.checkboxItem>
                 </#list>    
             </@fdsCheckbox.checkboxGroup>
-            </@fdsFieldset.fieldset>
+        </@fdsFieldset.fieldset>
 
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
