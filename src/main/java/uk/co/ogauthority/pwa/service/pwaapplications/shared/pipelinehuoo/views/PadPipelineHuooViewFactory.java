@@ -72,7 +72,7 @@ public class PadPipelineHuooViewFactory {
           if (orgUnitNameLookup.containsKey(o.getOrganisationUnitId())) {
             return orgUnitNameLookup.get(o.getOrganisationUnitId());
           }
-          return String.format("Country wide treaty (%s)", o.getTreatyAgreement().getCountry());
+          return o.getTreatyAgreement().getAgreementText();
         }));
 
   }

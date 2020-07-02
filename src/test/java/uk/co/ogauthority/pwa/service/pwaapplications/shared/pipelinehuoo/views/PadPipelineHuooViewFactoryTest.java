@@ -179,7 +179,7 @@ public class PadPipelineHuooViewFactoryTest {
         entry(new PipelineId(PIPELINE_2_ID), PIPELINE_2_NUMBER)
     );
     assertThat(ownerSummaryView.getUnassignedOrganisationRoleOwnerNameMapForRole()).containsExactly(
-        entry(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM), "Country wide treaty (Belgium)")
+        entry(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM), TreatyAgreement.BELGIUM.getAgreementText())
     );
   }
 
@@ -224,7 +224,7 @@ public class PadPipelineHuooViewFactoryTest {
             Set.of(new PipelineId(PIPELINE_2_ID)),
             Set.of(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM)),
             List.of(PIPELINE_2_NUMBER),
-            List.of("Country wide treaty (Belgium)")
+            List.of(TreatyAgreement.BELGIUM.getAgreementText())
         )
     );
 

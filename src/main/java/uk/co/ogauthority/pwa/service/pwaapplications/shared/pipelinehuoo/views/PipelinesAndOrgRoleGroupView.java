@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 
 /**
- * Captures a set of organisationRoleOwners wher they have an instance of that role associated with a pipeline and allows
+ * Captures a set of organisationRoleOwners where they have an instance of that role associated with a pipeline and allows
  * easy display of the owner names and pipeline numbers.
  */
 public final class PipelinesAndOrgRoleGroupView {
