@@ -34,16 +34,16 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION
 })
-public class PadDesignOpConditionsController {
+public class DesignOpConditionsController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadDesignOpConditionsService padDesignOpConditionsService;
 
   @Autowired
-  public PadDesignOpConditionsController(ApplicationBreadcrumbService applicationBreadcrumbService,
-                                         PwaApplicationRedirectService pwaApplicationRedirectService,
-                                         PadDesignOpConditionsService padDesignOpConditionsService) {
+  public DesignOpConditionsController(ApplicationBreadcrumbService applicationBreadcrumbService,
+                                      PwaApplicationRedirectService pwaApplicationRedirectService,
+                                      PadDesignOpConditionsService padDesignOpConditionsService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padDesignOpConditionsService = padDesignOpConditionsService;

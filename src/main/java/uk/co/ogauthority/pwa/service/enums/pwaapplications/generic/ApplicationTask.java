@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.FluidCompositionInfoController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -133,7 +133,7 @@ public enum ApplicationTask {
 
   DESIGN_OP_CONDITIONS(
       "Design and operating conditions",
-      PadDesignOpConditionsController.class,
+      DesignOpConditionsController.class,
       PadDesignOpConditionsService.class,
       150
   );

@@ -57,9 +57,13 @@ public class PadDesignOpConditions {
   private BigDecimal uvalueOp;
   private BigDecimal uvalueDesign;
 
+  public PadDesignOpConditions(
+      PwaApplicationDetail pwaApplicationDetail) {
+    this.pwaApplicationDetail = pwaApplicationDetail;
+  }
 
-
-
+  public PadDesignOpConditions() { // default constructor required by hibernate
+  }
 
   public Integer getId() {
     return id;

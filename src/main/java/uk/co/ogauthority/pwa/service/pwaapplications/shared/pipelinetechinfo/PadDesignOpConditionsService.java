@@ -34,8 +34,7 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   // Entity/Form  Retrieval/Mapping
   public PadDesignOpConditions getDesignOpConditionsEntity(PwaApplicationDetail pwaApplicationDetail) {
     var designOpConditions = padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .orElse(new PadDesignOpConditions());
-    designOpConditions.setPwaApplicationDetail(pwaApplicationDetail);
+        .orElse(new PadDesignOpConditions(pwaApplicationDetail));
     return designOpConditions;
   }
 

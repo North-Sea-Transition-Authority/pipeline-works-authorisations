@@ -17,3 +17,5 @@ CREATE TABLE ${datasource.user}.pad_design_op_conditions (
     , uvalue_design NUMBER
     , CONSTRAINT pad_designoc_pad_fk FOREIGN KEY(application_detail_id) REFERENCES ${datasource.user}.pwa_application_details(id)
 );
+
+CREATE INDEX ${datasource.user}.pad_designoc_pad_fk_idx ON ${datasource.user}.pad_design_op_conditions(application_detail_id);
