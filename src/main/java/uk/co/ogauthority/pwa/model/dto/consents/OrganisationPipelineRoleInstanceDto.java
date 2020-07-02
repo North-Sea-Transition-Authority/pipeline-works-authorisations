@@ -37,6 +37,10 @@ public final class OrganisationPipelineRoleInstanceDto {
     return this.organisationRoleInstanceDto.getOrganisationUnitId();
   }
 
+  public OrganisationRoleOwnerDto getOrganisationRoleOwnerDto() {
+    return this.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto();
+  }
+
   public boolean hasValidOrganisationRole() {
     return this.organisationRoleInstanceDto.isPortalOrgRole();
   }

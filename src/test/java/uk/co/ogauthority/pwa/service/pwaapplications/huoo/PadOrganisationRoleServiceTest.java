@@ -604,7 +604,7 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getOrganisationRoleDtosByRole_filtersCorrectly() {
+  public void getOrganisationRoleDtosByRole_doesNotFilterByType() {
     when(padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(detail))
         .thenReturn(List.of(
             OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(HuooRole.USER, TreatyAgreement.BELGIUM),
@@ -613,9 +613,10 @@ public class PadOrganisationRoleServiceTest {
 
 
     assertThat(
-        padOrganisationRoleService.getOrganisationRoleDtosByRole(detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
-        .containsExactly(
-            OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(HuooRole.USER, TreatyAgreement.BELGIUM)
+        padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(detail, HuooRole.USER))
+        .containsExactlyInAnyOrder(
+            OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(HuooRole.USER, TreatyAgreement.BELGIUM),
+            OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(HuooRole.USER, 1)
         );
 
   }

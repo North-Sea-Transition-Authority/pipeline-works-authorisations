@@ -1,10 +1,33 @@
 package uk.co.ogauthority.pwa.model.dto.consents;
 
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 public class OrganisationRoleDtoTestUtil {
+
+  public static OrganisationRoleOwnerDto createOrganisationUnitRoleOwnerDto(int orgUnitId){
+    return createOrganisationUnitRoleOwnerDto(new OrganisationUnitId(orgUnitId));
+  }
+
+  public static OrganisationRoleOwnerDto createOrganisationUnitRoleOwnerDto(OrganisationUnitId orgUnitId){
+    return new OrganisationRoleOwnerDto(
+        HuooType.PORTAL_ORG,
+        orgUnitId,
+        null,
+        null
+    );
+  }
+
+  public static OrganisationRoleOwnerDto createTreatyRoleOwnerDto(TreatyAgreement treatyAgreement){
+    return new OrganisationRoleOwnerDto(
+        HuooType.TREATY_AGREEMENT,
+        null,
+        null,
+        treatyAgreement
+    );
+  }
 
   public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineRoleInstance(HuooRole huooRole, int ouId, int pipelineId) {
     return new OrganisationPipelineRoleInstanceDto(
@@ -32,7 +55,7 @@ public class OrganisationRoleDtoTestUtil {
         null,
         treatyAgreement,
         huooRole,
-        HuooType.PORTAL_ORG,
+        HuooType.TREATY_AGREEMENT,
         pipelineId);
   }
 
