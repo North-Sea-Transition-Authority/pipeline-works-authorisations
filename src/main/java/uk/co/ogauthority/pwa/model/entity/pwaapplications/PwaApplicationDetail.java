@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -12,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.converters.PipelinePropertyPhaseConverter;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -65,6 +69,11 @@ public class PwaApplicationDetail {
   private Boolean submittedAsFastTrackFlag;
 
   private Integer numOfHolders;
+
+  @Convert(converter = PipelinePropertyPhaseConverter.class)
+  private Set<PropertyPhase> pipelinePhaseProperties;
+
+  private String otherPhaseDescription;
 
 
   public PwaApplicationDetail() {
@@ -260,6 +269,23 @@ public class PwaApplicationDetail {
     this.numOfHolders = numOfHolders;
   }
 
+  public Set<PropertyPhase> getPipelinePhaseProperties() {
+    return pipelinePhaseProperties;
+  }
+
+  public void setPipelinePhaseProperties(
+      Set<PropertyPhase> pipelinePhaseProperties) {
+    this.pipelinePhaseProperties = pipelinePhaseProperties;
+  }
+
+  public String getOtherPhaseDescription() {
+    return otherPhaseDescription;
+  }
+
+  public void setOtherPhaseDescription(String otherPhaseDescription) {
+    this.otherPhaseDescription = otherPhaseDescription;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -288,7 +314,9 @@ public class PwaApplicationDetail {
         && Objects.equals(cablesCrossed, that.cablesCrossed)
         && Objects.equals(medianLineCrossed, that.medianLineCrossed)
         && Objects.equals(submittedAsFastTrackFlag, that.submittedAsFastTrackFlag)
-        && Objects.equals(numOfHolders, that.numOfHolders);
+        && Objects.equals(numOfHolders, that.numOfHolders)
+        && Objects.equals(pipelinePhaseProperties, that.pipelinePhaseProperties)
+        && Objects.equals(otherPhaseDescription, that.otherPhaseDescription);
   }
 
   @Override
@@ -296,6 +324,7 @@ public class PwaApplicationDetail {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
-        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders);
+        pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
+        pipelinePhaseProperties, otherPhaseDescription);
   }
 }
