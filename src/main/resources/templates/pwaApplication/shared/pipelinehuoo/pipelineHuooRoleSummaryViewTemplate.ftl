@@ -26,8 +26,11 @@
     </#list>
 
     <#if summaryView.sortedUnassignedOrganisationNames?hasContent>
+        <#local unassignedRoleHeading>
+            <@stringUtils.pluraliseWord count=summaryView.sortedUnassignedOrganisationNames?size word=roleSingular />
+        </#local>
         <@fdsCard.card>
-            <@fdsCard.cardHeader cardHeadingText="${roleSingular} not assigned to pipelines" cardHeadingSize="h3" cardHeadingClass="govuk-heading-s" />
+            <@fdsCard.cardHeader cardHeadingText="${unassignedRoleHeading} not assigned to pipelines" cardHeadingSize="h3" cardHeadingClass="govuk-heading-s" />
           <ol class="govuk-list">
               <#list summaryView.sortedUnassignedOrganisationNames as orgName>
                 <li>${orgName}</li>
