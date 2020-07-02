@@ -12,7 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesDataForm;
-import uk.co.ogauthority.pwa.service.enums.validation.PipelinePropertyValidationErrorCodes;
+import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInputValidator;
@@ -54,8 +54,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-3, 5.21), OtherPipelineProperty.WAX_CONTENT);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
     );
   }
 
@@ -65,8 +65,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(3, 5.2), OtherPipelineProperty.WAX_CONTENT);
 
     assertThat(errorsMap).doesNotContain(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
     );
   }
 
@@ -76,7 +76,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(2.3, 5.2), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode()))
     );
   }
 
@@ -86,7 +86,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(2, 5), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE);
 
     assertThat(errorsMap).doesNotContain(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode()))
     );
   }
 
@@ -96,8 +96,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.2), OtherPipelineProperty.ACID_NUM);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -107,8 +107,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.22), OtherPipelineProperty.VISCOSITY);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -118,8 +118,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(4, 5.2), OtherPipelineProperty.VISCOSITY);
 
     assertThat(errorsMap).doesNotContain(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -129,8 +129,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.22), OtherPipelineProperty.DENSITY_GRAVITY);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -141,8 +141,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(4, 5), OtherPipelineProperty.DENSITY_GRAVITY);
 
     assertThat(errorsMap).doesNotContain(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -152,8 +152,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.232), OtherPipelineProperty.SULPHUR_CONTENT);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -163,7 +163,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(4, 5.2), OtherPipelineProperty.POUR_POINT);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode()))
     );
   }
 
@@ -173,8 +173,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.232), OtherPipelineProperty.SOLID_CONTENT);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -184,8 +184,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.232), OtherPipelineProperty.MERCURY);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -195,8 +195,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(-4, 5.232), OtherPipelineProperty.H20);
 
     assertThat(errorsMap).contains(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -206,8 +206,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
         createForm(4, 5.), OtherPipelineProperty.H20);
 
     assertThat(errorsMap).doesNotContain(
-        entry("minMaxInput.maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 

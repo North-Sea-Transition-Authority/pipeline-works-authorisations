@@ -6,7 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.enums.validation.PipelinePropertyValidationErrorCodes;
+import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 
 @Component
 public class MinMaxInputValidator implements SmartValidator {
@@ -55,7 +55,7 @@ public class MinMaxInputValidator implements SmartValidator {
 
   private void validateMinSmallerOrEqualToMax(Errors errors, MinMaxInput minMaxInput, String property) {
     if (!minMaxInput.minSmallerOrEqualToMax()) {
-      errors.rejectValue("maxValue", "maxValue" + PipelinePropertyValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode(),
+      errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode(),
           "The minimum value must be smaller or equal to the maximum value for " + property.toLowerCase());
     }
   }
@@ -63,7 +63,7 @@ public class MinMaxInputValidator implements SmartValidator {
 
   private void validatePositiveNumber(Errors errors, MinMaxInput minMaxInput, String property) {
     if (!minMaxInput.isMinPositive() || !minMaxInput.isMaxPositive()) {
-      errors.rejectValue("maxValue", "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode(),
+      errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
           "The minimum and maximum values must be a positive number for " + property.toLowerCase());
     }
   }
@@ -71,7 +71,7 @@ public class MinMaxInputValidator implements SmartValidator {
 
   private void validateInteger(Errors errors, MinMaxInput minMaxInput, String property) {
     if (!minMaxInput.isMinInteger() || !minMaxInput.isMaxInteger()) {
-      errors.rejectValue("maxValue", "maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode(),
+      errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
           "The minimum and maximum values must be a whole number for " + property.toLowerCase());
     }
   }
@@ -79,7 +79,7 @@ public class MinMaxInputValidator implements SmartValidator {
 
   private void validateDecimalPlaces(Errors errors, MinMaxInput minMaxInput, String property, int maxDecimalPlaces) {
     if (!minMaxInput.minHasValidDecimalPlaces(maxDecimalPlaces) || !minMaxInput.maxHasValidDecimalPlaces(maxDecimalPlaces)) {
-      errors.rejectValue("maxValue", "maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+      errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
           "The minimum and maximum values should not have more than " + maxDecimalPlaces + "dp for " + property.toLowerCase());
     }
   }

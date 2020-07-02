@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.util.forminputs.minmax;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.enums.validation.PipelinePropertyValidationErrorCodes;
+import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,7 +40,7 @@ public class MinMaxInputValidatorTest {
         validator, new MinMaxInput(String.valueOf(5), String.valueOf(4)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
-        Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode()))
+        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode()))
     );
   }
 
@@ -52,7 +51,7 @@ public class MinMaxInputValidatorTest {
         validator, new MinMaxInput(String.valueOf(-2), String.valueOf(5)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
-        Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
@@ -63,7 +62,7 @@ public class MinMaxInputValidatorTest {
         validator, new MinMaxInput(String.valueOf(3), String.valueOf(5.6)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
-        Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.NOT_INTEGER.getCode()))
+        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode()))
     );
   }
 
@@ -74,7 +73,7 @@ public class MinMaxInputValidatorTest {
         validator, new MinMaxInput(String.valueOf(3), String.valueOf(5.644)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
-        Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
+        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
     );
   }
 
@@ -85,8 +84,8 @@ public class MinMaxInputValidatorTest {
         validator, new MinMaxInput(String.valueOf(-3), String.valueOf(5.644)), "My Property", validationRequiredHints);
 
     assertThat(errorsMap).contains(
-        Map.entry("maxValue", Set.of("maxValue" + PipelinePropertyValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-            "maxValue" + PipelinePropertyValidationErrorCodes.NOT_POSITIVE.getCode()))
+        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 

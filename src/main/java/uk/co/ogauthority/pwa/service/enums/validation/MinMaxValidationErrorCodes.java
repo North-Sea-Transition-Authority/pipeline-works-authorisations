@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.enums.validation;
 
-public enum PipelinePropertyValidationErrorCodes {
+public enum MinMaxValidationErrorCodes {
 
   MIN_LARGER_THAN_MAX(".minLargerThanMax"),
   NOT_POSITIVE(".notPositive"),
@@ -9,7 +9,7 @@ public enum PipelinePropertyValidationErrorCodes {
 
   private String code;
 
-  PipelinePropertyValidationErrorCodes(String code) {
+  MinMaxValidationErrorCodes(String code) {
     this.code = code;
   }
 
