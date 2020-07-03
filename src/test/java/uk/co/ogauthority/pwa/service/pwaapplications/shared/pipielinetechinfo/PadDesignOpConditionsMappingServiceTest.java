@@ -27,8 +27,8 @@ public class PadDesignOpConditionsMappingServiceTest {
     var form = new DesignOpConditionsForm();
     form.setTemperatureOpMinMax(new MinMaxInput("1", "2"));
     form.setTemperatureDesignMinMax(new MinMaxInput("3", "4"));
-    form.setPressureOpMinMax(new MinMaxInput("5", "6"));
-    form.setPressureDesignMinMax(new MinMaxInput("7", "8"));
+    form.setPressureOpInternalExternal(new MinMaxInput("5", "6"));
+    form.setPressureDesignInternalExternal(new MinMaxInput("7", "8"));
     form.setFlowrateOpMinMax(new MinMaxInput("9", "10"));
     form.setFlowrateDesignMinMax(new MinMaxInput("11", "12"));
     form.setUvalueOp("13");
@@ -44,10 +44,10 @@ public class PadDesignOpConditionsMappingServiceTest {
     entity.setTemperatureOpMaxValue(form.getTemperatureOpMinMax().createMaxOrNull());
     entity.setTemperatureDesignMinValue(form.getTemperatureDesignMinMax().createMinOrNull());
     entity.setTemperatureDesignMaxValue(form.getTemperatureDesignMinMax().createMaxOrNull());
-    entity.setPressureOpInternalValue(form.getPressureOpMinMax().createMinOrNull());
-    entity.setPressureOpExternalValue(form.getPressureOpMinMax().createMaxOrNull());
-    entity.setPressureDesignInternalValue(form.getPressureDesignMinMax().createMinOrNull());
-    entity.setPressureDesignExternalValue(form.getPressureDesignMinMax().createMaxOrNull());
+    entity.setPressureOpInternalValue(form.getPressureOpInternalExternal().createMinOrNull());
+    entity.setPressureOpExternalValue(form.getPressureOpInternalExternal().createMaxOrNull());
+    entity.setPressureDesignInternalValue(form.getPressureDesignInternalExternal().createMinOrNull());
+    entity.setPressureDesignExternalValue(form.getPressureDesignInternalExternal().createMaxOrNull());
     entity.setFlowrateOpMinValue(form.getFlowrateOpMinMax().createMinOrNull());
     entity.setFlowrateOpMaxValue(form.getFlowrateOpMinMax().createMaxOrNull());
     entity.setFlowrateDesignMinValue(form.getFlowrateDesignMinMax().createMinOrNull());

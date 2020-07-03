@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.DecimalPlacesHint;
+import uk.co.ogauthority.pwa.util.forminputs.minmax.DefaultValidationRule;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.IntegerHint;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInputValidator;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.PositiveNumberHint;
@@ -48,13 +49,13 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureDesignMinMax",
         form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(new IntegerHint()));
 
-    form.getPressureOpMinMax().setMinSmallerOrEqualRestriction(false);
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpMinMax",
-        form.getPressureOpMinMax(), "pressure operating conditions", List.of(new PositiveNumberHint(), new IntegerHint()));
+        form.getPressureOpInternalExternal(), "pressure operating conditions",
+        List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()));
 
-    form.getPressureDesignMinMax().setMinSmallerOrEqualRestriction(false);
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureDesignMinMax",
-        form.getPressureDesignMinMax(), "pressure design conditions", List.of(new PositiveNumberHint(), new IntegerHint()));
+        form.getPressureDesignInternalExternal(), "pressure design conditions",
+        List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()));
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
         form.getFlowrateOpMinMax(), "flowrate operating conditions", List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));

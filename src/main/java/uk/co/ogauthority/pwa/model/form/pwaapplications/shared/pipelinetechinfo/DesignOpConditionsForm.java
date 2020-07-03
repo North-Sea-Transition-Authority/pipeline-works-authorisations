@@ -8,8 +8,8 @@ public class DesignOpConditionsForm {
 
   private MinMaxInput temperatureOpMinMax;
   private MinMaxInput temperatureDesignMinMax;
-  private MinMaxInput pressureOpMinMax;
-  private MinMaxInput pressureDesignMinMax;
+  private MinMaxInput pressureOpInternalExternal;
+  private MinMaxInput pressureDesignInternalExternal;
   private MinMaxInput flowrateOpMinMax;
   private MinMaxInput flowrateDesignMinMax;
   private String uvalueOp;
@@ -32,20 +32,20 @@ public class DesignOpConditionsForm {
     this.temperatureDesignMinMax = temperatureDesignMinMax;
   }
 
-  public MinMaxInput getPressureOpMinMax() {
-    return pressureOpMinMax;
+  public MinMaxInput getPressureOpInternalExternal() {
+    return pressureOpInternalExternal;
   }
 
-  public void setPressureOpMinMax(MinMaxInput pressureOpMinMax) {
-    this.pressureOpMinMax = pressureOpMinMax;
+  public void setPressureOpInternalExternal(MinMaxInput pressureOpInternalExternal) {
+    this.pressureOpInternalExternal = pressureOpInternalExternal;
   }
 
-  public MinMaxInput getPressureDesignMinMax() {
-    return pressureDesignMinMax;
+  public MinMaxInput getPressureDesignInternalExternal() {
+    return pressureDesignInternalExternal;
   }
 
-  public void setPressureDesignMinMax(MinMaxInput pressureDesignMinMax) {
-    this.pressureDesignMinMax = pressureDesignMinMax;
+  public void setPressureDesignInternalExternal(MinMaxInput pressureDesignInternalExternal) {
+    this.pressureDesignInternalExternal = pressureDesignInternalExternal;
   }
 
   public MinMaxInput getFlowrateOpMinMax() {
@@ -94,8 +94,8 @@ public class DesignOpConditionsForm {
     DesignOpConditionsForm that = (DesignOpConditionsForm) o;
     return Objects.equals(temperatureOpMinMax, that.temperatureOpMinMax)
         && Objects.equals(temperatureDesignMinMax, that.temperatureDesignMinMax)
-        && Objects.equals(pressureOpMinMax, that.pressureOpMinMax)
-        && Objects.equals(pressureDesignMinMax, that.pressureDesignMinMax)
+        && Objects.equals(pressureOpInternalExternal, that.pressureOpInternalExternal)
+        && Objects.equals(pressureDesignInternalExternal, that.pressureDesignInternalExternal)
         && Objects.equals(flowrateOpMinMax, that.flowrateOpMinMax)
         && Objects.equals(flowrateDesignMinMax, that.flowrateDesignMinMax)
         && Objects.equals(uvalueOp, that.uvalueOp)
@@ -104,7 +104,10 @@ public class DesignOpConditionsForm {
 
   @Override
   public int hashCode() {
-    return Objects.hash(temperatureOpMinMax, temperatureDesignMinMax, pressureOpMinMax, pressureDesignMinMax,
+    return Objects.hash(temperatureOpMinMax, temperatureDesignMinMax, pressureOpInternalExternal,
+        pressureDesignInternalExternal,
         flowrateOpMinMax, flowrateDesignMinMax, uvalueOp, uvalueDesign);
   }
+
+
 }

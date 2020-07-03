@@ -11,7 +11,6 @@ import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes
 @Component
 public class MinMaxInputValidator implements SmartValidator {
 
-
   @Override
   public boolean supports(Class<?> clazz) {
     return clazz.equals(MinMaxInput.class);
@@ -27,14 +26,15 @@ public class MinMaxInputValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... objects) {
     var minMaxInput = (MinMaxInput) o;
     var propertyName = (String) objects[0];
-    var validationRequiredHints = (List<Object>) objects [1];
+    var validationRulesToByPass = (List<ByPassDefaultValidationHint>) objects[1];
+    var validationRequiredHints = (List<Object>) objects [2];
 
     if (!minMaxInput.isMinNumeric() || !minMaxInput.isMaxNumeric()) {
       errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a valid minimum and maximum value for " + propertyName.toLowerCase());
-    } else {
-      validateMinSmallerOrEqualToMax(errors, minMaxInput, propertyName);
 
+    } else {
+      performDefaultValidation(validationRulesToByPass, errors, minMaxInput, propertyName);
       for (var validationRequired: validationRequiredHints) {
         if (validationRequired instanceof DecimalPlacesHint) {
           var decimalPlacesHint = (DecimalPlacesHint) validationRequired;
@@ -52,9 +52,16 @@ public class MinMaxInputValidator implements SmartValidator {
 
   }
 
+  private void performDefaultValidation(
+      List<ByPassDefaultValidationHint> validationRulesToByPass, Errors errors, MinMaxInput minMaxInput, String property) {
+    if (!validationRulesToByPass.contains(DefaultValidationRule.MIN_SMALLER_THAN_MAX)) {
+      validateMinSmallerOrEqualToMax(errors, minMaxInput, property);
+    }
+  }
+
 
   private void validateMinSmallerOrEqualToMax(Errors errors, MinMaxInput minMaxInput, String property) {
-    if (minMaxInput.minSmallerOrEqualRestriction() && !minMaxInput.minSmallerOrEqualToMax()) {
+    if (!minMaxInput.minSmallerOrEqualToMax()) {
       errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode(),
           "The minimum value must be smaller or equal to the maximum value for " + property.toLowerCase());
     }

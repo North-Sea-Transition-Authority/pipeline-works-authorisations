@@ -14,7 +14,7 @@
 
                 <#if propertyAvailabilityOption == "AVAILABLE">
                     <@minMaxInput minFormPath="form.propertyDataFormMap[${property}].minMaxInput.minValue" maxFormPath="form.propertyDataFormMap[${property}].minMaxInput.maxValue"
-                    nestedPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" labelText="" unitMeasurement=property.getUnitMeasurement() altMinLabel="" altMaxLabel=""/>
+                    nestedPath="form.propertyDataFormMap[${property}].propertyAvailabilityOption" unitMeasurement=property.getUnitMeasurement()/>
                 </#if>
                 
             </@fdsRadio.radioItem>
