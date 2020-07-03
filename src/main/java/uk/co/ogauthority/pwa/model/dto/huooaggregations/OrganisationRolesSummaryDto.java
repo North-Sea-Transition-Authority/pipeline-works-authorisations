@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
@@ -24,19 +24,19 @@ public class OrganisationRolesSummaryDto {
   private final Map<HuooRole, Set<OrganisationRolePipelineGroupDto>> orgRolesGroupsByHuooType;
   private final Set<OrganisationUnitId> allOrganisationUnitsWithRole;
 
-  private OrganisationRolesSummaryDto(Collection<OrganisationPipelineRoleDto> portalOrganisationPipelineRoleDtos) {
+  private OrganisationRolesSummaryDto(Collection<OrganisationPipelineRoleInstanceDto> portalOrganisationPipelineRoleInstanceDtos) {
     this.allOrganisationUnitsWithRole = new HashSet<>();
 
-    portalOrganisationPipelineRoleDtos.stream()
-        .filter(OrganisationPipelineRoleDto::hasValidOrganisationRole)
+    portalOrganisationPipelineRoleInstanceDtos.stream()
+        .filter(OrganisationPipelineRoleInstanceDto::hasValidOrganisationRole)
         .forEach(orgPipelineRole -> allOrganisationUnitsWithRole.add(orgPipelineRole.getOrganisationUnitId()));
 
-    Set<OrganisationRolePipelineGroupDto> allGroups = portalOrganisationPipelineRoleDtos
+    Set<OrganisationRolePipelineGroupDto> allGroups = portalOrganisationPipelineRoleInstanceDtos
         // group pipeline org role instances by the overall org role
         .stream()
         .collect(groupingBy(
-            OrganisationPipelineRoleDto::getOrganisationRoleDto,
-            Collectors.mapping(OrganisationPipelineRoleDto::getPipelineId, Collectors.toSet())
+            OrganisationPipelineRoleInstanceDto::getOrganisationRoleInstanceDto,
+            Collectors.mapping(OrganisationPipelineRoleInstanceDto::getPipelineId, Collectors.toSet())
         ))
         // loop over each grouped entry to create a group object
         .entrySet()
@@ -55,8 +55,8 @@ public class OrganisationRolesSummaryDto {
   }
 
   public static OrganisationRolesSummaryDto aggregateOrganisationPipelineRoles(
-      Collection<OrganisationPipelineRoleDto> organisationPipelineRoleDtos) {
-    return new OrganisationRolesSummaryDto(organisationPipelineRoleDtos);
+      Collection<OrganisationPipelineRoleInstanceDto> organisationPipelineRoleInstanceDtos) {
+    return new OrganisationRolesSummaryDto(organisationPipelineRoleInstanceDtos);
   }
 
   public Set<OrganisationRolePipelineGroupDto> getHolderOrganisationUnitGroups() {

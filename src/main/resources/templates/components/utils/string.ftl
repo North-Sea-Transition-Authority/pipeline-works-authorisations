@@ -5,3 +5,11 @@
         ${count} ${word}s
     </#if>
 </#macro>
+
+<#macro pluraliseWord count word>
+    <#if count == 1>
+        ${word}
+    <#else>
+        ${word}s
+    </#if>
+</#macro>

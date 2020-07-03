@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -15,38 +15,38 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
  */
 public class OrganisationRolePipelineGroupDto {
 
-  private final OrganisationRoleDto organisationRoleDto;
+  private final OrganisationRoleInstanceDto organisationRoleInstanceDto;
   private final Set<PipelineId> pipelineIds;
 
-  public OrganisationRolePipelineGroupDto(OrganisationRoleDto organisationRoleDto,
+  public OrganisationRolePipelineGroupDto(OrganisationRoleInstanceDto organisationRoleInstanceDto,
                                           Set<PipelineId> pipelineIds) {
-    this.organisationRoleDto = organisationRoleDto;
+    this.organisationRoleInstanceDto = organisationRoleInstanceDto;
     this.pipelineIds = pipelineIds;
   }
 
 
   public OrganisationUnitId getOrganisationUnitId() {
-    return this.organisationRoleDto != null ? this.organisationRoleDto.getOrganisationUnitId() : null;
+    return this.organisationRoleInstanceDto != null ? this.organisationRoleInstanceDto.getOrganisationUnitId() : null;
   }
 
-  public OrganisationRoleDto getOrganisationRoleDto() {
-    return this.organisationRoleDto;
+  public OrganisationRoleInstanceDto getOrganisationRoleInstanceDto() {
+    return this.organisationRoleInstanceDto;
   }
 
   public Optional<String> getManualOrganisationName() {
-    return this.organisationRoleDto.getManualOrganisationName();
+    return this.organisationRoleInstanceDto.getManualOrganisationName();
   }
 
   public boolean hasValidOrganisationRole() {
-    return this.organisationRoleDto.isPortalOrgRole();
+    return this.organisationRoleInstanceDto.isPortalOrgRole();
   }
 
   public HuooRole getHuooRole() {
-    return this.organisationRoleDto.getHuooRole();
+    return this.organisationRoleInstanceDto.getHuooRole();
   }
 
   public HuooType getHuooType() {
-    return this.organisationRoleDto.getHuooType();
+    return this.organisationRoleInstanceDto.getHuooType();
   }
 
   public Set<PipelineId> getPipelineIds() {
@@ -62,19 +62,19 @@ public class OrganisationRolePipelineGroupDto {
       return false;
     }
     OrganisationRolePipelineGroupDto that = (OrganisationRolePipelineGroupDto) o;
-    return Objects.equals(organisationRoleDto, that.organisationRoleDto)
+    return Objects.equals(organisationRoleInstanceDto, that.organisationRoleInstanceDto)
         && Objects.equals(pipelineIds, that.pipelineIds);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationRoleDto, pipelineIds);
+    return Objects.hash(organisationRoleInstanceDto, pipelineIds);
   }
 
   @Override
   public String toString() {
     return "OrganisationPipelineRoleGroupDto{" +
-        "organisationRoleDto=" + organisationRoleDto +
+        "organisationRoleInstanceDto=" + organisationRoleInstanceDto +
         ", pipelineIds=" + pipelineIds +
         '}';
   }

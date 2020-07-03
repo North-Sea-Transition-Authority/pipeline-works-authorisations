@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -93,19 +93,17 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find org role with ID: " + id));
   }
 
-  public  Set<OrganisationRoleDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
+  public  Set<OrganisationRoleInstanceDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
     return new HashSet<>(
         padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(pwaApplicationDetail)
     );
 
   }
 
-  public Set<OrganisationRoleDto> getOrganisationRoleDtosByRole(PwaApplicationDetail pwaApplicationDetail,
-                                                                 HuooRole huooRole,
-                                                                HuooType huooType) {
+  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                                HuooRole huooRole) {
     return getOrganisationRoleDtos(pwaApplicationDetail).stream()
         .filter(o -> huooRole.equals(o.getHuooRole()))
-        .filter(o -> huooType.equals(o.getHuooType()))
         .collect(Collectors.toSet());
 
   }
