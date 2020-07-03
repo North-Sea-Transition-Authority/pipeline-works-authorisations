@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationsDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -38,10 +39,11 @@ public class PadPipelineHuooViewFactoryTest {
   private static final int PIPELINE_2_ID = 200;
   private static final String PIPELINE_2_NUMBER = "PL2";
 
-  private OrganisationPipelineRoleDto holderOrg1Pipeline1RoleDto;
-  private OrganisationPipelineRoleDto userOrg2Pipeline2RoleDto;
-  private OrganisationPipelineRoleDto operatorOrg1Pipeline1RoleDto;
-  private OrganisationPipelineRoleDto ownerOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleInstanceDto holderOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleInstanceDto userOrg2Pipeline2RoleDto;
+  private OrganisationPipelineRoleInstanceDto operatorOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleInstanceDto ownerOrg1Pipeline1RoleDto;
+  private OrganisationPipelineRoleInstanceDto ownerBelgiumPipeline2RoleDto;
 
   private OrganisationUnitDetailDto ou1DetailDto = OrganisationsDtoTestUtil.createDetailDto(OU_ID1, "OU_1", "12345");
   private OrganisationUnitDetailDto ou2DetailDto = OrganisationsDtoTestUtil.createDetailDto(OU_ID2, "OU_2", null);
@@ -64,17 +66,21 @@ public class PadPipelineHuooViewFactoryTest {
   @Before
   public void setup() {
 
-    holderOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1, PIPELINE_1_ID);
-    userOrg2Pipeline2RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.USER, OU_ID2, PIPELINE_2_ID);
-    operatorOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OPERATOR, OU_ID1,
+    holderOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_1_ID);
+    userOrg2Pipeline2RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.USER, OU_ID2, PIPELINE_2_ID);
+    operatorOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OPERATOR, OU_ID1,
         PIPELINE_1_ID);
-    ownerOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
+    ownerOrg1Pipeline1RoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OWNER, OU_ID1, PIPELINE_1_ID);
+    ownerBelgiumPipeline2RoleDto = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+        HuooRole.OWNER, TreatyAgreement.BELGIUM, PIPELINE_2_ID
+    );
 
     var orgRoleDtos = Set.of(
-        holderOrg1Pipeline1RoleDto.getOrganisationRoleDto(),
-        userOrg2Pipeline2RoleDto.getOrganisationRoleDto(),
-        operatorOrg1Pipeline1RoleDto.getOrganisationRoleDto(),
-        ownerOrg1Pipeline1RoleDto.getOrganisationRoleDto()
+        holderOrg1Pipeline1RoleDto.getOrganisationRoleInstanceDto(),
+        userOrg2Pipeline2RoleDto.getOrganisationRoleInstanceDto(),
+        operatorOrg1Pipeline1RoleDto.getOrganisationRoleInstanceDto(),
+        ownerOrg1Pipeline1RoleDto.getOrganisationRoleInstanceDto(),
+        ownerBelgiumPipeline2RoleDto.getOrganisationRoleInstanceDto()
     );
     when(padOrganisationRoleService.getOrganisationRoleDtos(any()))
         .thenReturn(orgRoleDtos);
@@ -91,7 +97,7 @@ public class PadPipelineHuooViewFactoryTest {
 
     pipelineAndOrganisationRoleGroupSummaryDto = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1RoleDto, userOrg2Pipeline2RoleDto, operatorOrg1Pipeline1RoleDto,
-            ownerOrg1Pipeline1RoleDto));
+            ownerOrg1Pipeline1RoleDto, ownerBelgiumPipeline2RoleDto));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -117,6 +123,7 @@ public class PadPipelineHuooViewFactoryTest {
 
   @Test
   public void createPipelineAndOrgGroupViewsByRole_holderSummaryViewWhenTwoPipelinesButOneHolderRole() {
+
     var holderSummaryView = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(
         pwaApplicationDetail,
         pipelineAndOrganisationRoleGroupSummaryDto).getHolderRoleSummaryView();
@@ -125,18 +132,19 @@ public class PadPipelineHuooViewFactoryTest {
     assertThat(holderSummaryView.getUnassignedPipelineNumberMapForRole()).containsExactly(
         entry(new PipelineId(PIPELINE_2_ID), PIPELINE_2_NUMBER)
     );
-    assertThat(holderSummaryView.getUnassignedOrganisationNameMapForRole()).isEmpty();
+    assertThat(holderSummaryView.getUnassignedOrganisationRoleOwnerNameMapForRole()).isEmpty();
   }
 
   @Test
   public void createPipelineAndOrgGroupViewsByRole_holderSummaryViewWhenTwoHoldersButOneHolderHasRole() {
-    var holderOrg1Pipeline2Role = OrganisationRoleDtoTestUtil.createPipelineRole(HuooRole.HOLDER, OU_ID1,
+
+    var holderOrg1Pipeline2Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1,
         PIPELINE_2_ID);
 
-    var holderOrg2Role = OrganisationRoleDtoTestUtil.createOrgRole(HuooRole.HOLDER, OU_ID2);
+    var holderOrg2Role = OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(HuooRole.HOLDER, OU_ID2);
 
-    when(padOrganisationRoleService.getOrganisationRoleDtosByRole(any(), any(), any()))
-        .thenReturn(Set.of(holderOrg1Pipeline2Role.getOrganisationRoleDto(), holderOrg2Role));
+    when(padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(any(), any()))
+        .thenReturn(Set.of(holderOrg1Pipeline2Role.getOrganisationRoleInstanceDto(), holderOrg2Role));
 
     pipelineAndOrganisationRoleGroupSummaryDto = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1RoleDto, holderOrg1Pipeline2Role));
@@ -147,8 +155,31 @@ public class PadPipelineHuooViewFactoryTest {
 
     assertThat(holderSummaryView.getHuooRole()).isEqualTo(HuooRole.HOLDER);
     assertThat(holderSummaryView.getUnassignedPipelineNumberMapForRole()).isEmpty();
-    assertThat(holderSummaryView.getUnassignedOrganisationNameMapForRole()).containsExactly(
-        entry(new OrganisationUnitId(OU_ID2), ou2DetailDto.getCompanyName())
+    assertThat(holderSummaryView.getUnassignedOrganisationRoleOwnerNameMapForRole()).containsExactly(
+        entry(OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID2), ou2DetailDto.getCompanyName())
+    );
+  }
+
+  @Test
+  public void createPipelineAndOrgGroupViewsByRole_ownerSummaryViewWhenTwoOwners_andTreatyOwnerHasNoRole_andPipelineUnassigned() {
+
+
+    when(padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(any(), any()))
+        .thenReturn(Set.of(ownerBelgiumPipeline2RoleDto.getOrganisationRoleInstanceDto(), ownerOrg1Pipeline1RoleDto.getOrganisationRoleInstanceDto()));
+
+    pipelineAndOrganisationRoleGroupSummaryDto = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+        Set.of(ownerOrg1Pipeline1RoleDto));
+
+    var ownerSummaryView = padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(
+        pwaApplicationDetail,
+        pipelineAndOrganisationRoleGroupSummaryDto).getOwnerRoleSummaryView();
+
+    assertThat(ownerSummaryView.getHuooRole()).isEqualTo(HuooRole.OWNER);
+    assertThat(ownerSummaryView.getUnassignedPipelineNumberMapForRole()).containsExactly(
+        entry(new PipelineId(PIPELINE_2_ID), PIPELINE_2_NUMBER)
+    );
+    assertThat(ownerSummaryView.getUnassignedOrganisationRoleOwnerNameMapForRole()).containsExactly(
+        entry(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM), TreatyAgreement.BELGIUM.getAgreementText())
     );
   }
 
@@ -179,16 +210,23 @@ public class PadPipelineHuooViewFactoryTest {
           PIPELINE_1_NUMBER
       );
     });
-    assertThat(view.getOwnerGroups()).hasOnlyOneElementSatisfying(pipelinesAndOrgRoleGroupView -> {
-      assertPipelineAndOrgRoleGroupMatchesSingle(
-          pipelinesAndOrgRoleGroupView,
-          HuooRole.OWNER,
-          new OrganisationUnitId(OU_ID1),
-          new PipelineId(PIPELINE_1_ID),
-          String.format("%s (%s)", ou1DetailDto.getCompanyName(), ou1DetailDto.getRegisteredNumber()),
-          PIPELINE_1_NUMBER
-      );
-    });
+
+    // 2 owners, one treaty, one org unit
+    assertThat(view.getOwnerGroups()).hasSize(2);
+    assertThat(view.getOwnerGroups()).containsExactlyInAnyOrder(
+        new PipelinesAndOrgRoleGroupView(
+            Set.of(new PipelineId(PIPELINE_1_ID)),
+            Set.of(OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID1)),
+            List.of(PIPELINE_1_NUMBER),
+            List.of(String.format("%s (%s)", ou1DetailDto.getCompanyName(), ou1DetailDto.getRegisteredNumber()))
+        ),
+        new PipelinesAndOrgRoleGroupView(
+            Set.of(new PipelineId(PIPELINE_2_ID)),
+            Set.of(OrganisationRoleDtoTestUtil.createTreatyRoleOwnerDto(TreatyAgreement.BELGIUM)),
+            List.of(PIPELINE_2_NUMBER),
+            List.of(TreatyAgreement.BELGIUM.getAgreementText())
+        )
+    );
 
     // User has distinct role
     assertThat(view.getUserGroups()).hasOnlyOneElementSatisfying(pipelinesAndOrgRoleGroupView -> {
@@ -211,7 +249,9 @@ public class PadPipelineHuooViewFactoryTest {
                                                           String pipelineNumber) {
     assertThat(testPipelinesAndOrgRoleGroupView.getOrganisationNames()).containsExactly(orgName);
     assertThat(testPipelinesAndOrgRoleGroupView.getPipelineNumbers()).containsExactly(pipelineNumber);
-    assertThat(testPipelinesAndOrgRoleGroupView.getOrganisationUnitIdSet()).containsExactly(organisationUnitId);
+    assertThat(testPipelinesAndOrgRoleGroupView.getOrganisationRoleOwnerSet()).containsExactly(
+        OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(organisationUnitId)
+    );
     assertThat(testPipelinesAndOrgRoleGroupView.getPipelineIdSet()).containsExactly(pipelineId);
   }
 }

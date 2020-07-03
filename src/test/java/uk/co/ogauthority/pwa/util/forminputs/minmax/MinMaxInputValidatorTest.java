@@ -29,6 +29,7 @@ public class MinMaxInputValidatorTest {
         validator, new MinMaxInput(), "My Property", List.of(), List.of());
 
     assertThat(errorsMap).contains(
+        Map.entry("minValue", Set.of("minValue" + FieldValidationErrorCodes.REQUIRED.getCode())),
         Map.entry("maxValue", Set.of("maxValue" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
@@ -40,7 +41,7 @@ public class MinMaxInputValidatorTest {
         validator, new MinMaxInput(String.valueOf(5), String.valueOf(4)), "My Property", List.of(), validationRequiredHints);
 
     assertThat(errorsMap).contains(
-        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode()))
+        Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode()))
     );
   }
 
@@ -60,9 +61,9 @@ public class MinMaxInputValidatorTest {
   public void validate_positiveNumber() {
     var validationRequiredHints = List.of(new PositiveNumberHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(String.valueOf(-2), String.valueOf(5)), "My Property", List.of(), validationRequiredHints);
-
+        validator, new MinMaxInput(String.valueOf(-2), String.valueOf(-1)), "My Property", List.of(), validationRequiredHints);
     assertThat(errorsMap).contains(
+        Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
         Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
@@ -71,9 +72,9 @@ public class MinMaxInputValidatorTest {
   public void validate_integer() {
     var validationRequiredHints = List.of(new IntegerHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(String.valueOf(3), String.valueOf(5.6)), "My Property", List.of(), validationRequiredHints);
-
+        validator, new MinMaxInput(String.valueOf(3.6), String.valueOf(5.6)), "My Property", List.of(), validationRequiredHints);
     assertThat(errorsMap).contains(
+        Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode())),
         Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode()))
     );
   }
@@ -82,10 +83,11 @@ public class MinMaxInputValidatorTest {
   public void validate_decimalPlaces_2dp() {
     var validationRequiredHints = List.of(new DecimalPlacesHint(2));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(String.valueOf(3), String.valueOf(5.644)), "My Property", List.of(), validationRequiredHints);
-
+        validator, new MinMaxInput(String.valueOf(3.444), String.valueOf(5.644)), "My Property", List.of(), validationRequiredHints);
     assertThat(errorsMap).contains(
+        Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode())),
         Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode()))
+
     );
   }
 
@@ -93,11 +95,11 @@ public class MinMaxInputValidatorTest {
   public void validate_positiveAndDecimalPlaces_2dp() {
     var validationRequiredHints = List.of(new PositiveNumberHint(), new DecimalPlacesHint(2));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, new MinMaxInput(String.valueOf(-3), String.valueOf(5.644)), "My Property", List.of(), validationRequiredHints);
-
+        validator, new MinMaxInput(String.valueOf(-3.122), String.valueOf(5.644)), "My Property", List.of(), validationRequiredHints);
     assertThat(errorsMap).contains(
-        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-            "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
+        Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode())),
+        Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+            "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
