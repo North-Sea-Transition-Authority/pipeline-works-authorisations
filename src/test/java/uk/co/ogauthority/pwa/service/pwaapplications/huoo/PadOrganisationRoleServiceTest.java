@@ -559,9 +559,8 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void getOrgRolesForDetailByOrganisationIdAndRole_whenNoOrgRoleFound() {
 
-    assertThat(padOrganisationRoleService.getOrgRolesForDetailByOrganisationIdAndRole(
+    assertThat(padOrganisationRoleService.getOrgRolesForDetailByRole(
         detail,
-        Set.of(OrganisationUnitId.from(orgUnit1)),
         HuooRole.HOLDER
     )).isEmpty();
 
@@ -578,9 +577,8 @@ public class PadOrganisationRoleServiceTest {
         List.of(org1HolderRole, org1OwnerRole, org2HolderRole)
     );
 
-    assertThat(padOrganisationRoleService.getOrgRolesForDetailByOrganisationIdAndRole(
+    assertThat(padOrganisationRoleService.getOrgRolesForDetailByRole(
         detail,
-        Set.of(OrganisationUnitId.from(orgUnit1)),
         HuooRole.HOLDER
     )).containsExactly(org1HolderRole);
 

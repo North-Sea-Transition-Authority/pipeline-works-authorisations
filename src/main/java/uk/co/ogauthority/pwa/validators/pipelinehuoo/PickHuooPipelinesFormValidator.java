@@ -4,6 +4,7 @@ package uk.co.ogauthority.pwa.validators.pipelinehuoo;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -13,7 +14,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.Pick
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOption;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
@@ -65,22 +68,75 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
         .findFirst()
         .orElseThrow(() -> new ActionNotAllowedException("Expected application detail hint to be provided"));
 
+    var orgValidationHint = getOrganisationValidationHint(pwaApplicationDetail, huooRole);
+
     if (validationType.equals(PickHuooPipelineValidationType.ORGANISATIONS)) {
-      validateOrgs(form, errors);
+
+      validateOrgsBasic(form, orgValidationHint, errors);
     } else if (validationType.equals(PickHuooPipelineValidationType.PIPELINES)) {
-      validatePipelines(form, errors);
+      validatePipelinesBasic(form, errors);
     } else {
-      validateFull(pwaApplicationDetail, form, huooRole, errors);
+      validateFull(pwaApplicationDetail, form, huooRole, orgValidationHint, errors);
     }
 
   }
 
-  private void validateOrgs(PickHuooPipelinesForm form, Errors errors) {
-    ValidationUtils.rejectIfEmpty(errors, "organisationUnitIds", "organisationUnitIds.required",
-        "You must select at least one organisation");
+  private OrganisationValidationHint getOrganisationValidationHint(PwaApplicationDetail pwaApplicationDetail,
+                                                                   HuooRole huooRole) {
+    var hasOrgUnitRoleOwners = padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(
+        pwaApplicationDetail, huooRole
+    );
+    var hasTreatyRoleOwners = padOrganisationRoleService.hasTreatyRoleOwnersInRole(
+        pwaApplicationDetail, huooRole
+    );
+
+    if (hasOrgUnitRoleOwners && hasTreatyRoleOwners) {
+      return OrganisationValidationHint.BOTH;
+    } else if (hasOrgUnitRoleOwners) {
+      return OrganisationValidationHint.ONLY_ORG_UNITS;
+    } else if (hasTreatyRoleOwners) {
+      return OrganisationValidationHint.ONLY_TREATIES;
+    }
+
+    // default to both if no roles found.
+    return OrganisationValidationHint.BOTH;
+
+
   }
 
-  private void validatePipelines(PickHuooPipelinesForm form, Errors errors) {
+  private void validateOrgsBasic(PickHuooPipelinesForm form,
+                                 OrganisationValidationHint organisationValidationHint,
+                                 Errors errors) {
+
+    if (organisationValidationHint.equals(OrganisationValidationHint.ONLY_ORG_UNITS)) {
+      ValidationUtils.rejectIfEmpty(errors, "organisationUnitIds", "organisationUnitIds.required",
+          "You must select at least one organisation");
+      return;
+    }
+
+    if (organisationValidationHint.equals(OrganisationValidationHint.ONLY_TREATIES)) {
+      ValidationUtils.rejectIfEmpty(errors, "treatyAgreements", "treatyAgreements.required",
+          "You must select at least one treaty");
+      return;
+    }
+
+    if (SetUtils.emptyIfNull(form.getOrganisationUnitIds()).isEmpty() && SetUtils.emptyIfNull(
+        form.getTreatyAgreements()).isEmpty()) {
+
+      errors.rejectValue(
+          "treatyAgreements",
+          "treatyAgreements.required",
+          "You must select at least one treaty if no organisation selected");
+
+      errors.rejectValue(
+          "organisationUnitIds",
+          "organisationUnitIds.required",
+          "You must select at least one organisation if no treaty selected");
+    }
+
+  }
+
+  private void validatePipelinesBasic(PickHuooPipelinesForm form, Errors errors) {
     ValidationUtils.rejectIfEmpty(errors, "pickedPipelineStrings", "pickedPipelineStrings.required",
         "You must select at least one pipeline");
   }
@@ -88,23 +144,47 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
   private void validateFull(PwaApplicationDetail pwaApplicationDetail,
                             PickHuooPipelinesForm form,
                             HuooRole huooRole,
+                            OrganisationValidationHint organisationValidationHint,
                             Errors errors) {
 
-    validateOrgs(form, errors);
-    validatePipelines(form, errors);
+    validateOrgsBasic(form, organisationValidationHint, errors);
+    validatePipelinesBasic(form, errors);
 
     // do sanity checking of pipeline data and organisation role
     if (!errors.hasErrors()) {
-      var validOrgUnitIdsForRole = padOrganisationRoleService.getOrgRolesForDetail(pwaApplicationDetail).stream()
-          .filter(padOrganisationRole -> huooRole.equals(padOrganisationRole.getRole()))
+      var allPadOrgRoles = padOrganisationRoleService.getOrgRolesForDetailByRole(pwaApplicationDetail, huooRole);
+      var validOrgUnitIdsForRole = allPadOrgRoles.stream()
           // attempt to obey demeter, probably without merit.
+          .filter(o -> o.getType().equals(HuooType.PORTAL_ORG))
           .map(o -> OrganisationUnitId.from(o.getOrganisationUnit()))
           .map(OrganisationUnitId::asInt)
           .collect(toSet());
 
-      if (form.getOrganisationUnitIds().stream().anyMatch(ouId -> !validOrgUnitIdsForRole.contains(ouId))) {
+      // ignore SelectableTreatyRolesValidationHint to use a consistent method for validity checking when doing full validation.
+      var validTreaties = allPadOrgRoles.stream()
+          // attempt to obey demeter, probably without merit.
+          .filter(o -> o.getType().equals(HuooType.TREATY_AGREEMENT))
+          .map(PadOrganisationRole::getAgreement)
+          .collect(toSet());
+
+      // add treaty invalid error if
+      if (
+          // if valid treaties has possible values, but some selected treaty does not exist within that set
+          (!validTreaties.isEmpty()
+              && form.getTreatyAgreements().stream().anyMatch(treaty -> !validTreaties.contains(treaty))
+          )
+              // or no valid treaties, but some treaty selected
+              || (validTreaties.isEmpty() && !form.getTreatyAgreements().isEmpty())
+      ) {
+        errors.rejectValue("treatyAgreements", "treatyAgreements.invalid", "Select a valid treaty");
+      }
+
+
+      if (!validOrgUnitIdsForRole.isEmpty()
+          && form.getOrganisationUnitIds().stream().anyMatch(ouId -> !validOrgUnitIdsForRole.contains(ouId))) {
         errors.rejectValue("organisationUnitIds", "organisationUnitIds.invalid", "Select valid organisation units");
       }
+
 
       var validPickablePipelineIds = pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail)
           .stream()
@@ -118,4 +198,9 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
     }
 
   }
+
+  private enum OrganisationValidationHint {
+    ONLY_TREATIES, ONLY_ORG_UNITS, BOTH
+  }
+
 }
