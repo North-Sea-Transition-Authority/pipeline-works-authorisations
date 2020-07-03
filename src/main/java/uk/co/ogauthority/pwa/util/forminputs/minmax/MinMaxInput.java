@@ -15,10 +15,8 @@ public class MinMaxInput {
   private static final Logger LOGGER = LoggerFactory.getLogger(
       MinMaxInput.class);
 
-
   private String minValue;
   private String maxValue;
-  private boolean minSmallerOrEqualRestriction = true;
 
   public MinMaxInput() { // default constructor required by hibernate
   }
@@ -28,11 +26,6 @@ public class MinMaxInput {
     this.maxValue = maxValue;
   }
 
-  public MinMaxInput(String minValue, String maxValue, boolean minSmallerOrEqualRestriction) {
-    this.minValue = minValue;
-    this.maxValue = maxValue;
-    this.minSmallerOrEqualRestriction = minSmallerOrEqualRestriction;
-  }
 
   //Utils
   public boolean isMinNumeric() {
@@ -97,14 +90,6 @@ public class MinMaxInput {
     this.maxValue = maxValue;
   }
 
-  public boolean minSmallerOrEqualRestriction() {
-    return minSmallerOrEqualRestriction;
-  }
-
-  public void setMinSmallerOrEqualRestriction(boolean minSmallerOrEqualRestriction) {
-    this.minSmallerOrEqualRestriction = minSmallerOrEqualRestriction;
-  }
-
 
   public BigDecimal createMinOrNull() {
     return this.createBigDecimal(minValue)
@@ -139,13 +124,12 @@ public class MinMaxInput {
     }
     MinMaxInput that = (MinMaxInput) o;
     return Objects.equals(minValue, that.minValue)
-        && Objects.equals(maxValue, that.maxValue)
-        && minSmallerOrEqualRestriction == that.minSmallerOrEqualRestriction;
+        && Objects.equals(maxValue, that.maxValue);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(minValue, maxValue, minSmallerOrEqualRestriction);
+    return Objects.hash(minValue, maxValue);
   }
 
 

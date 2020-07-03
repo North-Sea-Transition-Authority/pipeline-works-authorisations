@@ -13,10 +13,10 @@
     <@fdsForm.htmlForm>
         
         <@minMaxInput minFormPath="form.temperatureOpMinMax.minValue" maxFormPath="form.temperatureOpMinMax.maxValue"
-                    nestedPath="" labelText="" unitMeasurement="" altMinLabel="" altMaxLabel=""/>
+                    nestedPath="" unitMeasurement=""/>
 
-        <@minMaxInput minFormPath="form.pressureOpInternalValue.minValue" maxFormPath="form.pressureOpInternalValue.maxValue"
-                    nestedPath="" labelText="" unitMeasurement="" altMinLabel="Internal" altMaxLabel="External"/>
+        <@minMaxInput minFormPath="form.pressureOpInternalExternal.minValue" maxFormPath="form.pressureOpInternalExternal.maxValue"
+                    nestedPath="" unitMeasurement="" altMinLabel="internal" altMaxLabel="external"/>
                 
 
 

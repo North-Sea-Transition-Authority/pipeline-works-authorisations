@@ -7,7 +7,7 @@ public class DesignOpConditionsForm {
 
   private MinMaxInput temperatureOpMinMax;
 
-  private MinMaxInput pressureOpInternalValue;
+  private MinMaxInput pressureOpInternalExternal;
 
 
 
@@ -20,11 +20,11 @@ public class DesignOpConditionsForm {
     this.temperatureOpMinMax = temperatureOpMinMax;
   }
 
-  public MinMaxInput getPressureOpInternalValue() {
-    return pressureOpInternalValue;
+  public MinMaxInput getPressureOpInternalExternal() {
+    return pressureOpInternalExternal;
   }
 
-  public void setPressureOpInternalValue(MinMaxInput pressureOpInternalValue) {
-    this.pressureOpInternalValue = pressureOpInternalValue;
+  public void setPressureOpInternalExternal(MinMaxInput pressureOpInternalExternal) {
+    this.pressureOpInternalExternal = pressureOpInternalExternal;
   }
 }
