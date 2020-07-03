@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
@@ -17,7 +17,7 @@ public class PipelineHuooRoleSummaryView {
 
   private final Map<PipelineId, String> unassignedPipelineNumberMapForRole;
 
-  private final Map<OrganisationUnitId, String> unassignedOrganisationNameMapForRole;
+  private final Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole;
 
   private final List<String> sortedUnassignedOrganisationNames;
   private final List<String> sortedUnassignedPipelineNumbers;
@@ -25,13 +25,13 @@ public class PipelineHuooRoleSummaryView {
   public PipelineHuooRoleSummaryView(HuooRole huooRole,
                                      List<PipelinesAndOrgRoleGroupView> pipelinesAndOrgRoleGroupViews,
                                      Map<PipelineId, String> unassignedPipelineNumberMapForRole,
-                                     Map<OrganisationUnitId, String> unassignedOrganisationNameMapForRole) {
+                                     Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole) {
     this.huooRole = huooRole;
     this.pipelinesAndOrgRoleGroupViews = pipelinesAndOrgRoleGroupViews;
     this.unassignedPipelineNumberMapForRole = unassignedPipelineNumberMapForRole;
-    this.unassignedOrganisationNameMapForRole = unassignedOrganisationNameMapForRole;
+    this.unassignedOrganisationRoleOwnerNameMapForRole = unassignedOrganisationRoleOwnerNameMapForRole;
 
-    sortedUnassignedOrganisationNames = this.unassignedOrganisationNameMapForRole.values()
+    sortedUnassignedOrganisationNames = this.unassignedOrganisationRoleOwnerNameMapForRole.values()
         .stream()
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
@@ -58,8 +58,8 @@ public class PipelineHuooRoleSummaryView {
     return Collections.unmodifiableMap(unassignedPipelineNumberMapForRole);
   }
 
-  Map<OrganisationUnitId, String> getUnassignedOrganisationNameMapForRole() {
-    return Collections.unmodifiableMap(unassignedOrganisationNameMapForRole);
+  Map<OrganisationRoleOwnerDto, String> getUnassignedOrganisationRoleOwnerNameMapForRole() {
+    return Collections.unmodifiableMap(unassignedOrganisationRoleOwnerNameMapForRole);
   }
 
   public List<String> getSortedUnassignedOrganisationNames() {
