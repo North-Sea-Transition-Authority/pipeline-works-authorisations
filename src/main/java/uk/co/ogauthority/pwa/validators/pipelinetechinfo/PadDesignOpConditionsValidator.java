@@ -42,29 +42,29 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
   public void validate(Object target, Errors errors) {
     var form = (DesignOpConditionsForm) target;
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "temperatureOpMinMax", form.getTemperatureOpMinMax(), "temperature operating conditions", List.of(new IntegerHint()));
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureOpMinMax",
+        form.getTemperatureOpMinMax(), "temperature operating conditions", List.of(new IntegerHint()));
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "temperatureDesignMinMax", form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(new IntegerHint()));
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureDesignMinMax",
+        form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(new IntegerHint()));
 
     form.getPressureOpMinMax().setMinSmallerOrEqualRestriction(false);
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "pressureOpMinMax", form.getPressureOpMinMax(), "pressure operating conditions", List.of(new PositiveNumberHint(), new IntegerHint()));
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpMinMax",
+        form.getPressureOpMinMax(), "pressure operating conditions", List.of(new PositiveNumberHint(), new IntegerHint()));
 
     form.getPressureDesignMinMax().setMinSmallerOrEqualRestriction(false);
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "pressureDesignMinMax", form.getPressureDesignMinMax(), "pressure design conditions", List.of(new PositiveNumberHint(), new IntegerHint()));
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureDesignMinMax",
+        form.getPressureDesignMinMax(), "pressure design conditions", List.of(new PositiveNumberHint(), new IntegerHint()));
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "flowrateOpMinMax", form.getFlowrateOpMinMax(), "flowrate operating conditions", List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
+        form.getFlowrateOpMinMax(), "flowrate operating conditions", List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "flowrateDesignMinMax", form.getFlowrateDesignMinMax(), "flowrate design conditions", List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
+        form.getFlowrateDesignMinMax(), "flowrate design conditions", List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
 
 
     var uvalueOp = form.getUvalueOp() != null ? new BigDecimal(form.getUvalueOp()) : null;//null if empty or non-numeric
-    if(form.getUvalueOp() == null) {
+    if (form.getUvalueOp() == null) {
       errors.rejectValue("uvalueOp", "uvalueOp" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a valid value for U-value operating conditions");
     } else {
@@ -73,7 +73,7 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
     }
 
     var uvalueDesign = form.getUvalueDesign() != null ? new BigDecimal(form.getUvalueDesign()) : null;//null if empty or non-numeric
-    if(uvalueDesign == null) {
+    if (uvalueDesign == null) {
       errors.rejectValue("uvalueDesign", "uvalueDesign" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a valid value for U-value design conditions");
     } else {
@@ -91,7 +91,7 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
   }
 
   private void validateDecimalPlaces(Errors errors, BigDecimal value, String formProperty, String inputRef, int maxDecimalPlaces) {
-    if(Math.max(0, value.stripTrailingZeros().scale()) > maxDecimalPlaces) {
+    if (Math.max(0, value.stripTrailingZeros().scale()) > maxDecimalPlaces) {
       errors.rejectValue(formProperty, formProperty + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
           "The value should not have more than " + maxDecimalPlaces + "dp for " +  inputRef);
     }
