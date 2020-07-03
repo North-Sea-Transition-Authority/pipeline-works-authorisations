@@ -39,7 +39,6 @@ public class MinMaxInputValidator implements SmartValidator {
     }
 
     if (minMaxInput.isMinNumeric() && minMaxInput.isMaxNumeric()) {
-      validateMinSmallerOrEqualToMax(errors, minMaxInput, propertyName);
       performDefaultValidation(validationRulesToByPass, errors, minMaxInput, propertyName);
       for (var validationRequired: validationRequiredHints) {
         if (validationRequired instanceof DecimalPlacesHint) {
