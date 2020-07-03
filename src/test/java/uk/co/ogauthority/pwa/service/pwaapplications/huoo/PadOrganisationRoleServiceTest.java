@@ -571,7 +571,7 @@ public class PadOrganisationRoleServiceTest {
 
     var org1HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1);
     var org1OwnerRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1);
-    var org2HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit2);
+    var org2HolderRole = PadOrganisationRole.fromTreatyAgreement(detail, TreatyAgreement.BELGIUM, HuooRole.HOLDER);
 
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(
         List.of(org1HolderRole, org1OwnerRole, org2HolderRole)
@@ -580,7 +580,7 @@ public class PadOrganisationRoleServiceTest {
     assertThat(padOrganisationRoleService.getOrgRolesForDetailByRole(
         detail,
         HuooRole.HOLDER
-    )).containsExactly(org1HolderRole);
+    )).containsExactly(org1HolderRole, org2HolderRole);
 
   }
 
