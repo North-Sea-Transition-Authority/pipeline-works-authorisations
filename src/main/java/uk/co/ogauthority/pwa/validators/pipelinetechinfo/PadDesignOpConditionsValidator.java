@@ -36,6 +36,7 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
 
   @Override
   public void validate(Object o, Errors errors, Object... validationHints) {
+    validate(o, errors);
   }
 
 

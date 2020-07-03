@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
@@ -53,14 +54,20 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   // Validation / Checking
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return true;
+    var designOpConditionsEntity = getDesignOpConditionsEntity(detail);
+    var designOpConditionsForm = new DesignOpConditionsForm();
+    mapEntityToForm(designOpConditionsForm, designOpConditionsEntity);
+    BindingResult bindingResult = new BeanPropertyBindingResult(designOpConditionsForm, "form");
+    validate(designOpConditionsForm, bindingResult, ValidationType.FULL, detail);
+
+    return !bindingResult.hasErrors();
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
     if (validationType.equals(ValidationType.FULL)) {
-      validator.validate(form, bindingResult, pwaApplicationDetail);
+      validator.validate(form, bindingResult);
     }
     return bindingResult;
   }
