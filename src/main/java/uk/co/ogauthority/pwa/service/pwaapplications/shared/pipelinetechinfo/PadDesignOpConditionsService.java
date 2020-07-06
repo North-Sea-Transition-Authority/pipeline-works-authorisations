@@ -4,12 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PadDesignOpConditionsValidator;
 
 /* Service providing simplified API for Technical Information Fluid Composition app form */
@@ -19,16 +21,19 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   private final PadDesignOpConditionsMappingService padDesignOpConditionsMappingService;
   private final PadDesignOpConditionsRepository padDesignOpConditionsRepository;
   private final PadDesignOpConditionsValidator validator;
+  private final SpringValidatorAdapter groupValidator;
 
 
   @Autowired
   public PadDesignOpConditionsService(
       PadDesignOpConditionsMappingService padDesignOpConditionsMappingService,
       PadDesignOpConditionsRepository padDesignOpConditionsRepository,
-      PadDesignOpConditionsValidator validator) {
+      PadDesignOpConditionsValidator validator,
+      SpringValidatorAdapter groupValidator) {
     this.padDesignOpConditionsMappingService = padDesignOpConditionsMappingService;
     this.padDesignOpConditionsRepository = padDesignOpConditionsRepository;
     this.validator = validator;
+    this.groupValidator = groupValidator;
   }
 
 
@@ -66,7 +71,9 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.FULL)) {
+    if (validationType.equals(ValidationType.PARTIAL)) {
+      groupValidator.validate(form, bindingResult, PartialValidation.class);
+    } else {
       validator.validate(form, bindingResult);
     }
     return bindingResult;

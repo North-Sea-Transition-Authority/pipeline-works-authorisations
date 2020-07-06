@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
@@ -38,6 +39,7 @@ public class PadDesignOpConditionsServiceTest {
   @Mock
   private PadDesignOpConditionsRepository padDesignOpConditionsRepository;
 
+  private SpringValidatorAdapter groupValidator;
 
   private PadDesignOpConditionsValidator validator;
 
@@ -51,7 +53,7 @@ public class PadDesignOpConditionsServiceTest {
     validator = new PadDesignOpConditionsValidator(new MinMaxInputValidator());
     padDesignOpConditionsMappingService = new PadDesignOpConditionsMappingService();
     padDesignOpConditionsService = new PadDesignOpConditionsService(
-        padDesignOpConditionsMappingService, padDesignOpConditionsRepository, validator);
+        padDesignOpConditionsMappingService, padDesignOpConditionsRepository, validator, groupValidator);
     pwaApplicationDetail = new PwaApplicationDetail();
     entityAndFormBuilder = new EntityAndFormBuilder();
   }

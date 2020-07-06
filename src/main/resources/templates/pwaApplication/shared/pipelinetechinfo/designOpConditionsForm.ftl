@@ -2,7 +2,6 @@
 <#include 'minMaxInput.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
-<#-- @ftlvariable name="backUrl" type=" java.lang.String"-->
 
 <@defaultPage htmlTitle="Design and operating conditions" pageHeading="Design and operating conditions" breadcrumbs=true>
 
@@ -30,8 +29,12 @@
         <@minMaxInput minFormPath="form.flowrateDesignMinMax.minValue" maxFormPath="form.flowrateDesignMinMax.maxValue"
             labelText="What are the flowrate design conditions?" nestedPath="" unitMeasurement="kscm/d" />
 
-        <@fdsTextInput.textInput path="form.uvalueOp" labelText="What are the U-value operating conditions?" suffix="W/m2K" inputClass="govuk-input--width-5"/>
-        <@fdsTextInput.textInput path="form.uvalueDesign" labelText="What are the U-value design conditions?" suffix="W/m2K" inputClass="govuk-input--width-5"/>
+        <@fdsFieldset.fieldset legendHeading="What are the U-value operating conditions?" legendHeadingSize="h5" legendHeadingClass="govuk-fieldset__legend--m">
+            <@fdsTextInput.textInput path="form.uvalueOp" labelText="" suffix="W/m2K" inputClass="govuk-input--width-5"/>
+        </@fdsFieldset.fieldset>        
+        <@fdsFieldset.fieldset legendHeading="What are the U-value design conditions?" legendHeadingSize="h5" legendHeadingClass="govuk-fieldset__legend--m">
+            <@fdsTextInput.textInput path="form.uvalueDesign" labelText="" suffix="W/m2K" inputClass="govuk-input--width-5"/>
+        </@fdsFieldset.fieldset>  
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
     </@fdsForm.htmlForm>

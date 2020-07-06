@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.validators.pipelinetechinfo;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -19,6 +22,9 @@ import uk.co.ogauthority.pwa.util.forminputs.minmax.PositiveNumberHint;
 
 @Service
 public class PadDesignOpConditionsValidator implements SmartValidator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(
+      PadDesignOpConditionsValidator.class);
 
   private final MinMaxInputValidator minMaxInputValidator;
 
@@ -60,31 +66,41 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
         form.getFlowrateOpMinMax(), "flowrate operating conditions",
-        List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(1)));
+        List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
         form.getFlowrateDesignMinMax(), "flowrate design conditions",
-        List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(1)));
+        List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
 
 
-    var uvalueOp = form.getUvalueOp() != null ? new BigDecimal(form.getUvalueOp()) : null;//null if empty or non-numeric
-    if (form.getUvalueOp() == null) {
+    var uvalueOp = createBigDecimal(form.getUvalueOp());
+    if (uvalueOp.isEmpty()) {
       errors.rejectValue("uvalueOp", "uvalueOp" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a valid value for U-value operating conditions");
     } else {
-      validatePositiveNumber(errors, uvalueOp, "uvalueOp", "U-value operating conditions");
-      validateDecimalPlaces(errors, uvalueOp, "uvalueOp", "U-value operating conditions", 1);
+      validatePositiveNumber(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions");
+      validateDecimalPlaces(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions", 1);
     }
 
-    var uvalueDesign = form.getUvalueDesign() != null ? new BigDecimal(form.getUvalueDesign()) : null;//null if empty or non-numeric
-    if (uvalueDesign == null) {
+    var uvalueDesign = createBigDecimal(form.getUvalueDesign());
+    if (uvalueDesign.isEmpty()) {
       errors.rejectValue("uvalueDesign", "uvalueDesign" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a valid value for U-value design conditions");
     } else {
-      validatePositiveNumber(errors, uvalueDesign, "uvalueDesign", "U-value design conditions");
-      validateDecimalPlaces(errors, uvalueDesign, "uvalueDesign", "U-value design conditions", 1);
+      validatePositiveNumber(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions");
+      validateDecimalPlaces(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions", 1);
     }
 
+  }
+
+  public Optional<BigDecimal> createBigDecimal(String valueStr) {
+    try {
+      var createdNum = valueStr != null ? new BigDecimal(valueStr) : null;
+      return Optional.ofNullable(createdNum);
+    } catch (NumberFormatException e) {
+      LOGGER.debug("Could not convert u-value to a valid number. " + this.toString(), e);
+      return Optional.empty();
+    }
   }
 
   private void validatePositiveNumber(Errors errors, BigDecimal value, String formProperty, String inputRef) {
