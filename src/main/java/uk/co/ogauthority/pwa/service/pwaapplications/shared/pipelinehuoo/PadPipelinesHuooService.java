@@ -101,7 +101,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         huooRole
     )
         .stream()
-        // only return roles where the role is on of the chosen treaties or organisation units.
+        // only return roles where the role is one of the chosen treaties or organisation units.
         .filter(padOrganisationRole -> {
           if (padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT)) {
             return treatyAgreements.contains(padOrganisationRole.getAgreement());

@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
-import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PickHuooPipelinesForm;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -108,14 +107,20 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
                                  OrganisationValidationHint organisationValidationHint,
                                  Errors errors) {
 
-    if (organisationValidationHint.equals(OrganisationValidationHint.ONLY_ORG_UNITS)) {
-      ValidationUtils.rejectIfEmpty(errors, "organisationUnitIds", "organisationUnitIds.required",
+    if (organisationValidationHint.equals(OrganisationValidationHint.ONLY_ORG_UNITS)
+        && SetUtils.emptyIfNull(form.getOrganisationUnitIds()).isEmpty()) {
+      errors.rejectValue(
+          "organisationUnitIds",
+          "organisationUnitIds.required",
           "You must select at least one organisation");
       return;
     }
 
-    if (organisationValidationHint.equals(OrganisationValidationHint.ONLY_TREATIES)) {
-      ValidationUtils.rejectIfEmpty(errors, "treatyAgreements", "treatyAgreements.required",
+    if (organisationValidationHint.equals(OrganisationValidationHint.ONLY_TREATIES)
+        && SetUtils.emptyIfNull(form.getTreatyAgreements()).isEmpty()) {
+      errors.rejectValue(
+          "treatyAgreements",
+          "treatyAgreements.required",
           "You must select at least one treaty");
       return;
     }
@@ -133,12 +138,14 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
           "organisationUnitIds.required",
           "You must select at least one organisation if no treaty selected");
     }
-
   }
 
   private void validatePipelinesBasic(PickHuooPipelinesForm form, Errors errors) {
-    ValidationUtils.rejectIfEmpty(errors, "pickedPipelineStrings", "pickedPipelineStrings.required",
-        "You must select at least one pipeline");
+    if (SetUtils.emptyIfNull(form.getPickedPipelineStrings()).isEmpty()) {
+      errors.rejectValue("pickedPipelineStrings", "pickedPipelineStrings.required",
+          "You must select at least one pipeline");
+
+    }
   }
 
   private void validateFull(PwaApplicationDetail pwaApplicationDetail,
@@ -171,6 +178,7 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
       if (
           // if valid treaties has possible values, but some selected treaty does not exist within that set
           (!validTreaties.isEmpty()
+              // need to use anyMatch here so we error if any of the picked treaties is not valid.
               && form.getTreatyAgreements().stream().anyMatch(treaty -> !validTreaties.contains(treaty))
           )
               // or no valid treaties, but some treaty selected
