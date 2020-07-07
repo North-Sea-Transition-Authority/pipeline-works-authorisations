@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -97,7 +98,7 @@ public class PadPipelineIdentService {
   }
 
   @Transactional
-  public void addIdentAtPosition(PadPipeline pipeline, PipelineIdentForm form, Integer position) {
+  public void addIdentAtPosition(PadPipeline pipeline, PipelineIdentForm form, Integer position, PipelineCoreType coreType) {
 
     var ident = new PadPipelineIdent(pipeline, position);
 
@@ -137,7 +138,7 @@ public class PadPipelineIdentService {
             () -> identDataService.addIdentData(ident, form.getDataForm()));
   }
 
-  public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form) {
+  public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form, PipelineCoreType coreType) {
     var fromForm = new CoordinateForm();
     var toForm = new CoordinateForm();
     CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), fromForm);
@@ -148,7 +149,7 @@ public class PadPipelineIdentService {
     form.setFromLocation(ident.getFromLocation());
     form.setLength(ident.getLength());
     form.setToLocation(ident.getToLocation());
-    var dataForm = identDataService.getDataFormOfIdent(ident);
+    var dataForm = identDataService.getDataFormOfIdent(ident, coreType);
     form.setDataForm(dataForm);
   }
 

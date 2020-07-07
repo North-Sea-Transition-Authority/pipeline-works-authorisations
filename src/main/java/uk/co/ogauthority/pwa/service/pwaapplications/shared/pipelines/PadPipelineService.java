@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -315,6 +316,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
+  public PipelineCoreType getPipelineCoreType(Integer padPipelineId) {
+    var padPipeline = getById(padPipelineId);
+    return padPipeline.getPipelineType().getCoreType();
   }
 
 

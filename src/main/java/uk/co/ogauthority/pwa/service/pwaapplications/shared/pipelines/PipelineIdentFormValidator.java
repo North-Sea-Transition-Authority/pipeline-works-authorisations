@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
@@ -52,7 +53,7 @@ public class PipelineIdentFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length.required",
         "Enter the ident's length");
 
-    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm");
+    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", validationHints[1]);
 
   }
 

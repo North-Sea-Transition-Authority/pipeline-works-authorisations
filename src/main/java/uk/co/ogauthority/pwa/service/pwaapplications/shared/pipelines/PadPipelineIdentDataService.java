@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
@@ -60,8 +61,14 @@ public class PadPipelineIdentDataService {
     identData.setInsulationCoatingType(dataForm.getInsulationCoatingType());
     identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
 
-    repository.save(identData);
+    identData.setExternalDiameterTxt(dataForm.getExternalDiameterTxt());
+    identData.setInternalDiameterTxt(dataForm.getInternalDiameterTxt());
+    identData.setWallThicknessTxt(dataForm.getWallThicknessTxt());
+    identData.setMaopTxt(dataForm.getMaopTxt());
+    identData.setInsulationCoatingTypeTxt(dataForm.getInsulationCoatingTypeTxt());
+    identData.setProductsToBeConveyedTxt(dataForm.getProductsToBeConveyedTxt());
 
+    repository.save(identData);
   }
 
   @Transactional
@@ -70,16 +77,28 @@ public class PadPipelineIdentDataService {
     repository.delete(data);
   }
 
-  public PipelineIdentDataForm getDataFormOfIdent(PadPipelineIdent ident) {
+  public PipelineIdentDataForm getDataFormOfIdent(PadPipelineIdent ident, PipelineCoreType coreType) {
     var form = new PipelineIdentDataForm();
     var identData = getIdentData(ident);
+
     form.setComponentPartsDescription(identData.getComponentPartsDescription());
-    form.setExternalDiameter(identData.getExternalDiameter());
-    form.setInternalDiameter(identData.getInternalDiameter());
-    form.setWallThickness(identData.getWallThickness());
-    form.setMaop(identData.getMaop());
-    form.setInsulationCoatingType(identData.getInsulationCoatingType());
-    form.setProductsToBeConveyed(identData.getProductsToBeConveyed());
+    if (coreType.equals(PipelineCoreType.SINGLE_CORE)) {
+      form.setExternalDiameter(identData.getExternalDiameter());
+      form.setInternalDiameter(identData.getInternalDiameter());
+      form.setWallThickness(identData.getWallThickness());
+      form.setMaop(identData.getMaop());
+      form.setInsulationCoatingType(identData.getInsulationCoatingType());
+      form.setProductsToBeConveyed(identData.getProductsToBeConveyed());
+
+    } else {
+      form.setExternalDiameterTxt(identData.getExternalDiameterTxt());
+      form.setInternalDiameterTxt(identData.getInternalDiameterTxt());
+      form.setWallThicknessTxt(identData.getWallThicknessTxt());
+      form.setMaopTxt(identData.getMaopTxt());
+      form.setInsulationCoatingTypeTxt(identData.getInsulationCoatingTypeTxt());
+      form.setProductsToBeConveyedTxt(identData.getProductsToBeConveyedTxt());
+    }
+
     return form;
   }
 }

@@ -6,6 +6,7 @@
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
 <@defaultPage htmlTitle="${screenActionType.actionText} ident" pageHeading="${screenActionType.actionText} ident" breadcrumbs=true>
 
@@ -74,15 +75,12 @@
             <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5"/>
 
             <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component parts" hintText="Some guidance text here."/>
-
-            <@fdsTextInput.textInput path="form.dataForm.externalDiameter" labelText="External diameter" inputClass="govuk-input--width-5" suffix="mm" suffixScreenReaderPrompt="mm"/>
-            <@fdsTextInput.textInput path="form.dataForm.internalDiameter" labelText="Internal diameter" inputClass="govuk-input--width-5" suffix="mm" suffixScreenReaderPrompt="mm"/>
-            <@fdsTextInput.textInput path="form.dataForm.wallThickness" labelText="Wall thickness" inputClass="govuk-input--width-5" suffix="mm" suffixScreenReaderPrompt="mm"/>
-            <@fdsTextInput.textInput path="form.dataForm.maop" labelText="MAOP" inputClass="govuk-input--width-5" suffix="barg" suffixScreenReaderPrompt="barg"/>
-
-            <@fdsTextarea.textarea path="form.dataForm.insulationCoatingType" labelText="Insulation / coating type"/>
-
-            <@fdsTextarea.textarea path="form.dataForm.productsToBeConveyed" labelText="Products to be conveyed"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterTxt" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterTxt" labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessTxt" labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopTxt" labelText="MAOP" suffix="barg" suffixScreenReaderPrompt="barg"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeTxt" labelText="Insulation / coating type"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedTxt" labelText="Products to be conveyed"/>
 
         </@fdsFieldset.fieldset>
 
@@ -90,3 +88,13 @@
 
     </@fdsForm.htmlForm>
 </@defaultPage>
+
+
+<#macro identDataTextInput coreType labelText textInputPath textAreaPath suffix="" suffixScreenReaderPrompt="">
+    <#if coreType == "SINGLE_CORE">
+        <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt/>
+    <#else>
+        <@fdsTextarea.textarea path=textAreaPath labelText=labelText/>
+    </#if>
+</#macro>
+

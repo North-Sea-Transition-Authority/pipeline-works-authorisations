@@ -12,6 +12,14 @@ public class PipelineIdentDataForm {
   private BigDecimal maop;
   private String productsToBeConveyed;
 
+  private String externalDiameterTxt;
+  private String internalDiameterTxt;
+  private String wallThicknessTxt;
+  private String insulationCoatingTypeTxt;
+  private String maopTxt;
+  private String productsToBeConveyedTxt;
+
+
   public PipelineIdentDataForm() {
   }
 
@@ -70,4 +78,54 @@ public class PipelineIdentDataForm {
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
   }
+
+
+  public String getExternalDiameterTxt() {
+    return externalDiameterTxt;
+  }
+
+  public void setExternalDiameterTxt(String externalDiameterTxt) {
+    this.externalDiameterTxt = externalDiameterTxt;
+  }
+
+  public String getInternalDiameterTxt() {
+    return internalDiameterTxt;
+  }
+
+  public void setInternalDiameterTxt(String internalDiameterTxt) {
+    this.internalDiameterTxt = internalDiameterTxt;
+  }
+
+  public String getWallThicknessTxt() {
+    return wallThicknessTxt;
+  }
+
+  public void setWallThicknessTxt(String wallThicknessTxt) {
+    this.wallThicknessTxt = wallThicknessTxt;
+  }
+
+  public String getInsulationCoatingTypeTxt() {
+    return insulationCoatingTypeTxt;
+  }
+
+  public void setInsulationCoatingTypeTxt(String insulationCoatingTypeTxt) {
+    this.insulationCoatingTypeTxt = insulationCoatingTypeTxt;
+  }
+
+  public String getMaopTxt() {
+    return maopTxt;
+  }
+
+  public void setMaopTxt(String maopTxt) {
+    this.maopTxt = maopTxt;
+  }
+
+  public String getProductsToBeConveyedTxt() {
+    return productsToBeConveyedTxt;
+  }
+
+  public void setProductsToBeConveyedTxt(String productsToBeConveyedTxt) {
+    this.productsToBeConveyedTxt = productsToBeConveyedTxt;
+  }
+
 }
