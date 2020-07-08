@@ -21,6 +21,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
@@ -329,7 +330,7 @@ public class PadPipelineIdentServiceTest {
     ));
     form.setDataForm(new PipelineIdentDataForm());
 
-    identService.mapEntityToForm(ident, form);
+    identService.mapEntityToForm(ident, form, PipelineCoreType.SINGLE_CORE);
 
     var coordinateFromForm = new CoordinateForm();
     CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), coordinateFromForm);
@@ -410,7 +411,7 @@ public class PadPipelineIdentServiceTest {
 
     when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
 
-    identService.addIdentAtPosition(pipeline, form, 1);
+    identService.addIdentAtPosition(pipeline, form, 1, PipelineCoreType.SINGLE_CORE);
 
     assertThat(ident.getIdentNo()).isEqualTo(2);
 

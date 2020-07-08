@@ -72,9 +72,13 @@
 
 <#macro dataValueForCoreType coreType key valueSingleCore valueMultiCore measurementUnit="">
     <#if coreType == "SINGLE_CORE">
-        <#assign valueSingleCore = (valueSingleCore!"")/>
-        <#assign valueSingleCore += measurementUnit/>
-        <@fdsDataItems.dataValues key=key value=valueSingleCore/>        
+        <#assign unit = measurementUnit/>    
+        <#if (valueSingleCore?string) == "">
+            <#assign unit = ""/>  
+            
+        </#if>
+        
+        <@fdsDataItems.dataValues key=key value="${valueSingleCore}${unit}"/>        
     <#else>
         <@fdsDataItems.dataValues key=key value=valueMultiCore/>
     </#if>

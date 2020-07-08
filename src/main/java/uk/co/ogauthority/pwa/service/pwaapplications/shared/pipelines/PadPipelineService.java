@@ -154,6 +154,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     // 2. Add new pipeline "TEMP 2"
     // 3. Remove "TEMP 1"
     // 4. Add new pipeline "TEMP 2"!
+
     newPadPipeline.setPipelineRef("TEMPORARY " + (numberOfPipesForDetail.intValue() + 1));
 
     saveEntityUsingForm(newPadPipeline, form);
@@ -178,6 +179,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setTrenchingMethodsDescription(form.getTrenchingMethods());
     }
 
+    padPipeline.setPipelineRef(createReference(padPipeline, form));
+
     padPipeline.setPipelineFlexibility(form.getPipelineFlexibility());
     padPipeline.setPipelineMaterial(form.getPipelineMaterial());
     if (form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
@@ -187,6 +190,16 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     padPipelineRepository.save(padPipeline);
 
+  }
+
+  private String createReference(PadPipeline padPipeline, PipelineHeaderForm form) {
+    var dashIndex = padPipeline.getPipelineRef().indexOf("-");
+    var refSubStrEndIndex = dashIndex > -1 ? dashIndex : padPipeline.getPipelineRef().length();
+    var umbilicalTypeRef = padPipeline.getPipelineRef().substring(0, refSubStrEndIndex);
+    if (padPipeline.getPipelineType().getCoreType().equals(PipelineCoreType.MULTI_CORE)) {
+      umbilicalTypeRef +=  " - " + form.getPipelineType().getDisplayName();
+    }
+    return umbilicalTypeRef;
   }
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {

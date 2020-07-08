@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentDataFormValidator;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -27,7 +28,19 @@ public class PipelineIdentDataFormValidatorTest {
   public void valid_mandatory_dataPresent() {
 
     var form = buildForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).isEmpty();
+
+  }
+
+  @Test
+  public void valid_multiCore__mandatory_dataPresent() {
+
+    var form = new PipelineIdentDataForm();
+    form.setExternalDiameterTxt("text");
+    form.setProductsToBeConveyedTxt("text");
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE);
 
     assertThat(result).isEmpty();
 
@@ -37,7 +50,7 @@ public class PipelineIdentDataFormValidatorTest {
   public void failed_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
 
     assertThat(result).containsOnly(
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),
@@ -47,6 +60,19 @@ public class PipelineIdentDataFormValidatorTest {
         entry("internalDiameter", Set.of("internalDiameter.required")),
         entry("wallThickness", Set.of("wallThickness.required")),
         entry("insulationCoatingType", Set.of("insulationCoatingType.required"))
+    );
+
+  }
+
+  @Test
+  public void failed_multiCore_mandatory_dataNotPresent() {
+
+    var form = new PipelineIdentDataForm();
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE);
+
+    assertThat(result).containsOnly(
+        entry("externalDiameterTxt", Set.of("externalDiameterTxt.required")),
+        entry("productsToBeConveyedTxt", Set.of("productsToBeConveyedTxt.required"))
     );
 
   }
