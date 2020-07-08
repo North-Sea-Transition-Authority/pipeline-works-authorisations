@@ -8,8 +8,8 @@
 
     <@fdsNumberInput.twoNumberInputs pathOne=minFormPath pathTwo=maxFormPath formId="min-max-values" nestingPath=nestedPath labelText=labelText hintText="If a single value, provide as both the " + altMinLabel + " and " + altMaxLabel>    
         <@fdsNumberInput.numberInputItem path=minFormPath labelText=altMinLabel inputClass="govuk-input--width-5"/>
-        <@fdsNumberInput.numberInputItem path=maxFormPath labelText=altMaxLabel inputClass="govuk-input--width-5"/>
-        <div class="govuk-date-input__item"><span class="govuk-label">${unitMeasurement}</span> </div>    
+        <@fdsNumberInput.numberInputItem path=maxFormPath labelText=altMaxLabel inputClass="govuk-input--width-5" suffix=unitMeasurement/>
+        <#--  <div class="govuk-date-input__item"><span class="govuk-label">${unitMeasurement}</span> </div>      -->
     </@fdsNumberInput.twoNumberInputs>
 
 
