@@ -74,10 +74,8 @@
     <#if coreType == "SINGLE_CORE">
         <#assign unit = measurementUnit/>    
         <#if (valueSingleCore?string) == "">
-            <#assign unit = ""/>  
-            
-        </#if>
-        
+            <#assign unit = ""/>              
+        </#if>        
         <@fdsDataItems.dataValues key=key value="${valueSingleCore}${unit}"/>        
     <#else>
         <@fdsDataItems.dataValues key=key value=valueMultiCore/>
