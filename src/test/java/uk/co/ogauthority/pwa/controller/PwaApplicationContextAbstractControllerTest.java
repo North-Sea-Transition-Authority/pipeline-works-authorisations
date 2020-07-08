@@ -13,8 +13,10 @@ import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +29,7 @@ import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -84,8 +87,12 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   @MockBean
   private PwaAppProcessingContextService appProcessingContextService;
 
+  @MockBean
+  private ControllerHelperService controllerHelperService;
+
   @Before
   public void abstractControllerTestSetup() {
+
     mockMvc = MockMvcBuilders
         .webAppContextSetup(context)
         .apply(SecurityMockMvcConfigurers.springSecurity())
@@ -100,8 +107,9 @@ public abstract class PwaApplicationContextAbstractControllerTest {
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(anyInt(), any())).thenCallRealMethod();
 
-  }
+    when(controllerHelperService.checkErrorsAndRedirect(any(), any(), any())).thenCallRealMethod();
 
+  }
 
   @TestConfiguration
   public static class AbstractControllerTestConfiguration {
@@ -124,6 +132,14 @@ public abstract class PwaApplicationContextAbstractControllerTest {
       CustomScopeConfigurer configurer = new CustomScopeConfigurer();
       configurer.addScope("session", new SimpleThreadScope());
       return configurer;
+    }
+
+    @Bean("messageSource")
+    public MessageSource messageSource() {
+      ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+      messageSource.setBasename("messages");
+      messageSource.setDefaultEncoding("UTF-8");
+      return messageSource;
     }
 
   }

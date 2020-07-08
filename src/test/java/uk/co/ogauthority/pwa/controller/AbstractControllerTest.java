@@ -10,8 +10,10 @@ import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -22,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -56,8 +59,12 @@ public abstract class AbstractControllerTest {
   @MockBean
   private TopMenuService topMenuService;
 
+  @MockBean
+  private ControllerHelperService controllerHelperService;
+
   @Before
   public void abstractControllerTestSetup() {
+
     mockMvc = MockMvcBuilders
         .webAppContextSetup(context)
         .apply(SecurityMockMvcConfigurers.springSecurity())
@@ -71,11 +78,14 @@ public abstract class AbstractControllerTest {
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
 
+    when(controllerHelperService.checkErrorsAndRedirect(any(), any(), any())).thenCallRealMethod();
+
   }
 
 
   @TestConfiguration
   public static class AbstractControllerTestConfiguration {
+
     @Bean
     public SystemAreaAccessService systemAreaAccessService() {
       return new SystemAreaAccessService();
@@ -88,6 +98,15 @@ public abstract class AbstractControllerTest {
       fileUploadProperties.setAllowedExtensions(List.of("txt", "xls", "doc"));
       return fileUploadProperties;
     }
+
+    @Bean("messageSource")
+    public MessageSource messageSource() {
+      ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+      messageSource.setBasename("messages");
+      messageSource.setDefaultEncoding("UTF-8");
+      return messageSource;
+    }
+
   }
 
 }

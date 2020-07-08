@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 /**
  * Helper class for common methods interacting with ModelAndView objects.
  */
+// TODO PWA-491 remove this class after removing single caller
 public class ModelAndViewUtils {
 
   private ModelAndViewUtils() {
@@ -22,6 +23,7 @@ public class ModelAndViewUtils {
    * @param bindingResult The result of the submitted form containing the list of validation errors
    */
   public static void addFieldValidationErrors(ModelAndView modelAndView, BindingResult bindingResult) {
+
     List<ErrorItem> errorList = new ArrayList<>();
     IntStream.range(0, bindingResult.getFieldErrors().size()).forEach(index -> {
       var fieldError = bindingResult.getFieldErrors().get(index);
@@ -29,6 +31,7 @@ public class ModelAndViewUtils {
     });
 
     modelAndView.addObject("errorList", errorList);
+
   }
 
 }
