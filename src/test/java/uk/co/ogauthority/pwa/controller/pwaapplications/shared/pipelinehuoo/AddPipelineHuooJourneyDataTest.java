@@ -8,9 +8,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddPipelineHuooJourneyDataTest {
+
+  private static final PwaApplicationDetail APP_DETAIL = PwaApplicationTestUtil.createDefaultApplicationDetail(
+      PwaApplicationType.INITIAL, 10, 11);
+
+  private static final PwaApplicationDetail ALTERNATIVE_APP_DETAIL = PwaApplicationTestUtil.createDefaultApplicationDetail(
+      PwaApplicationType.INITIAL, 20, 21);
 
   private AddPipelineHuooJourneyData journeyData;
 
@@ -23,16 +33,35 @@ public class AddPipelineHuooJourneyDataTest {
 
   }
 
+
   @Test
   public void updateJourneyPipelineData_whenRoleHasChanged() {
 
-    journeyData.updateJourneyOrganisationData(HuooRole.HOLDER, Set.of(1, 2));
-    journeyData.updateJourneyPipelineData(HuooRole.HOLDER, Set.of("STRING1"));
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2),
+        Set.of(TreatyAgreement.BELGIUM));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
 
-    journeyData.updateJourneyPipelineData(HuooRole.OWNER, Set.of("STRING2"));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.OWNER, Set.of("STRING2"));
 
     assertThat(journeyData.getJourneyRoleType()).isEqualTo(HuooRole.OWNER);
     assertThat(journeyData.getOrganisationUnitIds()).isEmpty();
+    assertThat(journeyData.getTreatyAgreements()).isEmpty();
+    assertThat(journeyData.getPickedPipelineIds()).containsExactly("STRING2");
+
+  }
+
+  @Test
+  public void updateJourneyPipelineData_whenRoleUnchanged_andAppDetailIdHasChanged() {
+
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2),
+        Set.of(TreatyAgreement.BELGIUM));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
+
+    journeyData.updateJourneyPipelineData(ALTERNATIVE_APP_DETAIL, HuooRole.HOLDER, Set.of("STRING2"));
+
+    assertThat(journeyData.getJourneyRoleType()).isEqualTo(HuooRole.HOLDER);
+    assertThat(journeyData.getOrganisationUnitIds()).isEmpty();
+    assertThat(journeyData.getTreatyAgreements()).isEmpty();
     assertThat(journeyData.getPickedPipelineIds()).containsExactly("STRING2");
 
   }
@@ -40,27 +69,49 @@ public class AddPipelineHuooJourneyDataTest {
   @Test
   public void updateJourneyPipelineData_whenHuooRoleUnchanged() {
 
-    journeyData.updateJourneyOrganisationData(HuooRole.HOLDER, Set.of(1, 2));
-    journeyData.updateJourneyPipelineData(HuooRole.HOLDER, Set.of("STRING1"));
+    journeyData.updateJourneyOrganisationData(
+        APP_DETAIL,
+        HuooRole.HOLDER,
+        Set.of(1, 2),
+        Set.of(TreatyAgreement.BELGIUM));
 
-    journeyData.updateJourneyPipelineData(HuooRole.HOLDER, Set.of("STRING2"));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
+
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING2"));
 
     assertThat(journeyData.getJourneyRoleType()).isEqualTo(HuooRole.HOLDER);
     assertThat(journeyData.getOrganisationUnitIds()).isEqualTo(Set.of(1, 2));
     assertThat(journeyData.getPickedPipelineIds()).containsExactly("STRING2");
+    assertThat(journeyData.getTreatyAgreements()).containsExactly(TreatyAgreement.BELGIUM);
 
   }
 
   @Test
   public void updateJourneyOrganisationData_whenRoleHasChanged() {
 
-    journeyData.updateJourneyOrganisationData(HuooRole.HOLDER, Set.of(1, 2));
-    journeyData.updateJourneyPipelineData(HuooRole.HOLDER, Set.of("STRING1"));
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.BELGIUM));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
 
-    journeyData.updateJourneyOrganisationData(HuooRole.OWNER, Set.of(1));
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.OWNER, Set.of(1), Set.of(TreatyAgreement.IRELAND));
 
     assertThat(journeyData.getJourneyRoleType()).isEqualTo(HuooRole.OWNER);
     assertThat(journeyData.getOrganisationUnitIds()).isEqualTo(Set.of(1));
+    assertThat(journeyData.getTreatyAgreements()).containsExactly(TreatyAgreement.IRELAND);
+    assertThat(journeyData.getPickedPipelineIds()).isEmpty();
+
+  }
+
+  @Test
+  public void updateJourneyOrganisationData_whenRoleUnchanged_andPwaAppDetailHasChanged() {
+
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.BELGIUM));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
+
+    journeyData.updateJourneyOrganisationData(ALTERNATIVE_APP_DETAIL, HuooRole.HOLDER, Set.of(1), Set.of(TreatyAgreement.IRELAND));
+
+    assertThat(journeyData.getJourneyRoleType()).isEqualTo(HuooRole.HOLDER);
+    assertThat(journeyData.getOrganisationUnitIds()).isEqualTo(Set.of(1));
+    assertThat(journeyData.getTreatyAgreements()).containsExactly(TreatyAgreement.IRELAND);
     assertThat(journeyData.getPickedPipelineIds()).isEmpty();
 
   }
@@ -68,23 +119,24 @@ public class AddPipelineHuooJourneyDataTest {
   @Test
   public void updateJourneyOrganisationData_whenRoleUnchanged() {
 
-    journeyData.updateJourneyOrganisationData(HuooRole.HOLDER, Set.of(1, 2));
-    journeyData.updateJourneyPipelineData(HuooRole.HOLDER, Set.of("STRING1"));
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.BELGIUM));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
 
-    journeyData.updateJourneyOrganisationData(HuooRole.HOLDER, Set.of(1));
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1), Set.of(TreatyAgreement.BELGIUM));
 
     assertThat(journeyData.getJourneyRoleType()).isEqualTo(HuooRole.HOLDER);
     assertThat(journeyData.getOrganisationUnitIds()).isEqualTo(Set.of(1));
     assertThat(journeyData.getPickedPipelineIds()).containsExactly("STRING1");
+    assertThat(journeyData.getTreatyAgreements()).containsExactly(TreatyAgreement.BELGIUM);
 
   }
 
   @Test
   public void updateFormWithPipelineJourneyData_whenRoleUnchanged() {
 
-    journeyData.updateJourneyPipelineData(HuooRole.HOLDER, Set.of("STRING1"));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
 
-    journeyData.updateFormWithPipelineJourneyData(HuooRole.HOLDER, form);
+    journeyData.updateFormWithPipelineJourneyData(APP_DETAIL, HuooRole.HOLDER, form);
 
     assertThat(form.getPickedPipelineStrings()).isEqualTo(Set.of("STRING1"));
 
@@ -93,9 +145,9 @@ public class AddPipelineHuooJourneyDataTest {
   @Test
   public void updateFormWithPipelineJourneyData_whenRoleHasChanged() {
 
-    journeyData.updateJourneyPipelineData(HuooRole.HOLDER, Set.of("STRING1"));
+    journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
 
-    journeyData.updateFormWithPipelineJourneyData(HuooRole.OWNER, form);
+    journeyData.updateFormWithPipelineJourneyData(APP_DETAIL, HuooRole.OWNER, form);
 
     assertThat(form.getPickedPipelineStrings()).isEmpty();
 
@@ -104,9 +156,9 @@ public class AddPipelineHuooJourneyDataTest {
   @Test
   public void updateFormWithOrganisationRoleJourneyData_whenRoleUnchanged() {
 
-    journeyData.updateJourneyOrganisationData(HuooRole.HOLDER, Set.of(1, 2));
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.BELGIUM));
 
-    journeyData.updateFormWithOrganisationRoleJourneyData(HuooRole.HOLDER, form);
+    journeyData.updateFormWithOrganisationRoleJourneyData(APP_DETAIL, HuooRole.HOLDER, form);
 
     assertThat(form.getOrganisationUnitIds()).isEqualTo(Set.of(1, 2));
 
@@ -115,9 +167,9 @@ public class AddPipelineHuooJourneyDataTest {
   @Test
   public void updateFormWithOrganisationRoleJourneyData_whenRoleHasChanged() {
 
-    journeyData.updateJourneyOrganisationData(HuooRole.HOLDER, Set.of(1, 2));
+    journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.BELGIUM));
 
-    journeyData.updateFormWithOrganisationRoleJourneyData(HuooRole.OWNER, form);
+    journeyData.updateFormWithOrganisationRoleJourneyData(APP_DETAIL, HuooRole.OWNER, form);
 
     assertThat(form.getOrganisationUnitIds()).isEmpty();
 

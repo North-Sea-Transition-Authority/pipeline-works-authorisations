@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -32,7 +33,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
@@ -48,18 +48,21 @@ public class InitialFieldsController {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PadFieldService padFieldService;
   private final PwaFieldFormValidator pwaFieldFormValidator;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public InitialFieldsController(ApplicationBreadcrumbService breadcrumbService,
                                  DevukFieldService devukFieldService,
                                  PwaApplicationDetailService pwaApplicationDetailService,
                                  PadFieldService padFieldService,
-                                 PwaFieldFormValidator pwaFieldFormValidator) {
+                                 PwaFieldFormValidator pwaFieldFormValidator,
+                                 ControllerHelperService controllerHelperService) {
     this.breadcrumbService = breadcrumbService;
     this.devukFieldService = devukFieldService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.padFieldService = padFieldService;
     this.pwaFieldFormValidator = pwaFieldFormValidator;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getFieldsModelAndView(PwaApplicationDetail pwaApplicationDetail, PwaFieldForm form,
@@ -116,7 +119,7 @@ public class InitialFieldsController {
     pwaFieldFormValidator.validate(form, bindingResult);
     var isLinkedtoField = form.getLinkedToField();
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getFieldsModelAndView(applicationContext.getApplicationDetail(), form, user), () -> {
           var fieldList = new ArrayList<DevukField>();
           if (isLinkedtoField) {

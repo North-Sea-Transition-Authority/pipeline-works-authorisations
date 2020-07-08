@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -39,7 +40,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -62,6 +62,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
   private final PadFacilityService padFacilityService;
   private final PadLocationDetailsService padLocationDetailsService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final ControllerHelperService controllerHelperService;
 
   private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.LOCATION_DETAILS;
 
@@ -72,13 +73,15 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
       DevukFacilityService devukFacilityService,
       PadLocationDetailsService padLocationDetailsService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padFacilityService = padFacilityService;
     this.devukFacilityService = devukFacilityService;
     this.padLocationDetailsService = padLocationDetailsService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getLocationModelAndView(PwaApplicationDetail detail, LocationDetailsForm form) {
@@ -133,7 +136,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
     var detail = applicationContext.getApplicationDetail();
     bindingResult = padLocationDetailsService.validate(form, bindingResult, validationType, detail);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getLocationModelAndView(detail, form), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getLocationModelAndView(detail, form), () -> {
 
       var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(detail);
       padLocationDetailsService.saveEntityUsingForm(locationDetail, form);

@@ -26,10 +26,10 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
@@ -42,18 +42,21 @@ public class PrototypePwaHolderController {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaHolderFormValidator pwaHolderFormValidator;
   private final PadOrganisationRoleService padOrganisationRoleService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PrototypePwaHolderController(TeamService teamService,
                                       PortalOrganisationsAccessor portalOrganisationsAccessor,
                                       PwaApplicationDetailService pwaApplicationDetailService,
                                       PwaHolderFormValidator pwaHolderFormValidator,
-                                      PadOrganisationRoleService padOrganisationRoleService) {
+                                      PadOrganisationRoleService padOrganisationRoleService,
+                                      ControllerHelperService controllerHelperService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaHolderFormValidator = pwaHolderFormValidator;
     this.padOrganisationRoleService = padOrganisationRoleService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   /**
@@ -80,7 +83,7 @@ public class PrototypePwaHolderController {
 
       pwaHolderFormValidator.validate(form, bindingResult);
 
-      return ControllerUtils.checkErrorsAndRedirect(bindingResult, getHolderModelAndView(user), () -> {
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult, getHolderModelAndView(user), () -> {
 
         List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
 

@@ -28,4 +28,8 @@ public interface PadOrganisationRolesRepository extends CrudRepository<PadOrgani
 
   Optional<PadOrganisationRole> getByPwaApplicationDetailAndId(PwaApplicationDetail pwaApplicationDetail, Integer id);
 
+  long countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(PwaApplicationDetail pwaApplicationDetail,
+                                                                    HuooRole huooRole,
+                                                                    HuooType huooType);
+
 }

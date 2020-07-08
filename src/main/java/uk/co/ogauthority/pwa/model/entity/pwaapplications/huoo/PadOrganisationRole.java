@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo;
 
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -64,6 +65,18 @@ public class PadOrganisationRole {
 
   }
 
+  public static PadOrganisationRole fromTreatyAgreement(PwaApplicationDetail pwaApplicationDetail,
+                                                         TreatyAgreement treatyAgreement,
+                                                         HuooRole huooRole) {
+    var padOrganisationRole = new PadOrganisationRole();
+    padOrganisationRole.setAgreement(treatyAgreement);
+    padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
+    padOrganisationRole.setType(HuooType.TREATY_AGREEMENT);
+    padOrganisationRole.setRole(huooRole);
+    return padOrganisationRole;
+
+  }
+
   public void setPwaApplicationDetail(
       PwaApplicationDetail pwaApplicationDetail) {
     this.pwaApplicationDetail = pwaApplicationDetail;
@@ -71,6 +84,10 @@ public class PadOrganisationRole {
 
   public PortalOrganisationUnit getOrganisationUnit() {
     return organisationUnit;
+  }
+
+  public Optional<PortalOrganisationUnit> getOrganisationUnitOptional() {
+    return Optional.ofNullable(this.organisationUnit);
   }
 
   public void setOrganisationUnit(

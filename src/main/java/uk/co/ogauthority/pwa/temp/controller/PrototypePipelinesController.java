@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.temp.PrototypeApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.temp.components.PipelineGodObject;
 import uk.co.ogauthority.pwa.temp.model.ViewMode;
@@ -30,7 +31,6 @@ import uk.co.ogauthority.pwa.temp.model.view.PipelineCardView;
 import uk.co.ogauthority.pwa.temp.model.view.PipelineView;
 import uk.co.ogauthority.pwa.temp.model.view.TaskListEntry;
 import uk.co.ogauthority.pwa.temp.model.view.TechnicalDetailsView;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -41,12 +41,15 @@ public class PrototypePipelinesController {
 
   private PipelineGodObject pipelineGodObject;
   private final PrototypeApplicationBreadcrumbService breadcrumbService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PrototypePipelinesController(PipelineGodObject pipelineGodObject,
-                                      PrototypeApplicationBreadcrumbService breadcrumbService) {
+                                      PrototypeApplicationBreadcrumbService breadcrumbService,
+                                      ControllerHelperService controllerHelperService) {
     this.pipelineGodObject = pipelineGodObject;
     this.breadcrumbService = breadcrumbService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   @GetMapping
@@ -160,7 +163,7 @@ public class PrototypePipelinesController {
                                             @Valid @ModelAttribute("form") AddProductionPipelineForm form,
                                             BindingResult bindingResult) {
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getAddProductionPipelineMav(applicationId, form), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddProductionPipelineMav(applicationId, form), () -> {
 
       PipelineView pipelineView = new PipelineView();
       pipelineView.setPipelineType(EnumUtils.getEnumValue(PipelineType.class, form.getPipelineType()));
@@ -239,7 +242,7 @@ public class PrototypePipelinesController {
                                @Valid @ModelAttribute("form") AddIdentForm form,
                                BindingResult bindingResult) {
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getAddIdentMav(applicationId, pipelineNumber), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddIdentMav(applicationId, pipelineNumber), () -> {
 
       PipelineView prodPipeline = getPipelineOrThrow(pipelineNumber);
 

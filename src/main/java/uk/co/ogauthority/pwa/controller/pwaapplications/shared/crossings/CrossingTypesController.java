@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -27,7 +28,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.CrossingTypesFormValidator;
 
@@ -47,17 +47,20 @@ public class CrossingTypesController {
   private final CrossingTypesFormValidator crossingTypesFormValidator;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final CrossingTypesService crossingTypesService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public CrossingTypesController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       CrossingTypesFormValidator crossingTypesFormValidator,
       PwaApplicationDetailService pwaApplicationDetailService,
-      CrossingTypesService crossingTypesService) {
+      CrossingTypesService crossingTypesService,
+      ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.crossingTypesFormValidator = crossingTypesFormValidator;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.crossingTypesService = crossingTypesService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView createModelAndView(PwaApplicationDetail pwaApplicationDetail) {
@@ -89,7 +92,7 @@ public class CrossingTypesController {
     if (validationType.equals(ValidationType.FULL)) {
       crossingTypesFormValidator.validate(form, bindingResult);
     }
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, createModelAndView(detail), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, createModelAndView(detail), () -> {
       pwaApplicationDetailService.updateCrossingTypes(detail, form);
       return ReverseRouter.redirect(on(CrossingAgreementsController.class).renderCrossingAgreementsOverview(
           detail.getPwaApplicationType(), applicationId, null, null));

@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.BundleForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -26,7 +27,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleSummaryView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pipelines.AddBundleValidator;
@@ -48,6 +48,7 @@ public class PipelineBundleController {
   private final PadBundleService padBundleService;
   private final AddBundleValidator addBundleValidator;
   private final EditBundleValidator editBundleValidator;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PipelineBundleController(
@@ -55,12 +56,14 @@ public class PipelineBundleController {
       ApplicationBreadcrumbService breadcrumbService,
       PadBundleService padBundleService,
       AddBundleValidator addBundleValidator,
-      EditBundleValidator editBundleValidator) {
+      EditBundleValidator editBundleValidator,
+      ControllerHelperService controllerHelperService) {
     this.padPipelineService = padPipelineService;
     this.breadcrumbService = breadcrumbService;
     this.padBundleService = padBundleService;
     this.addBundleValidator = addBundleValidator;
     this.editBundleValidator = editBundleValidator;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getBundleModelAndView(PwaApplicationContext context, ScreenActionType type) {
@@ -103,7 +106,7 @@ public class PipelineBundleController {
 
     addBundleValidator.validate(bundleForm, bindingResult, applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getBundleModelAndView(applicationContext, ScreenActionType.ADD), () -> {
           padBundleService.createBundleAndLinks(applicationContext.getApplicationDetail(), bundleForm);
           return ReverseRouter.redirect(on(PipelinesController.class)
@@ -135,7 +138,7 @@ public class PipelineBundleController {
                                      BindingResult bindingResult) {
     var bundle = padBundleService.getBundle(applicationContext.getApplicationDetail(), bundleId);
     editBundleValidator.validate(bundleForm, bindingResult, applicationContext.getApplicationDetail(), bundle);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getBundleModelAndView(applicationContext, ScreenActionType.EDIT), () -> {
           padBundleService.updateBundleAndLinks(bundle, bundleForm);
           return ReverseRouter.redirect(on(PipelinesController.class)

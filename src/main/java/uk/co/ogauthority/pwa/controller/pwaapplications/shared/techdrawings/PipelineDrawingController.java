@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -39,7 +40,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -57,6 +57,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   private final PadPipelineService padPipelineService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final PadFileService padFileService;
+  private final ControllerHelperService controllerHelperService;
 
   private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PIPELINE_DRAWINGS;
 
@@ -65,12 +66,14 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadPipelineService padPipelineService,
       PadTechnicalDrawingService padTechnicalDrawingService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padPipelineService = padPipelineService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.padFileService = padFileService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form,
@@ -125,7 +128,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     bindingResult = padTechnicalDrawingService.validateDrawing(form, bindingResult, ValidationType.FULL,
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),
@@ -189,7 +192,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     bindingResult = padTechnicalDrawingService.validateEdit(form, bindingResult, ValidationType.FULL,
         applicationContext.getApplicationDetail(), drawingId);
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
       padFileService.updateFiles(
           form,
           applicationContext.getApplicationDetail(),

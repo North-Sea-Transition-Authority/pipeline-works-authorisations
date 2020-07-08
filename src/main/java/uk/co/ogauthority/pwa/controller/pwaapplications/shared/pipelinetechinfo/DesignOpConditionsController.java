@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -22,7 +23,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 
@@ -39,14 +39,17 @@ public class DesignOpConditionsController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadDesignOpConditionsService padDesignOpConditionsService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public DesignOpConditionsController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                       PwaApplicationRedirectService pwaApplicationRedirectService,
-                                      PadDesignOpConditionsService padDesignOpConditionsService) {
+                                      PadDesignOpConditionsService padDesignOpConditionsService,
+                                      ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padDesignOpConditionsService = padDesignOpConditionsService;
+    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -76,7 +79,7 @@ public class DesignOpConditionsController {
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddDesignOpConditionsModelAndView(applicationContext.getApplicationDetail()), () -> {
           var entity = padDesignOpConditionsService.getDesignOpConditionsEntity(applicationContext.getApplicationDetail());
           padDesignOpConditionsService.saveEntityUsingForm(form, entity);

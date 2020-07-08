@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -31,7 +32,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -51,17 +51,20 @@ public class PipelineIdentsController {
   private final PipelineIdentFormValidator validator;
   private final PadPipelineIdentService padIdentService;
   private final PadPipelineService padPipelineService;
+  private final ControllerHelperService controllerHelperService;
 
 
   @Autowired
   public PipelineIdentsController(ApplicationBreadcrumbService breadcrumbService,
                                   PipelineIdentFormValidator validator,
                                   PadPipelineIdentService padIdentService,
-                                  PadPipelineService padPipelineService) {
+                                  PadPipelineService padPipelineService,
+                                  ControllerHelperService controllerHelperService) {
     this.breadcrumbService = breadcrumbService;
     this.validator = validator;
     this.padIdentService = padIdentService;
     this.padPipelineService = padPipelineService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getIdentOverviewModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
@@ -198,7 +201,7 @@ public class PipelineIdentsController {
     var nextIdent = padIdentService.getIdent(applicationContext.getPadPipeline(), insertAboveIdentId);
     validator.validate(form, bindingResult, applicationContext);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
             applicationContext.getPadPipeline(), ScreenActionType.ADD),
         () -> {
@@ -220,7 +223,7 @@ public class PipelineIdentsController {
 
     validator.validate(form, bindingResult, applicationContext);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
             applicationContext.getPadPipeline(),
             ScreenActionType.ADD),
@@ -290,7 +293,7 @@ public class PipelineIdentsController {
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
     validator.validate(form, bindingResult, applicationContext);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
             applicationContext.getPadPipeline(),
             ScreenActionType.EDIT),

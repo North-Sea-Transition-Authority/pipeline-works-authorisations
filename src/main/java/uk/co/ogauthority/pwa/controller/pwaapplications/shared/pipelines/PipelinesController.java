@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -36,7 +37,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleS
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -56,18 +56,21 @@ public class PipelinesController {
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PwaApplicationRedirectService applicationRedirectService;
   private final PadBundleService padBundleService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PipelinesController(PadPipelineService padPipelineService,
                              ApplicationBreadcrumbService breadcrumbService,
                              PipelineHeaderFormValidator pipelineHeaderFormValidator,
                              PwaApplicationRedirectService applicationRedirectService,
-                             PadBundleService padBundleService) {
+                             PadBundleService padBundleService,
+                             ControllerHelperService controllerHelperService) {
     this.padPipelineService = padPipelineService;
     this.breadcrumbService = breadcrumbService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.applicationRedirectService = applicationRedirectService;
     this.padBundleService = padBundleService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
@@ -161,7 +164,7 @@ public class PipelinesController {
 
     pipelineHeaderFormValidator.validate(form, bindingResult, applicationContext);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.ADD, null), () -> {
 
           padPipelineService.addPipeline(applicationContext.getApplicationDetail(), form);
@@ -202,7 +205,7 @@ public class PipelinesController {
 
     var pipeline = applicationContext.getPadPipeline();
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),
         () -> {
 

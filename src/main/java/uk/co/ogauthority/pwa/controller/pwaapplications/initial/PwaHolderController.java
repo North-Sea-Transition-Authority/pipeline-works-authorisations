@@ -30,16 +30,15 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
@@ -53,27 +52,27 @@ public class PwaHolderController {
 
   private final TeamService teamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaHolderFormValidator pwaHolderFormValidator;
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final ApplicationBreadcrumbService breadcrumbService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PwaHolderController(TeamService teamService,
                              PortalOrganisationsAccessor portalOrganisationsAccessor,
-                             PwaApplicationDetailService pwaApplicationDetailService,
                              PwaApplicationRedirectService pwaApplicationRedirectService,
                              PwaHolderFormValidator pwaHolderFormValidator,
                              PadOrganisationRoleService padOrganisationRoleService,
-                             ApplicationBreadcrumbService breadcrumbService) {
+                             ApplicationBreadcrumbService breadcrumbService,
+                             ControllerHelperService controllerHelperService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaHolderFormValidator = pwaHolderFormValidator;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.breadcrumbService = breadcrumbService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   /**
@@ -105,7 +104,7 @@ public class PwaHolderController {
 
     pwaHolderFormValidator.validate(form, bindingResult);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getHolderModelAndView(user, applicationContext.getApplicationDetail(), form), () -> {
 
           List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
