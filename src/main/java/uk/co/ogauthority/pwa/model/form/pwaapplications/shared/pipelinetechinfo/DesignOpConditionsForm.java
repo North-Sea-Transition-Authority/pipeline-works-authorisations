@@ -14,11 +14,7 @@ public class DesignOpConditionsForm {
   private MinMaxInput pressureDesignInternalExternal;
   private MinMaxInput flowrateOpMinMax;
   private MinMaxInput flowrateDesignMinMax;
-  @Pattern(regexp  = "^\\d*\\.?\\d*$", message = "Enter a valid value for U-value operating conditions",
-      groups = {PartialValidation.class})
   private String uvalueOp;
-  @Pattern(regexp  = "^\\d*\\.?\\d*$", message = "Enter a valid value for U-value design conditions",
-      groups = {PartialValidation.class})
   private String uvalueDesign;
 
 

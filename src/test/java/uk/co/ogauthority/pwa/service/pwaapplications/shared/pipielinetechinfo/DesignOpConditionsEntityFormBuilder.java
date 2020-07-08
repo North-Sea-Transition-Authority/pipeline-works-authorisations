@@ -6,7 +6,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 
 
-public class EntityAndFormBuilder {
+public class DesignOpConditionsEntityFormBuilder {
 
   public DesignOpConditionsForm createBlankForm() {
     var form = new DesignOpConditionsForm();
@@ -50,7 +50,7 @@ public class EntityAndFormBuilder {
     entity.setFlowrateDesignMinValue(form.getFlowrateDesignMinMax().createMinOrNull());
     entity.setFlowrateDesignMaxValue(form.getFlowrateDesignMinMax().createMaxOrNull());
     entity.setUvalueOp(form.getUvalueOp() != null ? new BigDecimal(form.getUvalueOp()) : null);
-    entity.setUvalueDesign(form.getUvalueOp() != null ? new BigDecimal(form.getUvalueDesign()) : null);
+    entity.setUvalueDesign(form.getUvalueDesign() != null ? new BigDecimal(form.getUvalueDesign()) : null);
 
     return entity;
   }

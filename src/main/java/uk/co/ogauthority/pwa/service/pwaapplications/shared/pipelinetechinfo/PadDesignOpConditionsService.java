@@ -21,19 +21,16 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   private final PadDesignOpConditionsMappingService padDesignOpConditionsMappingService;
   private final PadDesignOpConditionsRepository padDesignOpConditionsRepository;
   private final PadDesignOpConditionsValidator validator;
-  private final SpringValidatorAdapter groupValidator;
 
 
   @Autowired
   public PadDesignOpConditionsService(
       PadDesignOpConditionsMappingService padDesignOpConditionsMappingService,
       PadDesignOpConditionsRepository padDesignOpConditionsRepository,
-      PadDesignOpConditionsValidator validator,
-      SpringValidatorAdapter groupValidator) {
+      PadDesignOpConditionsValidator validator) {
     this.padDesignOpConditionsMappingService = padDesignOpConditionsMappingService;
     this.padDesignOpConditionsRepository = padDesignOpConditionsRepository;
     this.validator = validator;
-    this.groupValidator = groupValidator;
   }
 
 
@@ -71,11 +68,7 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.PARTIAL)) {
-      groupValidator.validate(form, bindingResult, PartialValidation.class);
-    } else {
-      validator.validate(form, bindingResult);
-    }
+    validator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 

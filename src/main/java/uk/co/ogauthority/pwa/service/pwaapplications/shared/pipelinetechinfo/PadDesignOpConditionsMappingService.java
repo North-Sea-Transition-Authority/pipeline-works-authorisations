@@ -49,7 +49,7 @@ public class PadDesignOpConditionsMappingService {
     entity.setFlowrateDesignMaxValue(form.getFlowrateDesignMinMax().createMaxOrNull());
 
     entity.setUvalueOp(form.getUvalueOp() != null ? new BigDecimal(form.getUvalueOp()) : null);
-    entity.setUvalueDesign(form.getUvalueOp() != null ? new BigDecimal(form.getUvalueDesign()) : null);
+    entity.setUvalueDesign(form.getUvalueDesign() != null ? new BigDecimal(form.getUvalueDesign()) : null);
   }
 
 

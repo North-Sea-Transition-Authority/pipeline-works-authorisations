@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -42,42 +44,41 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
 
   @Override
   public void validate(Object o, Errors errors, Object... validationHints) {
-    validate(o, errors);
-  }
+    var form = (DesignOpConditionsForm) o;
+    var validationType = (ValidationType) validationHints[0];
 
+    if (validationType.equals(ValidationType.FULL)) {
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureOpMinMax",
+          form.getTemperatureOpMinMax(), "temperature operating conditions", List.of(), List.of(new IntegerHint()));
 
-  @Override
-  public void validate(Object target, Errors errors) {
-    var form = (DesignOpConditionsForm) target;
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureDesignMinMax",
+          form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(), List.of(new IntegerHint()));
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureOpMinMax",
-        form.getTemperatureOpMinMax(), "temperature operating conditions", List.of(), List.of(new IntegerHint()));
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpInternalExternal",
+          form.getPressureOpInternalExternal(), "pressure operating conditions",
+          List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()),
+          "internal", "external");
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureDesignMinMax",
-        form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(), List.of(new IntegerHint()));
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureDesignInternalExternal",
+          form.getPressureDesignInternalExternal(), "pressure design conditions",
+          List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()),
+          "internal", "external");
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpInternalExternal",
-        form.getPressureOpInternalExternal(), "pressure operating conditions",
-        List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()));
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
+          form.getFlowrateOpMinMax(), "flowrate operating conditions",
+          List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
 
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureDesignInternalExternal",
-        form.getPressureDesignInternalExternal(), "pressure design conditions",
-        List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), List.of(new PositiveNumberHint(), new IntegerHint()));
-
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
-        form.getFlowrateOpMinMax(), "flowrate operating conditions",
-        List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
-
-    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
-        form.getFlowrateDesignMinMax(), "flowrate design conditions",
-        List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
+          form.getFlowrateDesignMinMax(), "flowrate design conditions",
+          List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
+    }
 
 
     var uvalueOp = createBigDecimal(form.getUvalueOp());
     if (uvalueOp.isEmpty()) {
       errors.rejectValue("uvalueOp", "uvalueOp" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a valid value for U-value operating conditions");
-    } else {
+    } else if (validationType.equals(ValidationType.FULL)) {
       validatePositiveNumber(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions");
       validateDecimalPlaces(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions", 1);
     }
@@ -86,11 +87,16 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
     if (uvalueDesign.isEmpty()) {
       errors.rejectValue("uvalueDesign", "uvalueDesign" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a valid value for U-value design conditions");
-    } else {
+    } else if (validationType.equals(ValidationType.FULL)) {
       validatePositiveNumber(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions");
       validateDecimalPlaces(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions", 1);
     }
+  }
 
+
+  @Override
+  public void validate(Object target, Errors errors) {
+    throw(new ActionNotAllowedException("Incorrect parameters provided for validation"));
   }
 
   public Optional<BigDecimal> createBigDecimal(String valueStr) {

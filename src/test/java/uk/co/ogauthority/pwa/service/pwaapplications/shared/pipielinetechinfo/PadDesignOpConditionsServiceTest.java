@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,11 +38,9 @@ public class PadDesignOpConditionsServiceTest {
   @Mock
   private PadDesignOpConditionsRepository padDesignOpConditionsRepository;
 
-  private SpringValidatorAdapter groupValidator;
-
   private PadDesignOpConditionsValidator validator;
 
-  private EntityAndFormBuilder entityAndFormBuilder;
+  private DesignOpConditionsEntityFormBuilder designOpConditionsEntityFormBuilder;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -53,9 +50,9 @@ public class PadDesignOpConditionsServiceTest {
     validator = new PadDesignOpConditionsValidator(new MinMaxInputValidator());
     padDesignOpConditionsMappingService = new PadDesignOpConditionsMappingService();
     padDesignOpConditionsService = new PadDesignOpConditionsService(
-        padDesignOpConditionsMappingService, padDesignOpConditionsRepository, validator, groupValidator);
+        padDesignOpConditionsMappingService, padDesignOpConditionsRepository, validator);
     pwaApplicationDetail = new PwaApplicationDetail();
-    entityAndFormBuilder = new EntityAndFormBuilder();
+    designOpConditionsEntityFormBuilder = new DesignOpConditionsEntityFormBuilder();
   }
 
   // Entity/Form  Retrieval/Mapping tests
@@ -69,17 +66,17 @@ public class PadDesignOpConditionsServiceTest {
   @Test
   public void mapEntityToForm_full() {
     var actualForm = new DesignOpConditionsForm();
-    var entity = entityAndFormBuilder.createValidEntity();
+    var entity = designOpConditionsEntityFormBuilder.createValidEntity();
     padDesignOpConditionsService.mapEntityToForm(actualForm, entity);
-    assertThat(actualForm).isEqualTo(entityAndFormBuilder.createValidForm());
+    assertThat(actualForm).isEqualTo(designOpConditionsEntityFormBuilder.createValidForm());
   }
 
   @Test
   public void mapFormToEntity_full() {
     var actualEntity = new PadDesignOpConditions();
-    var form = entityAndFormBuilder.createValidForm();
+    var form = designOpConditionsEntityFormBuilder.createValidForm();
     padDesignOpConditionsService.saveEntityUsingForm(form, actualEntity);
-    assertThat(actualEntity).isEqualTo(entityAndFormBuilder.createValidEntity());
+    assertThat(actualEntity).isEqualTo(designOpConditionsEntityFormBuilder.createValidEntity());
     verify(padDesignOpConditionsRepository, times(1)).save(any(PadDesignOpConditions.class));
   }
 
@@ -87,7 +84,8 @@ public class PadDesignOpConditionsServiceTest {
   // Validation / Checking tests
   @Test
   public void isComplete_valid() {
-    when(padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entityAndFormBuilder.createValidEntity()));
+    when(padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(
+        designOpConditionsEntityFormBuilder.createValidEntity()));
     var isValid = padDesignOpConditionsService.isComplete(pwaApplicationDetail);
     assertTrue(isValid);
   }
@@ -102,13 +100,13 @@ public class PadDesignOpConditionsServiceTest {
   @Test
   public void validate_fullValidation_valid() {
     var bindingResult = new BeanPropertyBindingResult(null, "empty");
-    padDesignOpConditionsService.validate(entityAndFormBuilder.createValidForm(), bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    padDesignOpConditionsService.validate(designOpConditionsEntityFormBuilder.createValidForm(), bindingResult, ValidationType.FULL, pwaApplicationDetail);
     assertFalse(bindingResult.hasErrors());
   }
 
   @Test
   public void validate_invalid() {
-    var form = entityAndFormBuilder.createBlankForm();
+    var form = designOpConditionsEntityFormBuilder.createBlankForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     padDesignOpConditionsService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     Assertions.assertTrue(bindingResult.hasErrors());
