@@ -4,25 +4,45 @@
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="submitButtonText" type="java.lang.String" -->
 <#-- @ftlvariable name="pickablePipelineOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOption>" -->
+<#-- @ftlvariable name="availableTreatyOptions" type="java.util.List<java.lang.String>" -->
 <#-- @ftlvariable name="pickableOrgDetails" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PickableOrganisationUnitDetail>" -->
 
 <@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=false fullWidthColumn=true>
+    <#if errorList?hasContent>
+        <@fdsError.errorSummary errorItems=errorList errorTitle="Errors"/>
+    </#if>
 
-        <@fdsDetails.summaryDetails summaryTitle="Show selected pipelines">
-            <@pwaPipelineTableSelection.pickablePipelineTableSelection
+    <@fdsInsetText.insetText>
+        You must select at least one option to assign to the selected pipelines
+    </@fdsInsetText.insetText>
+
+    <@fdsDetails.summaryDetails summaryTitle="Show selected pipelines">
+        <@pwaPipelineTableSelection.pickablePipelineTableSelection
             path="form.pickedPipelineStrings"
             pickablePipelineOptions=pickablePipelineOptions
             readOnlySelected=true/>
 
-        </@fdsDetails.summaryDetails>
+    </@fdsDetails.summaryDetails>
+
 
     <@fdsForm.htmlForm>
+        <#if availableTreatyOptions?hasContent>
+            <@fdsCheckbox.checkboxes
+                path="form.treatyAgreements"
+                checkboxes=availableTreatyOptions
+                fieldsetHeadingText="Select treaties"
+                fieldsetHeadingSize="h2"
+                fieldsetHeadingClass="govuk-fieldset__legend--s"
+                smallCheckboxes=true/>
+        </#if>
 
-        <@pwaOrgDetailTableSelection.pickableOrgDetailsTableSelection path="form.organisationUnitIds" pickableOrgDetailOptions=pickableOrgDetails/>
+        <#if pickableOrgDetails?hasContent>
+            <@pwaOrgDetailTableSelection.pickableOrgDetailsTableSelection path="form.organisationUnitIds" pickableOrgDetailOptions=pickableOrgDetails caption="Select organisations"/>
+        </#if>
 
         <@fdsAction.submitButtons
-        primaryButtonText=submitButtonText
-        secondaryButtonText="Back to pipeline selection"
+            primaryButtonText=submitButtonText
+            secondaryButtonText="Back to pipeline selection"
         />
     </@fdsForm.htmlForm>
 

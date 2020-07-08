@@ -29,13 +29,13 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -62,6 +62,7 @@ public class AddHuooController {
   private final AddHuooValidator addHuooValidator;
   private final EditHuooValidator editHuooValidator;
   private final PadOrganisationRoleService padOrganisationRoleService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public AddHuooController(
@@ -69,12 +70,14 @@ public class AddHuooController {
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       AddHuooValidator addHuooValidator,
       EditHuooValidator editHuooValidator,
-      PadOrganisationRoleService padOrganisationRoleService) {
+      PadOrganisationRoleService padOrganisationRoleService,
+      ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.addHuooValidator = addHuooValidator;
     this.editHuooValidator = editHuooValidator;
     this.padOrganisationRoleService = padOrganisationRoleService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private void addObjectAttributes(PwaApplicationDetail detail, ModelAndView modelAndView) {
@@ -133,7 +136,7 @@ public class AddHuooController {
                                   AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
     addHuooValidator.validate(form, bindingResult, detail);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddHuooModelAndView(detail), () -> {
           padOrganisationRoleService.saveEntityUsingForm(detail, form);
           return ReverseRouter.redirect(
@@ -173,7 +176,7 @@ public class AddHuooController {
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find organisation unit with ID: " + orgUnitId));
     editHuooValidator.validate(form, bindingResult, detail,
         padOrganisationRoleService.getValidationViewForOrg(detail, orgUnit), user);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getEditHuooModelAndView(detail, HuooType.PORTAL_ORG), () -> {
           padOrganisationRoleService.updateEntityUsingForm(detail, orgUnit, form);
           return ReverseRouter.redirect(
@@ -210,7 +213,7 @@ public class AddHuooController {
     var orgRole = padOrganisationRoleService.getOrganisationRole(detail, orgRoleId);
     editHuooValidator.validate(form, bindingResult, detail,
         padOrganisationRoleService.getValidationViewForTreaty(detail, orgRole));
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getEditHuooModelAndView(detail, HuooType.TREATY_AGREEMENT), () -> {
           padOrganisationRoleService.updateEntityUsingForm(detail, orgRole, form);
           return ReverseRouter.redirect(

@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -34,7 +35,6 @@ import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -51,17 +51,20 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
   private final PwaApplicationFileService applicationFileService;
   private final AdmiraltyChartFileService admiraltyChartFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public AdmiraltyChartDocumentsController(
       PwaApplicationFileService applicationFileService,
       AdmiraltyChartFileService admiraltyChartFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationFileService = applicationFileService;
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView createAdmiraltyChartModelAndView(PwaApplicationDetail pwaApplicationDetail,
@@ -118,7 +121,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
         applicationContext.getApplicationDetail()
     );
     var modelAndView = createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
       admiraltyChartFileService.updateOrDeleteLinkedFilesUsingForm(
           applicationContext.getApplicationDetail(),

@@ -16,9 +16,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.start.StartPwaApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 
 @Controller
@@ -28,12 +28,15 @@ public class StartPwaApplicationController {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   private final String contactEmail;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public StartPwaApplicationController(Environment environment,
-                                       PwaApplicationRedirectService pwaApplicationRedirectService) {
+                                       PwaApplicationRedirectService pwaApplicationRedirectService,
+                                       ControllerHelperService controllerHelperService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.contactEmail = environment.getProperty("app.support.email");
+    this.controllerHelperService = controllerHelperService;
   }
 
   /**
@@ -63,7 +66,7 @@ public class StartPwaApplicationController {
   public ModelAndView startApplication(@Valid @ModelAttribute("form") StartPwaApplicationForm form,
                                        BindingResult bindingResult) {
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(), () ->
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(), () ->
         pwaApplicationRedirectService.getStartApplicationRedirect(
             EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType())));
 

@@ -20,9 +20,10 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.Pick
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
@@ -65,6 +66,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
                                           PickHuooPipelineValidationType pickHuooPipelineValidationType,
                                           HuooRole huooRole) {
 
+    var availableTreatiesForRole = getAvailableTreatyAgreementsForRole(pwaApplicationDetail, huooRole);
     pickHuooPipelinesFormValidator.validate(form,
         bindingResult, List.of(
             huooRole,
@@ -91,16 +93,22 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   /* Convenience method passing args to the actual pad org roles service */
   public List<PadOrganisationRole> getPadOrganisationRolesFrom(PwaApplicationDetail pwaApplicationDetail,
                                                                HuooRole huooRole,
-                                                               Set<Integer> organisationUnitIds) {
+                                                               Set<Integer> organisationUnitIds,
+                                                               Set<TreatyAgreement> treatyAgreements) {
 
-    var orgUnitIds = organisationUnitIds.stream()
-        .map(OrganisationUnitId::new)
-        .collect(toSet());
-
-    return padOrganisationRoleService.getOrgRolesForDetailByOrganisationIdAndRole(
+    return padOrganisationRoleService.getOrgRolesForDetailByRole(
         pwaApplicationDetail,
-        orgUnitIds,
-        huooRole);
+        huooRole
+    )
+        .stream()
+        // only return roles where the role is one of the chosen treaties or organisation units.
+        .filter(padOrganisationRole -> {
+          if (padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT)) {
+            return treatyAgreements.contains(padOrganisationRole.getAgreement());
+          }
+          return organisationUnitIds.contains(padOrganisationRole.getOrganisationUnit().getOuId());
+        })
+        .collect(toList());
 
   }
 
@@ -158,6 +166,17 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
     return portalOrganisationsAccessor.getOrganisationUnitDetailDtos(orgUnitsForRole);
 
+  }
+
+  public List<TreatyAgreement> getAvailableTreatyAgreementsForRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                   HuooRole huooRole) {
+    return padOrganisationRoleService.getOrgRolesForDetail(pwaApplicationDetail)
+        .stream()
+        .filter(o -> huooRole.equals(o.getRole()))
+        .filter(o -> HuooType.TREATY_AGREEMENT.equals(o.getType()))
+        .map(PadOrganisationRole::getAgreement)
+        .sorted(Comparator.comparing(TreatyAgreement::getAgreementText))
+        .collect(toList());
   }
 
   public PipelineAndOrganisationRoleGroupSummaryDto createPipelineAndOrganisationRoleGroupSummary(

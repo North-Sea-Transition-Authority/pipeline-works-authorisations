@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -23,7 +24,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -43,15 +43,18 @@ public class EnvironmentalDecomController {
   private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public EnvironmentalDecomController(
       PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PwaApplicationRedirectService pwaApplicationRedirectService) {
+      PwaApplicationRedirectService pwaApplicationRedirectService,
+      ControllerHelperService controllerHelperService) {
     this.padEnvironmentalDecommissioningService = padEnvironmentalDecommissioningService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getEnvDecomModelAndView(PwaApplicationDetail pwaApplicationDetail) {
@@ -97,7 +100,7 @@ public class EnvironmentalDecomController {
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getEnvDecomModelAndView(detail), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getEnvDecomModelAndView(detail), () -> {
       var envDecomData = padEnvironmentalDecommissioningService.getEnvDecomData(detail);
       padEnvironmentalDecommissioningService.saveEntityUsingForm(envDecomData, form);
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());

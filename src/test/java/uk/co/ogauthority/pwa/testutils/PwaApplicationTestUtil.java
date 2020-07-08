@@ -45,9 +45,19 @@ public class PwaApplicationTestUtil {
     var masterPwa = new MasterPwa(Instant.now());
     masterPwa.setId(10);
 
-    return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, appId, 30);
+    return createDefaultApplicationDetail(applicationType, appId, 30);
 
   }
+
+  public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, int appId, int appDetailId) {
+    var masterPwa = new MasterPwa(Instant.now());
+    masterPwa.setId(10);
+
+    return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, appId, appDetailId);
+
+  }
+
+
 
   public static void tryAssertionWithStatus(PwaApplicationStatus status, Consumer<PwaApplicationStatus> tryBlock){
     try{

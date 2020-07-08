@@ -73,18 +73,24 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
-  public List<PadOrganisationRole> getOrgRolesForDetailByOrganisationIdAndRole(
+  public List<PadOrganisationRole> getOrgRolesForDetailByRole(
       PwaApplicationDetail pwaApplicationDetail,
-      Set<OrganisationUnitId> organisationUnitIds,
       HuooRole huooRole) {
     // performance is probably fine due to the relatively small numbers of roles expected per application on average
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
         .filter(por -> por.getRole().equals(huooRole))
-        .filter(padOrganisationRole -> organisationUnitIds.contains(
-            OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit())
-        ))
         .collect(toList());
+  }
+
+  public boolean hasOrganisationUnitRoleOwnersInRole(PwaApplicationDetail pwaApplicationDetail, HuooRole huooRole) {
+    return padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, huooRole, HuooType.PORTAL_ORG) > 0;
+  }
+
+  public boolean hasTreatyRoleOwnersInRole(PwaApplicationDetail pwaApplicationDetail, HuooRole huooRole) {
+    return padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, huooRole, HuooType.TREATY_AGREEMENT) > 0;
   }
 
 

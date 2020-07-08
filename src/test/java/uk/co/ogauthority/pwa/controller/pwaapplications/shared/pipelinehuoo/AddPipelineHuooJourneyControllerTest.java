@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
@@ -65,6 +66,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
 
   private final String FORM_PICKED_PIPELINE_ATTR = "pickedPipelineStrings";
   private final String FORM_PICKED_ORG_ATTR = "organisationUnitIds";
+  private final String FORM_PICKED_TREATY_ATTR = "treatyAgreements";
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -308,7 +310,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
     var pickedPipelines = Set.of(new Pipeline(), new Pipeline());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
     when(pickablePipelineService.getPickedPipelinesFromStrings(any())).thenReturn(pickedPipelines);
-    when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any())).thenReturn(foundPadOrgRoles);
+    when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
 
     mockMvc.perform(post(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
@@ -325,12 +327,16 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
+        .param(FORM_PICKED_TREATY_ATTR, String.format("%s,%s", TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND))
     )
         .andExpect(status().is3xxRedirection());
 
     verify(pickablePipelineService, times(1)).getPickedPipelinesFromStrings(PICKED_PIPELINE_IDS);
-    verify(padPipelinesHuooService, times(1)).getPadOrganisationRolesFrom(pwaApplicationDetail, DEFAULT_ROLE,
-        PICKED_ORG_IDS);
+    verify(padPipelinesHuooService, times(1)).getPadOrganisationRolesFrom(
+        pwaApplicationDetail,
+        DEFAULT_ROLE,
+        PICKED_ORG_IDS,
+        Set.of(TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND));
     verify(padPipelinesHuooService, times(1)).createPipelineOrganisationRoles(pwaApplicationDetail, foundPadOrgRoles,
         pickedPipelines);
 
@@ -402,7 +408,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void returnToPipelineSelection_selectedOrganisationsPersisted() throws Exception {
+  public void returnToPipelineSelection_selectedOrganisationsPersisted_andSelectedTreatiesPersisted() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
         .returnToPipelineSelection(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
@@ -410,6 +416,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
+        .param(FORM_PICKED_TREATY_ATTR, TreatyAgreement.BELGIUM.name())
         .param(UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT, "")
     )
         .andExpect(status().is3xxRedirection());
@@ -425,6 +432,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
 
     PickHuooPipelinesForm form = (PickHuooPipelinesForm)result.getModelAndView().getModel().get("form");
     assertThat(form.getOrganisationUnitIds()).isEqualTo(PICKED_ORG_IDS);
+    assertThat(form.getTreatyAgreements()).containsExactly(TreatyAgreement.BELGIUM);
 
   }
 

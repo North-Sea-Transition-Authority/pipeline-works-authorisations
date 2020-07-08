@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -36,7 +37,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormV
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -50,6 +50,7 @@ public class PwaContactController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final TeamManagementService teamManagementService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
+  private final ControllerHelperService controllerHelperService;
 
   private final Map<String, String> rolesCheckboxMap;
   private final Map<String, String> allRolesMap;
@@ -59,12 +60,14 @@ public class PwaContactController {
                               PwaApplicationDetailService pwaApplicationDetailService,
                               ApplicationBreadcrumbService applicationBreadcrumbService,
                               TeamManagementService teamManagementService,
-                              AddPwaContactFormValidator addPwaContactFormValidator) {
+                              AddPwaContactFormValidator addPwaContactFormValidator,
+                              ControllerHelperService controllerHelperService) {
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.teamManagementService = teamManagementService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
+    this.controllerHelperService = controllerHelperService;
 
     rolesCheckboxMap = PwaContactRole.stream()
         .sorted(Comparator.comparing(PwaContactRole::getDisplayOrder))
@@ -149,7 +152,7 @@ public class PwaContactController {
       form.setPwaApplicationId(pwaApplication.getId());
       addPwaContactFormValidator.validate(form, bindingResult);
 
-      return ControllerUtils.checkErrorsAndRedirect(bindingResult, getAddUserToTeamModelAndView(pwaApplication, form), () -> {
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddUserToTeamModelAndView(pwaApplication, form), () -> {
 
         Optional<Person> person = teamManagementService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
 
@@ -220,7 +223,7 @@ public class PwaContactController {
 
       var person = teamManagementService.getPerson(personId);
 
-      return ControllerUtils.checkErrorsAndRedirect(bindingResult, getContactRolesModelAndView(detail, person, form), () -> {
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult, getContactRolesModelAndView(detail, person, form), () -> {
 
         Set<PwaContactRole> roles = form.getUserRoles().stream()
             .map(r -> EnumUtils.getEnumValue(PwaContactRole.class, r))
