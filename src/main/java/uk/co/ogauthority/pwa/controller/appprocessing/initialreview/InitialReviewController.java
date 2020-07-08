@@ -24,13 +24,13 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialRevie
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -45,16 +45,19 @@ public class InitialReviewController {
   private final InitialReviewService initialReviewService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final InitialReviewFormValidator initialReviewFormValidator;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public InitialReviewController(ApplicationBreadcrumbService breadcrumbService,
                                  InitialReviewService initialReviewService,
                                  WorkflowAssignmentService workflowAssignmentService,
-                                 InitialReviewFormValidator initialReviewFormValidator) {
+                                 InitialReviewFormValidator initialReviewFormValidator,
+                                 ControllerHelperService controllerHelperService) {
     this.breadcrumbService = breadcrumbService;
     this.initialReviewService = initialReviewService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.initialReviewFormValidator = initialReviewFormValidator;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getInitialReviewModelAndView(PwaApplicationDetail detail) {
@@ -99,7 +102,7 @@ public class InitialReviewController {
 
     initialReviewFormValidator.validate(form, bindingResult);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getInitialReviewModelAndView(processingContext.getApplicationDetail()),
         () -> {
 

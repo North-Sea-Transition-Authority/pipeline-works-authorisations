@@ -16,9 +16,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.start.StartPwaApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -27,10 +27,13 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 public class StartPrototypePwaApplicationController {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
-  public StartPrototypePwaApplicationController(PwaApplicationRedirectService pwaApplicationRedirectService) {
+  public StartPrototypePwaApplicationController(PwaApplicationRedirectService pwaApplicationRedirectService,
+                                                ControllerHelperService controllerHelperService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   /**
@@ -59,7 +62,7 @@ public class StartPrototypePwaApplicationController {
   public ModelAndView startApplication(@Valid @ModelAttribute("form") StartPwaApplicationForm form,
                                        BindingResult bindingResult) {
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(), () -> {
           var applicationType = EnumUtils.getEnumValue(PrototypeApplicationType.class, form.getApplicationType());
           switch (applicationType) {
             case INITIAL:

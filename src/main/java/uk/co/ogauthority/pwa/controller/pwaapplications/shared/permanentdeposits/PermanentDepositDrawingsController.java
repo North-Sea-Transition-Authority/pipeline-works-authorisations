@@ -28,19 +28,18 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -64,6 +63,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
   private final DepositDrawingsService depositDrawingsService;
   private final PermanentDepositService permanentDepositService;
   private final PadFileService padFileService;
+  private final ControllerHelperService controllerHelperService;
 
   private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.DEPOSIT_DRAWINGS;
 
@@ -72,14 +72,15 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                             PwaApplicationRedirectService pwaApplicationRedirectService,
                                             DepositDrawingsService depositDrawingsService,
                                             PermanentDepositService permanentDepositService,
-                                            PwaApplicationFileService applicationFileService,
-                                            PadFileService padFileService) {
+                                            PadFileService padFileService,
+                                            ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositService = permanentDepositService;
     this.padFileService = padFileService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   //Form Endpoints
@@ -153,7 +154,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD), () -> {
           depositDrawingsService.addDrawing(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositDrawingsController.class).renderDepositDrawingsOverview(
@@ -173,7 +174,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
     bindingResult = depositDrawingsService.validateDrawingEdit(form,
         bindingResult, validationType, applicationContext.getApplicationDetail(), depositDrawingId);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
           depositDrawingsService.editDepositDrawing(depositDrawingId, applicationContext.getApplicationDetail(),
               form, applicationContext.getUser());

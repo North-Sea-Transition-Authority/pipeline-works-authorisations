@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -45,7 +46,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.AddBlockCrossingFormValidator;
@@ -71,6 +71,7 @@ public class BlockCrossingController {
   private final BlockCrossingFileService blockCrossingFileService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
   private final PadFileService padFileService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public BlockCrossingController(
@@ -82,7 +83,8 @@ public class BlockCrossingController {
       BlockCrossingService blockCrossingService,
       BlockCrossingFileService blockCrossingFileService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      ControllerHelperService controllerHelperService) {
     this.breadcrumbService = breadcrumbService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.addBlockCrossingFormValidator = addBlockCrossingFormValidator;
@@ -92,6 +94,7 @@ public class BlockCrossingController {
     this.blockCrossingFileService = blockCrossingFileService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
     this.padFileService = padFileService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   @GetMapping
@@ -144,7 +147,7 @@ public class BlockCrossingController {
 
     addBlockCrossingFormValidator.validate(form, bindingResult);
 
-    return ControllerUtils.checkErrorsAndRedirect(
+    return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         createAddBlockCrossingFormModelAndView(applicationContext, form),
         () -> {
@@ -187,7 +190,7 @@ public class BlockCrossingController {
 
     editBlockCrossingFormValidator.validate(form, bindingResult, crossedBlock.getLicence());
 
-    return ControllerUtils.checkErrorsAndRedirect(
+    return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         createEditBlockCrossingFormModelAndView(applicationContext, crossedBlock),
         () -> {

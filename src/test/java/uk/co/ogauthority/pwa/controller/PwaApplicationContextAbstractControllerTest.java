@@ -87,7 +87,7 @@ public abstract class PwaApplicationContextAbstractControllerTest {
   @MockBean
   private PwaAppProcessingContextService appProcessingContextService;
 
-  @MockBean
+  @SpyBean
   private ControllerHelperService controllerHelperService;
 
   @Before
@@ -106,8 +106,6 @@ public abstract class PwaApplicationContextAbstractControllerTest {
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(anyInt(), any())).thenCallRealMethod();
-
-    when(controllerHelperService.checkErrorsAndRedirect(any(), any(), any())).thenCallRealMethod();
 
   }
 

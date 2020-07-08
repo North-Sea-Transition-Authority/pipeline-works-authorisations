@@ -16,6 +16,7 @@ This log lists the architectural decisions for PWA.
 - [ADR-0009](0009-flash-messages.md) - Flash message guidelines
 - [ADR-0010](0010-use-ftlvariables-in-templates.md) - Define ftlvariables in .ftl templates to assist devs and avoid IntelliJ warnings
 - [ADR-0011](0011-use-enum-parameters-over-booleans.md) - Use enum parameters over booleans when defining method parameters, return types etc
+- [ADR-0012](0012-use-spring-message-validation-for-type-mismatches.md) - Use spring message validation for type mismatches when binding to forms
 
 <!-- adrlogstop -->
 

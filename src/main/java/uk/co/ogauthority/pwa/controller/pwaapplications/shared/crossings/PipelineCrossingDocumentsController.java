@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -38,7 +39,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingFileService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -56,6 +56,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
   private final PipelineCrossingFileService pipelineCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+  private final ControllerHelperService controllerHelperService;
   private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PIPELINE_CROSSINGS;
 
   @Autowired
@@ -63,11 +64,13 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
       PipelineCrossingFileService pipelineCrossingFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.pipelineCrossingFileService = pipelineCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView createPipelineCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
@@ -124,7 +127,7 @@ public class PipelineCrossingDocumentsController extends PwaApplicationDataFileU
         applicationContext.getApplicationDetail()
     );
     var modelAndView = createPipelineCrossingModelAndView(applicationContext.getApplicationDetail(), form);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
       padFileService.updateFiles(form, detail, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES, user);
       return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.PIPELINE_CROSSINGS);

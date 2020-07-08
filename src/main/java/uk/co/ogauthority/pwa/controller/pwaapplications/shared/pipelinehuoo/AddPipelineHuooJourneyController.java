@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -35,7 +36,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOption;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -72,14 +72,16 @@ public class AddPipelineHuooJourneyController {
 
   private final PadPipelinesHuooService padPipelinesHuooService;
   private final PickablePipelineService pickablePipelineService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public AddPipelineHuooJourneyController(
       PadPipelinesHuooService padPipelinesHuooService,
-      PickablePipelineService pickablePipelineService) {
+      PickablePipelineService pickablePipelineService,
+      ControllerHelperService controllerHelperService) {
     this.padPipelinesHuooService = padPipelinesHuooService;
-
     this.pickablePipelineService = pickablePipelineService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   @GetMapping("/pipelines")
@@ -121,7 +123,7 @@ public class AddPipelineHuooJourneyController {
         huooRole
     );
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getSelectPipelineModelAndView(applicationContext, huooRole),
         () -> ReverseRouter.redirect(
             on(AddPipelineHuooJourneyController.class).renderOrganisationsForPipelineHuooAssignment(
@@ -179,7 +181,7 @@ public class AddPipelineHuooJourneyController {
 
     var modelAndView = getUpdatePipelineOrgRoleModelAndView(applicationContext, huooRole);
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         modelAndView,
         () -> {
           // This is not direct form -> entity mapping so diverges from project standard imo.

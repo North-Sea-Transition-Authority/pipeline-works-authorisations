@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.Property
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -25,8 +26,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
-import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 
@@ -43,14 +42,17 @@ public class PipelineOtherPropertiesController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadPipelineOtherPropertiesService padPipelineOtherPropertiesService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PipelineOtherPropertiesController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                            PwaApplicationRedirectService pwaApplicationRedirectService,
-                                           PadPipelineOtherPropertiesService padPipelineOtherPropertiesService) {
+                                           PadPipelineOtherPropertiesService padPipelineOtherPropertiesService,
+                                           ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPipelineOtherPropertiesService = padPipelineOtherPropertiesService;
+    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -80,7 +82,7 @@ public class PipelineOtherPropertiesController {
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddPipelineOtherPropertiesModelAndView(applicationContext.getApplicationDetail()), () -> {
           var entities = padPipelineOtherPropertiesService.getPipelineOtherPropertyEntities(applicationContext.getApplicationDetail());
           padPipelineOtherPropertiesService.saveEntitiesUsingForm(form, entities, applicationContext.getApplicationDetail());

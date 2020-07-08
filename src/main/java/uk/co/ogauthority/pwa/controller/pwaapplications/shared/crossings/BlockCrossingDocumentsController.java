@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -38,7 +39,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -56,17 +56,20 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final BlockCrossingFileService blockCrossingFileService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+  private final ControllerHelperService controllerHelperService;
   private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.BLOCK_CROSSINGS;
 
   @Autowired
   public BlockCrossingDocumentsController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                           BlockCrossingFileService blockCrossingFileService,
                                           CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-                                          PadFileService padFileService) {
+                                          PadFileService padFileService,
+                                          ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.blockCrossingFileService = blockCrossingFileService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
+    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -98,7 +101,7 @@ public class BlockCrossingDocumentsController extends PwaApplicationDataFileUplo
         applicationContext.getApplicationDetail()
     );
     var modelAndView = createBlockCrossingModelAndView(applicationContext.getApplicationDetail(), form);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
       padFileService.updateFiles(form, detail, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES, user);
       return crossingAgreementsTaskListService.getOverviewRedirect(detail,

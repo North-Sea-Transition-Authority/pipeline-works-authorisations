@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -27,7 +28,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -39,17 +39,20 @@ public class FastTrackController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadFastTrackService padFastTrackService;
   private final PadProjectInformationService padProjectInformationService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public FastTrackController(
       PwaApplicationRedirectService pwaApplicationRedirectService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadFastTrackService padFastTrackService,
-      PadProjectInformationService padProjectInformationService) {
+      PadProjectInformationService padProjectInformationService,
+      ControllerHelperService controllerHelperService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padFastTrackService = padFastTrackService;
     this.padProjectInformationService = padProjectInformationService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getFastTrackModelAndView(PwaApplicationDetail detail) {
@@ -108,7 +111,7 @@ public class FastTrackController {
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getFastTrackModelAndView(detail), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getFastTrackModelAndView(detail), () -> {
       var entity = padFastTrackService.getFastTrackForDraft(detail);
       padFastTrackService.saveEntityUsingForm(entity, form);
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
