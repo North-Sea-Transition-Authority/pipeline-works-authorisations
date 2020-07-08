@@ -10,6 +10,9 @@ import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes
 
 @Component
 public class MinMaxInputValidator implements SmartValidator {
+  
+  private String minInputName;
+  private String maxInputName;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -29,17 +32,19 @@ public class MinMaxInputValidator implements SmartValidator {
     var validationRulesToByPass = (List<ByPassDefaultValidationHint>) objects[1];
     var validationRequiredHints = (List<Object>) objects [2];
 
+    minInputName = objects.length >= 5 ? (String) objects[3] : "minimum";
+    maxInputName = objects.length >= 5 ? (String) objects[4] : "maximum";
+
     if (!minMaxInput.isMinNumeric()) {
       errors.rejectValue("minValue", "minValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid minimum value for " + propertyName.toLowerCase());
+          "Enter a valid " + minInputName + " value for " + propertyName.toLowerCase());
     }
     if (!minMaxInput.isMaxNumeric()) {
       errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid maximum value for " + propertyName.toLowerCase());
+          "Enter a valid " + maxInputName + " value for " + propertyName.toLowerCase());
     }
 
     if (minMaxInput.isMinNumeric() && minMaxInput.isMaxNumeric()) {
-      validateMinSmallerOrEqualToMax(errors, minMaxInput, propertyName);
       performDefaultValidation(validationRulesToByPass, errors, minMaxInput, propertyName);
       for (var validationRequired: validationRequiredHints) {
         if (validationRequired instanceof DecimalPlacesHint) {
@@ -69,7 +74,7 @@ public class MinMaxInputValidator implements SmartValidator {
   private void validateMinSmallerOrEqualToMax(Errors errors, MinMaxInput minMaxInput, String property) {
     if (!minMaxInput.minSmallerOrEqualToMax()) {
       errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.MIN_LARGER_THAN_MAX.getCode(),
-          "The minimum value must be smaller or equal to the maximum value for " + property.toLowerCase());
+          "The " + minInputName + " value must be smaller or equal to the " + maxInputName + " value for " + property.toLowerCase());
     }
   }
 
@@ -77,11 +82,11 @@ public class MinMaxInputValidator implements SmartValidator {
   private void validatePositiveNumber(Errors errors, MinMaxInput minMaxInput, String property) {
     if (!minMaxInput.isMinPositive()) {
       errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
-          "The minimum value must be a positive number for " + property.toLowerCase());
+          "The " + minInputName + " value must be a positive number for " + property.toLowerCase());
     }
     if (!minMaxInput.isMaxPositive()) {
       errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
-          "The maximum value must be a positive number for " + property.toLowerCase());
+          "The " + maxInputName + " value must be a positive number for " + property.toLowerCase());
     }
   }
 
@@ -89,11 +94,11 @@ public class MinMaxInputValidator implements SmartValidator {
   private void validateInteger(Errors errors, MinMaxInput minMaxInput, String property) {
     if (!minMaxInput.isMinInteger()) {
       errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
-          "The minimum value must be a whole number for " + property.toLowerCase());
+          "The " + minInputName + " value must be a whole number for " + property.toLowerCase());
     }
     if (!minMaxInput.isMaxInteger()) {
       errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
-          "The maximum value must be a whole number for " + property.toLowerCase());
+          "The " + maxInputName + " value must be a whole number for " + property.toLowerCase());
     }
   }
 
@@ -101,13 +106,14 @@ public class MinMaxInputValidator implements SmartValidator {
   private void validateDecimalPlaces(Errors errors, MinMaxInput minMaxInput, String property, int maxDecimalPlaces) {
     if (!minMaxInput.minHasValidDecimalPlaces(maxDecimalPlaces)) {
       errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-          "The minimum value should not have more than " + maxDecimalPlaces + "dp for " + property.toLowerCase());
+          "The " + minInputName + " value should not have more than " + maxDecimalPlaces + "dp for " + property.toLowerCase());
     }
     if (!minMaxInput.maxHasValidDecimalPlaces(maxDecimalPlaces)) {
       errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-          "The maximum value should not have more than " + maxDecimalPlaces + "dp for " + property.toLowerCase());
+          "The " + maxInputName + " value should not have more than " + maxDecimalPlaces + "dp for " + property.toLowerCase());
     }
   }
+
 
 
 

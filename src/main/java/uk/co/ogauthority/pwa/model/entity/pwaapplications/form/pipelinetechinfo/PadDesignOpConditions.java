@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -192,6 +193,44 @@ public class PadDesignOpConditions {
 
   public void setUvalueDesign(BigDecimal uvalueDesign) {
     this.uvalueDesign = uvalueDesign;
+  }
+
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadDesignOpConditions that = (PadDesignOpConditions) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(temperatureOpMinValue, that.temperatureOpMinValue)
+        && Objects.equals(temperatureOpMaxValue, that.temperatureOpMaxValue)
+        && Objects.equals(temperatureDesignMinValue, that.temperatureDesignMinValue)
+        && Objects.equals(temperatureDesignMaxValue, that.temperatureDesignMaxValue)
+        && Objects.equals(pressureOpInternalValue, that.pressureOpInternalValue)
+        && Objects.equals(pressureOpExternalValue, that.pressureOpExternalValue)
+        && Objects.equals(pressureDesignInternalValue, that.pressureDesignInternalValue)
+        && Objects.equals(pressureDesignExternalValue, that.pressureDesignExternalValue)
+        && Objects.equals(flowrateOpMinValue, that.flowrateOpMinValue)
+        && Objects.equals(flowrateOpMaxValue, that.flowrateOpMaxValue)
+        && Objects.equals(flowrateDesignMinValue, that.flowrateDesignMinValue)
+        && Objects.equals(flowrateDesignMaxValue, that.flowrateDesignMaxValue)
+        && Objects.equals(uvalueOp, that.uvalueOp)
+        && Objects.equals(uvalueDesign, that.uvalueDesign);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, temperatureOpMinValue, temperatureOpMaxValue,
+        temperatureDesignMinValue,
+        temperatureDesignMaxValue, pressureOpInternalValue, pressureOpExternalValue, pressureDesignInternalValue,
+        pressureDesignExternalValue, flowrateOpMinValue, flowrateOpMaxValue, flowrateDesignMinValue,
+        flowrateDesignMaxValue, uvalueOp, uvalueDesign);
   }
 }
 
