@@ -91,7 +91,7 @@ public class PipelineOtherPropertiesDataValidator implements SmartValidator {
     }
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "minMaxInput", minMaxInput, formProperty.getDisplayText(), validationHints);
+        "minMaxInput", minMaxInput, formProperty.getDisplayText(), List.of(), validationHints);
 
   }
 

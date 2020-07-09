@@ -15,7 +15,6 @@ public class MinMaxInput {
   private static final Logger LOGGER = LoggerFactory.getLogger(
       MinMaxInput.class);
 
-
   private String minValue;
   private String maxValue;
 
@@ -91,6 +90,7 @@ public class MinMaxInput {
     this.maxValue = maxValue;
   }
 
+
   public BigDecimal createMinOrNull() {
     return this.createBigDecimal(minValue)
         .orElse(null);
@@ -101,7 +101,6 @@ public class MinMaxInput {
         .orElse(null);
   }
 
-
   public Optional<BigDecimal> createBigDecimal(String valueStr) {
     try {
       var createdNum = valueStr != null ? new BigDecimal(valueStr) : null;
@@ -111,6 +110,9 @@ public class MinMaxInput {
       return Optional.empty();
     }
   }
+
+
+
 
   @Override
   public boolean equals(Object o) {

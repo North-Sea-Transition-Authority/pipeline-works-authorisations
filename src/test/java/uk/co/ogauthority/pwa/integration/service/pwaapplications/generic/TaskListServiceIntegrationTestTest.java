@@ -125,7 +125,8 @@ public class TaskListServiceIntegrationTestTest {
                 ApplicationTask.PIPELINES_HUOO.getDisplayName(),
                 ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName(),
                 ApplicationTask.FLUID_COMPOSITION.getDisplayName(),
-                ApplicationTask.PIPELINE_OTHER_PROPERTIES.getDisplayName()
+                ApplicationTask.PIPELINE_OTHER_PROPERTIES.getDisplayName(),
+                ApplicationTask.DESIGN_OP_CONDITIONS.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:
