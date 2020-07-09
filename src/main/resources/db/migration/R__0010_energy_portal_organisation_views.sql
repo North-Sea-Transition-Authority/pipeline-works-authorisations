@@ -28,6 +28,6 @@ SELECT
 , oad.legal_address
 , oad.registered_number
 FROM decmgr.xview_organisation_units xou
-JOIN decmgr.organisation_address_details oad ON oad.organ_id = xou.organ_id
+LEFT JOIN decmgr.organisation_address_details oad ON oad.organ_id = xou.organ_id
 WHERE xou.end_date IS NULL
 AND xou.is_duplicate IS NULL;
