@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -332,13 +333,16 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
         .andExpect(status().is3xxRedirection());
 
     verify(pickablePipelineService, times(1)).getPickedPipelinesFromStrings(PICKED_PIPELINE_IDS);
-    verify(padPipelinesHuooService, times(1)).getPadOrganisationRolesFrom(
-        pwaApplicationDetail,
-        DEFAULT_ROLE,
-        PICKED_ORG_IDS,
-        Set.of(TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND));
-    verify(padPipelinesHuooService, times(1)).createPipelineOrganisationRoles(pwaApplicationDetail, foundPadOrgRoles,
-        pickedPipelines);
+
+    verify(padPipelinesHuooService, times(1))
+        .updatePipelineHuooLinks(
+            pwaApplicationDetail,
+            pickedPipelines,
+            DEFAULT_ROLE,
+            PICKED_ORG_IDS.stream().map(OrganisationUnitId::new)
+            .collect(Collectors.toSet()),
+            Set.of(TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND)
+            );
 
   }
 
@@ -361,7 +365,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
     )
         .andExpect(status().isOk());
 
-    verify(padPipelinesHuooService, times(0)).createPipelineOrganisationRoles(any(), any(), any());
+    verify(padPipelinesHuooService, times(0)).updatePipelineHuooLinks(any(), any(), any(), any(), any());
 
   }
 
@@ -401,7 +405,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
             ReverseRouter.route(on(AddPipelineHuooJourneyController.class).returnToPipelineSelection(
                 pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, null, null
             ))))
-    .addRequestParam(UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT, "");
+        .addRequestParam(UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT, "");
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -430,7 +434,7 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
         .andExpect(status().isOk())
         .andReturn();
 
-    PickHuooPipelinesForm form = (PickHuooPipelinesForm)result.getModelAndView().getModel().get("form");
+    PickHuooPipelinesForm form = (PickHuooPipelinesForm) result.getModelAndView().getModel().get("form");
     assertThat(form.getOrganisationUnitIds()).isEqualTo(PICKED_ORG_IDS);
     assertThat(form.getTreatyAgreements()).containsExactly(TreatyAgreement.BELGIUM);
 

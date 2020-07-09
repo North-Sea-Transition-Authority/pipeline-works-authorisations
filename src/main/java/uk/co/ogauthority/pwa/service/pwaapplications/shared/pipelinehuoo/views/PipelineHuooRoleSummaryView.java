@@ -22,12 +22,14 @@ public class PipelineHuooRoleSummaryView {
   private final List<String> sortedUnassignedOrganisationNames;
   private final List<String> sortedUnassignedPipelineNumbers;
 
-  public PipelineHuooRoleSummaryView(HuooRole huooRole,
-                                     List<PipelinesAndOrgRoleGroupView> pipelinesAndOrgRoleGroupViews,
-                                     Map<PipelineId, String> unassignedPipelineNumberMapForRole,
-                                     Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole) {
+  PipelineHuooRoleSummaryView(HuooRole huooRole,
+                              List<PipelinesAndOrgRoleGroupView> pipelinesAndOrgRoleGroupViews,
+                              Map<PipelineId, String> unassignedPipelineNumberMapForRole,
+                              Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole) {
     this.huooRole = huooRole;
-    this.pipelinesAndOrgRoleGroupViews = pipelinesAndOrgRoleGroupViews;
+    this.pipelinesAndOrgRoleGroupViews = pipelinesAndOrgRoleGroupViews.stream()
+        .sorted(Comparator.comparing(PipelinesAndOrgRoleGroupView::getSortKey))
+        .collect(Collectors.toList());
     this.unassignedPipelineNumberMapForRole = unassignedPipelineNumberMapForRole;
     this.unassignedOrganisationRoleOwnerNameMapForRole = unassignedOrganisationRoleOwnerNameMapForRole;
 

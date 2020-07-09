@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -187,16 +188,16 @@ public class AddPipelineHuooJourneyController {
           // This is not direct form -> entity mapping so diverges from project standard imo.
           // actual mapping between form elements and entities is still captured in the service code.
           var pipelines = pickablePipelineService.getPickedPipelinesFromStrings(form.getPickedPipelineStrings());
-          var organisationRoles = padPipelinesHuooService.getPadOrganisationRolesFrom(
-              applicationContext.getApplicationDetail(),
-              huooRole,
-              form.getOrganisationUnitIds(),
-              form.getTreatyAgreements());
 
-          padPipelinesHuooService.createPipelineOrganisationRoles(
+          padPipelinesHuooService.updatePipelineHuooLinks(
               applicationContext.getApplicationDetail(),
-              organisationRoles,
-              pipelines);
+              pipelines,
+              huooRole,
+              form.getOrganisationUnitIds()
+                  .stream()
+                  .map(OrganisationUnitId::new)
+                  .collect(Collectors.toSet()),
+              form.getTreatyAgreements());
 
           FlashUtils.success(
               redirectAttributes,
@@ -249,11 +250,10 @@ public class AddPipelineHuooJourneyController {
 
   private List<PickablePipelineOption> getSortedPickablePipelines(PwaApplicationDetail pwaApplicationDetail,
                                                                   HuooRole huooRole) {
-    return padPipelinesHuooService.getPickablePipelineOptionsWithNoRoleOfType(pwaApplicationDetail, huooRole)
+    return padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(pwaApplicationDetail)
         .stream()
         .sorted(Comparator.comparing(PickablePipelineOption::getPipelineNumber))
         .collect(Collectors.toList());
-
   }
 
   private ModelAndView getUpdatePipelineOrgRoleModelAndView(PwaApplicationContext applicationContext,

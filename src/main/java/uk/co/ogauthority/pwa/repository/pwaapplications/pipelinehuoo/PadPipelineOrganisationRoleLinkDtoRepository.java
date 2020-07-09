@@ -12,4 +12,5 @@ interface PadPipelineOrganisationRoleLinkDtoRepository {
   List<OrganisationPipelineRoleInstanceDto> findOrganisationPipelineRoleDtoByPwaApplicationDetail(
       PwaApplicationDetail applicationDetail);
 
+
 }

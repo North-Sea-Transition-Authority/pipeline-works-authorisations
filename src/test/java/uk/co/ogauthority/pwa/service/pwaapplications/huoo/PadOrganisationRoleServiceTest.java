@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
@@ -616,6 +617,24 @@ public class PadOrganisationRoleServiceTest {
             OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(HuooRole.USER, TreatyAgreement.BELGIUM),
             OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(HuooRole.USER, 1)
         );
+
+  }
+
+  @Test
+  public void deletePadPipelineRoleLinksForPipelinesAndRole_verifyServiceInteractions() {
+    var pipeline = new Pipeline();
+    pipeline.setId(pipelineId1.asInt());
+    var link = PadOrganisationRoleTestUtil.createOrgRolePipelineLink(HuooRole.HOLDER, orgUnit1, pipeline);
+    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipelineIn(
+        detail, HuooRole.HOLDER, Set.of(pipeline)
+    )).thenReturn(List.of(link));
+
+    padOrganisationRoleService.deletePadPipelineRoleLinksForPipelinesAndRole(detail, Set.of(pipeline), HuooRole.HOLDER);
+
+    var orderVerifier = Mockito.inOrder(padPipelineOrganisationRoleLinkRepository, entityManager);
+    orderVerifier.verify(padPipelineOrganisationRoleLinkRepository).deleteAll(List.of(link));
+    orderVerifier.verify(entityManager).flush();
+    orderVerifier.verifyNoMoreInteractions();
 
   }
 

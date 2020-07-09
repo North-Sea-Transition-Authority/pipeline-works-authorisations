@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.Pick
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
@@ -43,7 +44,6 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
-
 
   @Autowired
   public PadPipelinesHuooService(
@@ -93,7 +93,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   /* Convenience method passing args to the actual pad org roles service */
   public List<PadOrganisationRole> getPadOrganisationRolesFrom(PwaApplicationDetail pwaApplicationDetail,
                                                                HuooRole huooRole,
-                                                               Set<Integer> organisationUnitIds,
+                                                               Set<OrganisationUnitId> organisationUnitIds,
                                                                Set<TreatyAgreement> treatyAgreements) {
 
     return padOrganisationRoleService.getOrgRolesForDetailByRole(
@@ -106,24 +106,48 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
           if (padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT)) {
             return treatyAgreements.contains(padOrganisationRole.getAgreement());
           }
-          return organisationUnitIds.contains(padOrganisationRole.getOrganisationUnit().getOuId());
+          return organisationUnitIds.contains(OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit()));
         })
         .collect(toList());
 
   }
 
   @Transactional
-  public void createPipelineOrganisationRoles(PwaApplicationDetail pwaApplicationDetail,
-                                              List<PadOrganisationRole> padOrganisationRoles,
-                                              Set<Pipeline> pipelines) {
+  public void updatePipelineHuooLinks(PwaApplicationDetail pwaApplicationDetail,
+                                      Set<Pipeline> pipelines,
+                                      HuooRole huooRole,
+                                      Set<OrganisationUnitId> organisationsToLink,
+                                      Set<TreatyAgreement> treatiesToLink) {
+
+    padOrganisationRoleService.deletePadPipelineRoleLinksForPipelinesAndRole(
+        pwaApplicationDetail,
+        pipelines,
+        huooRole
+    );
+
+
+    var organisationRoles = getPadOrganisationRolesFrom(
+        pwaApplicationDetail,
+        huooRole,
+        organisationsToLink,
+        treatiesToLink);
 
     // This is probably ok...batch inserts aren't really possible atm due to using IDENTITY primary key columns.
-    for (PadOrganisationRole padOrganisationRole : padOrganisationRoles) {
+    for (PadOrganisationRole padOrganisationRole : organisationRoles) {
       for (Pipeline pipeline : pipelines) {
         padOrganisationRoleService.createPadPipelineOrganisationRoleLink(padOrganisationRole, pipeline);
       }
     }
 
+  }
+
+  public List<PickablePipelineOption> getSortedPickablePipelineOptionsForApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail) {
+    return pickablePipelineService
+        .getAllPickablePipelinesForApplication(pwaApplicationDetail)
+        .stream()
+        .sorted(Comparator.comparing(PickablePipelineOption::getPipelineNumber))
+        .collect(toList());
   }
 
   public List<PickablePipelineOption> getPickablePipelineOptionsWithNoRoleOfType(

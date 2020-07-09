@@ -12,6 +12,10 @@
 
 
 <@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=true fullWidthColumn=true>
+
+    <@fdsInsetText.insetText>
+        Use this page to assign holders, users, operators and owners to pipelines. All pipelines and all organisations must be grouped together before this page can be marked complete.
+    </@fdsInsetText.insetText>
   <h2 class="govuk-heading-m">Holders</h2>
     <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=holderSummary />
 
