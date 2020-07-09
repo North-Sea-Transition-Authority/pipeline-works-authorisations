@@ -18,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PickHuooPipelinesForm;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -136,7 +137,7 @@ public class PadPipelinesHuooServiceTest {
     var foundRoles = padPipelinesHuooService.getPadOrganisationRolesFrom(
         pwaApplicationDetail,
         HuooRole.HOLDER,
-        Set.of(organisationUnit1.getOuId(), organisationUnit2.getOuId()),
+        Set.of(OrganisationUnitId.from(organisationUnit1), OrganisationUnitId.from(organisationUnit2)),
         Set.of(treatyAgreement));
 
     assertThat(foundRoles).isEmpty();
@@ -155,7 +156,7 @@ public class PadPipelinesHuooServiceTest {
     var foundRoles = padPipelinesHuooService.getPadOrganisationRolesFrom(
         pwaApplicationDetail,
         HuooRole.HOLDER,
-        Set.of(organisationUnit1.getOuId(), organisationUnit2.getOuId()),
+        Set.of(OrganisationUnitId.from(organisationUnit1), OrganisationUnitId.from(organisationUnit2)),
         Set.of(treatyAgreement));
 
     assertThat(foundRoles).containsExactlyInAnyOrder(org1HolderRole, org2HolderRole);
@@ -177,7 +178,7 @@ public class PadPipelinesHuooServiceTest {
     var foundRoles = padPipelinesHuooService.getPadOrganisationRolesFrom(
         pwaApplicationDetail,
         HuooRole.HOLDER,
-        Set.of(organisationUnit1.getOuId(), organisationUnit2.getOuId()),
+        Set.of(OrganisationUnitId.from(organisationUnit1), OrganisationUnitId.from(organisationUnit2)),
         Set.of(treatyAgreement));
 
     assertThat(foundRoles).containsExactlyInAnyOrder(treatyRole);
@@ -185,25 +186,44 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void createPipelineOrganisationRoles_everyPipelineGetsLinkedToEveryRole() {
-    var org1HolderRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit1,
+  public void updatePipelineHuooLinks_everyPipelineGetsLinkedToEveryRole() {
+    var org1HolderRole = PadOrganisationRole.fromOrganisationUnit(
+        pwaApplicationDetail,
+        organisationUnit1,
         HuooRole.HOLDER);
-    var org2HolderRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit2,
+    var org2HolderRole = PadOrganisationRole.fromOrganisationUnit(
+        pwaApplicationDetail,
+        organisationUnit2,
         HuooRole.HOLDER);
+    var orgTreatyHolderRole = PadOrganisationRole.fromTreatyAgreement(
+        pwaApplicationDetail,
+        treatyAgreement,
+        HuooRole.HOLDER);
+
+    when(padOrganisationRoleService.getOrgRolesForDetailByRole(pwaApplicationDetail, HuooRole.HOLDER))
+        .thenReturn(List.of(org1HolderRole, org2HolderRole, orgTreatyHolderRole));
 
     var pipeline1 = new Pipeline();
     var pipeline2 = new Pipeline();
 
-    padPipelinesHuooService.createPipelineOrganisationRoles(
+    padPipelinesHuooService.updatePipelineHuooLinks(
         pwaApplicationDetail,
-        List.of(org1HolderRole, org2HolderRole),
-        Set.of(pipeline1, pipeline2));
+        Set.of(pipeline1, pipeline2),
+        HuooRole.HOLDER,
+        Set.of(OrganisationUnitId.from(organisationUnit1), OrganisationUnitId.from(organisationUnit2)),
+        Set.of(treatyAgreement)
+    );
 
+    verify(padOrganisationRoleService).deletePadPipelineRoleLinksForPipelinesAndRole(
+        pwaApplicationDetail,
+        Set.of(pipeline1, pipeline2),
+        HuooRole.HOLDER);
     verify(padOrganisationRoleService, times(1)).createPadPipelineOrganisationRoleLink(org1HolderRole, pipeline1);
     verify(padOrganisationRoleService, times(1)).createPadPipelineOrganisationRoleLink(org1HolderRole, pipeline2);
     verify(padOrganisationRoleService, times(1)).createPadPipelineOrganisationRoleLink(org2HolderRole, pipeline1);
     verify(padOrganisationRoleService, times(1)).createPadPipelineOrganisationRoleLink(org2HolderRole, pipeline2);
-
+    verify(padOrganisationRoleService, times(1)).createPadPipelineOrganisationRoleLink(orgTreatyHolderRole, pipeline1);
+    verify(padOrganisationRoleService, times(1)).createPadPipelineOrganisationRoleLink(orgTreatyHolderRole, pipeline2);
   }
 
   @Test
@@ -263,8 +283,9 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getAvailableTreatyAgreementsForRole_filtersTreatiesByRole(){
-    var holderRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.BELGIUM, HuooRole.HOLDER);
+  public void getAvailableTreatyAgreementsForRole_filtersTreatiesByRole() {
+    var holderRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.BELGIUM,
+        HuooRole.HOLDER);
     var userRole = PadOrganisationRole.fromTreatyAgreement(
         pwaApplicationDetail,
         TreatyAgreement.IRELAND,
@@ -272,10 +293,11 @@ public class PadPipelinesHuooServiceTest {
     var orgRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit2, HuooRole.USER);
     when(padOrganisationRoleService.getOrgRolesForDetail(any())).thenReturn(List.of(
         holderRole, userRole, orgRole
-        ));
+    ));
 
 
-    var foundTreatiesWithRole = padPipelinesHuooService.getAvailableTreatyAgreementsForRole(pwaApplicationDetail, HuooRole.USER);
+    var foundTreatiesWithRole = padPipelinesHuooService.getAvailableTreatyAgreementsForRole(pwaApplicationDetail,
+        HuooRole.USER);
 
     assertThat(foundTreatiesWithRole).containsExactlyInAnyOrder(userRole.getAgreement());
   }
