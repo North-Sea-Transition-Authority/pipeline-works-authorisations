@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipe
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
@@ -56,6 +57,11 @@ public class PadPipelineServiceTest {
 
   private PwaApplicationDetail detail;
 
+  private PipelineIdentFormValidator pipelineIdentFormValidator;
+
+  @Mock
+  private PadPipelineIdentService padPipelineIdentService;
+
   @Captor
   private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
 
@@ -71,8 +77,9 @@ public class PadPipelineServiceTest {
     });
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, padPipelineIdentService, pipelineIdentFormValidator);
 
   }
 
@@ -303,10 +310,8 @@ public class PadPipelineServiceTest {
   @Test
   public void getPipelineCoreType() {
     var padPipeline = new PadPipeline();
-    padPipeline.setId(1);
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
-    when(padPipelineRepository.findById(1)).thenReturn(Optional.of(padPipeline));
-    var coreType = padPipelineService.getPipelineCoreType(1);
+    var coreType = padPipelineService.getPipelineCoreType(padPipeline);
     assertThat(coreType).isEqualTo(PipelineCoreType.MULTI_CORE);
   }
 

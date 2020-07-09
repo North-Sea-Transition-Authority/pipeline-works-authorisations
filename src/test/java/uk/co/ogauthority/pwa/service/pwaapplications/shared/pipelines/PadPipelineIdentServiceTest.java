@@ -330,7 +330,7 @@ public class PadPipelineIdentServiceTest {
     ));
     form.setDataForm(new PipelineIdentDataForm());
 
-    identService.mapEntityToForm(ident, form, PipelineCoreType.SINGLE_CORE);
+    identService.mapEntityToForm(ident, form);
 
     var coordinateFromForm = new CoordinateForm();
     CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), coordinateFromForm);
@@ -411,7 +411,7 @@ public class PadPipelineIdentServiceTest {
 
     when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(ident));
 
-    identService.addIdentAtPosition(pipeline, form, 1, PipelineCoreType.SINGLE_CORE);
+    identService.addIdentAtPosition(pipeline, form, 1);
 
     assertThat(ident.getIdentNo()).isEqualTo(2);
 

@@ -28,12 +28,12 @@ public class IdentView {
   private final BigDecimal internalDiameter;
   private final BigDecimal wallThickness;
 
-  private final String externalDiameterTxt;
-  private String internalDiameterTxt;
-  private String wallThicknessTxt;
-  private String insulationCoatingTypeTxt;
-  private String maopTxt;
-  private String productsToBeConveyedTxt;
+  private final String externalDiameterMultiCore;
+  private final String internalDiameterMultiCore;
+  private final String wallThicknessMultiCore;
+  private final String insulationCoatingTypeMultiCore;
+  private final String maopMultiCore;
+  private final String productsToBeConveyedMultiCore;
 
 
 
@@ -54,12 +54,12 @@ public class IdentView {
     this.internalDiameter = identData.getInternalDiameter();
     this.wallThickness = identData.getWallThickness();
 
-    this.externalDiameterTxt = identData.getExternalDiameterMultiCore();
-    this.internalDiameterTxt = identData.getInternalDiameterMultiCore();
-    this.wallThicknessTxt = identData.getWallThicknessMultiCore();
-    this.maopTxt = identData.getMaopMultiCore();
-    this.insulationCoatingTypeTxt = identData.getInsulationCoatingTypeMultiCore();
-    this.productsToBeConveyedTxt = identData.getProductsToBeConveyedMultiCore();
+    this.externalDiameterMultiCore = identData.getExternalDiameterMultiCore();
+    this.internalDiameterMultiCore = identData.getInternalDiameterMultiCore();
+    this.wallThicknessMultiCore = identData.getWallThicknessMultiCore();
+    this.maopMultiCore = identData.getMaopMultiCore();
+    this.insulationCoatingTypeMultiCore = identData.getInsulationCoatingTypeMultiCore();
+    this.productsToBeConveyedMultiCore = identData.getProductsToBeConveyedMultiCore();
   }
 
 
@@ -120,27 +120,27 @@ public class IdentView {
   }
 
 
-  public String getExternalDiameterTxt() {
-    return externalDiameterTxt;
+  public String getExternalDiameterMultiCore() {
+    return externalDiameterMultiCore;
   }
 
-  public String getInternalDiameterTxt() {
-    return internalDiameterTxt;
+  public String getInternalDiameterMultiCore() {
+    return internalDiameterMultiCore;
   }
 
-  public String getWallThicknessTxt() {
-    return wallThicknessTxt;
+  public String getWallThicknessMultiCore() {
+    return wallThicknessMultiCore;
   }
 
-  public String getInsulationCoatingTypeTxt() {
-    return insulationCoatingTypeTxt;
+  public String getInsulationCoatingTypeMultiCore() {
+    return insulationCoatingTypeMultiCore;
   }
 
-  public String getMaopTxt() {
-    return maopTxt;
+  public String getMaopMultiCore() {
+    return maopMultiCore;
   }
 
-  public String getProductsToBeConveyedTxt() {
-    return productsToBeConveyedTxt;
+  public String getProductsToBeConveyedMultiCore() {
+    return productsToBeConveyedMultiCore;
   }
 }

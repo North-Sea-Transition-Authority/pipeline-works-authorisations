@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
@@ -50,19 +51,16 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PipelineService pipelineService;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final PadPipelineIdentService padPipelineIdentService;
-  private final PadPipelineIdentDataService padPipelineIdentDataService;
 
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
                             PipelineService pipelineService,
                             PadPipelineIdentService padPipelineIdentService,
-                            PadPipelineIdentDataService padPipelineIdentDataService,
                             PipelineIdentFormValidator pipelineIdentFormValidator) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
-    this.padPipelineIdentDataService = padPipelineIdentDataService;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
   }
 
@@ -189,8 +187,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setTrenchingMethodsDescription(form.getTrenchingMethods());
     }
 
-    padPipeline.setPipelineRef(createReference(padPipeline, form));
-
     padPipeline.setPipelineFlexibility(form.getPipelineFlexibility());
     padPipeline.setPipelineMaterial(form.getPipelineMaterial());
     if (form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
@@ -202,15 +198,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   }
 
-  private String createReference(PadPipeline padPipeline, PipelineHeaderForm form) {
-    var dashIndex = padPipeline.getPipelineRef().indexOf("-");
-    var refSubStrEndIndex = dashIndex > -1 ? dashIndex : padPipeline.getPipelineRef().length();
-    var umbilicalTypeRef = padPipeline.getPipelineRef().substring(0, refSubStrEndIndex);
-    if (padPipeline.getPipelineType().getCoreType().equals(PipelineCoreType.MULTI_CORE)) {
-      umbilicalTypeRef +=  " - " + form.getPipelineType().getDisplayName();
-    }
-    return umbilicalTypeRef;
-  }
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {
 
@@ -270,22 +257,18 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-
-//    var pipelines = getPipelines(detail);
-//    for (var pipeline: pipelines) {
-//      for (var ident: padPipelineIdentService.getIdentsByPipeline(pipeline)) {
-//        for (var identData: padPipelineIdentDataService.getOptionalOfIdentData(ident)) {
-//          var form = padPipelineIdentDataService.getDataFormOfIdent(ident);
-//          BindingResult bindingResult = new BeanPropertyBindingResult(fluidCompositionForm, "form");
-//          bindingResult = pipelineIdentFormValidator.validate(form, bindingResult, applicationContext, padPipelineService.getPipelineCoreType(padPipelineService.getById(padPipelineId)));
-//          var hasErrors = !bindingResult.hasErrors();
-//        }
-//      }
-//
-//    }
-
-
-
+    var pipelines = getPipelines(detail);
+    for (var pipeline: pipelines) {
+      for (var ident: padPipelineIdentService.getIdentsByPipeline(pipeline)) {
+        var identForm = new PipelineIdentForm();
+        padPipelineIdentService.mapEntityToForm(ident, identForm);
+        BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
+        pipelineIdentFormValidator.validate(identForm, bindingResult, detail, getPipelineCoreType(pipeline));
+        if (bindingResult.hasErrors()) {
+          return false;
+        }
+      }
+    }
 
     return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L
         && padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail) == 0L;

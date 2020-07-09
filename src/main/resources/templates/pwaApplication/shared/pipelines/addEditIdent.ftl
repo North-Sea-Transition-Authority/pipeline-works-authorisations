@@ -94,7 +94,11 @@
     <#if coreType == "SINGLE_CORE">
         <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt/>
     <#else>
-        <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} (${suffix})" maxCharacterLength="4000" characterCount=true/>
+        <#assign unit = ""/>
+        <#if suffix?has_content>
+            <#assign unit = "(" + suffix + ")"/>
+        </#if>
+        <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} ${unit}" maxCharacterLength="4000" characterCount=true/>
     </#if>
 </#macro>
 

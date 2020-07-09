@@ -53,8 +53,8 @@ public class PadPipelineIdentDataService {
 
   void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {
 
+    identData.setComponentPartsDescription(dataForm.getComponentPartsDescription());
     if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
-      identData.setComponentPartsDescription(dataForm.getComponentPartsDescription());
       identData.setExternalDiameter(dataForm.getExternalDiameter());
       identData.setInternalDiameter(dataForm.getInternalDiameter());
       identData.setWallThickness(dataForm.getWallThickness());

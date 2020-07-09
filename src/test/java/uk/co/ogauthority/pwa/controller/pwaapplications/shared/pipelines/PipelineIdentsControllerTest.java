@@ -369,6 +369,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderRemoveIdent_contactSmokeTest() {
 
+    when(padPipelineService.getPipelineCoreType(any())).thenReturn(PipelineCoreType.SINGLE_CORE);
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -381,6 +382,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderRemoveIdent_appTypeSmokeTest() {
 
+    when(padPipelineService.getPipelineCoreType(any())).thenReturn(PipelineCoreType.SINGLE_CORE);
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -393,6 +395,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderRemoveIdent_appStatusSmokeTest() {
 
+    when(padPipelineService.getPipelineCoreType(any())).thenReturn(PipelineCoreType.SINGLE_CORE);
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -793,7 +796,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
         .andExpect(model().attributeHasErrors("form"));
 
-    verify(pipelineIdentService, never()).addIdentAtPosition(any(), any(), any(), any());
+    verify(pipelineIdentService, never()).addIdentAtPosition(any(), any(), any());
 
   }
 
@@ -813,7 +816,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(pipelineIdentService, times(1)).addIdentAtPosition(eq(padPipeline), any(), eq(1), any());
+    verify(pipelineIdentService, times(1)).addIdentAtPosition(eq(padPipeline), any(), eq(1));
 
   }
 

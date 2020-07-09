@@ -90,7 +90,8 @@ public class PipelineIdentsController {
         .addObject("identView", identView)
         .addObject("backUrl", ReverseRouter.route(on(PipelineIdentsController.class)
             .renderIdentOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), pipeline.getId(),
-                null)));
+                null)))
+        .addObject("coreType", padPipelineService.getPipelineCoreType(pipeline));;
 
     breadcrumbService.fromPipelineIdentOverview(detail.getPwaApplication(), pipeline, modelAndView, "Remove ident");
     return modelAndView;
@@ -221,7 +222,8 @@ public class PipelineIdentsController {
                                    @ModelAttribute("form") PipelineIdentForm form,
                                    BindingResult bindingResult) {
 
-    validator.validate(form, bindingResult, applicationContext, padPipelineService.getPipelineCoreType(padPipelineService.getById(padPipelineId)));
+    validator.validate(form, bindingResult, applicationContext,
+        padPipelineService.getPipelineCoreType(padPipelineService.getById(padPipelineId)));
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
@@ -291,7 +293,8 @@ public class PipelineIdentsController {
                                     BindingResult bindingResult) {
 
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
-    validator.validate(form, bindingResult, applicationContext, padPipelineService.getPipelineCoreType(padPipelineService.getById(padPipelineId)));
+    validator.validate(form, bindingResult, applicationContext,
+        padPipelineService.getPipelineCoreType(padPipelineService.getById(padPipelineId)));
 
     return ControllerUtils.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,

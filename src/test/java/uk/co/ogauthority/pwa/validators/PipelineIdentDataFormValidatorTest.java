@@ -71,8 +71,8 @@ public class PipelineIdentDataFormValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE);
 
     assertThat(result).containsOnly(
-        entry("externalDiameterTxt", Set.of("externalDiameterTxt.required")),
-        entry("productsToBeConveyedTxt", Set.of("productsToBeConveyedTxt.required"))
+        entry("externalDiameterMultiCore", Set.of("externalDiameterMultiCore.required")),
+        entry("productsToBeConveyedMultiCore", Set.of("productsToBeConveyedMultiCore.required"))
     );
 
   }

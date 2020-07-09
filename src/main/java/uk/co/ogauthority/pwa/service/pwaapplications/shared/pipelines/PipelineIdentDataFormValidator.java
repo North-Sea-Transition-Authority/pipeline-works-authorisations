@@ -35,8 +35,8 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameterMultiCore", "externalDiameterMultiCore.required",
           "Enter a description for the external diameter");
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyedMultiCore", "productsToBeConveyedMultiCore.required",
-          "Enter a description for the products to be conveyed");
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyedMultiCore",
+          "productsToBeConveyedMultiCore.required", "Enter a description for the products to be conveyed");
 
       ValidatorUtils.validateDefaultStringLength(
           errors, "externalDiameterMultiCore", form::getExternalDiameterMultiCore, "External diameter");

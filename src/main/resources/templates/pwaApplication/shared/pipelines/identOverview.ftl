@@ -40,14 +40,14 @@
                                 <@fdsDataItems.dataValues key="To (coordinates)" value=to/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@dataValueForCoreType coreType=coreType key="External diameter" valueSingleCore=(identView.externalDiameter)! valueMultiCore=(identView.externalDiameterTxt)! measurementUnit="mm"/>
-                                <@dataValueForCoreType coreType=coreType key="Internal diameter" valueSingleCore=(identView.internalDiameter)! valueMultiCore=(identView.internalDiameterTxt)! measurementUnit="mm"/>
-                                <@dataValueForCoreType coreType=coreType key="Wall thickness" valueSingleCore=(identView.wallThickness)! valueMultiCore=(identView.wallThicknessTxt)! measurementUnit="mm"/>
-                                <@dataValueForCoreType coreType=coreType key="MAOP" valueSingleCore=(identView.maop)! valueMultiCore=(identView.maopTxt)! measurementUnit="barg"/>
+                                <@dataValueForCoreType coreType=coreType key="External diameter" valueSingleCore=(identView.externalDiameter)! valueMultiCore=(identView.externalDiameterMultiCore)! measurementUnit="mm"/>
+                                <@dataValueForCoreType coreType=coreType key="Internal diameter" valueSingleCore=(identView.internalDiameter)! valueMultiCore=(identView.internalDiameterMultiCore)! measurementUnit="mm"/>
+                                <@dataValueForCoreType coreType=coreType key="Wall thickness" valueSingleCore=(identView.wallThickness)! valueMultiCore=(identView.wallThicknessMultiCore)! measurementUnit="mm"/>
+                                <@dataValueForCoreType coreType=coreType key="MAOP" valueSingleCore=(identView.maop)! valueMultiCore=(identView.maopMultiCore)! measurementUnit="barg"/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@dataValueForCoreType coreType=coreType key="Insulation / coating type" valueSingleCore=(identView.insulationCoatingType)! valueMultiCore=(identView.insulationCoatingTypeTxt)!/>
-                                <@dataValueForCoreType coreType=coreType key="Products to be conveyed / coating type" valueSingleCore=(identView.productsToBeConveyed)! valueMultiCore=(identView.productsToBeConveyedTxt)!/>
+                                <@dataValueForCoreType coreType=coreType key="Insulation / coating type" valueSingleCore=(identView.insulationCoatingType)! valueMultiCore=(identView.insulationCoatingTypeMultiCore)!/>
+                                <@dataValueForCoreType coreType=coreType key="Products to be conveyed / coating type" valueSingleCore=(identView.productsToBeConveyed)! valueMultiCore=(identView.productsToBeConveyedMultiCore)!/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                                 <@fdsDataItems.dataValues key="Description of component parts" value="${identView.componentPartsDescription}"/>
@@ -70,13 +70,16 @@
 
 
 <#macro dataValueForCoreType coreType key valueSingleCore valueMultiCore measurementUnit="">
-    <#if coreType == "SINGLE_CORE">
-        <#assign unit = measurementUnit/>    
-        <#if valueSingleCore?has_content>
+    <#assign unit = measurementUnit/>  
+    <#if coreType == "SINGLE_CORE">  
+        <#if (valueSingleCore?has_content) == false>
             <#assign unit = ""/>              
         </#if>        
         <@fdsDataItems.dataValues key=key value="${valueSingleCore}${unit}"/>        
     <#else>
-        <@fdsDataItems.dataValues key=key value=valueMultiCore/>
+        <#if (valueMultiCore?has_content) == false>
+            <#assign unit = ""/>              
+        </#if>        
+        <@fdsDataItems.dataValues key=key value="${valueMultiCore} ${unit}"/>
     </#if>
 </#macro>
