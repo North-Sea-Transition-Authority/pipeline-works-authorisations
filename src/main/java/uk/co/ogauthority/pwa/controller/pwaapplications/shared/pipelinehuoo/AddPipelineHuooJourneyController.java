@@ -199,6 +199,9 @@ public class AddPipelineHuooJourneyController {
                   .collect(Collectors.toSet()),
               form.getTreatyAgreements());
 
+          // make sure we clear journey data on completion.
+          addPipelineHuooJourneyData.reset();
+
           FlashUtils.success(
               redirectAttributes,
               String.format("Pipeline %ss assigned", huooRole.getDisplayText().toLowerCase()));
