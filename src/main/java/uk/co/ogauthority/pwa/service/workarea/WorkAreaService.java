@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
 @Service
 public class WorkAreaService {
 
-  public static final int PAGE_SIZE = 2;
+  public static final int PAGE_SIZE = 10;
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final CamundaWorkflowService camundaWorkflowService;
