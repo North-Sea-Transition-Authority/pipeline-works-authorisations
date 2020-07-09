@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 
@@ -16,6 +18,7 @@ public final class PipelinesAndOrgRoleGroupView {
   private final Set<OrganisationRoleOwnerDto> organisationRoleOwnerSet;
   private final List<String> pipelineNumbers;
   private final List<String> organisationNames;
+  private final String sortKey;
 
   PipelinesAndOrgRoleGroupView(
       Set<PipelineId> pipelineIdSet,
@@ -24,8 +27,13 @@ public final class PipelinesAndOrgRoleGroupView {
       List<String> organisationNames) {
     this.pipelineIdSet = pipelineIdSet;
     this.organisationRoleOwnerSet = organisationRoleOwnerSet;
-    this.pipelineNumbers = pipelineNumbers;
-    this.organisationNames = organisationNames;
+    this.pipelineNumbers = pipelineNumbers.stream()
+        .sorted(Comparator.comparing(String::toLowerCase))
+        .collect(Collectors.toList());
+    this.organisationNames = organisationNames.stream()
+        .sorted(Comparator.comparing(String::toLowerCase))
+        .collect(Collectors.toList());
+    this.sortKey = String.join(",", this.pipelineNumbers);
   }
 
   public Set<PipelineId> getPipelineIdSet() {
@@ -44,14 +52,8 @@ public final class PipelinesAndOrgRoleGroupView {
     return organisationNames;
   }
 
-  @Override
-  public String toString() {
-    return "PipelinesAndOrgRoleGroupView{" +
-        "pipelineIdSet=" + pipelineIdSet +
-        ", organisationRoleOwnerSet=" + organisationRoleOwnerSet +
-        ", pipelineNumbers=" + pipelineNumbers +
-        ", organisationNames=" + organisationNames +
-        '}';
+  public String getSortKey() {
+    return sortKey;
   }
 
   @Override
@@ -66,11 +68,23 @@ public final class PipelinesAndOrgRoleGroupView {
     return Objects.equals(pipelineIdSet, that.pipelineIdSet)
         && Objects.equals(organisationRoleOwnerSet, that.organisationRoleOwnerSet)
         && Objects.equals(pipelineNumbers, that.pipelineNumbers)
-        && Objects.equals(organisationNames, that.organisationNames);
+        && Objects.equals(organisationNames, that.organisationNames)
+        && Objects.equals(sortKey, that.sortKey);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineIdSet, organisationRoleOwnerSet, pipelineNumbers, organisationNames);
+    return Objects.hash(pipelineIdSet, organisationRoleOwnerSet, pipelineNumbers, organisationNames, sortKey);
+  }
+
+  @Override
+  public String toString() {
+    return "PipelinesAndOrgRoleGroupView{" +
+        "pipelineIdSet=" + pipelineIdSet +
+        ", organisationRoleOwnerSet=" + organisationRoleOwnerSet +
+        ", pipelineNumbers=" + pipelineNumbers +
+        ", organisationNames=" + organisationNames +
+        ", sortKey='" + sortKey + '\'' +
+        '}';
   }
 }

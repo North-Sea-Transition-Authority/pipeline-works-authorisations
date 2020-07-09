@@ -30,12 +30,12 @@
             <@stringUtils.pluraliseWord count=summaryView.sortedUnassignedOrganisationNames?size word=roleSingular />
         </#local>
         <@fdsCard.card>
-            <@fdsCard.cardHeader cardHeadingText="${unassignedRoleHeading} not assigned to pipelines" cardHeadingSize="h3" cardHeadingClass="govuk-heading-s" />
-          <ol class="govuk-list">
-              <#list summaryView.sortedUnassignedOrganisationNames as orgName>
-                <li>${orgName}</li>
-              </#list>
-          </ol>
+            <@fdsCard.cardHeader cardHeadingText="${unassignedRoleHeading} not assigned to pipelines" cardHeadingSize="h3" cardHeadingClass="govuk-heading-s govuk-!-padding-bottom-3" />
+            <ol class="govuk-list">
+                <#list summaryView.sortedUnassignedOrganisationNames as orgName>
+                  <li>${orgName}</li>
+                </#list>
+            </ol>
         </@fdsCard.card>
     </#if>
 
@@ -46,12 +46,12 @@
     <@fdsCard.card>
         <#local joinedPipelineNumbers=pipelineNumberList?join(", ")/>
         <#local header=headerOverrideText?hasContent?then(headerOverrideText, joinedPipelineNumbers) />
-        <@fdsCard.cardHeader cardHeadingText=header cardHeadingSize="h3" cardHeadingClass="govuk-heading-s" />
-      <ol class="govuk-list">
-          <#list organisationNameList as orgName>
-            <li>${orgName}</li>
-          </#list>
-      </ol>
+        <@fdsCard.cardHeader cardHeadingText=header cardHeadingSize="h3" cardHeadingClass="govuk-heading-s govuk-!-padding-bottom-3"/>
+        <ol class="govuk-list">
+            <#list organisationNameList as orgName>
+              <li>${orgName}</li>
+            </#list>
+        </ol>
         <@fdsAction.link linkText=linkText linkClass="govuk-link" linkUrl=springUrl("/#") linkScreenReaderText=linkText + ": " + joinedPipelineNumbers />
     </@fdsCard.card>
 </#macro>
