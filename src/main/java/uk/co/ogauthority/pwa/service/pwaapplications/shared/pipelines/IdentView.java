@@ -54,12 +54,12 @@ public class IdentView {
     this.internalDiameter = identData.getInternalDiameter();
     this.wallThickness = identData.getWallThickness();
 
-    this.externalDiameterTxt = identData.getExternalDiameterTxt();
-    this.internalDiameterTxt = identData.getInternalDiameterTxt();
-    this.wallThicknessTxt = identData.getWallThicknessTxt();
-    this.maopTxt = identData.getMaopTxt();
-    this.insulationCoatingTypeTxt = identData.getInsulationCoatingTypeTxt();
-    this.productsToBeConveyedTxt = identData.getProductsToBeConveyedTxt();
+    this.externalDiameterTxt = identData.getExternalDiameterMultiCore();
+    this.internalDiameterTxt = identData.getInternalDiameterMultiCore();
+    this.wallThicknessTxt = identData.getWallThicknessMultiCore();
+    this.maopTxt = identData.getMaopMultiCore();
+    this.insulationCoatingTypeTxt = identData.getInsulationCoatingTypeMultiCore();
+    this.productsToBeConveyedTxt = identData.getProductsToBeConveyedMultiCore();
   }
 
 

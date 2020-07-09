@@ -6,6 +6,8 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
 public class PipelineIdentDataFormValidator implements SmartValidator {
@@ -25,15 +27,29 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
     // if being used as a sub-form, need to know the name of the sub-form to create the errors properly
     var fieldPrefix = validationHints[0] != null ? validationHints[0] + "." : "";
+    var form = (PipelineIdentDataForm) target;
     var coreType = (PipelineCoreType) validationHints[1];
 
 
     if (coreType.equals(PipelineCoreType.MULTI_CORE)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameterTxt", "externalDiameterTxt.required",
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameterMultiCore", "externalDiameterMultiCore.required",
           "Enter a description for the external diameter");
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyedTxt", "productsToBeConveyedTxt.required",
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyedMultiCore", "productsToBeConveyedMultiCore.required",
           "Enter a description for the products to be conveyed");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "externalDiameterMultiCore", form::getExternalDiameterMultiCore, "External diameter");
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "internalDiameterMultiCore", form::getExternalDiameterMultiCore, "Internal diameter");
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "wallThicknessMultiCore", form::getExternalDiameterMultiCore, "Wall thickness");
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "insulationCoatingTypeMultiCore", form::getExternalDiameterMultiCore, "Insulation / coating type");
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "maopMultiCore", form::getExternalDiameterMultiCore, "MAOP");
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "productsToBeConveyedMultiCore", form::getExternalDiameterMultiCore, "Products to be conveyed / coating type");
 
     } else {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyed", "productsToBeConveyed.required",
@@ -57,8 +73,6 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "componentPartsDescription", "componentPartsDescription.required",
           "Enter a description of the component parts");
     }
-
-
 
   }
 

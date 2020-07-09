@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
@@ -47,13 +48,22 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
+  private final PipelineIdentFormValidator pipelineIdentFormValidator;
+  private final PadPipelineIdentService padPipelineIdentService;
+  private final PadPipelineIdentDataService padPipelineIdentDataService;
 
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
-                            PipelineService pipelineService) {
+                            PipelineService pipelineService,
+                            PadPipelineIdentService padPipelineIdentService,
+                            PadPipelineIdentDataService padPipelineIdentDataService,
+                            PipelineIdentFormValidator pipelineIdentFormValidator) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
+    this.padPipelineIdentService = padPipelineIdentService;
+    this.padPipelineIdentDataService = padPipelineIdentDataService;
+    this.pipelineIdentFormValidator = pipelineIdentFormValidator;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -260,6 +270,23 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
+
+//    var pipelines = getPipelines(detail);
+//    for (var pipeline: pipelines) {
+//      for (var ident: padPipelineIdentService.getIdentsByPipeline(pipeline)) {
+//        for (var identData: padPipelineIdentDataService.getOptionalOfIdentData(ident)) {
+//          var form = padPipelineIdentDataService.getDataFormOfIdent(ident);
+//          BindingResult bindingResult = new BeanPropertyBindingResult(fluidCompositionForm, "form");
+//          bindingResult = pipelineIdentFormValidator.validate(form, bindingResult, applicationContext, padPipelineService.getPipelineCoreType(padPipelineService.getById(padPipelineId)));
+//          var hasErrors = !bindingResult.hasErrors();
+//        }
+//      }
+//
+//    }
+
+
+
+
     return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L
         && padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail) == 0L;
   }
@@ -331,8 +358,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
-  public PipelineCoreType getPipelineCoreType(Integer padPipelineId) {
-    var padPipeline = getById(padPipelineId);
+  public PipelineCoreType getPipelineCoreType(PadPipeline padPipeline) {
     return padPipeline.getPipelineType().getCoreType();
   }
 

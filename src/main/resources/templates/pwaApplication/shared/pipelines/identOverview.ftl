@@ -40,7 +40,6 @@
                                 <@fdsDataItems.dataValues key="To (coordinates)" value=to/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <#assign isSingleCore = coreType == "SINGLE_CORE"/>
                                 <@dataValueForCoreType coreType=coreType key="External diameter" valueSingleCore=(identView.externalDiameter)! valueMultiCore=(identView.externalDiameterTxt)! measurementUnit="mm"/>
                                 <@dataValueForCoreType coreType=coreType key="Internal diameter" valueSingleCore=(identView.internalDiameter)! valueMultiCore=(identView.internalDiameterTxt)! measurementUnit="mm"/>
                                 <@dataValueForCoreType coreType=coreType key="Wall thickness" valueSingleCore=(identView.wallThickness)! valueMultiCore=(identView.wallThicknessTxt)! measurementUnit="mm"/>
@@ -73,7 +72,7 @@
 <#macro dataValueForCoreType coreType key valueSingleCore valueMultiCore measurementUnit="">
     <#if coreType == "SINGLE_CORE">
         <#assign unit = measurementUnit/>    
-        <#if (valueSingleCore?string) == "">
+        <#if valueSingleCore?has_content>
             <#assign unit = ""/>              
         </#if>        
         <@fdsDataItems.dataValues key=key value="${valueSingleCore}${unit}"/>        

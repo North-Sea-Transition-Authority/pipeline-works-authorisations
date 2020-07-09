@@ -53,12 +53,12 @@ public class PadPipelineIdentDataServiceTest {
     form.setWallThickness(BigDecimal.valueOf(22.22));
     form.setMaop(BigDecimal.valueOf(500));
 
-    form.setExternalDiameterTxt("some text");
-    form.setInternalDiameterTxt("some text");
-    form.setWallThicknessTxt("some text");
-    form.setMaopTxt("some text");
-    form.setInsulationCoatingTypeTxt("some text");
-    form.setProductsToBeConveyedTxt("some text");
+    form.setExternalDiameterMultiCore("some text");
+    form.setInternalDiameterMultiCore("some text");
+    form.setWallThicknessMultiCore("some text");
+    form.setMaopMultiCore("some text");
+    form.setInsulationCoatingTypeMultiCore("some text");
+    form.setProductsToBeConveyedMultiCore("some text");
 
     identDataService.addIdentData(ident, form);
 
@@ -157,12 +157,12 @@ public class PadPipelineIdentDataServiceTest {
     identData.setWallThickness(BigDecimal.valueOf(22.22));
     identData.setMaop(BigDecimal.valueOf(500));
 
-    identData.setExternalDiameterTxt("some text");
-    identData.setInternalDiameterTxt("some text");
-    identData.setWallThicknessTxt("some text");
-    identData.setMaopTxt("some text");
-    identData.setInsulationCoatingTypeTxt("some text");
-    identData.setProductsToBeConveyedTxt("some text");
+    identData.setExternalDiameterMultiCore("some text");
+    identData.setInternalDiameterMultiCore("some text");
+    identData.setWallThicknessMultiCore("some text");
+    identData.setMaopMultiCore("some text");
+    identData.setInsulationCoatingTypeMultiCore("some text");
+    identData.setProductsToBeConveyedMultiCore("some text");
 
     identDataService.saveEntityUsingForm(identData, form);
 
@@ -174,12 +174,12 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(identData.getWallThickness()).isEqualTo(form.getWallThickness());
     assertThat(identData.getMaop()).isEqualTo(form.getMaop());
 
-    assertThat(identData.getExternalDiameterTxt()).isEqualTo(form.getExternalDiameterTxt());
-    assertThat(identData.getInternalDiameterTxt()).isEqualTo(form.getInternalDiameterTxt());
-    assertThat(identData.getWallThicknessTxt()).isEqualTo(form.getWallThicknessTxt());
-    assertThat(identData.getMaopTxt()).isEqualTo(form.getMaopTxt());
-    assertThat(identData.getInsulationCoatingTypeTxt()).isEqualTo(form.getInsulationCoatingTypeTxt());
-    assertThat(identData.getProductsToBeConveyedTxt()).isEqualTo(form.getProductsToBeConveyedTxt());
+    assertThat(identData.getExternalDiameterMultiCore()).isEqualTo(form.getExternalDiameterMultiCore());
+    assertThat(identData.getInternalDiameterMultiCore()).isEqualTo(form.getInternalDiameterMultiCore());
+    assertThat(identData.getWallThicknessMultiCore()).isEqualTo(form.getWallThicknessMultiCore());
+    assertThat(identData.getMaopMultiCore()).isEqualTo(form.getMaopMultiCore());
+    assertThat(identData.getInsulationCoatingTypeMultiCore()).isEqualTo(form.getInsulationCoatingTypeMultiCore());
+    assertThat(identData.getProductsToBeConveyedMultiCore()).isEqualTo(form.getProductsToBeConveyedMultiCore());
 
     verify(repository, times(1)).save(identData);
   }

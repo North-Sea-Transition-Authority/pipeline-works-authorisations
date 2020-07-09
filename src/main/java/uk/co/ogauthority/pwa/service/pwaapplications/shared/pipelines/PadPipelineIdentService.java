@@ -9,7 +9,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -98,7 +97,7 @@ public class PadPipelineIdentService {
   }
 
   @Transactional
-  public void addIdentAtPosition(PadPipeline pipeline, PipelineIdentForm form, Integer position, PipelineCoreType coreType) {
+  public void addIdentAtPosition(PadPipeline pipeline, PipelineIdentForm form, Integer position) {
 
     var ident = new PadPipelineIdent(pipeline, position);
 
@@ -138,7 +137,7 @@ public class PadPipelineIdentService {
             () -> identDataService.addIdentData(ident, form.getDataForm()));
   }
 
-  public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form, PipelineCoreType coreType) {
+  public void mapEntityToForm(PadPipelineIdent ident, PipelineIdentForm form) {
     var fromForm = new CoordinateForm();
     var toForm = new CoordinateForm();
     CoordinateUtils.mapCoordinatePairToForm(ident.getFromCoordinates(), fromForm);
@@ -149,7 +148,7 @@ public class PadPipelineIdentService {
     form.setFromLocation(ident.getFromLocation());
     form.setLength(ident.getLength());
     form.setToLocation(ident.getToLocation());
-    var dataForm = identDataService.getDataFormOfIdent(ident, coreType);
+    var dataForm = identDataService.getDataFormOfIdent(ident);
     form.setDataForm(dataForm);
   }
 
@@ -168,6 +167,10 @@ public class PadPipelineIdentService {
 
   public boolean isSectionValid(PadPipeline pipeline) {
     return !repository.countAllByPadPipeline(pipeline).equals(0L);
+  }
+
+  public List<PadPipelineIdent> getIdentsByPipeline(PadPipeline padPipeline) {
+    return repository.getAllByPadPipeline(padPipeline);
   }
 
 }

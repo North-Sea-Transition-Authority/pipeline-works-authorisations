@@ -37,6 +37,7 @@ public class PipelineIdentFormValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
 
     var form = (PipelineIdentForm) target;
+    var coreType = (PipelineCoreType) validationHints[1];
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fromLocation", "fromLocation.required",
         "Enter the ident's start point");
@@ -53,7 +54,7 @@ public class PipelineIdentFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length.required",
         "Enter the ident's length");
 
-    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", validationHints[1]);
+    ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", coreType);
 
   }
 

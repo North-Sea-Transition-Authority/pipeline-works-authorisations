@@ -53,21 +53,35 @@ public class PadPipelineIdentDataService {
 
   void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {
 
-    identData.setComponentPartsDescription(dataForm.getComponentPartsDescription());
-    identData.setExternalDiameter(dataForm.getExternalDiameter());
-    identData.setInternalDiameter(dataForm.getInternalDiameter());
-    identData.setWallThickness(dataForm.getWallThickness());
-    identData.setMaop(dataForm.getMaop());
-    identData.setInsulationCoatingType(dataForm.getInsulationCoatingType());
-    identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
+    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
+      identData.setComponentPartsDescription(dataForm.getComponentPartsDescription());
+      identData.setExternalDiameter(dataForm.getExternalDiameter());
+      identData.setInternalDiameter(dataForm.getInternalDiameter());
+      identData.setWallThickness(dataForm.getWallThickness());
+      identData.setMaop(dataForm.getMaop());
+      identData.setInsulationCoatingType(dataForm.getInsulationCoatingType());
+      identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
+      identData.setExternalDiameterMultiCore(null);
+      identData.setInternalDiameterMultiCore(null);
+      identData.setWallThicknessMultiCore(null);
+      identData.setMaopMultiCore(null);
+      identData.setInsulationCoatingTypeMultiCore(null);
+      identData.setProductsToBeConveyedMultiCore(null);
 
-    identData.setExternalDiameterTxt(dataForm.getExternalDiameterTxt());
-    identData.setInternalDiameterTxt(dataForm.getInternalDiameterTxt());
-    identData.setWallThicknessTxt(dataForm.getWallThicknessTxt());
-    identData.setMaopTxt(dataForm.getMaopTxt());
-    identData.setInsulationCoatingTypeTxt(dataForm.getInsulationCoatingTypeTxt());
-    identData.setProductsToBeConveyedTxt(dataForm.getProductsToBeConveyedTxt());
-
+    } else {
+      identData.setExternalDiameterMultiCore(dataForm.getExternalDiameterMultiCore());
+      identData.setInternalDiameterMultiCore(dataForm.getInternalDiameterMultiCore());
+      identData.setWallThicknessMultiCore(dataForm.getWallThicknessMultiCore());
+      identData.setMaopMultiCore(dataForm.getMaopMultiCore());
+      identData.setInsulationCoatingTypeMultiCore(dataForm.getInsulationCoatingTypeMultiCore());
+      identData.setProductsToBeConveyedMultiCore(dataForm.getProductsToBeConveyedMultiCore());
+      identData.setExternalDiameter(null);
+      identData.setInternalDiameter(null);
+      identData.setWallThickness(null);
+      identData.setMaop(null);
+      identData.setInsulationCoatingType(null);
+      identData.setProductsToBeConveyed(null);
+    }
     repository.save(identData);
   }
 
@@ -77,12 +91,12 @@ public class PadPipelineIdentDataService {
     repository.delete(data);
   }
 
-  public PipelineIdentDataForm getDataFormOfIdent(PadPipelineIdent ident, PipelineCoreType coreType) {
+  public PipelineIdentDataForm getDataFormOfIdent(PadPipelineIdent ident) {
     var form = new PipelineIdentDataForm();
     var identData = getIdentData(ident);
 
     form.setComponentPartsDescription(identData.getComponentPartsDescription());
-    if (coreType.equals(PipelineCoreType.SINGLE_CORE)) {
+    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
       form.setExternalDiameter(identData.getExternalDiameter());
       form.setInternalDiameter(identData.getInternalDiameter());
       form.setWallThickness(identData.getWallThickness());
@@ -91,12 +105,12 @@ public class PadPipelineIdentDataService {
       form.setProductsToBeConveyed(identData.getProductsToBeConveyed());
 
     } else {
-      form.setExternalDiameterTxt(identData.getExternalDiameterTxt());
-      form.setInternalDiameterTxt(identData.getInternalDiameterTxt());
-      form.setWallThicknessTxt(identData.getWallThicknessTxt());
-      form.setMaopTxt(identData.getMaopTxt());
-      form.setInsulationCoatingTypeTxt(identData.getInsulationCoatingTypeTxt());
-      form.setProductsToBeConveyedTxt(identData.getProductsToBeConveyedTxt());
+      form.setExternalDiameterMultiCore(identData.getExternalDiameterMultiCore());
+      form.setInternalDiameterMultiCore(identData.getInternalDiameterMultiCore());
+      form.setWallThicknessMultiCore(identData.getWallThicknessMultiCore());
+      form.setMaopMultiCore(identData.getMaopMultiCore());
+      form.setInsulationCoatingTypeMultiCore(identData.getInsulationCoatingTypeMultiCore());
+      form.setProductsToBeConveyedMultiCore(identData.getProductsToBeConveyedMultiCore());
     }
 
     return form;

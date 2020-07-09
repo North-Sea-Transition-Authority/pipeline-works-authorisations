@@ -75,12 +75,12 @@
             <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5"/>
 
             <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component parts" hintText="Some guidance text here."/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterTxt" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterTxt" labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessTxt" labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopTxt" labelText="MAOP" suffix="barg" suffixScreenReaderPrompt="barg"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeTxt" labelText="Insulation / coating type"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedTxt" labelText="Products to be conveyed"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.externalDiameter" textAreaPath="form.dataForm.externalDiameterMultiCore" labelText="External diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterMultiCore" labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessMultiCore" labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopMultiCore" labelText="MAOP" suffix="barg" suffixScreenReaderPrompt="barg"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" labelText="Insulation / coating type"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" labelText="Products to be conveyed"/>
 
         </@fdsFieldset.fieldset>
 
@@ -94,7 +94,7 @@
     <#if coreType == "SINGLE_CORE">
         <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt/>
     <#else>
-        <@fdsTextarea.textarea path=textAreaPath labelText=labelText/>
+        <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} (${suffix})" maxCharacterLength="4000" characterCount=true/>
     </#if>
 </#macro>
 

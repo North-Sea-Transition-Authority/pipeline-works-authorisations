@@ -38,8 +38,8 @@ public class PipelineIdentDataFormValidatorTest {
   public void valid_multiCore__mandatory_dataPresent() {
 
     var form = new PipelineIdentDataForm();
-    form.setExternalDiameterTxt("text");
-    form.setProductsToBeConveyedTxt("text");
+    form.setExternalDiameterMultiCore("text");
+    form.setProductsToBeConveyedMultiCore("text");
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE);
 
     assertThat(result).isEmpty();
