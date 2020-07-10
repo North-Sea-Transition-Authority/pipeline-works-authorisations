@@ -6,6 +6,7 @@
 <#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentSummaryView" -->
 <#-- @ftlvariable name="lastConnectedPipelineIdentView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentsView" -->
 <#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory" -->
+<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
 <@defaultPage htmlTitle="${pipelineOverview.pipelineNumber} idents" breadcrumbs=true fullWidthColumn=true caption="${pipelineOverview.length}m ${pipelineOverview.pipelineType.displayName}" pageHeading="${pipelineOverview.pipelineNumber} idents">
 
@@ -39,14 +40,14 @@
                                 <@fdsDataItems.dataValues key="To (coordinates)" value=to/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@fdsDataItems.dataValues key="External diameter" value="${identView.externalDiameter}mm"/>
-                                <@fdsDataItems.dataValues key="Internal diameter" value="${identView.internalDiameter}mm"/>
-                                <@fdsDataItems.dataValues key="Wall thickness" value="${identView.wallThickness}mm"/>
-                                <@fdsDataItems.dataValues key="MAOP" value="${identView.maop}barg"/>
+                                <@dataValueForCoreType coreType=coreType key="External diameter" valueSingleCore=(identView.externalDiameter)! valueMultiCore=(identView.externalDiameterMultiCore)! measurementUnit="mm"/>
+                                <@dataValueForCoreType coreType=coreType key="Internal diameter" valueSingleCore=(identView.internalDiameter)! valueMultiCore=(identView.internalDiameterMultiCore)! measurementUnit="mm"/>
+                                <@dataValueForCoreType coreType=coreType key="Wall thickness" valueSingleCore=(identView.wallThickness)! valueMultiCore=(identView.wallThicknessMultiCore)! measurementUnit="mm"/>
+                                <@dataValueForCoreType coreType=coreType key="MAOP" valueSingleCore=(identView.maop)! valueMultiCore=(identView.maopMultiCore)! measurementUnit="barg"/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@fdsDataItems.dataValues key="Insulation / coating type" value="${identView.insulationCoatingType}"/>
-                                <@fdsDataItems.dataValues key="Products to be conveyed" value="${identView.productsToBeConveyed}"/>
+                                <@dataValueForCoreType coreType=coreType key="Insulation / coating type" valueSingleCore=(identView.insulationCoatingType)! valueMultiCore=(identView.insulationCoatingTypeMultiCore)!/>
+                                <@dataValueForCoreType coreType=coreType key="Products to be conveyed" valueSingleCore=(identView.productsToBeConveyed)! valueMultiCore=(identView.productsToBeConveyedMultiCore)!/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                                 <@fdsDataItems.dataValues key="Description of component parts" value="${identView.componentPartsDescription}"/>
@@ -66,3 +67,19 @@
     </@fdsForm.htmlForm>
 
 </@defaultPage>
+
+
+<#macro dataValueForCoreType coreType key valueSingleCore valueMultiCore measurementUnit="">
+    <#assign unit = measurementUnit/>  
+    <#if coreType == "SINGLE_CORE">  
+        <#if (valueSingleCore?has_content) == false>
+            <#assign unit = ""/>              
+        </#if>        
+        <@fdsDataItems.dataValues key=key value="${valueSingleCore}${unit}"/>        
+    <#else>
+        <#if (valueMultiCore?has_content) == false>
+            <#assign unit = ""/>              
+        </#if>        
+        <@fdsDataItems.dataValues key=key value="${valueMultiCore} ${unit}"/>
+    </#if>
+</#macro>

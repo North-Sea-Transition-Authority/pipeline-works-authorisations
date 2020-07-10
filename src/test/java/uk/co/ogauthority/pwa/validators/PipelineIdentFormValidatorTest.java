@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
@@ -35,7 +36,7 @@ public class PipelineIdentFormValidatorTest {
 
   @Test
   public void valid() {
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, buildForm(), (Object) null);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, buildForm(), (Object) null, PipelineCoreType.SINGLE_CORE);
     assertThat(result).isEmpty();
   }
 
@@ -45,7 +46,7 @@ public class PipelineIdentFormValidatorTest {
     form.setFromCoordinateForm(new CoordinateForm());
     form.setToCoordinateForm(new CoordinateForm());
     form.setDataForm(new PipelineIdentDataForm());
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
 
     assertThat(result).contains(
         entry("fromLocation", Set.of("fromLocation.required")),

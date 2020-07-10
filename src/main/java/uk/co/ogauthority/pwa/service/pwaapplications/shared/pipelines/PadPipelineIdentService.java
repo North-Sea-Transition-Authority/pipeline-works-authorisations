@@ -178,17 +178,23 @@ public class PadPipelineIdentService {
     return repository.countAllByPadPipeline(padPipeline);
   }
 
+  public List<PadPipelineIdent> getIdentsByPipeline(PadPipeline padPipeline) {
+    return repository.getAllByPadPipeline(padPipeline);
+  }
+
 
   public void setMaxEternalDiameter(PadPipeline padPipeline) {
     BigDecimal largestExternalDiameter = BigDecimal.ZERO;
     var identViews = getIdentViews(padPipeline);
-    for (var identView: identViews) {
-      if (identView.getExternalDiameter() != null && largestExternalDiameter.compareTo(identView.getExternalDiameter()) == -1) {
+    for (var identView : identViews) {
+      if (identView.getExternalDiameter() != null && largestExternalDiameter.compareTo(
+          identView.getExternalDiameter()) == -1) {
         largestExternalDiameter = identView.getExternalDiameter();
       }
     }
 
-    padPipeline.setMaxExternalDiameter(largestExternalDiameter.equals(BigDecimal.ZERO) ? null : largestExternalDiameter);
+    padPipeline.setMaxExternalDiameter(
+        largestExternalDiameter.equals(BigDecimal.ZERO) ? null : largestExternalDiameter);
   }
 
 }

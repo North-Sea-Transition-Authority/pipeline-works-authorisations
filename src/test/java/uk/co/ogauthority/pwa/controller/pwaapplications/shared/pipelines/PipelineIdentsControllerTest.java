@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -145,7 +146,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderAddIdent_contactSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -157,7 +158,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderAddIdent_appTypeSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -169,7 +170,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderAddIdent_appStatusSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -190,6 +191,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         new LongitudeCoordinate(1, 1, BigDecimal.ONE, LongitudeDirection.EAST)
     ));
     when(pipelineIdentService.getMaxIdent(padPipeline)).thenReturn(Optional.of(prevIdent));
+    
 
     var identForm = (PipelineIdentForm) Objects.requireNonNull(
         mockMvc.perform(get(ReverseRouter.route(on(PipelineIdentsController.class)
@@ -222,7 +224,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderAddIdent_noPreviousIdent() throws Exception {
-
+    
     when(pipelineIdentService.getMaxIdent(padPipeline)).thenReturn(Optional.empty());
 
     var identForm = (PipelineIdentForm) Objects.requireNonNull(
@@ -283,7 +285,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void postAddIdent_validationFailed() throws Exception {
-
+    
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromLocation"));
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
@@ -362,6 +364,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderRemoveIdent_contactSmokeTest() {
 
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -373,7 +376,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderRemoveIdent_appTypeSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -385,7 +388,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderRemoveIdent_appStatusSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -523,7 +526,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderEditIdent_contactSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -535,7 +538,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderEditIdent_appTypeSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -547,7 +550,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderEditIdent_appStatusSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -613,7 +616,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderInsertIdentAbove_contactSmokeTest() {
-
+    
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -659,6 +662,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     ));
     when(pipelineIdentService.getIdentByIdentNumber(padPipeline, ident.getIdentNo() - 1)).thenReturn(
         Optional.of(prevIdent));
+    
 
     var identForm = (PipelineIdentForm) Objects.requireNonNull(
         mockMvc.perform(get(ReverseRouter.route(on(PipelineIdentsController.class)

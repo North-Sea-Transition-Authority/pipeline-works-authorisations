@@ -28,6 +28,15 @@ public class IdentView {
   private final BigDecimal internalDiameter;
   private final BigDecimal wallThickness;
 
+  private final String externalDiameterMultiCore;
+  private final String internalDiameterMultiCore;
+  private final String wallThicknessMultiCore;
+  private final String insulationCoatingTypeMultiCore;
+  private final String maopMultiCore;
+  private final String productsToBeConveyedMultiCore;
+
+
+
   public IdentView(PadPipelineIdentData identData) {
     var ident = identData.getPadPipelineIdent();
     this.identId = ident.getId();
@@ -44,7 +53,15 @@ public class IdentView {
     this.productsToBeConveyed = identData.getProductsToBeConveyed();
     this.internalDiameter = identData.getInternalDiameter();
     this.wallThickness = identData.getWallThickness();
+
+    this.externalDiameterMultiCore = identData.getExternalDiameterMultiCore();
+    this.internalDiameterMultiCore = identData.getInternalDiameterMultiCore();
+    this.wallThicknessMultiCore = identData.getWallThicknessMultiCore();
+    this.maopMultiCore = identData.getMaopMultiCore();
+    this.insulationCoatingTypeMultiCore = identData.getInsulationCoatingTypeMultiCore();
+    this.productsToBeConveyedMultiCore = identData.getProductsToBeConveyedMultiCore();
   }
+
 
   public Integer getIdentId() {
     return identId;
@@ -100,5 +117,30 @@ public class IdentView {
 
   public BigDecimal getWallThickness() {
     return wallThickness;
+  }
+
+
+  public String getExternalDiameterMultiCore() {
+    return externalDiameterMultiCore;
+  }
+
+  public String getInternalDiameterMultiCore() {
+    return internalDiameterMultiCore;
+  }
+
+  public String getWallThicknessMultiCore() {
+    return wallThicknessMultiCore;
+  }
+
+  public String getInsulationCoatingTypeMultiCore() {
+    return insulationCoatingTypeMultiCore;
+  }
+
+  public String getMaopMultiCore() {
+    return maopMultiCore;
+  }
+
+  public String getProductsToBeConveyedMultiCore() {
+    return productsToBeConveyedMultiCore;
   }
 }

@@ -12,6 +12,14 @@ public class PipelineIdentDataForm {
   private BigDecimal maop;
   private String productsToBeConveyed;
 
+  private String externalDiameterMultiCore;
+  private String internalDiameterMultiCore;
+  private String wallThicknessMultiCore;
+  private String insulationCoatingTypeMultiCore;
+  private String maopMultiCore;
+  private String productsToBeConveyedMultiCore;
+
+
   public PipelineIdentDataForm() {
   }
 
@@ -70,4 +78,54 @@ public class PipelineIdentDataForm {
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
   }
+
+
+  public String getExternalDiameterMultiCore() {
+    return externalDiameterMultiCore;
+  }
+
+  public void setExternalDiameterMultiCore(String externalDiameterMultiCore) {
+    this.externalDiameterMultiCore = externalDiameterMultiCore;
+  }
+
+  public String getInternalDiameterMultiCore() {
+    return internalDiameterMultiCore;
+  }
+
+  public void setInternalDiameterMultiCore(String internalDiameterMultiCore) {
+    this.internalDiameterMultiCore = internalDiameterMultiCore;
+  }
+
+  public String getWallThicknessMultiCore() {
+    return wallThicknessMultiCore;
+  }
+
+  public void setWallThicknessMultiCore(String wallThicknessMultiCore) {
+    this.wallThicknessMultiCore = wallThicknessMultiCore;
+  }
+
+  public String getInsulationCoatingTypeMultiCore() {
+    return insulationCoatingTypeMultiCore;
+  }
+
+  public void setInsulationCoatingTypeMultiCore(String insulationCoatingTypeMultiCore) {
+    this.insulationCoatingTypeMultiCore = insulationCoatingTypeMultiCore;
+  }
+
+  public String getMaopMultiCore() {
+    return maopMultiCore;
+  }
+
+  public void setMaopMultiCore(String maopMultiCore) {
+    this.maopMultiCore = maopMultiCore;
+  }
+
+  public String getProductsToBeConveyedMultiCore() {
+    return productsToBeConveyedMultiCore;
+  }
+
+  public void setProductsToBeConveyedMultiCore(String productsToBeConveyedMultiCore) {
+    this.productsToBeConveyedMultiCore = productsToBeConveyedMultiCore;
+  }
+
 }

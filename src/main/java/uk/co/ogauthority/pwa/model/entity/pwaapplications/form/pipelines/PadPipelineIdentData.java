@@ -37,6 +37,28 @@ public class PadPipelineIdentData {
 
   private String productsToBeConveyed;
 
+
+  @Column(name = "external_diameter_mc")
+  private String externalDiameterMultiCore;
+
+  @Column(name = "internal_diameter_mc")
+  private String internalDiameterMultiCore;
+
+  @Column(name = "wall_thickness_mc")
+  private String wallThicknessMultiCore;
+
+  @Column(name = "insulation_coating_type_mc")
+  private String insulationCoatingTypeMultiCore;
+
+  @Column(name = "maop_mc")
+  private String maopMultiCore;
+
+  @Column(name = "products_to_be_conveyed_mc")
+  private String productsToBeConveyedMultiCore;
+
+
+
+
   public PadPipelineIdentData() {
   }
 
@@ -115,5 +137,54 @@ public class PadPipelineIdentData {
 
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
+  }
+
+
+  public String getExternalDiameterMultiCore() {
+    return externalDiameterMultiCore;
+  }
+
+  public void setExternalDiameterMultiCore(String externalDiameterMultiCore) {
+    this.externalDiameterMultiCore = externalDiameterMultiCore;
+  }
+
+  public String getInternalDiameterMultiCore() {
+    return internalDiameterMultiCore;
+  }
+
+  public void setInternalDiameterMultiCore(String internalDiameterMultiCore) {
+    this.internalDiameterMultiCore = internalDiameterMultiCore;
+  }
+
+  public String getWallThicknessMultiCore() {
+    return wallThicknessMultiCore;
+  }
+
+  public void setWallThicknessMultiCore(String wallThicknessMultiCore) {
+    this.wallThicknessMultiCore = wallThicknessMultiCore;
+  }
+
+  public String getInsulationCoatingTypeMultiCore() {
+    return insulationCoatingTypeMultiCore;
+  }
+
+  public void setInsulationCoatingTypeMultiCore(String insulationCoatingTypeMultiCore) {
+    this.insulationCoatingTypeMultiCore = insulationCoatingTypeMultiCore;
+  }
+
+  public String getMaopMultiCore() {
+    return maopMultiCore;
+  }
+
+  public void setMaopMultiCore(String maopMultiCore) {
+    this.maopMultiCore = maopMultiCore;
+  }
+
+  public String getProductsToBeConveyedMultiCore() {
+    return productsToBeConveyedMultiCore;
+  }
+
+  public void setProductsToBeConveyedMultiCore(String productsToBeConveyedMultiCore) {
+    this.productsToBeConveyedMultiCore = productsToBeConveyedMultiCore;
   }
 }
