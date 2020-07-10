@@ -240,6 +240,8 @@ AS
     l_detail_migration_data_id NUMBER;
     l_huoo_role_count NUMBER := 0;
 
+    l_length_metre NUMBER;
+
   BEGIN
     ${datasource.user}.migration_logger.log_pipeline(
         p_mig_pipeline_history => p_mig_pipeline_history
@@ -257,6 +259,16 @@ AS
       4. create detail migration data
       5. create historical huoo data
       */
+    BEGIN
+      l_length_metre := TO_NUMBER(p_mig_pipeline_history.length) * 1000;
+    EXCEPTION WHEN VALUE_ERROR THEN
+      ${datasource.user}.migration_logger.log_pipeline(
+          p_mig_pipeline_history => p_mig_pipeline_history
+        , p_status => 'FAILED'
+        , p_message => 'pipeline record length conversion error. length: ' || p_mig_pipeline_history.length
+        );
+     RAISE;
+    END;
 
     INSERT INTO ${datasource.user}.pipeline_details ( id
                                         , pipeline_id
@@ -287,7 +299,7 @@ AS
 
            , p_mig_pipeline_history.position_from
            , p_mig_pipeline_history.position_to
-           , TO_NUMBER(p_mig_pipeline_history.length)
+           , l_length_metre
            , (  -- agreed we can use imperfect existing data as free-text values at the pipeline header level
                SELECT xem.key
                FROM envmgr.xview_env_mapsets xem
@@ -316,7 +328,7 @@ AS
             -- repeat pipeline header info so it can corrected "in app"
             , p_mig_pipeline_history.position_from
             , p_mig_pipeline_history.position_to
-            , p_mig_pipeline_history.length)
+            , l_length_metre)
     RETURNING id INTO l_detail_ident_id;
 
     INSERT INTO ${datasource.user}.pipeline_detail_ident_data ( pipeline_detail_ident_id
