@@ -131,8 +131,6 @@ public class PadPipeline {
 
   private Integer pipelineDesignLife;
 
-  private PipelineCoreType coreType;
-
 
   public PadPipeline() {
   }
