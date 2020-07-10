@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -21,12 +22,15 @@ public class PadPipelineIdentService {
 
   private final PadPipelineIdentRepository repository;
   private final PadPipelineIdentDataService identDataService;
+  private final PadPipelinePersisterService padPipelinePersisterService;
 
   @Autowired
   public PadPipelineIdentService(PadPipelineIdentRepository repository,
-                                 PadPipelineIdentDataService identDataService) {
+                                 PadPipelineIdentDataService identDataService,
+                                 PadPipelinePersisterService padPipelinePersisterService) {
     this.repository = repository;
     this.identDataService = identDataService;
+    this.padPipelinePersisterService = padPipelinePersisterService;
   }
 
   public PadPipelineIdent getIdent(PadPipeline pipeline, Integer identId) {
@@ -94,6 +98,7 @@ public class PadPipelineIdentService {
     var ident = new PadPipelineIdent(pipeline, numberOfIdents.intValue() + 1);
 
     saveEntityUsingForm(ident, form);
+
   }
 
   @Transactional
@@ -167,6 +172,23 @@ public class PadPipelineIdentService {
 
   public boolean isSectionValid(PadPipeline pipeline) {
     return !repository.countAllByPadPipeline(pipeline).equals(0L);
+  }
+
+  public Long countIdentsForPipeline(PadPipeline padPipeline) {
+    return repository.countAllByPadPipeline(padPipeline);
+  }
+
+
+  public void setMaxEternalDiameter(PadPipeline padPipeline) {
+    BigDecimal largestExternalDiameter = BigDecimal.ZERO;
+    var identViews = getIdentViews(padPipeline);
+    for (var identView: identViews) {
+      if (identView.getExternalDiameter() != null && largestExternalDiameter.compareTo(identView.getExternalDiameter()) == -1) {
+        largestExternalDiameter = identView.getExternalDiameter();
+      }
+    }
+
+    padPipeline.setMaxExternalDiameter(largestExternalDiameter.equals(BigDecimal.ZERO) ? null : largestExternalDiameter);
   }
 
 }

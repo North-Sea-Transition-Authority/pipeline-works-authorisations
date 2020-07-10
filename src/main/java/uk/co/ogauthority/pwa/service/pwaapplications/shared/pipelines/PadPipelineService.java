@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.collect.Sets;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -46,13 +47,16 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
+  private final PadPipelineIdentService padPipelineIdentService;
 
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
-                            PipelineService pipelineService) {
+                            PipelineService pipelineService,
+                            PadPipelineIdentService padPipelineIdentService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
+    this.padPipelineIdentService = padPipelineIdentService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -315,6 +319,18 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
+
+  public void createPipelineName(PadPipeline padPipeline) {
+    var pipelineName = padPipeline.getPipelineRef() + " - ";
+    var totalIdents = padPipelineIdentService.countIdentsForPipeline(padPipeline);
+    if (totalIdents == 1) {
+      pipelineName += padPipeline.getMaxExternalDiameter() + " Millimetre ";
+    }
+    pipelineName += padPipeline.getPipelineType().getDisplayName();
+    //TO DO: add bundle name to pipeline name (if pipeline is part of a bundle)
+    padPipeline.setName(pipelineName);
   }
 
 

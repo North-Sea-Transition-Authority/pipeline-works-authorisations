@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Verify;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +28,8 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -54,6 +57,9 @@ public class PadPipelineServiceTest {
 
   private PwaApplicationDetail detail;
 
+  @Mock
+  private PadPipelineIdentService padPipelineIdentService;
+
   @Captor
   private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
 
@@ -70,7 +76,7 @@ public class PadPipelineServiceTest {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, padPipelineIdentService);
 
   }
 
@@ -296,6 +302,53 @@ public class PadPipelineServiceTest {
         );
 
   }
+
+
+//  @Test
+//  public void saveMaxEternalDiameter_multipleIdents() {
+//    PadPipeline padPipeline = new PadPipeline();
+//
+//    var identData1 = new PadPipelineIdentData();
+//    identData1.setExternalDiameter(BigDecimal.valueOf(8));
+//    identData1.setPadPipelineIdent(new PadPipelineIdent());
+//    var identData2 = new PadPipelineIdentData();
+//    identData2.setExternalDiameter(BigDecimal.valueOf(5));
+//    identData2.setPadPipelineIdent(new PadPipelineIdent());
+//    when(padPipelineIdentService.getIdentViews(padPipeline)).thenReturn(List.of(new IdentView(identData1), new IdentView(identData2)));
+//
+//    padPipelineService.saveMaxEternalDiameter(padPipeline);
+//    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+//    var savedPipeline = padPipelineArgumentCaptor.getValue();
+//    assertThat(savedPipeline.getMaxExternalDiameter()).isEqualTo(BigDecimal.valueOf(8));
+//  }
+//
+//  @Test
+//  public void saveMaxEternalDiameter_zeroIdents() {
+//    PadPipeline padPipeline = new PadPipeline();
+//    when(padPipelineIdentService.getIdentViews(padPipeline)).thenReturn(List.of());
+//
+//    padPipelineService.saveMaxEternalDiameter(padPipeline);
+//    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+//    var savedPipeline = padPipelineArgumentCaptor.getValue();
+//    assertThat(savedPipeline.getMaxExternalDiameter()).isNull();
+//  }
+//
+//  @Test
+//  public void setPipelineName_singleDiameter() {
+//    PadPipeline padPipeline = new PadPipeline();
+//    padPipeline.setPipelineRef("my ref");
+//
+//    var identData1 = new PadPipelineIdentData();
+//    identData1.setExternalDiameter(BigDecimal.valueOf(8));
+//    identData1.setPadPipelineIdent(new PadPipelineIdent());
+//    var identData2 = new PadPipelineIdentData();
+//    identData2.setExternalDiameter(BigDecimal.valueOf(5));
+//    identData2.setPadPipelineIdent(new PadPipelineIdent());
+//    when(padPipelineIdentService.getIdentViews(padPipeline)).thenReturn(List.of(new IdentView(identData1), new IdentView(identData2)));
+//
+//    padPipelineService.setPipelineName(padPipeline);
+//    var expectedPipelineName = "my ref";
+//  }
 
 
 }

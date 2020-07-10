@@ -44,6 +44,7 @@ public class PipelineDetail {
   private String pipelineStatus;
   private String detailStatus;
   private String pipelineNumber;
+  private BigDecimal maxExternalDiameter;
 
   @ManyToOne
   @JoinColumn(name = "pwa_consent_id")
@@ -332,6 +333,14 @@ public class PipelineDetail {
 
   public int getPipelineId() {
     return this.getPipeline().getId();
+  }
+
+  public BigDecimal getMaxExternalDiameter() {
+    return maxExternalDiameter;
+  }
+
+  public void setMaxExternalDiameter(BigDecimal maxExternalDiameter) {
+    this.maxExternalDiameter = maxExternalDiameter;
   }
 
   private void updateFromCoordinateValues() {
