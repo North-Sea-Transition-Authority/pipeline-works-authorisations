@@ -42,7 +42,8 @@ public class PadPipeline {
   @JoinColumn(name = "pipeline_id")
   private Pipeline pipeline;
 
-  private String name;
+  @Column(name = "name")
+  private String pipelineName;
 
   @Enumerated(EnumType.STRING)
   private PipelineType pipelineType;
@@ -133,8 +134,6 @@ public class PadPipeline {
 
   private Integer pipelineDesignLife;
 
-  private PipelineCoreType coreType;
-
   private BigDecimal maxExternalDiameter;
 
 
@@ -170,12 +169,12 @@ public class PadPipeline {
     this.pipeline = pipeline;
   }
 
-  public String getName() {
-    return name;
+  public String getPipelineName() {
+    return pipelineName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setPipelineName(String pipelineName) {
+    this.pipelineName = pipelineName;
   }
 
   public PipelineType getPipelineType() {
