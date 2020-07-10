@@ -14,6 +14,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -129,6 +130,8 @@ public class PadPipeline {
   private String otherPipelineMaterialUsed;
 
   private Integer pipelineDesignLife;
+
+  private PipelineCoreType coreType;
 
 
   public PadPipeline() {
@@ -283,6 +286,10 @@ public class PadPipeline {
 
   public void setPipelineDesignLife(Integer pipelineDesignLife) {
     this.pipelineDesignLife = pipelineDesignLife;
+  }
+
+  public PipelineCoreType getCoreType() {
+    return pipelineType.getCoreType();
   }
 
   private void updateFromCoordinateValues() {

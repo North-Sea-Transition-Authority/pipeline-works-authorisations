@@ -257,13 +257,12 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var pipelines = getPipelines(detail);
-    for (var pipeline: pipelines) {
+    for (var pipeline: getPipelines(detail)) {
       for (var ident: padPipelineIdentService.getIdentsByPipeline(pipeline)) {
         var identForm = new PipelineIdentForm();
         padPipelineIdentService.mapEntityToForm(ident, identForm);
         BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
-        pipelineIdentFormValidator.validate(identForm, bindingResult, detail, getPipelineCoreType(pipeline));
+        pipelineIdentFormValidator.validate(identForm, bindingResult, detail, pipeline.getCoreType());
         if (bindingResult.hasErrors()) {
           return false;
         }
@@ -339,10 +338,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-  }
-
-  public PipelineCoreType getPipelineCoreType(PadPipeline padPipeline) {
-    return padPipeline.getPipelineType().getCoreType();
   }
 
 

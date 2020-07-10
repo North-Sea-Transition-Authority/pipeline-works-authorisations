@@ -307,13 +307,5 @@ public class PadPipelineServiceTest {
 
   }
 
-  @Test
-  public void getPipelineCoreType() {
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
-    var coreType = padPipelineService.getPipelineCoreType(padPipeline);
-    assertThat(coreType).isEqualTo(PipelineCoreType.MULTI_CORE);
-  }
-
 
 }
