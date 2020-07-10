@@ -59,6 +59,11 @@ ORDER BY li.time DESC
 SELECT ml.*
  FROM PWA.migration_master_logs ml
 WHERE status = 'FAILED'
+
+/
+SELECT mpl.*
+ FROM PWA.MIGRATION_PIPELINE_LOGS mpl
+WHERE status = 'FAILED' AND log_messages like '%ORA-01722%'
 /
 
 
@@ -172,7 +177,6 @@ WHERE xpad.pad_id IN (
   FROM PWA.PWA_CONSENTS pc
 )
 ORDER BY xpad.pa_id, xpad.pad_id
-
 /
 
 -- get total pipeline history failures per pad where pad migration failed
