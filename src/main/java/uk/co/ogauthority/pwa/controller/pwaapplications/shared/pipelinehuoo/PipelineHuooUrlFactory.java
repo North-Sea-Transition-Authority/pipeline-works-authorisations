@@ -2,9 +2,15 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Collections;
+import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelinesAndOrgRoleGroupView;
 
 public class PipelineHuooUrlFactory {
 
@@ -34,7 +40,40 @@ public class PipelineHuooUrlFactory {
   }
 
   private String getAddPipelineRoleUrl(HuooRole huooRole) {
-    return ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
+    return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .renderPipelinesForHuooAssignment(applicationType, applicationId, huooRole, null, null));
+  }
+
+
+  public String changeGroupPipelineOwnersUrl(HuooRole huooRole,
+                                             PipelinesAndOrgRoleGroupView pipelinesAndOrgRoleGroupView) {
+    return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).editGroupRouter(
+        applicationType,
+        applicationId,
+        huooRole,
+        null,
+        ModifyPipelineHuooJourneyController.JourneyPage.ORGANISATION_SELECTION,
+        pipelinesAndOrgRoleGroupView.getPipelineIdSet().stream()
+            .map(PipelineId::asInt)
+            .collect(Collectors.toSet()),
+        pipelinesAndOrgRoleGroupView.getOrganisationIdsOfRoleOwners().stream()
+            .map(OrganisationUnitId::asInt)
+            .collect(Collectors.toSet()),
+        pipelinesAndOrgRoleGroupView.getTreatyAgreementsOfRoleOwners()
+    ));
+  }
+
+  public String assignUnassignedPipelineOwnersUrl(HuooRole huooRole,
+                                             PipelineHuooRoleSummaryView pipelineHuooRoleSummaryView) {
+    return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).editGroupRouter(
+        applicationType,
+        applicationId,
+        huooRole,
+        null,
+        ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
+        pipelineHuooRoleSummaryView.getUnassignedPipelineId().stream().map(PipelineId::asInt).collect(Collectors.toSet()),
+        Collections.emptySet(),
+        Collections.emptySet()
+    ));
   }
 }

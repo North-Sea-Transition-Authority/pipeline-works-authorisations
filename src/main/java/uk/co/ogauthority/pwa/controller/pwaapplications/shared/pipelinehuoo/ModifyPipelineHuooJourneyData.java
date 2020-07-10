@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-public class AddPipelineHuooJourneyData implements Serializable {
+public class ModifyPipelineHuooJourneyData implements Serializable {
   // Random but consistent uuid for class so de-serialisation of session objects wont crash apps after restarts.
   // If this file changes in a way that means any serialised object would be incompatible, this needs to change.
   // Examples of changes are renaming/adding/removing/changing type of member variables
@@ -22,7 +22,7 @@ public class AddPipelineHuooJourneyData implements Serializable {
   private Set<Integer> organisationUnitIds = new HashSet<>();
   private Set<TreatyAgreement> treatyAgreements = EnumSet.noneOf(TreatyAgreement.class);
 
-  public AddPipelineHuooJourneyData() {
+  public ModifyPipelineHuooJourneyData() {
   }
 
   public HuooRole getJourneyRoleType() {

@@ -6,7 +6,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 /**
  * Captures a set of organisationRoleOwners where they have an instance of that role associated with a pipeline and allows
@@ -42,6 +45,21 @@ public final class PipelinesAndOrgRoleGroupView {
 
   public Set<OrganisationRoleOwnerDto> getOrganisationRoleOwnerSet() {
     return organisationRoleOwnerSet;
+  }
+
+
+  public Set<OrganisationUnitId> getOrganisationIdsOfRoleOwners() {
+    return this.organisationRoleOwnerSet.stream()
+        .filter(o -> HuooType.PORTAL_ORG.equals(o.getHuooType()))
+        .map(OrganisationRoleOwnerDto::getOrganisationUnitId)
+        .collect(Collectors.toSet());
+  }
+
+  public Set<TreatyAgreement> getTreatyAgreementsOfRoleOwners() {
+    return this.organisationRoleOwnerSet.stream()
+        .filter(o -> HuooType.TREATY_AGREEMENT.equals(o.getHuooType()))
+        .map(OrganisationRoleOwnerDto::getTreatyAgreement)
+        .collect(Collectors.toSet());
   }
 
   public List<String> getPipelineNumbers() {
