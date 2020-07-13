@@ -18,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PickHuooPipelinesForm;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -92,10 +93,10 @@ public class PadPipelinesHuooServiceTest {
     when(padOrganisationRoleService.getPipelineIdsWhereRoleOfTypeSet(pwaApplicationDetail, HuooRole.OWNER))
         .thenReturn(Set.of(new PipelineId(CONSENTED_PIPELINE_ID)));
 
-    when(pickablePipelineService
-        .getAllPickablePipelinesForApplication(pwaApplicationDetail)).thenReturn(
-        Set.of(PIPELINE_WITH_ROLE, PIPELINE_WITHOUT_ROLE)
-    );
+    when(pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail))
+        .thenReturn(
+            Set.of(PIPELINE_WITH_ROLE, PIPELINE_WITHOUT_ROLE)
+        );
 
     // mimic successful reconciliation
     when(pickablePipelineService.reconcilePickablePipelineOptions(any())).thenReturn(
@@ -300,6 +301,66 @@ public class PadPipelinesHuooServiceTest {
         HuooRole.USER);
 
     assertThat(foundTreatiesWithRole).containsExactlyInAnyOrder(userRole.getAgreement());
+  }
+
+  @Test
+  public void reconcilePickablePipelinesFromPipelineIds_serviceInteractions_andInvalidPipelineIdProvided() {
+    var validPipelineOptionSet = Set.of(PIPELINE_WITH_ROLE);
+
+    var reconciledPickablePipeline = new ReconciledPickablePipeline(
+        PickablePipelineId.from(PIPELINE_WITH_ROLE),
+        new PipelineId(PIPELINE_WITH_ROLE.getRawId())
+    );
+
+    when(pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail))
+        .thenReturn(validPipelineOptionSet);
+    when(pickablePipelineService.reconcilePickablePipelineOptions(validPipelineOptionSet))
+        .thenReturn(Set.of(reconciledPickablePipeline));
+
+    var result = padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
+        pwaApplicationDetail,
+        Set.of(CONSENTED_PIPELINE_ID, APPLICATION_PIPELINE_ID)
+    );
+
+    assertThat(result).containsExactly(
+        reconciledPickablePipeline
+    );
+
+  }
+
+  @Test
+  public void reconcileOrganisationRoleOwnersFrom_serviceInteractions_andInvalidOptionsProvided() {
+    var role = HuooRole.HOLDER;
+    var validOrgUnitId = 1;
+    var validTreaty = TreatyAgreement.NORWAY;
+    var invalidOrgUnitId = 2;
+    var invalidTreaty = TreatyAgreement.BELGIUM;
+
+    var validOrgRoleInstances = Set.of(
+        OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(role, validTreaty),
+        OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(role, validOrgUnitId)
+
+    );
+    when(padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(
+        pwaApplicationDetail,
+        role
+    )).thenReturn(validOrgRoleInstances);
+
+    var result = padPipelinesHuooService.reconcileOrganisationRoleOwnersFrom(
+        pwaApplicationDetail,
+        role,
+        Set.of(validOrgUnitId, invalidOrgUnitId),
+        Set.of(validTreaty, invalidTreaty)
+    );
+
+    assertThat(result).containsExactlyInAnyOrder(
+        OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(role, validTreaty).getOrganisationRoleOwnerDto(),
+        OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(role, validOrgUnitId).getOrganisationRoleOwnerDto()
+
+    );
+
+
+
   }
 
 }

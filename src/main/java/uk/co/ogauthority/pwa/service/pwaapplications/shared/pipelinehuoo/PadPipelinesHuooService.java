@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PickHuooPipelinesForm;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
@@ -125,7 +128,6 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         huooRole
     );
 
-
     var organisationRoles = getPadOrganisationRolesFrom(
         pwaApplicationDetail,
         huooRole,
@@ -148,6 +150,60 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         .stream()
         .sorted(Comparator.comparing(PickablePipelineOption::getPipelineNumber))
         .collect(toList());
+  }
+
+
+  /**
+   * Given pipeline ids return successfully reconciled pickable pipelines for the application detail.
+   */
+  public Set<ReconciledPickablePipeline> reconcilePickablePipelinesFromPipelineIds(
+      PwaApplicationDetail pwaApplicationDetail,
+      Set<Integer> pipelineIds) {
+
+    var allPickablePipelines = pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail);
+    // Pickable pipelines are not guaranteed to have the actual PipelineId available depending on app or consented model source.
+    // reconcile to match pipelineId to arguments and filter out any invalid pipelines
+    return pickablePipelineService.reconcilePickablePipelineOptions(allPickablePipelines)
+        .stream()
+        .filter(rpp -> pipelineIds.contains(rpp.getPipelineId().asInt()))
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Helper to convert sets of raw org unit ids and treaties into single set of roleOwner dtos.
+   */
+  private Set<OrganisationRoleOwnerDto> createRoleOwnersFrom(Set<Integer> organisationUnitIds,
+                                                             Set<TreatyAgreement> treatyAgreements) {
+
+    var orgUnitRoleOwners = organisationUnitIds.stream()
+        .map(o -> OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(o)))
+        .collect(Collectors.toSet());
+
+    var orgTreatyRoleOwners = treatyAgreements.stream()
+        .map(OrganisationRoleOwnerDto::fromTreaty)
+        .collect(Collectors.toSet());
+
+    return SetUtils.union(orgUnitRoleOwners, orgTreatyRoleOwners);
+  }
+
+  /**
+   * We want to turn raw org unit ids and treaty agreements and reconcile those arguments with valid org roles for an application detail.
+   */
+  public Set<OrganisationRoleOwnerDto> reconcileOrganisationRoleOwnersFrom(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole,
+      Set<Integer> organisationUnitIds,
+      Set<TreatyAgreement> treatyAgreements) {
+
+    var searchOrgRoleOwners = createRoleOwnersFrom(organisationUnitIds, treatyAgreements);
+
+    var allOrgRoleInstancesForRole = padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(
+        pwaApplicationDetail, huooRole);
+
+    return allOrgRoleInstancesForRole.stream()
+        .filter(o -> searchOrgRoleOwners.contains(o.getOrganisationRoleOwnerDto()))
+        .map(OrganisationRoleInstanceDto::getOrganisationRoleOwnerDto)
+        .collect(Collectors.toSet());
   }
 
   public List<PickablePipelineOption> getPickablePipelineOptionsWithNoRoleOfType(
