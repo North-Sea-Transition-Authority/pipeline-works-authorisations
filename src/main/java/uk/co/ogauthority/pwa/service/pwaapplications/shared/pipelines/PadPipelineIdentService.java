@@ -187,9 +187,11 @@ public class PadPipelineIdentService {
     return !repository.countAllByPadPipeline(pipeline).equals(0L);
   }
 
+
   public Long countIdentsForPipeline(PadPipeline padPipeline) {
     return repository.countAllByPadPipeline(padPipeline);
   }
+
 
   public List<PadPipelineIdent> getIdentsByPipeline(PadPipeline padPipeline) {
     return repository.getAllByPadPipeline(padPipeline);
@@ -223,6 +225,5 @@ public class PadPipelineIdentService {
     //TO DO: add bundle name to pipeline name (if pipeline is part of a bundle) dependant on: PWA-619
     padPipeline.setPipelineName(pipelineName);
   }
-
 
 }

@@ -347,6 +347,64 @@ public class AddPipelineHuooJourneyControllerTest extends PwaApplicationContextA
   }
 
   @Test
+  public void completeValidJourney_journeyDataGetsClearedOnCompletion() throws Exception {
+
+    var pickedPipelines = Set.of(new Pipeline(), new Pipeline());
+    var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
+    when(pickablePipelineService.getPickedPipelinesFromStrings(any())).thenReturn(pickedPipelines);
+    when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
+
+    // Step 1: Mock loading and selecting of Pipelines
+    mockMvc.perform(post(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
+        .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_STRING)
+    )
+        .andExpect(status().is3xxRedirection());
+
+    // Step 2: select orgs and complete journey
+    mockMvc.perform(post(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
+        .selectOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
+        .param(FORM_PICKED_TREATY_ATTR, String.format("%s,%s", TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND))
+    )
+        .andExpect(status().is3xxRedirection());
+
+    // Step 3a: load selected pipelines screen for same huoo journey and app and assert no pipelines selected
+    MvcResult pipelineResult = mockMvc.perform(get(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
+        .renderPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+    )
+        .andExpect(status().isOk())
+        .andReturn();
+    var pipelinePageForm = (PickHuooPipelinesForm) pipelineResult.getModelAndView().getModelMap().getAttribute("form");
+    assertThat(pipelinePageForm.getPickedPipelineStrings()).isEmpty();
+
+    // Step 3b: load select organisations screen for same huoo journey and app and assert no orgs selected
+    MvcResult orgResult = mockMvc.perform(get(ReverseRouter.route(on(AddPipelineHuooJourneyController.class)
+        .renderOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+    )
+        .andExpect(status().isOk())
+        .andReturn();
+    var orgPageForm = (PickHuooPipelinesForm) orgResult.getModelAndView().getModelMap().getAttribute("form");
+    assertThat(orgPageForm.getTreatyAgreements()).isEmpty();
+    assertThat(orgPageForm.getOrganisationUnitIds()).isEmpty();
+
+
+  }
+
+
+  @Test
   public void selectOrganisationsForPipelineHuooAssignment_invalidForm() throws Exception {
 
     doAnswer(invocation -> {

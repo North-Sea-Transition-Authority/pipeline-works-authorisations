@@ -83,8 +83,7 @@ public class PadPipelineServiceTest {
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
 
-
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineIdentFormValidator, padPipelineIdentService);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, padPipelineIdentService, pipelineIdentFormValidator);
   }
 
   @Test

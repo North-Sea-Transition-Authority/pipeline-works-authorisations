@@ -56,8 +56,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
                             PipelineService pipelineService,
-                            PipelineIdentFormValidator pipelineIdentFormValidator,
-                            PadPipelineIdentService padPipelineIdentService) {
+                            PadPipelineIdentService padPipelineIdentService,
+                            PipelineIdentFormValidator pipelineIdentFormValidator) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.padPipelineIdentService = padPipelineIdentService;

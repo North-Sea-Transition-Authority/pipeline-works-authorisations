@@ -54,7 +54,7 @@
 
               <td class="govuk-table__cell">${orgDetail.getCompanyName()}</td>
               <td class="govuk-table__cell">${orgDetail.getRegisteredNumber()!""}</td>
-              <td class="govuk-table__cell">${orgDetail.getCompanyAddress()}</td>
+              <td class="govuk-table__cell">${orgDetail.getCompanyAddress()!""}</td>
             </tr>
           </#if>
       </#list>
