@@ -136,6 +136,8 @@ public class PadPipeline {
 
   private BigDecimal maxExternalDiameter;
 
+  private Boolean pipelineInBundle;
+  private String bundleName;
 
   public PadPipeline() {
   }
@@ -309,6 +311,22 @@ public class PadPipeline {
 
   public void setMaxExternalDiameter(BigDecimal maxExternalDiameter) {
     this.maxExternalDiameter = maxExternalDiameter;
+  }
+
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  public void setPipelineInBundle(Boolean pipelineInBundle) {
+    this.pipelineInBundle = pipelineInBundle;
+  }
+
+  public String getBundleName() {
+    return bundleName;
+  }
+
+  public void setBundleName(String bundleName) {
+    this.bundleName = bundleName;
   }
 
   private void updateFromCoordinateValues() {

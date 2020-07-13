@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -9,6 +11,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 
 @Service
@@ -65,8 +68,9 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
     Optional.ofNullable(form.getTrenchedBuriedBackfilled())
         .filter(tru -> tru)
-        .ifPresent(t -> ValidationUtils.rejectIfEmptyOrWhitespace(errors, "trenchingMethods", "trenchingMethods.required",
-            "Enter the trenching methods"));
+        .ifPresent(
+            t -> ValidationUtils.rejectIfEmptyOrWhitespace(errors, "trenchingMethods", "trenchingMethods.required",
+                "Enter the trenching methods"));
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineFlexibility", "pipelineFlexibility.required",
         "Select an option for the pipeline flexibility");
@@ -75,7 +79,8 @@ public class PipelineHeaderFormValidator implements SmartValidator {
         "Select an option for the pipeline material");
 
     if (form.getPipelineMaterial() != null && form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPipelineMaterialUsed", "otherPipelineMaterialUsed.required",
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPipelineMaterialUsed",
+          "otherPipelineMaterialUsed.required",
           "Enter details of other pipeline materials used");
     }
 
@@ -87,6 +92,21 @@ public class PipelineHeaderFormValidator implements SmartValidator {
           "Design life of the pipeline must be a positive whole number");
     }
 
+    ValidationUtils.rejectIfEmpty(errors, "pipelineInBundle",
+        "pipelineInBundle" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "Select yes if the full length of this pipeline is in a bundle");
+
+    if (BooleanUtils.isTrue(form.getPipelineInBundle())) {
+      ValidationUtils.rejectIfEmpty(errors, "bundleName",
+          "bundleName" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Enter the bundle name");
+
+      if (StringUtils.length(form.getBundleName()) > 4000) {
+        errors.rejectValue("bundleName",
+            "bundleName" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+            "Bundle name must be 4000 characters or fewer");
+      }
+    }
   }
 
 }

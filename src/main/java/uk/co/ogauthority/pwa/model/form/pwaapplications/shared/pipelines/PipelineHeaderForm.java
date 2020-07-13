@@ -34,6 +34,9 @@ public class PipelineHeaderForm {
 
   private Integer pipelineDesignLife;
 
+  private Boolean pipelineInBundle;
+  private String bundleName;
+
 
 
   public PipelineHeaderForm() {
@@ -150,5 +153,21 @@ public class PipelineHeaderForm {
 
   public void setPipelineDesignLife(Integer pipelineDesignLife) {
     this.pipelineDesignLife = pipelineDesignLife;
+  }
+
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  public void setPipelineInBundle(Boolean pipelineInBundle) {
+    this.pipelineInBundle = pipelineInBundle;
+  }
+
+  public String getBundleName() {
+    return bundleName;
+  }
+
+  public void setBundleName(String bundleName) {
+    this.bundleName = bundleName;
   }
 }

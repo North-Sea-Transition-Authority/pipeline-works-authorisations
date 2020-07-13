@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 
 @Repository
 public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
@@ -120,4 +121,20 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .setParameter("detail", pwaApplicationDetail)
         .getSingleResult();
   }
+
+  @Override
+  public List<PipelineBundlePairDto> getBundleNamesByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return entityManager.createQuery("" +
+        "SELECT new uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto(" +
+          "pp.pipeline.id, " +
+          "pp.bundleName" +
+        ") " +
+        "FROM PadPipeline pp " +
+        "WHERE pp.pwaApplicationDetail = :detail " +
+        "AND pp.bundleName IS NOT NULL ", PipelineBundlePairDto.class)
+        .setParameter("detail", pwaApplicationDetail)
+        .getResultList();
+  }
+
+
 }

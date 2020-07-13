@@ -45,6 +45,8 @@ public class PipelineDetail {
   private String detailStatus;
   private String pipelineNumber;
   private BigDecimal maxExternalDiameter;
+  private Boolean pipelineInBundle;
+  private String bundleName;
 
   @ManyToOne
   @JoinColumn(name = "pwa_consent_id")
@@ -385,6 +387,22 @@ public class PipelineDetail {
     updateToCoordinateValues();
   }
 
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  public void setPipelineInBundle(Boolean pipelineInBundle) {
+    this.pipelineInBundle = pipelineInBundle;
+  }
+
+  public String getBundleName() {
+    return bundleName;
+  }
+
+  public void setBundleName(String bundleName) {
+    this.bundleName = bundleName;
+  }
+
   @PostLoad
   public void postLoad() {
     // this method needs to be able to handle nulls given we could be dealing with migrated data
@@ -427,6 +445,7 @@ public class PipelineDetail {
           )
       );
     }
+
 
 
   }

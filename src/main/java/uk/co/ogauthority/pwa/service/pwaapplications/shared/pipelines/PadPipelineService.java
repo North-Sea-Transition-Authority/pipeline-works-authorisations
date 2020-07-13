@@ -2,16 +2,20 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +40,13 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskLis
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -49,6 +55,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
+  private final PipelineDetailService pipelineDetailService;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final PadPipelineIdentService padPipelineIdentService;
 
@@ -56,10 +63,12 @@ public class PadPipelineService implements ApplicationFormSectionService {
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
                             PipelineService pipelineService,
+                            PipelineDetailService pipelineDetailService,
                             PadPipelineIdentService padPipelineIdentService,
                             PipelineIdentFormValidator pipelineIdentFormValidator) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
+    this.pipelineDetailService = pipelineDetailService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
   }
@@ -147,7 +156,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public void addPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineHeaderForm form) {
+  public PadPipeline addPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineHeaderForm form) {
 
     var newPipeline = pipelineService.createApplicationPipeline(pwaApplicationDetail.getPwaApplication());
 
@@ -167,6 +176,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     saveEntityUsingForm(newPadPipeline, form);
 
+    return newPadPipeline;
   }
 
   public void saveEntityUsingForm(PadPipeline padPipeline, PipelineHeaderForm form) {
@@ -193,12 +203,18 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setOtherPipelineMaterialUsed(form.getOtherPipelineMaterialUsed());
     }
     padPipeline.setPipelineDesignLife(form.getPipelineDesignLife());
+    padPipeline.setPipelineInBundle(form.getPipelineInBundle());
+    if (BooleanUtils.isTrue(form.getPipelineInBundle())) {
+      padPipeline.setBundleName(form.getBundleName());
+    } else {
+      padPipeline.setBundleName(null);
+    }
+
 
     padPipelineIdentService.setMaxEternalDiameter(padPipeline);
     padPipelineIdentService.createPipelineName(padPipeline);
     padPipelineRepository.save(padPipeline);
   }
-
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {
 
@@ -227,6 +243,9 @@ public class PadPipelineService implements ApplicationFormSectionService {
     form.setOtherPipelineMaterialUsed(pipeline.getOtherPipelineMaterialUsed());
     form.setPipelineDesignLife(pipeline.getPipelineDesignLife());
 
+    form.setPipelineInBundle(pipeline.getPipelineInBundle());
+    form.setBundleName(pipeline.getBundleName());
+
   }
 
   @Transactional
@@ -254,6 +273,33 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public Long getCountOfPipelinesByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
     return padPipelineRepository.countAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
+  }
+
+  @VisibleForTesting
+  public List<PipelineBundlePairDto> getPipelineBundleNamesByDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineRepository.getBundleNamesByPwaApplicationDetail(pwaApplicationDetail);
+  }
+
+  public Set<String> getAvailableBundleNamesForApplication(PwaApplicationDetail detail) {
+    var applicationBundlePairDtos = getPipelineBundleNamesByDetail(detail);
+    var consentedBundlePairDtos = pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail);
+
+    Set<String> availableConsentedBundleNames = consentedBundlePairDtos.stream()
+        .filter(consentBundlePair -> applicationBundlePairDtos.stream()
+            .noneMatch(appBundlePair -> appBundlePair.getPipelineId().equals(consentBundlePair.getPipelineId())))
+        .map(PipelineBundlePairDto::getBundleName)
+        .collect(Collectors.toUnmodifiableSet());
+
+    Set<String> availableApplicationBundleNames = applicationBundlePairDtos.stream()
+        .map(PipelineBundlePairDto::getBundleName)
+        .collect(Collectors.toUnmodifiableSet());
+
+    List<String> filteredBundleNames = new ArrayList<>();
+    filteredBundleNames.addAll(availableApplicationBundleNames);
+    filteredBundleNames.addAll(availableConsentedBundleNames);
+
+    return Set.copyOf(filteredBundleNames);
+
   }
 
   @Override
