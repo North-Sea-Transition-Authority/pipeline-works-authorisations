@@ -48,7 +48,7 @@ public class PipelineHuooRoleSummaryView {
         .collect(Collectors.toList());
   }
 
-  public Set<PipelineId> getUnassignedPipelineId() {
+  public Set<PipelineId> getUnassignedPipelineIds() {
     return this.unassignedPipelineNumberMapForRole.keySet();
   }
 

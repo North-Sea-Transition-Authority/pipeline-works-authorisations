@@ -71,7 +71,7 @@ public class PipelineHuooUrlFactory {
         huooRole,
         null,
         ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-        pipelineHuooRoleSummaryView.getUnassignedPipelineId().stream().map(PipelineId::asInt).collect(Collectors.toSet()),
+        pipelineHuooRoleSummaryView.getUnassignedPipelineIds().stream().map(PipelineId::asInt).collect(Collectors.toSet()),
         Collections.emptySet(),
         Collections.emptySet()
     ));

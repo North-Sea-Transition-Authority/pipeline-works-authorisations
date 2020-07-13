@@ -104,7 +104,6 @@ public class ModifyPipelineHuooJourneyController {
     var detail = applicationContext.getApplicationDetail();
     modifyPipelineHuooJourneyData.reset();
 
-    // Update journey pipelines
     var reconciledPipelinePickableIds = padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
         applicationContext.getApplicationDetail(),
         SetUtils.emptyIfNull(pipelineIds)
@@ -113,7 +112,7 @@ public class ModifyPipelineHuooJourneyController {
         .map(o -> o.getPickablePipelineId().getId())
         .collect(Collectors.toSet());
 
-    // update journey owner orgs
+    // update journey pipelines
     modifyPipelineHuooJourneyData.updateJourneyPipelineData(detail, huooRole, reconciledPipelinePickableIds);
 
     var reconciledRoleOwners = padPipelinesHuooService.reconcileOrganisationRoleOwnersFrom(
@@ -133,6 +132,7 @@ public class ModifyPipelineHuooJourneyController {
         .map(OrganisationRoleOwnerDto::getTreatyAgreement)
         .collect(Collectors.toSet());
 
+    //update journey orgs role owners
     modifyPipelineHuooJourneyData.updateJourneyOrganisationData(detail, huooRole, reconciledOrgUnitIds, reconciledTreaties);
 
     return redirectToJourneyPage(applicationContext, huooRole, journeyPage);

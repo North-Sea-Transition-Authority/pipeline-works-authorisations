@@ -161,7 +161,8 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
       Set<Integer> pipelineIds) {
 
     var allPickablePipelines = pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail);
-
+    // Pickable pipelines are not guaranteed to have the actual PipelineId available depending on app or consented model source.
+    // reconcile to match pipelineId to arguments and filter out any invalid pipelines
     return pickablePipelineService.reconcilePickablePipelineOptions(allPickablePipelines)
         .stream()
         .filter(rpp -> pipelineIds.contains(rpp.getPipelineId().asInt()))
