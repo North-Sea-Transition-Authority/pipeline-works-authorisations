@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,9 +141,21 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
     return true;
   }
 
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
 
+    // null out min/max values of any properties that aren't present/available
+    var updatedPropertiesList = getPipelineOtherPropertyEntities(detail).stream()
+        .filter(otherProperty ->
+            !Objects.equals(otherProperty.getAvailabilityOption(), PropertyAvailabilityOption.AVAILABLE))
+        .peek(otherProperty -> {
+          otherProperty.setMinValue(null);
+          otherProperty.setMaxValue(null);
+        })
+        .collect(Collectors.toList());
 
+    padPipelineOtherPropertiesRepository.saveAll(updatedPropertiesList);
 
-
+  }
 }
 

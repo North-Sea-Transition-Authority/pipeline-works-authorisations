@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -25,6 +26,7 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -357,5 +359,83 @@ public class PermanentDepositsServiceTest {
     service.removeDeposit(5);
   }
 
+  @Test
+  public void cleanupData_hiddenData() {
+
+    var mattress = new PadPermanentDeposit();
+    mattress.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    setAllMaterialData(mattress);
+
+    var rock = new PadPermanentDeposit();
+    rock.setMaterialType(MaterialType.ROCK);
+    setAllMaterialData(rock);
+
+    var grout = new PadPermanentDeposit();
+    grout.setMaterialType(MaterialType.GROUT_BAGS);
+    setAllMaterialData(grout);
+
+    var other = new PadPermanentDeposit();
+    other.setMaterialType(MaterialType.OTHER);
+    setAllMaterialData(other);
+
+    when(permanentDepositInformationRepository.findByPwaApplicationDetailOrderByReferenceAsc(pwaApplicationDetail)).thenReturn(List.of(mattress, rock, grout, other));
+
+    service.cleanupData(pwaApplicationDetail);
+
+    assertThat(mattress.getGroutBagsBioDegradable()).isNull();
+    assertThat(mattress.getBagsNotUsedDescription()).isNull();
+    assertThat(mattress.getOtherMaterialType()).isNull();
+    assertThat(mattress.getMaterialSize()).isNull();
+    assertThat(mattress.getContingencyAmount()).isNotNull();
+    assertThat(mattress.getQuantity()).isNotNull();
+    assertThat(mattress.getConcreteMattressDepth()).isNotNull();
+    assertThat(mattress.getConcreteMattressWidth()).isNotNull();
+    assertThat(mattress.getConcreteMattressLength()).isNotNull();
+
+    assertThat(rock.getGroutBagsBioDegradable()).isNull();
+    assertThat(rock.getBagsNotUsedDescription()).isNull();
+    assertThat(rock.getOtherMaterialType()).isNull();
+    assertThat(rock.getMaterialSize()).isNotNull();
+    assertThat(rock.getContingencyAmount()).isNotNull();
+    assertThat(rock.getQuantity()).isNotNull();
+    assertThat(rock.getConcreteMattressDepth()).isNull();
+    assertThat(rock.getConcreteMattressWidth()).isNull();
+    assertThat(rock.getConcreteMattressLength()).isNull();
+
+    assertThat(grout.getGroutBagsBioDegradable()).isNotNull();
+    assertThat(grout.getBagsNotUsedDescription()).isNotNull();
+    assertThat(grout.getOtherMaterialType()).isNull();
+    assertThat(grout.getMaterialSize()).isNotNull();
+    assertThat(grout.getContingencyAmount()).isNotNull();
+    assertThat(grout.getQuantity()).isNotNull();
+    assertThat(grout.getConcreteMattressDepth()).isNull();
+    assertThat(grout.getConcreteMattressWidth()).isNull();
+    assertThat(grout.getConcreteMattressLength()).isNull();
+
+    assertThat(other.getGroutBagsBioDegradable()).isNull();
+    assertThat(other.getBagsNotUsedDescription()).isNull();
+    assertThat(other.getOtherMaterialType()).isNotNull();
+    assertThat(other.getMaterialSize()).isNotNull();
+    assertThat(other.getContingencyAmount()).isNotNull();
+    assertThat(other.getQuantity()).isNotNull();
+    assertThat(other.getConcreteMattressDepth()).isNull();
+    assertThat(other.getConcreteMattressWidth()).isNull();
+    assertThat(other.getConcreteMattressLength()).isNull();
+
+    verify(permanentDepositInformationRepository, times(1)).saveAll(eq(List.of(mattress, rock, grout, other)));
+
+  }
+
+  private void setAllMaterialData(PadPermanentDeposit deposit) {
+    deposit.setMaterialSize("1");
+    deposit.setOtherMaterialType("otherType");
+    deposit.setGroutBagsBioDegradable(true);
+    deposit.setBagsNotUsedDescription("bag");
+    deposit.setContingencyAmount("contingency");
+    deposit.setQuantity(1);
+    deposit.setConcreteMattressWidth(1);
+    deposit.setConcreteMattressLength(2);
+    deposit.setConcreteMattressDepth(3);
+  }
 
 }

@@ -275,4 +275,64 @@ public class PadProjectInformationServiceTest {
     assertThat(service.getFormattedProposedStartDate(pwaApplicationDetail)).isEqualTo("15 May 2017");
   }
 
+  @Test
+  public void cleanupData_hiddenData() {
+
+    padProjectInformation.setLicenceTransferPlanned(false);
+    padProjectInformation.setLicenceTransferTimestamp(Instant.now());
+    padProjectInformation.setCommercialAgreementTimestamp(Instant.now());
+
+    padProjectInformation.setPermanentDepositsMade(false);
+    padProjectInformation.setFutureAppSubmissionMonth(LocalDateTime.now().getMonthValue());
+    padProjectInformation.setFutureAppSubmissionYear(LocalDateTime.now().getYear());
+
+    padProjectInformation.setTemporaryDepositsMade(false);
+    padProjectInformation.setTemporaryDepDescription("desc");
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+
+    service.cleanupData(pwaApplicationDetail);
+
+    assertThat(padProjectInformation.getLicenceTransferTimestamp()).isNull();
+    assertThat(padProjectInformation.getCommercialAgreementTimestamp()).isNull();
+
+    assertThat(padProjectInformation.getFutureAppSubmissionMonth()).isNull();
+    assertThat(padProjectInformation.getFutureAppSubmissionYear()).isNull();
+
+    assertThat(padProjectInformation.getTemporaryDepDescription()).isNull();
+
+    verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+
+  }
+
+  @Test
+  public void cleanupData_noHiddenData() {
+
+    padProjectInformation.setLicenceTransferPlanned(true);
+    padProjectInformation.setLicenceTransferTimestamp(Instant.now());
+    padProjectInformation.setCommercialAgreementTimestamp(Instant.now());
+
+    padProjectInformation.setPermanentDepositsMade(true);
+    padProjectInformation.setFutureAppSubmissionMonth(LocalDateTime.now().getMonthValue());
+    padProjectInformation.setFutureAppSubmissionYear(LocalDateTime.now().getYear());
+
+    padProjectInformation.setTemporaryDepositsMade(true);
+    padProjectInformation.setTemporaryDepDescription("desc");
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+
+    service.cleanupData(pwaApplicationDetail);
+
+    assertThat(padProjectInformation.getLicenceTransferTimestamp()).isNotNull();
+    assertThat(padProjectInformation.getCommercialAgreementTimestamp()).isNotNull();
+
+    assertThat(padProjectInformation.getFutureAppSubmissionMonth()).isNotNull();
+    assertThat(padProjectInformation.getFutureAppSubmissionYear()).isNotNull();
+
+    assertThat(padProjectInformation.getTemporaryDepDescription()).isNotNull();
+
+    verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+
+  }
+
 }

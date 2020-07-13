@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
@@ -40,10 +41,10 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.Technic
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @ActiveProfiles("integration-test")
-public class TaskCompletionServiceIntegrationTest {
+public class PwaApplicationDataCleanupServiceTest {
 
   @SpyBean
-  private TaskCompletionService taskCompletionService;
+  private PwaApplicationDataCleanupService pwaApplicationDataCleanupService;
 
   @Autowired
   private ApplicationContext springAppContext;
@@ -96,78 +97,25 @@ public class TaskCompletionServiceIntegrationTest {
   @MockBean
   private PadDesignOpConditionsService padDesignOpConditionsService;
 
+  @MockBean
+  private TaskListService taskListService;
+
   @Test
-  public void isTaskComplete() {
+  public void cleanupData() {
 
     var detail = new PwaApplicationDetail();
 
-    ApplicationTask.stream().forEach(task -> {
+    when(taskListService.getPrepareAppTasks(detail)).thenReturn(List.of(
+        new TaskListEntry(ApplicationTask.PROJECT_INFORMATION.getDisplayName(), null, false),
+        new TaskListEntry(ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName(), null, false),
+        new TaskListEntry(ApplicationTask.LOCATION_DETAILS.getDisplayName(), null, false)
+    ));
 
-      ApplicationFormSectionService service;
+    pwaApplicationDataCleanupService.cleanupData(detail);
 
-      switch (task) {
-
-        case PROJECT_INFORMATION:
-          service = projectInformationService;
-          break;
-        case FAST_TRACK:
-          service = padFastTrackService;
-          break;
-        case ENVIRONMENTAL_DECOMMISSIONING:
-          service = padEnvironmentalDecommissioningService;
-          break;
-        case CROSSING_AGREEMENTS:
-          service = crossingAgreementsService;
-          break;
-        case LOCATION_DETAILS:
-          service = padLocationDetailsService;
-          break;
-        case HUOO:
-          service = padOrganisationRoleService;
-          break;
-        case PIPELINES:
-          service = padPipelineService;
-          break;
-        case PIPELINES_HUOO:
-          service = padPipelinesHuooService;
-          break;
-        case CAMPAIGN_WORKS:
-          service = campaignWorksService;
-          break;
-        case TECHNICAL_DRAWINGS:
-          service = technicalDrawingSectionService;
-          break;
-        case PERMANENT_DEPOSITS:
-          service = permanentDepositService;
-          break;
-        case PERMANENT_DEPOSIT_DRAWINGS:
-          service = depositDrawingsService;
-          break;
-        case GENERAL_TECH_DETAILS:
-          service = padPipelineTechInfoService;
-          break;
-        case FLUID_COMPOSITION:
-          service = padFluidCompositionInfoService;
-          break;
-        case PIPELINE_OTHER_PROPERTIES:
-          service = padPipelineOtherPropertiesService;
-          break;
-        case DESIGN_OP_CONDITIONS:
-          service = padDesignOpConditionsService;
-          break;
-        default:
-          throw new AssertionError(task);
-      }
-
-      when(service.isComplete(detail)).thenReturn(true);
-
-      var isComplete = taskCompletionService.isTaskComplete(detail, task);
-
-      verify(service, times(1)).isComplete(detail);
-
-      assertThat(isComplete).isTrue();
-
-    });
+    verify(projectInformationService, times(1)).cleanupData(detail);
+    verify(padPipelineTechInfoService, times(1)).cleanupData(detail);
+    verify(padLocationDetailsService, times(1)).cleanupData(detail);
 
   }
 

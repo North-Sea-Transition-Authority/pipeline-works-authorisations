@@ -25,12 +25,10 @@
         <@fdsFieldset.fieldset legendHeading="Phases present" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
             <@fdsCheckbox.checkboxGroup path="form.phasesSelection" hiddenContent=true>
                 <#list propertyPhases as  propertyPhase>
-                    <@fdsCheckbox.checkboxItem path="form.phasesSelection[${propertyPhase}]" labelText=propertyPhase.getDisplayText() >   
-
+                    <@fdsCheckbox.checkboxItem path="form.phasesSelection[${propertyPhase}]" labelText=propertyPhase.getDisplayText() >
                         <#if propertyPhase == "OTHER">
                             <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.phasesSelection[${propertyPhase}]" />
                         </#if>
-                        
                     </@fdsCheckbox.checkboxItem>
                 </#list>    
             </@fdsCheckbox.checkboxGroup>

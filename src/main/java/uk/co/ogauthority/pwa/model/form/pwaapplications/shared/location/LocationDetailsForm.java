@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.hibernate.validator.constraints.Length;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
@@ -145,5 +146,38 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
 
   public void setPipelineAshoreLocation(String pipelineAshoreLocation) {
     this.pipelineAshoreLocation = pipelineAshoreLocation;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    LocationDetailsForm that = (LocationDetailsForm) o;
+    return Objects.equals(approximateProjectLocationFromShore, that.approximateProjectLocationFromShore)
+        && withinSafetyZone == that.withinSafetyZone
+        && Objects.equals(facilitiesIfYes, that.facilitiesIfYes)
+        && Objects.equals(facilitiesIfPartially, that.facilitiesIfPartially)
+        && Objects.equals(facilitiesOffshore, that.facilitiesOffshore)
+        && Objects.equals(transportsMaterialsToShore, that.transportsMaterialsToShore)
+        && Objects.equals(transportationMethod, that.transportationMethod)
+        && Objects.equals(pipelineRouteDetails, that.pipelineRouteDetails)
+        && Objects.equals(routeSurveyUndertaken, that.routeSurveyUndertaken)
+        && Objects.equals(withinLimitsOfDeviation, that.withinLimitsOfDeviation)
+        && Objects.equals(surveyConcludedDay, that.surveyConcludedDay)
+        && Objects.equals(surveyConcludedMonth, that.surveyConcludedMonth)
+        && Objects.equals(surveyConcludedYear, that.surveyConcludedYear)
+        && Objects.equals(pipelineAshoreLocation, that.pipelineAshoreLocation);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, facilitiesIfYes, facilitiesIfPartially,
+        facilitiesOffshore, transportsMaterialsToShore, transportationMethod, pipelineRouteDetails,
+        routeSurveyUndertaken,
+        withinLimitsOfDeviation, surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }
 }
