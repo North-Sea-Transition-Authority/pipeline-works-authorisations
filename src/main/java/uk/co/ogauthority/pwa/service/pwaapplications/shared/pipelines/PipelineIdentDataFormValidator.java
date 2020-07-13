@@ -73,6 +73,13 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "componentPartsDescription",
           "componentPartsDescription" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter a description of the component parts");
+
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "insulationCoatingType", form::getInsulationCoatingType, "Insulation / coating type");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed / coating type");
     }
 
   }
