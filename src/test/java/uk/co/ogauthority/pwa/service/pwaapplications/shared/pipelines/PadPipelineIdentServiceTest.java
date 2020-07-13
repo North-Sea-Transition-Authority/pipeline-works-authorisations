@@ -67,6 +67,7 @@ public class PadPipelineIdentServiceTest {
 
     var pipeline = new PadPipeline();
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
     var form = new PipelineIdentForm();
 
     form.setFromLocation("from");
@@ -255,6 +256,7 @@ public class PadPipelineIdentServiceTest {
 
     var pipeline = new PadPipeline();
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
 
     var ident = new PadPipelineIdent();
     ident.setPadPipeline(pipeline);
@@ -306,6 +308,7 @@ public class PadPipelineIdentServiceTest {
 
     var pipeline = new PadPipeline();
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
     ident.setPadPipeline(pipeline);
 
     identService.updateIdent(ident, form);
@@ -417,6 +420,7 @@ public class PadPipelineIdentServiceTest {
 
     var pipeline = new PadPipeline();
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
     var ident = new PadPipelineIdent();
     ident.setIdentNo(1);
 
@@ -529,6 +533,7 @@ public class PadPipelineIdentServiceTest {
     padPipeline.setPipelineRef("my ref");
     padPipeline.setMaxExternalDiameter(BigDecimal.valueOf(5));
     padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setPipelineInBundle(false);
 
     identService.createPipelineName(padPipeline);
     var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName();
@@ -540,9 +545,24 @@ public class PadPipelineIdentServiceTest {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineInBundle(false);
 
     identService.createPipelineName(padPipeline);
     var expectedPipelineName = "my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName();
+    assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
+  }
+
+  @Test
+  public void createPipelineName_singleDiameter_partOfBundle() {
+    PadPipeline padPipeline = new PadPipeline();
+    padPipeline.setPipelineRef("my ref");
+    padPipeline.setMaxExternalDiameter(BigDecimal.valueOf(5));
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setPipelineInBundle(true);
+    padPipeline.setBundleName("my bundle");
+
+    identService.createPipelineName(padPipeline);
+    var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName() + " (my bundle)";
     assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
   }
 
