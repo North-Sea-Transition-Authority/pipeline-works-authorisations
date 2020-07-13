@@ -222,7 +222,9 @@ public class PadPipelineIdentService {
       pipelineName += padPipeline.getMaxExternalDiameter() + " Millimetre ";
     }
     pipelineName += padPipeline.getPipelineType().getDisplayName();
-    //TO DO: add bundle name to pipeline name (if pipeline is part of a bundle) dependant on: PWA-619
+    if (padPipeline.getPipelineInBundle()) {
+      pipelineName += " (" + padPipeline.getBundleName() + ")";
+    }
     padPipeline.setPipelineName(pipelineName);
   }
 
