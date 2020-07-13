@@ -58,6 +58,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PipelineDetailService pipelineDetailService;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final PadPipelineIdentService padPipelineIdentService;
+  private final PadPipelinePersisterService padPipelinePersisterService;
 
 
   @Autowired
@@ -65,12 +66,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
                             PipelineService pipelineService,
                             PipelineDetailService pipelineDetailService,
                             PadPipelineIdentService padPipelineIdentService,
-                            PipelineIdentFormValidator pipelineIdentFormValidator) {
+                            PipelineIdentFormValidator pipelineIdentFormValidator,
+                            PadPipelinePersisterService padPipelinePersisterService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
+    this.padPipelinePersisterService = padPipelinePersisterService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -210,10 +213,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setBundleName(null);
     }
 
-
-    padPipelineIdentService.setMaxEternalDiameter(padPipeline);
-    padPipelineIdentService.createPipelineName(padPipeline);
-    padPipelineRepository.save(padPipeline);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, padPipelineIdentService.getIdentViews(padPipeline));
   }
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {

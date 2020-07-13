@@ -22,8 +22,7 @@
 
         <@fdsCard.card>
 
-          <span class="govuk-caption-l">${pipeline.length}m ${pipeline.pipelineType.displayName}</span>
-            <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineName}" />
+          <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineName}" />
 
           <hr class="govuk-section-break govuk-section-break--m"/>
 

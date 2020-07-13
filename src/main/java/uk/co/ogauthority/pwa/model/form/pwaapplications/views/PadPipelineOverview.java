@@ -19,6 +19,9 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private String fromLocation;
 
+  /**
+   * pipelineName is used for PWA users to easily identify a pipeline on an application, where as the pipeline number uniquely identifies a pipeline and is used as the main reference by external applications
+   */
   private String pipelineName;
 
   private CoordinatePair fromCoordinates;

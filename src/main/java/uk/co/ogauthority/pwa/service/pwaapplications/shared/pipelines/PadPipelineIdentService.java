@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -10,7 +9,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -99,9 +97,7 @@ public class PadPipelineIdentService {
     var ident = new PadPipelineIdent(pipeline, numberOfIdents.intValue() + 1);
 
     saveEntityUsingForm(ident, form);
-    setMaxEternalDiameter(pipeline);
-    createPipelineName(pipeline);
-    padPipelinePersisterService.savePipeline(pipeline);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipeline, getIdentViews(pipeline));
   }
 
   @Transactional
@@ -117,17 +113,13 @@ public class PadPipelineIdentService {
     repository.saveAll(idents);
 
     saveEntityUsingForm(ident, form);
-    setMaxEternalDiameter(pipeline);
-    createPipelineName(pipeline);
-    padPipelinePersisterService.savePipeline(pipeline);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipeline, getIdentViews(pipeline));
   }
 
   @Transactional
   public void updateIdent(PadPipelineIdent ident, PipelineIdentForm form) {
     saveEntityUsingForm(ident, form);
-    setMaxEternalDiameter(ident.getPadPipeline());
-    createPipelineName(ident.getPadPipeline());
-    padPipelinePersisterService.savePipeline(ident.getPadPipeline());
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline(), getIdentViews(ident.getPadPipeline()));
   }
 
   @Transactional
@@ -178,9 +170,7 @@ public class PadPipelineIdentService {
         .forEachOrdered(ident -> ident.setIdentNo(ident.getIdentNo() - 1));
 
     repository.saveAll(remainingIdents);
-    setMaxEternalDiameter(pipeline);
-    createPipelineName(pipeline);
-    padPipelinePersisterService.savePipeline(pipeline);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipeline, getIdentViews(pipeline));
   }
 
   public boolean isSectionValid(PadPipeline pipeline) {
@@ -198,34 +188,5 @@ public class PadPipelineIdentService {
   }
 
 
-  public void setMaxEternalDiameter(PadPipeline padPipeline) {
-    BigDecimal largestExternalDiameter = BigDecimal.ZERO;
-
-    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
-      var identViews = getIdentViews(padPipeline);
-      for (var identView : identViews) {
-        if (identView.getExternalDiameter() != null && largestExternalDiameter.compareTo(
-            identView.getExternalDiameter()) == -1) {
-          largestExternalDiameter = identView.getExternalDiameter();
-        }
-      }
-    }
-
-    padPipeline.setMaxExternalDiameter(
-        largestExternalDiameter.equals(BigDecimal.ZERO) ? null : largestExternalDiameter);
-  }
-
-
-  public void createPipelineName(PadPipeline padPipeline) {
-    var pipelineName = padPipeline.getPipelineRef() + " - ";
-    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE) && padPipeline.getMaxExternalDiameter() != null) {
-      pipelineName += padPipeline.getMaxExternalDiameter() + " Millimetre ";
-    }
-    pipelineName += padPipeline.getPipelineType().getDisplayName();
-    if (padPipeline.getPipelineInBundle()) {
-      pipelineName += " (" + padPipeline.getBundleName() + ")";
-    }
-    padPipeline.setPipelineName(pipelineName);
-  }
 
 }

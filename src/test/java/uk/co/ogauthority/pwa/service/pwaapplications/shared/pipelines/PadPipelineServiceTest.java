@@ -56,18 +56,23 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineDetailService pipelineDetailService;
 
+  @Mock
+  private PadPipelinePersisterService padPipelinePersisterService;
+
   private PadPipelineService padPipelineService;
 
   private PwaApplicationDetail detail;
 
   private PipelineIdentFormValidator pipelineIdentFormValidator;
 
-
   @Mock
   private PadPipelineIdentService padPipelineIdentService;
 
   @Captor
   private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<List<IdentView>> identViewsArgumentCaptor;
 
   @Before
   public void setUp() {
@@ -83,7 +88,7 @@ public class PadPipelineServiceTest {
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, pipelineIdentFormValidator);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
 
   }
 
@@ -121,7 +126,7 @@ public class PadPipelineServiceTest {
 
     padPipelineService.addPipeline(detail, form);
 
-    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture(), identViewsArgumentCaptor.capture());
     verify(pipelineService, times(1)).createApplicationPipeline(detail.getPwaApplication());
 
     var newPadPipeline = padPipelineArgumentCaptor.getValue();
@@ -199,7 +204,7 @@ public class PadPipelineServiceTest {
     form.setTrenchedBuriedBackfilled(false);
 
     padPipelineService.addPipeline(detail, form);
-    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture(), identViewsArgumentCaptor.capture());
     var newPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPipeline.getOtherPipelineMaterialUsed()).isEqualTo(form.getOtherPipelineMaterialUsed());
   }
