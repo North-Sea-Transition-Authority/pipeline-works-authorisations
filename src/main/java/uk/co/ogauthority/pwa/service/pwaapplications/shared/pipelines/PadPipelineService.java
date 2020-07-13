@@ -215,6 +215,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   }
 
+
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {
 
     form.setPipelineType(pipeline.getPipelineType());

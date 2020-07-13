@@ -50,7 +50,7 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
       ValidatorUtils.validateDefaultStringLength(
           errors, "maopMultiCore", form::getExternalDiameterMultiCore, "MAOP");
       ValidatorUtils.validateDefaultStringLength(
-          errors, "productsToBeConveyedMultiCore", form::getExternalDiameterMultiCore, "Products to be conveyed / coating type");
+          errors, "productsToBeConveyedMultiCore", form::getExternalDiameterMultiCore, "Products to be conveyed");
 
     } else {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyed",
@@ -73,6 +73,12 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "componentPartsDescription",
           "componentPartsDescription" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter a description of the component parts");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "insulationCoatingType", form::getInsulationCoatingType, "Insulation / coating type");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
     }
 
   }
