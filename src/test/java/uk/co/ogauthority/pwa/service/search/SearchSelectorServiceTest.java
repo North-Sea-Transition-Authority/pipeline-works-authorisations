@@ -56,6 +56,13 @@ public class SearchSelectorServiceTest {
   }
 
   @Test
+  public void addManualEntry_noFreeText() {
+    var searchableResults = searchSelectorService.addManualEntry("free_text", new ArrayList<>(), ManualEntryAttribute.NO_FREE_TEXT_PREFIX);
+    assertThat(searchableResults).extracting(RestSearchItem::getId)
+        .containsExactly("free_text");
+  }
+
+  @Test
   public void buildPrepopulatedSelections() {
     var prefix = SearchSelectable.FREE_TEXT_PREFIX;
     var selections = List.of(prefix + "Test", "1", "2");
@@ -81,6 +88,6 @@ public class SearchSelectorServiceTest {
   public void route() {
     var routeOn = on(DevukRestController.class).searchFacilities(null);
     var route = SearchSelectorService.route(routeOn);
-    assertThat(route).doesNotEndWith("?term");
+    assertThat(route).doesNotEndWith("term");
   }
 }
