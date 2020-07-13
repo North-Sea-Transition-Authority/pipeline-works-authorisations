@@ -109,6 +109,9 @@ public class PadPipelineOverview implements PipelineOverview {
     return padPipelineId;
   }
 
+  /**
+   * {@link PadPipelineOverview#pipelineName}
+   */
   @Override
   public String getPipelineName() {
     return pipelineName;
