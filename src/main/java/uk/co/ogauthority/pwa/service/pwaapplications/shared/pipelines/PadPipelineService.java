@@ -47,7 +47,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
 
-
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
                             PipelineService pipelineService) {

@@ -84,7 +84,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         detail,
         FILE_PURPOSE,
         form)
-        .addObject("pipelineViews", padPipelineService.getApplicationPipelineOverviews(detail))
+        .addObject("pipelineViews", padTechnicalDrawingService.getUnlinkedApplicationPipelineOverviews(detail))
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
         .addObject("actionType", actionType);
@@ -243,7 +243,8 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(), applicationContext.getUser(),
+    return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(),
+        applicationContext.getUser(),
         (padFile) -> padTechnicalDrawingService.getDrawingLinkedToPadFile(detail, padFile)
             .ifPresent(padTechnicalDrawingService::unlinkFile));
   }

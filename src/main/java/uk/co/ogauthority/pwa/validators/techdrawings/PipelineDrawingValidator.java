@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.Pipel
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
 
 @Service
@@ -19,12 +20,15 @@ public class PipelineDrawingValidator implements SmartValidator {
 
   private final PadPipelineService padPipelineService;
   private final PadTechnicalDrawingRepository padTechnicalDrawingRepository;
+  private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
 
   public PipelineDrawingValidator(
       PadPipelineService padPipelineService,
-      PadTechnicalDrawingRepository padTechnicalDrawingRepository) {
+      PadTechnicalDrawingRepository padTechnicalDrawingRepository,
+      PadTechnicalDrawingLinkService padTechnicalDrawingLinkService) {
     this.padPipelineService = padPipelineService;
     this.padTechnicalDrawingRepository = padTechnicalDrawingRepository;
+    this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
   }
 
   @Override
@@ -44,25 +48,13 @@ public class PipelineDrawingValidator implements SmartValidator {
     var existingDrawing = (PadTechnicalDrawing) validationHints[1];
     var validatorMode = (PipelineDrawingValidationType) validationHints[2];
     var pipelineList = padPipelineService.getByIdList(detail, form.getPadPipelineIds());
-    if (ListUtils.emptyIfNull(pipelineList).size() != ListUtils.emptyIfNull(form.getPadPipelineIds()).size()) {
-      errors.rejectValue("padPipelineIds", "padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode(),
-          "Not all pipelines are valid");
-    }
-    ValidationUtils.rejectIfEmpty(errors, "padPipelineIds",
-        "padPipelineIds" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "You must select at least one pipeline");
+
+    // Drawing reference
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reference",
         "reference" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "You must enter a drawing reference");
-    if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
-      errors.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "You must only upload a single drawing");
-    }
-
 
     boolean referenceAlreadyInUse;
-
     switch (validatorMode) {
       case ADD:
         referenceAlreadyInUse = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(detail)
@@ -78,11 +70,37 @@ public class PipelineDrawingValidator implements SmartValidator {
       default:
         throw new ActionNotAllowedException("No implementation for " + validatorMode.name());
     }
-
     if (referenceAlreadyInUse) {
       errors.rejectValue("reference",
           "reference" + FieldValidationErrorCodes.INVALID.getCode(),
           "The drawing reference is already in use");
+    }
+
+    // File upload
+    if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
+      errors.rejectValue("uploadedFileWithDescriptionForms",
+          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+          "You must only upload a single drawing");
+    }
+
+    // Pipeline references
+    if (ListUtils.emptyIfNull(pipelineList).size() != ListUtils.emptyIfNull(form.getPadPipelineIds()).size()) {
+      errors.rejectValue("padPipelineIds", "padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode(),
+          "Not all pipelines are valid");
+    }
+    ValidationUtils.rejectIfEmpty(errors, "padPipelineIds",
+        "padPipelineIds" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "You must select at least one pipeline");
+    if (!ListUtils.emptyIfNull(form.getPadPipelineIds()).isEmpty()) {
+      var linkedPipelineIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
+      boolean linkedPipelineOnApplication = linkedPipelineIds.stream()
+          .anyMatch(linkedPipelineId -> form.getPadPipelineIds()
+              .stream()
+              .anyMatch(linkedPipelineId::equals));
+      if (linkedPipelineOnApplication) {
+        errors.rejectValue("padPipelineIds", "padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode(),
+            "One or more pipelines have already been added to another drawing");
+      }
     }
   }
 }

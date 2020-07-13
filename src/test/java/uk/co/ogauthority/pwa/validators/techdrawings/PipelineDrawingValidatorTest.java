@@ -38,7 +38,7 @@ public class PipelineDrawingValidatorTest {
 
   @Before
   public void setUp() {
-    validator = new PipelineDrawingValidator(padPipelineService, padTechnicalDrawingRepository);
+    validator = new PipelineDrawingValidator(padPipelineService, padTechnicalDrawingRepository, applicationContext);
     form = new PipelineDrawingForm();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
