@@ -10,8 +10,10 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipe
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 
 /**
- * The purpose of this class is to perform the required operations on ident data whenever a pipeline or ident has been added/modified/removed prior to saving the pipeline.
- * The functionality is all contained within this class so that a pipeline cannot be persisted without having performed the operations first.
+ * The purpose of this class is to perform the required operations on ident data
+ * whenever a pipeline or ident has been added/modified/removed prior to saving the pipeline.
+ * The functionality is all contained within this class so that a pipeline
+ * cannot be persisted without having performed the operations first.
  * This also avoids the PadPipelineService and the PadPipelineIdentsService both depending on each other.
   */
 @Service
