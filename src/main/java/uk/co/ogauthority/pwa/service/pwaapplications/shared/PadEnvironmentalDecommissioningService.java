@@ -131,4 +131,24 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
     return bindingResult;
 
   }
+
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
+
+    var envDecomData = getEnvDecomData(detail);
+
+    // if not submitted permits, clear permit info
+    if (!envDecomData.getEmtHasSubmittedPermits()) {
+      envDecomData.setPermitsSubmitted(null);
+    }
+
+    // if no outstanding permits, clear outstanding permit info
+    if (!envDecomData.getEmtHasOutstandingPermits()) {
+      envDecomData.setPermitsPendingSubmission(null);
+      envDecomData.setEmtSubmissionTimestamp(null);
+    }
+
+    save(envDecomData);
+
+  }
 }

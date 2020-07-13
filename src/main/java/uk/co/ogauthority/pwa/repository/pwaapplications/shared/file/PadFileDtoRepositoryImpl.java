@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
@@ -75,5 +76,21 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
         .setParameter("fileStatus", FileUploadStatus.CURRENT)
         .setParameter("fileLinkStatus", linkStatus)
         .getSingleResult();
+  }
+
+  @Override
+  public List<PadFile> findAllByAppDetailAndFilePurposeAndIdNotIn(PwaApplicationDetail detail,
+                                                                  ApplicationFilePurpose purpose,
+                                                                  Iterable<Integer> padFileIdsToExclude) {
+    return entityManager.createQuery("" +
+        "SELECT pf " +
+        "FROM PadFile pf " +
+        "WHERE pf.pwaApplicationDetail = :pwaAppDetail " +
+        "AND pf.purpose = :purpose " +
+        "AND pf.id NOT IN (:padFileIdsToExclude)", PadFile.class)
+        .setParameter("pwaAppDetail", detail)
+        .setParameter("purpose", purpose)
+        .setParameter("padFileIdsToExclude", padFileIdsToExclude)
+        .getResultList();
   }
 }

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
@@ -17,6 +18,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
+import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
@@ -147,8 +149,6 @@ public enum ApplicationTask {
       150
   );
 
-
-
   private final String displayName;
   private final String shortenedDisplayName;
   private final Class<?> controllerClass;
@@ -169,6 +169,14 @@ public enum ApplicationTask {
                   Class<? extends ApplicationFormSectionService> serviceClass,
                   int displayOrder) {
     this(displayName, displayName, controllerClass, serviceClass, displayOrder);
+  }
+
+  public static ApplicationTask resolveFromName(String taskName) {
+    return Stream.of(ApplicationTask.values())
+        .filter(task -> Objects.equals(task.getDisplayName(), taskName))
+        .findFirst()
+        .orElseThrow(() -> new ValueNotFoundException(
+            String.format("Couldn't find an ApplicationTask with display name: %s", taskName)));
   }
 
   public String getDisplayName() {

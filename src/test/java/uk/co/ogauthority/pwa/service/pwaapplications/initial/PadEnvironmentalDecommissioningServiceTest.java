@@ -264,4 +264,55 @@ public class PadEnvironmentalDecommissioningServiceTest {
     form.setDecommissioningConditions(EnumSet.allOf(DecommissioningCondition.class));
     return form;
   }
+
+  @Test
+  public void cleanupData_hiddenData() {
+
+    var envDecom = new PadEnvironmentalDecommissioning();
+
+    envDecom.setEmtHasSubmittedPermits(false);
+    envDecom.setPermitsSubmitted("sub");
+
+    envDecom.setEmtHasOutstandingPermits(false);
+    envDecom.setPermitsPendingSubmission("test");
+    envDecom.setEmtSubmissionTimestamp(Instant.now());
+
+    when(padEnvironmentalDecommissioningRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(envDecom));
+
+    padEnvironmentalDecommissioningService.cleanupData(pwaApplicationDetail);
+
+    assertThat(envDecom.getPermitsSubmitted()).isNull();
+
+    assertThat(envDecom.getPermitsPendingSubmission()).isNull();
+    assertThat(envDecom.getEmtSubmissionTimestamp()).isNull();
+
+    verify(padEnvironmentalDecommissioningRepository, times(1)).save(envDecom);
+
+  }
+
+  @Test
+  public void cleanupData_noHiddenData() {
+
+    var envDecom = new PadEnvironmentalDecommissioning();
+
+    envDecom.setEmtHasSubmittedPermits(true);
+    envDecom.setPermitsSubmitted("sub");
+
+    envDecom.setEmtHasOutstandingPermits(true);
+    envDecom.setPermitsPendingSubmission("test");
+    envDecom.setEmtSubmissionTimestamp(Instant.now());
+
+    when(padEnvironmentalDecommissioningRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(envDecom));
+
+    padEnvironmentalDecommissioningService.cleanupData(pwaApplicationDetail);
+
+    assertThat(envDecom.getPermitsSubmitted()).isNotNull();
+
+    assertThat(envDecom.getPermitsPendingSubmission()).isNotNull();
+    assertThat(envDecom.getEmtSubmissionTimestamp()).isNotNull();
+
+    verify(padEnvironmentalDecommissioningRepository, times(1)).save(envDecom);
+
+  }
+
 }
