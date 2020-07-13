@@ -18,7 +18,7 @@ public class PadPipelineOrganisationRoleLink {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @ManyToOne
+  @ManyToOne()
   @JoinColumn(name = "pipeline_id")
   private Pipeline pipeline;
 

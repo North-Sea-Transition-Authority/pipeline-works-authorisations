@@ -154,7 +154,8 @@ public class TaskListServiceTest {
                 ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName(),
                 ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName(),
                 ApplicationTask.FLUID_COMPOSITION.getDisplayName(),
-                ApplicationTask.PIPELINE_OTHER_PROPERTIES.getDisplayName()
+                ApplicationTask.PIPELINE_OTHER_PROPERTIES.getDisplayName(),
+                ApplicationTask.DESIGN_OP_CONDITIONS.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:

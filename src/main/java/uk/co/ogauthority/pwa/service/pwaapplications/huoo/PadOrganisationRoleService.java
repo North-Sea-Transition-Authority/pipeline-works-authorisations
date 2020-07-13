@@ -73,18 +73,24 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
-  public List<PadOrganisationRole> getOrgRolesForDetailByOrganisationIdAndRole(
+  public List<PadOrganisationRole> getOrgRolesForDetailByRole(
       PwaApplicationDetail pwaApplicationDetail,
-      Set<OrganisationUnitId> organisationUnitIds,
       HuooRole huooRole) {
     // performance is probably fine due to the relatively small numbers of roles expected per application on average
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
         .filter(por -> por.getRole().equals(huooRole))
-        .filter(padOrganisationRole -> organisationUnitIds.contains(
-            OrganisationUnitId.from(padOrganisationRole.getOrganisationUnit())
-        ))
         .collect(toList());
+  }
+
+  public boolean hasOrganisationUnitRoleOwnersInRole(PwaApplicationDetail pwaApplicationDetail, HuooRole huooRole) {
+    return padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, huooRole, HuooType.PORTAL_ORG) > 0;
+  }
+
+  public boolean hasTreatyRoleOwnersInRole(PwaApplicationDetail pwaApplicationDetail, HuooRole huooRole) {
+    return padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, huooRole, HuooType.TREATY_AGREEMENT) > 0;
   }
 
 
@@ -93,7 +99,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find org role with ID: " + id));
   }
 
-  public  Set<OrganisationRoleInstanceDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
+  public Set<OrganisationRoleInstanceDto> getOrganisationRoleDtos(PwaApplicationDetail pwaApplicationDetail) {
     return new HashSet<>(
         padOrganisationRolesRepository.findOrganisationRoleDtoByPwaApplicationDetail(pwaApplicationDetail)
     );
@@ -416,6 +422,22 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
                                                                                Pipeline pipeline) {
     return padPipelineOrganisationRoleLinkRepository.save(
         new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
+  }
+
+  @Transactional
+  public void deletePadPipelineRoleLinksForPipelinesAndRole(PwaApplicationDetail pwaApplicationDetail,
+                                                            Set<Pipeline> pipelines,
+                                                            HuooRole huooRole) {
+    var allRoleLinksForPipelines = padPipelineOrganisationRoleLinkRepository
+        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipelineIn(
+            pwaApplicationDetail,
+            huooRole,
+            pipelines
+        );
+
+    padPipelineOrganisationRoleLinkRepository.deleteAll(allRoleLinksForPipelines);
+    // this flush is required to make sure we force the transaction to send the DELETE to the database now
+    entityManager.flush();
   }
 
   public Set<PipelineId> getPipelineIdsWhereRoleOfTypeSet(PwaApplicationDetail pwaApplicationDetail,

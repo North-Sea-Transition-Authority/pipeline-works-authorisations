@@ -22,19 +22,19 @@
             <@fdsTextInput.textInput path="form.fromLocation" labelText="Structure" />
 
             <@coordinateInput.latitudeInput degreesLocationPath="form.fromCoordinateForm.latitudeDegrees"
-                                          minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
-                                          secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
-                                          formId="fromLatitude"
-                                          labelText="Start point latitude"/>
+            minutesLocationPath="form.fromCoordinateForm.latitudeMinutes"
+            secondsLocationPath="form.fromCoordinateForm.latitudeSeconds"
+            formId="fromLatitude"
+            labelText="Start point latitude"/>
 
             <@coordinateInput.longitudeInput degreesLocationPath="form.fromCoordinateForm.longitudeDegrees"
-                                          minutesLocationPath="form.fromCoordinateForm.longitudeMinutes"
-                                          secondsLocationPath="form.fromCoordinateForm.longitudeSeconds"
-                                          direction="EW"
-                                          directionPath="form.fromCoordinateForm.longitudeDirection"
-                                          directionList=longDirections
-                                          formId="fromLongitude"
-                                          labelText="Start point longitude"/>
+            minutesLocationPath="form.fromCoordinateForm.longitudeMinutes"
+            secondsLocationPath="form.fromCoordinateForm.longitudeSeconds"
+            direction="EW"
+            directionPath="form.fromCoordinateForm.longitudeDirection"
+            directionList=longDirections
+            formId="fromLongitude"
+            labelText="Start point longitude"/>
 
         </@fdsFieldset.fieldset>
 
@@ -43,19 +43,19 @@
             <@fdsTextInput.textInput path="form.toLocation" labelText="Structure" />
 
             <@coordinateInput.latitudeInput degreesLocationPath="form.toCoordinateForm.latitudeDegrees"
-                                          minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
-                                          secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
-                                          formId="toLatitude"
-                                          labelText="Finish point latitude"/>
+            minutesLocationPath="form.toCoordinateForm.latitudeMinutes"
+            secondsLocationPath="form.toCoordinateForm.latitudeSeconds"
+            formId="toLatitude"
+            labelText="Finish point latitude"/>
 
             <@coordinateInput.longitudeInput degreesLocationPath="form.toCoordinateForm.longitudeDegrees"
-                                          minutesLocationPath="form.toCoordinateForm.longitudeMinutes"
-                                          secondsLocationPath="form.toCoordinateForm.longitudeSeconds"
-                                          direction="EW"
-                                          directionPath="form.toCoordinateForm.longitudeDirection"
-                                          directionList=longDirections
-                                          formId="toLongitude"
-                                          labelText="Finish point longitude"/>
+            minutesLocationPath="form.toCoordinateForm.longitudeMinutes"
+            secondsLocationPath="form.toCoordinateForm.longitudeSeconds"
+            direction="EW"
+            directionPath="form.toCoordinateForm.longitudeDirection"
+            directionList=longDirections
+            formId="toLongitude"
+            labelText="Finish point longitude"/>
 
         </@fdsFieldset.fieldset>
 
@@ -77,28 +77,35 @@
             </@fdsRadio.radioGroup>
 
 
-            <@fdsRadio.radioGroup path="form.pipelineFlexibility" labelText="Is this a flexible or rigid pipeline?" hiddenContent=true>                
+            <@fdsRadio.radioGroup path="form.pipelineFlexibility" labelText="Is this a flexible or rigid pipeline?" hiddenContent=true>
                 <#assign firstItem=true/>
                 <#list pipelineFlexibilityTypes as  pipelineFlexibilityTypeOption>
-                    <@fdsRadio.radioItem path="form.pipelineFlexibility" itemMap={pipelineFlexibilityTypeOption : pipelineFlexibilityTypeOption.getDisplayText()} isFirstItem=firstItem/>   
-                <#assign firstItem=false/>
+                    <@fdsRadio.radioItem path="form.pipelineFlexibility" itemMap={pipelineFlexibilityTypeOption : pipelineFlexibilityTypeOption.getDisplayText()} isFirstItem=firstItem/>
+                    <#assign firstItem=false/>
                 </#list>
-            </@fdsRadio.radioGroup>           
+            </@fdsRadio.radioGroup>
 
 
-            <@fdsRadio.radioGroup path="form.pipelineMaterial" labelText="What materials were used to construct the pipeline?" hiddenContent=true>                
+            <@fdsRadio.radioGroup path="form.pipelineMaterial" labelText="What materials were used to construct the pipeline?" hiddenContent=true>
                 <#assign firstItem=true/>
                 <#list pipelineMaterialTypes as  pipelineMaterialTypeOption>
-                    <@fdsRadio.radioItem path="form.pipelineMaterial" itemMap={pipelineMaterialTypeOption : pipelineMaterialTypeOption.getDisplayText()} isFirstItem=firstItem>  
-                        <#if pipelineMaterialTypeOption == "OTHER"> 
+                    <@fdsRadio.radioItem path="form.pipelineMaterial" itemMap={pipelineMaterialTypeOption : pipelineMaterialTypeOption.getDisplayText()} isFirstItem=firstItem>
+                        <#if pipelineMaterialTypeOption == "OTHER">
                             <@fdsTextarea.textarea path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used"/>
-                        </#if>                    
+                        </#if>
                     </@fdsRadio.radioItem>
-                <#assign firstItem=false/>
+                    <#assign firstItem=false/>
                 </#list>
             </@fdsRadio.radioGroup>
 
             <@fdsTextInput.textInput path="form.pipelineDesignLife" labelText="What is the design life of the pipeline?" suffix="years" inputClass="govuk-input--width-5"/>
+
+            <@fdsRadio.radioGroup path="form.pipelineInBundle" labelText="Is the full length of this pipeline in a bundle?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.pipelineInBundle">
+                    <@fdsSearchSelector.searchSelectorRest path="form.bundleName" restUrl=springUrl(bundleNameRestUrl) labelText="What is the name of the bundle?" hintText="Use the same bundle name on all pipelines in the same bundle. Each different bundle must be given a unique name." preselectedItems={"${form.bundleName!''}": "${form.bundleName!''}"}/>
+                </@fdsRadio.radioYes>
+                <@fdsRadio.radioNo path="form.pipelineInBundle"/>
+            </@fdsRadio.radioGroup>
 
         </@fdsFieldset.fieldset>
 

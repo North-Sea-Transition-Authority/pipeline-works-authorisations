@@ -130,7 +130,8 @@ public class PadPipeline {
   private String otherPipelineMaterialUsed;
 
   private Integer pipelineDesignLife;
-
+  private Boolean pipelineInBundle;
+  private String bundleName;
 
   public PadPipeline() {
   }
@@ -289,6 +290,23 @@ public class PadPipeline {
   public PipelineCoreType getCoreType() {
     return pipelineType.getCoreType();
   }
+
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  public void setPipelineInBundle(Boolean pipelineInBundle) {
+    this.pipelineInBundle = pipelineInBundle;
+  }
+
+  public String getBundleName() {
+    return bundleName;
+  }
+
+  public void setBundleName(String bundleName) {
+    this.bundleName = bundleName;
+  }
+
 
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();

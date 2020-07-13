@@ -23,13 +23,13 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PickPwaForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pickpwa.PickPwaForVariationService;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaDto;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -49,15 +49,18 @@ public class PickExistingPwaController {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PickedPwaRetrievalService pickedPwaRetrievalService;
   private final PickPwaForVariationService pickPwaForVariationService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PickExistingPwaController(
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PickedPwaRetrievalService pickPwaService,
-      PickPwaForVariationService pickPwaForVariationService) {
+      PickPwaForVariationService pickPwaForVariationService,
+      ControllerHelperService controllerHelperService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
     this.pickPwaForVariationService = pickPwaForVariationService;
+    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -90,7 +93,7 @@ public class PickExistingPwaController {
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
       var pickedPwa = new PickablePwa(form.getPickablePwaString());
       var newApplication = pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(
           pickedPwa,

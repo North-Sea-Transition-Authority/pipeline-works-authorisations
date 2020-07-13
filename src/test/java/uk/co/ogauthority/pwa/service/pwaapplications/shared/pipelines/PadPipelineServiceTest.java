@@ -34,11 +34,13 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
@@ -52,6 +54,9 @@ public class PadPipelineServiceTest {
 
   @Mock
   private PipelineService pipelineService;
+
+  @Mock
+  private PipelineDetailService pipelineDetailService;
 
   private PadPipelineService padPipelineService;
 
@@ -79,7 +84,7 @@ public class PadPipelineServiceTest {
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, padPipelineIdentService, pipelineIdentFormValidator);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, pipelineIdentFormValidator);
 
   }
 
@@ -123,24 +128,40 @@ public class PadPipelineServiceTest {
     var newPadPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPadPipeline.getPipeline().getId()).isEqualTo(PIPELINE_ID);
     assertThat(newPadPipeline.getFromLocation()).isEqualTo(form.getFromLocation());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLatitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLatitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLatitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLatitudeDirection());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeDegrees")).isEqualTo(form.getFromCoordinateForm().getLongitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeMinutes")).isEqualTo(form.getFromCoordinateForm().getLongitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeSeconds")).isEqualTo(form.getFromCoordinateForm().getLongitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeDirection")).isEqualTo(form.getFromCoordinateForm().getLongitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeDegrees")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeMinutes")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeSeconds")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLatitudeDirection")).isEqualTo(
+        form.getFromCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeDegrees")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeMinutes")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeSeconds")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "fromLongitudeDirection")).isEqualTo(
+        form.getFromCoordinateForm().getLongitudeDirection());
 
     assertThat(newPadPipeline.getToLocation()).isEqualTo(form.getToLocation());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLatitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLatitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLatitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeDirection")).isEqualTo(form.getToCoordinateForm().getLatitudeDirection());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeDegrees")).isEqualTo(form.getToCoordinateForm().getLongitudeDegrees());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeMinutes")).isEqualTo(form.getToCoordinateForm().getLongitudeMinutes());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeSeconds")).isEqualTo(form.getToCoordinateForm().getLongitudeSeconds());
-    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeDirection")).isEqualTo(form.getToCoordinateForm().getLongitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeDegrees")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeMinutes")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeSeconds")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLatitudeDirection")).isEqualTo(
+        form.getToCoordinateForm().getLatitudeDirection());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeDegrees")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeDegrees());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeMinutes")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeMinutes());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeSeconds")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeSeconds());
+    assertThat(FieldUtils.getFieldValue(newPadPipeline, "toLongitudeDirection")).isEqualTo(
+        form.getToCoordinateForm().getLongitudeDirection());
 
     assertThat(newPadPipeline.getLength()).isEqualTo(form.getLength());
     assertThat(newPadPipeline.getPipelineType()).isEqualTo(form.getPipelineType());
@@ -253,10 +274,10 @@ public class PadPipelineServiceTest {
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(padPipeline));
 
     assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
-    .containsExactly(
-        entry(new PipelineId(1), "PIPELINE_1")
+        .containsExactly(
+            entry(new PipelineId(1), "PIPELINE_1")
 
-    );
+        );
 
   }
 
@@ -305,6 +326,48 @@ public class PadPipelineServiceTest {
 
         );
 
+  }
+
+  @Test
+  public void getPipelineBundleNamesByDetail_repositoryInteraction() {
+    var bundlePairDto = new PipelineBundlePairDto(1, "bundle");
+    List<PipelineBundlePairDto> list = List.of(bundlePairDto);
+    when(padPipelineRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(list);
+    var result = padPipelineService.getPipelineBundleNamesByDetail(detail);
+    assertThat(result).containsExactly(bundlePairDto);
+  }
+
+  @Test
+  public void getAvailableBundleNamesForApplication_noImportedBundles() {
+    var consentedBundlePairDto = new PipelineBundlePairDto(1, "bundle");
+    var applicationBundlePairDto = new PipelineBundlePairDto(2, "other bundle");
+    when(pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail))
+        .thenReturn(List.of(consentedBundlePairDto));
+    when(padPipelineRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(
+        List.of(applicationBundlePairDto));
+    var result = padPipelineService.getAvailableBundleNamesForApplication(detail);
+    assertThat(result).containsExactlyInAnyOrder("bundle", "other bundle");
+  }
+
+  @Test
+  public void getAvailableBundleNamesForApplication_hasImportedBundles() {
+    var consentedBundlePairDto = new PipelineBundlePairDto(1, "bundle");
+    var importedApplicationBundlePairDto = new PipelineBundlePairDto(1, "other bundle");
+    var applicationBundlePairDto = new PipelineBundlePairDto(2, "test bundle");
+    when(pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail))
+        .thenReturn(List.of(consentedBundlePairDto));
+    when(padPipelineRepository.getBundleNamesByPwaApplicationDetail(detail))
+        .thenReturn(List.of(applicationBundlePairDto, importedApplicationBundlePairDto));
+    var result = padPipelineService.getAvailableBundleNamesForApplication(detail);
+    assertThat(result).containsExactlyInAnyOrder("other bundle", "test bundle");
+  }
+
+  @Test
+  public void getAvailableBundleNamesForApplication_noBundles() {
+    when(pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail)).thenReturn(List.of());
+    when(padPipelineRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(List.of());
+    var result = padPipelineService.getAvailableBundleNamesForApplication(detail);
+    assertThat(result).isEmpty();
   }
 
 

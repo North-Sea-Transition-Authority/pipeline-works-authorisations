@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -68,7 +69,8 @@ public class PipelineHeaderFormValidatorTest {
         entry("trenchedBuriedBackfilled", Set.of("trenchedBuriedBackfilled.required")),
         entry("pipelineFlexibility", Set.of("pipelineFlexibility.required")),
         entry("pipelineMaterial", Set.of("pipelineMaterial.required")),
-        entry("pipelineDesignLife", Set.of("pipelineDesignLife.required"))
+        entry("pipelineDesignLife", Set.of("pipelineDesignLife.required")),
+        entry("pipelineInBundle", Set.of("pipelineInBundle.required"))
     );
   }
 
@@ -121,6 +123,25 @@ public class PipelineHeaderFormValidatorTest {
     assertThat(result).containsOnly(entry("pipelineDesignLife", Set.of("pipelineDesignLife.invalid")));
   }
 
+  @Test
+  public void invalid_bundleName_empty() {
+    var form = buildForm();
+    form.setPipelineInBundle(true);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    assertThat(result).containsOnly(
+        entry("bundleName", Set.of("bundleName" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void invalid_bundleName_tooLong() {
+    var form = buildForm();
+    form.setPipelineInBundle(true);
+    form.setBundleName("a".repeat(5000));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+    assertThat(result).containsOnly(
+        entry("bundleName", Set.of("bundleName" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
 
   private PipelineHeaderForm buildForm() {
 
@@ -156,6 +177,7 @@ public class PipelineHeaderFormValidatorTest {
     form.setPipelineFlexibility(PipelineFlexibility.FLEXIBLE);
     form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
     form.setPipelineDesignLife(5);
+    form.setPipelineInBundle(false);
 
 
     return form;

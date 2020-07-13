@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -73,6 +74,9 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   @MockBean
   private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
+  @SpyBean
+  private ControllerHelperService controllerHelperService;
+
   @Before
   public void abstractControllerTestSetup() {
     mockMvc = MockMvcBuilders
@@ -86,7 +90,6 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 
   }
-
 
   @TestConfiguration
   public static class AbstractControllerTestConfiguration {

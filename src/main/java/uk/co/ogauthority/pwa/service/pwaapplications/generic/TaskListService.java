@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.FluidCompositionInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
@@ -203,6 +204,9 @@ public class TaskListService {
       case PIPELINE_OTHER_PROPERTIES:
         return ReverseRouter.route(on(PipelineOtherPropertiesController.class)
             .renderAddPipelineOtherProperties(applicationType, applicationId, null, null));
+      case DESIGN_OP_CONDITIONS:
+        return ReverseRouter.route(on(DesignOpConditionsController.class)
+            .renderAddDesignOpConditions(applicationType, applicationId, null, null));
       default:
         return "";
     }

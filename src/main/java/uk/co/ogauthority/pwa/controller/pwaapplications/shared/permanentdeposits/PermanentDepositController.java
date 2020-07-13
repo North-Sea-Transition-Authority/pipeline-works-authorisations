@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -31,7 +32,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -56,18 +56,21 @@ public class PermanentDepositController {
   private final PermanentDepositService permanentDepositService;
   private final PwaApplicationFileService applicationFileService;
   private final PadPipelineService padPipelineService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public PermanentDepositController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                     PwaApplicationRedirectService pwaApplicationRedirectService,
                                     PermanentDepositService permanentDepositService,
                                     PwaApplicationFileService applicationFileService,
-                                    PadPipelineService padPipelineService) {
+                                    PadPipelineService padPipelineService,
+                                    ControllerHelperService controllerHelperService) {
     this.applicationFileService = applicationFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.permanentDepositService = permanentDepositService;
     this.padPipelineService = padPipelineService;
+    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -142,7 +145,7 @@ public class PermanentDepositController {
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD), () -> {
           permanentDepositService.saveEntityUsingForm(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositController.class).renderPermanentDepositsOverview(
@@ -167,7 +170,7 @@ public class PermanentDepositController {
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditPermanentDepositsModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
           permanentDepositService.saveEntityUsingForm(applicationContext.getApplicationDetail(), form, applicationContext.getUser());
           return ReverseRouter.redirect(on(PermanentDepositController.class).renderPermanentDepositsOverview(

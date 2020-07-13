@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -32,7 +33,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -50,17 +50,20 @@ public class CampaignWorksController {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadPipelineService padPipelineService;
   private final CampaignWorksService campaignWorksService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public CampaignWorksController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PadPipelineService padPipelineService,
-      CampaignWorksService campaignWorksService) {
+      CampaignWorksService campaignWorksService,
+      ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPipelineService = padPipelineService;
     this.campaignWorksService = campaignWorksService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView createWorkScheduleFormModelAndView(PwaApplicationContext applicationContext,
@@ -152,7 +155,7 @@ public class CampaignWorksController {
         applicationContext.getApplicationDetail()
     );
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         createWorkScheduleFormModelAndView(applicationContext, ScreenActionType.ADD), () -> {
           campaignWorksService.addCampaignWorkScheduleFromForm(form, applicationContext.getApplicationDetail());
           return ReverseRouter.redirect(
@@ -194,7 +197,7 @@ public class CampaignWorksController {
         applicationContext.getApplicationDetail()
     );
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         createWorkScheduleFormModelAndView(applicationContext, ScreenActionType.EDIT), () -> {
           campaignWorksService.updateCampaignWorksScheduleFromForm(form, editWorkSchedule);
           return ReverseRouter.redirect(

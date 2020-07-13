@@ -4,10 +4,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 public class PipelineHuooRoleSummaryView {
 
@@ -22,12 +26,14 @@ public class PipelineHuooRoleSummaryView {
   private final List<String> sortedUnassignedOrganisationNames;
   private final List<String> sortedUnassignedPipelineNumbers;
 
-  public PipelineHuooRoleSummaryView(HuooRole huooRole,
-                                     List<PipelinesAndOrgRoleGroupView> pipelinesAndOrgRoleGroupViews,
-                                     Map<PipelineId, String> unassignedPipelineNumberMapForRole,
-                                     Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole) {
+  PipelineHuooRoleSummaryView(HuooRole huooRole,
+                              List<PipelinesAndOrgRoleGroupView> pipelinesAndOrgRoleGroupViews,
+                              Map<PipelineId, String> unassignedPipelineNumberMapForRole,
+                              Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnerNameMapForRole) {
     this.huooRole = huooRole;
-    this.pipelinesAndOrgRoleGroupViews = pipelinesAndOrgRoleGroupViews;
+    this.pipelinesAndOrgRoleGroupViews = pipelinesAndOrgRoleGroupViews.stream()
+        .sorted(Comparator.comparing(PipelinesAndOrgRoleGroupView::getSortKey))
+        .collect(Collectors.toList());
     this.unassignedPipelineNumberMapForRole = unassignedPipelineNumberMapForRole;
     this.unassignedOrganisationRoleOwnerNameMapForRole = unassignedOrganisationRoleOwnerNameMapForRole;
 
@@ -40,6 +46,24 @@ public class PipelineHuooRoleSummaryView {
         .stream()
         .sorted(Comparator.comparing(String::toLowerCase))
         .collect(Collectors.toList());
+  }
+
+  public Set<PipelineId> getUnassignedPipelineIds() {
+    return this.unassignedPipelineNumberMapForRole.keySet();
+  }
+
+  public Set<OrganisationUnitId> getUnassignedRoleOwnerOrganisationIds() {
+    return this.unassignedOrganisationRoleOwnerNameMapForRole.keySet().stream()
+        .filter(o -> HuooType.PORTAL_ORG.equals(o.getHuooType()))
+        .map(OrganisationRoleOwnerDto::getOrganisationUnitId)
+        .collect(Collectors.toSet());
+  }
+
+  public Set<TreatyAgreement> getUnassignedRoleOwnerTreatyAgreements() {
+    return this.unassignedOrganisationRoleOwnerNameMapForRole.keySet().stream()
+        .filter(o -> HuooType.TREATY_AGREEMENT.equals(o.getHuooType()))
+        .map(OrganisationRoleOwnerDto::getTreatyAgreement)
+        .collect(Collectors.toSet());
   }
 
   public HuooRole getHuooRole() {

@@ -21,4 +21,8 @@ public enum FieldValidationErrorCodes {
   public String getCode() {
     return code;
   }
+
+  public String errorCode(String fieldName) {
+    return fieldName + this.getCode();
+  }
 }

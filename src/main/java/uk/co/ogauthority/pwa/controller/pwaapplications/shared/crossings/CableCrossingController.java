@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -33,7 +34,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCross
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -52,17 +52,20 @@ public class CableCrossingController {
   private final PadCableCrossingService padCableCrossingService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
   private final PadFileService padFileService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public CableCrossingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadCableCrossingService padCableCrossingService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padCableCrossingService = padCableCrossingService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
     this.padFileService = padFileService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail) {
@@ -144,7 +147,7 @@ public class CableCrossingController {
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderAddModelAndView(detail), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, createRenderAddModelAndView(detail), () -> {
       padCableCrossingService.createCableCrossing(detail, form);
       return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
@@ -175,7 +178,7 @@ public class CableCrossingController {
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult, createRenderEditModelAndView(detail), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, createRenderEditModelAndView(detail), () -> {
       padCableCrossingService.updateCableCrossing(detail, crossingId, form);
       return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });

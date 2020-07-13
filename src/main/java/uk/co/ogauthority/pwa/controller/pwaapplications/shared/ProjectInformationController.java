@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDow
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -30,7 +31,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -51,6 +51,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadProjectInformationService padProjectInformationService;
+  private final ControllerHelperService controllerHelperService;
 
   private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PROJECT_INFORMATION;
 
@@ -58,11 +59,13 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
   public ProjectInformationController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                       PwaApplicationRedirectService pwaApplicationRedirectService,
                                       PadProjectInformationService padProjectInformationService,
-                                      PadFileService padFileService) {
+                                      PadFileService padFileService,
+                                      ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   @GetMapping
@@ -90,7 +93,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
         validationType,
         applicationContext.getApplicationDetail());
 
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         // if invalid form, get all files, including not yet saved ones as they may have errored.
         getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form), () -> {
 

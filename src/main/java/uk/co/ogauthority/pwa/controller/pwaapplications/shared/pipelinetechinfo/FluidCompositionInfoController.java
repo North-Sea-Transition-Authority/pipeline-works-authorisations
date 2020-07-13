@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -24,7 +25,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
-import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 
@@ -41,14 +41,17 @@ public class FluidCompositionInfoController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadFluidCompositionInfoService padFluidCompositionInfoService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public FluidCompositionInfoController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                         PwaApplicationRedirectService pwaApplicationRedirectService,
-                                        PadFluidCompositionInfoService padFluidCompositionInfoService) {
+                                        PadFluidCompositionInfoService padFluidCompositionInfoService,
+                                        ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padFluidCompositionInfoService = padFluidCompositionInfoService;
+    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -74,7 +77,8 @@ public class FluidCompositionInfoController {
                                             ValidationType validationType) {
 
     bindingResult = padFluidCompositionInfoService.validate(form, bindingResult, validationType, applicationContext.getApplicationDetail());
-    return ControllerUtils.checkErrorsAndRedirect(bindingResult,
+
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddFluidCompositionInfoModelAndView(applicationContext.getApplicationDetail()), () -> {
           var entities = padFluidCompositionInfoService.getPadFluidCompositionInfoEntities(applicationContext.getApplicationDetail());
           padFluidCompositionInfoService.saveEntitiesUsingForm(form, entities);
