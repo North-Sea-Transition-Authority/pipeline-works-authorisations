@@ -78,7 +78,8 @@ public class PipelineIdentsController {
             new IdentUrlFactory(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
                 padPipeline.getId()))
         .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
-            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)));
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
+        .addObject("coreType", padPipeline.getCoreType());
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         padPipeline.getPipelineRef() + " idents");
@@ -92,7 +93,8 @@ public class PipelineIdentsController {
         .addObject("identView", identView)
         .addObject("backUrl", ReverseRouter.route(on(PipelineIdentsController.class)
             .renderIdentOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), pipeline.getId(),
-                null)));
+                null)))
+        .addObject("coreType", pipeline.getCoreType());
 
     breadcrumbService.fromPipelineIdentOverview(detail.getPwaApplication(), pipeline, modelAndView, "Remove ident");
     return modelAndView;
@@ -116,7 +118,8 @@ public class PipelineIdentsController {
             .renderIdentOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(),
                 padPipeline.getId(), null)))
         .addObject("screenActionType", screenActionType)
-        .addObject("form", identForm);
+        .addObject("form", identForm)
+        .addObject("coreType", padPipeline.getCoreType());
 
     breadcrumbService.fromPipelineIdentOverview(detail.getPwaApplication(), padPipeline, modelAndView,
         screenActionType.getActionText() + " ident");
@@ -198,8 +201,9 @@ public class PipelineIdentsController {
                                            @ModelAttribute("form") PipelineIdentForm form,
                                            BindingResult bindingResult) {
 
+    var coreType = applicationContext.getPadPipeline().getCoreType();
     var nextIdent = padIdentService.getIdent(applicationContext.getPadPipeline(), insertAboveIdentId);
-    validator.validate(form, bindingResult, applicationContext);
+    validator.validate(form, bindingResult, applicationContext, coreType);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
@@ -221,7 +225,8 @@ public class PipelineIdentsController {
                                    @ModelAttribute("form") PipelineIdentForm form,
                                    BindingResult bindingResult) {
 
-    validator.validate(form, bindingResult, applicationContext);
+    validator.validate(form, bindingResult, applicationContext,
+        applicationContext.getPadPipeline().getCoreType());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
@@ -291,7 +296,8 @@ public class PipelineIdentsController {
                                     BindingResult bindingResult) {
 
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
-    validator.validate(form, bindingResult, applicationContext);
+    validator.validate(form, bindingResult, applicationContext,
+        applicationContext.getPadPipeline().getCoreType());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,

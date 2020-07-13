@@ -16,18 +16,21 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
@@ -46,13 +49,19 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
+  private final PipelineIdentFormValidator pipelineIdentFormValidator;
+  private final PadPipelineIdentService padPipelineIdentService;
 
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
-                            PipelineService pipelineService) {
+                            PipelineService pipelineService,
+                            PadPipelineIdentService padPipelineIdentService,
+                            PipelineIdentFormValidator pipelineIdentFormValidator) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
+    this.padPipelineIdentService = padPipelineIdentService;
+    this.pipelineIdentFormValidator = pipelineIdentFormValidator;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -153,6 +162,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     // 2. Add new pipeline "TEMP 2"
     // 3. Remove "TEMP 1"
     // 4. Add new pipeline "TEMP 2"!
+
     newPadPipeline.setPipelineRef("TEMPORARY " + (numberOfPipesForDetail.intValue() + 1));
 
     saveEntityUsingForm(newPadPipeline, form);
@@ -187,6 +197,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     padPipelineRepository.save(padPipeline);
 
   }
+
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {
 
@@ -246,6 +257,18 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
+    for (var pipeline: getPipelines(detail)) {
+      for (var ident: padPipelineIdentService.getIdentsByPipeline(pipeline)) {
+        var identForm = new PipelineIdentForm();
+        padPipelineIdentService.mapEntityToForm(ident, identForm);
+        BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
+        pipelineIdentFormValidator.validate(identForm, bindingResult, detail, pipeline.getCoreType());
+        if (bindingResult.hasErrors()) {
+          return false;
+        }
+      }
+    }
+
     return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L
         && padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail) == 0L;
   }

@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
 <@defaultPage htmlTitle="Remove ident" pageHeading="Are you sure you want to remove this ident?" breadcrumbs=true>
 
@@ -36,34 +37,46 @@
       <dt class="govuk-summary-list__key">To (coordinates)</dt>
       <dd class="govuk-summary-list__value">${to}</dd>
     </div>
+
+    <#assign isSingleCore = false>
+    <#if coreType == "SINGLE_CORE">
+      <#assign isSingleCore = true>
+    </#if>
+    <#assign externalDiameter = isSingleCore?then(identView.externalDiameter!, identView.externalDiameterMultiCore!) />
+    <#assign internalDiameter = isSingleCore?then(identView.internalDiameter!, identView.internalDiameterMultiCore!) />
+    <#assign wallThickness = isSingleCore?then(identView.wallThickness!, identView.wallThicknessMultiCore!) />
+    <#assign maop = isSingleCore?then(identView.maop!, identView.maopMultiCore!) />
+    <#assign insulationCoatingType = isSingleCore?then(identView.insulationCoatingType!, identView.insulationCoatingTypeMultiCore!) />
+    <#assign productsToBeConveyed = isSingleCore?then(identView.productsToBeConveyed!, identView.productsToBeConveyedMultiCore!) />
+
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">External diameter</dt>
-      <dd class="govuk-summary-list__value">${identView.externalDiameter}mm</dd>
+      <dd class="govuk-summary-list__value">${externalDiameter}&nbsp;mm</dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Internal diameter</dt>
-      <dd class="govuk-summary-list__value">${identView.internalDiameter}mm</dd>
+      <dd class="govuk-summary-list__value">${internalDiameter}&nbsp;mm</dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Wall thickness</dt>
-      <dd class="govuk-summary-list__value">${identView.wallThickness}mm</dd>
+      <dd class="govuk-summary-list__value">${wallThickness}&nbsp;mm</dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">MAOP</dt>
-      <dd class="govuk-summary-list__value">${identView.maop}barg</dd>
+      <dd class="govuk-summary-list__value">${maop}&nbsp;barg</dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Insulation / coating type</dt>
-      <dd class="govuk-summary-list__value">${identView.insulationCoatingType}</dd>
+      <dd class="govuk-summary-list__value">${insulationCoatingType}</dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Products to be conveyed</dt>
-      <dd class="govuk-summary-list__value">${identView.productsToBeConveyed}</dd>
+      <dd class="govuk-summary-list__value">${productsToBeConveyed}</dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Description of component parts</dt>
       <dd class="govuk-summary-list__value">${identView.componentPartsDescription}</dd>
-    </div>
+    </div>    
   </dl>
 
     <@fdsForm.htmlForm>

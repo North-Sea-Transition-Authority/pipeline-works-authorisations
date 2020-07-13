@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -36,6 +38,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipe
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
@@ -54,6 +57,11 @@ public class PadPipelineServiceTest {
 
   private PwaApplicationDetail detail;
 
+  private PipelineIdentFormValidator pipelineIdentFormValidator;
+
+  @Mock
+  private PadPipelineIdentService padPipelineIdentService;
+
   @Captor
   private ArgumentCaptor<PadPipeline> padPipelineArgumentCaptor;
 
@@ -69,8 +77,9 @@ public class PadPipelineServiceTest {
     });
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, padPipelineIdentService, pipelineIdentFormValidator);
 
   }
 
@@ -146,6 +155,7 @@ public class PadPipelineServiceTest {
   public void addPipeline_otherMaterialSelected() {
     var form = new PipelineHeaderForm();
 
+    form.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     form.setPipelineMaterial(PipelineMaterial.OTHER);
     form.setOtherPipelineMaterialUsed("other material");
     var fromCoordinateForm = new CoordinateForm();
