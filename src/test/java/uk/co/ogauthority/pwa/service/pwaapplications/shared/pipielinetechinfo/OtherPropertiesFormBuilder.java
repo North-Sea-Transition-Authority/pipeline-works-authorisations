@@ -1,15 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
@@ -48,7 +41,7 @@ public class OtherPropertiesFormBuilder {
     form.addPropertyData(OtherPipelineProperty.SOLID_CONTENT, createDataForm(PropertyAvailabilityOption.NOT_PRESENT));
     form.addPropertyData(OtherPipelineProperty.MERCURY, createDataForm(PropertyAvailabilityOption.AVAILABLE,
         new MinMaxInput(String.valueOf(3), String.valueOf(5))));
-    form.addPropertyData(OtherPipelineProperty.H20, createDataForm(PropertyAvailabilityOption.AVAILABLE,
+    form.addPropertyData(OtherPipelineProperty.H2O, createDataForm(PropertyAvailabilityOption.AVAILABLE,
         new MinMaxInput(String.valueOf(12), String.valueOf(15))));
   }
 

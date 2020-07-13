@@ -9,12 +9,12 @@ public enum OtherPipelineProperty {
     WAX_APPEARANCE_TEMPERATURE("Wax appearance temperature", "°C"),
     ACID_NUM("Acid number (TAN)", "< mg KOH/g"),
     VISCOSITY("Viscosity", "bar(a)"),
-    DENSITY_GRAVITY("Density/gravity", "kg/m3"),
+    DENSITY_GRAVITY("Density/gravity", "kg/m³"),
     SULPHUR_CONTENT("Sulphur content", "weight %"),
     POUR_POINT("Pour point", "°C"),
     SOLID_CONTENT("Solid content", "weight %"),
-    MERCURY("Mercury", "μg/m3"),
-    H20("H20", "ppm");
+    MERCURY("Mercury", "μg/m³"),
+    H2O("H₂O", "ppm");
 
   private final String displayText;
   private final String unitMeasurement;
