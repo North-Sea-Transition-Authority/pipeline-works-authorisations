@@ -47,4 +47,12 @@ public interface ApplicationFormSectionService {
     return List.of();
   }
 
+  /**
+   * Remove nested or otherwise hidden data that may have been entered by the user but is now not relevant.
+   * @param detail of application to cleanup
+   */
+  default void cleanupData(PwaApplicationDetail detail) {
+    // default implementation implies no cleanup required
+  }
+
 }

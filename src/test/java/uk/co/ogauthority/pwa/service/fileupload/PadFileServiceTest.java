@@ -260,4 +260,48 @@ public class PadFileServiceTest {
 
   }
 
+  @Test
+  public void cleanupFiles_filesToKeep() {
+
+    var file4 = new PadFile();
+    file4.setPurpose(ApplicationFilePurpose.DEPOSIT_DRAWINGS);
+    file4.setId(4);
+
+    var file5 = new PadFile();
+    file5.setPurpose(ApplicationFilePurpose.DEPOSIT_DRAWINGS);
+    file5.setId(5);
+
+    when(padFileRepository.findAllByAppDetailAndFilePurposeAndIdNotIn(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, List.of(1, 2, 3)))
+        .thenReturn(List.of(file4, file5));
+
+    padFileService.cleanupFiles(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, List.of(1, 2, 3));
+
+    verify(padFileRepository, times(1)).deleteAll(eq(List.of(file4, file5)));
+
+  }
+
+  @Test
+  public void cleanupFiles_noFilesToKeep() {
+
+    var file1 = new PadFile();
+    file1.setPurpose(ApplicationFilePurpose.DEPOSIT_DRAWINGS);
+    file1.setId(1);
+
+    var file2 = new PadFile();
+    file2.setPurpose(ApplicationFilePurpose.DEPOSIT_DRAWINGS);
+    file2.setId(2);
+
+    var file3 = new PadFile();
+    file3.setPurpose(ApplicationFilePurpose.DEPOSIT_DRAWINGS);
+    file3.setId(3);
+
+    when(padFileRepository.findAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS))
+        .thenReturn(List.of(file1, file2, file3));
+
+    padFileService.cleanupFiles(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, List.of());
+
+    verify(padFileRepository, times(1)).deleteAll(eq(List.of(file1, file2, file3)));
+
+  }
+
 }

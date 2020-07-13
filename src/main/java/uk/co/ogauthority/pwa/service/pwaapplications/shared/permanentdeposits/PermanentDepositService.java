@@ -273,5 +273,58 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail) > 0 ? true : false;
   }
 
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
+
+    var updatedDepositsList = getPermanentDeposits(detail).stream()
+        .filter(deposit -> deposit.getMaterialType() != null)
+        .peek(deposit -> {
+
+          switch (deposit.getMaterialType()) {
+
+            case CONCRETE_MATTRESSES:
+              deposit.setMaterialSize(null);
+              cleanupOtherMaterial(deposit);
+              cleanupGroutBags(deposit);
+              break;
+            case ROCK:
+              cleanupMattresses(deposit);
+              cleanupGroutBags(deposit);
+              cleanupOtherMaterial(deposit);
+              break;
+            case GROUT_BAGS:
+              cleanupMattresses(deposit);
+              cleanupOtherMaterial(deposit);
+              break;
+            case OTHER:
+              cleanupMattresses(deposit);
+              cleanupGroutBags(deposit);
+              break;
+            default:
+              break;
+          }
+
+        })
+        .collect(Collectors.toList());
+
+    permanentDepositInformationRepository.saveAll(updatedDepositsList);
+
+  }
+
+  private void cleanupGroutBags(PadPermanentDeposit deposit) {
+    deposit.setGroutBagsBioDegradable(null);
+    deposit.setBagsNotUsedDescription(null);
+  }
+
+  private void cleanupMattresses(PadPermanentDeposit deposit) {
+    deposit.setConcreteMattressDepth(null);
+    deposit.setConcreteMattressLength(null);
+    deposit.setConcreteMattressWidth(null);
+  }
+
+  private void cleanupOtherMaterial(PadPermanentDeposit deposit) {
+    deposit.setOtherMaterialType(null);
+  }
+
 }
 

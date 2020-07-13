@@ -470,4 +470,25 @@ public class PadTechnicalDrawingServiceTest {
     assertThat(validationFactory.isComplete()).isFalse();
   }
 
+  @Test
+  public void cleanupData() {
+
+    var drawing1 = new PadTechnicalDrawing();
+    var file1 = new PadFile();
+    file1.setId(1);
+    drawing1.setFile(file1);
+
+    var drawing2 = new PadTechnicalDrawing();
+    var file2 = new PadFile();
+    file2.setId(2);
+    drawing2.setFile(file2);
+
+    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing1, drawing2));
+
+    padTechnicalDrawingService.cleanupData(pwaApplicationDetail);
+
+    verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail), eq(ApplicationFilePurpose.PIPELINE_DRAWINGS), eq(List.of(1, 2)));
+
+  }
+
 }

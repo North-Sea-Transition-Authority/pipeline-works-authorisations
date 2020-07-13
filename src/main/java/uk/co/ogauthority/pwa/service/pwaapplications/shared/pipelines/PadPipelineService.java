@@ -387,7 +387,25 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
 
+    var updatedPipelinesList = getPipelines(detail).stream()
+        .peek(padPipeline -> {
 
+          if (!padPipeline.getTrenchedBuriedBackfilled()) {
+            padPipeline.setTrenchingMethodsDescription(null);
+          }
+
+          if (!padPipeline.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
+            padPipeline.setOtherPipelineMaterialUsed(null);
+          }
+
+        })
+        .collect(Collectors.toList());
+
+    padPipelineRepository.saveAll(updatedPipelinesList);
+
+  }
 
 }

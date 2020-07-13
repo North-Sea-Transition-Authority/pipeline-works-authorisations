@@ -134,7 +134,51 @@ public class PadPipelineTechInfoServiceTest {
     verifyNoInteractions(validator);
   }
 
+  @Test
+  public void cleanupData_hiddenData() {
 
+    var techInfo = new PadPipelineTechInfo();
+
+    techInfo.setPipelineDesignedToStandards(false);
+    techInfo.setPipelineStandardsDescription("standards");
+
+    techInfo.setPlannedPipelineTieInPoints(false);
+    techInfo.setTieInPointsDescription("tie");
+
+    when(padPipelineTechInfoRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(techInfo));
+
+    padPipelineTechInfoService.cleanupData(pwaApplicationDetail);
+
+    assertThat(techInfo.getPipelineStandardsDescription()).isNull();
+
+    assertThat(techInfo.getTieInPointsDescription()).isNull();
+
+    verify(padPipelineTechInfoRepository, times(1)).save(techInfo);
+
+  }
+
+  @Test
+  public void cleanupData_noHiddenData() {
+
+    var techInfo = new PadPipelineTechInfo();
+
+    techInfo.setPipelineDesignedToStandards(true);
+    techInfo.setPipelineStandardsDescription("standards");
+
+    techInfo.setPlannedPipelineTieInPoints(true);
+    techInfo.setTieInPointsDescription("tie");
+
+    when(padPipelineTechInfoRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(techInfo));
+
+    padPipelineTechInfoService.cleanupData(pwaApplicationDetail);
+
+    assertThat(techInfo.getPipelineStandardsDescription()).isNotNull();
+
+    assertThat(techInfo.getTieInPointsDescription()).isNotNull();
+
+    verify(padPipelineTechInfoRepository, times(1)).save(techInfo);
+
+  }
 
 
 }

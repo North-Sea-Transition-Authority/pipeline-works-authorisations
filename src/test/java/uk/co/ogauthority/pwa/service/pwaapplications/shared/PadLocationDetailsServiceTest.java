@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -166,6 +168,66 @@ public class PadLocationDetailsServiceTest {
     var entity = new PadLocationDetails();
     padLocationDetailsService.saveEntityUsingForm(entity, form);
     assertThat(entity.getPipelineAshoreLocation()).isEqualTo(null);
+  }
+
+  @Test
+  public void cleanupData_hiddenData() {
+
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.NO);
+
+    padLocationDetails.setFacilitiesOffshore(true);
+    padLocationDetails.setPipelineAshoreLocation("ashore");
+
+    padLocationDetails.setTransportsMaterialsToShore(false);
+    padLocationDetails.setTransportationMethod("transport");
+
+    padLocationDetails.setRouteSurveyUndertaken(false);
+    padLocationDetails.setSurveyConcludedTimestamp(Instant.now());
+
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padLocationDetails));
+
+    padLocationDetailsService.cleanupData(pwaApplicationDetail);
+
+    assertThat(padLocationDetails.getPipelineAshoreLocation()).isNull();
+
+    assertThat(padLocationDetails.getTransportationMethod()).isNull();
+
+    assertThat(padLocationDetails.getSurveyConcludedTimestamp()).isNull();
+
+    verify(facilityService, times(1)).setFacilities(eq(pwaApplicationDetail), eq(new LocationDetailsForm()));
+
+    verify(padLocationDetailsRepository, times(1)).save(padLocationDetails);
+
+  }
+
+  @Test
+  public void cleanupData_noHiddenData() {
+
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+
+    padLocationDetails.setFacilitiesOffshore(false);
+    padLocationDetails.setPipelineAshoreLocation("ashore");
+
+    padLocationDetails.setTransportsMaterialsToShore(true);
+    padLocationDetails.setTransportationMethod("transport");
+
+    padLocationDetails.setRouteSurveyUndertaken(true);
+    padLocationDetails.setSurveyConcludedTimestamp(Instant.now());
+
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padLocationDetails));
+
+    padLocationDetailsService.cleanupData(pwaApplicationDetail);
+
+    assertThat(padLocationDetails.getPipelineAshoreLocation()).isNotNull();
+
+    assertThat(padLocationDetails.getTransportationMethod()).isNotNull();
+
+    assertThat(padLocationDetails.getSurveyConcludedTimestamp()).isNotNull();
+
+    verifyNoInteractions(facilityService);
+
+    verify(padLocationDetailsRepository, times(1)).save(padLocationDetails);
+
   }
 
   private LocationDetailsForm buildForm() {

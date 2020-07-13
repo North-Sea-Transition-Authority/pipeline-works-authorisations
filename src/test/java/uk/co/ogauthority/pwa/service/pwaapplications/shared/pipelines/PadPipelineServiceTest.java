@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -374,5 +375,62 @@ public class PadPipelineServiceTest {
     assertThat(result).isEmpty();
   }
 
+  @Test
+  public void cleanupData_hiddenData() {
+
+    var pipeline1 = new PadPipeline();
+    pipeline1.setTrenchedBuriedBackfilled(false);
+    pipeline1.setTrenchingMethodsDescription("desc");
+    pipeline1.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
+    pipeline1.setOtherPipelineMaterialUsed("other");
+
+    var pipeline2 = new PadPipeline();
+    pipeline2.setTrenchedBuriedBackfilled(false);
+    pipeline2.setTrenchingMethodsDescription("desc");
+    pipeline2.setPipelineMaterial(PipelineMaterial.DUPLEX);
+    pipeline2.setOtherPipelineMaterialUsed("other");
+
+    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
+
+    padPipelineService.cleanupData(detail);
+
+    assertThat(pipeline1.getTrenchingMethodsDescription()).isNull();
+    assertThat(pipeline1.getOtherPipelineMaterialUsed()).isNull();
+
+    assertThat(pipeline2.getTrenchingMethodsDescription()).isNull();
+    assertThat(pipeline2.getOtherPipelineMaterialUsed()).isNull();
+
+    verify(padPipelineRepository, times(1)).saveAll(eq(List.of(pipeline1, pipeline2)));
+
+  }
+
+  @Test
+  public void cleanupData_noHiddenData() {
+
+    var pipeline1 = new PadPipeline();
+    pipeline1.setTrenchedBuriedBackfilled(true);
+    pipeline1.setTrenchingMethodsDescription("desc");
+    pipeline1.setPipelineMaterial(PipelineMaterial.OTHER);
+    pipeline1.setOtherPipelineMaterialUsed("other");
+
+    var pipeline2 = new PadPipeline();
+    pipeline2.setTrenchedBuriedBackfilled(true);
+    pipeline2.setTrenchingMethodsDescription("desc");
+    pipeline2.setPipelineMaterial(PipelineMaterial.OTHER);
+    pipeline2.setOtherPipelineMaterialUsed("other");
+
+    when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(pipeline1, pipeline2));
+
+    padPipelineService.cleanupData(detail);
+
+    assertThat(pipeline1.getTrenchingMethodsDescription()).isNotNull();
+    assertThat(pipeline1.getOtherPipelineMaterialUsed()).isNotNull();
+
+    assertThat(pipeline2.getTrenchingMethodsDescription()).isNotNull();
+    assertThat(pipeline2.getOtherPipelineMaterialUsed()).isNotNull();
+
+    verify(padPipelineRepository, times(1)).saveAll(eq(List.of(pipeline1, pipeline2)));
+
+  }
 
 }

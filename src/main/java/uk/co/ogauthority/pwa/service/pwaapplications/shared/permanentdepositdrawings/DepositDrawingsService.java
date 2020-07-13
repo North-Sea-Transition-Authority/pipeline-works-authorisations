@@ -2,13 +2,11 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdra
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +49,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   private final PadFileService padFileService;
   private final PermanentDepositService permanentDepositService;
 
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.DEPOSIT_DRAWINGS;
+
   @Autowired
   public DepositDrawingsService(
       PadDepositDrawingRepository padDepositDrawingRepository,
@@ -78,7 +78,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
     if (depositDrawing.getFile() != null) {
       var file = padFileService.getUploadedFileView(detail, depositDrawing.getFile().getFileId(),
-          ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+          FILE_PURPOSE, ApplicationFileLinkStatus.FULL);
       form.setUploadedFileWithDescriptionForms(List.of(
           new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
     }
@@ -87,7 +87,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   @Transactional
   public void addDrawing(PwaApplicationDetail detail, PermanentDepositDrawingForm form, WebUserAccount webUserAccount) {
     padFileService.updateFiles(
-        form, detail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES, webUserAccount);
+        form, detail, FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, webUserAccount);
     saveDrawingAndLinks(detail, form, new PadDepositDrawing());
   }
 
@@ -125,7 +125,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     }
 
     List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
-        ApplicationFilePurpose.DEPOSIT_DRAWINGS,
+        FILE_PURPOSE,
         ApplicationFileLinkStatus.FULL);
 
     return linkMap.entrySet().stream()
@@ -142,7 +142,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     List<UploadedFileView> fileViews = new ArrayList<>();
     if (depositDrawing.getFile() != null) {
       fileViews.add(padFileService.getUploadedFileView(pwaApplicationDetail, depositDrawing.getFile().getFileId(),
-          ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
+          FILE_PURPOSE, ApplicationFileLinkStatus.FULL));
     }
 
     return buildSummaryView(depositDrawing, depositDrawingLinks, fileViews);
@@ -174,7 +174,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     padFileService.updateFiles(
         form,
         detail,
-        ApplicationFilePurpose.DEPOSIT_DRAWINGS,
+        FILE_PURPOSE,
         FileUpdateMode.KEEP_UNLINKED_FILES,
         webUserAccount);
 
@@ -204,7 +204,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
   public Optional<PadDepositDrawing> getDrawingLinkedToPadFile(PwaApplicationDetail applicationDetail, PadFile padFile) {
-    return padDepositDrawingRepository.findByPwaApplicationDetailAndAndFile(applicationDetail, padFile);
+    return padDepositDrawingRepository.findByPwaApplicationDetailAndFile(applicationDetail, padFile);
   }
 
   public void unlinkFile(PadDepositDrawing depositDrawing) {
@@ -278,7 +278,15 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         String.format("Couldn't find permanent deposit drawing with ID: %s", depositDrawingId));
   }
 
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
 
+    List<Integer> padFileIdsOnDrawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(detail).stream()
+        .map(drawing -> drawing.getFile().getId())
+        .collect(Collectors.toList());
 
+    padFileService.cleanupFiles(detail, FILE_PURPOSE, padFileIdsOnDrawings);
+
+  }
 }
 

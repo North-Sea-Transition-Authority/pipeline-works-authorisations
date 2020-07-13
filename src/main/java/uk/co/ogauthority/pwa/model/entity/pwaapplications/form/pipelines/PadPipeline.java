@@ -329,6 +329,7 @@ public class PadPipeline {
     this.bundleName = bundleName;
   }
 
+
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();

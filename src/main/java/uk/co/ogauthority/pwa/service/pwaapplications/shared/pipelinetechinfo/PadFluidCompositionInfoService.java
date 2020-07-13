@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -99,9 +101,18 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
     return true;
   }
 
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
 
+    // null out mole value for all non-higher amount entries
+    var updatedFluidCompositionInfos = getPadFluidCompositionInfoEntities(detail).stream()
+        .filter(fluidCompositionInfo ->
+            !Objects.equals(fluidCompositionInfo.getFluidCompositionOption(), FluidCompositionOption.HIGHER_AMOUNT))
+        .peek(fluidCompositionInfo -> fluidCompositionInfo.setMoleValue(null))
+        .collect(Collectors.toList());
 
+    padFluidCompositionInfoRepository.saveAll(updatedFluidCompositionInfos);
 
-
+  }
 }
 

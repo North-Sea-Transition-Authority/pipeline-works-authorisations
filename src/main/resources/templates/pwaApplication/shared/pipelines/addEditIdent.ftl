@@ -79,8 +79,8 @@
             <@identDataTextInput coreType=coreType textInputPath="form.dataForm.internalDiameter" textAreaPath="form.dataForm.internalDiameterMultiCore" labelText="Internal diameter" suffix="mm" suffixScreenReaderPrompt="mm"/>
             <@identDataTextInput coreType=coreType textInputPath="form.dataForm.wallThickness" textAreaPath="form.dataForm.wallThicknessMultiCore" labelText="Wall thickness" suffix="mm" suffixScreenReaderPrompt="mm"/>
             <@identDataTextInput coreType=coreType textInputPath="form.dataForm.maop" textAreaPath="form.dataForm.maopMultiCore" labelText="MAOP" suffix="barg" suffixScreenReaderPrompt="barg"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" labelText="Insulation / coating type"/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" labelText="Products to be conveyed"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.insulationCoatingType" textAreaPath="form.dataForm.insulationCoatingTypeMultiCore" useTextArea=true labelText="Insulation / coating type"/>
+            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed"/>
 
         </@fdsFieldset.fieldset>
 
@@ -90,9 +90,13 @@
 </@defaultPage>
 
 
-<#macro identDataTextInput coreType labelText textInputPath textAreaPath suffix="" suffixScreenReaderPrompt="">
+<#macro identDataTextInput coreType labelText textInputPath textAreaPath suffix="" suffixScreenReaderPrompt="" useTextArea=false>
     <#if coreType == "SINGLE_CORE">
-        <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt/>
+        <#if useTextArea>
+            <@fdsTextarea.textarea path=textInputPath labelText="${labelText} ${suffix}" maxCharacterLength="4000" characterCount=true/>
+        <#else>
+            <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt/>
+        </#if>
     <#else>
         <#assign unit = ""/>
         <#if suffix?has_content>

@@ -281,4 +281,27 @@ public class PadFileService {
 
   }
 
+  /**
+   * Remove PadFiles that are linked to a detail and purpose and are not in a specified list.
+   * @param detail detail for app to cleanup files for
+   * @param purpose of files we're looking at
+   * @param excludePadFileIds list of ids for PadFiles we don't want to remove
+   */
+  @Transactional
+  public void cleanupFiles(PwaApplicationDetail detail,
+                           ApplicationFilePurpose purpose,
+                           List<Integer> excludePadFileIds) {
+
+    List<PadFile> filesToCleanup;
+
+    if (excludePadFileIds.isEmpty()) {
+      filesToCleanup = padFileRepository.findAllByPwaApplicationDetailAndPurpose(detail, purpose);
+    } else {
+      filesToCleanup = padFileRepository.findAllByAppDetailAndFilePurposeAndIdNotIn(detail, purpose, excludePadFileIds);
+    }
+
+    padFileRepository.deleteAll(filesToCleanup);
+
+  }
+
 }
