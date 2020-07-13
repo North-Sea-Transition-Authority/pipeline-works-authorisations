@@ -26,6 +26,14 @@ public final class OrganisationRoleOwnerDto {
     this.treatyAgreement = treatyAgreement;
   }
 
+  public static OrganisationRoleOwnerDto fromTreaty(TreatyAgreement treatyAgreement) {
+    return new OrganisationRoleOwnerDto(HuooType.TREATY_AGREEMENT, null, null, treatyAgreement);
+  }
+
+  public static OrganisationRoleOwnerDto fromOrganisationUnitId(OrganisationUnitId organisationUnitId) {
+    return new OrganisationRoleOwnerDto(HuooType.PORTAL_ORG, organisationUnitId, null, null);
+  }
+
   public HuooType getHuooType() {
     return huooType;
   }

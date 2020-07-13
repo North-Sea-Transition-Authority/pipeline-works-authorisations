@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AddPipelineHuooJourneyDataTest {
+public class ModifyPipelineHuooJourneyDataTest {
 
   private static final PwaApplicationDetail APP_DETAIL = PwaApplicationTestUtil.createDefaultApplicationDetail(
       PwaApplicationType.INITIAL, 10, 11);
@@ -22,14 +22,14 @@ public class AddPipelineHuooJourneyDataTest {
   private static final PwaApplicationDetail ALTERNATIVE_APP_DETAIL = PwaApplicationTestUtil.createDefaultApplicationDetail(
       PwaApplicationType.INITIAL, 20, 21);
 
-  private AddPipelineHuooJourneyData journeyData;
+  private ModifyPipelineHuooJourneyData journeyData;
 
   private PickHuooPipelinesForm form = new PickHuooPipelinesForm();
 
   @Before
   public void setup() {
 
-    journeyData = new AddPipelineHuooJourneyData();
+    journeyData = new ModifyPipelineHuooJourneyData();
 
   }
 

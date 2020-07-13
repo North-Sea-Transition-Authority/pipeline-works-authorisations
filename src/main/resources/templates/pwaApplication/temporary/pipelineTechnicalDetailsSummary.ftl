@@ -82,7 +82,7 @@
     </tr>
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Wax appearance temperature</th>
-      <td class="govuk-table__cell"> XX &deg;C</td>
+      <td class="govuk-table__cell"> XX °C</td>
     </tr>
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Acid Number (TAN)</th>
@@ -94,7 +94,7 @@
     </tr>
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Density/Gravity</th>
-      <td class="govuk-table__cell"> Kg/m3</td>
+      <td class="govuk-table__cell"> ${stringUtils.superscriptConverter("Kg/m³")}</td>
     </tr>
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Sulphur Content</th>
@@ -114,7 +114,7 @@
     </tr>
     <tr class="govuk-table__row">
       <th class="govuk-table__header govuk-!-width-one-third">Mercury</th>
-      <td class="govuk-table__cell"> &gt;Xμg/m3</td>
+      <td class="govuk-table__cell"> &gt;${stringUtils.superscriptConverter("Xμg/m³")}</td>
     </tr>
 
     </tbody>

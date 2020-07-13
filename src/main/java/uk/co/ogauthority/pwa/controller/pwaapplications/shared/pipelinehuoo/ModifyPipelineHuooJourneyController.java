@@ -4,8 +4,10 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,8 +26,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -43,7 +48,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationType;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/pipeline-huoo/add/{huooRole}")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/pipeline-huoo/{huooRole}")
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
@@ -52,8 +57,8 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationT
 })
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-@SessionAttributes("addPipelineHuooJourneyData")
-public class AddPipelineHuooJourneyController {
+@SessionAttributes("modifyPipelineHuooJourneyData")
+public class ModifyPipelineHuooJourneyController {
   private static final String SELECT_PIPELINES_QUESTION_FORMAT = "On which pipelines do you want to assign %ss?";
   private static final String SELECT_PIPELINES_BACK_LINK_TEXT = "Back to " + StringUtils.uncapitalize(
       ApplicationTask.PIPELINES_HUOO.getShortenedDisplayName());
@@ -64,19 +69,19 @@ public class AddPipelineHuooJourneyController {
 
   @Bean
   @SessionScope
-  public AddPipelineHuooJourneyData addPipelineHuooJourneyData() {
-    return new AddPipelineHuooJourneyData();
+  public ModifyPipelineHuooJourneyData modifyPipelineHuooJourneyData() {
+    return new ModifyPipelineHuooJourneyData();
   }
 
-  @Resource(name = "addPipelineHuooJourneyData")
-  private AddPipelineHuooJourneyData addPipelineHuooJourneyData;
+  @Resource(name = "modifyPipelineHuooJourneyData")
+  private ModifyPipelineHuooJourneyData modifyPipelineHuooJourneyData;
 
   private final PadPipelinesHuooService padPipelinesHuooService;
   private final PickablePipelineService pickablePipelineService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
-  public AddPipelineHuooJourneyController(
+  public ModifyPipelineHuooJourneyController(
       PadPipelinesHuooService padPipelinesHuooService,
       PickablePipelineService pickablePipelineService,
       ControllerHelperService controllerHelperService) {
@@ -84,6 +89,55 @@ public class AddPipelineHuooJourneyController {
     this.pickablePipelineService = pickablePipelineService;
     this.controllerHelperService = controllerHelperService;
   }
+
+  @PostMapping("/editGroup")
+  public ModelAndView editGroupRouter(@PathVariable("applicationType")
+                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                      @PathVariable("applicationId") int applicationId,
+                                      @PathVariable("huooRole") HuooRole huooRole,
+                                      PwaApplicationContext applicationContext,
+                                      @RequestParam(value = "journeyPage") JourneyPage journeyPage,
+                                      @RequestParam(value = "pipelineIds", required = false) Set<Integer> pipelineIds,
+                                      @RequestParam(value = "organisationIds", required = false) Set<Integer> organisationUnitIds,
+                                      @RequestParam(value = "treatyAgreements", required = false) Set<TreatyAgreement> treatyAgreements) {
+
+    var detail = applicationContext.getApplicationDetail();
+    modifyPipelineHuooJourneyData.reset();
+
+    var reconciledPipelinePickableIds = padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
+        applicationContext.getApplicationDetail(),
+        SetUtils.emptyIfNull(pipelineIds)
+    )
+        .stream()
+        .map(o -> o.getPickablePipelineId().getId())
+        .collect(Collectors.toSet());
+
+    // update journey pipelines
+    modifyPipelineHuooJourneyData.updateJourneyPipelineData(detail, huooRole, reconciledPipelinePickableIds);
+
+    var reconciledRoleOwners = padPipelinesHuooService.reconcileOrganisationRoleOwnersFrom(
+        detail,
+        huooRole,
+        SetUtils.emptyIfNull(organisationUnitIds),
+        SetUtils.emptyIfNull(treatyAgreements)
+    );
+
+    var reconciledOrgUnitIds = reconciledRoleOwners.stream()
+        .filter(o -> HuooType.PORTAL_ORG.equals(o.getHuooType()))
+        .map(o -> o.getOrganisationUnitId().asInt())
+        .collect(Collectors.toSet());
+
+    var reconciledTreaties = reconciledRoleOwners.stream()
+        .filter(o -> HuooType.TREATY_AGREEMENT.equals(o.getHuooType()))
+        .map(OrganisationRoleOwnerDto::getTreatyAgreement)
+        .collect(Collectors.toSet());
+
+    //update journey orgs role owners
+    modifyPipelineHuooJourneyData.updateJourneyOrganisationData(detail, huooRole, reconciledOrgUnitIds, reconciledTreaties);
+
+    return redirectToJourneyPage(applicationContext, huooRole, journeyPage);
+  }
+
 
   @GetMapping("/pipelines")
   public ModelAndView renderPipelinesForHuooAssignment(@PathVariable("applicationType")
@@ -93,7 +147,7 @@ public class AddPipelineHuooJourneyController {
                                                        PwaApplicationContext applicationContext,
                                                        @ModelAttribute("form") PickHuooPipelinesForm form) {
 
-    addPipelineHuooJourneyData.updateFormWithPipelineJourneyData(
+    modifyPipelineHuooJourneyData.updateFormWithPipelineJourneyData(
         applicationContext.getApplicationDetail(),
         huooRole,
         form);
@@ -111,7 +165,7 @@ public class AddPipelineHuooJourneyController {
                                                        @ModelAttribute("form") PickHuooPipelinesForm form,
                                                        BindingResult bindingResult) {
 
-    addPipelineHuooJourneyData.updateJourneyPipelineData(
+    modifyPipelineHuooJourneyData.updateJourneyPipelineData(
         applicationContext.getApplicationDetail(),
         huooRole,
         form.getPickedPipelineStrings());
@@ -127,7 +181,7 @@ public class AddPipelineHuooJourneyController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getSelectPipelineModelAndView(applicationContext, huooRole),
         () -> ReverseRouter.redirect(
-            on(AddPipelineHuooJourneyController.class).renderOrganisationsForPipelineHuooAssignment(
+            on(ModifyPipelineHuooJourneyController.class).renderOrganisationsForPipelineHuooAssignment(
                 pwaApplicationType,
                 applicationId,
                 huooRole,
@@ -144,8 +198,8 @@ public class AddPipelineHuooJourneyController {
                                                                    PwaApplicationContext applicationContext,
                                                                    @ModelAttribute("form") PickHuooPipelinesForm form) {
     var applicationDetail = applicationContext.getApplicationDetail();
-    addPipelineHuooJourneyData.updateFormWithPipelineJourneyData(applicationDetail, huooRole, form);
-    addPipelineHuooJourneyData.updateFormWithOrganisationRoleJourneyData(applicationDetail, huooRole, form);
+    modifyPipelineHuooJourneyData.updateFormWithPipelineJourneyData(applicationDetail, huooRole, form);
+    modifyPipelineHuooJourneyData.updateFormWithOrganisationRoleJourneyData(applicationDetail, huooRole, form);
 
     var modelAndView = getUpdatePipelineOrgRoleModelAndView(applicationContext, huooRole);
 
@@ -164,13 +218,13 @@ public class AddPipelineHuooJourneyController {
                                                                    RedirectAttributes redirectAttributes) {
     var applicationDetail = applicationContext.getApplicationDetail();
 
-    addPipelineHuooJourneyData.updateJourneyOrganisationData(
+    modifyPipelineHuooJourneyData.updateJourneyOrganisationData(
         applicationDetail,
         huooRole,
         form.getOrganisationUnitIds(),
         form.getTreatyAgreements()
     );
-    addPipelineHuooJourneyData.updateFormWithPipelineJourneyData(applicationDetail, huooRole, form);
+    modifyPipelineHuooJourneyData.updateFormWithPipelineJourneyData(applicationDetail, huooRole, form);
 
     padPipelinesHuooService.validateAddPipelineHuooForm(
         applicationContext.getApplicationDetail(),
@@ -200,7 +254,7 @@ public class AddPipelineHuooJourneyController {
               form.getTreatyAgreements());
 
           // make sure we clear journey data on completion.
-          addPipelineHuooJourneyData.reset();
+          modifyPipelineHuooJourneyData.reset();
 
           FlashUtils.success(
               redirectAttributes,
@@ -222,19 +276,42 @@ public class AddPipelineHuooJourneyController {
                                                 PwaApplicationContext applicationContext,
                                                 @ModelAttribute("form") PickHuooPipelinesForm form) {
 
-    addPipelineHuooJourneyData.updateJourneyOrganisationData(
+    modifyPipelineHuooJourneyData.updateJourneyOrganisationData(
         applicationContext.getApplicationDetail(),
         huooRole,
         form.getOrganisationUnitIds(),
         form.getTreatyAgreements());
 
-    return ReverseRouter.redirect(on(AddPipelineHuooJourneyController.class).renderPipelinesForHuooAssignment(
+    return ReverseRouter.redirect(on(ModifyPipelineHuooJourneyController.class).renderPipelinesForHuooAssignment(
         pwaApplicationType,
         applicationId,
         huooRole,
         null,
         null
     ));
+  }
+
+  private ModelAndView redirectToJourneyPage(PwaApplicationContext applicationContext, HuooRole huooRole,
+                                             JourneyPage journeyPage) {
+    if (JourneyPage.ORGANISATION_SELECTION.equals(journeyPage)) {
+      return ReverseRouter.redirect(
+          on(ModifyPipelineHuooJourneyController.class).renderOrganisationsForPipelineHuooAssignment(
+              applicationContext.getApplicationType(),
+              applicationContext.getMasterPwaApplicationId(),
+              huooRole,
+              null,
+              null
+          ));
+    }
+
+    return ReverseRouter.redirect(on(ModifyPipelineHuooJourneyController.class).renderPipelinesForHuooAssignment(
+        applicationContext.getApplicationType(),
+        applicationContext.getMasterPwaApplicationId(),
+        huooRole,
+        null,
+        null
+    ));
+
   }
 
   private ModelAndView getSelectPipelineModelAndView(PwaApplicationContext applicationContext, HuooRole huooRole) {
@@ -281,5 +358,9 @@ public class AddPipelineHuooJourneyController {
         .addObject("backLinkText", SELECT_PIPELINES_BACK_LINK_TEXT)
         .addObject("pickableOrgDetails", orgUnitDetails)
         .addObject("availableTreatyOptions", availableTreatiesForRole);
+  }
+
+  public enum JourneyPage {
+    PIPELINE_SELECTION, ORGANISATION_SELECTION
   }
 }

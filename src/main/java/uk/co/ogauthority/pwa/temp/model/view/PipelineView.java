@@ -132,19 +132,19 @@ public class PipelineView implements Serializable {
   }
 
   public String getFromLatString() {
-    return "<br/> " + this.fromLatitudeDegrees + "&deg; " + this.fromLatitudeMinutes + "' " + this.fromLatitudeSeconds + "\" N";
+    return "<br/> " + this.fromLatitudeDegrees + "° " + this.fromLatitudeMinutes + "' " + this.fromLatitudeSeconds + "\" N";
   }
 
   public String getFromLongString() {
-    return "<br/> " + this.fromLongitudeDegrees + "&deg; " + this.fromLongitudeMinutes + "' " + this.fromLongitudeSeconds + "\" E";
+    return "<br/> " + this.fromLongitudeDegrees + "° " + this.fromLongitudeMinutes + "' " + this.fromLongitudeSeconds + "\" E";
   }
 
   public String getToLatString() {
-    return "<br/> " + this.toLatitudeDegrees + "&deg; " + this.toLatitudeMinutes + "' " + this.toLatitudeSeconds + "\" N";
+    return "<br/> " + this.toLatitudeDegrees + "° " + this.toLatitudeMinutes + "' " + this.toLatitudeSeconds + "\" N";
   }
 
   public String getToLongString() {
-    return "<br/> " + this.toLongitudeDegrees + "&deg; " + this.toLongitudeMinutes + "' " + this.toLongitudeSeconds + "\" E";
+    return "<br/> " + this.toLongitudeDegrees + "° " + this.toLongitudeMinutes + "' " + this.toLongitudeSeconds + "\" E";
 
   }
 
