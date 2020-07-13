@@ -27,6 +27,8 @@ public class PadPipelineSummaryDto {
 
   private final String pipelineNumber;
 
+  private final String pipelineName;
+
   private final PipelineType pipelineType;
 
   private final String componentParts;
@@ -39,6 +41,7 @@ public class PadPipelineSummaryDto {
 
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
+                               String pipelineName,
                                PipelineType pipelineType,
                                String pipelineNumber,
                                BigDecimal length,
@@ -70,6 +73,7 @@ public class PadPipelineSummaryDto {
   ) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
+    this.pipelineName = pipelineName;
     this.fromLocation = fromLocation;
     this.toLocation = toLocation;
 
@@ -111,6 +115,10 @@ public class PadPipelineSummaryDto {
 
   public int getPadPipelineId() {
     return padPipelineId;
+  }
+
+  public String getPipelineName() {
+    return pipelineName;
   }
 
   public String getFromLocation() {

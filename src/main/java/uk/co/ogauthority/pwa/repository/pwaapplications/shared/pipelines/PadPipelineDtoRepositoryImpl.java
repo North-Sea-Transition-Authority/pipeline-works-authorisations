@@ -25,6 +25,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto(" +
             "  pp.id " +
             ", p.id " +
+            ", pp.pipelineName" +
             ", pp.pipelineType " +
             ", pp.pipelineRef " +
             ", pp.length " +
@@ -59,7 +60,8 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             "WHERE pp.pwaApplicationDetail = :detail " +
             "AND (:padPipelineLineFilter IS NULL OR pp = :padPipelineLineFilter) " +
             "GROUP BY " +
-            "  pp.id " +
+            " pp.pipelineName" +
+            ", pp.id " +
             ", p.id " +
             ", pp.pipelineType " +
             ", pp.pipelineRef " +

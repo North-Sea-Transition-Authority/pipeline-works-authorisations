@@ -109,6 +109,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     padPipeline = getDefaultPadPipeline(99, pwaApplicationDetail);
+    padPipeline.setPipelineName("test name");
 
     when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
     var padPipelineOverview = new PadPipelineOverview(padPipeline, 0L);

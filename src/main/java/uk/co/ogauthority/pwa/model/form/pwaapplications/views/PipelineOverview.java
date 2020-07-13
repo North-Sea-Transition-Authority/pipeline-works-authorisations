@@ -9,6 +9,8 @@ public interface PipelineOverview {
 
   Integer getPadPipelineId();
 
+  String getPipelineName();
+
   String getFromLocation();
 
   CoordinatePair getFromCoordinates();

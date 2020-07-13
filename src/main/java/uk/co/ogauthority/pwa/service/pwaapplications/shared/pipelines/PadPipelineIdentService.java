@@ -216,11 +216,11 @@ public class PadPipelineIdentService {
 
   public void createPipelineName(PadPipeline padPipeline) {
     var pipelineName = padPipeline.getPipelineRef() + " - ";
-    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
+    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE) && padPipeline.getMaxExternalDiameter() != null) {
       pipelineName += padPipeline.getMaxExternalDiameter() + " Millimetre ";
     }
     pipelineName += padPipeline.getPipelineType().getDisplayName();
-    //TO DO: add bundle name to pipeline name (if pipeline is part of a bundle)
+    //TO DO: add bundle name to pipeline name (if pipeline is part of a bundle) dependant on: PWA-619
     padPipeline.setPipelineName(pipelineName);
   }
 

@@ -19,6 +19,8 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private String fromLocation;
 
+  private String pipelineName;
+
   private CoordinatePair fromCoordinates;
 
   private String toLocation;
@@ -37,9 +39,10 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private Long numberOfIdents;
 
+
   private PadPipelineOverview(Integer padPipelineId,
                               String fromLocation,
-                              CoordinatePair fromCoordinates,
+                              String pipelineName, CoordinatePair fromCoordinates,
                               String toLocation,
                               CoordinatePair toCoordinates,
                               String pipelineNumber,
@@ -50,6 +53,7 @@ public class PadPipelineOverview implements PipelineOverview {
                               Long numberOfIdents) {
     this.padPipelineId = padPipelineId;
     this.fromLocation = fromLocation;
+    this.pipelineName = pipelineName;
     this.fromCoordinates = fromCoordinates;
     this.toLocation = toLocation;
     this.toCoordinates = toCoordinates;
@@ -66,6 +70,7 @@ public class PadPipelineOverview implements PipelineOverview {
                               Long numberOfIdents) {
     this.padPipelineId = padPipeline.getId();
     this.fromLocation = padPipeline.getFromLocation();
+    this.pipelineName = padPipeline.getPipelineName();
     this.fromCoordinates = padPipeline.getFromCoordinates();
     this.toLocation = padPipeline.getToLocation();
     this.toCoordinates = padPipeline.getToCoordinates();
@@ -83,7 +88,7 @@ public class PadPipelineOverview implements PipelineOverview {
     return new PadPipelineOverview(
         padPipelineSummaryDto.getPadPipelineId(),
         padPipelineSummaryDto.getFromLocation(),
-        padPipelineSummaryDto.getFromCoordinates(),
+        padPipelineSummaryDto.getPipelineName(), padPipelineSummaryDto.getFromCoordinates(),
         padPipelineSummaryDto.getToLocation(),
         padPipelineSummaryDto.getToCoordinates(),
         padPipelineSummaryDto.getPipelineNumber(),
@@ -99,6 +104,11 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public Integer getPadPipelineId() {
     return padPipelineId;
+  }
+
+  @Override
+  public String getPipelineName() {
+    return pipelineName;
   }
 
   @Override
