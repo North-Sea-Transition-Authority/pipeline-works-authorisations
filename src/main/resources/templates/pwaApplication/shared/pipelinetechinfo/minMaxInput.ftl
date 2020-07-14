@@ -5,9 +5,9 @@
 
 
 <#macro minMaxInput minFormPath maxFormPath nestedPath unitMeasurement labelText="" altMinLabel="min" altMaxLabel="max">
-    <@fdsNumberInput.twoNumberInputs pathOne=minFormPath pathTwo=maxFormPath formId="min-max-values" nestingPath=nestedPath labelText=labelText hintText="If a single value, provide as both the min and max" fieldsetHeadingClass="govuk-visually-hidden">
-        <@fdsNumberInput.numberInputItem path=minFormPath labelText="min" inputClass="govuk-input--width-5"/>
-        <@fdsNumberInput.numberInputItem path=maxFormPath labelText="max" inputClass="govuk-input--width-5" suffix=stringUtils.superscriptConverter(unitMeasurement)/>
+    <@fdsNumberInput.twoNumberInputs pathOne=minFormPath pathTwo=maxFormPath formId="min-max-values" nestingPath=nestedPath labelText=labelText hintText="If a single value, provide as both the min and max">
+        <@fdsNumberInput.numberInputItem path=minFormPath labelText=altMinLabel inputClass="govuk-input--width-5"/>
+        <@fdsNumberInput.numberInputItem path=maxFormPath labelText=altMaxLabel inputClass="govuk-input--width-5" suffix=stringUtils.superscriptConverter(unitMeasurement)/>
     </@fdsNumberInput.twoNumberInputs>
 
 
