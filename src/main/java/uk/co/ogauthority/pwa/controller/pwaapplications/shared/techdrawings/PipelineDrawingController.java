@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -38,6 +41,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -56,6 +60,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadPipelineService padPipelineService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
+  private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
   private final PadFileService padFileService;
   private final ControllerHelperService controllerHelperService;
 
@@ -66,19 +71,20 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadPipelineService padPipelineService,
       PadTechnicalDrawingService padTechnicalDrawingService,
+      PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
       PadFileService padFileService,
       ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padPipelineService = padPipelineService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
+    this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
     this.padFileService = padFileService;
     this.controllerHelperService = controllerHelperService;
   }
 
   private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form,
                                               ScreenActionType actionType) {
-
     var modelAndView = this.createModelAndView(
         "pwaApplication/shared/techdrawings/addPipelineDrawing",
         detail,
@@ -91,6 +97,31 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
         actionType.getActionText() + " pipeline drawing");
+
+    padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
+    return modelAndView;
+  }
+
+  private ModelAndView getEditDrawingModelAndView(PwaApplicationDetail detail, PadTechnicalDrawing drawing,
+                                                  PipelineDrawingForm form) {
+    List<Integer> linkedDrawingPipelineIds = padTechnicalDrawingLinkService.getLinksFromDrawing(drawing)
+        .stream()
+        .map(drawingLink -> drawingLink.getPipeline().getId())
+        .collect(Collectors.toUnmodifiableList());
+    var overviews = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(detail,
+        linkedDrawingPipelineIds);
+    var modelAndView = this.createModelAndView(
+        "pwaApplication/shared/techdrawings/addPipelineDrawing",
+        detail,
+        FILE_PURPOSE,
+        form)
+        .addObject("pipelineViews", overviews)
+        .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
+        .addObject("actionType", ScreenActionType.EDIT);
+
+    applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
+        ScreenActionType.EDIT + " pipeline drawing");
 
     padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
@@ -175,8 +206,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     var drawing = padTechnicalDrawingService.getDrawing(applicationContext.getApplicationDetail(), drawingId);
     padTechnicalDrawingService.mapDrawingToForm(applicationContext.getApplicationDetail(), drawing, form);
-    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
-
+    return getEditDrawingModelAndView(applicationContext.getApplicationDetail(), drawing, form);
   }
 
   @PostMapping("/{drawingId}/edit")

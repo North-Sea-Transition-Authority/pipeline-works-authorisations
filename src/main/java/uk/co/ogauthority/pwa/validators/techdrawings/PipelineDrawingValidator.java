@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.validators.techdrawings;
 
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -93,6 +94,11 @@ public class PipelineDrawingValidator implements SmartValidator {
         "You must select at least one pipeline");
     if (!ListUtils.emptyIfNull(form.getPadPipelineIds()).isEmpty()) {
       var linkedPipelineIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
+      if (validatorMode.equals(PipelineDrawingValidationType.EDIT)) {
+        linkedPipelineIds = linkedPipelineIds.stream()
+            .filter(integer -> !integer.equals(existingDrawing.getId()))
+            .collect(Collectors.toUnmodifiableList());
+      }
       boolean linkedPipelineOnApplication = linkedPipelineIds.stream()
           .anyMatch(linkedPipelineId -> form.getPadPipelineIds()
               .stream()

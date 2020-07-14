@@ -165,6 +165,22 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .collect(Collectors.toUnmodifiableList());
   }
 
+  public List<PipelineOverview> getUnlinkedAndSpecificApplicationPipelineOverviews(PwaApplicationDetail detail,
+                                                                                   List<Integer> ids) {
+    var overviewList = padPipelineService.getApplicationPipelineOverviews(detail);
+    var linkedPipelinesIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
+    return overviewList.stream()
+        .filter(linkedId -> {
+          var isExcluded = linkedPipelinesIds.stream()
+              .anyMatch(integer -> ids.stream()
+                  .anyMatch(id -> id.equals(linkedId)));
+          var isNotLinked = linkedPipelinesIds.stream()
+              .noneMatch(integer -> integer.equals(linkedId));
+          return isNotLinked || isExcluded;
+        })
+        .collect(Collectors.toUnmodifiableList());
+  }
+
   private PipelineDrawingSummaryView buildSummaryView(PadTechnicalDrawing technicalDrawing,
                                                       List<PadTechnicalDrawingLink> drawingLinks,
                                                       List<UploadedFileView> fileViewList) {

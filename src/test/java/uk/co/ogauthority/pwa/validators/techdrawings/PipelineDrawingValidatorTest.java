@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadT
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -32,13 +33,16 @@ public class PipelineDrawingValidatorTest {
   @Mock
   private PadTechnicalDrawingRepository padTechnicalDrawingRepository;
 
+  @Mock
+  private PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
+
   private PipelineDrawingValidator validator;
   private PipelineDrawingForm form;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
-    validator = new PipelineDrawingValidator(padPipelineService, padTechnicalDrawingRepository, applicationContext);
+    validator = new PipelineDrawingValidator(padPipelineService, padTechnicalDrawingRepository, padTechnicalDrawingLinkService);
     form = new PipelineDrawingForm();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }

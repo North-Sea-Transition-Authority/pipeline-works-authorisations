@@ -17,7 +17,7 @@ public class PadTechnicalDrawingLinkDtoRepositoryImpl implements PadTechnicalDra
   @Override
   public List<Integer> getLinkedPipelineIdsByDetail(PwaApplicationDetail detail) {
     return entityManager.createQuery(
-        "SELECT ptd.id " +
+        "SELECT ptdl.pipeline.id " +
             "FROM PadTechnicalDrawing ptd " +
             "JOIN PadTechnicalDrawingLink ptdl ON ptd.id = ptdl.technicalDrawing.id " +
             "WHERE ptd.pwaApplicationDetail = :app_detail ", Integer.class)
