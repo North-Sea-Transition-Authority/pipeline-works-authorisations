@@ -213,7 +213,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setBundleName(null);
     }
 
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, padPipelineIdentService.getIdentViews(padPipeline));
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {

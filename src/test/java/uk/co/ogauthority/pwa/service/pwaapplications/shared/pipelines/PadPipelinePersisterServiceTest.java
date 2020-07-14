@@ -1,42 +1,22 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
-import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelinePersisterServiceTest {
@@ -44,11 +24,17 @@ public class PadPipelinePersisterServiceTest {
   @Mock
   private PadPipelineRepository padPipelineRepository;
 
+  @Mock
+  private PadPipelineIdentRepository padPipelineIdentRepository;
+
+  @Mock
+  private PadPipelineIdentDataRepository padPipelineIdentDataRepository;
+
   private PadPipelinePersisterService padPipelinePersisterService;
 
   @Before
   public void setUp() {
-    padPipelinePersisterService = new PadPipelinePersisterService(padPipelineRepository);
+    padPipelinePersisterService = new PadPipelinePersisterService(padPipelineRepository, padPipelineIdentRepository, padPipelineIdentDataRepository);
   }
 
 
@@ -57,21 +43,18 @@ public class PadPipelinePersisterServiceTest {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     padPipeline.setPipelineInBundle(false);
+    padPipeline.setId(1);
 
-    var ident1 = new PadPipelineIdent();
-    var ident2 = new PadPipelineIdent();
+    List<PadPipelineIdent> identList = List.of();
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline)).thenReturn(identList);
 
     var identData1 = new PadPipelineIdentData();
     identData1.setExternalDiameter(BigDecimal.valueOf(8));
-    identData1.setPadPipelineIdent(ident1);
     var identData2 = new PadPipelineIdentData();
     identData2.setExternalDiameter(BigDecimal.valueOf(5));
-    identData2.setPadPipelineIdent(ident2);
+    when(padPipelineIdentDataRepository.getAllByPadPipelineIdentIn(identList)).thenReturn(List.of(identData1, identData2));
 
-    ident1.setPadPipeline(padPipeline);
-    ident2.setPadPipeline(padPipeline);
-
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, List.of(new IdentView(identData1), new IdentView(identData2)));
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
     assertThat(padPipeline.getMaxExternalDiameter()).isEqualTo(BigDecimal.valueOf(8));
   }
 
@@ -81,7 +64,7 @@ public class PadPipelinePersisterServiceTest {
     padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     padPipeline.setPipelineInBundle(false);
 
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, List.of());
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
     assertThat(padPipeline.getMaxExternalDiameter()).isNull();
   }
 
@@ -91,7 +74,7 @@ public class PadPipelinePersisterServiceTest {
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     padPipeline.setPipelineInBundle(false);
 
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, List.of());
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
     assertThat(padPipeline.getMaxExternalDiameter()).isNull();
   }
 
@@ -103,7 +86,7 @@ public class PadPipelinePersisterServiceTest {
     padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     padPipeline.setPipelineInBundle(false);
 
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, List.of());
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
     var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName();
     assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
   }
@@ -115,7 +98,7 @@ public class PadPipelinePersisterServiceTest {
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     padPipeline.setPipelineInBundle(false);
 
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, List.of());
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
     var expectedPipelineName = "my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName();
     assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
   }
@@ -129,7 +112,7 @@ public class PadPipelinePersisterServiceTest {
     padPipeline.setPipelineInBundle(true);
     padPipeline.setBundleName("my bundle");
 
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline, List.of());
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
     var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName() + " (my bundle)";
     assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
   }

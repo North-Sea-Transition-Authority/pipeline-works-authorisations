@@ -97,7 +97,7 @@ public class PadPipelineIdentService {
     var ident = new PadPipelineIdent(pipeline, numberOfIdents.intValue() + 1);
 
     saveEntityUsingForm(ident, form);
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipeline, getIdentViews(pipeline));
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
   }
 
   @Transactional
@@ -113,13 +113,13 @@ public class PadPipelineIdentService {
     repository.saveAll(idents);
 
     saveEntityUsingForm(ident, form);
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipeline, getIdentViews(pipeline));
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
   }
 
   @Transactional
   public void updateIdent(PadPipelineIdent ident, PipelineIdentForm form) {
     saveEntityUsingForm(ident, form);
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline(), getIdentViews(ident.getPadPipeline()));
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
   }
 
   @Transactional
@@ -170,7 +170,7 @@ public class PadPipelineIdentService {
         .forEachOrdered(ident -> ident.setIdentNo(ident.getIdentNo() - 1));
 
     repository.saveAll(remainingIdents);
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipeline, getIdentViews(pipeline));
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipelineIdent.getPadPipeline());
   }
 
   public boolean isSectionValid(PadPipeline pipeline) {

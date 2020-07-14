@@ -2,10 +2,12 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 
@@ -20,28 +22,34 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipe
 public class PadPipelinePersisterService {
 
   private final PadPipelineRepository padPipelineRepository;
+  private final PadPipelineIdentRepository padPipelineIdentRepository;
+  private final PadPipelineIdentDataRepository padPipelineIdentDataRepository;
 
   public PadPipelinePersisterService(
-      PadPipelineRepository padPipelineRepository) {
+      PadPipelineRepository padPipelineRepository,
+      PadPipelineIdentRepository padPipelineIdentRepository,
+      PadPipelineIdentDataRepository padPipelineIdentDataRepository) {
     this.padPipelineRepository = padPipelineRepository;
+    this.padPipelineIdentRepository = padPipelineIdentRepository;
+    this.padPipelineIdentDataRepository = padPipelineIdentDataRepository;
   }
 
   @Transactional
-  public void savePadPipelineAndMaterialiseIdentData(PadPipeline padPipeline, List<IdentView> identViews) {
-    setMaxEternalDiameter(padPipeline, identViews);
+  public void savePadPipelineAndMaterialiseIdentData(PadPipeline padPipeline) {
+    setMaxEternalDiameterOnPipeline(padPipeline);
     createPipelineName(padPipeline);
     padPipelineRepository.save(padPipeline);
   }
 
 
-  private void setMaxEternalDiameter(PadPipeline padPipeline, List<IdentView> identViews) {
+  private void setMaxEternalDiameterOnPipeline(PadPipeline padPipeline) {
     BigDecimal largestExternalDiameter = BigDecimal.ZERO;
 
-    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
-      for (var identView : identViews) {
-        if (identView.getExternalDiameter() != null && largestExternalDiameter.compareTo(
-            identView.getExternalDiameter()) == -1) {
-          largestExternalDiameter = identView.getExternalDiameter();
+    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE) && padPipeline.getId() != null) {
+      for (var extDiameter : getExternalDiametersFromIdentData(padPipeline)) {
+        if (extDiameter != null && largestExternalDiameter.compareTo(
+            extDiameter) == -1) {
+          largestExternalDiameter = extDiameter;
         }
       }
     }
@@ -61,6 +69,14 @@ public class PadPipelinePersisterService {
       pipelineName += " (" + padPipeline.getBundleName() + ")";
     }
     padPipeline.setPipelineName(pipelineName);
+  }
+
+  private List<BigDecimal> getExternalDiametersFromIdentData(PadPipeline padPipeline) {
+    var idents = padPipelineIdentRepository.getAllByPadPipeline(padPipeline);
+    return padPipelineIdentDataRepository.getAllByPadPipelineIdentIn(idents)
+        .stream()
+        .map(identData -> identData.getExternalDiameter())
+        .collect(Collectors.toList());
   }
 
 }
