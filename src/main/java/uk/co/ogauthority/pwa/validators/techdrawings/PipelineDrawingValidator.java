@@ -99,6 +99,14 @@ public class PipelineDrawingValidator implements SmartValidator {
             .filter(integer -> !integer.equals(existingDrawing.getId()))
             .collect(Collectors.toUnmodifiableList());
       }
+      if (validatorMode.equals(PipelineDrawingValidationType.EDIT)) {
+        var links = padTechnicalDrawingLinkService.getLinksFromDrawing(existingDrawing);
+        linkedPipelineIds = linkedPipelineIds.stream()
+            .filter(linkedPipelineId -> links.stream()
+                .map(drawingLink -> drawingLink.getPipeline().getId())
+                .noneMatch(drawingLinkPipelineId -> drawingLinkPipelineId.equals(linkedPipelineId)))
+            .collect(Collectors.toUnmodifiableList());
+      }
       boolean linkedPipelineOnApplication = linkedPipelineIds.stream()
           .anyMatch(linkedPipelineId -> form.getPadPipelineIds()
               .stream()

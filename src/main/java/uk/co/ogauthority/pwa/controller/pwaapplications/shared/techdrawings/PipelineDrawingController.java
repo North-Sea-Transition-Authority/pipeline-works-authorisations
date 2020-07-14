@@ -221,7 +221,8 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     bindingResult = padTechnicalDrawingService.validateEdit(form, bindingResult, ValidationType.FULL,
         applicationContext.getApplicationDetail(), drawingId);
-    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT);
+    var drawing = padTechnicalDrawingService.getDrawing(applicationContext.getApplicationDetail(), drawingId);
+    var modelAndView = getEditDrawingModelAndView(applicationContext.getApplicationDetail(), drawing, form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
       padFileService.updateFiles(
           form,
