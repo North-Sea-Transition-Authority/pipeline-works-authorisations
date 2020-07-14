@@ -87,9 +87,21 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
     return true;
   }
 
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
 
+    var techInfo = getPipelineTechInfoEntity(detail);
 
+    if (!techInfo.getPipelineDesignedToStandards()) {
+      techInfo.setPipelineStandardsDescription(null);
+    }
 
+    if (!techInfo.getPlannedPipelineTieInPoints()) {
+      techInfo.setTieInPointsDescription(null);
+    }
 
+    padPipelineTechInfoRepository.save(techInfo);
+
+  }
 }
 

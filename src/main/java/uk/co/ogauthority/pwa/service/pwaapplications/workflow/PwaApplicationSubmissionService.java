@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -28,16 +29,19 @@ public class PwaApplicationSubmissionService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final NotifyService notifyService;
   private final TeamService teamService;
+  private final PwaApplicationDataCleanupService pwaApplicationDataCleanupService;
 
   @Autowired
   public PwaApplicationSubmissionService(PwaApplicationDetailService pwaApplicationDetailService,
                                          CamundaWorkflowService camundaWorkflowService,
                                          NotifyService notifyService,
-                                         TeamService teamService) {
+                                         TeamService teamService,
+                                         PwaApplicationDataCleanupService pwaApplicationDataCleanupService) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.notifyService = notifyService;
     this.teamService = teamService;
+    this.pwaApplicationDataCleanupService = pwaApplicationDataCleanupService;
   }
 
   @Transactional
@@ -51,6 +55,8 @@ public class PwaApplicationSubmissionService {
       throw new IllegalArgumentException(
           String.format("Application Detail not draft! id: %s status: %s", detail.getId(), detail.getStatus()));
     }
+
+    pwaApplicationDataCleanupService.cleanupData(detail);
 
     camundaWorkflowService.completeTask(
         new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.PREPARE_APPLICATION));

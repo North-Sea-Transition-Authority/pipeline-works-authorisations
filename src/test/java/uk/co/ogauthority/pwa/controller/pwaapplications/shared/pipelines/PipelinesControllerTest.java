@@ -37,13 +37,10 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadBundleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.pipelines.AddBundleValidator;
-import uk.co.ogauthority.pwa.validators.pipelines.EditBundleValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelinesController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
@@ -54,15 +51,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
   @MockBean
   private PipelineHeaderFormValidator validator;
-
-  @MockBean
-  private PadBundleService padBundleService;
-
-  @MockBean
-  private AddBundleValidator addBundleValidator;
-
-  @MockBean
-  private EditBundleValidator editBundleValidator;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -236,7 +224,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_contactSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padBundleService.isComplete(any())).thenReturn(true);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -251,7 +238,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_appTypeSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padBundleService.isComplete(any())).thenReturn(true);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -266,7 +252,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_appStatusSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
-    when(padBundleService.isComplete(any())).thenReturn(true);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -278,26 +263,9 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postPipelinesOverview_validationFail_pipelineBundlesInvalid() throws Exception {
-
-    when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
-    when(padBundleService.isComplete(any())).thenReturn(false);
-
-    mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
-        .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
-            pwaApplicationDetail.getPwaApplicationType(), null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/overview"));
-
-  }
-
-  @Test
   public void postPipelinesOverview_validationFail_pipelinesInvalid() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
-    when(padBundleService.isComplete(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
@@ -313,7 +281,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_validationPass() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
-    when(padBundleService.isComplete(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),

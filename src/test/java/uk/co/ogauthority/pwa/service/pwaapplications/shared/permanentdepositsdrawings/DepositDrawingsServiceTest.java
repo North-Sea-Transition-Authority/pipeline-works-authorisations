@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositsdr
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -362,7 +363,25 @@ public class DepositDrawingsServiceTest {
     assertThat(depositDrawingsService.isDrawingReferenceUnique("myRef", null, pwaApplicationDetail)).isFalse();
   }
 
+  @Test
+  public void cleanupData() {
 
+    var drawing1 = new PadDepositDrawing();
+    var file1 = new PadFile();
+    file1.setId(1);
+    drawing1.setFile(file1);
 
+    var drawing2 = new PadDepositDrawing();
+    var file2 = new PadFile();
+    file2.setId(2);
+    drawing2.setFile(file2);
+
+    when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing1, drawing2));
+
+    depositDrawingsService.cleanupData(pwaApplicationDetail);
+
+    verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail), eq(ApplicationFilePurpose.DEPOSIT_DRAWINGS), eq(List.of(1, 2)));
+
+  }
 
 }

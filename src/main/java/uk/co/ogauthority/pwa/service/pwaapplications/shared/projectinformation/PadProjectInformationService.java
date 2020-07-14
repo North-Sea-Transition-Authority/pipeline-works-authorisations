@@ -148,5 +148,29 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return Optional.ofNullable(projectInformation.getProposedStartTimestamp());
   }
 
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
 
+    var projectInformation = getPadProjectInformationData(detail);
+
+    // null out licence transfer info if no licence transfer
+    if (!projectInformation.getLicenceTransferPlanned()) {
+      projectInformation.setLicenceTransferTimestamp(null);
+      projectInformation.setCommercialAgreementTimestamp(null);
+    }
+
+    // null out permanent deposit month and year if not "part of later application"
+    if (!projectInformation.getPermanentDepositsMade()) {
+      projectInformation.setFutureAppSubmissionMonth(null);
+      projectInformation.setFutureAppSubmissionYear(null);
+    }
+
+    // null out temporary deposit description if temporary deposits not made
+    if (!projectInformation.getTemporaryDepositsMade()) {
+      projectInformation.setTemporaryDepDescription(null);
+    }
+
+    padProjectInformationRepository.save(projectInformation);
+
+  }
 }

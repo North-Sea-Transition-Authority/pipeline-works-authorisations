@@ -3,11 +3,14 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
@@ -147,7 +151,65 @@ public class PadPipelineOtherPropertiesServiceTest {
     assertFalse(isValid);
   }
 
+  @Test
+  public void cleanupData_hiddenData() {
 
+    var density = new PadPipelineOtherProperties();
+    density.setMinValue(BigDecimal.ONE);
+    density.setMaxValue(BigDecimal.TEN);
+    density.setAvailabilityOption(PropertyAvailabilityOption.NOT_PRESENT);
+    density.setPropertyName(OtherPipelineProperty.DENSITY_GRAVITY);
+
+    var mercury = new PadPipelineOtherProperties();
+    mercury.setMinValue(BigDecimal.ONE);
+    mercury.setMaxValue(BigDecimal.TEN);
+    mercury.setAvailabilityOption(PropertyAvailabilityOption.NOT_AVAILABLE);
+    mercury.setPropertyName(OtherPipelineProperty.MERCURY);
+
+    when(padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        List.of(density, mercury));
+
+    padPipelineOtherPropertiesService.cleanupData(pwaApplicationDetail);
+
+    assertThat(density.getMinValue()).isNull();
+    assertThat(density.getMaxValue()).isNull();
+
+    assertThat(mercury.getMinValue()).isNull();
+    assertThat(mercury.getMaxValue()).isNull();
+
+    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(eq(List.of(density, mercury)));
+
+  }
+
+  @Test
+  public void cleanupData_noHiddenData() {
+
+    var density = new PadPipelineOtherProperties();
+    density.setMinValue(BigDecimal.ONE);
+    density.setMaxValue(BigDecimal.TEN);
+    density.setAvailabilityOption(PropertyAvailabilityOption.AVAILABLE);
+    density.setPropertyName(OtherPipelineProperty.DENSITY_GRAVITY);
+
+    var mercury = new PadPipelineOtherProperties();
+    mercury.setMinValue(BigDecimal.ONE);
+    mercury.setMaxValue(BigDecimal.TEN);
+    mercury.setAvailabilityOption(PropertyAvailabilityOption.NOT_AVAILABLE);
+    mercury.setPropertyName(OtherPipelineProperty.MERCURY);
+
+    when(padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        List.of(density, mercury));
+
+    padPipelineOtherPropertiesService.cleanupData(pwaApplicationDetail);
+
+    assertThat(density.getMinValue()).isNotNull();
+    assertThat(density.getMaxValue()).isNotNull();
+
+    assertThat(mercury.getMinValue()).isNull();
+    assertThat(mercury.getMaxValue()).isNull();
+
+    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(eq(List.of(mercury)));
+
+  }
 
 
 }

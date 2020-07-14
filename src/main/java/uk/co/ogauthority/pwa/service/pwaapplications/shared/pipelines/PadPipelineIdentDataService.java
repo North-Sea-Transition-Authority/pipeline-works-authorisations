@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
@@ -53,15 +54,35 @@ public class PadPipelineIdentDataService {
   void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {
 
     identData.setComponentPartsDescription(dataForm.getComponentPartsDescription());
-    identData.setExternalDiameter(dataForm.getExternalDiameter());
-    identData.setInternalDiameter(dataForm.getInternalDiameter());
-    identData.setWallThickness(dataForm.getWallThickness());
-    identData.setMaop(dataForm.getMaop());
-    identData.setInsulationCoatingType(dataForm.getInsulationCoatingType());
-    identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
+    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
+      identData.setExternalDiameter(dataForm.getExternalDiameter());
+      identData.setInternalDiameter(dataForm.getInternalDiameter());
+      identData.setWallThickness(dataForm.getWallThickness());
+      identData.setMaop(dataForm.getMaop());
+      identData.setInsulationCoatingType(dataForm.getInsulationCoatingType());
+      identData.setProductsToBeConveyed(dataForm.getProductsToBeConveyed());
+      identData.setExternalDiameterMultiCore(null);
+      identData.setInternalDiameterMultiCore(null);
+      identData.setWallThicknessMultiCore(null);
+      identData.setMaopMultiCore(null);
+      identData.setInsulationCoatingTypeMultiCore(null);
+      identData.setProductsToBeConveyedMultiCore(null);
 
+    } else {
+      identData.setExternalDiameterMultiCore(dataForm.getExternalDiameterMultiCore());
+      identData.setInternalDiameterMultiCore(dataForm.getInternalDiameterMultiCore());
+      identData.setWallThicknessMultiCore(dataForm.getWallThicknessMultiCore());
+      identData.setMaopMultiCore(dataForm.getMaopMultiCore());
+      identData.setInsulationCoatingTypeMultiCore(dataForm.getInsulationCoatingTypeMultiCore());
+      identData.setProductsToBeConveyedMultiCore(dataForm.getProductsToBeConveyedMultiCore());
+      identData.setExternalDiameter(null);
+      identData.setInternalDiameter(null);
+      identData.setWallThickness(null);
+      identData.setMaop(null);
+      identData.setInsulationCoatingType(null);
+      identData.setProductsToBeConveyed(null);
+    }
     repository.save(identData);
-
   }
 
   @Transactional
@@ -73,13 +94,25 @@ public class PadPipelineIdentDataService {
   public PipelineIdentDataForm getDataFormOfIdent(PadPipelineIdent ident) {
     var form = new PipelineIdentDataForm();
     var identData = getIdentData(ident);
+
     form.setComponentPartsDescription(identData.getComponentPartsDescription());
-    form.setExternalDiameter(identData.getExternalDiameter());
-    form.setInternalDiameter(identData.getInternalDiameter());
-    form.setWallThickness(identData.getWallThickness());
-    form.setMaop(identData.getMaop());
-    form.setInsulationCoatingType(identData.getInsulationCoatingType());
-    form.setProductsToBeConveyed(identData.getProductsToBeConveyed());
+    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
+      form.setExternalDiameter(identData.getExternalDiameter());
+      form.setInternalDiameter(identData.getInternalDiameter());
+      form.setWallThickness(identData.getWallThickness());
+      form.setMaop(identData.getMaop());
+      form.setInsulationCoatingType(identData.getInsulationCoatingType());
+      form.setProductsToBeConveyed(identData.getProductsToBeConveyed());
+
+    } else {
+      form.setExternalDiameterMultiCore(identData.getExternalDiameterMultiCore());
+      form.setInternalDiameterMultiCore(identData.getInternalDiameterMultiCore());
+      form.setWallThicknessMultiCore(identData.getWallThicknessMultiCore());
+      form.setMaopMultiCore(identData.getMaopMultiCore());
+      form.setInsulationCoatingTypeMultiCore(identData.getInsulationCoatingTypeMultiCore());
+      form.setProductsToBeConveyedMultiCore(identData.getProductsToBeConveyedMultiCore());
+    }
+
     return form;
   }
 }

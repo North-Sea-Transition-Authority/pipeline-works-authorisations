@@ -47,6 +47,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
   private final PipelineDrawingValidator pipelineDrawingValidator;
   private final SpringValidatorAdapter groupValidator;
 
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PIPELINE_DRAWINGS;
+
   @Autowired
   public PadTechnicalDrawingService(
       PadTechnicalDrawingRepository padTechnicalDrawingRepository,
@@ -90,7 +92,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
     if (drawing.getFile() != null) {
       var file = padFileService.getUploadedFileView(detail, drawing.getFileId(),
-          ApplicationFilePurpose.PIPELINE_DRAWINGS,
+          FILE_PURPOSE,
           ApplicationFileLinkStatus.FULL);
       form.setUploadedFileWithDescriptionForms(List.of(
           new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
@@ -141,7 +143,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
 
     List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(detail,
-        ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        FILE_PURPOSE,
         ApplicationFileLinkStatus.FULL);
 
     var summaryList = new ArrayList<PipelineDrawingSummaryView>();
@@ -204,7 +206,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
                                                                              PadTechnicalDrawing drawing) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawing(drawing);
     List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(detail,
-        ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        FILE_PURPOSE,
         ApplicationFileLinkStatus.FULL);
     return buildSummaryView(drawing, links, fileViews);
   }
@@ -304,5 +306,16 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     }
 
     return bindingResult;
+  }
+
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
+
+    List<Integer> padFileIdsOnDrawings = getDrawings(detail).stream()
+        .map(drawing -> drawing.getFile().getId())
+        .collect(Collectors.toList());
+
+    padFileService.cleanupFiles(detail, FILE_PURPOSE, padFileIdsOnDrawings);
+
   }
 }

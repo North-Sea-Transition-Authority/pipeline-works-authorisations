@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
@@ -18,5 +19,9 @@ public interface PadFileDtoRepository {
                                                                                  String fileId,
                                                                                  ApplicationFilePurpose purpose,
                                                                                  ApplicationFileLinkStatus linkStatus);
+
+  List<PadFile> findAllByAppDetailAndFilePurposeAndIdNotIn(PwaApplicationDetail detail,
+                                                           ApplicationFilePurpose purpose,
+                                                           Iterable<Integer> padFileIdsToExclude);
 
 }

@@ -35,7 +35,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_availability_notSelected() {
     var form = new PipelineOtherPropertiesDataForm();
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, OtherPipelineProperty.H20);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, OtherPipelineProperty.H2O);
     assertThat(errorsMap).contains(
         entry("propertyAvailabilityOption", Set.of("propertyAvailabilityOption.required"))
     );
@@ -200,7 +200,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_H20() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-4, 5.232), OtherPipelineProperty.H20);
+        createForm(-4, 5.232), OtherPipelineProperty.H2O);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
@@ -211,7 +211,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_valid_H20() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(4, 5.), OtherPipelineProperty.H20);
+        createForm(4, 5.), OtherPipelineProperty.H2O);
 
     assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),

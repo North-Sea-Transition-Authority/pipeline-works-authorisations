@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -50,6 +51,9 @@ public class PwaApplicationSubmissionServiceTest {
   @Mock
   private TeamService teamService;
 
+  @Mock
+  private PwaApplicationDataCleanupService dataCleanupService;
+
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropsCaptor;
 
@@ -64,7 +68,8 @@ public class PwaApplicationSubmissionServiceTest {
         pwaApplicationDetailService,
         camundaWorkflowService,
         notifyService,
-        teamService
+        teamService,
+        dataCleanupService
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -120,6 +125,8 @@ public class PwaApplicationSubmissionServiceTest {
     when(teamService.getTeamMembers(teamService.getRegulatorTeam())).thenReturn(teamMemberList);
 
     pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
+
+    verify(dataCleanupService, times(1)).cleanupData(pwaApplicationDetail);
 
     verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
     verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.PREPARE_APPLICATION)));

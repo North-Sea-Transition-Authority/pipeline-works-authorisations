@@ -169,4 +169,8 @@ public class PadPipelineIdentService {
     return !repository.countAllByPadPipeline(pipeline).equals(0L);
   }
 
+  public List<PadPipelineIdent> getIdentsByPipeline(PadPipeline padPipeline) {
+    return repository.getAllByPadPipeline(padPipeline);
+  }
+
 }

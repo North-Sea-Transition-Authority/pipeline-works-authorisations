@@ -3,6 +3,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -154,9 +157,54 @@ public class PadFluidCompositionInfoServiceTest {
     assertFalse(isValid);
   }
 
+  @Test
+  public void cleanupData_hiddenData() {
 
+    var co2 = new PadFluidCompositionInfo();
+    co2.setMoleValue(BigDecimal.TEN);
+    co2.setFluidCompositionOption(FluidCompositionOption.TRACE);
+    co2.setChemicalName(Chemical.CO2);
 
+    var h2o = new PadFluidCompositionInfo();
+    h2o.setMoleValue(BigDecimal.ONE);
+    h2o.setFluidCompositionOption(FluidCompositionOption.NONE);
+    h2o.setChemicalName(Chemical.H2O);
 
+    when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(co2, h2o));
 
+    padFluidCompositionInfoService.cleanupData(pwaApplicationDetail);
+
+    assertThat(co2.getMoleValue()).isNull();
+
+    assertThat(h2o.getMoleValue()).isNull();
+
+    verify(padFluidCompositionInfoRepository, times(1)).saveAll(eq(List.of(co2, h2o)));
+
+  }
+
+  @Test
+  public void cleanupData_noHiddenData() {
+
+    var co2 = new PadFluidCompositionInfo();
+    co2.setMoleValue(BigDecimal.TEN);
+    co2.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
+    co2.setChemicalName(Chemical.CO2);
+
+    var h2o = new PadFluidCompositionInfo();
+    h2o.setMoleValue(BigDecimal.ONE);
+    h2o.setFluidCompositionOption(FluidCompositionOption.NONE);
+    h2o.setChemicalName(Chemical.H2O);
+
+    when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(co2, h2o));
+
+    padFluidCompositionInfoService.cleanupData(pwaApplicationDetail);
+
+    assertThat(co2.getMoleValue()).isNotNull();
+
+    assertThat(h2o.getMoleValue()).isNull();
+
+    verify(padFluidCompositionInfoRepository, times(1)).saveAll(eq(List.of(h2o)));
+
+  }
 
 }

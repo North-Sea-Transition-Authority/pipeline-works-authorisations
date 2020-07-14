@@ -16,6 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.converters.PipelinePropertyPhaseConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
@@ -191,6 +192,10 @@ public class PwaApplicationDetail {
 
   public Integer getMasterPwaApplicationId() {
     return this.pwaApplication.getId();
+  }
+
+  public MasterPwa getMasterPwaApplication() {
+    return this.pwaApplication.getMasterPwa();
   }
 
   public String getPwaApplicationRef() {

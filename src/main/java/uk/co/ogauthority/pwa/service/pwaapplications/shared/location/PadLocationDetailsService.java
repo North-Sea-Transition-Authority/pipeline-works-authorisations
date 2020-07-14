@@ -153,4 +153,33 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     return bindingResult;
 
   }
+
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
+
+    var locationDetails = getLocationDetailsForDraft(detail);
+
+    // if no to HSE safety zone, clear facilities
+    if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO)) {
+      padFacilityService.setFacilities(detail, new LocationDetailsForm());
+    }
+
+    // if all offshore/subsea, clear ashore location
+    if (locationDetails.getFacilitiesOffshore()) {
+      locationDetails.setPipelineAshoreLocation(null);
+    }
+
+    // if not transporting materials to shore, clear transportation method
+    if (!locationDetails.getTransportsMaterialsToShore()) {
+      locationDetails.setTransportationMethod(null);
+    }
+
+    // if no to route survey, clear survey date
+    if (!locationDetails.getRouteSurveyUndertaken()) {
+      locationDetails.setSurveyConcludedTimestamp(null);
+    }
+
+    save(locationDetails);
+
+  }
 }

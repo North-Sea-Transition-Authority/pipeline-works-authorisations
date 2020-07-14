@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.search;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 @Service
 public class SearchSelectorService {
 
-  public List<RestSearchItem> search(String searchQuery, List<? extends SearchSelectable> selectableList) {
+  public List<RestSearchItem> search(String searchQuery, Collection<? extends SearchSelectable> selectableList) {
     return selectableList.stream()
         .filter(searchSelectable ->
             searchSelectable.getSelectionText()
@@ -28,11 +29,20 @@ public class SearchSelectorService {
   }
 
   public List<RestSearchItem> addManualEntry(String searchQuery, List<RestSearchItem> resultList) {
+    return addManualEntry(searchQuery, resultList, ManualEntryAttribute.WITH_FREE_TEXT_PREFIX);
+  }
+
+  public List<RestSearchItem> addManualEntry(String searchQuery, List<RestSearchItem> resultList,
+                                             ManualEntryAttribute manualEntryAttribute) {
     if (!StringUtils.isBlank(searchQuery)) {
       var entryExists = resultList.stream()
           .anyMatch(restSearchItem -> restSearchItem.getText().toLowerCase().equals(searchQuery.toLowerCase()));
       if (!entryExists) {
-        resultList.add(0, new RestSearchItem(SearchSelectable.FREE_TEXT_PREFIX + searchQuery, searchQuery));
+        if (manualEntryAttribute.equals(ManualEntryAttribute.WITH_FREE_TEXT_PREFIX)) {
+          resultList.add(0, new RestSearchItem(SearchSelectable.FREE_TEXT_PREFIX + searchQuery, searchQuery));
+        } else {
+          resultList.add(0, new RestSearchItem(searchQuery, searchQuery));
+        }
       }
     }
     return resultList;
@@ -44,7 +54,8 @@ public class SearchSelectorService {
 
   /**
    * Build a map of manual entries and linked entries, with the linked entry display text.
-   * @param selections All selected items from a form field.
+   *
+   * @param selections             All selected items from a form field.
    * @param resolvedLinkedEntryMap A map of ID (String) -> DisplayText (String).
    * @return A map of selection results to pre-populate the search selector.
    */
