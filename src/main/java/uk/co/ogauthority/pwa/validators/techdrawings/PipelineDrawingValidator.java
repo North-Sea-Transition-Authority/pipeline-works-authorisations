@@ -85,7 +85,11 @@ public class PipelineDrawingValidator implements SmartValidator {
     }
 
     // Pipeline references
-    if (ListUtils.emptyIfNull(pipelineList).size() != ListUtils.emptyIfNull(form.getPadPipelineIds()).size()) {
+    boolean idNotLinkedToPipeline = ListUtils.emptyIfNull(form.getPadPipelineIds()).stream()
+        .anyMatch(pipelineId -> ListUtils.emptyIfNull(pipelineList)
+            .stream()
+            .noneMatch(pipeline -> pipeline.getId().equals(pipelineId)));
+    if (idNotLinkedToPipeline) {
       errors.rejectValue("padPipelineIds", "padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode(),
           "Not all pipelines are valid");
     }
