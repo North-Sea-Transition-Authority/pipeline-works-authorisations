@@ -36,8 +36,8 @@ BEGIN
 
   FOR ident IN (
     SELECT ppi.*
-         , LEAD(ppi.id) OVER (ORDER BY ppi.ident_no ASC) next_ident_id
-         , LAG(ppi.id) OVER (ORDER BY ppi.ident_no ASC) previous_ident_id
+--          , LEAD(ppi.from_location) OVER (ORDER BY ppi.ident_no ASC) next_from_location
+--          , LAG(ppi.to_location) OVER (ORDER BY ppi.ident_no ASC) previous_to_location
     FROM ${datasource.user}.pad_pipeline_idents ppi
          JOIN ${datasource.user}.pad_pipelines pp ON ppi.pp_id = pp.id
          JOIN ${datasource.user}.pwa_application_details pad ON pp.pad_id = pad.id
@@ -48,33 +48,28 @@ BEGIN
       DECLARE
         l_role_id NUMBER;
       BEGIN
-        -- only create role intance when not dealing with last ident.
-        -- default role instance ident mode is inclusive, so second to last split will cover last ident "inclusively"
-        IF (ident.next_ident_id IS NOT NULL)
-        THEN
+        -- going to blow up if no rows returned. This is desirable.
+        SELECT por.id
+        INTO l_role_id
+        FROM ${datasource.user}.pad_organisation_roles por
+             JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
+        WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huuo_role
+        FETCH FIRST 1 ROW ONLY;
 
-          -- going to blow up if no rows returned. This is desirable.
-          SELECT por.id
-          INTO l_role_id
-          FROM ${datasource.user}.pad_organisation_roles por
-               JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
-          WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huuo_role
-          FETCH FIRST 1 ROW ONLY;
+        INSERT INTO ${datasource.user}.pad_pipeline_org_role_links pporl (pipeline_id,
+                                                                          pad_org_role_id,
+                                                                          from_location,
+                                                                          from_location_mode,
+                                                                          to_location,
+                                                                          to_location_mode)
+        VALUES (l_pipeline_id,
+                l_role_id,
+                ident.from_location,
+                g_inclusive,
+                ident.to_location,
+                g_inclusive);
 
-          INSERT INTO ${datasource.user}.pad_pipeline_org_role_links pporl (pipeline_id,
-                                                                            pad_org_role_id,
-                                                                            from_ident_id,
-                                                                            from_ident_mode,
-                                                                            to_ident_id,
-                                                                            to_ident_mode)
-          VALUES (l_pipeline_id,
-                  l_role_id,
-                  ident.id,
-                  g_inclusive,
-                  ident.next_ident_id,
-                  g_inclusive);
 
-        END IF;
       END;
 
     END LOOP;
@@ -83,13 +78,3 @@ BEGIN
 END;
 
 /
-
--- dry run idents
-SELECT ppi.*
-     , LEAD(ppi.id) OVER (ORDER BY ppi.ident_no ASC) next_ident_id
-     , LAG(ppi.id) OVER (ORDER BY ppi.ident_no ASC) previous_ident_id
-FROM ${datasource.user}.pad_pipeline_idents ppi
-     JOIN ${datasource.user}.pad_pipelines pp ON ppi.pp_id = pp.id
-     JOIN ${datasource.user}.pwa_application_details pad ON pp.pad_id = pad.id
-WHERE pp.pipeline_id = :l_pipeline_id AND pad.pwa_application_id = :l_application_id AND pad.tip_flag = 1
-ORDER BY ppi.ident_no ASC
