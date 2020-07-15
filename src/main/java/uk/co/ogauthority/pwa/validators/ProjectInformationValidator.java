@@ -7,8 +7,10 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
@@ -110,6 +112,21 @@ public class ProjectInformationValidator implements SmartValidator {
         errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
                 "Enter why temporary deposits are being made.");
       }
+
+      if (projectInfoValidationHints.getLinkedToField()) {
+        if (form.getFdpOptionSelected() == null) {
+          errors.rejectValue("fdpOptionSelected", "fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED,
+              "Select yes if you have an approved field development plan");
+        } else if (form.getFdpOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getFdpConfirmationSelected(), false)) {
+          errors.rejectValue("fdpConfirmationSelected", "fdpConfirmationSelected" + FieldValidationErrorCodes.REQUIRED,
+              "You must agree to the proposed works outlined in this application being consistent with the development");
+        } else if (!form.getFdpOptionSelected()) {
+          ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason", "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED,
+              "You must enter a reason for not having an FDP for the fields");
+        }
+
+      }
+
     }
   }
 

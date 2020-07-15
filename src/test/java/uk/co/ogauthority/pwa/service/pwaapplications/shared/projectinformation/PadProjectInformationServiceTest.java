@@ -196,7 +196,8 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false));
+    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false,
+        false));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -226,7 +227,8 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false));
+    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false,
+        false));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 

@@ -6,10 +6,13 @@ public class ProjectInformationFormValidationHints {
 
   private final boolean isAnyDepositQuestionRequired;
   private final boolean isPermanentDepositQuestionRequired;
+  private final Boolean isLinkedToField;
 
-  public ProjectInformationFormValidationHints(boolean isAnyDepositQuestionRequired, boolean isPermanentDepositQuestionRequired) {
+  public ProjectInformationFormValidationHints(boolean isAnyDepositQuestionRequired,
+                                               boolean isPermanentDepositQuestionRequired, Boolean isLinkedToField) {
     this.isAnyDepositQuestionRequired = isAnyDepositQuestionRequired;
     this.isPermanentDepositQuestionRequired = isPermanentDepositQuestionRequired;
+    this.isLinkedToField = isLinkedToField;
   }
 
   public boolean isAnyDepositQuestionRequired() {
@@ -20,7 +23,9 @@ public class ProjectInformationFormValidationHints {
     return isPermanentDepositQuestionRequired;
   }
 
-
+  public Boolean getLinkedToField() {
+    return isLinkedToField;
+  }
 
   @Override
   public boolean equals(Object o) {

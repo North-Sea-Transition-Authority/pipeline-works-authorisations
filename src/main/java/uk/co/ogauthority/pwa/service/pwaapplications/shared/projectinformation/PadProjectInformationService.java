@@ -120,7 +120,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
       var projectInfoValidationHints = new ProjectInformationFormValidationHints(
           getIsAnyDepositQuestionRequired(pwaApplicationDetail),
-          getIsPermanentDepositQuestionRequired(pwaApplicationDetail));
+          getIsPermanentDepositQuestionRequired(pwaApplicationDetail),
+          pwaApplicationDetail.getLinkedToField());
       projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
     }
 
@@ -173,4 +174,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padProjectInformationRepository.save(projectInformation);
 
   }
+
+
 }

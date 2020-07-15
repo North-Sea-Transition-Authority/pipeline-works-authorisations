@@ -28,7 +28,7 @@ public class ProjectInformationValidatorTest {
   @Before
   public void setUp() {
     validator = new ProjectInformationValidator(new TwoFieldDateInputValidator());
-    projectInformationFormValidationHints = new ProjectInformationFormValidationHints(false, false);
+    projectInformationFormValidationHints = new ProjectInformationFormValidationHints(false, false, false);
   }
 
   @Test
@@ -272,14 +272,16 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_noValidationRequired() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(false, false));
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(false, false,
+        false));
     assertThat(errorsMap).doesNotContainKey("permanentDepositsMadeType");
   }
 
   @Test
   public void validate_permanentDepositType_Null() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(true, true));
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(true, true,
+        false));
     assertThat(errorsMap).contains(
             entry("permanentDepositsMadeType", Set.of("permanentDepositsMadeType.notSelected"))
     );
@@ -290,7 +292,8 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput());
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true,
+        false));
     assertThat(errorsMap).contains(
         entry("futureSubmissionDate.month", Set.of("month.invalid")),
         entry("futureSubmissionDate.year", Set.of("year.invalid"))
@@ -302,7 +305,8 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 2));
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true,
+        false));
     assertThat(errorsMap).contains(
             entry("futureSubmissionDate.month", Set.of("month.afterDate")),
             entry("futureSubmissionDate.year", Set.of("year.afterDate"))
@@ -313,7 +317,8 @@ public class ProjectInformationValidatorTest {
   public void validate_temporaryDeposit_noDescription() {
     var form = new ProjectInformationForm();
     form.setTemporaryDepositsMade(true);
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false,
+        false));
     assertThat(errorsMap).contains(
             entry("temporaryDepDescription", Set.of("temporaryDepDescription.empty"))
     );
@@ -323,7 +328,8 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_temporaryDeposit_Null() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false,
+        false));
     assertThat(errorsMap).contains(
             entry("temporaryDepositsMade", Set.of("temporaryDepositsMade.notSelected"))
     );
