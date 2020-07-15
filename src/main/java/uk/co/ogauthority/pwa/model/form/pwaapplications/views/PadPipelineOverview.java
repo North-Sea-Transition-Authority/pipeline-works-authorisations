@@ -19,7 +19,7 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private String fromLocation;
 
-  private String pipelineName;
+  //private String pipelineName;
 
   private CoordinatePair fromCoordinates;
 
@@ -39,10 +39,12 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private Long numberOfIdents;
 
+  private PadPipeline padPipeline;
+
 
   private PadPipelineOverview(Integer padPipelineId,
                               String fromLocation,
-                              String pipelineName, CoordinatePair fromCoordinates,
+                              /*String pipelineName,*/ CoordinatePair fromCoordinates,
                               String toLocation,
                               CoordinatePair toCoordinates,
                               String pipelineNumber,
@@ -50,10 +52,11 @@ public class PadPipelineOverview implements PipelineOverview {
                               String componentParts,
                               BigDecimal length,
                               String productsToBeConveyed,
-                              Long numberOfIdents) {
+                              Long numberOfIdents,
+                              PadPipeline padPipeline) {
     this.padPipelineId = padPipelineId;
     this.fromLocation = fromLocation;
-    this.pipelineName = pipelineName;
+//    this.pipelineName = getPipelineName();
     this.fromCoordinates = fromCoordinates;
     this.toLocation = toLocation;
     this.toCoordinates = toCoordinates;
@@ -70,7 +73,7 @@ public class PadPipelineOverview implements PipelineOverview {
                               Long numberOfIdents) {
     this.padPipelineId = padPipeline.getId();
     this.fromLocation = padPipeline.getFromLocation();
-    this.pipelineName = padPipeline.getPipelineName();
+    //this.pipelineName = padPipeline.getPipelineName();
     this.fromCoordinates = padPipeline.getFromCoordinates();
     this.toLocation = padPipeline.getToLocation();
     this.toCoordinates = padPipeline.getToCoordinates();
@@ -83,12 +86,13 @@ public class PadPipelineOverview implements PipelineOverview {
   }
 
 
-  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto) {
+  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto, PadPipeline padPipeline) {
 
     return new PadPipelineOverview(
         padPipelineSummaryDto.getPadPipelineId(),
         padPipelineSummaryDto.getFromLocation(),
-        padPipelineSummaryDto.getPipelineName(), padPipelineSummaryDto.getFromCoordinates(),
+        /*padPipelineSummaryDto.getPipelineName(),*/
+        padPipelineSummaryDto.getFromCoordinates(),
         padPipelineSummaryDto.getToLocation(),
         padPipelineSummaryDto.getToCoordinates(),
         padPipelineSummaryDto.getPipelineNumber(),
@@ -96,8 +100,8 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getComponentParts(),
         padPipelineSummaryDto.getLength(),
         padPipelineSummaryDto.getProductsToBeConveyed(),
-        padPipelineSummaryDto.getNumberOfIdents()
-
+        padPipelineSummaryDto.getNumberOfIdents(),
+        padPipeline
     );
   }
 
@@ -107,9 +111,14 @@ public class PadPipelineOverview implements PipelineOverview {
   }
 
   @Override
-  public String getPipelineName() {
-    return pipelineName;
+  public PadPipeline getPadPipeline() {
+    return padPipeline;
   }
+
+//  @Override
+//  public String getPipelineName() {
+//    return pipelineName;
+//  }
 
   @Override
   public String getFromLocation() {

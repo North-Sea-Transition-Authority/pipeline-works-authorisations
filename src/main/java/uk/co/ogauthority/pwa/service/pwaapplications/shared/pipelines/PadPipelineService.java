@@ -27,7 +27,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -83,7 +82,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public PipelineOverview getPipelineOverview(PadPipeline padPipeline) {
 
     return padPipelineRepository.findPipelineAsSummaryDtoByPadPipeline(padPipeline)
-        .map(PadPipelineOverview::from)
+        .map(e -> PadPipelineOverview.from(e, padPipeline))
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
   }
@@ -91,23 +90,23 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()
-        .map(PadPipelineOverview::from)
+        .map(e -> PadPipelineOverview.from(e, ))
         .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
         .collect(Collectors.toList());
 
   }
 
-  public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail) {
+  public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail, PadPipeline padPipeline) {
 
-    return getApplicationPipelineOverviews(detail)
+    return  getApplicationPipelineOverviews(detail)
         .stream()
         .map(pipelineOverview -> new PadPipelineTaskListItem(
                 pipelineOverview,
-                createTaskListEntries(detail, pipelineOverview)
+                createTaskListEntries(detail, pipelineOverview),
+                padPipeline
             )
         )
         .collect(Collectors.toList());
-
   }
 
   private List<TaskListEntry> createTaskListEntries(PwaApplicationDetail pwaApplicationDetail,

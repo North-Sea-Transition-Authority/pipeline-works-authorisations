@@ -68,7 +68,7 @@ public class PadPipelinePersisterService {
     if (padPipeline.getPipelineInBundle()) {
       pipelineName += " (" + padPipeline.getBundleName() + ")";
     }
-    padPipeline.setPipelineName(pipelineName);
+    //padPipeline.setPipelineName(pipelineName);
   }
 
   private List<BigDecimal> getExternalDiametersFromIdentData(PadPipeline padPipeline) {

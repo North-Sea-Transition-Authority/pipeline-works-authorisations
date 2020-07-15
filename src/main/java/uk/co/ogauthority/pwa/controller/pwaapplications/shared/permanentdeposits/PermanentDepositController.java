@@ -215,9 +215,9 @@ public class PermanentDepositController {
   private ModelAndView getAddEditPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                         PermanentDepositsForm form, ScreenActionType type) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsForm");
-    modelAndView.addObject("pipelines", padPipelineService.getPipelines(pwaApplicationDetail)
+    modelAndView/*.addObject("pipelines", padPipelineService.getPipelines(pwaApplicationDetail)
           .stream().collect(StreamUtils.toLinkedHashMap(
-              padPipeline -> String.valueOf(padPipeline.getId()), PadPipeline::getPipelineName)))
+              padPipeline -> String.valueOf(padPipeline.getId()), PadPipeline::getPipelineName)))*/
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))

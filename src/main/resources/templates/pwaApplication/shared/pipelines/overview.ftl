@@ -22,7 +22,7 @@
 
         <@fdsCard.card>
 
-          <@fdsCard.cardHeader cardHeadingText="${pipeline.pipelineName}" />
+          <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" />
 
           <hr class="govuk-section-break govuk-section-break--m"/>
 

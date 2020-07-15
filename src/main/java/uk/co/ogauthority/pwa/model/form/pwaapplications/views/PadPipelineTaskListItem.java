@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 
@@ -14,10 +15,12 @@ public class PadPipelineTaskListItem implements PipelineOverview {
 
   private final PipelineOverview pipelineOverview;
   private final List<TaskListEntry> tasks;
+  private PadPipeline padPipeline;
 
-  public PadPipelineTaskListItem(PipelineOverview pipelineOverview, List<TaskListEntry> tasks) {
+  public PadPipelineTaskListItem(PipelineOverview pipelineOverview, List<TaskListEntry> tasks, PadPipeline padPipeline) {
     this.pipelineOverview = pipelineOverview;
     this.tasks = tasks;
+    this.padPipeline = padPipeline;
   }
 
   public List<TaskListEntry> getTaskList() {
@@ -29,10 +32,12 @@ public class PadPipelineTaskListItem implements PipelineOverview {
     return this.pipelineOverview.getPadPipelineId();
   }
 
-  @Override
-  public String getPipelineName() {
-    return this.pipelineOverview.getPipelineName();
-  }
+  public PadPipeline getPadPipeline() { return padPipeline;}
+
+//  @Override
+//  public String getPipelineName() {
+//    return this.pipelineOverview.getPipelineName(padPipeline);
+//  }
 
   @Override
   public String getFromLocation() {

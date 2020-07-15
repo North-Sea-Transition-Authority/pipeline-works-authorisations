@@ -1,5 +1,5 @@
 ALTER TABLE ${datasource.user}.pad_pipelines ADD (
-    name VARCHAR2(200),
+--     name VARCHAR2(200),
     max_external_diameter Number
 );
 

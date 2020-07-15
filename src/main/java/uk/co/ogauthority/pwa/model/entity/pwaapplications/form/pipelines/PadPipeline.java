@@ -42,9 +42,6 @@ public class PadPipeline {
   @JoinColumn(name = "pipeline_id")
   private Pipeline pipeline;
 
-  @Column(name = "name")
-  private String pipelineName;
-
   @Enumerated(EnumType.STRING)
   private PipelineType pipelineType;
 
@@ -171,13 +168,6 @@ public class PadPipeline {
     this.pipeline = pipeline;
   }
 
-  public String getPipelineName() {
-    return pipelineName;
-  }
-
-  public void setPipelineName(String pipelineName) {
-    this.pipelineName = pipelineName;
-  }
 
   public PipelineType getPipelineType() {
     return pipelineType;
