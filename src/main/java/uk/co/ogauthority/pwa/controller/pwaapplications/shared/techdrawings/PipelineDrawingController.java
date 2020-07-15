@@ -83,8 +83,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
     this.controllerHelperService = controllerHelperService;
   }
 
-  private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form,
-                                              ScreenActionType actionType) {
+  private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form) {
     var modelAndView = this.createModelAndView(
         "pwaApplication/shared/techdrawings/addPipelineDrawing",
         detail,
@@ -93,10 +92,10 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         .addObject("pipelineViews", padTechnicalDrawingService.getUnlinkedApplicationPipelineOverviews(detail))
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
-        .addObject("actionType", actionType);
+        .addObject("actionType", ScreenActionType.ADD);
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
-        actionType.getActionText() + " pipeline drawing");
+        ScreenActionType.ADD.getActionText() + " pipeline drawing");
 
     padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
@@ -121,7 +120,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         .addObject("actionType", ScreenActionType.EDIT);
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
-        ScreenActionType.EDIT + " pipeline drawing");
+        ScreenActionType.EDIT.getActionText() + " pipeline drawing");
 
     padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
@@ -145,7 +144,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
       @ModelAttribute("form") PipelineDrawingForm form,
       PwaApplicationContext applicationContext) {
 
-    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD);
+    return getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
   @PostMapping("/new")
@@ -158,7 +157,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
 
     bindingResult = padTechnicalDrawingService.validateDrawing(form, bindingResult, ValidationType.FULL,
         applicationContext.getApplicationDetail());
-    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.ADD);
+    var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
       padFileService.updateFiles(
           form,

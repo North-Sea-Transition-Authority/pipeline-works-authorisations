@@ -172,12 +172,12 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     var overviewList = padPipelineService.getApplicationPipelineOverviews(detail);
     var linkedPipelinesIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
     return overviewList.stream()
-        .filter(linkedId -> {
+        .filter(overview -> {
           var isExcluded = linkedPipelinesIds.stream()
-              .anyMatch(integer -> ids.stream()
-                  .anyMatch(id -> id.equals(linkedId)));
+              .anyMatch(linkedId -> ids.stream()
+                  .anyMatch(id -> id.equals(overview.getPadPipelineId())));
           var isNotLinked = linkedPipelinesIds.stream()
-              .noneMatch(integer -> integer.equals(linkedId));
+              .noneMatch(integer -> integer.equals(overview.getPadPipelineId()));
           return isNotLinked || isExcluded;
         })
         .collect(Collectors.toUnmodifiableList());
