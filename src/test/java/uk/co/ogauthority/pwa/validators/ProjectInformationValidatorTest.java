@@ -15,6 +15,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
@@ -334,5 +335,66 @@ public class ProjectInformationValidatorTest {
             entry("temporaryDepositsMade", Set.of("temporaryDepositsMade.notSelected"))
     );
   }
+
+
+  @Test
+  public void validate_noFdpQuestionRequired() {
+    var form = new ProjectInformationForm();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        false));
+    assertThat(errorsMap).doesNotContain(
+        entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED)),
+        entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED)),
+        entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_valid() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(true);
+    form.setFdpConfirmationFlag(true);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).doesNotContain(
+        entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED)),
+        entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED)),
+        entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_noFdpOptionSelected() {
+    var form = new ProjectInformationForm();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).contains(
+        entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_fdpOptionSelected_fdpConfirmationFlagNotChecked() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(true);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).contains(
+        entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_fdpOptionSelectedIsNo_fdpNotSelectedReasonEmpty() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(false);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).contains(
+        entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED))
+    );
+  }
+
+
 
 }

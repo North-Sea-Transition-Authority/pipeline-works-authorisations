@@ -121,8 +121,8 @@ public class ProjectInformationValidator implements SmartValidator {
           errors.rejectValue("fdpConfirmationFlag", "fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED,
               "You must agree to the proposed works outlined in this application being consistent with the development");
         } else if (!form.getFdpOptionSelected()) {
-          ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason", "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED,
-              "You must enter a reason for not having an FDP for the fields");
+          ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason",
+              "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED, "You must enter a reason for not having an FDP for the fields");
         }
 
       }

@@ -226,7 +226,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/projectInformation"));
-    verify(padProjectInformationService, times(1)).mapEntityToForm(any(), any());
+    verify(padProjectInformationService, times(1)).mapEntityToForm(any(), any(), any());
   }
 
   @Test
@@ -246,7 +246,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
             .params(params))
         .andExpect(status().is3xxRedirection());
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
-    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
+    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any(), any());
   }
 
   @Test
@@ -329,7 +329,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         .andExpect(status().is3xxRedirection());
 
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
-    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
+    verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any(), any());
     verify(padProjectInformationService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
 

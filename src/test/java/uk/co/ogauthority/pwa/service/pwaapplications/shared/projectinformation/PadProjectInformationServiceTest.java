@@ -110,9 +110,9 @@ public class PadProjectInformationServiceTest {
   @Test
   public void saveEntityUsingForm_verifyServiceInteractions() {
 
-    service.saveEntityUsingForm(padProjectInformation, form, user);
+    service.saveEntityUsingForm(padProjectInformation, form, user, pwaApplicationDetail);
 
-    verify(projectInformationEntityMappingService, times(1)).setEntityValuesUsingForm(padProjectInformation, form);
+    verify(projectInformationEntityMappingService, times(1)).setEntityValuesUsingForm(padProjectInformation, form, false);
     verify(padFileService, times(1)).updateFiles(
         form,
         this.padProjectInformation.getPwaApplicationDetail(),
@@ -127,10 +127,10 @@ public class PadProjectInformationServiceTest {
   @Test
   public void mapEntityToForm_verifyServiceInteractions() {
 
-    service.mapEntityToForm(padProjectInformation, form);
+    service.mapEntityToForm(padProjectInformation, form, pwaApplicationDetail);
 
     verify(projectInformationEntityMappingService, times(1))
-        .mapProjectInformationDataToForm(padProjectInformation, form);
+        .mapProjectInformationDataToForm(padProjectInformation, form, false);
 
     verify(padFileService, times(1)).mapFilesToForm(
         form,
@@ -336,5 +336,21 @@ public class PadProjectInformationServiceTest {
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
 
   }
+
+  @Test
+  public void removeFdpQuestionData() {
+    padProjectInformation.setFdpOptionSelected(true);
+    padProjectInformation.setFdpConfirmationFlag(true);
+    padProjectInformation.setFdpNotSelectedReason("reason");
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+
+    service.removeFdpQuestionData(pwaApplicationDetail);
+
+    padProjectInformation.setFdpOptionSelected(null);
+    padProjectInformation.setFdpConfirmationFlag(null);
+    padProjectInformation.setFdpNotSelectedReason(null);
+    verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+  }
+
 
 }

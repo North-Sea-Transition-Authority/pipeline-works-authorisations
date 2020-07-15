@@ -72,7 +72,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
                               ProjectInformationForm form,
                               PwaApplicationDetail pwaApplicationDetail) {
-    projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form, isFdpQuestionRequired(pwaApplicationDetail));
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form,
+        isFdpQuestionRequired(pwaApplicationDetail));
     padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
   }
 
@@ -86,7 +87,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                   ProjectInformationForm form,
                                   WebUserAccount user,
                                   PwaApplicationDetail pwaApplicationDetail) {
-    projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form, isFdpQuestionRequired(pwaApplicationDetail));
+    projectInformationEntityMappingService.setEntityValuesUsingForm(
+        padProjectInformation, form, isFdpQuestionRequired(pwaApplicationDetail));
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
@@ -141,7 +143,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   public boolean isFdpQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaApplicationDetail.getLinkedToField();
+    return BooleanUtils.toBooleanDefaultIfNull(pwaApplicationDetail.getLinkedToField(), false);
   }
 
   public String getFormattedProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
