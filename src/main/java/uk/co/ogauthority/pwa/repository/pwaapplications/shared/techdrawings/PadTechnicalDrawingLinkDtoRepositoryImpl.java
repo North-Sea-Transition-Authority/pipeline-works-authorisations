@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineIdDto;
 
 public class PadTechnicalDrawingLinkDtoRepositoryImpl implements PadTechnicalDrawingLinkDtoRepository {
 
@@ -15,12 +16,15 @@ public class PadTechnicalDrawingLinkDtoRepositoryImpl implements PadTechnicalDra
   }
 
   @Override
-  public List<Integer> getLinkedPipelineIdsByDetail(PwaApplicationDetail detail) {
+  public List<PipelineIdDto> getLinkedPipelineIdsByDetail(PwaApplicationDetail detail) {
     return entityManager.createQuery(
-        "SELECT ptdl.pipeline.id " +
+        "SELECT new uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineIdDto( " +
+            "  ptdl.pipeline.pipeline.id " +
+            ", ptdl.pipeline.id " +
+            ") " +
             "FROM PadTechnicalDrawing ptd " +
             "JOIN PadTechnicalDrawingLink ptdl ON ptd.id = ptdl.technicalDrawing.id " +
-            "WHERE ptd.pwaApplicationDetail = :app_detail ", Integer.class)
+            "WHERE ptd.pwaApplicationDetail = :app_detail ", PipelineIdDto.class)
         .setParameter("app_detail", detail)
         .getResultList();
   }

@@ -163,7 +163,7 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     var linkedPipelinesIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
     return overviewList.stream()
         .filter(pipelineOverview -> linkedPipelinesIds.stream()
-            .noneMatch(integer -> pipelineOverview.getPadPipelineId().equals(integer)))
+            .noneMatch(pipelineIdDto -> pipelineOverview.getPadPipelineId().equals(pipelineIdDto.getPadPipelineId())))
         .collect(Collectors.toUnmodifiableList());
   }
 
@@ -173,11 +173,10 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     var linkedPipelinesIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
     return overviewList.stream()
         .filter(overview -> {
-          var isExcluded = linkedPipelinesIds.stream()
-              .anyMatch(linkedId -> ids.stream()
-                  .anyMatch(id -> id.equals(overview.getPadPipelineId())));
+          var isExcluded = ids.stream()
+              .anyMatch(id -> id.equals(overview.getPadPipelineId()));
           var isNotLinked = linkedPipelinesIds.stream()
-              .noneMatch(integer -> integer.equals(overview.getPadPipelineId()));
+              .noneMatch(pipelineIdDto -> pipelineIdDto.getPadPipelineId().equals(overview.getPadPipelineId()));
           return isNotLinked || isExcluded;
         })
         .collect(Collectors.toUnmodifiableList());

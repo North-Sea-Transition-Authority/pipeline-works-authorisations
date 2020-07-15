@@ -97,8 +97,9 @@ public class PadTechnicalDrawingLinkServiceTest {
 
   @Test
   public void getLinkedPipelineIds() {
-    when(padTechnicalDrawingLinkRepository.getLinkedPipelineIdsByDetail(pwaApplicationDetail)).thenReturn(List.of(1));
+    var dto = new PipelineIdDto(1, 1);
+    when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(dto));
     var result = padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail);
-    assertThat(result).isEqualTo(List.of(1));
+    assertThat(result).isEqualTo(List.of(dto));
   }
 }
