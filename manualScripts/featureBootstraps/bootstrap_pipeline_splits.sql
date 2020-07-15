@@ -1,0 +1,95 @@
+/* Scope is only application pipelines with at least 2 idents.
+   split on every pipeline ident. randomly assign one org owner of role per split.
+   */
+DECLARE
+  g_inclusive      VARCHAR2(4000) := 'INCLUSIVE';
+
+  l_application_id NUMBER         := :p_application_id;
+  l_pipeline_id    NUMBER         := :p_pipeline_id;
+  l_huuo_role      VARCHAR2(4000) := :p_huoo_role; -- [HOLDER, USER, OPERATOR, OWNER]
+
+  l_start_idents   NUMBER;
+BEGIN
+
+  SELECT count(*)
+  INTO l_start_idents
+  FROM ${datasource.user}.pad_pipeline_idents ppi
+       JOIN ${datasource.user}.pad_pipelines pp ON ppi.pp_id = pp.id
+       JOIN ${datasource.user}.pwa_application_details pad ON pp.pad_id = pad.id
+  WHERE pp.pipeline_id = l_pipeline_id AND pad.pwa_application_id = l_application_id AND pad.tip_flag = 1;
+
+  IF (l_start_idents < 2)
+  THEN
+    RAISE_APPLICATION_ERROR(-20123, 'l_start_idents < 2');
+  END IF;
+
+  -- delete all existing role instances for pipeline and role
+  DELETE
+  FROM ${datasource.user}.pad_pipeline_org_role_links pporl
+  WHERE pporl.pipeline_id = l_pipeline_id AND
+        pporl.pad_org_role_id IN (
+          SELECT por.id
+          FROM ${datasource.user}.pad_organisation_roles por
+               JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
+          WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huuo_role
+        );
+
+  FOR ident IN (
+    SELECT ppi.*
+         , LEAD(ppi.id) OVER (ORDER BY ppi.ident_no ASC) next_ident_id
+         , LAG(ppi.id) OVER (ORDER BY ppi.ident_no ASC) previous_ident_id
+    FROM ${datasource.user}.pad_pipeline_idents ppi
+         JOIN ${datasource.user}.pad_pipelines pp ON ppi.pp_id = pp.id
+         JOIN ${datasource.user}.pwa_application_details pad ON pp.pad_id = pad.id
+    WHERE pp.pipeline_id = l_pipeline_id AND pad.pwa_application_id = l_application_id AND pad.tip_flag = 1
+    ORDER BY ppi.ident_no ASC
+    )
+    LOOP
+      DECLARE
+        l_role_id NUMBER;
+      BEGIN
+        -- only create role intance when not dealing with last ident.
+        -- default role instance ident mode is inclusive, so second to last split will cover last ident "inclusively"
+        IF (ident.next_ident_id IS NOT NULL)
+        THEN
+
+          -- going to blow up if no rows returned. This is desirable.
+          SELECT por.id
+          INTO l_role_id
+          FROM ${datasource.user}.pad_organisation_roles por
+               JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
+          WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huuo_role
+          FETCH FIRST 1 ROW ONLY;
+
+          INSERT INTO ${datasource.user}.pad_pipeline_org_role_links pporl (pipeline_id,
+                                                                            pad_org_role_id,
+                                                                            from_ident_id,
+                                                                            from_ident_mode,
+                                                                            to_ident_id,
+                                                                            to_ident_mode)
+          VALUES (l_pipeline_id,
+                  l_role_id,
+                  ident.id,
+                  g_inclusive,
+                  ident.next_ident_id,
+                  g_inclusive);
+
+        END IF;
+      END;
+
+    END LOOP;
+
+  COMMIT;
+END;
+
+/
+
+-- dry run idents
+SELECT ppi.*
+     , LEAD(ppi.id) OVER (ORDER BY ppi.ident_no ASC) next_ident_id
+     , LAG(ppi.id) OVER (ORDER BY ppi.ident_no ASC) previous_ident_id
+FROM ${datasource.user}.pad_pipeline_idents ppi
+     JOIN ${datasource.user}.pad_pipelines pp ON ppi.pp_id = pp.id
+     JOIN ${datasource.user}.pwa_application_details pad ON pp.pad_id = pad.id
+WHERE pp.pipeline_id = :l_pipeline_id AND pad.pwa_application_id = :l_application_id AND pad.tip_flag = 1
+ORDER BY ppi.ident_no ASC
