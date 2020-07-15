@@ -6,13 +6,13 @@ public class ProjectInformationFormValidationHints {
 
   private final boolean isAnyDepositQuestionRequired;
   private final boolean isPermanentDepositQuestionRequired;
-  private final Boolean isLinkedToField;
+  private final Boolean isFdpQuestionRequired;
 
   public ProjectInformationFormValidationHints(boolean isAnyDepositQuestionRequired,
-                                               boolean isPermanentDepositQuestionRequired, Boolean isLinkedToField) {
+                                               boolean isPermanentDepositQuestionRequired, Boolean isFdpQuestionRequired) {
     this.isAnyDepositQuestionRequired = isAnyDepositQuestionRequired;
     this.isPermanentDepositQuestionRequired = isPermanentDepositQuestionRequired;
-    this.isLinkedToField = isLinkedToField;
+    this.isFdpQuestionRequired = isFdpQuestionRequired;
   }
 
   public boolean isAnyDepositQuestionRequired() {
@@ -23,8 +23,8 @@ public class ProjectInformationFormValidationHints {
     return isPermanentDepositQuestionRequired;
   }
 
-  public Boolean getLinkedToField() {
-    return isLinkedToField;
+  public Boolean isFdpQuestionRequired() {
+    return isFdpQuestionRequired;
   }
 
   @Override
@@ -37,11 +37,12 @@ public class ProjectInformationFormValidationHints {
     }
     ProjectInformationFormValidationHints that = (ProjectInformationFormValidationHints) o;
     return isAnyDepositQuestionRequired == that.isAnyDepositQuestionRequired
-        && isPermanentDepositQuestionRequired == that.isPermanentDepositQuestionRequired;
+        && isPermanentDepositQuestionRequired == that.isPermanentDepositQuestionRequired
+        && isFdpQuestionRequired == that.isFdpQuestionRequired;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isAnyDepositQuestionRequired, isPermanentDepositQuestionRequired);
+    return Objects.hash(isAnyDepositQuestionRequired, isPermanentDepositQuestionRequired, isFdpQuestionRequired);
   }
 }

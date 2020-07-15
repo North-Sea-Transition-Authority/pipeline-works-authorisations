@@ -70,8 +70,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
    * @param form                  form to map to
    */
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
-                              ProjectInformationForm form) {
-    projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
+                              ProjectInformationForm form,
+                              PwaApplicationDetail pwaApplicationDetail) {
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form, isFdpQuestionRequired(pwaApplicationDetail));
     padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
   }
 
@@ -83,8 +84,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   @Transactional
   public void saveEntityUsingForm(PadProjectInformation padProjectInformation,
                                   ProjectInformationForm form,
-                                  WebUserAccount user) {
-    projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
+                                  WebUserAccount user,
+                                  PwaApplicationDetail pwaApplicationDetail) {
+    projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form, isFdpQuestionRequired(pwaApplicationDetail));
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
@@ -101,7 +103,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     PadProjectInformation projectInformation = getPadProjectInformationData(detail);
     var projectInformationForm = new ProjectInformationForm();
-    mapEntityToForm(projectInformation, projectInformationForm);
+    mapEntityToForm(projectInformation, projectInformationForm, detail);
     BindingResult bindingResult = new BeanPropertyBindingResult(projectInformationForm, "form");
     validate(projectInformationForm, bindingResult, ValidationType.FULL, detail);
 
@@ -121,7 +123,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       var projectInfoValidationHints = new ProjectInformationFormValidationHints(
           getIsAnyDepositQuestionRequired(pwaApplicationDetail),
           getIsPermanentDepositQuestionRequired(pwaApplicationDetail),
-          pwaApplicationDetail.getLinkedToField());
+          isFdpQuestionRequired(pwaApplicationDetail));
       projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
     }
 
@@ -136,6 +138,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
+  }
+
+  public boolean isFdpQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
+    return pwaApplicationDetail.getLinkedToField();
   }
 
   public String getFormattedProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
@@ -176,4 +182,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
 
+  public void removeFdpQuestionData(PwaApplicationDetail detail) {
+    var padProjectInformation = getPadProjectInformationData(detail);
+    padProjectInformation.setFdpOptionSelected(null);
+    padProjectInformation.setFdpConfirmationFlag(null);
+    padProjectInformation.setFdpNotSelectedReason(null);
+    padProjectInformationRepository.save(padProjectInformation);
+  }
 }

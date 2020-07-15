@@ -63,7 +63,7 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private String temporaryDepDescription;
 
   private Boolean fdpOptionSelected;
-  private Boolean fdpConfirmationSelected;
+  private Boolean fdpConfirmationFlag;
   private String fdpNotSelectedReason;
 
 
@@ -291,12 +291,12 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.fdpOptionSelected = fdpOptionSelected;
   }
 
-  public Boolean getFdpConfirmationSelected() {
-    return fdpConfirmationSelected;
+  public Boolean getFdpConfirmationFlag() {
+    return fdpConfirmationFlag;
   }
 
-  public void setFdpConfirmationSelected(Boolean fdpConfirmationSelected) {
-    this.fdpConfirmationSelected = fdpConfirmationSelected;
+  public void setFdpConfirmationFlag(Boolean fdpConfirmationFlag) {
+    this.fdpConfirmationFlag = fdpConfirmationFlag;
   }
 
   public String getFdpNotSelectedReason() {

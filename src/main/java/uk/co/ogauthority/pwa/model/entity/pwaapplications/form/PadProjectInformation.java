@@ -44,7 +44,7 @@ public class PadProjectInformation {
   private String temporaryDepDescription;
 
   private Boolean fdpOptionSelected;
-  private Boolean fdpConfirmationSelected;
+  private Boolean fdpConfirmationFlag;
   private String fdpNotSelectedReason;
 
 
@@ -202,20 +202,20 @@ public class PadProjectInformation {
     this.temporaryDepDescription = temporaryDepDescription;
   }
 
-  public boolean isFdpOptionSelected() {
+  public Boolean getFdpOptionSelected() {
     return fdpOptionSelected;
   }
 
-  public void setFdpOptionSelected(boolean fdpOptionSelected) {
+  public void setFdpOptionSelected(Boolean fdpOptionSelected) {
     this.fdpOptionSelected = fdpOptionSelected;
   }
 
-  public boolean isFdpConfirmationSelected() {
-    return fdpConfirmationSelected;
+  public Boolean getFdpConfirmationFlag() {
+    return fdpConfirmationFlag;
   }
 
-  public void setFdpConfirmationSelected(boolean fdpConfirmationSelected) {
-    this.fdpConfirmationSelected = fdpConfirmationSelected;
+  public void setFdpConfirmationFlag(Boolean fdpConfirmationFlag) {
+    this.fdpConfirmationFlag = fdpConfirmationFlag;
   }
 
   public String getFdpNotSelectedReason() {

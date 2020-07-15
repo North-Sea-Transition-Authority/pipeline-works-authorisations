@@ -75,7 +75,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
                                                PwaApplicationContext applicationContext,
                                                @ModelAttribute("form") ProjectInformationForm form) {
     var entity = padProjectInformationService.getPadProjectInformationData(applicationContext.getApplicationDetail());
-    padProjectInformationService.mapEntityToForm(entity, form);
+    padProjectInformationService.mapEntityToForm(entity, form, applicationContext.getApplicationDetail());
     return getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
@@ -98,7 +98,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
         getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form), () -> {
 
           var entity = padProjectInformationService.getPadProjectInformationData(applicationContext.getApplicationDetail());
-          padProjectInformationService.saveEntityUsingForm(entity, form, applicationContext.getUser());
+          padProjectInformationService.saveEntityUsingForm(entity, form, applicationContext.getUser(), applicationContext.getApplicationDetail());
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
 
         });
@@ -119,7 +119,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
                     padProjectInformationService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail))
             .addObject("isAnyDepQuestionRequired", padProjectInformationService.getIsAnyDepositQuestionRequired(pwaApplicationDetail))
             .addObject("permanentDepositsMadeOptions", PermanentDepositRadioOption.asList())
-            .addObject("isLinkedToField", pwaApplicationDetail.getLinkedToField());
+            .addObject("isFdpQuestionRequired", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");

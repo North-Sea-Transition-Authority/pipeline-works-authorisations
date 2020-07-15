@@ -57,10 +57,10 @@
             </@fdsRadio.radioGroup>
         </#if>       
 
-        <#if isLinkedToField>
+        <#if isFdpQuestionRequired>
             <@fdsRadio.radioGroup path="form.fdpOptionSelected" labelText="Do you have an approved field development plan (FDP) for the fields?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.fdpOptionSelected">
-                    <@fdsCheckbox.checkboxItem path="form.fdpConfirmationSelected" labelText="The proposed works outlined in this application are consistent with the development as described in the FDP" />
+                    <@fdsCheckbox.checkboxItem path="form.fdpConfirmationFlag" labelText="The proposed works outlined in this application are consistent with the development as described in the FDP" />
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.fdpOptionSelected">
                     <@fdsTextarea.textarea path="form.fdpNotSelectedReason" labelText="Explain why" characterCount=true maxCharacterLength="4000"/>

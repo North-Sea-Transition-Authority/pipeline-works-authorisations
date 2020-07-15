@@ -113,12 +113,12 @@ public class ProjectInformationValidator implements SmartValidator {
                 "Enter why temporary deposits are being made.");
       }
 
-      if (projectInfoValidationHints.getLinkedToField()) {
+      if (projectInfoValidationHints.isFdpQuestionRequired()) {
         if (form.getFdpOptionSelected() == null) {
           errors.rejectValue("fdpOptionSelected", "fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED,
               "Select yes if you have an approved field development plan");
-        } else if (form.getFdpOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getFdpConfirmationSelected(), false)) {
-          errors.rejectValue("fdpConfirmationSelected", "fdpConfirmationSelected" + FieldValidationErrorCodes.REQUIRED,
+        } else if (form.getFdpOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getFdpConfirmationFlag(), false)) {
+          errors.rejectValue("fdpConfirmationFlag", "fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED,
               "You must agree to the proposed works outlined in this application being consistent with the development");
         } else if (!form.getFdpOptionSelected()) {
           ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason", "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED,
