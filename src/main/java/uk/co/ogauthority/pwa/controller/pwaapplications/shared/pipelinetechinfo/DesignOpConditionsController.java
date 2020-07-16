@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -91,7 +92,8 @@ public class DesignOpConditionsController {
 
 
   private ModelAndView getAddDesignOpConditionsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/designOpConditionsForm");
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/designOpConditionsForm")
+        .addObject("unitMeasurements", UnitMeasurement.toMap());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Design and operating conditions");
