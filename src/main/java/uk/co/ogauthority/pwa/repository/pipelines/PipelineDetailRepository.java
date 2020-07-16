@@ -11,5 +11,7 @@ public interface PipelineDetailRepository extends CrudRepository<PipelineDetail,
   @EntityGraph(attributePaths = {"pipeline", "pipeline.masterPwa"})
   List<PipelineDetail> findAllByPipeline_MasterPwaAndEndTimestampIsNull(MasterPwa masterPwa);
 
+  @EntityGraph(attributePaths = {"pipeline", "pipeline.masterPwa"})
+  List<PipelineDetail> findAllByPipeline_MasterPwaAndTipFlag(MasterPwa masterPwa, Boolean tipFlag);
 
 }

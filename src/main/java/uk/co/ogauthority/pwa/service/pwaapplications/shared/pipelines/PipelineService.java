@@ -40,6 +40,14 @@ public class PipelineService {
     );
   }
 
+  public List<PipelineDetail> getPipelineDetailsForApplicationMasterPwaByTip(PwaApplication pwaApplication,
+                                                                             Boolean tipFlag) {
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndTipFlag(
+        pwaApplication.getMasterPwa(),
+        tipFlag
+    );
+  }
+
   public List<PipelineDetail> getActivePipelineDetailsForApplicationMasterPwaById(PwaApplication pwaApplication,
                                                                                   Set<PipelineId> pipelineIds) {
     //revisit if performance is bad

@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
@@ -134,5 +135,27 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .getResultList();
   }
 
+  @Override
+  public List<PadPipeline> getPadPipelineByMasterPwaAndPipelineIds(MasterPwa masterPwa, List<Integer> ids) {
+    return entityManager.createQuery("" +
+        "SELECT pp " +
+        "FROM PadPipeline pp " +
+        "JOIN Pipeline p ON p.id = pp.pipeline.id " +
+        "WHERE p.masterPwa = :master_pwa " +
+        "AND p.id IN :ids ", PadPipeline.class)
+        .setParameter("master_pwa", masterPwa)
+        .setParameter("ids", ids)
+        .getResultList();
+  }
 
+  @Override
+  public List<Integer> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+    return entityManager.createQuery("" +
+        "SELECT p.id " +
+        "FROM PadPipeline pp " +
+        "JOIN Pipeline p ON pp.pipeline.id = p.id " +
+        "WHERE pp.pwaApplicationDetail = :detail", Integer.class)
+        .setParameter("detail", pwaApplicationDetail)
+        .getResultList();
+  }
 }

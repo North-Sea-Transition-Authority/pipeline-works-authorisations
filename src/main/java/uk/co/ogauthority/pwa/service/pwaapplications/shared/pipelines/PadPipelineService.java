@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -75,6 +75,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
     return padPipelineRepository.getAllByPwaApplicationDetail(detail);
+  }
+
+  public List<Integer> getMasterPipelineIds(PwaApplicationDetail detail) {
+    return padPipelineRepository.getMasterPipelineIdsOnApplication(detail);
   }
 
   public PipelineOverview getPipelineOverview(PadPipeline padPipeline) {
@@ -267,6 +271,15 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return List.of();
   }
 
+  public List<PadPipeline> getPadPipelinesByMasterAndIds(MasterPwa detail, List<Integer> padPipelineIds) {
+    var padPipelineIdList = ListUtils.emptyIfNull(padPipelineIds);
+    if (padPipelineIdList.size() > 0) {
+      return padPipelineRepository.getPadPipelineByMasterPwaAndPipelineIds(detail,
+          padPipelineIdList);
+    }
+    return List.of();
+  }
+
   public List<PadPipeline> getPadPipelinesByPadPipelineIds(Collection<Integer> padPipelineIds) {
     return IterableUtils.toList(padPipelineRepository.findAllById(padPipelineIds));
   }
@@ -304,8 +317,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    for (var pipeline: getPipelines(detail)) {
-      for (var ident: padPipelineIdentService.getIdentsByPipeline(pipeline)) {
+    for (var pipeline : getPipelines(detail)) {
+      for (var ident : padPipelineIdentService.getIdentsByPipeline(pipeline)) {
         var identForm = new PipelineIdentForm();
         padPipelineIdentService.mapEntityToForm(ident, identForm);
         BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
