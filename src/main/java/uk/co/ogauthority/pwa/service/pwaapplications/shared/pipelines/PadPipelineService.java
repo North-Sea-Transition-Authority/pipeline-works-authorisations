@@ -59,7 +59,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final PadPipelineIdentService padPipelineIdentService;
 
-
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
                             PipelineService pipelineService,
