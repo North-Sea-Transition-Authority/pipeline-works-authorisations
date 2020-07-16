@@ -102,6 +102,15 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
                 StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
         .addObject("facilityRestUrl",
             SearchSelectorService.route(on(DevukRestController.class).searchFacilities(null)));
+
+    // Add preselection options in case validation fails
+    if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
+      modelAndView.addObject("preselectedFacilitiesIfYes",
+          padLocationDetailsService.reapplyFacilitySelections(form));
+    } else if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
+      modelAndView.addObject("preselectedFacilitiesIfPartially",
+          padLocationDetailsService.reapplyFacilitySelections(form));
+    }
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
   }
@@ -136,16 +145,7 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
     var detail = applicationContext.getApplicationDetail();
     bindingResult = padLocationDetailsService.validate(form, bindingResult, validationType, detail);
 
-    var modelAndView = getLocationModelAndView(detail, form);
-    if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
-      modelAndView.addObject("preselectedFacilitiesIfYes",
-          padLocationDetailsService.reapplyFacilitySelections(form));
-    } else if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
-      modelAndView.addObject("preselectedFacilitiesIfPartially",
-          padLocationDetailsService.reapplyFacilitySelections(form));
-    }
-
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getLocationModelAndView(detail, form), () -> {
 
       var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(detail);
       padLocationDetailsService.saveEntityUsingForm(locationDetail, form);
