@@ -75,7 +75,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
                                                PwaApplicationContext applicationContext,
                                                @ModelAttribute("form") ProjectInformationForm form) {
     var entity = padProjectInformationService.getPadProjectInformationData(applicationContext.getApplicationDetail());
-    padProjectInformationService.mapEntityToForm(entity, form, applicationContext.getApplicationDetail());
+    padProjectInformationService.mapEntityToForm(entity, form);
     return getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
@@ -98,8 +98,7 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
         getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form), () -> {
 
           var entity = padProjectInformationService.getPadProjectInformationData(applicationContext.getApplicationDetail());
-          padProjectInformationService.saveEntityUsingForm(
-              entity, form, applicationContext.getUser(), applicationContext.getApplicationDetail());
+          padProjectInformationService.saveEntityUsingForm(entity, form, applicationContext.getUser());
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
 
         });

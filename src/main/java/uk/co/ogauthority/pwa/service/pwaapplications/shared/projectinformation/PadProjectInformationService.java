@@ -70,10 +70,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
    * @param form                  form to map to
    */
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
-                              ProjectInformationForm form,
-                              PwaApplicationDetail pwaApplicationDetail) {
-    projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form,
-        isFdpQuestionRequired(pwaApplicationDetail));
+                              ProjectInformationForm form) {
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
     padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
   }
 
@@ -85,10 +83,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   @Transactional
   public void saveEntityUsingForm(PadProjectInformation padProjectInformation,
                                   ProjectInformationForm form,
-                                  WebUserAccount user,
-                                  PwaApplicationDetail pwaApplicationDetail) {
+                                  WebUserAccount user) {
     projectInformationEntityMappingService.setEntityValuesUsingForm(
-        padProjectInformation, form, isFdpQuestionRequired(pwaApplicationDetail));
+        padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
@@ -105,7 +102,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     PadProjectInformation projectInformation = getPadProjectInformationData(detail);
     var projectInformationForm = new ProjectInformationForm();
-    mapEntityToForm(projectInformation, projectInformationForm, detail);
+    mapEntityToForm(projectInformation, projectInformationForm);
     BindingResult bindingResult = new BeanPropertyBindingResult(projectInformationForm, "form");
     validate(projectInformationForm, bindingResult, ValidationType.FULL, detail);
 

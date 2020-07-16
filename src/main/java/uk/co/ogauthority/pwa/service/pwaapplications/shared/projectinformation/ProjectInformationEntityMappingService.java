@@ -18,8 +18,7 @@ public class ProjectInformationEntityMappingService {
   /**
    * Map project information stored data to form.
    */
-  void mapProjectInformationDataToForm(PadProjectInformation padProjectInformation,
-                                       ProjectInformationForm form, Boolean isFdpQuestionRequired) {
+  void mapProjectInformationDataToForm(PadProjectInformation padProjectInformation, ProjectInformationForm form) {
     form.setProjectOverview(padProjectInformation.getProjectOverview());
     form.setProjectName(padProjectInformation.getProjectName());
     form.setMethodOfPipelineDeployment(padProjectInformation.getMethodOfPipelineDeployment());
@@ -96,7 +95,7 @@ public class ProjectInformationEntityMappingService {
     }
 
 
-    if (isFdpQuestionRequired) {
+    if (padProjectInformation.getFdpOptionSelected() != null) {
       form.setFdpOptionSelected(padProjectInformation.getFdpOptionSelected());
       if (BooleanUtils.isTrue(padProjectInformation.getFdpOptionSelected())) {
         form.setFdpConfirmationFlag(padProjectInformation.getFdpConfirmationFlag());
@@ -111,7 +110,7 @@ public class ProjectInformationEntityMappingService {
   /**
    * Map Project Information form data to entity.
    */
-  void setEntityValuesUsingForm(PadProjectInformation padProjectInformation, ProjectInformationForm form, Boolean isFdpQuestionRequired) {
+  void setEntityValuesUsingForm(PadProjectInformation padProjectInformation, ProjectInformationForm form) {
     padProjectInformation.setProjectOverview(form.getProjectOverview());
     padProjectInformation.setProjectName(form.getProjectName());
     padProjectInformation.setMethodOfPipelineDeployment(form.getMethodOfPipelineDeployment());
@@ -183,7 +182,7 @@ public class ProjectInformationEntityMappingService {
     String tempDescription = BooleanUtils.isTrue(form.getTemporaryDepositsMade()) ? form.getTemporaryDepDescription() : null;
     padProjectInformation.setTemporaryDepDescription(tempDescription);
 
-    if (isFdpQuestionRequired) {
+    if (form.getFdpOptionSelected() != null) {
       padProjectInformation.setFdpOptionSelected(form.getFdpOptionSelected());
       if (form.getFdpOptionSelected()) {
         padProjectInformation.setFdpConfirmationFlag(form.getFdpConfirmationFlag());

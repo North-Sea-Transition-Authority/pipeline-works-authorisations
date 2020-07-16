@@ -110,9 +110,9 @@ public class PadProjectInformationServiceTest {
   @Test
   public void saveEntityUsingForm_verifyServiceInteractions() {
 
-    service.saveEntityUsingForm(padProjectInformation, form, user, pwaApplicationDetail);
+    service.saveEntityUsingForm(padProjectInformation, form, user);
 
-    verify(projectInformationEntityMappingService, times(1)).setEntityValuesUsingForm(padProjectInformation, form, false);
+    verify(projectInformationEntityMappingService, times(1)).setEntityValuesUsingForm(padProjectInformation, form);
     verify(padFileService, times(1)).updateFiles(
         form,
         this.padProjectInformation.getPwaApplicationDetail(),
@@ -127,10 +127,10 @@ public class PadProjectInformationServiceTest {
   @Test
   public void mapEntityToForm_verifyServiceInteractions() {
 
-    service.mapEntityToForm(padProjectInformation, form, pwaApplicationDetail);
+    service.mapEntityToForm(padProjectInformation, form);
 
     verify(projectInformationEntityMappingService, times(1))
-        .mapProjectInformationDataToForm(padProjectInformation, form, false);
+        .mapProjectInformationDataToForm(padProjectInformation, form);
 
     verify(padFileService, times(1)).mapFilesToForm(
         form,

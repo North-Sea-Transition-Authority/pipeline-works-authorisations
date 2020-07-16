@@ -33,7 +33,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
@@ -50,7 +49,6 @@ public class InitialFieldsController {
   private final PadFieldService padFieldService;
   private final PwaFieldFormValidator pwaFieldFormValidator;
   private final ControllerHelperService controllerHelperService;
-  private final PadProjectInformationService projectInformationService;
 
   @Autowired
   public InitialFieldsController(ApplicationBreadcrumbService breadcrumbService,
@@ -58,15 +56,13 @@ public class InitialFieldsController {
                                  PwaApplicationDetailService pwaApplicationDetailService,
                                  PadFieldService padFieldService,
                                  PwaFieldFormValidator pwaFieldFormValidator,
-                                 ControllerHelperService controllerHelperService,
-                                 PadProjectInformationService projectInformationService) {
+                                 ControllerHelperService controllerHelperService) {
     this.breadcrumbService = breadcrumbService;
     this.devukFieldService = devukFieldService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.padFieldService = padFieldService;
     this.pwaFieldFormValidator = pwaFieldFormValidator;
     this.controllerHelperService = controllerHelperService;
-    this.projectInformationService = projectInformationService;
   }
 
   private ModelAndView getFieldsModelAndView(PwaApplicationDetail pwaApplicationDetail, PwaFieldForm form,
@@ -133,9 +129,7 @@ public class InitialFieldsController {
                       applicationContext.getApplicationDetail(), form.getNoLinkedFieldDescription());
           }
           padFieldService.setFields(applicationContext.getApplicationDetail(), fieldList);
-          if (!isLinkedtoField) {
-            projectInformationService.removeFdpQuestionData(applicationContext.getApplicationDetail());
-          }
+          padFieldService.removeFdpDataFromProjectInfo(isLinkedtoField, applicationContext.getApplicationDetail());
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
         });
 
