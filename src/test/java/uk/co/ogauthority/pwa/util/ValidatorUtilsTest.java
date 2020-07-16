@@ -15,6 +15,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
@@ -330,6 +331,54 @@ public class ValidatorUtilsTest {
         entry("longitudeSeconds", Set.of("longitudeSeconds.invalid"))
     );
 
+  }
+
+  @Test
+  public void validateDecimalPlaces_nullField() {
+    var form = new PipelineIdentDataForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 2);
+    assertThat(bindingResult.getAllErrors()).isEmpty();
+  }
+
+  @Test
+  public void validateDecimalPlaces_tooManyDecimalPlaces_pluralErrorMessage() {
+    var form = new PipelineIdentDataForm();
+    form.setExternalDiameter(new BigDecimal("0.555"));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 2);
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .containsExactly("External diameter must be 2 decimal places or fewer");
+  }
+
+  @Test
+  public void validateDecimalPlaces_tooManyDecimalPlaces_singleErrorMessage() {
+    var form = new PipelineIdentDataForm();
+    form.setExternalDiameter(new BigDecimal("0.55"));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 1);
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .containsExactly("External diameter must be 1 decimal place or fewer");
+  }
+
+  @Test
+  public void validateDecimalPlaces_exactDecimalPlaces() {
+    var form = new PipelineIdentDataForm();
+    form.setExternalDiameter(new BigDecimal("0.555"));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 3);
+    assertThat(bindingResult.getAllErrors()).isEmpty();
+  }
+
+  @Test
+  public void validateDecimalPlaces_fewerDecimalPlaces() {
+    var form = new PipelineIdentDataForm();
+    form.setExternalDiameter(new BigDecimal("0.5"));
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidatorUtils.validateDecimalPlaces(bindingResult, "externalDiameter", "External diameter", 3);
+    assertThat(bindingResult.getAllErrors()).isEmpty();
   }
 
 }
