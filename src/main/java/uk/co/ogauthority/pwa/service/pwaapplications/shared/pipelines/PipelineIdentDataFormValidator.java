@@ -58,12 +58,15 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "externalDiameter",
           "externalDiameter" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the external diameter");
+      ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "externalDiameter", "External diameter", 2);
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "internalDiameter", "" +
               "internalDiameter" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the internal diameter");
+      ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "internalDiameter", "Internal diameter", 2);
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "wallThickness",
           "wallThickness" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the wall thickness");
+      ValidatorUtils.validateDecimalPlaces(errors, fieldPrefix + "wallThickness", "Wall thickness", 2);
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "maop", "maop" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter the MAOP");
