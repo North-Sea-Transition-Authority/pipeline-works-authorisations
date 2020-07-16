@@ -6,6 +6,7 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
@@ -344,5 +345,17 @@ public class ValidatorUtils {
     validateMinutes(errors, minutes, messagePrefix);
     validateSeconds(errors, seconds, messagePrefix);
 
+  }
+
+  public static void validateDecimalPlaces(Errors errors, String field, String fieldLabel, int decimalPlaces) {
+    if (errors.getFieldValue(field) == null) {
+      return;
+    }
+    var bigDecimal = new BigDecimal(Objects.requireNonNull(errors.getFieldValue(field)).toString());
+    if (bigDecimal.stripTrailingZeros().scale() > decimalPlaces) {
+      var placePluralised = StringDisplayUtils.pluralise("place", decimalPlaces);
+      errors.rejectValue(field, field + INVALID.getCode(),
+          String.format("%s must be %d decimal %s or fewer", fieldLabel, decimalPlaces, placePluralised));
+    }
   }
 }

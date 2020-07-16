@@ -2,24 +2,25 @@ package uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties;
 
 import java.util.Arrays;
 import java.util.List;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 
 public enum OtherPipelineProperty {
 
-    WAX_CONTENT("Wax content", "weight %"),
-    WAX_APPEARANCE_TEMPERATURE("Wax appearance temperature", "°C"),
-    ACID_NUM("Acid number (TAN)", "< mg KOH/g"),
-    VISCOSITY("Viscosity", "bar(a)"),
-    DENSITY_GRAVITY("Density/gravity", "kg/m³"),
-    SULPHUR_CONTENT("Sulphur content", "weight %"),
-    POUR_POINT("Pour point", "°C"),
-    SOLID_CONTENT("Solid content", "weight %"),
-    MERCURY("Mercury", "μg/m³"),
-    H2O("H₂O", "ppm");
+    WAX_CONTENT("Wax content", UnitMeasurement.PERCENTAGE_WEIGHT),
+    WAX_APPEARANCE_TEMPERATURE("Wax appearance temperature", UnitMeasurement.DEGREES_CELSIUS),
+    ACID_NUM("Acid number (TAN)", UnitMeasurement.ACID_NUMBER),
+    VISCOSITY("Viscosity", UnitMeasurement.BAR_A),
+    DENSITY_GRAVITY("Density/gravity", UnitMeasurement.KG_METRE_CUBED),
+    SULPHUR_CONTENT("Sulphur content", UnitMeasurement.PERCENTAGE_WEIGHT),
+    POUR_POINT("Pour point", UnitMeasurement.DEGREES_CELSIUS),
+    SOLID_CONTENT("Solid content", UnitMeasurement.PERCENTAGE_WEIGHT),
+    MERCURY("Mercury", UnitMeasurement.MICROGRAM_METRE_CUBED),
+    H2O("H₂O", UnitMeasurement.PARTS_PER_MILLION);
 
   private final String displayText;
-  private final String unitMeasurement;
+  private final UnitMeasurement unitMeasurement;
 
-  OtherPipelineProperty(String displayText, String unitMeasurement) {
+  OtherPipelineProperty(String displayText, UnitMeasurement unitMeasurement) {
     this.displayText = displayText;
     this.unitMeasurement = unitMeasurement;
   }
@@ -28,7 +29,7 @@ public enum OtherPipelineProperty {
     return displayText;
   }
 
-  public String getUnitMeasurement() {
+  public UnitMeasurement getUnitMeasurement() {
     return unitMeasurement;
   }
 

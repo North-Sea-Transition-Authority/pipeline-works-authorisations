@@ -17,8 +17,7 @@
                 </#if>
             </@fdsRadio.radioItem>
         <#assign firstItem=false/>
-        </#list>    
+        </#list>
     </@fdsRadio.radioGroup>
-
 </#macro>
 
