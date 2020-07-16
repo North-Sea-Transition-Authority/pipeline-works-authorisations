@@ -64,7 +64,6 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             "WHERE pp.pwaApplicationDetail = :detail " +
             "AND (:padPipelineLineFilter IS NULL OR pp = :padPipelineLineFilter) " +
             "GROUP BY " +
-            //" pp.pipelineName" +
             " pp.id " +
             ", p.id " +
             ", pp.pipelineType " +
