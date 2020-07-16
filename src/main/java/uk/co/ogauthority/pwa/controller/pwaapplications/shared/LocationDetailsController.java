@@ -136,7 +136,16 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
     var detail = applicationContext.getApplicationDetail();
     bindingResult = padLocationDetailsService.validate(form, bindingResult, validationType, detail);
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getLocationModelAndView(detail, form), () -> {
+    var modelAndView = getLocationModelAndView(detail, form);
+    if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
+      modelAndView.addObject("preselectedFacilitiesIfYes",
+          padLocationDetailsService.reapplyFacilitySelections(form));
+    } else if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
+      modelAndView.addObject("preselectedFacilitiesIfPartially",
+          padLocationDetailsService.reapplyFacilitySelections(form));
+    }
+
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
       var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(detail);
       padLocationDetailsService.saveEntityUsingForm(locationDetail, form);
