@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
-<@defaultPage htmlTitle="${pipelineOverview.pipelineName} idents" breadcrumbs=true fullWidthColumn=true  pageHeading="${pipelineOverview.pipelineName} idents">
+<@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true  pageHeading="${pipelineOverview.getPipelineName()} idents">
 
     <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />
 

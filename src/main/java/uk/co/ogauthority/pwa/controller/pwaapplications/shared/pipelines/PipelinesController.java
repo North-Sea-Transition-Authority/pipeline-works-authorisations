@@ -74,7 +74,7 @@ public class PipelinesController {
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail, PadPipeline pipeline) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
-        .addObject("pipelineTaskListItems", padPipelineService.getPipelineTaskListItems(detail, pipeline).stream()
+        .addObject("pipelineTaskListItems", padPipelineService.getPipelineTaskListItems(detail).stream()
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))

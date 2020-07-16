@@ -78,44 +78,5 @@ public class PadPipelinePersisterServiceTest {
     assertThat(padPipeline.getMaxExternalDiameter()).isNull();
   }
 
-  @Test
-  public void createPipelineName_singleDiameter() {
-    PadPipeline padPipeline = new PadPipeline();
-    padPipeline.setPipelineRef("my ref");
-    padPipeline.setMaxExternalDiameter(BigDecimal.valueOf(5));
-    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    padPipeline.setPipelineInBundle(false);
-
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
-    var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName();
-    assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
-  }
-
-  @Test
-  public void createPipelineName_multipleDiameters() {
-    PadPipeline padPipeline = new PadPipeline();
-    padPipeline.setPipelineRef("my ref");
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
-    padPipeline.setPipelineInBundle(false);
-
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
-    var expectedPipelineName = "my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName();
-    assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
-  }
-
-  @Test
-  public void createPipelineName_singleDiameter_partOfBundle() {
-    PadPipeline padPipeline = new PadPipeline();
-    padPipeline.setPipelineRef("my ref");
-    padPipeline.setMaxExternalDiameter(BigDecimal.valueOf(5));
-    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    padPipeline.setPipelineInBundle(true);
-    padPipeline.setBundleName("my bundle");
-
-    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
-    var expectedPipelineName = "my ref - 5 Millimetre " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName() + " (my bundle)";
-    assertThat(padPipeline.getPipelineName().equals(expectedPipelineName));
-  }
-
 
 }

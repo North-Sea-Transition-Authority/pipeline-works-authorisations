@@ -26,6 +26,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -59,6 +60,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -109,7 +111,6 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     padPipeline = getDefaultPadPipeline(99, pwaApplicationDetail);
-    padPipeline.setPipelineName("test name");
 
     when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
     var padPipelineOverview = new PadPipelineOverview(padPipeline, 0L);
@@ -329,6 +330,13 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderIdentOverview_contactSmokeTest() {
 
+    PadPipeline padPipeline = new PadPipeline();
+    padPipeline.setPipelineRef("my ref");
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineInBundle(false);
+    var padPipelineOverview = new PadPipelineOverview(padPipeline);
+    when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
+
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -340,6 +348,12 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderIdentOverview_appTypeSmokeTest() {
+    PadPipeline padPipeline = new PadPipeline();
+    padPipeline.setPipelineRef("my ref");
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineInBundle(false);
+    var padPipelineOverview = new PadPipelineOverview(padPipeline);
+    when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -352,6 +366,13 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderIdentOverview_appStatusSmokeTest() {
+
+    PadPipeline padPipeline = new PadPipeline();
+    padPipeline.setPipelineRef("my ref");
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineInBundle(false);
+    var padPipelineOverview = new PadPipelineOverview(padPipeline);
+    when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -514,6 +535,12 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void postIdentOverview_failValidation() {
 
+    PadPipeline padPipeline = new PadPipeline();
+    padPipeline.setPipelineRef("my ref");
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineInBundle(false);
+    var padPipelineOverview = new PadPipelineOverview(padPipeline);
+    when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
     when(pipelineIdentService.isSectionValid(any())).thenReturn(false);
 
     endpointTester.setRequestMethod(HttpMethod.POST)

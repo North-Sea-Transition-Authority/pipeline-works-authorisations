@@ -16,10 +16,10 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -215,9 +215,9 @@ public class PermanentDepositController {
   private ModelAndView getAddEditPermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                         PermanentDepositsForm form, ScreenActionType type) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsForm");
-    modelAndView/*.addObject("pipelines", padPipelineService.getPipelines(pwaApplicationDetail)
+    modelAndView.addObject("pipelines", padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail)
           .stream().collect(StreamUtils.toLinkedHashMap(
-              padPipeline -> String.valueOf(padPipeline.getId()), PadPipeline::getPipelineName)))*/
+              overview -> String.valueOf(overview.getPadPipelineId()), PipelineOverview::getPipelineName)))
         .addObject("materialTypes", MaterialType.asList())
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))

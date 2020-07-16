@@ -82,7 +82,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public PipelineOverview getPipelineOverview(PadPipeline padPipeline) {
 
     return padPipelineRepository.findPipelineAsSummaryDtoByPadPipeline(padPipeline)
-        .map(e -> PadPipelineOverview.from(e, padPipeline))
+        .map(PadPipelineOverview::from)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
   }
@@ -90,20 +90,19 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()
-        .map(e -> PadPipelineOverview.from(e, ))
+        .map(PadPipelineOverview::from)
         .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
         .collect(Collectors.toList());
 
   }
 
-  public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail, PadPipeline padPipeline) {
+  public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail) {
 
     return  getApplicationPipelineOverviews(detail)
         .stream()
         .map(pipelineOverview -> new PadPipelineTaskListItem(
                 pipelineOverview,
-                createTaskListEntries(detail, pipelineOverview),
-                padPipeline
+                createTaskListEntries(detail, pipelineOverview)
             )
         )
         .collect(Collectors.toList());

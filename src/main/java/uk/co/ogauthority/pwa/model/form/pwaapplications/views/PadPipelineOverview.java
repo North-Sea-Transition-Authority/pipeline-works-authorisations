@@ -19,8 +19,6 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private String fromLocation;
 
-  //private String pipelineName;
-
   private CoordinatePair fromCoordinates;
 
   private String toLocation;
@@ -39,12 +37,15 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private Long numberOfIdents;
 
-  private PadPipeline padPipeline;
+  private BigDecimal maxExternalDiameter;
 
+  private Boolean pipelineInBundle;
+
+  private String bundleName;
 
   private PadPipelineOverview(Integer padPipelineId,
                               String fromLocation,
-                              /*String pipelineName,*/ CoordinatePair fromCoordinates,
+                              CoordinatePair fromCoordinates,
                               String toLocation,
                               CoordinatePair toCoordinates,
                               String pipelineNumber,
@@ -53,10 +54,11 @@ public class PadPipelineOverview implements PipelineOverview {
                               BigDecimal length,
                               String productsToBeConveyed,
                               Long numberOfIdents,
-                              PadPipeline padPipeline) {
+                              BigDecimal maxExternalDiameter,
+                              Boolean pipelineInBundle,
+                              String bundleName) {
     this.padPipelineId = padPipelineId;
     this.fromLocation = fromLocation;
-//    this.pipelineName = getPipelineName();
     this.fromCoordinates = fromCoordinates;
     this.toLocation = toLocation;
     this.toCoordinates = toCoordinates;
@@ -66,14 +68,16 @@ public class PadPipelineOverview implements PipelineOverview {
     this.length = length;
     this.productsToBeConveyed = productsToBeConveyed;
     this.numberOfIdents = numberOfIdents;
+    this.maxExternalDiameter = maxExternalDiameter;
+    this.pipelineInBundle = pipelineInBundle;
+    this.bundleName = bundleName;
   }
 
   @VisibleForTesting
   public PadPipelineOverview(PadPipeline padPipeline,
-                              Long numberOfIdents) {
+                             Long numberOfIdents) {
     this.padPipelineId = padPipeline.getId();
     this.fromLocation = padPipeline.getFromLocation();
-    //this.pipelineName = padPipeline.getPipelineName();
     this.fromCoordinates = padPipeline.getFromCoordinates();
     this.toLocation = padPipeline.getToLocation();
     this.toCoordinates = padPipeline.getToCoordinates();
@@ -85,13 +89,21 @@ public class PadPipelineOverview implements PipelineOverview {
     this.numberOfIdents = numberOfIdents;
   }
 
+  @VisibleForTesting
+  public PadPipelineOverview(PadPipeline padPipeline) {
+    this.pipelineNumber = padPipeline.getPipelineRef();
+    this.pipelineType = padPipeline.getPipelineType();
+    this.maxExternalDiameter = padPipeline.getMaxExternalDiameter();
+    this.pipelineInBundle = padPipeline.getPipelineInBundle();
+    this.bundleName = padPipeline.getBundleName();
+  }
 
-  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto, PadPipeline padPipeline) {
+
+  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto) {
 
     return new PadPipelineOverview(
         padPipelineSummaryDto.getPadPipelineId(),
         padPipelineSummaryDto.getFromLocation(),
-        /*padPipelineSummaryDto.getPipelineName(),*/
         padPipelineSummaryDto.getFromCoordinates(),
         padPipelineSummaryDto.getToLocation(),
         padPipelineSummaryDto.getToCoordinates(),
@@ -101,7 +113,9 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getLength(),
         padPipelineSummaryDto.getProductsToBeConveyed(),
         padPipelineSummaryDto.getNumberOfIdents(),
-        padPipeline
+        padPipelineSummaryDto.getMaxExternalDiameter(),
+        padPipelineSummaryDto.getPipelineInBundle(),
+        padPipelineSummaryDto.getBundleName()
     );
   }
 
@@ -109,16 +123,6 @@ public class PadPipelineOverview implements PipelineOverview {
   public Integer getPadPipelineId() {
     return padPipelineId;
   }
-
-  @Override
-  public PadPipeline getPadPipeline() {
-    return padPipeline;
-  }
-
-//  @Override
-//  public String getPipelineName() {
-//    return pipelineName;
-//  }
 
   @Override
   public String getFromLocation() {
@@ -168,5 +172,20 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public Long getNumberOfIdents() {
     return numberOfIdents;
+  }
+
+  @Override
+  public BigDecimal getMaxExternalDiameter() {
+    return maxExternalDiameter;
+  }
+
+  @Override
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  @Override
+  public String getBundleName() {
+    return bundleName;
   }
 }

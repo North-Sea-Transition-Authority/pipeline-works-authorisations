@@ -2,11 +2,11 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
@@ -37,7 +37,6 @@ public class PadPipelinePersisterService {
   @Transactional
   public void savePadPipelineAndMaterialiseIdentData(PadPipeline padPipeline) {
     setMaxEternalDiameterOnPipeline(padPipeline);
-    createPipelineName(padPipeline);
     padPipelineRepository.save(padPipeline);
   }
 
@@ -46,12 +45,9 @@ public class PadPipelinePersisterService {
     BigDecimal largestExternalDiameter = BigDecimal.ZERO;
 
     if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE) && padPipeline.getId() != null) {
-      for (var extDiameter : getExternalDiametersFromIdentData(padPipeline)) {
-        if (extDiameter != null && largestExternalDiameter.compareTo(
-            extDiameter) == -1) {
-          largestExternalDiameter = extDiameter;
-        }
-      }
+      largestExternalDiameter = getIdentData(padPipeline).stream()
+          .map(identData -> identData.getExternalDiameter() != null ? identData.getExternalDiameter() : BigDecimal.ZERO)
+          .reduce(BigDecimal.ZERO, BigDecimal::max);
     }
 
     padPipeline.setMaxExternalDiameter(
@@ -59,24 +55,9 @@ public class PadPipelinePersisterService {
   }
 
 
-  private void createPipelineName(PadPipeline padPipeline) {
-    var pipelineName = padPipeline.getPipelineRef() + " - ";
-    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE) && padPipeline.getMaxExternalDiameter() != null) {
-      pipelineName += padPipeline.getMaxExternalDiameter() + " Millimetre ";
-    }
-    pipelineName += padPipeline.getPipelineType().getDisplayName();
-    if (padPipeline.getPipelineInBundle()) {
-      pipelineName += " (" + padPipeline.getBundleName() + ")";
-    }
-    //padPipeline.setPipelineName(pipelineName);
-  }
-
-  private List<BigDecimal> getExternalDiametersFromIdentData(PadPipeline padPipeline) {
+  private List<PadPipelineIdentData> getIdentData(PadPipeline padPipeline) {
     var idents = padPipelineIdentRepository.getAllByPadPipeline(padPipeline);
-    return padPipelineIdentDataRepository.getAllByPadPipelineIdentIn(idents)
-        .stream()
-        .map(identData -> identData.getExternalDiameter())
-        .collect(Collectors.toList());
+    return padPipelineIdentDataRepository.getAllByPadPipelineIdentIn(idents);
   }
 
 }

@@ -27,8 +27,6 @@ public class PadPipelineSummaryDto {
 
   private final String pipelineNumber;
 
-  //private final String pipelineName;
-
   private final PipelineType pipelineType;
 
   private final String componentParts;
@@ -39,9 +37,14 @@ public class PadPipelineSummaryDto {
 
   private final Long numberOfIdents;
 
+  private final BigDecimal maxExternalDiameter;
+
+  private final Boolean pipelineInBundle;
+
+  private final String bundleName;
+
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
-                               //String pipelineName,
                                PipelineType pipelineType,
                                String pipelineNumber,
                                BigDecimal length,
@@ -67,13 +70,13 @@ public class PadPipelineSummaryDto {
                                Integer toLongitudeDegrees,
                                Integer toLongitudeMinutes,
                                BigDecimal toLongitudeSeconds,
-                               LongitudeDirection toLongitudeDirection
-
-
+                               LongitudeDirection toLongitudeDirection,
+                               BigDecimal maxExternalDiameter,
+                               Boolean pipelineInBundle,
+                               String bundleName
   ) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
-    //this.pipelineName = pipelineName;
     this.fromLocation = fromLocation;
     this.toLocation = toLocation;
 
@@ -111,15 +114,14 @@ public class PadPipelineSummaryDto {
     this.length = length;
     this.productsToBeConveyed = productsToBeConveyed;
     this.numberOfIdents = numberOfIdents;
+    this.maxExternalDiameter = maxExternalDiameter;
+    this.pipelineInBundle = pipelineInBundle;
+    this.bundleName = bundleName;
   }
 
   public int getPadPipelineId() {
     return padPipelineId;
   }
-
-//  public String getPipelineName() {
-//    return pipelineName;
-//  }
 
   public String getFromLocation() {
     return fromLocation;
@@ -165,5 +167,15 @@ public class PadPipelineSummaryDto {
     return pipelineId;
   }
 
+  public BigDecimal getMaxExternalDiameter() {
+    return maxExternalDiameter;
+  }
 
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  public String getBundleName() {
+    return bundleName;
+  }
 }

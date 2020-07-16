@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /* Regardless of application or consented status, provide consistent interface for basic summarised pipeline data */
@@ -11,21 +10,18 @@ public interface PipelineOverview {
 
   Integer getPadPipelineId();
 
-  PadPipeline getPadPipeline();
-
   /**
    * pipelineName is used for PWA users to easily identify a pipeline on an application,
    * where as the pipeline number uniquely identifies a pipeline and is used as the main reference by external applications.
    */
   default String getPipelineName() {
-    var padPipeline = getPadPipeline();
-    var pipelineName = padPipeline.getPipelineRef() + " - ";
-    if (padPipeline.getCoreType().equals(PipelineCoreType.SINGLE_CORE) && padPipeline.getMaxExternalDiameter() != null) {
-      pipelineName += padPipeline.getMaxExternalDiameter() + " Millimetre ";
+    var pipelineName = getPipelineNumber() + " - ";
+    if (getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE) && getMaxExternalDiameter() != null) {
+      pipelineName += getMaxExternalDiameter() + " Millimetre ";
     }
-    pipelineName += padPipeline.getPipelineType().getDisplayName();
-    if (padPipeline.getPipelineInBundle()) {
-      pipelineName += " (" + padPipeline.getBundleName() + ")";
+    pipelineName += getPipelineType().getDisplayName();
+    if (getPipelineInBundle()) {
+      pipelineName += " (" + getBundleName() + ")";
     }
     return pipelineName;
   }
@@ -49,4 +45,12 @@ public interface PipelineOverview {
   String getProductsToBeConveyed();
 
   Long getNumberOfIdents();
+
+  BigDecimal getMaxExternalDiameter();
+
+  Boolean getPipelineInBundle();
+
+  String getBundleName();
+
+
 }

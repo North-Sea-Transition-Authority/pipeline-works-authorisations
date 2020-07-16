@@ -140,7 +140,6 @@ public class PickablePipelineServiceTest {
     return new PadPipelineSummaryDto(
         padPipeline.getId(),
         padPipeline.getPipeline().getId(),
-        padPipeline.getPipelineName(),
         PipelineType.PRODUCTION_FLOWLINE,
         padPipeline.toString(),
         BigDecimal.TEN,
@@ -164,7 +163,10 @@ public class PickablePipelineServiceTest {
         2,
         2,
         BigDecimal.valueOf(2),
-        LongitudeDirection.EAST
+        LongitudeDirection.EAST,
+        padPipeline.getMaxExternalDiameter(),
+        padPipeline.getPipelineInBundle(),
+        padPipeline.getBundleName()
     );
 
   }

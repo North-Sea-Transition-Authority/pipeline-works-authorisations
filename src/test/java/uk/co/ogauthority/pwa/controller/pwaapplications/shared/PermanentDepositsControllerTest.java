@@ -34,17 +34,18 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
-import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -153,13 +154,15 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   @Test
   public void renderAddPermanentDeposits_modelUsesPipelineName() {
     var pipeline = new PadPipeline();
-    pipeline.setPipelineName("test name");
-    when(padPipelineService.getPipelines(any())).thenReturn(List.of(pipeline));
+    pipeline.setPipelineRef("my ref");
+    pipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    pipeline.setPipelineInBundle(false);
+    when(padPipelineService.getApplicationPipelineOverviews(any())).thenReturn(List.of(new PadPipelineOverview(pipeline)));
 
     var controller = new PermanentDepositController(applicationBreadcrumbService, pwaApplicationRedirectService, permanentDepositService, pwaApplicationFileService, padPipelineService, null);
     var modelAndView = controller.renderAddPermanentDeposits(PwaApplicationType.INITIAL, 1, new PwaApplicationContext(pwaApplicationDetail, user, null), null);
     var pipelinesMap = (LinkedHashMap<String, String>) modelAndView.getModel().get("pipelines");
-    assertThat(pipelinesMap.get("null")).isEqualTo("test name");
+    assertThat(pipelinesMap.get("null")).isEqualTo("my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName());
   }
 
   @Test

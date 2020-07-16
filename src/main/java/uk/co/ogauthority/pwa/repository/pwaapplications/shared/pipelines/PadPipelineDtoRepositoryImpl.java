@@ -53,6 +53,9 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.toLongitudeMinutes " +
             ", pp.toLongitudeSeconds " +
             ", pp.toLongitudeDirection " +
+            ", pp.maxExternalDiameter " +
+            ", pp.pipelineInBundle " +
+            ", pp.bundleName " +
             ") " +
             "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
             "JOIN uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline p ON pp.pipeline = p " +
@@ -88,7 +91,10 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.toLongitudeDegrees " +
             ", pp.toLongitudeMinutes " +
             ", pp.toLongitudeSeconds " +
-            ", pp.toLongitudeDirection ",
+            ", pp.toLongitudeDirection " +
+            ", pp.maxExternalDiameter " +
+            ", pp.pipelineInBundle " +
+            ", pp.bundleName ",
         PadPipelineSummaryDto.class)
         .setParameter("detail", detail)
         .setParameter("padPipelineLineFilter", padPipeline)
