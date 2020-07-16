@@ -78,4 +78,19 @@ public class PadPipelineTaskListItem implements PipelineOverview {
   public Long getNumberOfIdents() {
     return this.pipelineOverview.getNumberOfIdents();
   }
+
+  @Override
+  public BigDecimal getMaxExternalDiameter() {
+    return this.pipelineOverview.getMaxExternalDiameter();
+  }
+
+  @Override
+  public Boolean getPipelineInBundle() {
+    return this.pipelineOverview.getPipelineInBundle();
+  }
+
+  @Override
+  public String getBundleName() {
+    return this.pipelineOverview.getBundleName();
+  }
 }

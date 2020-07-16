@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
@@ -8,6 +9,22 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 public interface PipelineOverview {
 
   Integer getPadPipelineId();
+
+  /**
+   * pipelineName is used for PWA users to easily identify a pipeline on an application,
+   * where as the pipeline number uniquely identifies a pipeline and is used as the main reference by external applications.
+   */
+  default String getPipelineName() {
+    var pipelineName = getPipelineNumber() + " - ";
+    if (getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE) && getMaxExternalDiameter() != null) {
+      pipelineName += getMaxExternalDiameter() + " Millimetre ";
+    }
+    pipelineName += getPipelineType().getDisplayName();
+    if (getPipelineInBundle()) {
+      pipelineName += " (" + getBundleName() + ")";
+    }
+    return pipelineName;
+  }
 
   String getFromLocation();
 
@@ -28,4 +45,12 @@ public interface PipelineOverview {
   String getProductsToBeConveyed();
 
   Long getNumberOfIdents();
+
+  BigDecimal getMaxExternalDiameter();
+
+  Boolean getPipelineInBundle();
+
+  String getBundleName();
+
+
 }

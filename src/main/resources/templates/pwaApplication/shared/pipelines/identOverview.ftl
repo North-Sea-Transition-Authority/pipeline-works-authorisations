@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
-<@defaultPage htmlTitle="${pipelineOverview.pipelineNumber} idents" breadcrumbs=true fullWidthColumn=true caption="${pipelineOverview.length}m ${pipelineOverview.pipelineType.displayName}" pageHeading="${pipelineOverview.pipelineNumber} idents">
+<@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true  pageHeading="${pipelineOverview.getPipelineName()} idents">
 
     <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />
 
@@ -50,7 +50,7 @@
                                 <@dataValueForCoreType coreType=coreType key="Products to be conveyed" valueSingleCore=(identView.productsToBeConveyed)! valueMultiCore=(identView.productsToBeConveyedMultiCore)!/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@fdsDataItems.dataValues key="Description of component parts" value="${identView.componentPartsDescription}"/>
+                                <@fdsDataItems.dataValues key="Description of component parts" value="${identView.componentPartsDescription!}"/>
                             </@fdsDataItems.dataItem>
                         </@fdsTimeline.timelineTimeStamp>
                     </#list>

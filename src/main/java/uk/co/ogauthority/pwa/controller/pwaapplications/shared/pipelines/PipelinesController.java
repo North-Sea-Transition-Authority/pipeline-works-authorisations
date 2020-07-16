@@ -71,7 +71,7 @@ public class PipelinesController {
     this.controllerHelperService = controllerHelperService;
   }
 
-  private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
+  private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail, PadPipeline pipeline) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/overview")
         .addObject("pipelineTaskListItems", padPipelineService.getPipelineTaskListItems(detail).stream()
@@ -91,7 +91,7 @@ public class PipelinesController {
                                               @PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                               PwaApplicationContext applicationContext) {
-    return getOverviewModelAndView(applicationContext.getApplicationDetail());
+    return getOverviewModelAndView(applicationContext.getApplicationDetail(), applicationContext.getPadPipeline());
   }
 
   @PostMapping
@@ -105,7 +105,7 @@ public class PipelinesController {
     var pipelinesComplete = padPipelineService.isComplete(detail);
 
     if (!pipelinesComplete) {
-      return getOverviewModelAndView(applicationContext.getApplicationDetail())
+      return getOverviewModelAndView(applicationContext.getApplicationDetail(), applicationContext.getPadPipeline())
           .addObject("errorMessage",
               "At least one pipeline must be added. Each pipeline must have at least one ident.");
     }

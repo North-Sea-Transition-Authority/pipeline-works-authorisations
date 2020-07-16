@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -59,6 +57,9 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineDetailService pipelineDetailService;
 
+  @Mock
+  private PadPipelinePersisterService padPipelinePersisterService;
+
   private PadPipelineService padPipelineService;
 
   private PwaApplicationDetail detail;
@@ -85,7 +86,7 @@ public class PadPipelineServiceTest {
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, pipelineIdentFormValidator);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
 
   }
 
@@ -123,7 +124,7 @@ public class PadPipelineServiceTest {
 
     padPipelineService.addPipeline(detail, form);
 
-    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture());
     verify(pipelineService, times(1)).createApplicationPipeline(detail.getPwaApplication());
 
     var newPadPipeline = padPipelineArgumentCaptor.getValue();
@@ -201,7 +202,7 @@ public class PadPipelineServiceTest {
     form.setTrenchedBuriedBackfilled(false);
 
     padPipelineService.addPipeline(detail, form);
-    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture());
     var newPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPipeline.getOtherPipelineMaterialUsed()).isEqualTo(form.getOtherPipelineMaterialUsed());
   }

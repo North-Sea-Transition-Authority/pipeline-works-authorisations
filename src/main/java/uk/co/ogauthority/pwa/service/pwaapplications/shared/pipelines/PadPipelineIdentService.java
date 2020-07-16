@@ -21,12 +21,15 @@ public class PadPipelineIdentService {
 
   private final PadPipelineIdentRepository repository;
   private final PadPipelineIdentDataService identDataService;
+  private final PadPipelinePersisterService padPipelinePersisterService;
 
   @Autowired
   public PadPipelineIdentService(PadPipelineIdentRepository repository,
-                                 PadPipelineIdentDataService identDataService) {
+                                 PadPipelineIdentDataService identDataService,
+                                 PadPipelinePersisterService padPipelinePersisterService) {
     this.repository = repository;
     this.identDataService = identDataService;
+    this.padPipelinePersisterService = padPipelinePersisterService;
   }
 
   public PadPipelineIdent getIdent(PadPipeline pipeline, Integer identId) {
@@ -94,6 +97,7 @@ public class PadPipelineIdentService {
     var ident = new PadPipelineIdent(pipeline, numberOfIdents.intValue() + 1);
 
     saveEntityUsingForm(ident, form);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
   }
 
   @Transactional
@@ -109,11 +113,13 @@ public class PadPipelineIdentService {
     repository.saveAll(idents);
 
     saveEntityUsingForm(ident, form);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
   }
 
   @Transactional
   public void updateIdent(PadPipelineIdent ident, PipelineIdentForm form) {
     saveEntityUsingForm(ident, form);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
   }
 
   @Transactional
@@ -154,6 +160,7 @@ public class PadPipelineIdentService {
 
   @Transactional
   public void removeIdent(PadPipelineIdent pipelineIdent) {
+    var pipeline = pipelineIdent.getPadPipeline();
     identDataService.removeIdentData(pipelineIdent);
     repository.delete(pipelineIdent);
     var remainingIdents = repository.getAllByPadPipeline(pipelineIdent.getPadPipeline());
@@ -163,14 +170,23 @@ public class PadPipelineIdentService {
         .forEachOrdered(ident -> ident.setIdentNo(ident.getIdentNo() - 1));
 
     repository.saveAll(remainingIdents);
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipelineIdent.getPadPipeline());
   }
 
   public boolean isSectionValid(PadPipeline pipeline) {
     return !repository.countAllByPadPipeline(pipeline).equals(0L);
   }
 
+
+  public Long countIdentsForPipeline(PadPipeline padPipeline) {
+    return repository.countAllByPadPipeline(padPipeline);
+  }
+
+
   public List<PadPipelineIdent> getIdentsByPipeline(PadPipeline padPipeline) {
     return repository.getAllByPadPipeline(padPipeline);
   }
+
+
 
 }

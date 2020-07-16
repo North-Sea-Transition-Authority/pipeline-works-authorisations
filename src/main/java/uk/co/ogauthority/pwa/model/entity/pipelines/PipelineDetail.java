@@ -44,6 +44,7 @@ public class PipelineDetail {
   private String pipelineStatus;
   private String detailStatus;
   private String pipelineNumber;
+  private BigDecimal maxExternalDiameter;
   private Boolean pipelineInBundle;
   private String bundleName;
 
@@ -334,6 +335,14 @@ public class PipelineDetail {
 
   public int getPipelineId() {
     return this.getPipeline().getId();
+  }
+
+  public BigDecimal getMaxExternalDiameter() {
+    return maxExternalDiameter;
+  }
+
+  public void setMaxExternalDiameter(BigDecimal maxExternalDiameter) {
+    this.maxExternalDiameter = maxExternalDiameter;
   }
 
   private void updateFromCoordinateValues() {

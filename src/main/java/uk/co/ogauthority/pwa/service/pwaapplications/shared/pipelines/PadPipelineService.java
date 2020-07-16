@@ -27,7 +27,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.Pipelin
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -58,18 +57,21 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PipelineDetailService pipelineDetailService;
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final PadPipelineIdentService padPipelineIdentService;
+  private final PadPipelinePersisterService padPipelinePersisterService;
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
                             PipelineService pipelineService,
                             PipelineDetailService pipelineDetailService,
                             PadPipelineIdentService padPipelineIdentService,
-                            PipelineIdentFormValidator pipelineIdentFormValidator) {
+                            PipelineIdentFormValidator pipelineIdentFormValidator,
+                            PadPipelinePersisterService padPipelinePersisterService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
+    this.padPipelinePersisterService = padPipelinePersisterService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -95,7 +97,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail) {
 
-    return getApplicationPipelineOverviews(detail)
+    return  getApplicationPipelineOverviews(detail)
         .stream()
         .map(pipelineOverview -> new PadPipelineTaskListItem(
                 pipelineOverview,
@@ -103,7 +105,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
             )
         )
         .collect(Collectors.toList());
-
   }
 
   private List<TaskListEntry> createTaskListEntries(PwaApplicationDetail pwaApplicationDetail,
@@ -209,11 +210,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
       padPipeline.setBundleName(null);
     }
 
-
-    padPipelineRepository.save(padPipeline);
-
+    padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
   }
-
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline pipeline) {
 
@@ -406,4 +404,5 @@ public class PadPipelineService implements ApplicationFormSectionService {
     padPipelineRepository.saveAll(updatedPipelinesList);
 
   }
+
 }
