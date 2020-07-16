@@ -26,7 +26,6 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto(" +
             "  pp.id " +
             ", p.id " +
-            //", pp.pipelineName" +
             ", pp.pipelineType " +
             ", pp.pipelineRef " +
             ", pp.length " +
