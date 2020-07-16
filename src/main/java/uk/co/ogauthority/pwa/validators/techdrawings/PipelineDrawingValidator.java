@@ -15,9 +15,9 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.Pipel
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadPipelineKeyDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineIdDto;
 
 @Service
 public class PipelineDrawingValidator implements SmartValidator {
@@ -110,11 +110,11 @@ public class PipelineDrawingValidator implements SmartValidator {
 
     // Ensure that all selected pipelines are not currently linked to another drawing.
     if (!ListUtils.emptyIfNull(form.getPadPipelineIds()).isEmpty()) {
-      List<PipelineIdDto> linkedPipelineIdDtos = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
+      List<PadPipelineKeyDto> linkedPadPipelineKeyDtos = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
       if (validatorMode.equals(PipelineDrawingValidationType.EDIT)) {
-        // Remove previously linked pipelines from the linkedPipelineIdDtos list.
+        // Remove previously linked pipelines from the linkedPadPipelineKeyDtos list.
         var links = padTechnicalDrawingLinkService.getLinksFromDrawing(existingDrawing);
-        linkedPipelineIdDtos = linkedPipelineIdDtos.stream()
+        linkedPadPipelineKeyDtos = linkedPadPipelineKeyDtos.stream()
             .filter(pipelineIdDto -> links.stream()
                 .map(drawingLink -> drawingLink.getPipeline().getId())
                 .noneMatch(padPipelineId -> padPipelineId.equals(pipelineIdDto.getPadPipelineId())))
@@ -122,8 +122,8 @@ public class PipelineDrawingValidator implements SmartValidator {
       }
 
       // Check if any IDs in padPipelineIds overlap with other linked pipelines
-      boolean linkedPipelineOnApplication = linkedPipelineIdDtos.stream()
-          .map(PipelineIdDto::getPadPipelineId)
+      boolean linkedPipelineOnApplication = linkedPadPipelineKeyDtos.stream()
+          .map(PadPipelineKeyDto::getPadPipelineId)
           .anyMatch(linkedPipelineId -> form.getPadPipelineIds()
               .stream()
               .anyMatch(linkedPipelineId::equals));

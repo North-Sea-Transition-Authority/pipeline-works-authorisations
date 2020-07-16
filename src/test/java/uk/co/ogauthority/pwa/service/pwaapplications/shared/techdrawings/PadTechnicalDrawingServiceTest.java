@@ -503,8 +503,8 @@ public class PadTechnicalDrawingServiceTest {
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
-        new PipelineIdDto(4, 1),
-        new PipelineIdDto(5, 2)
+        new PadPipelineKeyDto(4, 1),
+        new PadPipelineKeyDto(5, 2)
     ));
     var result = padTechnicalDrawingService.getUnlinkedApplicationPipelineOverviews(pwaApplicationDetail);
     assertThat(result).isEmpty();
@@ -521,7 +521,7 @@ public class PadTechnicalDrawingServiceTest {
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
-        new PipelineIdDto(4, 1)
+        new PadPipelineKeyDto(4, 1)
     ));
     var result = padTechnicalDrawingService.getUnlinkedApplicationPipelineOverviews(pwaApplicationDetail);
     assertThat(result).containsExactly(pipelineOverviewB);
@@ -553,8 +553,8 @@ public class PadTechnicalDrawingServiceTest {
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
-        new PipelineIdDto(4, 1),
-        new PipelineIdDto(5, 2)
+        new PadPipelineKeyDto(4, 1),
+        new PadPipelineKeyDto(5, 2)
     ));
     var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail, List.of(1));
     assertThat(result).containsExactly(pipelineOverviewA);
@@ -570,7 +570,7 @@ public class PadTechnicalDrawingServiceTest {
     var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
-    when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(new PipelineIdDto(4, 1)));
+    when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(new PadPipelineKeyDto(4, 1)));
     var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail, List.of(2));
     assertThat(result).containsExactly(pipelineOverviewB);
   }

@@ -36,7 +36,7 @@ public class PadTechnicalDrawingLinkService {
     return padTechnicalDrawingLinkRepository.getAllByTechnicalDrawing(drawing);
   }
 
-  public List<PipelineIdDto> getLinkedPipelineIds(PwaApplicationDetail detail) {
+  public List<PadPipelineKeyDto> getLinkedPipelineIds(PwaApplicationDetail detail) {
     return padTechnicalDrawingLinkRepository.getLinkedPipelineIdsByDetail(detail);
   }
 

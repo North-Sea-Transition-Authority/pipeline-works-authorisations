@@ -97,7 +97,7 @@ public class PadTechnicalDrawingLinkServiceTest {
 
   @Test
   public void getLinkedPipelineIds() {
-    var dto = new PipelineIdDto(1, 1);
+    var dto = new PadPipelineKeyDto(1, 1);
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(dto));
     var result = padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail);
     assertThat(result).isEqualTo(List.of(dto));

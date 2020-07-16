@@ -20,9 +20,9 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadT
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadPipelineKeyDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineIdDto;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
@@ -182,7 +182,7 @@ public class PipelineDrawingValidatorTest {
   public void validate_pipelineAlreadyAdded() {
     form.setPadPipelineIds(List.of(1));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
-        new PipelineIdDto(1, 1)
+        new PadPipelineKeyDto(1, 1)
     ));
 
     var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
