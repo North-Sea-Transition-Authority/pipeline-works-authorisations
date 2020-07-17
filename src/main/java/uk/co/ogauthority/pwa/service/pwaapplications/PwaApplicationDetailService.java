@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.Property
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
@@ -174,6 +175,14 @@ public class PwaApplicationDetailService {
     pwaApplicationDetail.setOtherPhaseDescription(otherPhaseDescription);
     pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
+
+  @Transactional
+  public void updatePartnerLetters(PwaApplicationDetail applicationDetail, PartnerLettersForm form) {
+    applicationDetail.setPartnerLettersRequired(form.getPartnerLettersRequired());
+    applicationDetail.setPartnerLettersConfirmed(form.getPartnerLettersRequired() ? form.getPartnerLettersConfirmed() : null);
+    pwaApplicationDetailRepository.save(applicationDetail);
+  }
+
 
 
 }

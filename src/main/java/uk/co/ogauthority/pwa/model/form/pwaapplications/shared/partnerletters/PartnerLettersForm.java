@@ -1,25 +1,27 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters;
 
 
-public class PartnerLettersForm {
+import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
-  private Boolean partnerLettersOptionSelected;
-  private Boolean requiredLettersUploaded;
+public class PartnerLettersForm extends UploadMultipleFilesWithDescriptionForm {
+
+  private Boolean partnerLettersRequired;
+  private Boolean partnerLettersConfirmed;
 
 
-  public Boolean getPartnerLettersOptionSelected() {
-    return partnerLettersOptionSelected;
+  public Boolean getPartnerLettersRequired() {
+    return partnerLettersRequired;
   }
 
-  public void setPartnerLettersOptionSelected(Boolean partnerLettersOptionSelected) {
-    this.partnerLettersOptionSelected = partnerLettersOptionSelected;
+  public void setPartnerLettersRequired(Boolean partnerLettersRequired) {
+    this.partnerLettersRequired = partnerLettersRequired;
   }
 
-  public Boolean getRequiredLettersUploaded() {
-    return requiredLettersUploaded;
+  public Boolean getPartnerLettersConfirmed() {
+    return partnerLettersConfirmed;
   }
 
-  public void setRequiredLettersUploaded(Boolean requiredLettersUploaded) {
-    this.requiredLettersUploaded = requiredLettersUploaded;
+  public void setPartnerLettersConfirmed(Boolean partnerLettersConfirmed) {
+    this.partnerLettersConfirmed = partnerLettersConfirmed;
   }
 }
