@@ -271,13 +271,17 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return List.of();
   }
 
-  public List<PadPipeline> getPadPipelinesByMasterAndIds(MasterPwa detail, List<Integer> padPipelineIds) {
+  public List<PadPipeline> getPadPipelinesByMasterAndIds(MasterPwa master, List<Integer> padPipelineIds) {
     var padPipelineIdList = ListUtils.emptyIfNull(padPipelineIds);
     if (padPipelineIdList.size() > 0) {
-      return padPipelineRepository.getPadPipelineByMasterPwaAndPipelineIds(detail,
+      return padPipelineRepository.getPadPipelineByMasterPwaAndPipelineIds(master,
           padPipelineIdList);
     }
     return List.of();
+  }
+
+  public PadPipeline getPadPipelinesByMasterAndId(MasterPwa master, Integer padPipelineId) {
+    return padPipelineRepository.getPadPipelineByMasterPwaAndPipelineId(master, padPipelineId);
   }
 
   public List<PadPipeline> getPadPipelinesByPadPipelineIds(Collection<Integer> padPipelineIds) {
@@ -398,6 +402,31 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
+  @Transactional
+  public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PadPipeline padPipelineToCopyFrom) {
+    var newPadPipeline = new PadPipeline(detail);
+    newPadPipeline.setBundleName(padPipelineToCopyFrom.getBundleName());
+    newPadPipeline.setPipelineRef(padPipelineToCopyFrom.getPipelineRef());
+    newPadPipeline.setPipeline(padPipelineToCopyFrom.getPipeline());
+    newPadPipeline.setComponentPartsDescription(padPipelineToCopyFrom.getComponentPartsDescription());
+    newPadPipeline.setFromCoordinates(padPipelineToCopyFrom.getFromCoordinates());
+    newPadPipeline.setFromLocation(padPipelineToCopyFrom.getFromLocation());
+    newPadPipeline.setLength(padPipelineToCopyFrom.getLength());
+    newPadPipeline.setOtherPipelineMaterialUsed(padPipelineToCopyFrom.getOtherPipelineMaterialUsed());
+    newPadPipeline.setPipelineDesignLife(padPipelineToCopyFrom.getPipelineDesignLife());
+    newPadPipeline.setPipelineFlexibility(padPipelineToCopyFrom.getPipelineFlexibility());
+    newPadPipeline.setPipelineInBundle(padPipelineToCopyFrom.getPipelineInBundle());
+    newPadPipeline.setPipelineMaterial(padPipelineToCopyFrom.getPipelineMaterial());
+    newPadPipeline.setPipelineType(padPipelineToCopyFrom.getPipelineType());
+    newPadPipeline.setProductsToBeConveyed(padPipelineToCopyFrom.getProductsToBeConveyed());
+    newPadPipeline.setToCoordinates(padPipelineToCopyFrom.getToCoordinates());
+    newPadPipeline.setToLocation(padPipelineToCopyFrom.getToLocation());
+    newPadPipeline.setTrenchedBuriedBackfilled(padPipelineToCopyFrom.getTrenchedBuriedBackfilled());
+    newPadPipeline.setTrenchingMethodsDescription(padPipelineToCopyFrom.getTrenchingMethodsDescription());
+    padPipelineRepository.save(newPadPipeline);
+    return newPadPipeline;
   }
 
   @Override

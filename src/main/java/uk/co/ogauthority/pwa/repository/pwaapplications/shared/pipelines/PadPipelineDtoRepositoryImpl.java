@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import uk.co.ogauthority.pwa.exception.UnexpectedResultException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -146,6 +147,15 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .setParameter("master_pwa", masterPwa)
         .setParameter("ids", ids)
         .getResultList();
+  }
+
+  @Override
+  public PadPipeline getPadPipelineByMasterPwaAndPipelineId(MasterPwa masterPwa, Integer id) {
+    var results = getPadPipelineByMasterPwaAndPipelineIds(masterPwa, List.of(id));
+    if (results.size() != 1) {
+      throw new UnexpectedResultException("Expected 1 result, found " + results.size());
+    }
+    return results.get(0);
   }
 
   @Override

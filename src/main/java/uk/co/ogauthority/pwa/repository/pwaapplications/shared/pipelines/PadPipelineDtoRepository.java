@@ -23,6 +23,8 @@ public interface PadPipelineDtoRepository {
 
   List<PadPipeline> getPadPipelineByMasterPwaAndPipelineIds(MasterPwa masterPwa, List<Integer> ids);
 
+  PadPipeline getPadPipelineByMasterPwaAndPipelineId(MasterPwa masterPwa, Integer id);
+
   List<Integer> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail);
 
 }

@@ -40,11 +40,14 @@ public class PipelineService {
     );
   }
 
-  public List<PipelineDetail> getPipelineDetailsForApplicationMasterPwaByTip(PwaApplication pwaApplication,
-                                                                             Boolean tipFlag) {
-    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndTipFlag(
+  public List<PipelineDetail> getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(
+      PwaApplication pwaApplication,
+      Boolean tipFlag) {
+
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndTipFlagAndDetailStatusIsNot(
         pwaApplication.getMasterPwa(),
-        tipFlag
+        tipFlag,
+        "DELETED"
     );
   }
 

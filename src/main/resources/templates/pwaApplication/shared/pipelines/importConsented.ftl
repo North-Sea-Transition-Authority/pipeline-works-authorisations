@@ -16,7 +16,7 @@
 
     <@fdsForm.htmlForm>
 
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineReference" options=consentedPipelines labelText="Which pipeline is being modified?"/>
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineId" options=consentedPipelines labelText="Which pipeline is being modified?"/>
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Modify consented pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl("#")/>
 

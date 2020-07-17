@@ -2,13 +2,13 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
 public class ModifyPipelineForm {
 
-  private String pipelineReference;
+  private String pipelineId;
 
-  public String getPipelineReference() {
-    return pipelineReference;
+  public String getPipelineId() {
+    return pipelineId;
   }
 
-  public void setPipelineReference(String pipelineReference) {
-    this.pipelineReference = pipelineReference;
+  public void setPipelineId(String pipelineId) {
+    this.pipelineId = pipelineId;
   }
 }

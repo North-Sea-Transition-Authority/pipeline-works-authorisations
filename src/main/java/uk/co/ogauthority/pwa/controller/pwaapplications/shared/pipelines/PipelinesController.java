@@ -78,7 +78,10 @@ public class PipelinesController {
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))
-        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
+        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
+        .addObject("importConsentedUrl", ReverseRouter.route(on(ModifyPipelineController.class)
+            .renderImportConsentedPipeline(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null,
+                null)));
 
     breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
 
@@ -129,7 +132,7 @@ public class PipelinesController {
         .addObject("pipelineFlexibilityTypes", PipelineFlexibility.asList())
         .addObject("pipelineMaterialTypes", PipelineMaterial.asList())
         .addObject("bundleNameRestUrl", SearchSelectorService.route(on(PipelineRestController.class)
-            .searchBundleNames(detail.getMasterPwaApplicationId(), null,null)));
+            .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)));
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         type.getSubmitButtonText() + " pipeline");

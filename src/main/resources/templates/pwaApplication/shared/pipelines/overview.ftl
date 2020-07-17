@@ -17,6 +17,7 @@
     </#if>
 
     <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
+    <@linkButtonBlue text="Modify consented pipeline" url=springUrl(importConsentedUrl) />
 
     <#list pipelineTaskListItems as pipeline>
 
@@ -42,6 +43,7 @@
 
     <#if pipelineTaskListItems?size gt 4>
         <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
+        <@linkButtonBlue text="Modify consented pipeline" url=springUrl(importConsentedUrl) />
     </#if>
 
     <#if pipelineTaskListItems?has_content>
