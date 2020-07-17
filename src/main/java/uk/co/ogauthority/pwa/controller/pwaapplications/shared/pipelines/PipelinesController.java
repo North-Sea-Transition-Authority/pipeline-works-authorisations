@@ -78,10 +78,8 @@ public class PipelinesController {
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))
-        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
-        .addObject("importConsentedUrl", ReverseRouter.route(on(ModifyPipelineController.class)
-            .renderImportConsentedPipeline(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null,
-                null)));
+        .addObject("canImportConsentedPipeline", padPipelineService.canImportConsentedPipelines(detail))
+        .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
 
     breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
 

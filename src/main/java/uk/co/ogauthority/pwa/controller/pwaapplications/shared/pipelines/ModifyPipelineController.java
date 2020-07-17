@@ -29,9 +29,10 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.pipelines.ModifyP
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/pipelines/consented")
 @PwaApplicationTypeCheck(types = {
-    PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.CAT_2_VARIATION
+    PwaApplicationType.CAT_2_VARIATION,
+    PwaApplicationType.OPTIONS_VARIATION,
+    PwaApplicationType.DECOMMISSIONING
 })
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)

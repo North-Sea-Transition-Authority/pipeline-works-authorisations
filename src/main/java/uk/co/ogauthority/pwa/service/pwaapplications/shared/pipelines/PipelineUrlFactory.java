@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -22,4 +23,8 @@ public class PipelineUrlFactory {
         .renderAddPipeline(applicationId, applicationType, null, null));
   }
 
+  public String getModifyPipelineUrl() {
+    return ReverseRouter.route(on(ModifyPipelineController.class)
+        .renderImportConsentedPipeline(applicationId, applicationType, null, null));
+  }
 }

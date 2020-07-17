@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -22,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -427,6 +430,11 @@ public class PadPipelineService implements ApplicationFormSectionService {
     newPadPipeline.setTrenchingMethodsDescription(padPipelineToCopyFrom.getTrenchingMethodsDescription());
     padPipelineRepository.save(newPadPipeline);
     return newPadPipeline;
+  }
+
+  public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
+    PwaApplicationType[] appTypes = ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types();
+    return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
   }
 
   @Override
