@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -107,6 +108,7 @@ public class InitialFieldsController {
 
   }
 
+  @Transactional
   @PostMapping
   public ModelAndView postFields(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,

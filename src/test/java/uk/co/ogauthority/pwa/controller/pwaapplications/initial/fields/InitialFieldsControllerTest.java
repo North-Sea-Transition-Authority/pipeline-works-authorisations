@@ -186,6 +186,7 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
 
     var argumentCaptor = ArgumentCaptor.forClass(List.of(new DevukField()).getClass());
     verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), argumentCaptor.capture());
+    verify(padFieldService, times(1)).removeFdpDataFromProjectInfo(any(), any());
 
     assertThat((List<DevukField>) argumentCaptor.getValue()).containsExactly(devukField);
   }
@@ -204,5 +205,6 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
         .andExpect(status().is3xxRedirection());
 
     verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), any());
+    verify(padFieldService, times(1)).removeFdpDataFromProjectInfo(any(), any());
   }
 }
