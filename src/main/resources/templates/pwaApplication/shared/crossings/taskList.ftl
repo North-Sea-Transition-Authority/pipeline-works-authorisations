@@ -3,7 +3,13 @@
 <#import 'medianLineCrossingManagement.ftl' as medianLineCrossingManagement>
 <#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
 
+<#-- @ftlvariable name="errorMessage" type="String" -->
+
 <@defaultPage htmlTitle="Blocks and crossing agreements" pageHeading="Blocks and crossing agreements" breadcrumbs=true>
+
+    <#if errorMessage?has_content>
+      <@fdsError.singleErrorSummary errorMessage=errorMessage />
+    </#if>
 
     <@fdsTaskList.taskList>
         <@fdsTaskList.taskListSection>
@@ -18,7 +24,7 @@
     </@fdsTaskList.taskList>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons errorMessage=errorMessage!"" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to task list"/>
+        <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to task list"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

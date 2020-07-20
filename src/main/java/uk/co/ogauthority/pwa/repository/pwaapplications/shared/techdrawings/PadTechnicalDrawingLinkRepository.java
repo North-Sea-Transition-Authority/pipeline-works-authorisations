@@ -7,7 +7,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 
 @Repository
-public interface PadTechnicalDrawingLinkRepository extends CrudRepository<PadTechnicalDrawingLink, Integer> {
+public interface PadTechnicalDrawingLinkRepository extends CrudRepository<PadTechnicalDrawingLink, Integer>,
+    PadTechnicalDrawingLinkDtoRepository {
 
   List<PadTechnicalDrawingLink> getAllByTechnicalDrawingIn(List<PadTechnicalDrawing> technicalDrawings);
 

@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.PipelineDrawingForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadTechnicalDrawingRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -155,6 +156,30 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     summaryList.sort(Comparator.comparing(PipelineDrawingSummaryView::getReference));
 
     return summaryList;
+  }
+
+  public List<PipelineOverview> getUnlinkedApplicationPipelineOverviews(PwaApplicationDetail detail) {
+    var overviewList = padPipelineService.getApplicationPipelineOverviews(detail);
+    var linkedPipelinesIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
+    return overviewList.stream()
+        .filter(pipelineOverview -> linkedPipelinesIds.stream()
+            .noneMatch(pipelineIdDto -> pipelineOverview.getPadPipelineId().equals(pipelineIdDto.getPadPipelineId())))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public List<PipelineOverview> getUnlinkedAndSpecificApplicationPipelineOverviews(PwaApplicationDetail detail,
+                                                                                   List<Integer> ids) {
+    var overviewList = padPipelineService.getApplicationPipelineOverviews(detail);
+    var linkedPipelinesIds = padTechnicalDrawingLinkService.getLinkedPipelineIds(detail);
+    return overviewList.stream()
+        .filter(overview -> {
+          var isExcluded = ids.stream()
+              .anyMatch(id -> id.equals(overview.getPadPipelineId()));
+          var isNotLinked = linkedPipelinesIds.stream()
+              .noneMatch(pipelineIdDto -> pipelineIdDto.getPadPipelineId().equals(overview.getPadPipelineId()));
+          return isNotLinked || isExcluded;
+        })
+        .collect(Collectors.toUnmodifiableList());
   }
 
   private PipelineDrawingSummaryView buildSummaryView(PadTechnicalDrawing technicalDrawing,

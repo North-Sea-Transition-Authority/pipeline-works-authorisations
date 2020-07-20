@@ -37,6 +37,12 @@ public class PadPipelineSummaryDto {
 
   private final Long numberOfIdents;
 
+  private final BigDecimal maxExternalDiameter;
+
+  private final Boolean pipelineInBundle;
+
+  private final String bundleName;
+
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
                                PipelineType pipelineType,
@@ -64,9 +70,10 @@ public class PadPipelineSummaryDto {
                                Integer toLongitudeDegrees,
                                Integer toLongitudeMinutes,
                                BigDecimal toLongitudeSeconds,
-                               LongitudeDirection toLongitudeDirection
-
-
+                               LongitudeDirection toLongitudeDirection,
+                               BigDecimal maxExternalDiameter,
+                               Boolean pipelineInBundle,
+                               String bundleName
   ) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
@@ -107,6 +114,9 @@ public class PadPipelineSummaryDto {
     this.length = length;
     this.productsToBeConveyed = productsToBeConveyed;
     this.numberOfIdents = numberOfIdents;
+    this.maxExternalDiameter = maxExternalDiameter;
+    this.pipelineInBundle = pipelineInBundle;
+    this.bundleName = bundleName;
   }
 
   public int getPadPipelineId() {
@@ -157,5 +167,15 @@ public class PadPipelineSummaryDto {
     return pipelineId;
   }
 
+  public BigDecimal getMaxExternalDiameter() {
+    return maxExternalDiameter;
+  }
 
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  public String getBundleName() {
+    return bundleName;
+  }
 }

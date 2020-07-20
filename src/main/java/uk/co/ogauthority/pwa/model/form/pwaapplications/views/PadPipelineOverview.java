@@ -37,6 +37,12 @@ public class PadPipelineOverview implements PipelineOverview {
 
   private Long numberOfIdents;
 
+  private BigDecimal maxExternalDiameter;
+
+  private Boolean pipelineInBundle;
+
+  private String bundleName;
+
   private PadPipelineOverview(Integer padPipelineId,
                               String fromLocation,
                               CoordinatePair fromCoordinates,
@@ -47,7 +53,10 @@ public class PadPipelineOverview implements PipelineOverview {
                               String componentParts,
                               BigDecimal length,
                               String productsToBeConveyed,
-                              Long numberOfIdents) {
+                              Long numberOfIdents,
+                              BigDecimal maxExternalDiameter,
+                              Boolean pipelineInBundle,
+                              String bundleName) {
     this.padPipelineId = padPipelineId;
     this.fromLocation = fromLocation;
     this.fromCoordinates = fromCoordinates;
@@ -59,11 +68,14 @@ public class PadPipelineOverview implements PipelineOverview {
     this.length = length;
     this.productsToBeConveyed = productsToBeConveyed;
     this.numberOfIdents = numberOfIdents;
+    this.maxExternalDiameter = maxExternalDiameter;
+    this.pipelineInBundle = pipelineInBundle;
+    this.bundleName = bundleName;
   }
 
   @VisibleForTesting
   public PadPipelineOverview(PadPipeline padPipeline,
-                              Long numberOfIdents) {
+                             Long numberOfIdents) {
     this.padPipelineId = padPipeline.getId();
     this.fromLocation = padPipeline.getFromLocation();
     this.fromCoordinates = padPipeline.getFromCoordinates();
@@ -75,6 +87,15 @@ public class PadPipelineOverview implements PipelineOverview {
     this.length = padPipeline.getLength();
     this.productsToBeConveyed = padPipeline.getProductsToBeConveyed();
     this.numberOfIdents = numberOfIdents;
+  }
+
+  @VisibleForTesting
+  public PadPipelineOverview(PadPipeline padPipeline) {
+    this.pipelineNumber = padPipeline.getPipelineRef();
+    this.pipelineType = padPipeline.getPipelineType();
+    this.maxExternalDiameter = padPipeline.getMaxExternalDiameter();
+    this.pipelineInBundle = padPipeline.getPipelineInBundle();
+    this.bundleName = padPipeline.getBundleName();
   }
 
 
@@ -91,8 +112,10 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getComponentParts(),
         padPipelineSummaryDto.getLength(),
         padPipelineSummaryDto.getProductsToBeConveyed(),
-        padPipelineSummaryDto.getNumberOfIdents()
-
+        padPipelineSummaryDto.getNumberOfIdents(),
+        padPipelineSummaryDto.getMaxExternalDiameter(),
+        padPipelineSummaryDto.getPipelineInBundle(),
+        padPipelineSummaryDto.getBundleName()
     );
   }
 
@@ -149,5 +172,20 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public Long getNumberOfIdents() {
     return numberOfIdents;
+  }
+
+  @Override
+  public BigDecimal getMaxExternalDiameter() {
+    return maxExternalDiameter;
+  }
+
+  @Override
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  @Override
+  public String getBundleName() {
+    return bundleName;
   }
 }

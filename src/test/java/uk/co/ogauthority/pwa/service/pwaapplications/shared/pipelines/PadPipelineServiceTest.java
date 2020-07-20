@@ -61,6 +61,9 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineDetailService pipelineDetailService;
 
+  @Mock
+  private PadPipelinePersisterService padPipelinePersisterService;
+
   private PadPipelineService padPipelineService;
 
   private PwaApplicationDetail detail;
@@ -89,7 +92,7 @@ public class PadPipelineServiceTest {
         new CoordinateFormValidator());
 
     padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService,
-        padPipelineIdentService, pipelineIdentFormValidator);
+        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
 
   }
 
@@ -127,7 +130,7 @@ public class PadPipelineServiceTest {
 
     padPipelineService.addPipeline(detail, form);
 
-    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture());
     verify(pipelineService, times(1)).createApplicationPipeline(detail.getPwaApplication());
 
     var newPadPipeline = padPipelineArgumentCaptor.getValue();
@@ -205,7 +208,7 @@ public class PadPipelineServiceTest {
     form.setTrenchedBuriedBackfilled(false);
 
     padPipelineService.addPipeline(detail, form);
-    verify(padPipelineRepository, times(1)).save(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture());
     var newPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPipeline.getOtherPipelineMaterialUsed()).isEqualTo(form.getOtherPipelineMaterialUsed());
   }
