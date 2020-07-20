@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.math.BigDecimal;
+import org.apache.commons.lang3.BooleanUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -22,7 +23,7 @@ public interface PipelineOverview {
       pipelineName += getMaxExternalDiameter() + " Millimetre ";
     }
     pipelineName += getPipelineType().getDisplayName();
-    if (getPipelineInBundle()) {
+    if (BooleanUtils.isTrue(getPipelineInBundle())) {
       pipelineName += " (" + getBundleName() + ")";
     }
     return pipelineName;

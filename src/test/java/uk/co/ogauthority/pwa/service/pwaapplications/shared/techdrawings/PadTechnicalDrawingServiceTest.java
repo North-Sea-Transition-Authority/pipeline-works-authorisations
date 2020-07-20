@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
@@ -498,6 +499,15 @@ public class PadTechnicalDrawingServiceTest {
     padPipelineA.setId(1);
     var padPipelineB = new PadPipeline(pwaApplicationDetail);
     padPipelineB.setId(2);
+
+    var pipelineA = new Pipeline();
+    pipelineA.setId(1);
+    var pipelineB = new Pipeline();
+    pipelineB.setId(2);
+
+    padPipelineA.setPipeline(pipelineA);
+    padPipelineB.setPipeline(pipelineB);
+
     var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -516,6 +526,15 @@ public class PadTechnicalDrawingServiceTest {
     padPipelineA.setId(1);
     var padPipelineB = new PadPipeline(pwaApplicationDetail);
     padPipelineB.setId(2);
+
+    var pipelineA = new Pipeline();
+    pipelineA.setId(1);
+    var pipelineB = new Pipeline();
+    pipelineB.setId(2);
+
+    padPipelineA.setPipeline(pipelineA);
+    padPipelineB.setPipeline(pipelineB);
+
     var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -533,6 +552,15 @@ public class PadTechnicalDrawingServiceTest {
     padPipelineA.setId(1);
     var padPipelineB = new PadPipeline(pwaApplicationDetail);
     padPipelineB.setId(2);
+
+    var pipelineA = new Pipeline();
+    pipelineA.setId(1);
+    var pipelineB = new Pipeline();
+    pipelineB.setId(2);
+
+    padPipelineA.setPipeline(pipelineA);
+    padPipelineB.setPipeline(pipelineB);
+
     var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -548,6 +576,15 @@ public class PadTechnicalDrawingServiceTest {
     padPipelineA.setId(1);
     var padPipelineB = new PadPipeline(pwaApplicationDetail);
     padPipelineB.setId(2);
+
+    var pipelineA = new Pipeline();
+    pipelineA.setId(1);
+    var pipelineB = new Pipeline();
+    pipelineB.setId(2);
+
+    padPipelineA.setPipeline(pipelineA);
+    padPipelineB.setPipeline(pipelineB);
+
     var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -566,6 +603,15 @@ public class PadTechnicalDrawingServiceTest {
     padPipelineA.setId(1);
     var padPipelineB = new PadPipeline(pwaApplicationDetail);
     padPipelineB.setId(2);
+
+    var pipelineA = new Pipeline();
+    pipelineA.setId(1);
+    var pipelineB = new Pipeline();
+    pipelineB.setId(2);
+
+    padPipelineA.setPipeline(pipelineA);
+    padPipelineB.setPipeline(pipelineB);
+
     var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -581,6 +627,15 @@ public class PadTechnicalDrawingServiceTest {
     padPipelineA.setId(1);
     var padPipelineB = new PadPipeline(pwaApplicationDetail);
     padPipelineB.setId(2);
+
+    var pipelineA = new Pipeline();
+    pipelineA.setId(1);
+    var pipelineB = new Pipeline();
+    pipelineB.setId(2);
+
+    padPipelineA.setPipeline(pipelineA);
+    padPipelineB.setPipeline(pipelineB);
+
     var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))

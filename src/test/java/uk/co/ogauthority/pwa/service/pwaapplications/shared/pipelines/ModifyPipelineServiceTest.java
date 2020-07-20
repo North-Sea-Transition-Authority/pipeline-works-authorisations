@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,11 +12,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -134,20 +136,42 @@ public class ModifyPipelineServiceTest {
   public void getSelectableConsentedPipelines_consentedPipelineAvailable() {
     // Perform setup from previous test as underlying calls rely on this method.
     getConsentedPipelinesNotOnApplication_consentedPipelineAvailable();
+
+    var padPipeline = new PadPipeline();
+    var pipeline = new Pipeline();
+    pipeline.setId(3);
+    padPipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+
+    var pipelineOverview = new PadPipelineOverview(padPipeline, 1L);
+
+    when(padPipelineService.getPipelineOverviews(any()))
+        .thenReturn(List.of(pipelineOverview));
+
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
-    assertThat(result).containsExactly(
-        entry("3", "Pipeline ref")
-    );
+    assertThat(result).containsOnlyKeys("3");
   }
 
   @Test
   public void getSelectableConsentedPipelines_noPipelinesOnAppDetail() {
     // Perform setup from previous test as underlying calls rely on this method.
     getConsentedPipelinesNotOnApplication_noPipelinesOnAppDetail();
+
+    var padPipeline = new PadPipeline();
+    var pipeline = new Pipeline();
+    pipeline.setId(3);
+    padPipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+
+    var pipelineOverview = new PadPipelineOverview(padPipeline, 1L);
+
+    when(padPipelineService.getPipelineOverviews(any()))
+        .thenReturn(List.of(pipelineOverview));
+
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
-    assertThat(result).containsExactly(
-        entry("3", "Pipeline ref")
-    );
+    assertThat(result).containsOnlyKeys("3");
   }
 
   @Test
