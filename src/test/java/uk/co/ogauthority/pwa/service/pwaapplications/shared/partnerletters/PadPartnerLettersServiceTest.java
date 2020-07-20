@@ -1,47 +1,31 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import javax.validation.Validation;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoMappingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.partnerletters.PartnerLettersValidator;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineTechInfoValidator;
 
 
 @RunWith(MockitoJUnitRunner.class)
