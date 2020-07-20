@@ -29,7 +29,7 @@ public class ModifyPipelineValidator implements SmartValidator {
         .stream()
         .anyMatch(s -> s.equals(form.getPipelineId()));
     if (!isValidPipeline) {
-      errors.rejectValue("pipelineReference", "pipelineReference" + FieldValidationErrorCodes.INVALID.getCode(),
+      errors.rejectValue("pipelineId", "pipelineId" + FieldValidationErrorCodes.INVALID.getCode(),
           "You must enter a valid pipeline reference");
     }
   }

@@ -101,11 +101,92 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .getResultList();
   }
 
+  private List<PadPipelineSummaryDto> getPipelineSummaryDtosByPadPipelines(List<PadPipeline> padPipelines) {
+    return entityManager.createQuery("" +
+            "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto(" +
+            "  pp.id " +
+            ", p.id " +
+            ", pp.pipelineType " +
+            ", pp.pipelineRef " +
+            ", pp.length " +
+            ", pp.componentPartsDescription " +
+            ", pp.productsToBeConveyed " +
+            ", COUNT(ppi) " +
+            // From info.
+            ", pp.fromLocation " +
+            ", pp.fromLatitudeDegrees " +
+            ", pp.fromLatitudeMinutes " +
+            ", pp.fromLatitudeSeconds " +
+            ", pp.fromLatitudeDirection " +
+            ", pp.fromLongitudeDegrees " +
+            ", pp.fromLongitudeMinutes " +
+            ", pp.fromLongitudeSeconds " +
+            ", pp.fromLongitudeDirection " +
+            // To info.
+            ", pp.toLocation " +
+            ", pp.toLatitudeDegrees " +
+            ", pp.toLatitudeMinutes " +
+            ", pp.toLatitudeSeconds " +
+            ", pp.toLatitudeDirection " +
+            ", pp.toLongitudeDegrees " +
+            ", pp.toLongitudeMinutes " +
+            ", pp.toLongitudeSeconds " +
+            ", pp.toLongitudeDirection " +
+            ", pp.maxExternalDiameter " +
+            ", pp.pipelineInBundle " +
+            ", pp.bundleName " +
+            ") " +
+            "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
+            "JOIN uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline p ON pp.pipeline = p " +
+            "LEFT JOIN uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent ppi " +
+            "ON pp.id = ppi.padPipeline.id " +
+            "WHERE pp IN (:pad_pipelines) " +
+            "GROUP BY " +
+            "  pp.id " +
+            ", p.id " +
+            ", pp.pipelineType " +
+            ", pp.pipelineRef " +
+            ", pp.length " +
+            ", pp.componentPartsDescription " +
+            ", pp.productsToBeConveyed " +
+            // From info.
+            ", pp.fromLocation " +
+            ", pp.fromLatitudeDegrees " +
+            ", pp.fromLatitudeMinutes " +
+            ", pp.fromLatitudeSeconds " +
+            ", pp.fromLatitudeDirection " +
+            ", pp.fromLongitudeDegrees " +
+            ", pp.fromLongitudeMinutes " +
+            ", pp.fromLongitudeSeconds " +
+            ", pp.fromLongitudeDirection " +
+            // To info.
+            ", pp.toLocation " +
+            ", pp.toLatitudeDegrees " +
+            ", pp.toLatitudeMinutes " +
+            ", pp.toLatitudeSeconds " +
+            ", pp.toLatitudeDirection " +
+            ", pp.toLongitudeDegrees " +
+            ", pp.toLongitudeMinutes " +
+            ", pp.toLongitudeSeconds " +
+            ", pp.toLongitudeDirection " +
+            ", pp.maxExternalDiameter " +
+            ", pp.pipelineInBundle " +
+            ", pp.bundleName ",
+        PadPipelineSummaryDto.class)
+        .setParameter("pad_pipelines", padPipelines)
+        .getResultList();
+  }
+
   @Override
   public Optional<PadPipelineSummaryDto> findPipelineAsSummaryDtoByPadPipeline(PadPipeline padPipeline) {
     return getPipelineSummaryDtosByAppDetailAndOptionalPadPipeline(padPipeline.getPwaApplicationDetail(), padPipeline)
         .stream()
         .findFirst();
+  }
+
+  @Override
+  public List<PadPipelineSummaryDto> findPadPipelinesAsSummaryDtos(List<PadPipeline> padPipelines) {
+    return getPipelineSummaryDtosByPadPipelines(padPipelines);
   }
 
   @Override

@@ -94,6 +94,16 @@ public class PadPipelineService implements ApplicationFormSectionService {
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
   }
 
+  public List<PipelineOverview> getPipelineOverviews(List<PadPipeline> padPipelines) {
+    if (ListUtils.emptyIfNull(padPipelines).size() == 0) {
+      return List.of();
+    }
+    return padPipelineRepository.findPadPipelinesAsSummaryDtos(padPipelines)
+        .stream()
+        .map(PadPipelineOverview::from)
+        .collect(Collectors.toUnmodifiableList());
+  }
+
   public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()

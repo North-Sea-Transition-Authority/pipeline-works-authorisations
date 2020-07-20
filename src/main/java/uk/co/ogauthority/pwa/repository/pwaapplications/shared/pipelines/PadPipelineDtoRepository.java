@@ -17,6 +17,8 @@ public interface PadPipelineDtoRepository {
 
   Optional<PadPipelineSummaryDto> findPipelineAsSummaryDtoByPadPipeline(PadPipeline padPipeline);
 
+  List<PadPipelineSummaryDto> findPadPipelinesAsSummaryDtos(List<PadPipeline> padPipelines);
+
   Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
   List<PipelineBundlePairDto> getBundleNamesByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);

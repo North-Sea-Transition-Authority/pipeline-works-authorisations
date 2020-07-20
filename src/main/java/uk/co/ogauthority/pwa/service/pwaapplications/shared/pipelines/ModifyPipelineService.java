@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -40,9 +41,13 @@ public class ModifyPipelineService {
   }
 
   public Map<String, String> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
-    return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
-        .collect(StreamUtils.toLinkedHashMap(pipeline ->
-            String.valueOf(pipeline.getPipeline().getId()), PadPipeline::getPipelineRef));
+    var consentedPipelinesNotOnApplication = getConsentedPipelinesNotOnApplication(pwaApplicationDetail);
+    var pipelineOverviews = padPipelineService.getPipelineOverviews(consentedPipelinesNotOnApplication);
+    return pipelineOverviews.stream()
+        .collect(StreamUtils.toLinkedHashMap(
+            pipelineOverview -> String.valueOf(pipelineOverview.getPipelineId()),
+            PipelineOverview::getPipelineName
+        ));
   }
 
   @Transactional

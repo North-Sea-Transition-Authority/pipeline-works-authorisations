@@ -10,6 +10,8 @@ public interface PipelineOverview {
 
   Integer getPadPipelineId();
 
+  Integer getPipelineId();
+
   /**
    * pipelineName is used for PWA users to easily identify a pipeline on an application,
    * where as the pipeline number uniquely identifies a pipeline and is used as the main reference by external applications.
