@@ -45,7 +45,7 @@
           <@fdsCheckbox.checkbox path="form.acceptRemovalProposal" labelText="I accept that if the condition of the mattresses or grout bags is such that they cannot be removed safely or efficiently then any proposal to leave them in place must be supported by an appropriate comparative assessment of the options."/>
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons errorMessage="" linkSecondaryAction=true primaryButtonText="Complete" secondaryLinkText="Save and continue later"/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Complete" secondaryLinkText="Save and continue later"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

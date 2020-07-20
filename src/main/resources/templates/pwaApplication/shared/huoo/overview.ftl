@@ -2,10 +2,15 @@
 <#-- @ftlvariable name="backUrl" type="String" -->
 <#-- @ftlvariable name="huooOrgs" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUnitRoleView>" -->
 <#-- @ftlvariable name="treatyAgreements" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView>" -->
+<#-- @ftlvariable name="errorMessage" type="String" -->
 
 <#include '../../../layout.ftl'>
 
 <@defaultPage htmlTitle="Holders, users, operators, and owners" pageHeading="Holders, users, operators, and owners" fullWidthColumn=true breadcrumbs=true>
+
+  <#if errorMessage?has_content>
+    <@fdsError.singleErrorSummary errorMessage=errorMessage />
+  </#if>
 
   <@fdsAction.link linkText="Add holder, user, operator or owner" linkUrl=springUrl(addHuooUrl) linkClass="govuk-link govuk-link--button govuk-button govuk-button--blue" role=true/>
 
@@ -73,6 +78,6 @@
     </table>
   </#if>
     <@fdsForm.htmlForm>
-      <@fdsAction.submitButtons errorMessage=errorMessage!"" primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
+      <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

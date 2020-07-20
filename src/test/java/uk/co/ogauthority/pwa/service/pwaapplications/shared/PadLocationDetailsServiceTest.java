@@ -1,7 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -11,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import javax.validation.Validation;
 import org.junit.Before;
@@ -19,13 +23,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
+import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
+import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,6 +44,12 @@ public class PadLocationDetailsServiceTest {
 
   @Mock
   private PadFacilityService facilityService;
+
+  @Mock
+  private DevukFacilityService devukFacilityService;
+
+  @Mock
+  private SearchSelectorService searchSelectorService;
 
   @Mock
   private LocationDetailsValidator validator;
@@ -50,8 +64,9 @@ public class PadLocationDetailsServiceTest {
   @Before
   public void setUp() {
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-    padLocationDetailsService = new PadLocationDetailsService(padLocationDetailsRepository, facilityService, validator,
-        groupValidator);
+    padLocationDetailsService = new PadLocationDetailsService(padLocationDetailsRepository, facilityService,
+        devukFacilityService, validator,
+        groupValidator, searchSelectorService);
     pwaApplicationDetail = new PwaApplicationDetail();
     padLocationDetails = buildEntity();
   }
@@ -228,6 +243,55 @@ public class PadLocationDetailsServiceTest {
 
     verify(padLocationDetailsRepository, times(1)).save(padLocationDetails);
 
+  }
+
+  @Test
+  public void reapplyFacilitySelections_serviceInteraction_noSelection() {
+    var form = new LocationDetailsForm();
+    padLocationDetailsService.reapplyFacilitySelections(form);
+    verifyNoInteractions(devukFacilityService);
+    verify(searchSelectorService, times(1)).buildPrepopulatedSelections(any(), any());
+  }
+
+  @Test
+  public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Yes() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.YES);
+    form.setFacilitiesIfYes(List.of("yes"));
+    form.setFacilitiesIfPartially(List.of("partially"));
+    padLocationDetailsService.reapplyFacilitySelections(form);
+    verify(devukFacilityService, times(1)).getFacilitiesInIds(List.of("yes"));
+    verify(devukFacilityService, never()).getFacilitiesInIds(List.of("partially"));
+    verify(searchSelectorService, times(1)).buildPrepopulatedSelections(any(), any());
+  }
+
+  @Test
+  public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Partially() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
+    form.setFacilitiesIfYes(List.of("yes"));
+    form.setFacilitiesIfPartially(List.of("partially"));
+    padLocationDetailsService.reapplyFacilitySelections(form);
+    verify(devukFacilityService, times(1)).getFacilitiesInIds(List.of("partially"));
+    verify(devukFacilityService, never()).getFacilitiesInIds(List.of("yes"));
+    verify(searchSelectorService, times(1)).buildPrepopulatedSelections(any(), any());
+  }
+
+  @Test
+  public void reapplyFacilitySelections_fullRun() {
+    var form = new LocationDetailsForm();
+    form.setWithinSafetyZone(HseSafetyZone.YES);
+    form.setFacilitiesIfYes(List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "yes"));
+
+    var devukFacility = new DevukFacility(1, "Test facility");
+    when(devukFacilityService.getFacilitiesInIds(form.getFacilitiesIfYes())).thenReturn(List.of(devukFacility));
+    when(searchSelectorService.buildPrepopulatedSelections(any(), any())).thenCallRealMethod();
+    when(searchSelectorService.removePrefix(any())).thenCallRealMethod();
+    var result = padLocationDetailsService.reapplyFacilitySelections(form);
+    assertThat(result).contains(
+      entry("1", "Test facility"),
+      entry(SearchSelectable.FREE_TEXT_PREFIX + "yes", "yes")
+    );
   }
 
   private LocationDetailsForm buildForm() {

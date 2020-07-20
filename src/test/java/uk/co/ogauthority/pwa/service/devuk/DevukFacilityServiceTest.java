@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.devuk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -27,10 +29,17 @@ public class DevukFacilityServiceTest {
   }
 
   @Test
-  public void getFacilities() {
+  public void getFacilities_serviceInteraction() {
     var facility = new DevukFacility();
     when(devukFacilityRepository.findAllByFacilityNameContainsIgnoreCase(any(), any())).thenReturn(List.of(facility));
     var result = devukFacilityService.getFacilities("");
     assertThat(result).containsExactly(facility);
+  }
+
+  @Test
+  public void getFacilitiesInIds_ensureOnlyIntegersPassed() {
+    List<String> idList = List.of("1", "two", "3");
+    devukFacilityService.getFacilitiesInIds(idList);
+    verify(devukFacilityRepository, times(1)).findAllByIdIn(List.of(1, 3));
   }
 }

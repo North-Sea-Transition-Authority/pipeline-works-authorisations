@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.location;
 
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -8,15 +10,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
+import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
@@ -25,18 +31,24 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
   private final PadLocationDetailsRepository padLocationDetailsRepository;
   private final PadFacilityService padFacilityService;
+  private final DevukFacilityService devukFacilityService;
   private final LocationDetailsValidator validator;
   private final SpringValidatorAdapter groupValidator;
+  private final SearchSelectorService searchSelectorService;
 
   @Autowired
   public PadLocationDetailsService(PadLocationDetailsRepository padLocationDetailsRepository,
                                    PadFacilityService padFacilityService,
+                                   DevukFacilityService devukFacilityService,
                                    LocationDetailsValidator validator,
-                                   SpringValidatorAdapter groupValidator) {
+                                   SpringValidatorAdapter groupValidator,
+                                   SearchSelectorService searchSelectorService) {
     this.padLocationDetailsRepository = padLocationDetailsRepository;
     this.padFacilityService = padFacilityService;
+    this.devukFacilityService = devukFacilityService;
     this.validator = validator;
     this.groupValidator = groupValidator;
+    this.searchSelectorService = searchSelectorService;
   }
 
   public PadLocationDetails getLocationDetailsForDraft(PwaApplicationDetail detail) {
@@ -97,6 +109,26 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setRouteSurveyUndertaken(locationDetailsForm.getRouteSurveyUndertaken());
     padLocationDetails.setWithinLimitsOfDeviation(locationDetailsForm.getWithinLimitsOfDeviation());
     save(padLocationDetails);
+  }
+
+  public Map<String, String> reapplyFacilitySelections(LocationDetailsForm form) {
+    List<String> facilities = List.of();
+    if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
+      facilities = form.getFacilitiesIfPartially();
+    } else if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
+      facilities = form.getFacilitiesIfYes();
+    }
+
+    List<DevukFacility> devukFacilities = List.of();
+    if (facilities.size() > 0) {
+      devukFacilities = devukFacilityService.getFacilitiesInIds(facilities);
+    }
+
+    Map<String, String> resolveMap = devukFacilities.stream()
+        .collect(StreamUtils.toLinkedHashMap(devukFacility -> String.valueOf(devukFacility.getId()),
+            DevukFacility::getFacilityName));
+
+    return searchSelectorService.buildPrepopulatedSelections(facilities, resolveMap);
   }
 
   @Override
