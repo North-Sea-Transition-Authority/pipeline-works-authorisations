@@ -39,7 +39,7 @@
             <@fdsCheckbox.checkbox path="form.acceptFundsLiability" labelText="I hereby confirm that ${holderCompanyName} has funds available to discharge any liability for damage attributable to the release or escape of anything from the pipeline."/>
             <@fdsCheckbox.checkbox path="form.acceptOpolLiability" labelText="I acknowledge liability insurance in respect of North Sea operations is arranged under the General Third Party Liability Risk Insurance and the complementary arrangements effected under the Offshore Pollution Liability Agreement (OPOL) of ${holderCompanyName}."/>
         </@fdsFieldset.fieldset>
-        <@fdsAction.submitButtons errorMessage="" linkSecondaryAction=true primaryButtonText="Complete" secondaryLinkText="Save and continue later"/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Complete" secondaryLinkText="Save and continue later"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

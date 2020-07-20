@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import 'pipelineOverview.ftl' as pipelineOverviewMacro>
 
+<#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="pipelineOverview" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview" -->
 <#-- @ftlvariable name="addIdentUrl" type="String" -->
 <#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentSummaryView" -->
@@ -9,6 +10,10 @@
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
 
 <@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true  pageHeading="${pipelineOverview.getPipelineName()} idents">
+
+    <#if errorMessage?has_content>
+        <@fdsError.singleErrorSummary errorMessage=errorMessage />
+    </#if>
 
     <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />
 
@@ -63,23 +68,23 @@
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl) errorMessage=errorMessage!/>
+        <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 
 </@defaultPage>
 
 
 <#macro dataValueForCoreType coreType key valueSingleCore valueMultiCore measurementUnit="">
-    <#assign unit = measurementUnit/>  
-    <#if coreType == "SINGLE_CORE">  
+    <#assign unit = measurementUnit/>
+    <#if coreType == "SINGLE_CORE">
         <#if (valueSingleCore?has_content) == false>
-            <#assign unit = ""/>              
-        </#if>        
-        <@fdsDataItems.dataValues key=key value="${valueSingleCore}${unit}"/>        
+            <#assign unit = ""/>
+        </#if>
+        <@fdsDataItems.dataValues key=key value="${valueSingleCore}${unit}"/>
     <#else>
         <#if (valueMultiCore?has_content) == false>
-            <#assign unit = ""/>              
-        </#if>        
+            <#assign unit = ""/>
+        </#if>
         <@fdsDataItems.dataValues key=key value="${valueMultiCore} ${unit}"/>
     </#if>
 </#macro>
