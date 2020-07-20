@@ -19,7 +19,8 @@ public enum PipelineType {
   HYDRAULIC_JUMPER("Hydraulic Jumper", 9, PipelineCoreType.MULTI_CORE),
   CHEMICAL_JUMPER("Chemical Jumper", 10, PipelineCoreType.SINGLE_CORE),
   CONTROL_JUMPER("Control Jumper", 11, PipelineCoreType.SINGLE_CORE),
-  UMBILICAL_JUMPER("Umbilical Jumper", 12, PipelineCoreType.MULTI_CORE);
+  UMBILICAL_JUMPER("Umbilical Jumper", 12, PipelineCoreType.MULTI_CORE),
+  CABLE("Cable", 13, PipelineCoreType.SINGLE_CORE);
 
   private String displayName;
   private int displayOrder;

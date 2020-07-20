@@ -21,7 +21,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
@@ -47,6 +47,9 @@ public class PadPipelineIdentServiceTest {
 
   private PadPipelineIdentService identService;
 
+  @Mock
+  private PadPipelinePersisterService padPipelinePersisterService;
+
   @Captor
   private ArgumentCaptor<PadPipelineIdent> identCaptor;
 
@@ -55,13 +58,15 @@ public class PadPipelineIdentServiceTest {
 
   @Before
   public void setUp() {
-    identService = new PadPipelineIdentService(repository, identDataService);
+    identService = new PadPipelineIdentService(repository, identDataService, padPipelinePersisterService);
   }
 
   @Test
   public void addIdent() throws IllegalAccessException {
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
     var form = new PipelineIdentForm();
 
     form.setFromLocation("from");
@@ -249,6 +254,8 @@ public class PadPipelineIdentServiceTest {
   public void removeIdent() {
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
 
     var ident = new PadPipelineIdent();
     ident.setPadPipeline(pipeline);
@@ -297,6 +304,11 @@ public class PadPipelineIdentServiceTest {
 
     var identData = new PadPipelineIdentData();
     when(identDataService.getOptionalOfIdentData(ident)).thenReturn(Optional.of(identData));
+
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
+    ident.setPadPipeline(pipeline);
 
     identService.updateIdent(ident, form);
     verify(repository, times(1)).save(ident);
@@ -406,6 +418,8 @@ public class PadPipelineIdentServiceTest {
     form.setDataForm(dataForm);
 
     var pipeline = new PadPipeline();
+    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    pipeline.setPipelineInBundle(false);
     var ident = new PadPipelineIdent();
     ident.setIdentNo(1);
 
@@ -463,5 +477,8 @@ public class PadPipelineIdentServiceTest {
 
     assertThat(newIdent.getLength()).isEqualTo(form.getLength());
   }
+
+
+
 
 }

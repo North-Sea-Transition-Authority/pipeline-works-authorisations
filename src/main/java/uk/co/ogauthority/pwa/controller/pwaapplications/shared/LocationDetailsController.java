@@ -102,6 +102,15 @@ public class LocationDetailsController extends PwaApplicationDataFileUploadAndDo
                 StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
         .addObject("facilityRestUrl",
             SearchSelectorService.route(on(DevukRestController.class).searchFacilities(null)));
+
+    // Add preselection options in case validation fails
+    if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
+      modelAndView.addObject("preselectedFacilitiesIfYes",
+          padLocationDetailsService.reapplyFacilitySelections(form));
+    } else if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
+      modelAndView.addObject("preselectedFacilitiesIfPartially",
+          padLocationDetailsService.reapplyFacilitySelections(form));
+    }
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
   }

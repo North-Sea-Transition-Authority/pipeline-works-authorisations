@@ -105,7 +105,7 @@
           <p class="govuk-body">No pipeline crossing agreements</p>
         </#if>
 
-        <@fdsAction.submitButtons errorMessage="" linkSecondaryAction=true primaryButtonText="Complete" secondaryLinkText="Save and continue later"/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Complete" secondaryLinkText="Save and continue later"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

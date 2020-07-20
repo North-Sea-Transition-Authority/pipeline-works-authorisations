@@ -9,7 +9,6 @@
 <#-- @ftlvariable name="workScheduleViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView>" -->
 <#-- @ftlvariable name="sectionValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksSummaryValidationResult" -->
 
-
 <#macro campaignWorkScheduleCard workSchedule cardIndex>
     <#local hasErrors=sectionValidationResult.isWorkScheduleInvalid(workSchedule.getPadCampaignWorkScheduleId())/>
 
@@ -41,10 +40,15 @@
 
 <@defaultPage htmlTitle="Campaign works" pageHeading="Campaign works" breadcrumbs=true fullWidthColumn=true>
 
+    <#if sectionValidationResult.getCompleteSectionErrorMessage()?has_content>
+        <@fdsError.singleErrorSummary errorMessage=sectionValidationResult.getCompleteSectionErrorMessage() />
+    </#if>
+
     <@fdsInsetText.insetText>
       <p>Your application requires campaign works information due to the information provided in the ${dependencySectionName} section.</p>
       <p><a href="${springUrl(dependencySectionUrl)}" class="govuk-link">Click here to change your campaign works approach.</a></p>
     </@fdsInsetText.insetText>
+
     <@fdsAction.link linkText="Add work schedule" linkUrl=springUrl(urlFactory.addWorkScheduleUrl()) linkClass="govuk-button govuk-button--blue"/>
 
     <#list workScheduleViewList as workSchedule>
@@ -53,7 +57,6 @@
 
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons
-        errorMessage=sectionValidationResult.getCompleteSectionErrorMessage()!""
         primaryButtonText="Complete"
         linkSecondaryAction=true
         secondaryLinkText="Back to task list"

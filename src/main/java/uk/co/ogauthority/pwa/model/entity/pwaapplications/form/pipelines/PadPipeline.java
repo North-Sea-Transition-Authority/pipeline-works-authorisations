@@ -130,6 +130,9 @@ public class PadPipeline {
   private String otherPipelineMaterialUsed;
 
   private Integer pipelineDesignLife;
+
+  private BigDecimal maxExternalDiameter;
+
   private Boolean pipelineInBundle;
   private String bundleName;
 
@@ -164,6 +167,7 @@ public class PadPipeline {
   public void setPipeline(Pipeline pipeline) {
     this.pipeline = pipeline;
   }
+
 
   public PipelineType getPipelineType() {
     return pipelineType;
@@ -289,6 +293,14 @@ public class PadPipeline {
 
   public PipelineCoreType getCoreType() {
     return pipelineType.getCoreType();
+  }
+
+  public BigDecimal getMaxExternalDiameter() {
+    return maxExternalDiameter;
+  }
+
+  public void setMaxExternalDiameter(BigDecimal maxExternalDiameter) {
+    this.maxExternalDiameter = maxExternalDiameter;
   }
 
   public Boolean getPipelineInBundle() {

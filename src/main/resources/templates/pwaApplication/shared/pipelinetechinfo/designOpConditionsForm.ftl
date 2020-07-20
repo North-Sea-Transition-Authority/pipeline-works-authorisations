@@ -12,29 +12,29 @@
     <@fdsForm.htmlForm>
 
         <@minMaxInput minFormPath="form.temperatureOpMinMax.minValue" maxFormPath="form.temperatureOpMinMax.maxValue"
-            labelText="What are the temperature operating conditions?" nestedPath="" unitMeasurement="°C" />
+            labelText="What are the temperature operating conditions?" nestedPath="" unitMeasurement=unitMeasurements.DEGREES_CELSIUS />
 
         <@minMaxInput minFormPath="form.temperatureDesignMinMax.minValue" maxFormPath="form.temperatureDesignMinMax.maxValue"
-            labelText="What are the temperature design conditions?" nestedPath="" unitMeasurement="°C" />            
+            labelText="What are the temperature design conditions?" nestedPath="" unitMeasurement=unitMeasurements.DEGREES_CELSIUS />
 
         <@minMaxInput minFormPath="form.pressureOpInternalExternal.minValue" maxFormPath="form.pressureOpInternalExternal.maxValue"
-            labelText="What are the pressure operating conditions?" nestedPath="" unitMeasurement="barg" altMinLabel="internal" altMaxLabel="external"/>
+            labelText="What are the pressure operating conditions?" nestedPath="" unitMeasurement=unitMeasurements.BAR_G altMinLabel="internal" altMaxLabel="external"/>
 
         <@minMaxInput minFormPath="form.pressureDesignInternalExternal.minValue" maxFormPath="form.pressureDesignInternalExternal.maxValue"
-            labelText="What are the pressure design conditions?" nestedPath="" unitMeasurement="barg" altMinLabel="internal" altMaxLabel="external"/>            
+            labelText="What are the pressure design conditions?" nestedPath="" unitMeasurement=unitMeasurements.BAR_G altMinLabel="internal" altMaxLabel="external"/>
 
         <@minMaxInput minFormPath="form.flowrateOpMinMax.minValue" maxFormPath="form.flowrateOpMinMax.maxValue"
-            labelText="What are the flowrate operating conditions?" nestedPath="" unitMeasurement="kscm/d" />
+            labelText="What are the flowrate operating conditions?" nestedPath="" unitMeasurement=unitMeasurements.KSCM_D />
 
         <@minMaxInput minFormPath="form.flowrateDesignMinMax.minValue" maxFormPath="form.flowrateDesignMinMax.maxValue"
-            labelText="What are the flowrate design conditions?" nestedPath="" unitMeasurement="kscm/d" />
+            labelText="What are the flowrate design conditions?" nestedPath="" unitMeasurement=unitMeasurements.KSCM_D />
 
         <@fdsFieldset.fieldset legendHeading="What are the U-value operating conditions?" legendHeadingSize="h5" legendHeadingClass="govuk-fieldset__legend--m">
-            <@fdsTextInput.textInput path="form.uvalueOp" labelText="" suffix="W/m2K" inputClass="govuk-input--width-5"/>
-        </@fdsFieldset.fieldset>        
+            <@fdsTextInput.textInput path="form.uvalueOp" labelText="" suffix=unitMeasurements.KSCM_D.suffixDisplay suffixScreenReaderPrompt=unitMeasurements.KSCM_D.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
+        </@fdsFieldset.fieldset>
         <@fdsFieldset.fieldset legendHeading="What are the U-value design conditions?" legendHeadingSize="h5" legendHeadingClass="govuk-fieldset__legend--m">
-            <@fdsTextInput.textInput path="form.uvalueDesign" labelText="" suffix="W/m2K" inputClass="govuk-input--width-5"/>
-        </@fdsFieldset.fieldset>  
+            <@fdsTextInput.textInput path="form.uvalueDesign" labelText="" suffix=unitMeasurements.KSCM_D.suffixDisplay suffixScreenReaderPrompt=unitMeasurements.KSCM_D.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
+        </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
     </@fdsForm.htmlForm>

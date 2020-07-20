@@ -1,6 +1,10 @@
 <#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="preselectedFacilitiesIfYes" type="java.util.Map<java.lang.String, java.lang.String>" -->
+<#-- @ftlvariable name="preselectedFacilitiesIfPartially" type="java.util.Map<java.lang.String, java.lang.String>" -->
+<#-- @ftlvariable name="safetyZoneOptions" type="java.util.Map<java.lang.String, java.lang.String>" -->
+<#-- @ftlvariable name="facilityRestUrl" type="java.lang.String" -->
 
 <@defaultPage htmlTitle="Location details" pageHeading="Location details" breadcrumbs=true>
 

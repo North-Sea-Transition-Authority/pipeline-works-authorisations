@@ -4,6 +4,8 @@
 <#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
 <#import 'pipeline/pipelineCrossingManagement.ftl' as pipelineCrossingManagement>
 
+<#-- @ftlvariable name="errorMessage" type="String" -->
+
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory" -->
 <#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
@@ -23,9 +25,11 @@
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsValidationResult" -->
 <#-- @ftlvariable name="overview" type="uk.co.ogauthority.pwa.model.form.enums.CrossingOverview" -->
 
-
-
 <@defaultPage htmlTitle=overview.sectionTitle pageHeading=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
+
+    <#if errorMessage?has_content>
+        <@fdsError.singleErrorSummary errorMessage=errorMessage />
+    </#if>
 
     <#if overview == "LICENCE_AND_BLOCKS">
         <@blockCrossingManagement.blockCrossingManagement
@@ -50,7 +54,7 @@
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons errorMessage=errorMessage!"" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>
