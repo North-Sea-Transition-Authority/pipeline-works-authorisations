@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.function.Function;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -179,7 +180,8 @@ public class PwaApplicationDetailService {
   @Transactional
   public void updatePartnerLetters(PwaApplicationDetail applicationDetail, PartnerLettersForm form) {
     applicationDetail.setPartnerLettersRequired(form.getPartnerLettersRequired());
-    applicationDetail.setPartnerLettersConfirmed(form.getPartnerLettersRequired() ? form.getPartnerLettersConfirmed() : null);
+    applicationDetail.setPartnerLettersConfirmed(BooleanUtils.isTrue(form.getPartnerLettersRequired())
+        ? form.getPartnerLettersConfirmed() : null);
     pwaApplicationDetailRepository.save(applicationDetail);
   }
 

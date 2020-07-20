@@ -4,6 +4,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
@@ -56,7 +57,7 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
     var uploadedFiles = padFileService.getAllByPwaApplicationDetailAndPurpose(applicationDetail, FILE_PURPOSE);
     applicationDetailService.updatePartnerLetters(applicationDetail, form);
 
-    if (form.getPartnerLettersRequired()) {
+    if (BooleanUtils.isTrue(form.getPartnerLettersRequired())) {
       padFileService.updateFiles(form, applicationDetail, FILE_PURPOSE,
           FileUpdateMode.DELETE_UNLINKED_FILES, user);
 
@@ -69,7 +70,11 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    return false;
+    var form = new PartnerLettersForm();
+    mapEntityToForm(detail, form);
+    BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+    validate(form, bindingResult, ValidationType.FULL, detail);
+    return !bindingResult.hasErrors();
   }
 
 
@@ -78,7 +83,9 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
                                 BindingResult bindingResult,
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    partnerLettersValidator.validate(form, bindingResult);
+    if (validationType.equals(ValidationType.FULL)) {
+      partnerLettersValidator.validate(form, bindingResult);
+    }
     return bindingResult;
   }
 
