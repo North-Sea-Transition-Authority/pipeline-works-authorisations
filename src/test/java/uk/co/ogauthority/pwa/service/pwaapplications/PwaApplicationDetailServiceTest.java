@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -180,6 +181,25 @@ public class PwaApplicationDetailServiceTest {
     assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
+  }
+
+  @Test
+  public void updatePartnerLetters_lettersRequired() {
+    var form = new PartnerLettersForm();
+    form.setPartnerLettersRequired(true);
+    form.setPartnerLettersConfirmed(true);
+    pwaApplicationDetailService.updatePartnerLetters(pwaApplicationDetail, form);
+    assertThat(pwaApplicationDetail.getPartnerLettersRequired() == true);
+    assertThat(pwaApplicationDetail.getPartnerLettersConfirmed() == true);
+  }
+
+  @Test
+  public void updatePartnerLetters_lettersNotRequired() {
+    var form = new PartnerLettersForm();
+    form.setPartnerLettersRequired(false);
+    pwaApplicationDetailService.updatePartnerLetters(pwaApplicationDetail, form);
+    assertThat(pwaApplicationDetail.getPartnerLettersRequired() == false);
+    assertThat(pwaApplicationDetail.getPartnerLettersConfirmed() == null);
   }
 
 }
