@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -34,6 +36,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -267,6 +270,31 @@ public class PadPipelineServiceTest {
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(pipelinesMocked);
 
     assertThat(padPipelineService.getPipelineReferenceMap(detail)).isEqualTo(pipeLinesExpected);
+  }
+
+  @Test
+  public void getPipelineOverviews_emptyList() {
+    var result = padPipelineService.getPipelineOverviews(List.of());
+    assertThat(result).isEmpty();
+    verifyNoInteractions(padPipelineRepository);
+  }
+
+  @Test
+  public void getPipelineOverviews_serviceInteraction() {
+    var padPipeline = new PadPipeline();
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    padPipeline.setId(2);
+    padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+
+    var summaryDto = createPadPipelineSummaryDto(padPipeline);
+
+    when(padPipelineRepository.findPadPipelinesAsSummaryDtos(List.of(padPipeline)))
+        .thenReturn(List.of(summaryDto));
+    var result = padPipelineService.getPipelineOverviews(List.of(padPipeline));
+    assertThat(result).extracting(PipelineOverview::getPipelineId)
+        .containsExactly(1);
   }
 
   @Test
@@ -550,6 +578,28 @@ public class PadPipelineServiceTest {
 
     verify(padPipelineRepository, times(1)).saveAll(eq(List.of(pipeline1, pipeline2)));
 
+  }
+
+  private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
+    return new PadPipelineSummaryDto(
+        padPipeline.getId(),
+        padPipeline.getPipeline().getId(),
+        padPipeline.getPipelineType(),
+        padPipeline.getPipelineRef(),
+        padPipeline.getLength(),
+        padPipeline.getComponentPartsDescription(),
+        padPipeline.getProductsToBeConveyed(),
+        1L,
+        padPipeline.getFromLocation(),
+        1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH,
+        1, 1, BigDecimal.ZERO, LongitudeDirection.EAST,
+        padPipeline.getToLocation(),
+        1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH,
+        1, 1, BigDecimal.ZERO, LongitudeDirection.EAST,
+        padPipeline.getMaxExternalDiameter(),
+        padPipeline.getPipelineInBundle(),
+        padPipeline.getBundleName()
+    );
   }
 
 }
