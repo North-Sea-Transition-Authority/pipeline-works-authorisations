@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineRepository;
@@ -62,5 +64,16 @@ public class PipelineServiceTest {
     pipelineService.getPipelinesFromIds(ids);
     verify(pipelineRepository, times(1)).findAllById(Set.of(1,2));
 
+  }
+
+  @Test
+  public void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
+    var application = pwaApplicationDetail.getPwaApplication();
+    var master = application.getMasterPwa();
+    var pipelineDetail = new PipelineDetail();
+    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndTipFlagAndDetailStatusIsNot(master, true, "DELETED"))
+        .thenReturn(List.of(pipelineDetail));
+    var result = pipelineService.getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(application, true);
+    assertThat(result).containsExactly(pipelineDetail);
   }
 }
