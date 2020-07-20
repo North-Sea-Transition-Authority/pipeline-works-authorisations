@@ -3,6 +3,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
+/**
+ * Represents a pickable pipeline from either application or consented model in a stringifiable form.
+ */
 public class PickablePipelineId {
 
   private final String id;

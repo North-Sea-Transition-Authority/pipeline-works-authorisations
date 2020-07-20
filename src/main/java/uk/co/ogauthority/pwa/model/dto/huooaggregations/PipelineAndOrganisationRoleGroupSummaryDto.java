@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 /**
@@ -22,9 +22,9 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
 
   private final Map<HuooRole, Set<PipelineAndOrganisationRoleGroupDto>> groupedPipelineOrgRoleGroups;
 
-  private final Set<PipelineId> allPipelineIdsInSummary;
+  private final Set<PipelineIdentifier> allPipelineIdentifiersInSummary;
   private final Set<OrganisationRoleOwnerDto> allOrganisationRoleOwnersInSummary;
-  private final Map<HuooRole, Set<PipelineId>> pipelinesByAssociatedRole;
+  private final Map<HuooRole, Set<PipelineIdentifier>> pipelinesByAssociatedRole;
   private final Map<HuooRole, Set<OrganisationRoleOwnerDto>> organisationsRoleOwnersByAssociatedRole;
 
   // Private constructor. This is doing the aggregation of whatever OrganisationPipelineRoleDto are given,
@@ -33,7 +33,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
   private PipelineAndOrganisationRoleGroupSummaryDto(
       Collection<OrganisationPipelineRoleInstanceDto> portalOrganisationPipelineRoleInstanceDtos) {
     this.groupedPipelineOrgRoleGroups = new HashMap<>();
-    this.allPipelineIdsInSummary = new HashSet<>();
+    this.allPipelineIdentifiersInSummary = new HashSet<>();
     this.allOrganisationRoleOwnersInSummary = new HashSet<>();
     this.pipelinesByAssociatedRole = new HashMap<>();
     this.organisationsRoleOwnersByAssociatedRole = new HashMap<>();
@@ -70,8 +70,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
     // loop through non-aggregated organisation roles for pipelines and extract distinct organisation units and
     // distinct top level pipeline ids.
     portalOrganisationPipelineRoleInstanceDtos.forEach(o -> {
-      this.allPipelineIdsInSummary.add(o.getPipelineId());
-      this.pipelinesByAssociatedRole.get(o.getHuooRole()).add(o.getPipelineId());
+      this.allPipelineIdentifiersInSummary.add(o.getPipelineIdentifier());
+      this.pipelinesByAssociatedRole.get(o.getHuooRole()).add(o.getPipelineIdentifier());
       this.allOrganisationRoleOwnersInSummary.add(o.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
       this.organisationsRoleOwnersByAssociatedRole.get(o.getHuooRole()).add(
           o.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
@@ -87,9 +87,9 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
       Set<OrganisationPipelineRoleInstanceDto> organisationPipelineRoleInstanceDtos) {
 
     // For each pipeline map the associated organisation roles
-    Map<PipelineId, Set<OrganisationRoleOwnerDto>> pipelineIdToOrgRolesMap = organisationPipelineRoleInstanceDtos.stream()
+    Map<PipelineIdentifier, Set<OrganisationRoleOwnerDto>> pipelineIdToOrgRolesMap = organisationPipelineRoleInstanceDtos.stream()
         .collect(groupingBy(
-            OrganisationPipelineRoleInstanceDto::getPipelineId,
+            OrganisationPipelineRoleInstanceDto::getPipelineIdentifier,
             Collectors.mapping(
                 OrganisationPipelineRoleInstanceDto::getOrganisationRoleOwnerDto,
                 Collectors.toSet())
@@ -99,20 +99,20 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
     // All sets have been set as immutable final elements and are not modifiable. Enforced with unit tests of base objects.
     // the order of elements in a set does not affect the result of equals or hashcode so the group itself will provide the consistent
     // key.
-    Map<Set<OrganisationRoleOwnerDto>, Set<PipelineId>> matchingPipelinesAndOrganisationGroups = new HashMap<>();
+    Map<Set<OrganisationRoleOwnerDto>, Set<PipelineIdentifier>> matchingPipelinesAndOrganisationGroups = new HashMap<>();
 
     // For each pipeline and set of org roles, add the org role set as a key, then add the pipelines to the associated set.
     // Once the loop is complete, all the pipelines which have the same associated organisation roles will be grouped together.
-    pipelineIdToOrgRolesMap.forEach((pipelineId, organisationRoleDtoSet) -> {
+    pipelineIdToOrgRolesMap.forEach((pipelineIdentifier, organisationRoleDtoSet) -> {
       if (matchingPipelinesAndOrganisationGroups.containsKey(organisationRoleDtoSet)) {
 
         matchingPipelinesAndOrganisationGroups.get(organisationRoleDtoSet)
-            .add(pipelineId);
+            .add(pipelineIdentifier);
 
       } else {
 
-        var newPipelineSet = new HashSet<PipelineId>();
-        newPipelineSet.add(pipelineId);
+        var newPipelineSet = new HashSet<PipelineIdentifier>();
+        newPipelineSet.add(pipelineIdentifier);
         matchingPipelinesAndOrganisationGroups.put(
             organisationRoleDtoSet,
             newPipelineSet
@@ -149,8 +149,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
   /**
    * Convenience method to access all the distinct pipeline Ids contained within this aggregated summary object.
    */
-  public Set<PipelineId> getAllPipelineIdsInSummary() {
-    return Collections.unmodifiableSet(allPipelineIdsInSummary);
+  public Set<PipelineIdentifier> getAllPipelineIdentifiersInSummary() {
+    return Collections.unmodifiableSet(allPipelineIdentifiersInSummary);
   }
 
   /**
@@ -160,7 +160,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDto {
     return Collections.unmodifiableSet(allOrganisationRoleOwnersInSummary);
   }
 
-  public Set<PipelineId> getPipelineIdsWithAssignedRole(HuooRole huooRole) {
+  public Set<PipelineIdentifier> getPipelineIdsWithAssignedRole(HuooRole huooRole) {
     return Collections.unmodifiableSet(this.pipelinesByAssociatedRole.get(huooRole));
   }
 

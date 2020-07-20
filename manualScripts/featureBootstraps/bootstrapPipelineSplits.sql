@@ -49,11 +49,15 @@ BEGIN
         l_role_id NUMBER;
       BEGIN
         -- going to blow up if no rows returned. This is desirable.
-        SELECT por.id
+        SELECT id
         INTO l_role_id
-        FROM ${datasource.user}.pad_organisation_roles por
-             JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
-        WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huuo_role
+        FROM (
+               SELECT por.id
+               FROM ${datasource.user}.pad_organisation_roles por
+                    JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
+               WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huuo_role
+          ORDER BY DBMS_RANDOM.RANDOM
+             )
         FETCH FIRST 1 ROW ONLY;
 
         INSERT INTO ${datasource.user}.pad_pipeline_org_role_links pporl (pipeline_id,

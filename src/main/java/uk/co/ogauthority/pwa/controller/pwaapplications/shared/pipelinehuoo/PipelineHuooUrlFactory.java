@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -53,8 +54,9 @@ public class PipelineHuooUrlFactory {
         huooRole,
         null,
         ModifyPipelineHuooJourneyController.JourneyPage.ORGANISATION_SELECTION,
-        pipelinesAndOrgRoleGroupView.getPipelineIdSet().stream()
-            .map(PipelineId::asInt)
+        pipelinesAndOrgRoleGroupView.getPipelineIdentifierSet().stream()
+            // TODO PWA-673 make this handle segments. use new/reuse segment pojo for everything? sill url mapping do it out of the box?
+            .map(PipelineIdentifier::getPipelineIdAsInt)
             .collect(Collectors.toSet()),
         pipelinesAndOrgRoleGroupView.getOrganisationIdsOfRoleOwners().stream()
             .map(OrganisationUnitId::asInt)

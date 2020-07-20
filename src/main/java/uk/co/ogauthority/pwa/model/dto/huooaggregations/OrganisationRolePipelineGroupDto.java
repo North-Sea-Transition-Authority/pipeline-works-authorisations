@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
@@ -16,12 +16,12 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 public class OrganisationRolePipelineGroupDto {
 
   private final OrganisationRoleInstanceDto organisationRoleInstanceDto;
-  private final Set<PipelineId> pipelineIds;
+  private final Set<PipelineIdentifier> pipelineIdentifiers;
 
   public OrganisationRolePipelineGroupDto(OrganisationRoleInstanceDto organisationRoleInstanceDto,
-                                          Set<PipelineId> pipelineIds) {
+                                          Set<PipelineIdentifier> pipelineIdentifiers) {
     this.organisationRoleInstanceDto = organisationRoleInstanceDto;
-    this.pipelineIds = pipelineIds;
+    this.pipelineIdentifiers = pipelineIdentifiers;
   }
 
 
@@ -49,8 +49,8 @@ public class OrganisationRolePipelineGroupDto {
     return this.organisationRoleInstanceDto.getHuooType();
   }
 
-  public Set<PipelineId> getPipelineIds() {
-    return Collections.unmodifiableSet(pipelineIds);
+  public Set<PipelineIdentifier> getPipelineIdentifiers() {
+    return Collections.unmodifiableSet(pipelineIdentifiers);
   }
 
   @Override
@@ -63,19 +63,19 @@ public class OrganisationRolePipelineGroupDto {
     }
     OrganisationRolePipelineGroupDto that = (OrganisationRolePipelineGroupDto) o;
     return Objects.equals(organisationRoleInstanceDto, that.organisationRoleInstanceDto)
-        && Objects.equals(pipelineIds, that.pipelineIds);
+        && Objects.equals(pipelineIdentifiers, that.pipelineIdentifiers);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationRoleInstanceDto, pipelineIds);
+    return Objects.hash(organisationRoleInstanceDto, pipelineIdentifiers);
   }
 
   @Override
   public String toString() {
     return "OrganisationPipelineRoleGroupDto{" +
         "organisationRoleInstanceDto=" + organisationRoleInstanceDto +
-        ", pipelineIds=" + pipelineIds +
+        ", pipelineIds=" + pipelineIdentifiers +
         '}';
   }
 }

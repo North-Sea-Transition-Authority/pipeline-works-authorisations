@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.dto.consents;
 
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -36,7 +38,48 @@ public class OrganisationRoleDtoTestUtil {
         null,
         huooRole,
         HuooType.PORTAL_ORG,
-        pipelineId);
+        pipelineId,
+        null,
+        null,
+        null,
+        null
+    );
+  }
+
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSegmentRoleInstance(HuooRole huooRole,
+                                                                                             int ouId,
+                                                                                             int pipelineId,
+                                                                                             String from,
+                                                                                             String to) {
+    return new OrganisationPipelineRoleInstanceDto(
+        ouId,
+        null,
+        null,
+        huooRole,
+        HuooType.PORTAL_ORG,
+        pipelineId,
+        from,
+        IdentLocationInclusionMode.INCLUSIVE,
+        to,
+        IdentLocationInclusionMode.EXCLUSIVE
+    );
+  }
+
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSegmentRoleInstance(HuooRole huooRole,
+                                                                                             int ouId,
+                                                                                             PipelineSegment pipelineSegment) {
+    return new OrganisationPipelineRoleInstanceDto(
+        ouId,
+        null,
+        null,
+        huooRole,
+        HuooType.PORTAL_ORG,
+        pipelineSegment.getPipelineIdAsInt(),
+        pipelineSegment.getFromPoint().getLocationName(),
+        pipelineSegment.getFromPoint().getIdentLocationInclusionMode(),
+        pipelineSegment.getToPoint().getLocationName(),
+        pipelineSegment.getToPoint().getIdentLocationInclusionMode()
+    );
   }
 
   public static OrganisationPipelineRoleInstanceDto createMigratedOrgUnitPipelineRoleInstance(HuooRole huooRole, String orgName, int pipelineId) {
@@ -46,7 +89,12 @@ public class OrganisationRoleDtoTestUtil {
         null,
         huooRole,
         HuooType.PORTAL_ORG,
-        pipelineId);
+        pipelineId,
+        null,
+        null,
+        null,
+        null
+    );
   }
 
   public static OrganisationPipelineRoleInstanceDto createTreatyOrgUnitPipelineRoleInstance(HuooRole huooRole, TreatyAgreement treatyAgreement, int pipelineId) {
@@ -56,7 +104,12 @@ public class OrganisationRoleDtoTestUtil {
         treatyAgreement,
         huooRole,
         HuooType.TREATY_AGREEMENT,
-        pipelineId);
+        pipelineId,
+        null,
+        null,
+        null,
+        null
+    );
   }
 
   public static OrganisationRoleInstanceDto createOrganisationUnitOrgRoleInstance(HuooRole huooRole, int ouId) {
