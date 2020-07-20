@@ -74,7 +74,9 @@ public class PadPartnerLettersServiceTest {
   public void mapEntityToForm_partnerLettersRequired() {
     var actualForm = new PartnerLettersForm();
     padPartnerLettersService.mapEntityToForm(createValidEntity(), actualForm);
-    assertThat(actualForm).isEqualTo(createValidForm());
+    var expectedForm = createValidForm();
+    assertThat(actualForm.getPartnerLettersRequired()).isEqualTo(expectedForm.getPartnerLettersRequired());
+    assertThat(actualForm.getPartnerLettersConfirmed()).isEqualTo(expectedForm.getPartnerLettersConfirmed());
   }
 
   @Test
@@ -86,7 +88,8 @@ public class PadPartnerLettersServiceTest {
 
     var expectedForm = new PartnerLettersForm();
     expectedForm.setPartnerLettersRequired(false);
-    assertThat(actualForm).isEqualTo(expectedForm);
+    assertThat(actualForm.getPartnerLettersRequired()).isEqualTo(expectedForm.getPartnerLettersRequired());
+    assertThat(actualForm.getPartnerLettersConfirmed()).isEqualTo(expectedForm.getPartnerLettersConfirmed());
   }
 
 
