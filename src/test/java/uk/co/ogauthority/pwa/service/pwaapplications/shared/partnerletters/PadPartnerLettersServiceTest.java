@@ -108,6 +108,21 @@ public class PadPartnerLettersServiceTest {
     verify(padFileService, times(3)).processFileDeletion(any(), any());
   }
 
+
+  @Test
+  public void validate_isComplete_valid() {
+    pwaApplicationDetail.setPartnerLettersRequired(false);
+    var isComplete = padPartnerLettersService.isComplete(pwaApplicationDetail);
+    assertTrue(isComplete);
+  }
+
+  @Test
+  public void validate_isComplete_invalid() {
+    pwaApplicationDetail.setPartnerLettersRequired(true);
+    var isComplete = padPartnerLettersService.isComplete(pwaApplicationDetail);
+    assertFalse(isComplete);
+  }
+
   @Test
   public void validate_partialValidation() {
     var inCompleteForm = new PartnerLettersForm();
