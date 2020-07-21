@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -113,7 +114,27 @@ public class PadPartnerLettersServiceTest {
   }
 
 
+  @Test
+  public void validate_isComplete_valid() {
+    pwaApplicationDetail.setPartnerLettersRequired(false);
+    var isComplete = padPartnerLettersService.isComplete(pwaApplicationDetail);
+    assertTrue(isComplete);
+  }
 
+  @Test
+  public void validate_isComplete_invalid() {
+    pwaApplicationDetail.setPartnerLettersRequired(true);
+    var isComplete = padPartnerLettersService.isComplete(pwaApplicationDetail);
+    assertFalse(isComplete);
+  }
+
+  @Test
+  public void validate_partialValidation() {
+    var inCompleteForm = new PartnerLettersForm();
+    var bindingResult = new BeanPropertyBindingResult(inCompleteForm, "empty");
+    padPartnerLettersService.validate(inCompleteForm, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+    assertFalse(bindingResult.hasErrors());
+  }
 
   @Test
   public void validate_fullValidation_valid() {
@@ -121,6 +142,14 @@ public class PadPartnerLettersServiceTest {
     var bindingResult = new BeanPropertyBindingResult(validForm, "empty");
     padPartnerLettersService.validate(validForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  public void validate_fullValidation_invalid() {
+    var invalidForm = new PartnerLettersForm();
+    var bindingResult = new BeanPropertyBindingResult(invalidForm, "empty");
+    padPartnerLettersService.validate(invalidForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    assertTrue(bindingResult.hasErrors());
   }
 
 
