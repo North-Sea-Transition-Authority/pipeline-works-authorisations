@@ -76,6 +76,10 @@ public class PwaApplicationDetail {
 
   private String otherPhaseDescription;
 
+  private Boolean partnerLettersRequired;
+
+  private Boolean partnerLettersConfirmed;
+
 
   public PwaApplicationDetail() {
   }
@@ -291,6 +295,22 @@ public class PwaApplicationDetail {
     this.otherPhaseDescription = otherPhaseDescription;
   }
 
+  public Boolean getPartnerLettersRequired() {
+    return partnerLettersRequired;
+  }
+
+  public void setPartnerLettersRequired(Boolean partnerLettersRequired) {
+    this.partnerLettersRequired = partnerLettersRequired;
+  }
+
+  public Boolean getPartnerLettersConfirmed() {
+    return partnerLettersConfirmed;
+  }
+
+  public void setPartnerLettersConfirmed(Boolean partnerLettersConfirmed) {
+    this.partnerLettersConfirmed = partnerLettersConfirmed;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -321,7 +341,9 @@ public class PwaApplicationDetail {
         && Objects.equals(submittedAsFastTrackFlag, that.submittedAsFastTrackFlag)
         && Objects.equals(numOfHolders, that.numOfHolders)
         && Objects.equals(pipelinePhaseProperties, that.pipelinePhaseProperties)
-        && Objects.equals(otherPhaseDescription, that.otherPhaseDescription);
+        && Objects.equals(otherPhaseDescription, that.otherPhaseDescription)
+        && Objects.equals(partnerLettersRequired, that.partnerLettersRequired)
+        && Objects.equals(partnerLettersConfirmed, that.partnerLettersConfirmed);
   }
 
   @Override
@@ -330,6 +352,6 @@ public class PwaApplicationDetail {
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
         pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
-        pipelinePhaseProperties, otherPhaseDescription);
+        pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired, partnerLettersConfirmed);
   }
 }
