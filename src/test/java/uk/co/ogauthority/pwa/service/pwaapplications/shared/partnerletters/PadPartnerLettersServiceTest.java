@@ -56,7 +56,9 @@ public class PadPartnerLettersServiceTest {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm()));
+    var uploadedFile = new UploadFileWithDescriptionForm();
+    uploadedFile.setUploadedFileDescription("description");
+    form.setUploadedFileWithDescriptionForms(List.of(uploadedFile));
     return form;
   }
 
@@ -115,8 +117,9 @@ public class PadPartnerLettersServiceTest {
 
   @Test
   public void validate_fullValidation_valid() {
-    var bindingResult = new BeanPropertyBindingResult(null, "empty");
-    padPartnerLettersService.validate(createValidForm(), bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    var validForm = createValidForm();
+    var bindingResult = new BeanPropertyBindingResult(validForm, "empty");
+    padPartnerLettersService.validate(validForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     assertFalse(bindingResult.hasErrors());
   }
 
