@@ -90,6 +90,7 @@ public class ProjectInformationTestUtils {
     entity.setFutureAppSubmissionYear(2020);
     entity.setTemporaryDepositsMade(true);
     entity.setTemporaryDepDescription("some description..");
+
     return entity;
   }
 

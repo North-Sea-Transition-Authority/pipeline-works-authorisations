@@ -118,7 +118,8 @@ public class ProjectInformationController extends PwaApplicationDataFileUploadAn
     modelAndView.addObject("isPermDepQuestionRequired",
                     padProjectInformationService.getIsPermanentDepositQuestionRequired(pwaApplicationDetail))
             .addObject("isAnyDepQuestionRequired", padProjectInformationService.getIsAnyDepositQuestionRequired(pwaApplicationDetail))
-            .addObject("permanentDepositsMadeOptions", PermanentDepositRadioOption.asList());
+            .addObject("permanentDepositsMadeOptions", PermanentDepositRadioOption.asList())
+            .addObject("isFdpQuestionRequired", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");

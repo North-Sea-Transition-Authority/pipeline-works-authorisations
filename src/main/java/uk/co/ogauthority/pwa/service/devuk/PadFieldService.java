@@ -10,18 +10,22 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 @Service
 public class PadFieldService {
 
   private final PadFieldRepository padFieldRepository;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final PadProjectInformationService projectInformationService;
 
   @Autowired
   public PadFieldService(PadFieldRepository padFieldRepository,
-                         PwaApplicationDetailService pwaApplicationDetailService) {
+                         PwaApplicationDetailService pwaApplicationDetailService,
+                         PadProjectInformationService projectInformationService) {
     this.padFieldRepository = padFieldRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.projectInformationService = projectInformationService;
   }
 
   public List<PadField> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -96,6 +100,12 @@ public class PadFieldService {
         }
     );
     return endedFields;
+  }
+
+  public void removeFdpDataFromProjectInfo(Boolean isLinkedtoField, PwaApplicationDetail applicationDetail) {
+    if (!isLinkedtoField) {
+      projectInformationService.removeFdpQuestionData(applicationDetail);
+    }
   }
 
 }
