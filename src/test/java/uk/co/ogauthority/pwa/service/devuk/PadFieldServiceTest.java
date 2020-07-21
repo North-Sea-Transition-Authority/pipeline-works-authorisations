@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadFieldServiceTest {
@@ -26,13 +27,16 @@ public class PadFieldServiceTest {
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
 
+  @Mock
+  private PadProjectInformationService padProjectInformationService;
+
   private PadFieldService padFieldService;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
     padFieldService = new PadFieldService(padFieldRepository,
-        pwaApplicationDetailService);
+        pwaApplicationDetailService, padProjectInformationService);
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 

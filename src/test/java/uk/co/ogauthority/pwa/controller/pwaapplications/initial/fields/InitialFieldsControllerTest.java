@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
@@ -64,6 +65,9 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
 
   @MockBean
   private PadFieldService padFieldService;
+
+  @MockBean
+  private PadProjectInformationService projectInformationService;
 
   @SpyBean
   private PwaFieldFormValidator pwaFieldFormValidator;
@@ -182,6 +186,7 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
 
     var argumentCaptor = ArgumentCaptor.forClass(List.of(new DevukField()).getClass());
     verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), argumentCaptor.capture());
+    verify(padFieldService, times(1)).removeFdpDataFromProjectInfo(any(), any());
 
     assertThat((List<DevukField>) argumentCaptor.getValue()).containsExactly(devukField);
   }
@@ -200,5 +205,6 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
         .andExpect(status().is3xxRedirection());
 
     verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), any());
+    verify(padFieldService, times(1)).removeFdpDataFromProjectInfo(any(), any());
   }
 }

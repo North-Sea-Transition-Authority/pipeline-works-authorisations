@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
@@ -17,8 +18,7 @@ public class ProjectInformationEntityMappingService {
   /**
    * Map project information stored data to form.
    */
-  void mapProjectInformationDataToForm(PadProjectInformation padProjectInformation,
-                                       ProjectInformationForm form) {
+  void mapProjectInformationDataToForm(PadProjectInformation padProjectInformation, ProjectInformationForm form) {
     form.setProjectOverview(padProjectInformation.getProjectOverview());
     form.setProjectName(padProjectInformation.getProjectName());
     form.setMethodOfPipelineDeployment(padProjectInformation.getMethodOfPipelineDeployment());
@@ -92,6 +92,16 @@ public class ProjectInformationEntityMappingService {
     if (padProjectInformation.getTemporaryDepositsMade() != null) {
       form.setTemporaryDepositsMade(padProjectInformation.getTemporaryDepositsMade());
       form.setTemporaryDepDescription(padProjectInformation.getTemporaryDepDescription());
+    }
+
+
+    if (padProjectInformation.getFdpOptionSelected() != null) {
+      form.setFdpOptionSelected(padProjectInformation.getFdpOptionSelected());
+      if (BooleanUtils.isTrue(padProjectInformation.getFdpOptionSelected())) {
+        form.setFdpConfirmationFlag(padProjectInformation.getFdpConfirmationFlag());
+      } else if (BooleanUtils.isFalse(padProjectInformation.getFdpOptionSelected())) {
+        form.setFdpNotSelectedReason(padProjectInformation.getFdpNotSelectedReason());
+      }
     }
 
   }
@@ -171,6 +181,16 @@ public class ProjectInformationEntityMappingService {
     padProjectInformation.setTemporaryDepositsMade(form.getTemporaryDepositsMade());
     String tempDescription = BooleanUtils.isTrue(form.getTemporaryDepositsMade()) ? form.getTemporaryDepDescription() : null;
     padProjectInformation.setTemporaryDepDescription(tempDescription);
+
+    if (form.getFdpOptionSelected() != null) {
+      padProjectInformation.setFdpOptionSelected(form.getFdpOptionSelected());
+      if (form.getFdpOptionSelected()) {
+        padProjectInformation.setFdpConfirmationFlag(form.getFdpConfirmationFlag());
+      } else {
+        padProjectInformation.setFdpNotSelectedReason(form.getFdpNotSelectedReason());
+      }
+    }
+
 
   }
 

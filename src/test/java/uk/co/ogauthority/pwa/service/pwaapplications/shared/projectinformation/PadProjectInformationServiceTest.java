@@ -196,7 +196,8 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false));
+    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false,
+        false));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -226,7 +227,8 @@ public class PadProjectInformationServiceTest {
 
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
-    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false));
+    verify(validator, times(1)).validate(form, bindingResult, new ProjectInformationFormValidationHints(false, false,
+        false));
 
     var errors = ValidatorTestUtils.extractErrors(bindingResult);
 
@@ -334,5 +336,21 @@ public class PadProjectInformationServiceTest {
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
 
   }
+
+  @Test
+  public void removeFdpQuestionData() {
+    padProjectInformation.setFdpOptionSelected(true);
+    padProjectInformation.setFdpConfirmationFlag(true);
+    padProjectInformation.setFdpNotSelectedReason("reason");
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+
+    service.removeFdpQuestionData(pwaApplicationDetail);
+
+    padProjectInformation.setFdpOptionSelected(null);
+    padProjectInformation.setFdpConfirmationFlag(null);
+    padProjectInformation.setFdpNotSelectedReason(null);
+    verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+  }
+
 
 }
