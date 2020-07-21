@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -37,7 +38,7 @@ public class ModifyPipelineValidator implements SmartValidator {
   @Override
   @Deprecated
   public void validate(Object target, Errors errors) {
-
+    throw new AccessDeniedException("Use other validate method");
   }
 
   @Override
