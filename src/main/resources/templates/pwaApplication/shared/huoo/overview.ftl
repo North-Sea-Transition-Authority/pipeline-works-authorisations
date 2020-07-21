@@ -6,7 +6,7 @@
 
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Holders, users, operators, and owners" pageHeading="Holders, users, operators, and owners" fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle="Holders, users, operators, and owners (HUOO)" pageHeading="Holders, users, operators, and owners (HUOO)" fullWidthColumn=true breadcrumbs=true>
 
   <#if errorMessage?has_content>
     <@fdsError.singleErrorSummary errorMessage=errorMessage />
@@ -16,6 +16,7 @@
 
   <#if huooOrgs?has_content>
     <table class="govuk-table">
+      <h3 class="govuk-heading-m">Organisation HUOOs</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Company number</th>
@@ -50,6 +51,7 @@
 
   <#if treatyAgreements?has_content>
     <table class="govuk-table">
+      <h3 class="govuk-heading-m">Treaty agreement users</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Country</th>
