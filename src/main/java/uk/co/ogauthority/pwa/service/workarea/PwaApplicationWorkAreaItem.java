@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 public class PwaApplicationWorkAreaItem {
@@ -25,6 +26,8 @@ public class PwaApplicationWorkAreaItem {
   private final String masterPwaReference;
 
   private final String applicationType;
+
+  private final PwaApplicationStatus padStatus;
 
   private final String padDisplayStatus;
 
@@ -55,6 +58,7 @@ public class PwaApplicationWorkAreaItem {
     this.pwaApplicationId = applicationDetailSearchItem.getPwaApplicationId();
     this.padReference = applicationDetailSearchItem.getPadReference();
     this.masterPwaReference = applicationDetailSearchItem.getPwaReference();
+    this.padStatus = applicationDetailSearchItem.getPadStatus();
     this.padDisplayStatus = applicationDetailSearchItem.getPadStatus().getDisplayName();
     this.applicationType = applicationDetailSearchItem.getApplicationType().getDisplayName();
     this.padStatusSetInstant = applicationDetailSearchItem.getPadStatusTimestamp();
@@ -90,6 +94,10 @@ public class PwaApplicationWorkAreaItem {
 
   public String getApplicationType() {
     return applicationType;
+  }
+
+  public PwaApplicationStatus getPadStatus() {
+    return padStatus;
   }
 
   public String getPadDisplayStatus() {
