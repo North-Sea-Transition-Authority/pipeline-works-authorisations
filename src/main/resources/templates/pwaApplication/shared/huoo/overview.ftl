@@ -11,7 +11,7 @@
 
   <#if huooOrgs?has_content>
     <table class="govuk-table">
-      <caption class="govuk-table__caption">Organisation HUOOs</caption>
+      <h3 class="govuk-heading-m">Organisation HUOOs</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Company number</th>
@@ -46,7 +46,7 @@
 
   <#if treatyAgreements?has_content>
     <table class="govuk-table">
-      <caption class="govuk-table__caption">Treaty agreement users</caption>
+      <h3 class="govuk-heading-m">Treaty agreement users</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Country</th>

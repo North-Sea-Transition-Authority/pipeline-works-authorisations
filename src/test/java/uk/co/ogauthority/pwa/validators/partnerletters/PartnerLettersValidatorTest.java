@@ -30,7 +30,9 @@ public class PartnerLettersValidatorTest {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm()));
+    var uploadedFile = new UploadFileWithDescriptionForm();
+    uploadedFile.setUploadedFileDescription("description");
+    form.setUploadedFileWithDescriptionForms(List.of(uploadedFile));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).isEmpty();
   }
@@ -52,6 +54,18 @@ public class PartnerLettersValidatorTest {
     assertThat(errorsMap).contains(
         entry("partnerLettersConfirmed", Set.of("partnerLettersConfirmed.required")),
         entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms.required"))
+    );
+  }
+
+  @Test
+  public void validate_letterDescription_empty() {
+    var form = new PartnerLettersForm();
+    form.setPartnerLettersRequired(true);
+    form.setPartnerLettersConfirmed(true);
+    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm()));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errorsMap).contains(
+        entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription", Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription.required"))
     );
   }
 

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
@@ -38,6 +39,13 @@ public class PartnerLettersValidator implements SmartValidator {
         errors.rejectValue("uploadedFileWithDescriptionForms",
             "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "You must upload at least one letter");
+
+      } else {
+        for (int x = 0; x < form.getUploadedFileWithDescriptionForms().size(); x++) {
+          ValidationUtils.rejectIfEmptyOrWhitespace(errors, "uploadedFileWithDescriptionForms[" + x + "].uploadedFileDescription",
+              "uploadedFileWithDescriptionForms[" + x + "].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode(),
+              "You must enter a description for the uploaded letter");
+        }
       }
 
       if (!BooleanUtils.isTrue(form.getPartnerLettersConfirmed())) {
