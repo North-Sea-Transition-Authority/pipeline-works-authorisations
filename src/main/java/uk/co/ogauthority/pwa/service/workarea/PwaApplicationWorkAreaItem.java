@@ -9,7 +9,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 public class PwaApplicationWorkAreaItem {
