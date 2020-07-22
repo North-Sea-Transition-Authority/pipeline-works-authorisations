@@ -27,8 +27,6 @@ public class PwaApplicationWorkAreaItem {
 
   private final String applicationType;
 
-  private final PwaApplicationStatus padStatus;
-
   private final String padDisplayStatus;
 
   private final Instant padStatusSetInstant;
@@ -58,7 +56,6 @@ public class PwaApplicationWorkAreaItem {
     this.pwaApplicationId = applicationDetailSearchItem.getPwaApplicationId();
     this.padReference = applicationDetailSearchItem.getPadReference();
     this.masterPwaReference = applicationDetailSearchItem.getPwaReference();
-    this.padStatus = applicationDetailSearchItem.getPadStatus();
     this.padDisplayStatus = applicationDetailSearchItem.getPadStatus().getDisplayName();
     this.applicationType = applicationDetailSearchItem.getApplicationType().getDisplayName();
     this.padStatusSetInstant = applicationDetailSearchItem.getPadStatusTimestamp();
@@ -94,10 +91,6 @@ public class PwaApplicationWorkAreaItem {
 
   public String getApplicationType() {
     return applicationType;
-  }
-
-  public PwaApplicationStatus getPadStatus() {
-    return padStatus;
   }
 
   public String getPadDisplayStatus() {
