@@ -1,41 +1,46 @@
 package uk.co.ogauthority.pwa.controller.consultations;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(ConsultationController.class)
-public class ConsultationControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = ConsultationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
 
-  @MockBean
-  private PwaApplicationContextService applicationContextService;
+public class ConsultationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+  private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @MockBean
-  private PwaAppProcessingContextService appProcessingContextService;
 
-  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
+  @Before
+  public void setUp() {
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, teamService, pwaApplicationDetailService)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+  }
+
 
   @Test
-  public void renderConsultation() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderConsultation(1, PwaApplicationType.INITIAL, null, null)))
-        .with(authenticatedUserAndSession(user)))
-        .andExpect(status().isOk());
+  public void renderConsultation_appStatusSmokeTest() {
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(ConsultationController.class)
+                .renderConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
