@@ -69,6 +69,9 @@ public class PadTechnicalDrawingServiceTest {
   private SpringValidatorAdapter springValidatorAdapter;
 
   private PwaApplicationDetail pwaApplicationDetail;
+  private PadPipeline padPipelineForAppOverviewA;
+  private PadPipeline padPipelineForAppOverviewB;
+
 
   @Before
   public void setUp() {
@@ -77,6 +80,19 @@ public class PadTechnicalDrawingServiceTest {
         springValidatorAdapter);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
+
+    padPipelineForAppOverviewA = new PadPipeline(pwaApplicationDetail);
+    padPipelineForAppOverviewA.setId(1);
+    padPipelineForAppOverviewB = new PadPipeline(pwaApplicationDetail);
+    padPipelineForAppOverviewB.setId(2);
+
+    var pipelineA = new Pipeline();
+    pipelineA.setId(1);
+    var pipelineB = new Pipeline();
+    pipelineB.setId(2);
+
+    padPipelineForAppOverviewA.setPipeline(pipelineA);
+    padPipelineForAppOverviewB.setPipeline(pipelineB);
   }
 
   @Test
@@ -485,31 +501,20 @@ public class PadTechnicalDrawingServiceTest {
     file2.setId(2);
     drawing2.setFile(file2);
 
-    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing1, drawing2));
+    when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        List.of(drawing1, drawing2));
 
     padTechnicalDrawingService.cleanupData(pwaApplicationDetail);
 
-    verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail), eq(ApplicationFilePurpose.PIPELINE_DRAWINGS), eq(List.of(1, 2)));
+    verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail),
+        eq(ApplicationFilePurpose.PIPELINE_DRAWINGS), eq(List.of(1, 2)));
 
   }
 
   @Test
   public void getUnlinkedApplicationPipelineOverviews_allPipelinesLinked() {
-    var padPipelineA = new PadPipeline(pwaApplicationDetail);
-    padPipelineA.setId(1);
-    var padPipelineB = new PadPipeline(pwaApplicationDetail);
-    padPipelineB.setId(2);
-
-    var pipelineA = new Pipeline();
-    pipelineA.setId(1);
-    var pipelineB = new Pipeline();
-    pipelineB.setId(2);
-
-    padPipelineA.setPipeline(pipelineA);
-    padPipelineB.setPipeline(pipelineB);
-
-    var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
-    var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
+    var pipelineOverviewA = new PadPipelineOverview(padPipelineForAppOverviewA, 1L);
+    var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
@@ -522,21 +527,9 @@ public class PadTechnicalDrawingServiceTest {
 
   @Test
   public void getUnlinkedApplicationPipelineOverviews_somePipelinesLinked() {
-    var padPipelineA = new PadPipeline(pwaApplicationDetail);
-    padPipelineA.setId(1);
-    var padPipelineB = new PadPipeline(pwaApplicationDetail);
-    padPipelineB.setId(2);
 
-    var pipelineA = new Pipeline();
-    pipelineA.setId(1);
-    var pipelineB = new Pipeline();
-    pipelineB.setId(2);
-
-    padPipelineA.setPipeline(pipelineA);
-    padPipelineB.setPipeline(pipelineB);
-
-    var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
-    var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
+    var pipelineOverviewA = new PadPipelineOverview(padPipelineForAppOverviewA, 1L);
+    var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
@@ -547,22 +540,9 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedApplicationPipelineOverviews_noPipelinesLinked() {
-    var padPipelineA = new PadPipeline(pwaApplicationDetail);
-    padPipelineA.setId(1);
-    var padPipelineB = new PadPipeline(pwaApplicationDetail);
-    padPipelineB.setId(2);
-
-    var pipelineA = new Pipeline();
-    pipelineA.setId(1);
-    var pipelineB = new Pipeline();
-    pipelineB.setId(2);
-
-    padPipelineA.setPipeline(pipelineA);
-    padPipelineB.setPipeline(pipelineB);
-
-    var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
-    var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
+  public void getUnlinkedApplicationPipelineOverviews_noPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
+      padPipelineForAppOverviewA, 1L);
+    var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of());
@@ -571,77 +551,42 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedAndSpecificApplicationPipelineOverviews_allPipelinesLinked() {
-    var padPipelineA = new PadPipeline(pwaApplicationDetail);
-    padPipelineA.setId(1);
-    var padPipelineB = new PadPipeline(pwaApplicationDetail);
-    padPipelineB.setId(2);
-
-    var pipelineA = new Pipeline();
-    pipelineA.setId(1);
-    var pipelineB = new Pipeline();
-    pipelineB.setId(2);
-
-    padPipelineA.setPipeline(pipelineA);
-    padPipelineB.setPipeline(pipelineB);
-
-    var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
-    var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
+  public void getUnlinkedAndSpecificApplicationPipelineOverviews_allPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
+      padPipelineForAppOverviewA, 1L);
+    var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
         new PadPipelineKeyDto(4, 1),
         new PadPipelineKeyDto(5, 2)
     ));
-    var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail, List.of(1));
+    var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail,
+        List.of(1));
     assertThat(result).containsExactly(pipelineOverviewA);
   }
 
   @Test
-  public void getUnlinkedAndSpecificApplicationPipelineOverviews_excludeNonLinked() {
-    var padPipelineA = new PadPipeline(pwaApplicationDetail);
-    padPipelineA.setId(1);
-    var padPipelineB = new PadPipeline(pwaApplicationDetail);
-    padPipelineB.setId(2);
-
-    var pipelineA = new Pipeline();
-    pipelineA.setId(1);
-    var pipelineB = new Pipeline();
-    pipelineB.setId(2);
-
-    padPipelineA.setPipeline(pipelineA);
-    padPipelineB.setPipeline(pipelineB);
-
-    var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
-    var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
+  public void getUnlinkedAndSpecificApplicationPipelineOverviews_excludeNonLinked() {var pipelineOverviewA = new PadPipelineOverview(
+      padPipelineForAppOverviewA, 1L);
+    var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
-    when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(new PadPipelineKeyDto(4, 1)));
-    var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail, List.of(2));
+    when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(
+        List.of(new PadPipelineKeyDto(4, 1)));
+    var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail,
+        List.of(2));
     assertThat(result).containsExactly(pipelineOverviewB);
   }
 
   @Test
-  public void getUnlinkedAndSpecificApplicationPipelineOverviews_noPipelinesLinked() {
-    var padPipelineA = new PadPipeline(pwaApplicationDetail);
-    padPipelineA.setId(1);
-    var padPipelineB = new PadPipeline(pwaApplicationDetail);
-    padPipelineB.setId(2);
-
-    var pipelineA = new Pipeline();
-    pipelineA.setId(1);
-    var pipelineB = new Pipeline();
-    pipelineB.setId(2);
-
-    padPipelineA.setPipeline(pipelineA);
-    padPipelineB.setPipeline(pipelineB);
-
-    var pipelineOverviewA = new PadPipelineOverview(padPipelineA, 1L);
-    var pipelineOverviewB = new PadPipelineOverview(padPipelineB, 1L);
+  public void getUnlinkedAndSpecificApplicationPipelineOverviews_noPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
+      padPipelineForAppOverviewA, 1L);
+    var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(pipelineOverviewA, pipelineOverviewB));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of());
-    var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail, List.of(2));
+    var result = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(pwaApplicationDetail,
+        List.of(2));
     assertThat(result).containsExactly(pipelineOverviewA, pipelineOverviewB);
   }
 

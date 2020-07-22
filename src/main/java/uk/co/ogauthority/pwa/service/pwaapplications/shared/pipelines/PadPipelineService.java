@@ -86,7 +86,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return padPipelineRepository.getAllByPwaApplicationDetail(detail);
   }
 
-  public List<Integer> getMasterPipelineIds(PwaApplicationDetail detail) {
+  public Set<PipelineId> getMasterPipelineIds(PwaApplicationDetail detail) {
     return padPipelineRepository.getMasterPipelineIdsOnApplication(detail);
   }
 
@@ -412,13 +412,13 @@ public class PadPipelineService implements ApplicationFormSectionService {
       newPadPipeline.setPipelineType(pipelineDetail.getPipelineType());
     }
     newPadPipeline.setProductsToBeConveyed(pipelineDetail.getProductsToBeConveyed());
+    newPadPipeline.setFromLocation(pipelineDetail.getFromLocation());
+    newPadPipeline.setToLocation(pipelineDetail.getToLocation());
     try {
       newPadPipeline.setFromCoordinates(pipelineDetail.getFromCoordinates());
-      newPadPipeline.setFromLocation(pipelineDetail.getFromLocation());
       newPadPipeline.setToCoordinates(pipelineDetail.getToCoordinates());
-      newPadPipeline.setToLocation(pipelineDetail.getToLocation());
     } catch (NullPointerException npe) {
-      LOGGER.warn("PipelineDetail is missing valid coordinates");
+      LOGGER.warn("PipelineDetail is missing valid coordinates", npe);
     } finally {
       padPipelineRepository.save(newPadPipeline);
       return newPadPipeline;

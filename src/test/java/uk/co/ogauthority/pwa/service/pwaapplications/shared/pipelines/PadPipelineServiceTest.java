@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -395,9 +396,10 @@ public class PadPipelineServiceTest {
 
   @Test
   public void getMasterPipelineIds_serviceInteraction() {
-    when(padPipelineRepository.getMasterPipelineIdsOnApplication(detail)).thenReturn(List.of(1));
-    var result = padPipelineService.getMasterPipelineIds(detail);
-    assertThat(result).containsExactly(1);
+    var pipelineId = new PipelineId(1);
+    when(padPipelineRepository.getMasterPipelineIdsOnApplication(detail)).thenReturn(Set.of(pipelineId));
+    Set<PipelineId> result = padPipelineService.getMasterPipelineIds(detail);
+    assertThat(result).containsExactly(pipelineId);
   }
 
   @Test
@@ -442,6 +444,9 @@ public class PadPipelineServiceTest {
     assertThat(pipelineWithCopiedData.getProductsToBeConveyed()).isEqualTo(pipelineDetail.getProductsToBeConveyed());
     assertThat(pipelineWithCopiedData.getToCoordinates()).isEqualTo(pipelineDetail.getToCoordinates());
     assertThat(pipelineWithCopiedData.getToLocation()).isEqualTo(pipelineDetail.getToLocation());
+    assertThat(pipelineWithCopiedData.getComponentPartsDescription()).isEqualTo(pipelineDetail.getComponentPartsDesc());
+    assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(pipelineDetail.getPipelineNumber());
+
 
   }
 

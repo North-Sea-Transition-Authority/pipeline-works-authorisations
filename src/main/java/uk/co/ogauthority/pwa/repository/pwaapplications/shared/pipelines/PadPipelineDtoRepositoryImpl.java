@@ -2,10 +2,13 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
@@ -99,82 +102,6 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .getResultList();
   }
 
-  private List<PadPipelineSummaryDto> getPipelineSummaryDtosByPadPipelines(List<PadPipeline> padPipelines) {
-    return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto(" +
-            "  pp.id " +
-            ", p.id " +
-            ", pp.pipelineType " +
-            ", pp.pipelineRef " +
-            ", pp.length " +
-            ", pp.componentPartsDescription " +
-            ", pp.productsToBeConveyed " +
-            ", COUNT(ppi) " +
-            // From info.
-            ", pp.fromLocation " +
-            ", pp.fromLatitudeDegrees " +
-            ", pp.fromLatitudeMinutes " +
-            ", pp.fromLatitudeSeconds " +
-            ", pp.fromLatitudeDirection " +
-            ", pp.fromLongitudeDegrees " +
-            ", pp.fromLongitudeMinutes " +
-            ", pp.fromLongitudeSeconds " +
-            ", pp.fromLongitudeDirection " +
-            // To info.
-            ", pp.toLocation " +
-            ", pp.toLatitudeDegrees " +
-            ", pp.toLatitudeMinutes " +
-            ", pp.toLatitudeSeconds " +
-            ", pp.toLatitudeDirection " +
-            ", pp.toLongitudeDegrees " +
-            ", pp.toLongitudeMinutes " +
-            ", pp.toLongitudeSeconds " +
-            ", pp.toLongitudeDirection " +
-            ", pp.maxExternalDiameter " +
-            ", pp.pipelineInBundle " +
-            ", pp.bundleName " +
-            ") " +
-            "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
-            "JOIN uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline p ON pp.pipeline = p " +
-            "LEFT JOIN uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent ppi " +
-            "ON pp.id = ppi.padPipeline.id " +
-            "WHERE pp IN (:pad_pipelines) " +
-            "GROUP BY " +
-            "  pp.id " +
-            ", p.id " +
-            ", pp.pipelineType " +
-            ", pp.pipelineRef " +
-            ", pp.length " +
-            ", pp.componentPartsDescription " +
-            ", pp.productsToBeConveyed " +
-            // From info.
-            ", pp.fromLocation " +
-            ", pp.fromLatitudeDegrees " +
-            ", pp.fromLatitudeMinutes " +
-            ", pp.fromLatitudeSeconds " +
-            ", pp.fromLatitudeDirection " +
-            ", pp.fromLongitudeDegrees " +
-            ", pp.fromLongitudeMinutes " +
-            ", pp.fromLongitudeSeconds " +
-            ", pp.fromLongitudeDirection " +
-            // To info.
-            ", pp.toLocation " +
-            ", pp.toLatitudeDegrees " +
-            ", pp.toLatitudeMinutes " +
-            ", pp.toLatitudeSeconds " +
-            ", pp.toLatitudeDirection " +
-            ", pp.toLongitudeDegrees " +
-            ", pp.toLongitudeMinutes " +
-            ", pp.toLongitudeSeconds " +
-            ", pp.toLongitudeDirection " +
-            ", pp.maxExternalDiameter " +
-            ", pp.pipelineInBundle " +
-            ", pp.bundleName ",
-        PadPipelineSummaryDto.class)
-        .setParameter("pad_pipelines", padPipelines)
-        .getResultList();
-  }
-
   @Override
   public Optional<PadPipelineSummaryDto> findPipelineAsSummaryDtoByPadPipeline(PadPipeline padPipeline) {
     return getPipelineSummaryDtosByAppDetailAndOptionalPadPipeline(padPipeline.getPwaApplicationDetail(), padPipeline)
@@ -217,13 +144,15 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   }
 
   @Override
-  public List<Integer> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+  public Set<PipelineId> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail) {
     return entityManager.createQuery("" +
         "SELECT p.id " +
         "FROM PadPipeline pp " +
         "JOIN Pipeline p ON pp.pipeline.id = p.id " +
         "WHERE pp.pwaApplicationDetail = :detail", Integer.class)
         .setParameter("detail", pwaApplicationDetail)
-        .getResultList();
+        .getResultStream()
+        .map(PipelineId::new)
+        .collect(Collectors.toUnmodifiableSet());
   }
 }

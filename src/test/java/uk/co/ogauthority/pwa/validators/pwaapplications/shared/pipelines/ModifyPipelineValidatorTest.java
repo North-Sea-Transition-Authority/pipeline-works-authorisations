@@ -44,7 +44,7 @@ public class ModifyPipelineValidatorTest {
     pipeline.setId(1);
     pipelineDetail.setPipeline(pipeline);
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(
-        List.of(new NamedPipelineDto(pipelineDetail))
+        List.of(NamedPipelineDto.fromPipelineDetail(pipelineDetail))
     );
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");
@@ -59,7 +59,7 @@ public class ModifyPipelineValidatorTest {
     pipeline.setId(2);
     pipelineDetail.setPipeline(pipeline);
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(
-        List.of(new NamedPipelineDto(pipelineDetail))
+        List.of(NamedPipelineDto.fromPipelineDetail(pipelineDetail))
     );
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");

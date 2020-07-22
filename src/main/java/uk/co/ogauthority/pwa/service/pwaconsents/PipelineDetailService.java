@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -33,10 +34,10 @@ public class PipelineDetailService {
   }
 
   public List<PipelineDetail> getNonDeletedPipelineDetailsForApplicationMasterPwa(
-      PwaApplication pwaApplication) {
+      MasterPwa masterPwa) {
 
     return pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotAndTipFlagIsTrue(
-        pwaApplication.getMasterPwa(),
+        masterPwa,
         PipelineStatus.DELETED
     );
   }

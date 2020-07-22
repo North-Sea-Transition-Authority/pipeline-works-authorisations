@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -13,13 +14,22 @@ public class NamedPipelineDto implements NamedPipeline {
   private BigDecimal maxExternalDiameter;
   private String pipelineNumber;
 
-  public NamedPipelineDto(PipelineDetail detail) {
-    this.pipelineId = detail.getPipelineId();
-    this.pipelineType = detail.getPipelineType();
-    this.pipelineInBundle = detail.getPipelineInBundle();
-    this.bundleName = detail.getBundleName();
-    this.maxExternalDiameter = detail.getMaxExternalDiameter();
-    this.pipelineNumber = detail.getPipelineNumber();
+  @VisibleForTesting
+  public NamedPipelineDto(Integer pipelineId, PipelineType pipelineType, Boolean pipelineInBundle,
+                          String bundleName, BigDecimal maxExternalDiameter, String pipelineNumber) {
+    this.pipelineId = pipelineId;
+    this.pipelineType = pipelineType;
+    this.pipelineInBundle = pipelineInBundle;
+    this.bundleName = bundleName;
+    this.maxExternalDiameter = maxExternalDiameter;
+    this.pipelineNumber = pipelineNumber;
+  }
+
+  public static NamedPipelineDto fromPipelineDetail(PipelineDetail detail) {
+    return new NamedPipelineDto(
+        detail.getPipelineId(), detail.getPipelineType(), detail.getPipelineInBundle(),
+        detail.getBundleName(), detail.getMaxExternalDiameter(), detail.getPipelineNumber()
+    );
   }
 
   @Override

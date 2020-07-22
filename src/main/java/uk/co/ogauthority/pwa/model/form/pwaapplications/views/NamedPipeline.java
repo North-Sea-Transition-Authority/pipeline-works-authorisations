@@ -6,10 +6,14 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 
 /**
+ * <p>
  * This interface is used to produce the name of a pipeline.
- * <p></p>
+ * </p>
+ *
+ * <p>
  * It is a slimmed down version of PipelineOverview, reducing the complexity needed when the name  of a pipeline
  * is the only information required.
+ * </p>
  */
 public interface NamedPipeline {
 

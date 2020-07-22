@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -12,6 +13,9 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
+/**
+ * This service is used to both import and show consented pipeline data available to the current app detail.
+ */
 @Service
 public class ModifyPipelineService {
 
@@ -29,9 +33,10 @@ public class ModifyPipelineService {
     this.pipelineDetailService = pipelineDetailService;
   }
 
+  @VisibleForTesting
   public List<PipelineDetail> getConsentedPipelinesNotOnApplication(PwaApplicationDetail pwaApplicationDetail) {
     var consentedPipelines = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(
-        pwaApplicationDetail.getPwaApplication());
+        pwaApplicationDetail.getMasterPwaApplication());
     var padPipelines = padPipelineService.getPipelines(pwaApplicationDetail);
 
     return consentedPipelines.stream()
@@ -42,7 +47,7 @@ public class ModifyPipelineService {
 
   public List<NamedPipeline> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
-        .map(NamedPipelineDto::new)
+        .map(NamedPipelineDto::fromPipelineDetail)
         .collect(Collectors.toUnmodifiableList());
   }
 
