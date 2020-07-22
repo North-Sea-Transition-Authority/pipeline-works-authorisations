@@ -17,6 +17,8 @@ public enum PwaApplicationPermission {
 
   MANAGE_CONTACTS(Set.of(PwaContactRole.ACCESS_MANAGER)),
 
+  VIEW_CONSULTATIONS(Set.of(PwaContactRole.ACCESS_MANAGER)),
+
   VIEW(EnumSet.allOf(PwaContactRole.class));
 
   private Set<PwaContactRole> roles;
