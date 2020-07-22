@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.consultations;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -39,7 +42,9 @@ public class ConsultationController {
 
   private ModelAndView getConsultationModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     return new ModelAndView("consultation/consultation")
-        .addObject("requestConsultationsUrl", "")
+        .addObject("requestConsultationsUrl",
+            ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(
+                pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef());
   }
 
