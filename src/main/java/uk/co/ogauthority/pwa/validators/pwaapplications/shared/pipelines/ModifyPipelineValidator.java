@@ -26,9 +26,8 @@ public class ModifyPipelineValidator implements SmartValidator {
     var form = (ModifyPipelineForm) target;
     var detail = (PwaApplicationDetail) validationHints[0];
     var selectablePipelines = modifyPipelineService.getSelectableConsentedPipelines(detail);
-    boolean isValidPipeline = selectablePipelines.keySet()
-        .stream()
-        .anyMatch(s -> s.equals(form.getPipelineId()));
+    boolean isValidPipeline = selectablePipelines.stream()
+        .anyMatch(s -> String.valueOf(s.getPipelineId()).equals(form.getPipelineId()));
     if (!isValidPipeline) {
       errors.rejectValue("pipelineId", "pipelineId" + FieldValidationErrorCodes.INVALID.getCode(),
           "You must select a valid pipeline");

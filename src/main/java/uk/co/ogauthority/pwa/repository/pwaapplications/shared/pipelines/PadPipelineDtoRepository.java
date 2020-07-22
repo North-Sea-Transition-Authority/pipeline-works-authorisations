@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 import java.util.List;
 import java.util.Optional;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
@@ -17,15 +16,9 @@ public interface PadPipelineDtoRepository {
 
   Optional<PadPipelineSummaryDto> findPipelineAsSummaryDtoByPadPipeline(PadPipeline padPipeline);
 
-  List<PadPipelineSummaryDto> findPadPipelinesAsSummaryDtos(List<PadPipeline> padPipelines);
-
   Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
   List<PipelineBundlePairDto> getBundleNamesByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
-
-  List<PadPipeline> getPadPipelineByMasterPwaAndPipelineIds(MasterPwa masterPwa, List<Integer> ids);
-
-  PadPipeline getPadPipelineByMasterPwaAndPipelineId(MasterPwa masterPwa, Integer id);
 
   List<Integer> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail);
 

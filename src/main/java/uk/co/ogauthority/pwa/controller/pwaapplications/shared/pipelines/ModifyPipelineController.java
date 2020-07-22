@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -23,6 +24,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ModifyPipelineService;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.pipelines.ModifyPipelineValidator;
 
@@ -55,8 +57,12 @@ public class ModifyPipelineController {
   }
 
   private ModelAndView createImportConsentedPipelineModelAndView(PwaApplicationDetail detail) {
+    var selectablePipelines = modifyPipelineService.getSelectableConsentedPipelines(detail);
+    var pipelineSelection = selectablePipelines.stream()
+        .collect(StreamUtils.toLinkedHashMap(named -> String.valueOf(named.getPipelineId()),
+            NamedPipeline::getPipelineName));
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/importConsented")
-        .addObject("consentedPipelines", modifyPipelineService.getSelectableConsentedPipelines(detail));
+        .addObject("consentedPipelines", pipelineSelection);
     applicationBreadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         "Modify consented pipeline");
     return modelAndView;

@@ -4,15 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ModifyPipelineService;
@@ -36,8 +39,12 @@ public class ModifyPipelineValidatorTest {
 
   @Test
   public void validate_formValid() {
+    var pipelineDetail = new PipelineDetail();
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    pipelineDetail.setPipeline(pipeline);
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(
-        Map.of("1", "pipeline name")
+        List.of(new NamedPipelineDto(pipelineDetail))
     );
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");
@@ -47,8 +54,12 @@ public class ModifyPipelineValidatorTest {
 
   @Test
   public void validate_idNotSelectable() {
+    var pipelineDetail = new PipelineDetail();
+    var pipeline = new Pipeline();
+    pipeline.setId(2);
+    pipelineDetail.setPipeline(pipeline);
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(
-        Map.of("2", "pipeline name")
+        List.of(new NamedPipelineDto(pipelineDetail))
     );
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");

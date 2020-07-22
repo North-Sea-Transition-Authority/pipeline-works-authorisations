@@ -4,6 +4,8 @@ import java.util.stream.Stream;
 
 public enum PipelineType {
 
+  UNKNOWN("Unknown pipeline type", -1, PipelineCoreType.SINGLE_CORE),
+
   PRODUCTION_FLOWLINE("Production Flowline", 1, PipelineCoreType.SINGLE_CORE),
   PRODUCTION_JUMPER("Production Jumper", 2, PipelineCoreType.SINGLE_CORE),
 
@@ -58,6 +60,11 @@ public enum PipelineType {
 
   public static Stream<PipelineType> stream() {
     return Stream.of(PipelineType.values());
+  }
+
+  public static Stream<PipelineType> streamDisplayValues() {
+    return Stream.of(PipelineType.values())
+        .filter(pipelineType -> pipelineType.getDisplayOrder() >= 0);
   }
 
 }

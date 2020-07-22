@@ -9,6 +9,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -53,6 +54,11 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
     ValidationUtils.rejectIfEmpty(errors, "pipelineType", "pipelineType.required",
         "Select the pipeline type");
+
+    if (form.getPipelineType() == PipelineType.UNKNOWN) {
+      errors.rejectValue("pipelineType", "pipelineType" + FieldValidationErrorCodes.INVALID.getCode(),
+          "You must select a valid pipeline type");
+    }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length.required",
         "Enter the pipeline's length");

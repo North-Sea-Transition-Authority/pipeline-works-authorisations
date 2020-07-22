@@ -1,33 +1,12 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.math.BigDecimal;
-import org.apache.commons.lang3.BooleanUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /* Regardless of application or consented status, provide consistent interface for basic summarised pipeline data */
-public interface PipelineOverview {
+public interface PipelineOverview extends NamedPipeline {
 
   Integer getPadPipelineId();
-
-  Integer getPipelineId();
-
-  /**
-   * pipelineName is used for PWA users to easily identify a pipeline on an application,
-   * where as the pipeline number uniquely identifies a pipeline and is used as the main reference by external applications.
-   */
-  default String getPipelineName() {
-    var pipelineName = getPipelineNumber() + " - ";
-    if (getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE) && getMaxExternalDiameter() != null) {
-      pipelineName += getMaxExternalDiameter() + " Millimetre ";
-    }
-    pipelineName += getPipelineType().getDisplayName();
-    if (BooleanUtils.isTrue(getPipelineInBundle())) {
-      pipelineName += " (" + getBundleName() + ")";
-    }
-    return pipelineName;
-  }
 
   String getFromLocation();
 
@@ -37,10 +16,6 @@ public interface PipelineOverview {
 
   CoordinatePair getToCoordinates();
 
-  String getPipelineNumber();
-
-  PipelineType getPipelineType();
-
   String getComponentParts();
 
   BigDecimal getLength();
@@ -48,12 +23,6 @@ public interface PipelineOverview {
   String getProductsToBeConveyed();
 
   Long getNumberOfIdents();
-
-  BigDecimal getMaxExternalDiameter();
-
-  Boolean getPipelineInBundle();
-
-  String getBundleName();
 
 
 }

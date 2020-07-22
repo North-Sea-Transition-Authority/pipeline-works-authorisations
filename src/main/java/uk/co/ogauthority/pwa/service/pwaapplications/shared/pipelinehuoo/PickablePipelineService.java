@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
 /**
  * get or resolve pipelines using the PickablePipelineOption class.
@@ -25,13 +26,16 @@ public class PickablePipelineService {
 
   private final PipelineService pipelineService;
   private final PadPipelineService padPipelineService;
+  private final PipelineDetailService pipelineDetailService;
 
   @Autowired
   public PickablePipelineService(
       PipelineService pipelineService,
-      PadPipelineService padPipelineService) {
+      PadPipelineService padPipelineService,
+      PipelineDetailService pipelineDetailService) {
     this.padPipelineService = padPipelineService;
     this.pipelineService = pipelineService;
+    this.pipelineDetailService = pipelineDetailService;
   }
 
   public Set<Pipeline> getPickedPipelinesFromStrings(Set<String> stringSet) {
@@ -63,7 +67,7 @@ public class PickablePipelineService {
 
     // consented pickable are those pipelines that have not got a version included in the application.
     // when a version does exist in the application we want the updated details to show.
-    Set<PickablePipelineOption> consentedPickable = pipelineService.getActivePipelineDetailsForApplicationMasterPwa(
+    Set<PickablePipelineOption> consentedPickable = pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(
         pwaApplicationDetail.getPwaApplication()
     )
         .stream()

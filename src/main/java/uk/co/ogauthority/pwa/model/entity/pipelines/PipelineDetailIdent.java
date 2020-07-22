@@ -16,7 +16,7 @@ public class PipelineDetailIdent {
 
   @Id
   private Integer id;
-  private String pipelineDetailId;
+  private Integer pipelineDetailId;
   private String identNo;
 
   private String fromLocation;
@@ -85,11 +85,11 @@ public class PipelineDetailIdent {
     this.id = id;
   }
 
-  public String getPipelineDetailId() {
+  public Integer getPipelineDetailId() {
     return pipelineDetailId;
   }
 
-  public void setPipelineDetailId(String pipelineDetailId) {
+  public void setPipelineDetailId(Integer pipelineDetailId) {
     this.pipelineDetailId = pipelineDetailId;
   }
 

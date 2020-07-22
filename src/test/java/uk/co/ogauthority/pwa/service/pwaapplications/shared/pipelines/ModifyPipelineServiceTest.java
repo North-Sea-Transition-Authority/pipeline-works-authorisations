@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,8 +17,10 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,19 +32,21 @@ public class ModifyPipelineServiceTest {
   @Mock
   private PadPipelineService padPipelineService;
 
+  @Mock
+  private PipelineDetailService pipelineDetailService;
+
   private ModifyPipelineService modifyPipelineService;
 
   private PwaApplicationDetail detail;
 
   @Before
   public void setUp() {
-    modifyPipelineService = new ModifyPipelineService(pipelineService, padPipelineService);
+    modifyPipelineService = new ModifyPipelineService(pipelineService, padPipelineService, pipelineDetailService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
   @Test
   public void getConsentedPipelinesNotOnApplication_consentedPipelineAvailable() {
-    when(padPipelineService.getMasterPipelineIds(detail)).thenReturn(List.of(1, 2));
 
     var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
     nonConsentedPipeline.setId(3);
@@ -55,35 +58,33 @@ public class ModifyPipelineServiceTest {
     var nonConsentedPipelineDetail = new PipelineDetail();
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
-    when(pipelineService.getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(detail.getPwaApplication(),
-        true))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()
+    ))
         .thenReturn(List.of(nonConsentedPipelineDetail));
-
-    when(padPipelineService.getPadPipelinesByMasterAndIds(detail.getMasterPwaApplication(), List.of(3)))
-        .thenReturn(List.of(nonConsentedPadPipeline));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
-    assertThat(result).containsExactly(nonConsentedPadPipeline);
+    assertThat(result).containsExactly(nonConsentedPipelineDetail);
   }
 
   @Test
   public void getConsentedPipelinesNotOnApplication_consentedPipelineAlreadyLinked() {
-    when(padPipelineService.getMasterPipelineIds(detail)).thenReturn(List.of(1, 2));
 
     var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
     nonConsentedPipeline.setId(3);
 
-    var nonConsentedPadPipeline = new PadPipeline();
-    nonConsentedPadPipeline.setPipeline(nonConsentedPipeline);
-    nonConsentedPadPipeline.setPipelineRef("Pipeline ref");
-
     var nonConsentedPipelineDetail = new PipelineDetail();
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
-    when(pipelineService.getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(detail.getPwaApplication(),
-        true))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()
+    ))
         .thenReturn(List.of(nonConsentedPipelineDetail));
+
+    var padPipeline = new PadPipeline();
+    var pipeline = new Pipeline();
+    pipeline.setId(3);
+    padPipeline.setPipeline(pipeline);
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipeline));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
@@ -92,15 +93,6 @@ public class ModifyPipelineServiceTest {
 
   @Test
   public void getConsentedPipelinesNotOnApplication_noConsentedPipelines() {
-    when(padPipelineService.getMasterPipelineIds(detail)).thenReturn(List.of(1, 2));
-
-    when(pipelineService.getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(detail.getPwaApplication(),
-        true))
-        .thenReturn(List.of());
-
-    when(padPipelineService.getPadPipelinesByMasterAndIds(detail.getMasterPwaApplication(), List.of()))
-        .thenReturn(List.of());
-
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
     assertThat(result).isEmpty();
@@ -108,28 +100,20 @@ public class ModifyPipelineServiceTest {
 
   @Test
   public void getConsentedPipelinesNotOnApplication_noPipelinesOnAppDetail() {
-    when(padPipelineService.getMasterPipelineIds(detail)).thenReturn(List.of());
 
     var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
     nonConsentedPipeline.setId(3);
 
-    var nonConsentedPadPipeline = new PadPipeline();
-    nonConsentedPadPipeline.setPipeline(nonConsentedPipeline);
-    nonConsentedPadPipeline.setPipelineRef("Pipeline ref");
-
     var nonConsentedPipelineDetail = new PipelineDetail();
     nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
 
-    when(pipelineService.getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(detail.getPwaApplication(),
-        true))
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()
+    ))
         .thenReturn(List.of(nonConsentedPipelineDetail));
-
-    when(padPipelineService.getPadPipelinesByMasterAndIds(detail.getMasterPwaApplication(), List.of(3)))
-        .thenReturn(List.of(nonConsentedPadPipeline));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
-    assertThat(result).containsExactly(nonConsentedPadPipeline);
+    assertThat(result).containsExactly(nonConsentedPipelineDetail);
   }
 
   @Test
@@ -146,11 +130,11 @@ public class ModifyPipelineServiceTest {
 
     var pipelineOverview = new PadPipelineOverview(padPipeline, 1L);
 
-    when(padPipelineService.getPipelineOverviews(any()))
-        .thenReturn(List.of(pipelineOverview));
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of());
 
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
-    assertThat(result).containsOnlyKeys("3");
+    assertThat(result).extracting(NamedPipeline::getPipelineId)
+        .containsExactly(3);
   }
 
   @Test
@@ -167,11 +151,9 @@ public class ModifyPipelineServiceTest {
 
     var pipelineOverview = new PadPipelineOverview(padPipeline, 1L);
 
-    when(padPipelineService.getPipelineOverviews(any()))
-        .thenReturn(List.of(pipelineOverview));
-
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
-    assertThat(result).containsOnlyKeys("3");
+    assertThat(result).extracting(NamedPipeline::getPipelineId)
+        .containsExactly(3);
   }
 
   @Test
@@ -194,10 +176,10 @@ public class ModifyPipelineServiceTest {
   public void importPipeline_serviceInteraction() {
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");
-    var pipeline = new PadPipeline();
-    when(padPipelineService.getPadPipelinesByMasterAndId(detail.getMasterPwaApplication(), 1))
-        .thenReturn(pipeline);
+    var pipelineDetail = new PipelineDetail();
+
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
     modifyPipelineService.importPipeline(detail, form);
-    verify(padPipelineService, times(1)).copyDataToNewPadPipeline(detail, pipeline);
+    verify(padPipelineService, times(1)).copyDataToNewPadPipeline(detail, pipelineDetail);
   }
 }

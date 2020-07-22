@@ -19,6 +19,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -31,7 +33,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -55,6 +57,8 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class PadPipelineService implements ApplicationFormSectionService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineService.class);
 
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
@@ -92,16 +96,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .map(PadPipelineOverview::from)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
-  }
-
-  public List<PipelineOverview> getPipelineOverviews(List<PadPipeline> padPipelines) {
-    if (ListUtils.emptyIfNull(padPipelines).size() == 0) {
-      return List.of();
-    }
-    return padPipelineRepository.findPadPipelinesAsSummaryDtos(padPipelines)
-        .stream()
-        .map(PadPipelineOverview::from)
-        .collect(Collectors.toUnmodifiableList());
   }
 
   public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {
@@ -282,19 +276,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return List.of();
   }
 
-  public List<PadPipeline> getPadPipelinesByMasterAndIds(MasterPwa master, List<Integer> padPipelineIds) {
-    var padPipelineIdList = ListUtils.emptyIfNull(padPipelineIds);
-    if (padPipelineIdList.size() > 0) {
-      return padPipelineRepository.getPadPipelineByMasterPwaAndPipelineIds(master,
-          padPipelineIdList);
-    }
-    return List.of();
-  }
-
-  public PadPipeline getPadPipelinesByMasterAndId(MasterPwa master, Integer padPipelineId) {
-    return padPipelineRepository.getPadPipelineByMasterPwaAndPipelineId(master, padPipelineId);
-  }
-
   public List<PadPipeline> getPadPipelinesByPadPipelineIds(Collection<Integer> padPipelineIds) {
     return IterableUtils.toList(padPipelineRepository.findAllById(padPipelineIds));
   }
@@ -381,7 +362,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
    */
   public Map<PipelineId, String> getApplicationOrConsentedPipelineNumberLookup(
       PwaApplicationDetail pwaApplicationDetail) {
-    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineService.getActivePipelineDetailsForApplicationMasterPwa(
+    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(
         pwaApplicationDetail.getPwaApplication()
     ).stream()
         .collect(Collectors.toMap(PipelineId::from, p -> p));
@@ -416,28 +397,32 @@ public class PadPipelineService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PadPipeline padPipelineToCopyFrom) {
+  public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail) {
+    // TODO: PWA-682 - Map added fields from PipelineDetail to newPadPipeline.
     var newPadPipeline = new PadPipeline(detail);
-    newPadPipeline.setBundleName(padPipelineToCopyFrom.getBundleName());
-    newPadPipeline.setPipelineRef(padPipelineToCopyFrom.getPipelineRef());
-    newPadPipeline.setPipeline(padPipelineToCopyFrom.getPipeline());
-    newPadPipeline.setComponentPartsDescription(padPipelineToCopyFrom.getComponentPartsDescription());
-    newPadPipeline.setFromCoordinates(padPipelineToCopyFrom.getFromCoordinates());
-    newPadPipeline.setFromLocation(padPipelineToCopyFrom.getFromLocation());
-    newPadPipeline.setLength(padPipelineToCopyFrom.getLength());
-    newPadPipeline.setOtherPipelineMaterialUsed(padPipelineToCopyFrom.getOtherPipelineMaterialUsed());
-    newPadPipeline.setPipelineDesignLife(padPipelineToCopyFrom.getPipelineDesignLife());
-    newPadPipeline.setPipelineFlexibility(padPipelineToCopyFrom.getPipelineFlexibility());
-    newPadPipeline.setPipelineInBundle(padPipelineToCopyFrom.getPipelineInBundle());
-    newPadPipeline.setPipelineMaterial(padPipelineToCopyFrom.getPipelineMaterial());
-    newPadPipeline.setPipelineType(padPipelineToCopyFrom.getPipelineType());
-    newPadPipeline.setProductsToBeConveyed(padPipelineToCopyFrom.getProductsToBeConveyed());
-    newPadPipeline.setToCoordinates(padPipelineToCopyFrom.getToCoordinates());
-    newPadPipeline.setToLocation(padPipelineToCopyFrom.getToLocation());
-    newPadPipeline.setTrenchedBuriedBackfilled(padPipelineToCopyFrom.getTrenchedBuriedBackfilled());
-    newPadPipeline.setTrenchingMethodsDescription(padPipelineToCopyFrom.getTrenchingMethodsDescription());
-    padPipelineRepository.save(newPadPipeline);
-    return newPadPipeline;
+    newPadPipeline.setBundleName(pipelineDetail.getBundleName());
+    newPadPipeline.setPipelineRef(pipelineDetail.getPipelineNumber());
+    newPadPipeline.setPipeline(pipelineDetail.getPipeline());
+    newPadPipeline.setComponentPartsDescription(pipelineDetail.getComponentPartsDesc());
+    newPadPipeline.setLength(pipelineDetail.getLength());
+    newPadPipeline.setPipelineInBundle(pipelineDetail.getPipelineInBundle());
+    if (pipelineDetail.getPipelineType() == null) {
+      newPadPipeline.setPipelineType(PipelineType.UNKNOWN);
+    } else {
+      newPadPipeline.setPipelineType(pipelineDetail.getPipelineType());
+    }
+    newPadPipeline.setProductsToBeConveyed(pipelineDetail.getProductsToBeConveyed());
+    try {
+      newPadPipeline.setFromCoordinates(pipelineDetail.getFromCoordinates());
+      newPadPipeline.setFromLocation(pipelineDetail.getFromLocation());
+      newPadPipeline.setToCoordinates(pipelineDetail.getToCoordinates());
+      newPadPipeline.setToLocation(pipelineDetail.getToLocation());
+    } catch (NullPointerException npe) {
+      LOGGER.warn("PipelineDetail is missing valid coordinates");
+    } finally {
+      padPipelineRepository.save(newPadPipeline);
+      return newPadPipeline;
+    }
   }
 
   public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {

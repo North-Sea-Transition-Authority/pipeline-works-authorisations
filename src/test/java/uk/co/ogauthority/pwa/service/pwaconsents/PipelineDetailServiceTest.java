@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -9,6 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -34,6 +38,24 @@ public class PipelineDetailServiceTest {
     when(pipelineDetailRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(List.of());
     var result = pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail);
     assertThat(result).isEqualTo(List.of());
+  }
+
+  @Test
+  public void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
+    var application = detail.getPwaApplication();
+    var master = application.getMasterPwa();
+    var pipelineDetail = new PipelineDetail();
+    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotAndTipFlagIsTrue(master, PipelineStatus.DELETED))
+        .thenReturn(List.of(pipelineDetail));
+    var result = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(application);
+    assertThat(result).containsExactly(pipelineDetail);
+  }
+
+  @Test
+  public void getActivePipelineDetailsForApplicationMasterPwa_serviceInteraction() {
+    pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication());
+    verify(pipelineDetailRepository, times(1)).findAllByPipeline_MasterPwaAndEndTimestampIsNull(
+        detail.getPwaApplication().getMasterPwa());
   }
 
 }

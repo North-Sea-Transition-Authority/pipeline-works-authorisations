@@ -1,59 +1,55 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
-import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
 @Service
 public class ModifyPipelineService {
 
   private final PipelineService pipelineService;
   private final PadPipelineService padPipelineService;
+  private final PipelineDetailService pipelineDetailService;
 
   @Autowired
   public ModifyPipelineService(
       PipelineService pipelineService,
-      PadPipelineService padPipelineService) {
+      PadPipelineService padPipelineService,
+      PipelineDetailService pipelineDetailService) {
     this.pipelineService = pipelineService;
     this.padPipelineService = padPipelineService;
+    this.pipelineDetailService = pipelineDetailService;
   }
 
-  public List<PadPipeline> getConsentedPipelinesNotOnApplication(PwaApplicationDetail pwaApplicationDetail) {
-    var applicationMasterPipelineIds = padPipelineService.getMasterPipelineIds(pwaApplicationDetail);
-    var consentedPipelines = pipelineService.getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(
-        pwaApplicationDetail.getPwaApplication(), true);
-    List<Integer> nonImportedConsentedPipelineIds = consentedPipelines.stream()
-        .filter(pipelineDetail -> applicationMasterPipelineIds.stream()
-            .noneMatch(masterPipelineId -> masterPipelineId.equals(pipelineDetail.getPipelineId())))
-        .map(PipelineDetail::getPipelineId)
+  public List<PipelineDetail> getConsentedPipelinesNotOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+    var consentedPipelines = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(
+        pwaApplicationDetail.getPwaApplication());
+    var padPipelines = padPipelineService.getPipelines(pwaApplicationDetail);
+
+    return consentedPipelines.stream()
+        .filter(pipelineDetail -> padPipelines.stream()
+            .noneMatch(pipeline -> pipeline.getPipeline().getId().equals(pipelineDetail.getPipelineId())))
         .collect(Collectors.toUnmodifiableList());
-    return padPipelineService.getPadPipelinesByMasterAndIds(pwaApplicationDetail.getMasterPwaApplication(),
-        nonImportedConsentedPipelineIds);
   }
 
-  public Map<String, String> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
-    var consentedPipelinesNotOnApplication = getConsentedPipelinesNotOnApplication(pwaApplicationDetail);
-    var pipelineOverviews = padPipelineService.getPipelineOverviews(consentedPipelinesNotOnApplication);
-    return pipelineOverviews.stream()
-        .collect(StreamUtils.toLinkedHashMap(
-            pipelineOverview -> String.valueOf(pipelineOverview.getPipelineId()),
-            PipelineOverview::getPipelineName
-        ));
+  public List<NamedPipeline> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
+    return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
+        .map(NamedPipelineDto::new)
+        .collect(Collectors.toUnmodifiableList());
   }
 
   @Transactional
   public void importPipeline(PwaApplicationDetail detail, ModifyPipelineForm form) {
     var pipelineId = Integer.parseInt(form.getPipelineId());
-    var oldPadPipeline = padPipelineService.getPadPipelinesByMasterAndId(detail.getMasterPwaApplication(), pipelineId);
-    padPipelineService.copyDataToNewPadPipeline(detail, oldPadPipeline);
+    var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
+    padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
   }
 }

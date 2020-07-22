@@ -6,7 +6,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineRepository;
@@ -38,7 +36,7 @@ public class PipelineServiceTest {
   public void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    pipelineService = new PipelineService(pipelineRepository, pipelineDetailRepository);
+    pipelineService = new PipelineService(pipelineRepository);
 
     when(pipelineRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
@@ -52,13 +50,6 @@ public class PipelineServiceTest {
   }
 
   @Test
-  public void getActivePipelineDetailsForApplicationMasterPwa_serviceInteraction() {
-    pipelineService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication());
-    verify(pipelineDetailRepository, times(1)).findAllByPipeline_MasterPwaAndEndTimestampIsNull(
-        pwaApplicationDetail.getPwaApplication().getMasterPwa());
-  }
-
-  @Test
   public void getPipelinesFromIds_serviceInteraction(){
     var ids = Set.of(new PipelineId(1), new PipelineId(2));
     pipelineService.getPipelinesFromIds(ids);
@@ -66,14 +57,4 @@ public class PipelineServiceTest {
 
   }
 
-  @Test
-  public void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
-    var application = pwaApplicationDetail.getPwaApplication();
-    var master = application.getMasterPwa();
-    var pipelineDetail = new PipelineDetail();
-    when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndTipFlagAndDetailStatusIsNot(master, true, "DELETED"))
-        .thenReturn(List.of(pipelineDetail));
-    var result = pipelineService.getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag(application, true);
-    assertThat(result).containsExactly(pipelineDetail);
-  }
 }

@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -26,7 +25,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTyp
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -36,7 +34,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -273,31 +270,6 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getPipelineOverviews_emptyList() {
-    var result = padPipelineService.getPipelineOverviews(List.of());
-    assertThat(result).isEmpty();
-    verifyNoInteractions(padPipelineRepository);
-  }
-
-  @Test
-  public void getPipelineOverviews_serviceInteraction() {
-    var padPipeline = new PadPipeline();
-    var pipeline = new Pipeline();
-    pipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
-    padPipeline.setId(2);
-    padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
-
-    var summaryDto = createPadPipelineSummaryDto(padPipeline);
-
-    when(padPipelineRepository.findPadPipelinesAsSummaryDtos(List.of(padPipeline)))
-        .thenReturn(List.of(summaryDto));
-    var result = padPipelineService.getPipelineOverviews(List.of(padPipeline));
-    assertThat(result).extracting(PipelineOverview::getPipelineId)
-        .containsExactly(1);
-  }
-
-  @Test
   public void getApplicationOrConsentedPipelineNumberLookup_whenNoConsentedPipelines() {
     var pipeline = new Pipeline();
     pipeline.setId(1);
@@ -334,7 +306,7 @@ public class PadPipelineServiceTest {
 
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(padPipeline));
 
-    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
         .thenReturn(List.of(pipelineDetail));
 
     assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
@@ -353,7 +325,7 @@ public class PadPipelineServiceTest {
     var pipelineDetail = new PipelineDetail(pipeline);
     pipelineDetail.setPipelineNumber("CONSENTED_PIPELINE_1");
 
-    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
         .thenReturn(List.of(pipelineDetail));
 
     assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
@@ -429,18 +401,8 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getPadPipelinesByMasterAndIds_serviceInteraction() {
-    var master = detail.getMasterPwaApplication();
-    var padPipeline = new PadPipeline();
-    when(padPipelineRepository.getPadPipelineByMasterPwaAndPipelineIds(master, List.of(1)))
-        .thenReturn(List.of(padPipeline));
-    var result = padPipelineService.getPadPipelinesByMasterAndIds(master, List.of(1));
-    assertThat(result).containsExactly(padPipeline);
-  }
-
-  @Test
   public void copyDataToNewPadPipeline_verifyDataMatches() {
-    var padPipeline = new PadPipeline();
+    var pipelineDetail = new PipelineDetail();
     var pipeline = new Pipeline();
 
     var fromCoordinatePair = new CoordinatePair(
@@ -453,54 +415,39 @@ public class PadPipelineServiceTest {
         new LongitudeCoordinate(2, 2, BigDecimal.ZERO, LongitudeDirection.WEST)
     );
 
-    padPipeline.setBundleName("bundle");
-    padPipeline.setPipelineRef("ref");
-    padPipeline.setPipeline(pipeline);
-    padPipeline.setComponentPartsDescription("comp desc");
-    padPipeline.setFromCoordinates(fromCoordinatePair);
-    padPipeline.setFromLocation("a");
-    padPipeline.setLength(BigDecimal.ONE);
-    padPipeline.setOtherPipelineMaterialUsed("materials used");
-    padPipeline.setPipelineDesignLife(1);
-    padPipeline.setPipelineFlexibility(PipelineFlexibility.FLEXIBLE);
-    padPipeline.setPipelineInBundle(true);
-    padPipeline.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
-    padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
-    padPipeline.setProductsToBeConveyed("products");
-    padPipeline.setToCoordinates(toCoordinatePair);
-    padPipeline.setToLocation("b");
-    padPipeline.setTrenchedBuriedBackfilled(true);
-    padPipeline.setTrenchingMethodsDescription("trench desc");
+    // TODO: PWA-682 - Set added fields
+    pipelineDetail.setBundleName("bundle");
+    pipelineDetail.setPipelineNumber("ref");
+    pipelineDetail.setPipeline(pipeline);
+    pipelineDetail.setComponentPartsDesc("comp desc");
+    pipelineDetail.setFromCoordinates(fromCoordinatePair);
+    pipelineDetail.setFromLocation("a");
+    pipelineDetail.setLength(BigDecimal.ONE);
+    pipelineDetail.setPipelineInBundle(true);
+    pipelineDetail.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+    pipelineDetail.setProductsToBeConveyed("products");
+    pipelineDetail.setToCoordinates(toCoordinatePair);
+    pipelineDetail.setToLocation("b");
 
-    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, padPipeline);
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
 
-    // Ensure the pipeline returned is a different object to the one passed
-    assertThat(pipelineWithCopiedData == padPipeline).isFalse();
-
-    assertThat(pipelineWithCopiedData.getBundleName()).isEqualTo(padPipeline.getBundleName());
-    assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(padPipeline.getPipelineRef());
-    assertThat(pipelineWithCopiedData.getPipeline()).isEqualTo(padPipeline.getPipeline());
-    assertThat(pipelineWithCopiedData.getComponentPartsDescription()).isEqualTo(padPipeline.getComponentPartsDescription());
-    assertThat(pipelineWithCopiedData.getFromCoordinates()).isEqualTo(padPipeline.getFromCoordinates());
-    assertThat(pipelineWithCopiedData.getFromLocation()).isEqualTo(padPipeline.getFromLocation());
-    assertThat(pipelineWithCopiedData.getLength()).isEqualTo(padPipeline.getLength());
-    assertThat(pipelineWithCopiedData.getOtherPipelineMaterialUsed()).isEqualTo(padPipeline.getOtherPipelineMaterialUsed());
-    assertThat(pipelineWithCopiedData.getPipelineDesignLife()).isEqualTo(padPipeline.getPipelineDesignLife());
-    assertThat(pipelineWithCopiedData.getPipelineFlexibility()).isEqualTo(padPipeline.getPipelineFlexibility());
-    assertThat(pipelineWithCopiedData.getPipelineInBundle()).isEqualTo(padPipeline.getPipelineInBundle());
-    assertThat(pipelineWithCopiedData.getPipelineMaterial()).isEqualTo(padPipeline.getPipelineMaterial());
-    assertThat(pipelineWithCopiedData.getPipelineType()).isEqualTo(padPipeline.getPipelineType());
-    assertThat(pipelineWithCopiedData.getProductsToBeConveyed()).isEqualTo(padPipeline.getProductsToBeConveyed());
-    assertThat(pipelineWithCopiedData.getToCoordinates()).isEqualTo(padPipeline.getToCoordinates());
-    assertThat(pipelineWithCopiedData.getToLocation()).isEqualTo(padPipeline.getToLocation());
-    assertThat(pipelineWithCopiedData.getTrenchedBuriedBackfilled()).isEqualTo(padPipeline.getTrenchedBuriedBackfilled());
-    assertThat(pipelineWithCopiedData.getTrenchingMethodsDescription()).isEqualTo(padPipeline.getTrenchingMethodsDescription());
+    // TODO: PWA-682 - Assert added fields
+    assertThat(pipelineWithCopiedData.getBundleName()).isEqualTo(pipelineDetail.getBundleName());
+    assertThat(pipelineWithCopiedData.getPipeline()).isEqualTo(pipelineDetail.getPipeline());
+    assertThat(pipelineWithCopiedData.getFromCoordinates()).isEqualTo(pipelineDetail.getFromCoordinates());
+    assertThat(pipelineWithCopiedData.getFromLocation()).isEqualTo(pipelineDetail.getFromLocation());
+    assertThat(pipelineWithCopiedData.getLength()).isEqualTo(pipelineDetail.getLength());
+    assertThat(pipelineWithCopiedData.getPipelineInBundle()).isEqualTo(pipelineDetail.getPipelineInBundle());
+    assertThat(pipelineWithCopiedData.getPipelineType()).isEqualTo(pipelineDetail.getPipelineType());
+    assertThat(pipelineWithCopiedData.getProductsToBeConveyed()).isEqualTo(pipelineDetail.getProductsToBeConveyed());
+    assertThat(pipelineWithCopiedData.getToCoordinates()).isEqualTo(pipelineDetail.getToCoordinates());
+    assertThat(pipelineWithCopiedData.getToLocation()).isEqualTo(pipelineDetail.getToLocation());
 
   }
 
   @Test
   public void copyDataToNewPadPipeline_verifySaved() {
-    var pipeline = new PadPipeline();
+    var pipelineDetail = new PipelineDetail();
 
     var fromCoordinatePair = new CoordinatePair(
         new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
@@ -512,10 +459,10 @@ public class PadPipelineServiceTest {
         new LongitudeCoordinate(2, 2, BigDecimal.ZERO, LongitudeDirection.WEST)
     );
 
-    pipeline.setFromCoordinates(fromCoordinatePair);
-    pipeline.setToCoordinates(toCoordinatePair);
+    pipelineDetail.setFromCoordinates(fromCoordinatePair);
+    pipelineDetail.setToCoordinates(toCoordinatePair);
 
-    var result = padPipelineService.copyDataToNewPadPipeline(detail, pipeline);
+    var result = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
 
     var captor = ArgumentCaptor.forClass(PadPipeline.class);
     verify(padPipelineRepository, times(1)).save(captor.capture());
