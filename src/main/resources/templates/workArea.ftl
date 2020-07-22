@@ -36,14 +36,8 @@
                   <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
                         <#assign viewLinkText=item.padReference?has_content?then(item.padReference, "Resume draft PWA") /> 
-                        <#if item.padStatus = "CASE_OFFICER_REVIEW">
-                          <#assign appRefUrl = caseManagementUrl/>
-                        <#else>
-                          <#assign appRefUrl = item.viewApplicationUrl/>
-                        </#if>
-
                         <@fdsAction.link linkText=viewLinkText
-                        linkUrl=springUrl(appRefUrl)
+                        linkUrl=springUrl(item.viewApplicationUrl)
                         linkClass="govuk-link govuk-link--no-visited-state"
                         />
                     </td>
