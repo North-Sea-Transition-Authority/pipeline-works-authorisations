@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(CaseManagementController.class)
-public class CaseManagementControllerTest extends AbstractControllerTest {
+@WebMvcTest(ConsultationController.class)
+public class ConsultationControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PwaApplicationContextService applicationContextService;
@@ -32,8 +32,8 @@ public class CaseManagementControllerTest extends AbstractControllerTest {
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
 
   @Test
-  public void renderTeamTypes_allTeamTypesAvailable() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(1, PwaApplicationType.INITIAL, null, null)))
+  public void renderConsultation() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderConsultation(1, PwaApplicationType.INITIAL, null, null)))
         .with(authenticatedUserAndSession(user)))
         .andExpect(status().isOk());
 

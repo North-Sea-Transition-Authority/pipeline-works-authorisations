@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Consultation" pageHeading="Consultation" topNavigation=true twoThirdsColumn=false>
+<@defaultPage htmlTitle="${appRef} consultations" pageHeading="${appRef} consultations" topNavigation=true twoThirdsColumn=false>
 
 
 
