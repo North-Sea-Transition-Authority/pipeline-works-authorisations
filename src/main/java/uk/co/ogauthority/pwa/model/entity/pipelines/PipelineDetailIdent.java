@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -16,7 +18,11 @@ public class PipelineDetailIdent {
 
   @Id
   private Integer id;
-  private Integer pipelineDetailId;
+
+  @ManyToOne
+  @JoinColumn(name = "pipeline_detail_id")
+  private PipelineDetail pipelineDetail;
+
   private String identNo;
 
   private String fromLocation;
@@ -85,12 +91,12 @@ public class PipelineDetailIdent {
     this.id = id;
   }
 
-  public Integer getPipelineDetailId() {
-    return pipelineDetailId;
+  public PipelineDetail getPipelineDetail() {
+    return pipelineDetail;
   }
 
-  public void setPipelineDetailId(Integer pipelineDetailId) {
-    this.pipelineDetailId = pipelineDetailId;
+  public void setPipelineDetail(PipelineDetail pipelineDetail) {
+    this.pipelineDetail = pipelineDetail;
   }
 
   public String getIdentNo() {

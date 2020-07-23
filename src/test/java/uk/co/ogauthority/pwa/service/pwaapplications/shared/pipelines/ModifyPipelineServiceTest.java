@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +22,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyP
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentDataImportService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -35,13 +38,17 @@ public class ModifyPipelineServiceTest {
   @Mock
   private PipelineDetailService pipelineDetailService;
 
+  @Mock
+  private PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService;
+
   private ModifyPipelineService modifyPipelineService;
 
   private PwaApplicationDetail detail;
 
   @Before
   public void setUp() {
-    modifyPipelineService = new ModifyPipelineService(pipelineService, padPipelineService, pipelineDetailService);
+    modifyPipelineService = new ModifyPipelineService(pipelineService, padPipelineService, pipelineDetailService,
+        pipelineDetailIdentDataImportService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
@@ -178,5 +185,6 @@ public class ModifyPipelineServiceTest {
     when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
     modifyPipelineService.importPipeline(detail, form);
     verify(padPipelineService, times(1)).copyDataToNewPadPipeline(detail, pipelineDetail);
+    verify(pipelineDetailIdentDataImportService, times(1)).importIdentsAndData(eq(pipelineDetail), any());
   }
 }

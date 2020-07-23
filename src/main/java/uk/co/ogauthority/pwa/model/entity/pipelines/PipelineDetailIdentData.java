@@ -1,7 +1,10 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
+import java.math.BigDecimal;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -10,13 +13,17 @@ public class PipelineDetailIdentData {
 
   @Id
   private Integer id;
-  private String pipelineDetailIdentId;
+
+  @ManyToOne
+  @JoinColumn(name = "pipeline_detail_ident_id")
+  private PipelineDetailIdent pipelineDetailIdent;
+
   private String componentPartsDesc;
-  private String externalDiameter;
-  private String internalDiameter;
-  private String wallThickness;
+  private BigDecimal externalDiameter;
+  private BigDecimal internalDiameter;
+  private BigDecimal wallThickness;
   private String insulationCoatingType;
-  private String maop;
+  private BigDecimal maop;
   private String productsToBeConveyed;
 
 
@@ -29,14 +36,13 @@ public class PipelineDetailIdentData {
   }
 
 
-  public String getPipelineDetailIdentId() {
-    return pipelineDetailIdentId;
+  public PipelineDetailIdent getPipelineDetailIdent() {
+    return pipelineDetailIdent;
   }
 
-  public void setPipelineDetailIdentId(String pipelineDetailIdentId) {
-    this.pipelineDetailIdentId = pipelineDetailIdentId;
+  public void setPipelineDetailIdent(PipelineDetailIdent pipelineDetailIdent) {
+    this.pipelineDetailIdent = pipelineDetailIdent;
   }
-
 
   public String getComponentPartsDesc() {
     return componentPartsDesc;
@@ -47,32 +53,29 @@ public class PipelineDetailIdentData {
   }
 
 
-  public String getExternalDiameter() {
+  public BigDecimal getExternalDiameter() {
     return externalDiameter;
   }
 
-  public void setExternalDiameter(String externalDiameter) {
+  public void setExternalDiameter(BigDecimal externalDiameter) {
     this.externalDiameter = externalDiameter;
   }
 
-
-  public String getInternalDiameter() {
+  public BigDecimal getInternalDiameter() {
     return internalDiameter;
   }
 
-  public void setInternalDiameter(String internalDiameter) {
+  public void setInternalDiameter(BigDecimal internalDiameter) {
     this.internalDiameter = internalDiameter;
   }
 
-
-  public String getWallThickness() {
+  public BigDecimal getWallThickness() {
     return wallThickness;
   }
 
-  public void setWallThickness(String wallThickness) {
+  public void setWallThickness(BigDecimal wallThickness) {
     this.wallThickness = wallThickness;
   }
-
 
   public String getInsulationCoatingType() {
     return insulationCoatingType;
@@ -83,14 +86,13 @@ public class PipelineDetailIdentData {
   }
 
 
-  public String getMaop() {
+  public BigDecimal getMaop() {
     return maop;
   }
 
-  public void setMaop(String maop) {
+  public void setMaop(BigDecimal maop) {
     this.maop = maop;
   }
-
 
   public String getProductsToBeConveyed() {
     return productsToBeConveyed;

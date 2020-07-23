@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentDataImportService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
 /**
@@ -22,15 +23,18 @@ public class ModifyPipelineService {
   private final PipelineService pipelineService;
   private final PadPipelineService padPipelineService;
   private final PipelineDetailService pipelineDetailService;
+  private final PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService;
 
   @Autowired
   public ModifyPipelineService(
       PipelineService pipelineService,
       PadPipelineService padPipelineService,
-      PipelineDetailService pipelineDetailService) {
+      PipelineDetailService pipelineDetailService,
+      PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService) {
     this.pipelineService = pipelineService;
     this.padPipelineService = padPipelineService;
     this.pipelineDetailService = pipelineDetailService;
+    this.pipelineDetailIdentDataImportService = pipelineDetailIdentDataImportService;
   }
 
   @VisibleForTesting
@@ -55,6 +59,7 @@ public class ModifyPipelineService {
   public void importPipeline(PwaApplicationDetail detail, ModifyPipelineForm form) {
     var pipelineId = Integer.parseInt(form.getPipelineId());
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
-    padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+    var padPipeline = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+    pipelineDetailIdentDataImportService.importIdentsAndData(pipelineDetail, padPipeline);
   }
 }
