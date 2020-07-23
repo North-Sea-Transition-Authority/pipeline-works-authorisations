@@ -31,10 +31,10 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
@@ -107,8 +107,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   }
 
-  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(PwaApplicationDetail pwaApplicationDetail,
-                                                                                HuooRole huooRole) {
+  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole) {
     return getOrganisationRoleDtos(pwaApplicationDetail).stream()
         .filter(o -> huooRole.equals(o.getHuooRole()))
         .collect(Collectors.toSet());
@@ -420,34 +421,51 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Transactional
   public PadPipelineOrganisationRoleLink createPadPipelineOrganisationRoleLink(PadOrganisationRole padOrganisationRole,
-                                                                               Pipeline pipeline) {
-    return padPipelineOrganisationRoleLinkRepository.save(
-        new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
+                                                                               PipelineIdentifier pipelineIdentifier) {
+    //  Not keen on this use of the visitor pattern. Try to rework if time, this involves a new pipeline object with the same id rather than
+    // an actual Pipeline entity or reference.
+    // to set on the new role, when all we have is the interface.
+    var newRoleLink = new PadPipelineOrganisationRoleLink();
+    newRoleLink.setPadOrgRole(padOrganisationRole);
+    pipelineIdentifier.accept(newRoleLink);
+    return padPipelineOrganisationRoleLinkRepository.save(newRoleLink);
   }
 
   @Transactional
-  public void deletePadPipelineRoleLinksForPipelinesAndRole(PwaApplicationDetail pwaApplicationDetail,
-                                                            Set<Pipeline> pipelines,
-                                                            HuooRole huooRole) {
+  public void deletePadPipelineRoleLinksForPipelineIdentifiersAndRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                      Set<PipelineIdentifier> pipelineIdentifiers,
+                                                                      HuooRole huooRole) {
+    // distinct pipeline Ids, with split pipelines treated as whole.
+    var pipelineIds = pipelineIdentifiers.stream()
+        .map(PipelineIdentifier::getPipelineIdAsInt)
+        .collect(toSet());
+
+    // Performance note, this loads in a lot of data that we dont touch e.g org info.
+    // We only need the role instance id and pipelineIdentifier data, could then use a simple reference to role for deletion.
+    // possible that might remove requirement for the flush as linked objects wont be in the hibernate cache.
     var allRoleLinksForPipelines = padPipelineOrganisationRoleLinkRepository
-        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipelineIn(
+        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
             pwaApplicationDetail,
             huooRole,
-            pipelines
-        );
+            pipelineIds
+        ).stream()
+        // filter out splits that have not been selected so they are not affected by delete
+        .filter(r -> pipelineIdentifiers.contains(r.getPipelineIdentifier()))
+        .collect(toList());
 
     padPipelineOrganisationRoleLinkRepository.deleteAll(allRoleLinksForPipelines);
     // this flush is required to make sure we force the transaction to send the DELETE to the database now
     entityManager.flush();
   }
 
-  public Set<PipelineId> getPipelineIdsWhereRoleOfTypeSet(PwaApplicationDetail pwaApplicationDetail,
+  public Set<PipelineIdentifier> getPipelineSplitsForRole(PwaApplicationDetail pwaApplicationDetail,
                                                           HuooRole huooRole) {
     return padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
-        pwaApplicationDetail, huooRole)
-        .stream()
-        .map(PadPipelineOrganisationRoleLink::getPipeline)
-        .map(p -> new PipelineId(p.getId()))
+        pwaApplicationDetail, huooRole).stream()
+        // This could use a custom visitor ie PipelineIdentifierIsSplitVisitor which set a boolean flag to avoid this
+        // class tagging but I dont think in practice that is much better.
+        .filter(r -> r.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE))
+        .map(PadPipelineOrganisationRoleLink::getPipelineIdentifier)
         .collect(toSet());
   }
 

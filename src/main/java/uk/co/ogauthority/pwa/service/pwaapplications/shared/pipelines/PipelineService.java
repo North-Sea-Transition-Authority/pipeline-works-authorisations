@@ -46,7 +46,7 @@ public class PipelineService {
     return pipelineDetailRepository.findAllByPipeline_MasterPwaAndEndTimestampIsNull(
         pwaApplication.getMasterPwa()
     ).stream()
-        .filter(pd -> pipelineIds.contains(new PipelineId(pd.getPipelineId())))
+        .filter(pd -> pipelineIds.contains(pd.getPipelineId()))
         .collect(Collectors.toList());
   }
 

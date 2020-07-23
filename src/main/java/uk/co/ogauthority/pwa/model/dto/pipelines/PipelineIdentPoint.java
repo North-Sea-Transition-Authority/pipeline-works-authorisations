@@ -10,10 +10,23 @@ public class PipelineIdentPoint {
   private String locationName;
   private IdentLocationInclusionMode identLocationInclusionMode;
 
-  public PipelineIdentPoint(String locationName,
-                            IdentLocationInclusionMode identLocationInclusionMode) {
+  private PipelineIdentPoint(String locationName,
+                             IdentLocationInclusionMode identLocationInclusionMode) {
     this.locationName = locationName;
     this.identLocationInclusionMode = identLocationInclusionMode;
+  }
+
+  public static PipelineIdentPoint from(String locationName,
+                                        IdentLocationInclusionMode identLocationInclusionMode) {
+    return new PipelineIdentPoint(locationName, identLocationInclusionMode);
+  }
+
+  public static PipelineIdentPoint inclusivePoint(String location) {
+    return new PipelineIdentPoint(location, IdentLocationInclusionMode.INCLUSIVE);
+  }
+
+  public static PipelineIdentPoint exclusivePoint(String location) {
+    return new PipelineIdentPoint(location, IdentLocationInclusionMode.EXCLUSIVE);
   }
 
   public String getLocationName() {

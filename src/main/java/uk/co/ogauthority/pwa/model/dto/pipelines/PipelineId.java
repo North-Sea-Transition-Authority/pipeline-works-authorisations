@@ -18,7 +18,7 @@ public final class PipelineId implements PipelineIdentifier {
   }
 
   public static PipelineId from(PipelineDetail pipelineDetail) {
-    return new PipelineId(pipelineDetail.getPipelineId());
+    return pipelineDetail.getPipelineId();
   }
 
   public static PipelineId from(PadPipeline padPipeline) {

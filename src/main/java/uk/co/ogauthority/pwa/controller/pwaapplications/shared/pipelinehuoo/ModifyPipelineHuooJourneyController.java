@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -40,8 +41,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOption;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.ReconciledHuooPickablePipeline;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -77,16 +79,16 @@ public class ModifyPipelineHuooJourneyController {
   private ModifyPipelineHuooJourneyData modifyPipelineHuooJourneyData;
 
   private final PadPipelinesHuooService padPipelinesHuooService;
-  private final PickablePipelineService pickablePipelineService;
+  private final PickableHuooPipelineService pickableHuooPipelineService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public ModifyPipelineHuooJourneyController(
       PadPipelinesHuooService padPipelinesHuooService,
-      PickablePipelineService pickablePipelineService,
+      PickableHuooPipelineService pickableHuooPipelineService,
       ControllerHelperService controllerHelperService) {
     this.padPipelinesHuooService = padPipelinesHuooService;
-    this.pickablePipelineService = pickablePipelineService;
+    this.pickableHuooPipelineService = pickableHuooPipelineService;
     this.controllerHelperService = controllerHelperService;
   }
 
@@ -97,19 +99,25 @@ public class ModifyPipelineHuooJourneyController {
                                       @PathVariable("huooRole") HuooRole huooRole,
                                       PwaApplicationContext applicationContext,
                                       @RequestParam(value = "journeyPage") JourneyPage journeyPage,
-                                      @RequestParam(value = "pipelineIds", required = false) Set<Integer> pipelineIds,
+                                      @RequestParam(value = "encodedPickedPipelineIds", required = false)
+                                          Set<String> encodedPickedPipelineIds,
                                       @RequestParam(value = "organisationIds", required = false) Set<Integer> organisationUnitIds,
                                       @RequestParam(value = "treatyAgreements", required = false) Set<TreatyAgreement> treatyAgreements) {
 
     var detail = applicationContext.getApplicationDetail();
     modifyPipelineHuooJourneyData.reset();
 
+    // Workaround using Base64 encoded strings as params
+    // Otherwise url params in the desired format are not being correctly mapped as single string entries into the set.
+    var decodedPickedPipelineIds = decodeEncodedStrings(SetUtils.emptyIfNull(encodedPickedPipelineIds));
+
     var reconciledPipelinePickableIds = padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
         applicationContext.getApplicationDetail(),
-        SetUtils.emptyIfNull(pipelineIds)
+        huooRole,
+        decodedPickedPipelineIds
     )
         .stream()
-        .map(o -> o.getPickablePipelineId().getId())
+        .map(ReconciledHuooPickablePipeline::getPickableIdAsString)
         .collect(Collectors.toSet());
 
     // update journey pipelines
@@ -133,11 +141,19 @@ public class ModifyPipelineHuooJourneyController {
         .collect(Collectors.toSet());
 
     //update journey orgs role owners
-    modifyPipelineHuooJourneyData.updateJourneyOrganisationData(detail, huooRole, reconciledOrgUnitIds, reconciledTreaties);
+    modifyPipelineHuooJourneyData.updateJourneyOrganisationData(detail, huooRole, reconciledOrgUnitIds,
+        reconciledTreaties);
 
     return redirectToJourneyPage(applicationContext, huooRole, journeyPage);
   }
 
+  private Set<String> decodeEncodedStrings(Set<String> encodedStrings) {
+    var decoder = Base64.getUrlDecoder();
+    return encodedStrings.stream()
+        // yuck
+        .map(s -> new String(decoder.decode(s)))
+        .collect(Collectors.toSet());
+  }
 
   @GetMapping("/pipelines")
   public ModelAndView renderPipelinesForHuooAssignment(@PathVariable("applicationType")
@@ -227,7 +243,7 @@ public class ModifyPipelineHuooJourneyController {
     modifyPipelineHuooJourneyData.updateFormWithPipelineJourneyData(applicationDetail, huooRole, form);
 
     padPipelinesHuooService.validateAddPipelineHuooForm(
-        applicationContext.getApplicationDetail(),
+        applicationDetail,
         form,
         bindingResult,
         PickHuooPipelineValidationType.FULL,
@@ -241,11 +257,14 @@ public class ModifyPipelineHuooJourneyController {
         () -> {
           // This is not direct form -> entity mapping so diverges from project standard imo.
           // actual mapping between form elements and entities is still captured in the service code.
-          var pipelines = pickablePipelineService.getPickedPipelinesFromStrings(form.getPickedPipelineStrings());
+          var pipelineIdentifiers = pickableHuooPipelineService.getPickedPipelinesFromStrings(
+              applicationDetail,
+              huooRole,
+              form.getPickedPipelineStrings());
 
           padPipelinesHuooService.updatePipelineHuooLinks(
               applicationContext.getApplicationDetail(),
-              pipelines,
+              pipelineIdentifiers,
               huooRole,
               form.getOrganisationUnitIds()
                   .stream()
@@ -323,16 +342,16 @@ public class ModifyPipelineHuooJourneyController {
         )))
         .addObject("pageHeading",
             String.format(SELECT_PIPELINES_QUESTION_FORMAT, huooRole.getDisplayText().toLowerCase()))
-        .addObject("pickablePipelineOptions", sortedPickablePipelineOptions)
+        .addObject("pickableHuooPipelineOptions", sortedPickablePipelineOptions)
         .addObject("backLinkText", SELECT_PIPELINES_BACK_LINK_TEXT);
     return modelAndView;
   }
 
-  private List<PickablePipelineOption> getSortedPickablePipelines(PwaApplicationDetail pwaApplicationDetail,
-                                                                  HuooRole huooRole) {
-    return padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(pwaApplicationDetail)
+  private List<PickableHuooPipelineOption> getSortedPickablePipelines(PwaApplicationDetail pwaApplicationDetail,
+                                                                      HuooRole huooRole) {
+    return padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(pwaApplicationDetail, huooRole)
         .stream()
-        .sorted(Comparator.comparing(PickablePipelineOption::getPipelineNumber))
+        .sorted(Comparator.comparing(PickableHuooPipelineOption::getPipelineNumber))
         .collect(Collectors.toList());
   }
 
@@ -354,7 +373,7 @@ public class ModifyPipelineHuooJourneyController {
             String.format(UPDATE_PIPELINE_ORG_ROLES_QUESTION_FORMAT, huooRole.getDisplayText().toLowerCase()))
         .addObject("submitButtonText",
             String.format(UPDATE_PIPELINE_ORG_ROLES_SUBMIT_BUTTON_FORMAT, huooRole.getDisplayText().toLowerCase()))
-        .addObject("pickablePipelineOptions", sortedPickablePipelineOptions)
+        .addObject("pickableHuooPipelineOptions", sortedPickablePipelineOptions)
         .addObject("backLinkText", SELECT_PIPELINES_BACK_LINK_TEXT)
         .addObject("pickableOrgDetails", orgUnitDetails)
         .addObject("availableTreatyOptions", availableTreatiesForRole);

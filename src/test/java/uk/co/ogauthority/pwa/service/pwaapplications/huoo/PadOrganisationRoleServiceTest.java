@@ -31,6 +31,8 @@ import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipeline
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -589,14 +591,15 @@ public class PadOrganisationRoleServiceTest {
   public void createPadPipelineOrganisationRoleLink_createsAndSavesExpectedLink() {
     var org1HolderRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1);
     var pipeline = new Pipeline();
+    pipeline.setId(pipelineId1.asInt());
 
     var argCapture = ArgumentCaptor.forClass(PadPipelineOrganisationRoleLink.class);
-    padOrganisationRoleService.createPadPipelineOrganisationRoleLink(org1HolderRole, pipeline);
+    padOrganisationRoleService.createPadPipelineOrganisationRoleLink(org1HolderRole, pipeline.getPipelineId());
 
     verify(padPipelineOrganisationRoleLinkRepository, times(1)).save(argCapture.capture());
 
     assertThat(argCapture.getValue()).satisfies(padPipelineOrganisationRoleLink -> {
-      assertThat(padPipelineOrganisationRoleLink.getPipeline()).isEqualTo(pipeline);
+      assertThat(padPipelineOrganisationRoleLink.getPipeline().getPipelineId()).isEqualTo(pipelineId1);
       assertThat(padPipelineOrganisationRoleLink.getPadOrgRole()).isEqualTo(org1HolderRole);
     });
 
@@ -624,18 +627,66 @@ public class PadOrganisationRoleServiceTest {
   public void deletePadPipelineRoleLinksForPipelinesAndRole_verifyServiceInteractions() {
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId1.asInt());
+    var idAsIntSet = Set.of(pipelineId1.asInt());
     var link = PadOrganisationRoleTestUtil.createOrgRolePipelineLink(HuooRole.HOLDER, orgUnit1, pipeline);
-    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipelineIn(
-        detail, HuooRole.HOLDER, Set.of(pipeline)
-    )).thenReturn(List.of(link));
 
-    padOrganisationRoleService.deletePadPipelineRoleLinksForPipelinesAndRole(detail, Set.of(pipeline), HuooRole.HOLDER);
+    when(
+        padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
+            detail, HuooRole.HOLDER, idAsIntSet)
+    ).thenReturn(List.of(link));
+
+    padOrganisationRoleService.deletePadPipelineRoleLinksForPipelineIdentifiersAndRole(detail, Set.of(pipelineId1),
+        HuooRole.HOLDER);
 
     var orderVerifier = Mockito.inOrder(padPipelineOrganisationRoleLinkRepository, entityManager);
+    orderVerifier.verify(
+        padPipelineOrganisationRoleLinkRepository).findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
+        detail, HuooRole.HOLDER, idAsIntSet);
     orderVerifier.verify(padPipelineOrganisationRoleLinkRepository).deleteAll(List.of(link));
     orderVerifier.verify(entityManager).flush();
     orderVerifier.verifyNoMoreInteractions();
 
+  }
+
+  @Test
+  public void getPipelineSplitsForRole_whenNoSplits() {
+    var splitPipelines = padOrganisationRoleService.getPipelineSplitsForRole(detail, HuooRole.HOLDER);
+    assertThat(splitPipelines).isEmpty();
+  }
+
+  @Test
+  public void getPipelineSplitsForRole_whenSplitsExist_filterOutWholePipelines() {
+    var pipeline1 = new Pipeline();
+    pipeline1.setId(pipelineId1.asInt());
+
+    var pipeline2 = new Pipeline();
+    pipeline2.setId(pipelineId2.asInt());
+
+    var wholePipelineLink =  PadOrganisationRoleTestUtil.createOrgRolePipelineLink(HuooRole.HOLDER, orgUnit2, pipeline2);
+
+    var split1Link = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
+        HuooRole.HOLDER,
+        orgUnit1,
+        pipeline1,
+        "FROM_1",
+        "TO_1");
+
+    var split2Link = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
+        HuooRole.HOLDER,
+        orgUnit1,
+        pipeline1,
+        "FROM_2",
+        "TO_2");
+    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
+        detail,
+        HuooRole.HOLDER)
+    ).thenReturn(List.of(split1Link, split2Link, wholePipelineLink));
+
+    var splitPipelines = padOrganisationRoleService.getPipelineSplitsForRole(detail, HuooRole.HOLDER);
+    assertThat(splitPipelines).containsExactlyInAnyOrder(
+        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_1"), PipelineIdentPoint.inclusivePoint("TO_1")),
+        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_2"), PipelineIdentPoint.inclusivePoint("TO_2"))
+    );
   }
 
 

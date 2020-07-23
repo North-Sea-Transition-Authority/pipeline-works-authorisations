@@ -18,6 +18,7 @@ import static uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehu
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -43,6 +44,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -54,8 +56,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOptionTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -77,13 +80,17 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   private final String FORM_PICKED_ORG_ATTR = "organisationUnitIds";
   private final String FORM_PICKED_TREATY_ATTR = "treatyAgreements";
 
+  private Pipeline pipeline1;
+  private Pipeline pipeline2;
+  Set<PipelineIdentifier> pickedPipelines;
+
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   @MockBean
   private PadPipelinesHuooService padPipelinesHuooService;
 
   @MockBean
-  private PickablePipelineService pickablePipelineService;
+  private PickableHuooPipelineService pickableHuooPipelineService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private WebUserAccount wua = new WebUserAccount(1);
@@ -91,6 +98,13 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
   @Before
   public void setup() {
+    pipeline1 = new Pipeline();
+    pipeline1.setId(1);
+    pipeline2 = new Pipeline();
+    pipeline2.setId(2);
+
+     pickedPipelines = Set.of(pipeline1.getPipelineId(), pipeline2.getPipelineId());
+
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID);
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
     when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
@@ -325,9 +339,9 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   @Test
   public void completeValidJourney_journeyCompleteSubmitServiceInteraction() throws Exception {
 
-    var pickedPipelines = Set.of(new Pipeline(), new Pipeline());
+    Set<PipelineIdentifier> pickedPipelines = Set.of(pipeline1.getPipelineId(), pipeline2.getPipelineId());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
-    when(pickablePipelineService.getPickedPipelinesFromStrings(any())).thenReturn(pickedPipelines);
+    when(pickableHuooPipelineService.getPickedPipelinesFromStrings(any(), any(), any())).thenReturn(pickedPipelines);
     when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
 
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
@@ -349,7 +363,8 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     )
         .andExpect(status().is3xxRedirection());
 
-    verify(pickablePipelineService, times(1)).getPickedPipelinesFromStrings(PICKED_PIPELINE_IDS);
+    verify(pickableHuooPipelineService, times(1)).getPickedPipelinesFromStrings(
+        pwaApplicationDetail, DEFAULT_ROLE, PICKED_PIPELINE_IDS);
 
     verify(padPipelinesHuooService, times(1))
         .updatePipelineHuooLinks(
@@ -366,9 +381,9 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   @Test
   public void completeValidJourney_journeyDataGetsClearedOnCompletion() throws Exception {
 
-    var pickedPipelines = Set.of(new Pipeline(), new Pipeline());
+    Set<PipelineIdentifier> pickedPipelines = Set.of(pipeline1.getPipelineId(), pipeline2.getPipelineId());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
-    when(pickablePipelineService.getPickedPipelinesFromStrings(any())).thenReturn(pickedPipelines);
+    when(pickableHuooPipelineService.getPickedPipelinesFromStrings(any(), any(), any())).thenReturn(pickedPipelines);
     when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
 
     // Step 1: Mock loading and selecting of Pipelines
@@ -565,14 +580,19 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
   @Test
   public void editGroupRouter_pipelineSelectionPage_preventsInvalidPipelinesPopulatingJourney() throws Exception {
-    var pipelineIds = Set.of(1, 2);
-    var reconciledPipeline = PickablePipelineOptionTestUtil.createConsentedReconciledPickablePipeline(
-        new PipelineId(1)
+    var pipelineId = new PipelineId(1);
+    var pickablePipelineStrings = Set.of(
+        "INVALID ID STRING",
+        PickableHuooPipelineType.createPickableString(pipelineId)
+    );
+    var reconciledPipeline = PickablePipelineOptionTestUtil.createReconciledPickablePipeline(
+        pipelineId
     );
 
     when(padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
         pwaApplicationDetail,
-        pipelineIds
+        DEFAULT_ROLE,
+        pickablePipelineStrings
     )).thenReturn(Set.of(reconciledPipeline));
 
     // check redirect target as expected
@@ -583,7 +603,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
             DEFAULT_ROLE,
             null,
             ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-            pipelineIds,
+            encodeStringSet(pickablePipelineStrings),
             null,
             null
         )))
@@ -594,16 +614,20 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .andExpect(view().name("redirect:/pwa-application/initial/10/pipeline-huoo/HOLDER/pipelines"))
         .andReturn();
 
-    assertPreLoadedJourneyDataMatches(Set.of(reconciledPipeline.getPickablePipelineId().getId()),
+    assertPreLoadedJourneyDataMatches(Set.of(reconciledPipeline.getPickableHuooPipelineId().asString()),
         Collections.emptySet(), Collections.emptySet());
 
   }
 
   @Test
   public void editGroupRouter_preventsInvalidDataPopulatingJourney() throws Exception {
-    var pipelineIds = Set.of(1, 2);
-    var reconciledPipeline = PickablePipelineOptionTestUtil.createConsentedReconciledPickablePipeline(
-        new PipelineId(1)
+    var pipelineId = new PipelineId(1);
+    var pipelineIds = Set.of(
+        "DODGY String",
+        PickableHuooPipelineType.createPickableString(pipelineId)
+    );
+    var reconciledPipeline = PickablePipelineOptionTestUtil.createReconciledPickablePipeline(
+        pipelineId
     );
 
     var validOrgUnitRoleOwner = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(10));
@@ -628,6 +652,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
     when(padPipelinesHuooService.reconcilePickablePipelinesFromPipelineIds(
         pwaApplicationDetail,
+        DEFAULT_ROLE,
         pipelineIds
     )).thenReturn(Set.of(reconciledPipeline));
 
@@ -639,7 +664,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
             DEFAULT_ROLE,
             null,
             ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-            pipelineIds,
+            encodeStringSet(pipelineIds),
             paramOrgUnitSet,
             paramTreatySet
         )))
@@ -649,7 +674,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .andExpect(status().is3xxRedirection());
 
     assertPreLoadedJourneyDataMatches(
-        Set.of(reconciledPipeline.getPickablePipelineId().getId()),
+        Set.of(reconciledPipeline.getPickableHuooPipelineId().asString()),
         Set.of(validOrgUnitRoleOwner.getOrganisationUnitId().asInt()),
         Set.of(validTreaty));
 
@@ -745,5 +770,12 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
   }
 
+  // have to mimic encoding done by url factory. Yuck.
+  private Set<String> encodeStringSet(Set<String> stringSet){
+    var encoder = Base64.getEncoder();
+    return stringSet.stream()
+        .map(s -> encoder.encodeToString(s.getBytes()))
+        .collect(Collectors.toSet());
+  }
 
 }

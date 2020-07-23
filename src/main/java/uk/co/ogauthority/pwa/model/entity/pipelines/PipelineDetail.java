@@ -17,6 +17,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.apache.commons.lang3.ObjectUtils;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -333,8 +334,8 @@ public class PipelineDetail {
     this.trenchingMethodsDesc = trenchingMethodsDesc;
   }
 
-  public int getPipelineId() {
-    return this.getPipeline().getId();
+  public PipelineId getPipelineId() {
+    return this.getPipeline().getPipelineId();
   }
 
   public BigDecimal getMaxExternalDiameter() {

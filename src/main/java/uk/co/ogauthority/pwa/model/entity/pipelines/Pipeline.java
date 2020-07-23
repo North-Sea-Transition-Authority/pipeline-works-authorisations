@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
@@ -45,6 +46,10 @@ public class Pipeline {
 
   public void setMasterPwa(MasterPwa masterPwa) {
     this.masterPwa = masterPwa;
+  }
+
+  public PipelineId getPipelineId() {
+    return new PipelineId(this.id);
   }
 
 }

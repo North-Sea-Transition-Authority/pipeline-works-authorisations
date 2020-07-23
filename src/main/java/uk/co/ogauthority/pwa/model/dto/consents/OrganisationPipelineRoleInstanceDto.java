@@ -26,7 +26,7 @@ public final class OrganisationPipelineRoleInstanceDto {
                                              TreatyAgreement treatyAgreement,
                                              HuooRole huooRole,
                                              HuooType huooType,
-                                             int pipelineIdentifier,
+                                             int pipelineId,
                                              String fromLocation,
                                              IdentLocationInclusionMode fromLocationMode,
                                              String toLocation,
@@ -41,9 +41,9 @@ public final class OrganisationPipelineRoleInstanceDto {
     );
 
     if (ObjectUtils.allNotNull(fromLocation, fromLocationMode, toLocation, toLocationMode)) {
-      this.pipelineIdentifier = new PipelineSegment(pipelineIdentifier, fromLocation, fromLocationMode, toLocation, toLocationMode);
+      this.pipelineIdentifier = PipelineSegment.from(pipelineId, fromLocation, fromLocationMode, toLocation, toLocationMode);
     } else {
-      this.pipelineIdentifier = new PipelineId(pipelineIdentifier);
+      this.pipelineIdentifier = new PipelineId(pipelineId);
     }
   }
 
