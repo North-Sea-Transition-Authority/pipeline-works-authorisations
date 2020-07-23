@@ -85,7 +85,6 @@ public class PipelineDetailIdentData {
     this.insulationCoatingType = insulationCoatingType;
   }
 
-
   public BigDecimal getMaop() {
     return maop;
   }

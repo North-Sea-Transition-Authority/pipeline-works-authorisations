@@ -72,7 +72,7 @@ public class PipelineDetailIdentDataImportService {
 
   @VisibleForTesting
   public PadPipelineIdent mapIdentToPadPipelineIdent(PadPipeline padPipeline, PipelineDetailIdent detailIdent) {
-    var ident = new PadPipelineIdent(padPipeline, Integer.parseInt(detailIdent.getIdentNo()));
+    var ident = new PadPipelineIdent(padPipeline, detailIdent.getIdentNo());
     ident.setLength(detailIdent.getLength());
     ident.setToLocation(detailIdent.getToLocation());
     ident.setFromLocation(detailIdent.getFromLocation());
@@ -87,7 +87,7 @@ public class PipelineDetailIdentDataImportService {
     var toCoordinates = new CoordinatePair(
         new LatitudeCoordinate(detailIdent.getToLatitudeDegrees(), detailIdent.getToLatitudeMinutes(),
             detailIdent.getToLatitudeSeconds(), detailIdent.getToLatitudeDirection()),
-        new LongitudeCoordinate(detailIdent.getFromLongitudeDegrees(), detailIdent.getFromLongitudeMinutes(),
+        new LongitudeCoordinate(detailIdent.getToLongitudeDegrees(), detailIdent.getToLongitudeMinutes(),
             detailIdent.getToLongitudeSeconds(), detailIdent.getToLongitudeDirection())
     );
 

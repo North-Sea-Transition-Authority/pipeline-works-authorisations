@@ -23,7 +23,7 @@ public class PipelineDetailIdent {
   @JoinColumn(name = "pipeline_detail_id")
   private PipelineDetail pipelineDetail;
 
-  private String identNo;
+  private Integer identNo;
 
   private String fromLocation;
 
@@ -99,11 +99,11 @@ public class PipelineDetailIdent {
     this.pipelineDetail = pipelineDetail;
   }
 
-  public String getIdentNo() {
+  public Integer getIdentNo() {
     return identNo;
   }
 
-  public void setIdentNo(String identNo) {
+  public void setIdentNo(Integer identNo) {
     this.identNo = identNo;
   }
 
