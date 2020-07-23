@@ -325,7 +325,12 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   @Test
   public void completeValidJourney_journeyCompleteSubmitServiceInteraction() throws Exception {
 
-    var pickedPipelines = Set.of(new Pipeline(), new Pipeline());
+    var pipe1 = new Pipeline();
+    pipe1.setId(1);
+    var pipe2 = new Pipeline();
+    pipe2.setId(2);
+
+    var pickedPipelines = Set.of(pipe1, pipe2);
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
     when(pickablePipelineService.getPickedPipelinesFromStrings(any())).thenReturn(pickedPipelines);
     when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
@@ -366,7 +371,12 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   @Test
   public void completeValidJourney_journeyDataGetsClearedOnCompletion() throws Exception {
 
-    var pickedPipelines = Set.of(new Pipeline(), new Pipeline());
+    var pipe1 = new Pipeline();
+    pipe1.setId(1);
+    var pipe2 = new Pipeline();
+    pipe2.setId(2);
+
+    var pickedPipelines = Set.of(pipe1, pipe2);
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
     when(pickablePipelineService.getPickedPipelinesFromStrings(any())).thenReturn(pickedPipelines);
     when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);

@@ -12,6 +12,10 @@
     <@fdsError.singleErrorSummary errorMessage=errorMessage />
   </#if>
 
+  <#if errorMessage?has_content>
+    <@fdsError.singleErrorSummary errorMessage=errorMessage />
+  </#if>
+
   <@fdsAction.link linkText="Add holder, user, operator or owner" linkUrl=springUrl(addHuooUrl) linkClass="govuk-link govuk-link--button govuk-button govuk-button--blue" role=true/>
 
   <#if huooOrgs?has_content>

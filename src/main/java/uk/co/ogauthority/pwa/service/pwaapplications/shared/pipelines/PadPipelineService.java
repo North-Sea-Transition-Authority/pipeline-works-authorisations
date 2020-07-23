@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -46,6 +48,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -268,10 +271,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return IterableUtils.toList(padPipelineRepository.findAllById(padPipelineIds));
   }
 
-  public Long getCountOfPipelinesByIdList(PwaApplicationDetail detail, List<Integer> pipelineIds) {
-    return padPipelineRepository.countAllByPwaApplicationDetailAndIdIn(detail, pipelineIds);
-  }
-
   @VisibleForTesting
   public List<PipelineBundlePairDto> getPipelineBundleNamesByDetail(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.getBundleNamesByPwaApplicationDetail(pwaApplicationDetail);
@@ -301,20 +300,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    for (var pipeline: getPipelines(detail)) {
-      for (var ident: padPipelineIdentService.getIdentsByPipeline(pipeline)) {
-        var identForm = new PipelineIdentForm();
-        padPipelineIdentService.mapEntityToForm(ident, identForm);
-        BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
-        pipelineIdentFormValidator.validate(identForm, bindingResult, detail, pipeline.getCoreType());
-        if (bindingResult.hasErrors()) {
-          return false;
-        }
-      }
-    }
-
-    return padPipelineRepository.countAllByPwaApplicationDetail(detail) > 0L
-        && padPipelineRepository.countAllWithNoIdentsByPwaApplicationDetail(detail) == 0L;
+    return getValidationResult(detail).isSectionComplete();
   }
 
   @Override
@@ -341,7 +327,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(
         pwaApplicationDetail);
   }
-
 
   /**
    * Get a lookup of by pipeline id to pipeline number.
@@ -402,6 +387,56 @@ public class PadPipelineService implements ApplicationFormSectionService {
         .collect(Collectors.toList());
 
     padPipelineRepository.saveAll(updatedPipelinesList);
+
+  }
+
+  public SummaryScreenValidationResult getValidationResult(PwaApplicationDetail detail) {
+
+    Map<String, String> invalidPipelines = new LinkedHashMap<>();
+
+    // get sorted pipeline overviews so we can use the pipe name in the error messages
+    var pipelineOverviews = getApplicationPipelineOverviews(detail);
+
+    List<PadPipelineId> padPipelineIds = pipelineOverviews.stream()
+        .map(pipelineOverview -> new PadPipelineId(pipelineOverview.getPadPipelineId()))
+        .collect(Collectors.toList());
+
+    // get all of the idents for the pipelines on the app, grouped by pad pipeline id
+    var padPipelineIdToIdentListMap = padPipelineIdentService.getAllIdentsByPadPipelineIds(padPipelineIds).stream()
+        .collect(Collectors.groupingBy(ident -> new PadPipelineId(ident.getPadPipeline().getId())));
+
+    pipelineOverviews.forEach(pipelineOverview -> {
+
+      var padPipelineId = new PadPipelineId(pipelineOverview.getPadPipelineId());
+      boolean pipelineComplete = true;
+
+      var idents = padPipelineIdToIdentListMap.getOrDefault(padPipelineId, List.of());
+
+      // validate each ident on the pipeline, if one is invalid, the whole pipeline is incomplete
+      for (var ident : idents) {
+        var identForm = new PipelineIdentForm();
+        padPipelineIdentService.mapEntityToForm(ident, identForm);
+        BindingResult bindingResult = new BeanPropertyBindingResult(identForm, "form");
+        pipelineIdentFormValidator.validate(identForm, bindingResult, detail, pipelineOverview.getCoreType());
+        if (bindingResult.hasErrors()) {
+          pipelineComplete = false;
+        }
+      }
+
+      // if the pipeline has invalid idents (or no idents), it is invalid
+      if (!pipelineComplete || idents.isEmpty()) {
+        invalidPipelines.put(String.valueOf(padPipelineId.asInt()), pipelineOverview.getPipelineName());
+      }
+
+    });
+
+    // section is complete if there's at least 1 pipeline, and no invalid pipelines
+    boolean sectionComplete = !padPipelineIdToIdentListMap.isEmpty() && invalidPipelines.isEmpty();
+
+    String sectionIncompleteError = !sectionComplete
+        ? "At least one pipeline must be added. Each pipeline must have at least one valid ident." : null;
+
+    return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "is not complete", sectionComplete, sectionIncompleteError);
 
   }
 
