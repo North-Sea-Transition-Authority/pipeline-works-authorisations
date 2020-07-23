@@ -131,15 +131,12 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
       try {
         pwaApplication.setApplicationType(appType);
         // Expect isOk because endpoint validates. If form can't validate, return same page.
-        MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-          add("Complete", "Complete");
-        }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
                 on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
-                .params(completeParams));
+                .params(ControllerTestUtils.fullValidationPostParams()));
         if (allowedApplicationTypes.contains(appType)) {
           result.andExpect(status().isOk());
         } else {
@@ -162,15 +159,12 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         // Expect isOk because endpoint validates. If form can't validate, return same page.
 
         // Expect redirection because endpoint ignores validation.
-        MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-          add("Save and complete later", "Save and complete later");
-        }};
         var result = mockMvc.perform(
             post(ReverseRouter.route(
                 on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf())
-                .params(continueParams));
+                .params(ControllerTestUtils.partialValidationPostParams()));
         if (allowedApplicationTypes.contains(appType)) {
           result.andExpect(status().is3xxRedirection());
         } else {
@@ -193,27 +187,21 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
   @Test
   public void postProjectInformation_complete_unauthenticated() throws Exception {
-    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
                 .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null)))
-            .params(completeParams))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isForbidden());
   }
 
   @Test
   public void postProjectInformation_continue_unauthenticated() throws Exception {
-    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
                 .postProjectInformation(PwaApplicationType.INITIAL, null, null, null, null, null)))
-            .params(continueParams))
+            .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().isForbidden());
   }
 
@@ -232,10 +220,6 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   @Test
   public void postProjectInformation__continue_validForm() throws Exception {
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
-    }};
-
     ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
 
     mockMvc.perform(
@@ -243,7 +227,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
             .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().is3xxRedirection());
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
     verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
@@ -253,7 +237,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   public void postProjectInformation__continue_formValidationFailed() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
+      add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
       add("projectOverview", StringUtils.repeat("a", 5000));
     }};
 
@@ -273,10 +257,6 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   @Test
   public void postProjectInformation__complete_noData() throws Exception {
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
-
     ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
 
     mockMvc.perform(
@@ -284,7 +264,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
             .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
 
     verify(padProjectInformationService, never()).getPadProjectInformationData(pwaApplicationDetail);
@@ -296,7 +276,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
     LocalDate date = LocalDate.now().plusDays(2);
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
+      add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
       add("projectName", "name");
       add("projectOverview", "overview");
       add("methodOfPipelineDeployment", "pipeline installation method");

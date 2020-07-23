@@ -107,7 +107,7 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
   public void postAddFluidCompositionInfo_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padFluidCompositionInfoService, new FluidCompositionForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FluidCompositionInfoController.class)
                 .postAddFluidCompositionInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -119,7 +119,7 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
   public void postAddFluidCompositionInfo_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padFluidCompositionInfoService, new FluidCompositionForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FluidCompositionInfoController.class)
                 .postAddFluidCompositionInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -132,7 +132,7 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
   public void postAddFluidCompositionInfo_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padFluidCompositionInfoService, new FluidCompositionForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FluidCompositionInfoController.class)
                 .postAddFluidCompositionInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -145,7 +145,7 @@ public class FluidCompositionInfoControllerTest extends PwaApplicationContextAbs
   public void postAddFluidCompositionInfo_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padFluidCompositionInfoService, new FluidCompositionForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(FluidCompositionInfoController.class)
                 .postAddFluidCompositionInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));

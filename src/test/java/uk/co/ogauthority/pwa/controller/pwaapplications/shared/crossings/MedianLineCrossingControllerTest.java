@@ -220,7 +220,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
             ReverseRouter.route(on(MedianLineCrossingController.class)
                 .postEditMedianLine(type, applicationDetail.getMasterPwaApplicationId(),
                     null, null, null, null)))
-        .addRequestParam("Complete", "");
+        .addRequestParam(ValidationType.FULL.getButtonText(), "");
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
   }
@@ -235,7 +235,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
             ReverseRouter.route(on(MedianLineCrossingController.class)
                 .postEditMedianLine(type, applicationDetail.getMasterPwaApplicationId(),
                     null, null, null, null)))
-        .addRequestParam("Complete", "");
+        .addRequestParam(ValidationType.FULL.getButtonText(), "");
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
   }
@@ -250,7 +250,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
             ReverseRouter.route(on(MedianLineCrossingController.class)
                 .postEditMedianLine(type, applicationDetail.getMasterPwaApplicationId(),
                     null, null, null, null)))
-        .addRequestParam("Complete", "");
+        .addRequestParam(ValidationType.FULL.getButtonText(), "");
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
   }

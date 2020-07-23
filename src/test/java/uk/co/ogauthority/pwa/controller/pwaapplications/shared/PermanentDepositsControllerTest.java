@@ -27,8 +27,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -169,7 +167,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   public void postPermanentDeposits_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postPermanentDeposits(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -182,7 +180,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   public void postPermanentDeposits_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postPermanentDeposits(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -195,7 +193,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   public void postPermanentDeposits_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postPermanentDeposits(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -209,32 +207,25 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromMonth"));
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
-
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
   }
 
   @Test
   public void postPermanentDeposits_withValidForm() throws Exception {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
 
     verify(permanentDepositService, times(1)).saveEntityUsingForm(any(), any(), any());
@@ -283,7 +274,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   public void postEditPermanentDeposits_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postEditPermanentDeposits(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, ValidationType.FULL)));
@@ -296,7 +287,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   public void postEditPermanentDeposits_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postEditPermanentDeposits(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, ValidationType.FULL)));
@@ -309,7 +300,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
   public void postEditPermanentDeposits_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postEditPermanentDeposits(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, ValidationType.FULL)));
@@ -323,32 +314,25 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromMonth"));
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
-
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postEditPermanentDeposits(PwaApplicationType.INITIAL, 1, 1,null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
   }
 
   @Test
   public void postEditPermanentDeposits_withValidForm() throws Exception {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postEditPermanentDeposits(PwaApplicationType.INITIAL, 1, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
 
     verify(permanentDepositService, times(1)).saveEntityUsingForm(any(), any(), any());
@@ -398,7 +382,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postPermanentDepositsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -411,7 +395,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postPermanentDepositsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -425,7 +409,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(true);
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postPermanentDepositsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -439,7 +423,7 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     when(permanentDepositService.validateDepositOverview(any(PwaApplicationDetail.class))).thenReturn(false);
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
                 .postPermanentDepositsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
