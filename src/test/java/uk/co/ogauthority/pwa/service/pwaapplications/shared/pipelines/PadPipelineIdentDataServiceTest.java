@@ -266,4 +266,10 @@ public class PadPipelineIdentDataServiceTest {
     verify(repository, times(1)).save(identData);
   }
 
+  @Test
+  public void saveAll_serviceInteraction() {
+    identDataService.saveAll(List.of());
+    verify(repository, times(1)).saveAll(List.of());
+  }
+
 }
