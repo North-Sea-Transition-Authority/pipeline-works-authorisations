@@ -9,11 +9,11 @@
                 <@fdsSelect.select path="form.fieldId" labelText="Field name" options=fieldMap nestingPath="form.fieldId"/>
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.linkedToField">
-                <@fdsTextarea.textarea path="form.noLinkedFieldDescription" labelText="What is this PWA in relation to?"/>
+                <@fdsTextarea.textarea path="form.noLinkedFieldDescription" labelText="What is this PWA in relation to?" characterCount=true maxCharacterLength="4000"/>
             </@fdsRadio.radioNo>
         </@fdsRadio.radioGroup>
 
-        <@fdsAction.submitButtons primaryButtonText="Confirm" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

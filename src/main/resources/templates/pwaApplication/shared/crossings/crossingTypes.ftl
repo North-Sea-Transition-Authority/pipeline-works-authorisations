@@ -22,6 +22,6 @@
                 <@fdsRadio.radioNo path="form.medianLineCrossed"/>
             </@fdsRadio.radioGroup>
         </@fdsFieldset.fieldset>
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>
