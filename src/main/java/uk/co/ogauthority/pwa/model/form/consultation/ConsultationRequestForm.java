@@ -7,13 +7,10 @@ import java.util.Map;
 public class ConsultationRequestForm {
 
   private Map<String, String> consulteeGroupSelection = new HashMap<>();
-  private Integer daysToRespond;
+  private Integer daysToRespond = 28;
+  private Boolean otherGroupSelected;
   private String otherGroupLogin;
 
-
-  public ConsultationRequestForm() {
-
-  }
 
   public Map<String, String> getConsulteeGroupSelection() {
     return consulteeGroupSelection;
@@ -29,6 +26,14 @@ public class ConsultationRequestForm {
 
   public void setDaysToRespond(Integer daysToRespond) {
     this.daysToRespond = daysToRespond;
+  }
+
+  public Boolean getOtherGroupSelected() {
+    return otherGroupSelected;
+  }
+
+  public void setOtherGroupSelected(Boolean otherGroupSelected) {
+    this.otherGroupSelected = otherGroupSelected;
   }
 
   public String getOtherGroupLogin() {

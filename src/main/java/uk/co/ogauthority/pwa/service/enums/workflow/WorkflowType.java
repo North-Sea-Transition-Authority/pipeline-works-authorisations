@@ -10,7 +10,8 @@ import uk.co.ogauthority.pwa.exception.WorkflowException;
  */
 public enum WorkflowType {
 
-  PWA_APPLICATION("pwaApplication", PwaApplicationWorkflowTask.class);
+  PWA_APPLICATION("pwaApplication", PwaApplicationWorkflowTask.class),
+  PWA_APPLICATION_CONSULTATION("PWA_App_Consultations", PwaApplicationConsultationWorkflowTask.class);
 
   private final String processDefinitionKey;
   private final Class<? extends UserWorkflowTask> workflowTaskClass;

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/request-consultation")
-@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW_CONSULTATIONS})
+@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_CONSULTATIONS})
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ConsultationRequestController {
 
@@ -60,24 +60,22 @@ public class ConsultationRequestController {
 
 
   @PostMapping
-  public ModelAndView postAddFluidCompositionInfo(@PathVariable("applicationType")
+  public ModelAndView postRequestConsultation(@PathVariable("applicationType")
                                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                   @PathVariable("applicationId") Integer applicationId,
                                                   PwaAppProcessingContext processingContext,
                                                   AuthenticatedUserAccount authenticatedUserAccount,
                                                   @ModelAttribute("form") ConsultationRequestForm form,
-                                                  BindingResult bindingResult,
-                                                  ValidationType validationType) {
+                                                  BindingResult bindingResult) {
 
-    bindingResult = consultationRequestService.validate(form, bindingResult, validationType, processingContext.getApplicationDetail());
+    bindingResult = consultationRequestService.validate(form, bindingResult, ValidationType.FULL, processingContext.getApplicationDetail());
     var appDetail = processingContext.getApplicationDetail();
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getRequestConsultationModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount), () -> {
-          //process
-//          return ReverseRouter.route(on(ConsultationController.class).renderConsultation(
-//              appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
-          return getRequestConsultationModelAndView(appDetail, authenticatedUserAccount);
+          consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
+          return ReverseRouter.redirect(on(ConsultationController.class).renderConsultation(
+              appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
         });
 
   }
@@ -87,7 +85,9 @@ public class ConsultationRequestController {
       PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount authenticatedUserAccount) {
     return new ModelAndView("consultation/consultationRequest")
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
-        .addObject("consulteeGroups", consultationRequestService.getConsulteeGroups(authenticatedUserAccount));
+        .addObject("consulteeGroups", consultationRequestService.getConsulteeGroups(authenticatedUserAccount))
+        .addObject("cancelUrl", ReverseRouter.route(on(ConsultationController.class).renderConsultation(
+            pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)));
   }
 
 
