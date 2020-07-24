@@ -90,7 +90,6 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setFacilitiesOffshore(locationDetailsForm.getFacilitiesOffshore());
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
     padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());
-    padLocationDetails.setPipelineRouteDetails(locationDetailsForm.getPipelineRouteDetails());
     if (BooleanUtils.isFalse(locationDetailsForm.getFacilitiesOffshore())) {
       padLocationDetails.setPipelineAshoreLocation(locationDetailsForm.getPipelineAshoreLocation());
     } else {
@@ -103,8 +102,10 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
           locationDetailsForm.getSurveyConcludedDay(),
           padLocationDetails::setSurveyConcludedTimestamp
       );
+      padLocationDetails.setPipelineRouteDetails(locationDetailsForm.getPipelineRouteDetails());
     } else {
       padLocationDetails.setSurveyConcludedTimestamp(null);
+      padLocationDetails.setPipelineRouteDetails(null);
     }
     padLocationDetails.setRouteSurveyUndertaken(locationDetailsForm.getRouteSurveyUndertaken());
     padLocationDetails.setWithinLimitsOfDeviation(locationDetailsForm.getWithinLimitsOfDeviation());
