@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -19,10 +20,14 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -30,6 +35,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -55,6 +61,8 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @Service
 public class PadPipelineService implements ApplicationFormSectionService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineService.class);
+
   private final PadPipelineRepository padPipelineRepository;
   private final PipelineService pipelineService;
   private final PipelineDetailService pipelineDetailService;
@@ -79,6 +87,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
     return padPipelineRepository.getAllByPwaApplicationDetail(detail);
+  }
+
+  public Set<PipelineId> getMasterPipelineIds(PwaApplicationDetail detail) {
+    return padPipelineRepository.getMasterPipelineIdsOnApplication(detail);
   }
 
   public PipelineOverview getPipelineOverview(PadPipeline padPipeline) {
@@ -335,7 +347,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
    */
   public Map<PipelineId, String> getApplicationOrConsentedPipelineNumberLookup(
       PwaApplicationDetail pwaApplicationDetail) {
-    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineService.getActivePipelineDetailsForApplicationMasterPwa(
+    Map<PipelineId, PipelineDetail> pipelineDetailsLookup = pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(
         pwaApplicationDetail.getPwaApplication()
     ).stream()
         .collect(Collectors.toMap(PipelineId::from, p -> p));
@@ -367,6 +379,40 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
         })
         .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+  }
+
+  @Transactional
+  public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail) {
+    // TODO: PWA-682 - Map added fields from PipelineDetail to newPadPipeline.
+    var newPadPipeline = new PadPipeline(detail);
+    newPadPipeline.setBundleName(pipelineDetail.getBundleName());
+    newPadPipeline.setPipelineRef(pipelineDetail.getPipelineNumber());
+    newPadPipeline.setPipeline(pipelineDetail.getPipeline());
+    newPadPipeline.setComponentPartsDescription(pipelineDetail.getComponentPartsDesc());
+    newPadPipeline.setLength(pipelineDetail.getLength());
+    newPadPipeline.setPipelineInBundle(pipelineDetail.getPipelineInBundle());
+    if (pipelineDetail.getPipelineType() == null) {
+      newPadPipeline.setPipelineType(PipelineType.UNKNOWN);
+    } else {
+      newPadPipeline.setPipelineType(pipelineDetail.getPipelineType());
+    }
+    newPadPipeline.setProductsToBeConveyed(pipelineDetail.getProductsToBeConveyed());
+    newPadPipeline.setFromLocation(pipelineDetail.getFromLocation());
+    newPadPipeline.setToLocation(pipelineDetail.getToLocation());
+    try {
+      newPadPipeline.setFromCoordinates(pipelineDetail.getFromCoordinates());
+      newPadPipeline.setToCoordinates(pipelineDetail.getToCoordinates());
+    } catch (NullPointerException npe) {
+      LOGGER.warn("PipelineDetail is missing valid coordinates", npe);
+    } finally {
+      padPipelineRepository.save(newPadPipeline);
+      return newPadPipeline;
+    }
+  }
+
+  public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
+    PwaApplicationType[] appTypes = ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types();
+    return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
   }
 
   @Override

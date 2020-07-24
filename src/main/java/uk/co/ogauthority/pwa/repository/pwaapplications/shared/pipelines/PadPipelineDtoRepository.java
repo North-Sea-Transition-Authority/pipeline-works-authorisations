@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
@@ -19,5 +21,7 @@ public interface PadPipelineDtoRepository {
   Long countAllWithNoIdentsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
   List<PipelineBundlePairDto> getBundleNamesByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+
+  Set<PipelineId> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail);
 
 }

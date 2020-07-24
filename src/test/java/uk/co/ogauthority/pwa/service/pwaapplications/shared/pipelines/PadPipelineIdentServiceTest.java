@@ -478,7 +478,11 @@ public class PadPipelineIdentServiceTest {
     assertThat(newIdent.getLength()).isEqualTo(form.getLength());
   }
 
-
+  @Test
+  public void saveAll_serviceInteraction() {
+    identService.saveAll(List.of());
+    verify(repository, times(1)).saveAll(List.of());
+  }
 
 
 }

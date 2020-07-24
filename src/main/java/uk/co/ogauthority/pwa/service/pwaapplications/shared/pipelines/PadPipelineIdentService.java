@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -185,6 +186,10 @@ public class PadPipelineIdentService {
 
     return repository.getAllByPadPipeline_IdIn(ids);
 
+  }
+
+  public void saveAll(Collection<PadPipelineIdent> padPipelineIdents) {
+    repository.saveAll(padPipelineIdents);
   }
 
 }
