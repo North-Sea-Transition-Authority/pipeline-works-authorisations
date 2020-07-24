@@ -149,7 +149,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -162,7 +162,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -175,7 +175,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -227,7 +227,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -240,7 +240,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -253,7 +253,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -266,7 +266,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-            .postAddDepositDrawing(PwaApplicationType.INITIAL, 1, null, null, null, null)))
+            .postAddDepositDrawing(PwaApplicationType.INITIAL, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
@@ -279,7 +279,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-            .postAddDepositDrawing(PwaApplicationType.INITIAL, 1, null, null, null, null)))
+            .postAddDepositDrawing(PwaApplicationType.INITIAL, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
@@ -421,7 +421,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
+                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -434,7 +434,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
+                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -447,7 +447,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
+                .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -461,7 +461,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-            .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null, null)))
+            .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
@@ -474,7 +474,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-            .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null, null)))
+            .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
