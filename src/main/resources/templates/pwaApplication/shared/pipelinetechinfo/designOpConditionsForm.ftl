@@ -36,7 +36,8 @@
             <@fdsTextInput.textInput path="form.uvalueDesign" labelText="" suffix=unitMeasurements.KSCM_D.suffixDisplay suffixScreenReaderPrompt=unitMeasurements.KSCM_D.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+
     </@fdsForm.htmlForm>
 
 </@defaultPage>

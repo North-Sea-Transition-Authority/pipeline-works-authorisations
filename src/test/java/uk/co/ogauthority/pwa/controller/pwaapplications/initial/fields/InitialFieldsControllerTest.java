@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,17 +23,16 @@ import org.h2.mvstore.DataUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -42,11 +41,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
@@ -58,79 +59,90 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private DevukFieldService devukFieldService;
-
-  @MockBean
-  private PwaApplicationService pwaApplicationService;
-
-  @MockBean
   private PadFieldService padFieldService;
 
   @MockBean
-  private PadProjectInformationService projectInformationService;
+  private DevukFieldService devukFieldService;
 
-  @SpyBean
+  @MockBean
   private PwaFieldFormValidator pwaFieldFormValidator;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
   private PadField padField;
   private DevukField devukField;
-  private PortalOrganisationUnit portalOrganisationUnit;
+
+  private AuthenticatedUserAccount user;
+
+  private PwaApplicationEndpointTestBuilder endpointTester;
 
   @Before
   public void setUp() {
 
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
 
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     devukField = new DevukField(1, "abc", 500);
     padField = new PadField();
     padField.setId(1);
     padField.setDevukField(devukField);
-    portalOrganisationUnit = new PortalOrganisationUnit();
 
     when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
-
-    when(padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(
-        padField));
+    when(padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(padField));
 
     when(devukFieldService.getByStatusCodes(List.of(500, 600, 700))).thenReturn(List.of(devukField));
+
+    doCallRealMethod().when(applicationBreadcrumbService).fromTaskList(any(), any(), any());
+    // set default checks for entire controller
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
+        .setAllowedTypes(PwaApplicationType.values())
+        .setAllowedContactRoles(PwaContactRole.PREPARER)
+        .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+
   }
 
   @Test
-  public void testAuthentication() throws Exception {
-    var wua = new WebUserAccount();
-    var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class)
-        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(status().isOk());
+  public void renderFields_contactSmokeTest() {
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
-        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf()))
-        .andExpect(status().isOk());
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(InitialFieldsController.class)
+                .renderFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
   }
 
   @Test
-  public void testAuthentication_Invalid() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class)
-        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null))))
-        .andExpect(status().is3xxRedirection());
+  public void renderFields_appTypeSmokeTest() {
 
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
-        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null))))
-        .andExpect(status().isForbidden());
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(InitialFieldsController.class)
+                .renderFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
   }
+
+  @Test
+  public void renderFields_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(InitialFieldsController.class)
+                .renderFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
 
   @Test
   public void renderFields() throws Exception {
-    var wua = new WebUserAccount();
-    var user = new AuthenticatedUserAccount(wua, List.of());
+
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(InitialFieldsController.class)
         .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -147,64 +159,78 @@ public class InitialFieldsControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postFields_FailedValidationNoRadio() throws Exception {
-    var wua = new WebUserAccount();
-    var user = new AuthenticatedUserAccount(wua, List.of());
+  public void postFields_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(InitialFieldsController.class)
+                .postFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)))
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postFields_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(InitialFieldsController.class)
+                .postFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)))
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postFields_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(InitialFieldsController.class)
+                .postFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)))
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postFields_validationFailed() throws Exception {
+
+    ControllerTestUtils.mockSmartValidatorErrors(pwaFieldFormValidator, List.of("linkedToField"));
+
     mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
-        .renderFields(PwaApplicationType.INITIAL, 1, null, null, null)))
+        .postFields(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+            null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
+        .params(ControllerTestUtils.fullValidationPostParams())
         .with(csrf()))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(view().name("pwaApplication/initial/fieldInformation"))
+        .andExpect(model().attributeHasErrors("form"));
+
+    verify(padFieldService, times(0)).updateFieldInformation(any(), any());
+
   }
 
-  @Test
-  public void postFields_FailedValidationNoSelection() throws Exception {
-    var wua = new WebUserAccount();
-    var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
-        .postFields(PwaApplicationType.INITIAL, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf())
-        .param("result", "true"))
-        .andExpect(status().isOk());
-  }
 
   @Test
-  public void postFields_Valid_SetSingleCalled() throws Exception {
-    var wua = new WebUserAccount();
-    var user = new AuthenticatedUserAccount(wua, List.of());
-
-    when(devukFieldService.findById(1)).thenReturn(devukField);
+  public void postFields_valid() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
-        .postFields(PwaApplicationType.INITIAL, 1, null, null, null, null)))
+        .postFields(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
+            null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
-        .with(csrf())
-        .param("linkedToField", "true")
-        .param("fieldId", "1"))
+        .params(ControllerTestUtils.partialValidationPostParams())
+        .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    var argumentCaptor = ArgumentCaptor.forClass(List.of(new DevukField()).getClass());
-    verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), argumentCaptor.capture());
-    verify(padFieldService, times(1)).removeFdpDataFromProjectInfo(any(), any());
+    verify(padFieldService, times(1)).getActiveFieldsForApplicationDetail(any());
+    verify(padFieldService, times(1)).updateFieldInformation(any(), any());
 
-    assertThat((List<DevukField>) argumentCaptor.getValue()).containsExactly(devukField);
   }
 
-  @Test
-  public void postFields_Valid_EndAllCalled() throws Exception {
-
-    var wua = new WebUserAccount();
-    var user = new AuthenticatedUserAccount(wua, List.of());
-    mockMvc.perform(post(ReverseRouter.route(on(InitialFieldsController.class)
-        .postFields(PwaApplicationType.INITIAL, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf())
-        .param("linkedToField", "false")
-        .param("noLinkedFieldDescription", "foo"))
-        .andExpect(status().is3xxRedirection());
-
-    verify(padFieldService, times(1)).setFields(eq(pwaApplicationDetail), any());
-    verify(padFieldService, times(1)).removeFdpDataFromProjectInfo(any(), any());
-  }
 }

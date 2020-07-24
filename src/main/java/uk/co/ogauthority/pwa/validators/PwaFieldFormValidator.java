@@ -1,13 +1,27 @@
 package uk.co.ogauthority.pwa.validators;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
+import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Service
-public class PwaFieldFormValidator implements Validator {
+public class PwaFieldFormValidator implements SmartValidator {
+
+  private final DevukFieldService devukFieldService;
+
+  @Autowired
+  public PwaFieldFormValidator(DevukFieldService devukFieldService) {
+    this.devukFieldService = devukFieldService;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -15,13 +29,49 @@ public class PwaFieldFormValidator implements Validator {
   }
 
   @Override
-  public void validate(Object target, Errors errors) {
+  public void validate(Object target, Errors errors, Object... validationHints) {
+
     var fieldForm = (PwaFieldForm) target;
-    if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldId() == null) {
-      errors.rejectValue("fieldId", "fieldId.required", "Field must be selected");
-    } else if (BooleanUtils.isFalse(fieldForm.getLinkedToField())
-            && (fieldForm.getNoLinkedFieldDescription() == null || fieldForm.getNoLinkedFieldDescription() == "")) {
-      errors.rejectValue("noLinkedFieldDescription", "noLinkedFieldDescription.required", "Description must not be empty");
+    var validationType = (ValidationType) validationHints[0];
+
+    // if full validation, validate everything
+    if (validationType == ValidationType.FULL) {
+
+      ValidationUtils.rejectIfEmpty(errors,
+          "linkedToField",
+          FieldValidationErrorCodes.REQUIRED.errorCode("linkedToField"),
+          "Select yes if your application is linked to a field");
+
+      if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldId() == null) {
+
+        errors.rejectValue("fieldId", FieldValidationErrorCodes.REQUIRED.errorCode("fieldId"), "Select a field");
+
+      } else if (BooleanUtils.isFalse(fieldForm.getLinkedToField())) {
+
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors,
+            "noLinkedFieldDescription",
+            FieldValidationErrorCodes.REQUIRED.errorCode("noLinkedFieldDescription"),
+            "Enter a description");
+
+      }
+
     }
+
+    // regardless of validation type, make sure that selected field is valid
+    if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldId() != null) {
+
+      try {
+        devukFieldService.findById(fieldForm.getFieldId());
+      } catch (PwaEntityNotFoundException e) {
+        errors.rejectValue("fieldId", FieldValidationErrorCodes.INVALID.errorCode("fieldId"), "Select a valid field");
+      }
+
+    }
+
+  }
+
+  @Override
+  public void validate(Object target, Errors errors) {
+    throw new NotImplementedException("Not implemented.");
   }
 }

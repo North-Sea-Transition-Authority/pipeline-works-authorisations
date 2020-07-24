@@ -107,7 +107,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   public void postAddPipelineTechInfo_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
                 .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -119,7 +119,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   public void postAddPipelineTechInfo_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
                 .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -132,7 +132,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   public void postAddPipelineTechInfo_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
                 .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -145,7 +145,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   public void postAddPipelineTechInfo_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
                 .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));

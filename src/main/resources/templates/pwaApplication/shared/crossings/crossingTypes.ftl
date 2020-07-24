@@ -17,11 +17,11 @@
                 <@fdsRadio.radioYes path="form.cablesCrossed"/>
                 <@fdsRadio.radioNo path="form.cablesCrossed"/>
             </@fdsRadio.radioGroup>
-            <@fdsRadio.radioGroup path="form.medianLineCrossed" labelText="Is the median line crossed?">
+            <@fdsRadio.radioGroup path="form.medianLineCrossed" labelText="Is any median line crossed?">
                 <@fdsRadio.radioYes path="form.medianLineCrossed"/>
                 <@fdsRadio.radioNo path="form.medianLineCrossed"/>
             </@fdsRadio.radioGroup>
         </@fdsFieldset.fieldset>
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

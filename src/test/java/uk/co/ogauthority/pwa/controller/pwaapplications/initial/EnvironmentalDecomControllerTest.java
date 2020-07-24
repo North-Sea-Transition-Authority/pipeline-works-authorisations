@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
+import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -141,29 +142,23 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
 
   @Test
   public void testUnauthenticated() throws Exception {
+
     mockMvc.perform(
         get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", 1))))
         .andExpect(status().is3xxRedirection());
 
-
-    MultiValueMap completeParams = new LinkedMultiValueMap<>(){{
-      add("Complete", "");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .params(completeParams))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isForbidden());
 
-
-    MultiValueMap continueParams = new LinkedMultiValueMap<>(){{
-      add("Save and complete later", "");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .params(continueParams))
+            .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().isForbidden());
+
   }
 
   @Test
@@ -180,10 +175,6 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   @Test
   public void testPostAdminDetails_partial() throws Exception {
 
-    MultiValueMap<String, String> completeLaterParams = new LinkedMultiValueMap<>(){{
-      add("Save and complete later", "Save and complete later");
-    }};
-
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
     when(padEnvironmentalDecommissioningService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
@@ -192,7 +183,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
             .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(completeLaterParams))
+            .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().is3xxRedirection());
 
     verify(padEnvironmentalDecommissioningService, times(1)).validate(any(), any(), eq(ValidationType.PARTIAL), any());
@@ -201,10 +192,6 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
 
   @Test
   public void testPostAdminDetails_full_invalid() throws Exception {
-
-    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>(){{
-      add("Complete", "Complete");
-    }};
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
     bindingResult.addError(new ObjectError("fake error", "fake"));
@@ -215,7 +202,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
             .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(completeParams))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/environmentalAndDecommissioning"));
 
@@ -228,7 +215,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   public void testPostAdminDetails_full_valid() throws Exception {
 
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>(){{
-      add("Complete", "Complete");
+      add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
       add("transboundaryEffect", "true");
       add("emtSubmissionDay", "1");
       add("emtSubmissionMonth", "1");

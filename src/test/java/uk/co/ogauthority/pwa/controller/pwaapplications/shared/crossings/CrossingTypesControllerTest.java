@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
@@ -93,7 +94,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CrossingTypesController.class)
                 .postForm(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null)))
-    .addRequestParam("Complete", "");
+    .addRequestParam(ValidationType.FULL.getButtonText(), "");
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
   }
@@ -105,7 +106,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CrossingTypesController.class)
                 .postForm(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null)))
-        .addRequestParam("Complete", "");
+        .addRequestParam(ValidationType.FULL.getButtonText(), "");
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
   }
@@ -117,7 +118,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CrossingTypesController.class)
                 .postForm(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null)))
-        .addRequestParam("Complete", "");
+        .addRequestParam(ValidationType.FULL.getButtonText(), "");
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
   }

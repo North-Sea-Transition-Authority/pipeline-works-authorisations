@@ -16,10 +16,10 @@
 
         <#list chemicals as chemical>
             <@fluidCompositionQuestion chemical fluidCompositionOptions/>
-        </#list>  
-        
+        </#list>
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+
     </@fdsForm.htmlForm>
 
 </@defaultPage>

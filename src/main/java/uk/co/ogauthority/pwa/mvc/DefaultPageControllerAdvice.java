@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 /**
@@ -42,6 +43,7 @@ public class DefaultPageControllerAdvice {
     addCurrentUserView(model);
     addLogoutUrl(model);
     addTopMenuItems(model, request);
+    addSubmitButtonText(model);
   }
 
   private void addCurrentUserView(Model model) {
@@ -59,6 +61,11 @@ public class DefaultPageControllerAdvice {
           model.addAttribute("navigationItems", topMenuService.getTopMenuItems(user));
           model.addAttribute("currentEndPoint", request.getRequestURI());
         });
+  }
+
+  private void addSubmitButtonText(Model model) {
+    model.addAttribute("submitPrimaryButtonText", ValidationType.FULL.getButtonText());
+    model.addAttribute("submitSecondaryButtonText", ValidationType.PARTIAL.getButtonText());
   }
 
 }

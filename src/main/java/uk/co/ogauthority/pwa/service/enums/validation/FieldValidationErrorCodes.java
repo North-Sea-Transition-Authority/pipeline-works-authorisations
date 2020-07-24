@@ -12,7 +12,7 @@ public enum FieldValidationErrorCodes {
   OUT_OF_TARGET_RANGE(".outOfTargetRange"),
   NOT_UNIQUE(".notUnique");
 
-  private String code;
+  private final String code;
 
   FieldValidationErrorCodes(String code) {
     this.code = code;
