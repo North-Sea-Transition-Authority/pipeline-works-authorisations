@@ -2,6 +2,10 @@
 
 <@defaultPage htmlTitle="Field information" breadcrumbs=true>
 
+    <#if errorList?has_content>
+        <@fdsError.errorSummary errorItems=errorList />
+    </#if>
+
     <@fdsForm.htmlForm>
 
         <@fdsRadio.radioGroup path="form.linkedToField" labelText="Is your application linked to a field?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--l" hiddenContent=true>
@@ -14,6 +18,7 @@
         </@fdsRadio.radioGroup>
 
         <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+
     </@fdsForm.htmlForm>
 
 </@defaultPage>
