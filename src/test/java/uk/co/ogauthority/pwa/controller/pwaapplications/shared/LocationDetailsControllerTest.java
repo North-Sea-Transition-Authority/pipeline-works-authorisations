@@ -120,14 +120,11 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             Map.of("applicationId", 1))))
         .andExpect(status().is3xxRedirection());
 
-    MultiValueMap completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
-            .params(completeParams))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isForbidden());
 
   }
@@ -135,14 +132,11 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   @Test
   public void postLocationDetails_partialValidationParams_unauthenticatedUser() throws Exception {
 
-    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
-            .params(continueParams))
+            .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().isForbidden());
   }
 
@@ -161,10 +155,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   @Test
   public void postLocationDetails_partialSave_noData() throws Exception {
 
-    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
-    }};
-
     ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.PARTIAL);
 
@@ -172,7 +162,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
         post(ReverseRouter.route(
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
-            .params(continueParams)
+            .params(ControllerTestUtils.partialValidationPostParams())
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -184,7 +174,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   public void postLocationDetails_partialSave_invalidForm() throws Exception {
 
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
+      add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
       add("transportationMethod", StringUtils.repeat('a', 5000));
     }};
 
@@ -204,10 +194,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   @Test
   public void postLocationDetails_partialSave_validForm() throws Exception {
 
-    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
-    }};
-
     ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.PARTIAL);
 
@@ -215,7 +201,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
         post(ReverseRouter.route(
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
-            .params(continueParams)
+            .params(ControllerTestUtils.partialValidationPostParams())
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -226,10 +212,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   @Test
   public void postLocationDetails_InvalidForm() throws Exception {
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
-
     ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.FULL);
 
@@ -237,18 +219,20 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
         post(ReverseRouter.route(
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
-            .params(params)
+            .params(ControllerTestUtils.fullValidationPostParams())
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk());
+
     verify(padLocationDetailsService, never()).getLocationDetailsForDraft(pwaApplicationDetail);
+
   }
 
   @Test
   public void postLocationDetails_ValidForm() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
+      add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
       add("approximateProjectLocationFromShore", "approx");
       add("withinSafetyZone", "NO");
       add("facilitiesOffshore", "true");

@@ -6,6 +6,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -66,6 +68,18 @@ public class ControllerTestUtils {
    */
   public static void passValidationWhenPost(ApplicationFormSectionService service, Object form, ValidationType validationType) {
     when(service.validate(any(), any(), eq(validationType), any())).thenReturn(new BeanPropertyBindingResult(form, "form"));
+  }
+
+  public static MultiValueMap<String, String> fullValidationPostParams() {
+    return new LinkedMultiValueMap<>(){{
+      add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
+    }};
+  }
+
+  public static MultiValueMap<String, String> partialValidationPostParams() {
+    return new LinkedMultiValueMap<>(){{
+      add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
+    }};
   }
 
 }

@@ -25,8 +25,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -148,7 +146,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postDepositDrawingsOverview_appTypeSmokeTest() {
     when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -161,7 +159,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postDepositDrawingsOverview_appStatusSmokeTest() {
     when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -174,7 +172,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postDepositDrawingsOverview_contactSmokeTest() {
     when(depositDrawingsService.isComplete(any(PwaApplicationDetail.class))).thenReturn(true);
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postDepositDrawingsOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -226,7 +224,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postAddDepositDrawing_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -239,7 +237,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postAddDepositDrawing_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -252,7 +250,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postAddDepositDrawing_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postAddDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -266,32 +264,25 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
     ControllerTestUtils.failValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("reference"));
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
-
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
             .postAddDepositDrawing(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
   }
 
   @Test
   public void postAddDepositDrawing_withValidForm() throws Exception {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
             .postAddDepositDrawing(PwaApplicationType.INITIAL, 1, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
 
     verify(depositDrawingsService, times(1)).addDrawing(any(), any(), any());
@@ -302,14 +293,11 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   //REMOVE end points
   @Test
   public void renderRemovePermanentDeposits_success() throws Exception {
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
     mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
         .renderRemoveDepositDrawing(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, 1, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .params(params))
+        .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
   }
 
@@ -351,7 +339,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   @Test
   public void postRemoveDepositDrawing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
@@ -363,7 +351,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   @Test
   public void postRemoveDepositDrawing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
@@ -375,7 +363,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   @Test
   public void postRemoveDepositDrawing_contactSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postRemoveDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null)));
@@ -430,7 +418,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postEditDepositDrawing_appTypeSmokeTest() {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
@@ -443,7 +431,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postEditDepositDrawing_appStatusSmokeTest() {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
@@ -456,7 +444,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   public void postEditDepositDrawing_contactSmokeTest() {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), "")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositDrawingsController.class)
                 .postEditDepositDrawing(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null, null, ValidationType.FULL)));
@@ -471,32 +459,25 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
     bindingResult.addError(new ObjectError("fake", "fake"));
     when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(bindingResult);
 
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
-
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
             .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
   }
 
   @Test
   public void postEditDepositDrawing_withValidForm() throws Exception {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), eq(ValidationType.FULL), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
-    MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
 
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
             .postEditDepositDrawing(PwaApplicationType.INITIAL, 1, null, 1, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(params))
+            .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
 
     verify(depositDrawingsService, times(1)).editDepositDrawing(anyInt(), any(), any(), any());
