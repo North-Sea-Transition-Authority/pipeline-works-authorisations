@@ -102,13 +102,12 @@ public class PipelinesController {
                                             PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    // otherwise, make sure that all pipelines have header info and idents
-    var pipelinesComplete = padPipelineService.isComplete(detail);
 
-    if (!pipelinesComplete) {
+    var pipelineSummaryValidationResult = padPipelineService.getValidationResult(detail);
+
+    if (!pipelineSummaryValidationResult.isSectionComplete()) {
       return getOverviewModelAndView(applicationContext.getApplicationDetail(), applicationContext.getPadPipeline())
-          .addObject("errorMessage",
-              "At least one pipeline must be added. Each pipeline must have at least one ident.");
+          .addObject("pipelineSummaryValidationResult", pipelineSummaryValidationResult);
     }
 
     return applicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());

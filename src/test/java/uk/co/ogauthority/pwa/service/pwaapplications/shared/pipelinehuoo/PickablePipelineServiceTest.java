@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,16 +13,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
@@ -100,9 +96,9 @@ public class PickablePipelineServiceTest {
     pickablePipelineService = new PickablePipelineService(pipelineService, padPipelineService, pipelineDetailService);
 
     when(padPipelineService.getAllPadPipelineSummaryDtosForApplicationDetail(pwaApplicationDetail))
-        .thenReturn(
-            List.of(generateFrom(applicationNewPadPipeline), generateFrom(applicationImportedPadPipeline))
-        );
+        .thenReturn(List.of(
+            PadPipelineSummaryDtoTestUtils.generateFrom(applicationNewPadPipeline),
+            PadPipelineSummaryDtoTestUtils.generateFrom(applicationImportedPadPipeline)));
 
     when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(
@@ -139,43 +135,6 @@ public class PickablePipelineServiceTest {
     });
   }
 
-  private PadPipelineSummaryDto generateFrom(PadPipeline padPipeline) {
-
-    return new PadPipelineSummaryDto(
-        padPipeline.getId(),
-        padPipeline.getPipeline().getId(),
-        PipelineType.PRODUCTION_FLOWLINE,
-        padPipeline.toString(),
-        BigDecimal.TEN,
-        "OIL",
-        "PRODUCTS",
-        1L,
-        "STRUCT_A",
-        45,
-        45,
-        BigDecimal.valueOf(45),
-        LatitudeDirection.NORTH,
-        1,
-        1,
-        BigDecimal.ONE,
-        LongitudeDirection.EAST,
-        "STRUCT_B",
-        46,
-        46,
-        BigDecimal.valueOf(46),
-        LatitudeDirection.NORTH,
-        2,
-        2,
-        BigDecimal.valueOf(2),
-        LongitudeDirection.EAST,
-        padPipeline.getMaxExternalDiameter(),
-        padPipeline.getPipelineInBundle(),
-        padPipeline.getBundleName()
-    );
-
-  }
-
-
   @Test
   public void getPickablePipelinesFromApplication_filtersOutConsentedPipelines() {
 
@@ -193,7 +152,6 @@ public class PickablePipelineServiceTest {
     );
 
   }
-
 
   @Test
   public void getPickablePipelinesFromApplicationMasterPwa_filtersOutApplicationPipelines() {

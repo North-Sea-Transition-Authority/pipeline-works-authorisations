@@ -5,7 +5,7 @@
     <@fdsError.errorSummary errorItems=errorList />
 
     <@fdsForm.htmlForm>
-        <@fdsRadio.radioGroup path="form.agreementStatus" labelText="Will the proposed works cross the median line?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--xl" hiddenContent=true>
+        <@fdsRadio.radioGroup path="form.agreementStatus" labelText="Will the proposed works cross any median line?" fieldsetHeadingSize="h1" fieldsetHeadingClass="govuk-fieldset__legend--xl" hiddenContent=true>
             <#assign firstItem=true/>
             <#list crossingOptions as name, displayText>
                 <@fdsRadio.radioItem path="form.agreementStatus" itemMap={name:displayText} isFirstItem=firstItem>
@@ -21,6 +21,6 @@
                 <#assign firstItem=false/>
             </#list>
         </@fdsRadio.radioGroup>
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

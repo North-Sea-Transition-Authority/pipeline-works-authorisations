@@ -25,6 +25,6 @@ public class CrossingTypesFormValidator implements Validator {
         "Select yes if a cable has been crossed");
     ValidationUtils.rejectIfEmpty(errors, "medianLineCrossed",
         "medianLineCrossed" + FieldValidationErrorCodes.REQUIRED.getCode(),
-        "Select yes if the median line has been crossed");
+        "Select yes if any median line has been crossed");
   }
 }

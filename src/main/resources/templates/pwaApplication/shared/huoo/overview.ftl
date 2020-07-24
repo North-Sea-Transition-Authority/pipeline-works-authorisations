@@ -6,7 +6,11 @@
 
 <#include '../../../layout.ftl'>
 
-<@defaultPage htmlTitle="Holders, users, operators, and owners" pageHeading="Holders, users, operators, and owners" fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle="Holders, users, operators, and owners (HUOO)" pageHeading="Holders, users, operators, and owners (HUOO)" fullWidthColumn=true breadcrumbs=true>
+
+  <#if errorMessage?has_content>
+    <@fdsError.singleErrorSummary errorMessage=errorMessage />
+  </#if>
 
   <#if errorMessage?has_content>
     <@fdsError.singleErrorSummary errorMessage=errorMessage />
@@ -16,6 +20,7 @@
 
   <#if huooOrgs?has_content>
     <table class="govuk-table">
+      <h3 class="govuk-heading-m">Organisation HUOOs</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Company number</th>
@@ -33,11 +38,11 @@
           <td class="govuk-table__cell">${org.companyAddress!}</td>
           <td class="govuk-table__cell">${org.roles}</td>
           <td class="govuk-table__cell">
-              <@fdsAction.link linkText="Edit" linkUrl=springUrl(org.editUrl) linkClass="govuk-link"/>
+              <@fdsAction.link linkText="Edit" linkUrl=springUrl(org.editUrl) linkClass="govuk-link" linkScreenReaderText="Edit ${org.companyName}"/>
               <#if org.removeUrl?has_content>
                 <br/>
                   <@fdsForm.htmlForm actionUrl=springUrl(org.removeUrl)>
-                      <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button"/>
+                      <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button" buttonScreenReaderText="Remove ${org.companyName}"/>
                   </@fdsForm.htmlForm>
               </#if>
           </td>
@@ -50,6 +55,7 @@
 
   <#if treatyAgreements?has_content>
     <table class="govuk-table">
+      <h3 class="govuk-heading-m">Treaty agreement users</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Country</th>
@@ -65,10 +71,10 @@
           <td class="govuk-table__cell">${agreement.treatyAgreementText}</td>
           <td class="govuk-table__cell">${agreement.roles}</td>
           <td class="govuk-table__cell">
-              <@fdsAction.link linkText="Edit" linkUrl=springUrl(agreement.editUrl) linkClass="govuk-link"/>
+              <@fdsAction.link linkText="Edit" linkUrl=springUrl(agreement.editUrl) linkClass="govuk-link" linkScreenReaderText="Edit ${agreement.country}"/>
               <#if agreement.removeUrl?has_content>
                   <@fdsForm.htmlForm actionUrl=springUrl(agreement.removeUrl)>
-                      <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button"/>
+                      <@fdsAction.button buttonText="Remove" buttonClass="fds-link-button" buttonScreenReaderText="Remove ${agreement.country}"/>
                   </@fdsForm.htmlForm>
               </#if>
           </td>

@@ -65,13 +65,13 @@
 
             <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5"/>
 
-            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="Some guidance text here."/>
+            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="Some guidance text here." characterCount=true maxCharacterLength="4000"/>
 
-            <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed"/>
+            <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength="4000"/>
 
             <@fdsRadio.radioGroup path="form.trenchedBuriedBackfilled" labelText="Will the proposed pipeline be trenched and/or buried and/or backfilled?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.trenchedBuriedBackfilled">
-                    <@fdsTextarea.textarea path="form.trenchingMethods" labelText="Describe the methods to be deployed to execute the trenching and the target depth of trench" nestingPath="form.trenchedBuriedBackfilled"/>
+                    <@fdsTextarea.textarea path="form.trenchingMethods" labelText="Describe the methods to be deployed to execute the trenching and the target depth of trench" nestingPath="form.trenchedBuriedBackfilled" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.trenchedBuriedBackfilled"/>
             </@fdsRadio.radioGroup>
@@ -91,7 +91,7 @@
                 <#list pipelineMaterialTypes as  pipelineMaterialTypeOption>
                     <@fdsRadio.radioItem path="form.pipelineMaterial" itemMap={pipelineMaterialTypeOption : pipelineMaterialTypeOption.getDisplayText()} isFirstItem=firstItem>
                         <#if pipelineMaterialTypeOption == "OTHER">
-                            <@fdsTextarea.textarea path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used"/>
+                            <@fdsTextarea.textarea path="form.otherPipelineMaterialUsed" nestingPath="form.pipelineMaterial" labelText="Provide details of other materials used" characterCount=true maxCharacterLength="4000"/>
                         </#if>
                     </@fdsRadio.radioItem>
                     <#assign firstItem=false/>
@@ -108,11 +108,6 @@
             </@fdsRadio.radioGroup>
 
         </@fdsFieldset.fieldset>
-
-
-
-
-
 
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="${screenActionType.submitButtonText} pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

@@ -1,27 +1,35 @@
 package uk.co.ogauthority.pwa.service.devuk;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 @Service
 public class PadFieldService {
 
   private final PadFieldRepository padFieldRepository;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final PadProjectInformationService projectInformationService;
+  private final DevukFieldService devukFieldService;
 
   @Autowired
   public PadFieldService(PadFieldRepository padFieldRepository,
-                         PwaApplicationDetailService pwaApplicationDetailService) {
+                         PwaApplicationDetailService pwaApplicationDetailService,
+                         PadProjectInformationService projectInformationService,
+                         DevukFieldService devukFieldService) {
     this.padFieldRepository = padFieldRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.projectInformationService = projectInformationService;
+    this.devukFieldService = devukFieldService;
   }
 
   public List<PadField> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -29,73 +37,72 @@ public class PadFieldService {
   }
 
   /**
-   * Adds a field to the current application detail.
-   *
-   * @param pwaApplicationDetail Current application detail.
-   * @param devukField a DEVUK field.
-   * @return The new PwaField.
-   */
-  @Transactional
-  public PadField addField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField) {
-    var newField = new PadField();
-    newField.setDevukField(devukField);
-    newField.setPwaApplicationDetail(pwaApplicationDetail);
-    padFieldRepository.save(newField);
-    return newField;
-  }
-
-  /**
-   * Remove the field from the application's field history.
-   *
-   * @param pwaApplicationDetail Current application detail.
-   * @param devukField a DEVUK field.
-   * @return The removed field.
-   */
-  @Transactional
-  public PadField removeField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField) {
-    var oldField = padFieldRepository.findByPwaApplicationDetailAndDevukField(pwaApplicationDetail, devukField);
-    padFieldRepository.delete(oldField);
-    return oldField;
-  }
-
-  /**
-   * Link fields to an application detail.
-   * If fields, set detail to be linked to fields. If empty list, set linked to false.
+   * Add fields to an application detail.
    *
    * @param pwaApplicationDetail The current application detail.
    * @param fields A list of DevukFields to link to.
-   * @return List of added PwaApplicationDetailFields.
    */
-  @Transactional
-  public List<PadField> setFields(PwaApplicationDetail pwaApplicationDetail, List<DevukField> fields) {
+  private void addFields(PwaApplicationDetail pwaApplicationDetail, List<DevukField> fields) {
 
-    removeAllFields(pwaApplicationDetail);
+    List<PadField> newPadFields = fields.stream()
+        .map(devukField -> {
+          var padField = new PadField();
+          padField.setPwaApplicationDetail(pwaApplicationDetail);
+          padField.setDevukField(devukField);
+          return padField;
+        })
+        .collect(Collectors.toList());
 
-    pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, fields.size() != 0);
-    var addedFields = new ArrayList<PadField>();
-    fields.forEach(devukField -> {
-      var addedField = addField(pwaApplicationDetail, devukField);
-      addedFields.add(addedField);
-    });
-    return addedFields;
+    padFieldRepository.saveAll(newPadFields);
+
   }
 
   /**
    * Provides a quick way to close off all fields on the current application detail.
    *
    * @param pwaApplicationDetail Current application detail.
-   * @return Returns a list of the ended fields.
    */
-  @Transactional
-  public List<PadField> removeAllFields(PwaApplicationDetail pwaApplicationDetail) {
-    var endedFields = new ArrayList<PadField>();
-    getActiveFieldsForApplicationDetail(pwaApplicationDetail).forEach(
-        padField -> {
-          var removedField = removeField(pwaApplicationDetail, padField.getDevukField());
-          endedFields.add(removedField);
-        }
-    );
-    return endedFields;
+  private void removeAllFields(PwaApplicationDetail pwaApplicationDetail) {
+
+    var fieldsToEnd = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
+
+    padFieldRepository.deleteAll(fieldsToEnd);
+
   }
 
+  private void removeFdpDataFromProjectInfo(PwaApplicationDetail applicationDetail, Boolean isLinkedtoField) {
+    if (!isLinkedtoField) {
+      projectInformationService.removeFdpQuestionData(applicationDetail);
+    }
+  }
+
+  @Transactional
+  public void updateFieldInformation(PwaApplicationDetail applicationDetail, PwaFieldForm form) {
+
+    // if they've said yes or no to the field link question, we have things to do
+    if (form.getLinkedToField() != null) {
+
+      pwaApplicationDetailService.setLinkedToFields(applicationDetail, form.getLinkedToField());
+
+      removeAllFields(applicationDetail);
+
+      // if they've said yes to field link and selected a field, add field
+      if (form.getLinkedToField() && form.getFieldId() != null) {
+
+        var devukField = devukFieldService.findById(form.getFieldId());
+        addFields(applicationDetail, List.of(devukField));
+
+      } else if (!form.getLinkedToField()) {
+
+        // otherwise they've said no to field link, update linked field description
+        pwaApplicationDetailService.setNotLinkedFieldDescription(applicationDetail, form.getNoLinkedFieldDescription());
+
+      }
+
+      // clear FDP answers on project info section based on whether or not we're linked to a field
+      removeFdpDataFromProjectInfo(applicationDetail, form.getLinkedToField());
+
+    }
+
+  }
 }

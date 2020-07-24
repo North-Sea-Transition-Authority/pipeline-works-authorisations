@@ -5,7 +5,9 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
-/* Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.*/
+/**
+ *  Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.
+ */
 public final class PipelineId {
   private final int id;
 

@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
@@ -96,6 +97,9 @@ public class TaskCompletionServiceIntegrationTest {
   @MockBean
   private PadDesignOpConditionsService padDesignOpConditionsService;
 
+  @MockBean
+  private PadPartnerLettersService padPartnerLettersService;
+
   @Test
   public void isTaskComplete() {
 
@@ -154,6 +158,9 @@ public class TaskCompletionServiceIntegrationTest {
           break;
         case DESIGN_OP_CONDITIONS:
           service = padDesignOpConditionsService;
+          break;
+        case PARTNER_LETTERS:
+          service = padPartnerLettersService;
           break;
         default:
           throw new AssertionError(task);

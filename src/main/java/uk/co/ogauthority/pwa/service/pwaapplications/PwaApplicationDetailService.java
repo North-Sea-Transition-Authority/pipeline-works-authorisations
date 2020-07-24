@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.function.Function;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.Property
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
@@ -174,6 +176,15 @@ public class PwaApplicationDetailService {
     pwaApplicationDetail.setOtherPhaseDescription(otherPhaseDescription);
     pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
+
+  @Transactional
+  public void updatePartnerLetters(PwaApplicationDetail applicationDetail, PartnerLettersForm form) {
+    applicationDetail.setPartnerLettersRequired(form.getPartnerLettersRequired());
+    applicationDetail.setPartnerLettersConfirmed(BooleanUtils.isTrue(form.getPartnerLettersRequired())
+        ? form.getPartnerLettersConfirmed() : null);
+    pwaApplicationDetailRepository.save(applicationDetail);
+  }
+
 
 
 }

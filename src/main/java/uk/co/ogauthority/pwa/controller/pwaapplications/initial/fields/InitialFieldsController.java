@@ -2,11 +2,9 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -30,8 +28,8 @@ import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -45,7 +43,6 @@ public class InitialFieldsController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
   private final DevukFieldService devukFieldService;
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PadFieldService padFieldService;
   private final PwaFieldFormValidator pwaFieldFormValidator;
   private final ControllerHelperService controllerHelperService;
@@ -53,19 +50,18 @@ public class InitialFieldsController {
   @Autowired
   public InitialFieldsController(ApplicationBreadcrumbService breadcrumbService,
                                  DevukFieldService devukFieldService,
-                                 PwaApplicationDetailService pwaApplicationDetailService,
                                  PadFieldService padFieldService,
                                  PwaFieldFormValidator pwaFieldFormValidator,
                                  ControllerHelperService controllerHelperService) {
     this.breadcrumbService = breadcrumbService;
     this.devukFieldService = devukFieldService;
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.padFieldService = padFieldService;
     this.pwaFieldFormValidator = pwaFieldFormValidator;
     this.controllerHelperService = controllerHelperService;
   }
 
-  private ModelAndView getFieldsModelAndView(PwaApplicationDetail pwaApplicationDetail, PwaFieldForm form,
+  private ModelAndView getFieldsModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                             PwaFieldForm form,
                                              AuthenticatedUserAccount user) {
     var modelAndView = new ModelAndView("pwaApplication/initial/fieldInformation")
         .addObject("backUrl",
@@ -75,6 +71,7 @@ public class InitialFieldsController {
     modelAndView.addObject("fields",
         padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
     modelAndView.addObject("fieldMap", getDevukFieldMap());
+    modelAndView.addObject("errorList", List.of());
 
     breadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Field information");
 
@@ -112,28 +109,23 @@ public class InitialFieldsController {
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       AuthenticatedUserAccount user,
-      @Valid @ModelAttribute("form") PwaFieldForm form,
+      @ModelAttribute("form") PwaFieldForm form,
       BindingResult bindingResult,
-      PwaApplicationContext applicationContext) {
+      PwaApplicationContext applicationContext,
+      ValidationType validationType) {
 
-    pwaFieldFormValidator.validate(form, bindingResult);
-    var isLinkedtoField = form.getLinkedToField();
+    pwaFieldFormValidator.validate(form, bindingResult, validationType);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getFieldsModelAndView(applicationContext.getApplicationDetail(), form, user), () -> {
-          var fieldList = new ArrayList<DevukField>();
-          if (isLinkedtoField) {
-            fieldList.add(devukFieldService.findById(form.getFieldId()));
-          } else {
-              pwaApplicationDetailService.setNotLinkedFieldDescription(
-                      applicationContext.getApplicationDetail(), form.getNoLinkedFieldDescription());
-          }
-          padFieldService.setFields(applicationContext.getApplicationDetail(), fieldList);
+
+          padFieldService.updateFieldInformation(applicationContext.getApplicationDetail(), form);
+
           return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
+
         });
 
   }
-
 
   private Map<String, String> getDevukFieldMap() {
     return devukFieldService.getByStatusCodes(List.of(500, 600, 700))

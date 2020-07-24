@@ -107,7 +107,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   public void postAddDesignOpConditions_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DesignOpConditionsController.class)
                 .postAddDesignOpConditions(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -119,7 +119,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   public void postAddDesignOpConditions_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DesignOpConditionsController.class)
                 .postAddDesignOpConditions(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -132,7 +132,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   public void postAddDesignOpConditions_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DesignOpConditionsController.class)
                 .postAddDesignOpConditions(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -145,7 +145,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   public void postAddDesignOpConditions_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DesignOpConditionsController.class)
                 .postAddDesignOpConditions(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));

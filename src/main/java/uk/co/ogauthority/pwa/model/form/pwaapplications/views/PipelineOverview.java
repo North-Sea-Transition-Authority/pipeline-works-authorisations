@@ -24,5 +24,10 @@ public interface PipelineOverview extends NamedPipeline {
 
   Long getNumberOfIdents();
 
+  BigDecimal getMaxExternalDiameter();
+
+  default PipelineCoreType getCoreType() {
+    return getPipelineType().getCoreType();
+  }
 
 }
