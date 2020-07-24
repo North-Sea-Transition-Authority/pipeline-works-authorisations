@@ -309,7 +309,7 @@ public class ValidatorUtils {
 
     if (! ((seconds.getValue().compareTo(BigDecimal.ZERO) >= 0) && (seconds.getValue().compareTo(BigDecimal.valueOf(60)) < 0))) {
       errors.rejectValue(seconds.getKey(), seconds.getKey() + INVALID.getCode(),
-          "%s seconds should be between 0 and 59.99");
+          String.format("%s seconds should be between 0 and 59.99", messagePrefix));
     }
 
     if (seconds.getValue().remainder(BigDecimal.ONE).precision() > 2) {
