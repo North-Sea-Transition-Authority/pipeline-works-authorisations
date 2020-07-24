@@ -132,8 +132,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                             @PathVariable("applicationId") Integer applicationId,
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
-                                            BindingResult bindingResult,
-                                            ValidationType validationType) {
+                                            BindingResult bindingResult) {
     if (!depositDrawingsService.isComplete(applicationContext.getApplicationDetail())) {
       return getDepositDrawingsOverviewModelAndView(applicationContext.getApplicationDetail())
           .addObject("errorMessage", "Ensure that all deposit drawings are valid");
@@ -147,11 +146,10 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                             @PathVariable("applicationId") Integer applicationId,
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
-                                            BindingResult bindingResult,
-                                            ValidationType validationType) {
+                                            BindingResult bindingResult) {
     bindingResult = depositDrawingsService.validate(form,
         bindingResult,
-        validationType,
+        ValidationType.FULL,
         applicationContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
@@ -169,10 +167,9 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
                                              PwaApplicationContext applicationContext,
                                              @PathVariable("depositDrawingId") Integer depositDrawingId,
                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
-                                            BindingResult bindingResult,
-                                            ValidationType validationType) {
+                                            BindingResult bindingResult) {
     bindingResult = depositDrawingsService.validateDrawingEdit(form,
-        bindingResult, validationType, applicationContext.getApplicationDetail(), depositDrawingId);
+        bindingResult, ValidationType.FULL, applicationContext.getApplicationDetail(), depositDrawingId);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
@@ -249,10 +246,6 @@ public class PermanentDepositDrawingsController extends PwaApplicationDataFileUp
     padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE);
     return modelAndView;
   }
-
-
-
-
 
   //File handling endpoints
   @Override

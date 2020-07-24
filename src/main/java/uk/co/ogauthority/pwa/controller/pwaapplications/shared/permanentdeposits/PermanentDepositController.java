@@ -122,8 +122,7 @@ public class PermanentDepositController {
                                             @PathVariable("applicationId") Integer applicationId,
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") PermanentDepositsForm form,
-                                            BindingResult bindingResult,
-                                            ValidationType validationType) {
+                                            BindingResult bindingResult) {
 
     if (!permanentDepositService.validateDepositOverview(applicationContext.getApplicationDetail())) {
       return getOverviewPermanentDepositsModelAndView(applicationContext.getApplicationDetail())
@@ -138,12 +137,11 @@ public class PermanentDepositController {
                                             @PathVariable("applicationId") Integer applicationId,
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") PermanentDepositsForm form,
-                                            BindingResult bindingResult,
-                                            ValidationType validationType) {
+                                            BindingResult bindingResult) {
 
     bindingResult = permanentDepositService.validate(form,
         bindingResult,
-        validationType,
+        ValidationType.FULL,
         applicationContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
@@ -162,13 +160,12 @@ public class PermanentDepositController {
                                             @PathVariable("depositId") Integer depositId,
                                             PwaApplicationContext applicationContext,
                                             @ModelAttribute("form") PermanentDepositsForm form,
-                                            BindingResult bindingResult,
-                                            ValidationType validationType) {
+                                            BindingResult bindingResult) {
 
     form.setEntityID(depositId);
     bindingResult = permanentDepositService.validate(form,
         bindingResult,
-        validationType,
+        ValidationType.FULL,
         applicationContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
