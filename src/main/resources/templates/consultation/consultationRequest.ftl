@@ -18,17 +18,17 @@
           </#list>    
           
           <@fdsCheckbox.checkboxItem path="form.otherGroupSelected" labelText="Other">
-            <@fdsTextInput.textInput path="form.otherGroupLogin" labelText="What is the consultee's email address or login ID" nestingPath="form.otherGroupSelected"
-              hintText="The consultee must already have a portal user account" inputClass="govuk-input--width-15"/>
+            <@fdsTextInput.textInput path="form.otherGroupLogin" labelText="What is the consultee's email address or login ID?" nestingPath="form.otherGroupSelected"
+              hintText="The consultee must already have a portal user account" inputClass="govuk-input--width-8"/>
           </@fdsCheckbox.checkboxItem>
 
       </@fdsCheckbox.checkboxGroup>
     </@fdsFieldset.fieldset>
 
-    <@fdsTextInput.textInput path="form.daysToRespond" labelText="How many calendar days do they have to respond?" inputClass="govuk-input--width-2"/>
+    <@fdsTextInput.textInput path="form.daysToRespond" labelText="How many calendar days do they have to respond?" inputClass="govuk-input--width-4"/>
 
 
 
-    <@fdsAction.submitButtons primaryButtonText="Send Consultations" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+    <@fdsAction.submitButtons primaryButtonText="Send consultations" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
   </@fdsForm.htmlForm>
 </@defaultPage>
