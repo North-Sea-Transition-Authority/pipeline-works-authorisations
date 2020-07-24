@@ -15,6 +15,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositRadioOption;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
@@ -28,7 +29,7 @@ public class ProjectInformationValidatorTest {
   @Before
   public void setUp() {
     validator = new ProjectInformationValidator(new TwoFieldDateInputValidator());
-    projectInformationFormValidationHints = new ProjectInformationFormValidationHints(false, false);
+    projectInformationFormValidationHints = new ProjectInformationFormValidationHints(false, false, false);
   }
 
   @Test
@@ -272,14 +273,16 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_permanentDepositType_noValidationRequired() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(false, false));
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(false, false,
+        false));
     assertThat(errorsMap).doesNotContainKey("permanentDepositsMadeType");
   }
 
   @Test
   public void validate_permanentDepositType_Null() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(true, true));
+    Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(true, true,
+        false));
     assertThat(errorsMap).contains(
             entry("permanentDepositsMadeType", Set.of("permanentDepositsMadeType.notSelected"))
     );
@@ -290,7 +293,8 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput());
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true,
+        false));
     assertThat(errorsMap).contains(
         entry("futureSubmissionDate.month", Set.of("month.invalid")),
         entry("futureSubmissionDate.year", Set.of("year.invalid"))
@@ -302,7 +306,8 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositRadioOption.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 2));
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, true,
+        false));
     assertThat(errorsMap).contains(
             entry("futureSubmissionDate.month", Set.of("month.afterDate")),
             entry("futureSubmissionDate.year", Set.of("year.afterDate"))
@@ -313,7 +318,8 @@ public class ProjectInformationValidatorTest {
   public void validate_temporaryDeposit_noDescription() {
     var form = new ProjectInformationForm();
     form.setTemporaryDepositsMade(true);
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false,
+        false));
     assertThat(errorsMap).contains(
             entry("temporaryDepDescription", Set.of("temporaryDepDescription.empty"))
     );
@@ -323,10 +329,72 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_temporaryDeposit_Null() {
     var form = new ProjectInformationForm();
-    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false));
+    Map<String, Set<String>> errorsMap = getErrorMap(form,  new ProjectInformationFormValidationHints(true, false,
+        false));
     assertThat(errorsMap).contains(
             entry("temporaryDepositsMade", Set.of("temporaryDepositsMade.notSelected"))
     );
   }
+
+
+  @Test
+  public void validate_noFdpQuestionRequired() {
+    var form = new ProjectInformationForm();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        false));
+    assertThat(errorsMap).doesNotContain(
+        entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_valid() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(true);
+    form.setFdpConfirmationFlag(true);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).doesNotContain(
+        entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_noFdpOptionSelected() {
+    var form = new ProjectInformationForm();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).contains(
+        entry("fdpOptionSelected", Set.of("fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_fdpOptionSelected_fdpConfirmationFlagNotChecked() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(true);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).contains(
+        entry("fdpConfirmationFlag", Set.of("fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_fdpQuestionRequired_fdpOptionSelectedIsNo_fdpNotSelectedReasonEmpty() {
+    var form = new ProjectInformationForm();
+    form.setFdpOptionSelected(false);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,  new ProjectInformationFormValidationHints(true, false,
+        true));
+    assertThat(errorsMap).contains(
+        entry("fdpNotSelectedReason", Set.of("fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+
 
 }

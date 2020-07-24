@@ -84,7 +84,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public void saveEntityUsingForm(PadProjectInformation padProjectInformation,
                                   ProjectInformationForm form,
                                   WebUserAccount user) {
-    projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
+    projectInformationEntityMappingService.setEntityValuesUsingForm(
+        padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
@@ -120,7 +121,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
       var projectInfoValidationHints = new ProjectInformationFormValidationHints(
           getIsAnyDepositQuestionRequired(pwaApplicationDetail),
-          getIsPermanentDepositQuestionRequired(pwaApplicationDetail));
+          getIsPermanentDepositQuestionRequired(pwaApplicationDetail),
+          isFdpQuestionRequired(pwaApplicationDetail));
       projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
     }
 
@@ -135,6 +137,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   public boolean getIsAnyDepositQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.HUOO_VARIATION);
+  }
+
+  public boolean isFdpQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
+    return BooleanUtils.toBooleanDefaultIfNull(pwaApplicationDetail.getLinkedToField(), false);
   }
 
   public String getFormattedProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {
@@ -172,5 +178,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     padProjectInformationRepository.save(projectInformation);
 
+  }
+
+
+  public void removeFdpQuestionData(PwaApplicationDetail detail) {
+    var padProjectInformation = getPadProjectInformationData(detail);
+    padProjectInformation.setFdpOptionSelected(null);
+    padProjectInformation.setFdpConfirmationFlag(null);
+    padProjectInformation.setFdpNotSelectedReason(null);
+    padProjectInformationRepository.save(padProjectInformation);
   }
 }

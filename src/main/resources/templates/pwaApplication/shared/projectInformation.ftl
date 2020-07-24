@@ -30,9 +30,6 @@
           <@fdsRadio.radioYes path="form.usingCampaignApproach"/>
           <@fdsRadio.radioNo path="form.usingCampaignApproach"/>
         </@fdsRadio.radioGroup>
-        <@fdsFieldset.fieldset legendHeadingClass="govuk-fieldset__legend--l" legendHeading="Project documents" legendHeadingSize="h2" hintText="Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)." nestingPath="" caption="" captionClass="govuk-caption-l">
-            <@fdsFileUpload.fileUpload id="project-doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
-        </@fdsFieldset.fieldset>
 
         <#if isAnyDepQuestionRequired>
             <#if isPermDepQuestionRequired>
@@ -58,8 +55,22 @@
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.temporaryDepositsMade"/>
             </@fdsRadio.radioGroup>
-        </#if>        
+        </#if>       
 
+        <#if isFdpQuestionRequired>
+            <@fdsRadio.radioGroup path="form.fdpOptionSelected" labelText="Do you have an approved field development plan (FDP) for the fields?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.fdpOptionSelected">
+                    <@fdsCheckbox.checkboxItem path="form.fdpConfirmationFlag" labelText="The proposed works outlined in this application are consistent with the development as described in the FDP" />
+                </@fdsRadio.radioYes>
+                <@fdsRadio.radioNo path="form.fdpOptionSelected">
+                    <@fdsTextarea.textarea path="form.fdpNotSelectedReason" labelText="Explain why" characterCount=true maxCharacterLength="4000"/>
+                </@fdsRadio.radioNo>
+            </@fdsRadio.radioGroup>
+        </#if>
+        
+        <@fdsFieldset.fieldset legendHeadingClass="govuk-fieldset__legend--l" legendHeading="Project documents" legendHeadingSize="h2" hintText="Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)." nestingPath="" caption="" captionClass="govuk-caption-l">
+            <@fdsFileUpload.fileUpload id="project-doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
+        </@fdsFieldset.fieldset>
 
         <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
     </@fdsForm.htmlForm>

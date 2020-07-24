@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -119,7 +121,7 @@ public class ProjectInformationEntityMappingServiceTest {
             expectedForm.getTemporaryDepositsMade());
 
     assertThat(entity.getTemporaryDepDescription()).isEqualTo(
-            expectedForm.getTemporaryDepDescription());
+        expectedForm.getTemporaryDepDescription());
   }
 
 
@@ -193,5 +195,45 @@ public class ProjectInformationEntityMappingServiceTest {
     assertThat(form.getTemporaryDepositsMade()).isTrue();
     assertThat(form.getTemporaryDepDescription()).isEqualTo(entity.getTemporaryDepDescription());
   }
+
+
+  @Test
+  public void setEntityValuesUsingForm_fdpQuestionRequired_fdpOptionSelected() {
+    form.setFdpOptionSelected(true);
+    form.setFdpConfirmationFlag(true);
+    projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
+    assertTrue(entity.getFdpOptionSelected());
+    assertTrue(entity.getFdpConfirmationFlag());
+  }
+
+  @Test
+  public void setEntityValuesUsingForm_fdpQuestionRequired_fdpOptionSelectedIsNo() {
+    form.setFdpOptionSelected(false);
+    form.setFdpNotSelectedReason("my reason");
+    projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
+    assertFalse(entity.getFdpOptionSelected());
+    assertThat(entity.getFdpNotSelectedReason()).isEqualTo("my reason");
+  }
+
+  @Test
+  public void mapProjectInformationDataToForm_fdpQuestionRequired_fdpOptionSelected() {
+    entity.setFdpOptionSelected(true);
+    entity.setFdpConfirmationFlag(true);
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
+    assertTrue(form.getFdpOptionSelected());
+    assertTrue(form.getFdpConfirmationFlag());
+  }
+
+  @Test
+  public void mapProjectInformationDataToForm_fdpQuestionRequired_fdpOptionSelectedIsNo() {
+    entity.setFdpOptionSelected(false);
+    entity.setFdpNotSelectedReason("my reason");
+    projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
+    assertFalse(form.getFdpOptionSelected());
+    assertThat(form.getFdpNotSelectedReason()).isEqualTo("my reason");
+  }
+
+
+
 
 }

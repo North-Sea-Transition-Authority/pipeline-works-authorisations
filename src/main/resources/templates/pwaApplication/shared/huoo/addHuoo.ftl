@@ -24,7 +24,7 @@
             </#list>
         </@fdsRadio.radioGroup>
 
-        <@fdsDetails.details detailsText="If you are unable to find the legal entity or treaty agreement you are looking for, please contact the OGA." detailsTitle="I can't find a legal entity?"/>
+        <@fdsDetails.details detailsText="If you are unable to find the legal entity or treaty agreement you are looking for, please contact the OGA." detailsTitle="I can't find a legal entity"/>
 
         <@fdsAction.submitButtons primaryButtonText="${screenActionType.submitButtonText} holder, user, operator, or owner" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>

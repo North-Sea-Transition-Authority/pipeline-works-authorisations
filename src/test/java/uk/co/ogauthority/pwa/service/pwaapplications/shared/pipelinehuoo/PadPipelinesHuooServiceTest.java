@@ -205,7 +205,9 @@ public class PadPipelinesHuooServiceTest {
         .thenReturn(List.of(org1HolderRole, org2HolderRole, orgTreatyHolderRole));
 
     var pipeline1 = new Pipeline();
+    pipeline1.setId(1);
     var pipeline2 = new Pipeline();
+    pipeline2.setId(2);
 
     padPipelinesHuooService.updatePipelineHuooLinks(
         pwaApplicationDetail,

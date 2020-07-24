@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTestUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -224,6 +225,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_contactSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -238,6 +240,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_appTypeSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -252,6 +255,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_appStatusSmokeTest() {
 
     when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -267,13 +271,17 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(false);
 
+    when(padPipelineService.getValidationResult(pwaApplicationDetail)).thenReturn(
+        SummaryScreenValidationResultTestUtils.incompleteResult());
+
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
             pwaApplicationDetail.getPwaApplicationType(), null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("pwaApplication/shared/pipelines/overview"));
+        .andExpect(view().name("pwaApplication/shared/pipelines/overview"))
+        .andExpect(model().attributeExists("pipelineSummaryValidationResult"));
 
   }
 
@@ -281,6 +289,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   public void postPipelinesOverview_validationPass() throws Exception {
 
     when(padPipelineService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postPipelinesOverview(pwaApplicationDetail.getMasterPwaApplicationId(),
