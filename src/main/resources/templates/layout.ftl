@@ -13,7 +13,7 @@
 <#import 'components/utils/string.ftl' as stringUtils>
 <#import 'components/widgets/pipelineTableSelection.ftl' as pwaPipelineTableSelection/>
 <#import 'components/widgets/organisationUnitDetailTableSelection.ftl' as pwaOrgDetailTableSelection/>
-
+<#import 'components/utils/validationResult.ftl' as validationResult/>
 
 <#function springUrl url>
     <#local springUrl>

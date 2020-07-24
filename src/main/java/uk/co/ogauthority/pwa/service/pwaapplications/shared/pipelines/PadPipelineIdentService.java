@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -160,7 +161,6 @@ public class PadPipelineIdentService {
 
   @Transactional
   public void removeIdent(PadPipelineIdent pipelineIdent) {
-    var pipeline = pipelineIdent.getPadPipeline();
     identDataService.removeIdentData(pipelineIdent);
     repository.delete(pipelineIdent);
     var remainingIdents = repository.getAllByPadPipeline(pipelineIdent.getPadPipeline());
@@ -177,16 +177,14 @@ public class PadPipelineIdentService {
     return !repository.countAllByPadPipeline(pipeline).equals(0L);
   }
 
+  public List<PadPipelineIdent> getAllIdentsByPadPipelineIds(List<PadPipelineId> padPipelineIds) {
 
-  public Long countIdentsForPipeline(PadPipeline padPipeline) {
-    return repository.countAllByPadPipeline(padPipeline);
+    List<Integer> ids = padPipelineIds.stream()
+        .map(PadPipelineId::asInt)
+        .collect(Collectors.toList());
+
+    return repository.getAllByPadPipeline_IdIn(ids);
+
   }
-
-
-  public List<PadPipelineIdent> getIdentsByPipeline(PadPipeline padPipeline) {
-    return repository.getAllByPadPipeline(padPipeline);
-  }
-
-
 
 }

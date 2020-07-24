@@ -275,6 +275,10 @@ public class PadFileService {
             fileId)));
   }
 
+  public List<PadFile> getAllByPwaApplicationDetailAndPurpose(PwaApplicationDetail detail, ApplicationFilePurpose purpose) {
+    return padFileRepository.findAllByPwaApplicationDetailAndPurpose(detail, purpose);
+  }
+
   public void validateFiles(UploadMultipleFilesWithDescriptionForm form, PwaApplicationDetail detail,
                             boolean atLeastOneFileRequired,
                             @Nullable int maxFileCount) {

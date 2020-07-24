@@ -52,5 +52,8 @@ public interface PipelineOverview {
 
   String getBundleName();
 
+  default PipelineCoreType getCoreType() {
+    return getPipelineType().getCoreType();
+  }
 
 }

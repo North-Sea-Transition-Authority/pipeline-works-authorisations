@@ -9,13 +9,13 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 
 /**
- * Visitor to PipelineIdentifiers which can maps the pipelieIdentifier to a user displayable reference.
+ * Visitor to PipelineIdentifiers which can map the pipelineIdentifier to a user displayable reference.
  * Greedy algorithm as it relies on a pre-computed map of PipelineId to pipelineNumber string in order work.
  */
 // TODO PWA-673 is this over complicated?
 public class PipelineIdentifierDisplayNameVisitor implements PipelineIdentifierVisitor {
 
-  // pre-computed map that must contain all PipelineId's that the visitor could visit
+  // pre-computed map that must contain all PipelineIds that the visitor could visit
   private final Map<PipelineId, String> pipelineIdStringLookup;
 
   // Added to while visiting map visited identifiers to a suitable display string

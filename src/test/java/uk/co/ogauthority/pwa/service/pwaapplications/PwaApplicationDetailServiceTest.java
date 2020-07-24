@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,6 +25,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -180,6 +183,25 @@ public class PwaApplicationDetailServiceTest {
     assertThat(detail.getInitialReviewApprovedTimestamp()).isEqualTo(clock.instant());
     assertThat(detail.getStatus()).isEqualTo(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
+  }
+
+  @Test
+  public void updatePartnerLetters_lettersRequired() {
+    var form = new PartnerLettersForm();
+    form.setPartnerLettersRequired(true);
+    form.setPartnerLettersConfirmed(true);
+    pwaApplicationDetailService.updatePartnerLetters(pwaApplicationDetail, form);
+    assertTrue(pwaApplicationDetail.getPartnerLettersRequired());
+    assertTrue(pwaApplicationDetail.getPartnerLettersConfirmed());
+  }
+
+  @Test
+  public void updatePartnerLetters_lettersNotRequired() {
+    var form = new PartnerLettersForm();
+    form.setPartnerLettersRequired(false);
+    pwaApplicationDetailService.updatePartnerLetters(pwaApplicationDetail, form);
+    assertFalse(pwaApplicationDetail.getPartnerLettersRequired());
+    assertNull(pwaApplicationDetail.getPartnerLettersConfirmed());
   }
 
 }

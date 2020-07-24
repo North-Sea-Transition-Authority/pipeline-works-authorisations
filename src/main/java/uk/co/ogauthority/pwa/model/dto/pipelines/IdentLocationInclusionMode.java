@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.pipelines;
 
 /*
- * Describes whether an structure at one end of a pipeline ident is included in a pipeline segment.
+ * Describes whether a structure at one end of a pipeline ident is included in a pipeline segment.
  */
 public enum IdentLocationInclusionMode {
 

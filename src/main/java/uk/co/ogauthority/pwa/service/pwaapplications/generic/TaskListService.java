@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformatio
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.partnerletters.PartnerLettersController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
@@ -207,6 +208,9 @@ public class TaskListService {
       case DESIGN_OP_CONDITIONS:
         return ReverseRouter.route(on(DesignOpConditionsController.class)
             .renderAddDesignOpConditions(applicationType, applicationId, null, null));
+      case PARTNER_LETTERS:
+        return ReverseRouter.route(on(PartnerLettersController.class)
+            .renderAddPartnerLetters(applicationType, applicationId, null, null));
       default:
         return "";
     }

@@ -3,7 +3,7 @@
 
 <#-- @ftlvariable name="pipelineTaskListItems" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem>" -->
 <#-- @ftlvariable name="pipelineUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory" -->
-<#-- @ftlvariable name="errorMessage" type="String" -->
+<#-- @ftlvariable name="pipelineSummaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 
 <#macro linkButtonBlue text url>
@@ -12,9 +12,8 @@
 
 <@defaultPage htmlTitle="Pipelines" pageHeading="Pipelines" fullWidthColumn=true breadcrumbs=true>
 
-    <#if errorMessage?has_content>
-        <@fdsError.singleErrorSummary errorMessage=errorMessage />
-    </#if>
+    <@validationResult.singleErrorSummary summaryValidationResult=pipelineSummaryValidationResult! />
+    <@validationResult.errorSummary summaryValidationResult=pipelineSummaryValidationResult! />
 
     <#if !pipelineTaskListItems?has_content>
         <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
@@ -24,9 +23,14 @@
 
     <#list pipelineTaskListItems as pipeline>
 
-        <@fdsCard.card>
+        <#assign cardId = validationResult.constructObjectId(pipelineSummaryValidationResult!, pipeline.padPipelineId) />
 
-          <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" />
+        <#assign hasErrors = validationResult.hasErrors(pipelineSummaryValidationResult!, cardId) />
+        <#assign cardErrorMessage = validationResult.errorMessageOrEmptyString(pipelineSummaryValidationResult!, cardId) />
+
+        <@fdsCard.card cardId=cardId cardClass=hasErrors?then("fds-card--error", "")>
+
+          <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" cardErrorMessage=cardErrorMessage />
 
           <hr class="govuk-section-break govuk-section-break--m"/>
 

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -368,4 +369,62 @@ public class PadPipeline {
 
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadPipeline that = (PadPipeline) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
+        && Objects.equals(pipeline, that.pipeline)
+        && pipelineType == that.pipelineType
+        && Objects.equals(fromLocation, that.fromLocation)
+        && Objects.equals(fromLatitudeDegrees, that.fromLatitudeDegrees)
+        && Objects.equals(fromLatitudeMinutes, that.fromLatitudeMinutes)
+        && Objects.equals(fromLatitudeSeconds, that.fromLatitudeSeconds)
+        && fromLatitudeDirection == that.fromLatitudeDirection
+        && Objects.equals(fromLongitudeDegrees, that.fromLongitudeDegrees)
+        && Objects.equals(fromLongitudeMinutes, that.fromLongitudeMinutes)
+        && Objects.equals(fromLongitudeSeconds, that.fromLongitudeSeconds)
+        && fromLongitudeDirection == that.fromLongitudeDirection
+        && Objects.equals(toLocation, that.toLocation)
+        && Objects.equals(toLatitudeDegrees, that.toLatitudeDegrees)
+        && Objects.equals(toLatitudeMinutes, that.toLatitudeMinutes)
+        && Objects.equals(toLatitudeSeconds, that.toLatitudeSeconds)
+        && toLatitudeDirection == that.toLatitudeDirection
+        && Objects.equals(toLongitudeDegrees, that.toLongitudeDegrees)
+        && Objects.equals(toLongitudeMinutes, that.toLongitudeMinutes)
+        && Objects.equals(toLongitudeSeconds, that.toLongitudeSeconds)
+        && toLongitudeDirection == that.toLongitudeDirection
+        && Objects.equals(componentPartsDescription, that.componentPartsDescription)
+        && Objects.equals(length, that.length)
+        && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
+        && Objects.equals(trenchedBuriedBackfilled, that.trenchedBuriedBackfilled)
+        && Objects.equals(trenchingMethodsDescription, that.trenchingMethodsDescription)
+        && Objects.equals(pipelineRef, that.pipelineRef)
+        && Objects.equals(fromCoordinates, that.fromCoordinates)
+        && Objects.equals(toCoordinates, that.toCoordinates)
+        && pipelineFlexibility == that.pipelineFlexibility
+        && pipelineMaterial == that.pipelineMaterial
+        && Objects.equals(otherPipelineMaterialUsed, that.otherPipelineMaterialUsed)
+        && Objects.equals(pipelineDesignLife, that.pipelineDesignLife)
+        && Objects.equals(pipelineInBundle, that.pipelineInBundle)
+        && Objects.equals(bundleName, that.bundleName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplicationDetail, pipeline, pipelineType, fromLocation, fromLatitudeDegrees,
+        fromLatitudeMinutes, fromLatitudeSeconds, fromLatitudeDirection, fromLongitudeDegrees, fromLongitudeMinutes,
+        fromLongitudeSeconds, fromLongitudeDirection, toLocation, toLatitudeDegrees, toLatitudeMinutes,
+        toLatitudeSeconds,
+        toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection,
+        componentPartsDescription, length, productsToBeConveyed, trenchedBuriedBackfilled, trenchingMethodsDescription,
+        pipelineRef, fromCoordinates, toCoordinates, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
+        pipelineDesignLife, pipelineInBundle, bundleName);
+  }
 }

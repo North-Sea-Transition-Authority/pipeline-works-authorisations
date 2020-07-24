@@ -155,7 +155,8 @@ public class TaskListServiceTest {
                 ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName(),
                 ApplicationTask.FLUID_COMPOSITION.getDisplayName(),
                 ApplicationTask.PIPELINE_OTHER_PROPERTIES.getDisplayName(),
-                ApplicationTask.DESIGN_OP_CONDITIONS.getDisplayName()
+                ApplicationTask.DESIGN_OP_CONDITIONS.getDisplayName(),
+                ApplicationTask.PARTNER_LETTERS.getDisplayName()
             );
             break;
           case DEPOSIT_CONSENT:
@@ -179,7 +180,8 @@ public class TaskListServiceTest {
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
-                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName(),
+                ApplicationTask.PARTNER_LETTERS.getDisplayName()
             );
             break;
           case CAT_2_VARIATION:
@@ -194,7 +196,8 @@ public class TaskListServiceTest {
                 ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
                 ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
                 ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
-                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName(),
+                ApplicationTask.PARTNER_LETTERS.getDisplayName()
             );
             break;
           case HUOO_VARIATION:
