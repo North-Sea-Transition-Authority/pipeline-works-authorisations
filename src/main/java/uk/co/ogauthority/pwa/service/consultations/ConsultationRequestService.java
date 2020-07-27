@@ -53,29 +53,15 @@ public class ConsultationRequestService {
       var consultationRequest = new ConsultationRequest();
       consultationRequest.setConsulteeGroup(
           consulteeGroupDetailService.getConsulteeGroupDetailById(Integer.parseInt(selectedGroupId)).getConsulteeGroup());
-      consultationRequest.setOtherGroupSelected(false);
-      setConsultationRequestInfo(consultationRequest, form, applicationDetail, user);
+      consultationRequest.setPwaApplication(applicationDetail.getPwaApplication());
+      consultationRequest.setStartTimestamp(Instant.now());
+      consultationRequest.setStartedByPersonId(user.getLinkedPerson().getId().asInt());
+      consultationRequest.setDeadlineDate(
+          consultationRequest.getStartTimestamp().plus(Period.ofDays(form.getDaysToRespond())));
+
       consultationRequest = consultationRequestRepository.save(consultationRequest);
       camundaWorkflowService.startWorkflow(consultationRequest);
     }
-
-    if (BooleanUtils.isTrue(form.getOtherGroupSelected())) {
-      var consultationRequest = new ConsultationRequest();
-      consultationRequest.setOtherGroupSelected(true);
-      consultationRequest.setOtherGroupLogin(form.getOtherGroupLogin());
-      setConsultationRequestInfo(consultationRequest, form, applicationDetail, user);
-      consultationRequestRepository.save(consultationRequest);
-      camundaWorkflowService.startWorkflow(consultationRequest);
-    }
-  }
-
-  private void setConsultationRequestInfo(ConsultationRequest consultationRequest, ConsultationRequestForm form,
-                                          PwaApplicationDetail applicationDetail, AuthenticatedUserAccount user) {
-    consultationRequest.setPwaApplication(applicationDetail.getPwaApplication());
-    consultationRequest.setStartTimestamp(Instant.now());
-    consultationRequest.setStartedByPersonId(user.getLinkedPerson().getId().asInt());
-    consultationRequest.setDeadlineDate(
-        consultationRequest.getStartTimestamp().plus(Period.ofDays(form.getDaysToRespond())));
   }
 
 

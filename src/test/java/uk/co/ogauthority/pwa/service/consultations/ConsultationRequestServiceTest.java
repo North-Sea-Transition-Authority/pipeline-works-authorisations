@@ -69,18 +69,6 @@ public class ConsultationRequestServiceTest {
   }
 
 
-  private ConsultationRequest createValidEntity() {
-    var entity = new ConsultationRequest();
-    entity.setPwaApplication(pwaApplicationDetail.getPwaApplication());
-    entity.setDeadlineDate(Instant.now());
-    entity.setConsulteeGroup(new ConsulteeGroup());
-    entity.setStartedByPersonId(authenticatedUserAccount.getLinkedPerson().getId().asInt());
-    entity.setOtherGroupSelected(false);
-
-    return entity;
-  }
-
-
   @Test
   public void saveEntitiesUsingForm_consulteeGroupSelected() {
     var form = new ConsultationRequestForm();
@@ -101,23 +89,6 @@ public class ConsultationRequestServiceTest {
     var expectedDeadline = Instant.now().plus(Period.ofDays(form.getDaysToRespond()));
     assertThat(consultationRequestArgumentCaptor.getValue().getDeadlineDate().atZone(ZoneOffset.UTC).getDayOfYear()).isEqualTo(expectedDeadline.atZone(ZoneOffset.UTC).getDayOfYear());
   }
-
-  @Test
-  public void saveEntitiesUsingForm_otherSelected() {
-    var form = new ConsultationRequestForm();
-    form.setOtherGroupSelected(true);
-    form.setOtherGroupLogin("my login");
-    form.setDaysToRespond(22);
-
-    var expectedEntity =  createValidEntity();
-    expectedEntity.setConsulteeGroup(null);
-    expectedEntity.setOtherGroupSelected(true);
-    expectedEntity.setOtherGroupLogin("my login");
-
-    consultationRequestService.saveEntitiesAndStartWorkflow(form, pwaApplicationDetail, authenticatedUserAccount);
-    verify(consultationRequestRepository, times(1)).save(expectedEntity);
-  }
-
   
 
   @Test

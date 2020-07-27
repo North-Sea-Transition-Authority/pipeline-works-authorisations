@@ -91,30 +91,6 @@ public class RequestConsultationValidatorTest {
     );
   }
 
-  @Test
-  public void validate_onlyOtherGroupIsSelected_valid() {
-    var form = new ConsultationRequestForm();
-    form.setOtherGroupSelected(true);
-    form.setOtherGroupLogin("myLogin");
-    form.setDaysToRespond(5);
-
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
-        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
-    assertThat(errorsMap).isEmpty();
-  }
-
-  @Test
-  public void validate_otherGroupSelected_noLoginInfoProvided_invalid() {
-    var form = new ConsultationRequestForm();
-    form.setOtherGroupSelected(true);
-    form.setDaysToRespond(5);
-
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
-        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
-    assertThat(errorsMap).contains(
-        entry("otherGroupLogin", Set.of("otherGroupLogin.required"))
-    );
-  }
 
   @Test
   public void validate_daysToRespondZero_invalid() {

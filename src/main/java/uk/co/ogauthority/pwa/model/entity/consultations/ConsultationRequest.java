@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.consultations;
 
 import java.time.Instant;
-import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,12 +27,9 @@ public class ConsultationRequest implements WorkflowSubject {
   @ManyToOne
   private PwaApplication pwaApplication;
 
-
   @JoinColumn(name = "consultee_group_id")
   @OneToOne
   private ConsulteeGroup consulteeGroup;
-  private Boolean otherGroupSelected;
-  private String otherGroupLogin;
 
   private Instant deadlineDate;
   private String status;
@@ -67,22 +63,6 @@ public class ConsultationRequest implements WorkflowSubject {
   public void setConsulteeGroup(
       ConsulteeGroup consulteeGroup) {
     this.consulteeGroup = consulteeGroup;
-  }
-
-  public Boolean getOtherGroupSelected() {
-    return otherGroupSelected;
-  }
-
-  public void setOtherGroupSelected(Boolean otherGroupSelected) {
-    this.otherGroupSelected = otherGroupSelected;
-  }
-
-  public String getOtherGroupLogin() {
-    return otherGroupLogin;
-  }
-
-  public void setOtherGroupLogin(String otherGroupLogin) {
-    this.otherGroupLogin = otherGroupLogin;
   }
 
   public Instant getDeadlineDate() {
@@ -155,31 +135,4 @@ public class ConsultationRequest implements WorkflowSubject {
 
 
 
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ConsultationRequest that = (ConsultationRequest) o;
-    return Objects.equals(id, that.id)
-        && Objects.equals(pwaApplication, that.pwaApplication)
-        && Objects.equals(consulteeGroup, that.consulteeGroup)
-        && Objects.equals(otherGroupSelected, that.otherGroupSelected)
-        && Objects.equals(otherGroupLogin, that.otherGroupLogin)
-        && Objects.equals(status, that.status)
-        && Objects.equals(startedByPersonId, that.startedByPersonId)
-        && Objects.equals(endTimestamp, that.endTimestamp)
-        && Objects.equals(endedByPersonId, that.endedByPersonId)
-        && Objects.equals(endedReason, that.endedReason);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, pwaApplication, consulteeGroup, otherGroupSelected, otherGroupLogin,
-        status, startedByPersonId, endTimestamp, endedByPersonId, endedReason);
-  }
 }

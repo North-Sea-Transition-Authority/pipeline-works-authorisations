@@ -13,11 +13,7 @@
                 <#assign abbreviation = "(${(consulteeGroup.abbreviation)!})" />
               </#if>              
               <@fdsCheckbox.checkboxItem path="form.consulteeGroupSelection[${consulteeGroup.id}]" labelText="${consulteeGroup.name} ${abbreviation}"/>
-          </#list>              
-          <@fdsCheckbox.checkboxItem path="form.otherGroupSelected" labelText="Other">
-            <@fdsTextInput.textInput path="form.otherGroupLogin" labelText="What is the consultee's email address or login ID?" nestingPath="form.otherGroupSelected"
-              hintText="The consultee must already have a portal user account" inputClass="govuk-input--width-8"/>
-          </@fdsCheckbox.checkboxItem>
+          </#list>                        
       </@fdsCheckbox.checkboxGroup>
     </@fdsFieldset.fieldset>
 

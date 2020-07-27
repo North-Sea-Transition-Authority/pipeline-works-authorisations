@@ -8,9 +8,6 @@ public class ConsultationRequestForm {
 
   private Map<String, String> consulteeGroupSelection = new HashMap<>();
   private Integer daysToRespond = 28;
-  private Boolean otherGroupSelected;
-  private String otherGroupLogin;
-
 
   public Map<String, String> getConsulteeGroupSelection() {
     return consulteeGroupSelection;
@@ -28,19 +25,4 @@ public class ConsultationRequestForm {
     this.daysToRespond = daysToRespond;
   }
 
-  public Boolean getOtherGroupSelected() {
-    return otherGroupSelected;
-  }
-
-  public void setOtherGroupSelected(Boolean otherGroupSelected) {
-    this.otherGroupSelected = otherGroupSelected;
-  }
-
-  public String getOtherGroupLogin() {
-    return otherGroupLogin;
-  }
-
-  public void setOtherGroupLogin(String otherGroupLogin) {
-    this.otherGroupLogin = otherGroupLogin;
-  }
 }

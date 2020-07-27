@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.validators.consultations;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -28,7 +27,7 @@ public class ConsultationRequestValidator implements SmartValidator {
     var pwaApplication = consultationRequestValidationHints.getPwaApplication();
 
 
-    if (form.getConsulteeGroupSelection().isEmpty() && form.getOtherGroupSelected() == null) {
+    if (form.getConsulteeGroupSelection().isEmpty()) {
       errors.rejectValue("consulteeGroupSelection", "consulteeGroupSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select at least one consultee group");
 
@@ -41,13 +40,6 @@ public class ConsultationRequestValidator implements SmartValidator {
                   " is already open, select a group that doesn't already have an open request");
         }
       }
-
-      if (BooleanUtils.isTrue(form.getOtherGroupSelected())) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherGroupLogin",
-            "otherGroupLogin" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "You must enter a valid email address or login ID");
-      }
-
     }
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "daysToRespond", "daysToRespond" + FieldValidationErrorCodes.REQUIRED.getCode(),
