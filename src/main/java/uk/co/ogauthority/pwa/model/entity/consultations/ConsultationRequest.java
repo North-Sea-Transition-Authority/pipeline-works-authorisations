@@ -10,8 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
@@ -24,14 +24,14 @@ public class ConsultationRequest implements WorkflowSubject {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @JoinColumn(name = "application_detail_id")
+  @JoinColumn(name = "application_id")
   @ManyToOne
-  private PwaApplicationDetail pwaApplicationDetail;
+  private PwaApplication pwaApplication;
 
 
-  @JoinColumn(name = "consultee_group_detail_id")
+  @JoinColumn(name = "consultee_group_id")
   @OneToOne
-  private ConsulteeGroupDetail consulteeGroupDetail;
+  private ConsulteeGroup consulteeGroup;
   private Boolean otherGroupSelected;
   private String otherGroupLogin;
 
@@ -52,22 +52,21 @@ public class ConsultationRequest implements WorkflowSubject {
     this.id = id;
   }
 
-  public PwaApplicationDetail getPwaApplicationDetail() {
-    return pwaApplicationDetail;
+  public PwaApplication getPwaApplication() {
+    return pwaApplication;
   }
 
-  public void setPwaApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) {
-    this.pwaApplicationDetail = pwaApplicationDetail;
+  public void setPwaApplication(PwaApplication pwaApplication) {
+    this.pwaApplication = pwaApplication;
   }
 
-  public ConsulteeGroupDetail getConsulteeGroupDetail() {
-    return consulteeGroupDetail;
+  public ConsulteeGroup getConsulteeGroup() {
+    return consulteeGroup;
   }
 
-  public void setConsulteeGroupDetail(
-      ConsulteeGroupDetail consulteeGroupDetail) {
-    this.consulteeGroupDetail = consulteeGroupDetail;
+  public void setConsulteeGroup(
+      ConsulteeGroup consulteeGroup) {
+    this.consulteeGroup = consulteeGroup;
   }
 
   public Boolean getOtherGroupSelected() {
@@ -167,8 +166,8 @@ public class ConsultationRequest implements WorkflowSubject {
     }
     ConsultationRequest that = (ConsultationRequest) o;
     return Objects.equals(id, that.id)
-        && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
-        && Objects.equals(consulteeGroupDetail, that.consulteeGroupDetail)
+        && Objects.equals(pwaApplication, that.pwaApplication)
+        && Objects.equals(consulteeGroup, that.consulteeGroup)
         && Objects.equals(otherGroupSelected, that.otherGroupSelected)
         && Objects.equals(otherGroupLogin, that.otherGroupLogin)
         && Objects.equals(status, that.status)
@@ -180,7 +179,7 @@ public class ConsultationRequest implements WorkflowSubject {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplicationDetail, consulteeGroupDetail, otherGroupSelected, otherGroupLogin,
+    return Objects.hash(id, pwaApplication, consulteeGroup, otherGroupSelected, otherGroupLogin,
         status, startedByPersonId, endTimestamp, endedByPersonId, endedReason);
   }
 }

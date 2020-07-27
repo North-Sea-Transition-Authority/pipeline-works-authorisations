@@ -213,9 +213,4 @@ public class ConsulteeGroupTeamService {
     return groupTeamMemberRepository.findAllByPerson(person);
   }
 
-  public ConsulteeGroupDetail getConsulteeGroupDetailById(Integer entityID) {
-    return groupDetailRepository.findById(entityID)
-        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find consultee group with ID: %s", entityID)));
-  }
-
 }

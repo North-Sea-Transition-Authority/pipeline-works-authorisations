@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/request-consultation")
-@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_CONSULTATIONS})
+@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.EDIT_CONSULTATIONS})
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ConsultationRequestController {
 
@@ -68,8 +68,9 @@ public class ConsultationRequestController {
                                                   @ModelAttribute("form") ConsultationRequestForm form,
                                                   BindingResult bindingResult) {
 
-    bindingResult = consultationRequestService.validate(form, bindingResult, ValidationType.FULL, processingContext.getApplicationDetail());
+    bindingResult = consultationRequestService.validate(form, bindingResult, processingContext.getPwaApplication());
     var appDetail = processingContext.getApplicationDetail();
+    consultationRequestService.rebindFormCheckboxes(form);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getRequestConsultationModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount), () -> {

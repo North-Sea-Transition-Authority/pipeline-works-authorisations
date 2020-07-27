@@ -5,23 +5,19 @@
   <@fdsForm.htmlForm>
 
 
-    <@fdsFieldset.fieldset legendHeading="What do you want to consult?" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
+    <@fdsFieldset.fieldset legendHeading="Who do you want to consult?" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
       <@fdsCheckbox.checkboxGroup path="form.consulteeGroupSelection" hiddenContent=true>
-
-          <#list consulteeGroups as  consulteeGroup>          
+          <#list consulteeGroups as  consulteeGroup>                   
+              <#assign abbreviation = "" /> 
               <#if (consulteeGroup.abbreviation)?has_content>
                 <#assign abbreviation = "(${(consulteeGroup.abbreviation)!})" />
-              <#else>
-                <#assign abbreviation = "" />
               </#if>              
               <@fdsCheckbox.checkboxItem path="form.consulteeGroupSelection[${consulteeGroup.id}]" labelText="${consulteeGroup.name} ${abbreviation}"/>
-          </#list>    
-          
+          </#list>              
           <@fdsCheckbox.checkboxItem path="form.otherGroupSelected" labelText="Other">
             <@fdsTextInput.textInput path="form.otherGroupLogin" labelText="What is the consultee's email address or login ID?" nestingPath="form.otherGroupSelected"
               hintText="The consultee must already have a portal user account" inputClass="govuk-input--width-8"/>
           </@fdsCheckbox.checkboxItem>
-
       </@fdsCheckbox.checkboxGroup>
     </@fdsFieldset.fieldset>
 

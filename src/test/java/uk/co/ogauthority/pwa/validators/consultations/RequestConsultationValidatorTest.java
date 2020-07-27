@@ -11,10 +11,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -23,13 +27,16 @@ public class RequestConsultationValidatorTest {
   @Mock
   private ConsultationRequestService consultationRequestService;
   @Mock
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
+  private ConsulteeGroupDetailService consulteeGroupDetailService;
 
   private ConsultationRequestValidator validator;
+
+  private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
     validator = new ConsultationRequestValidator();
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
 
@@ -38,7 +45,8 @@ public class RequestConsultationValidatorTest {
   public void validate_form_empty() {
     var form = new ConsultationRequestForm();
     form.setDaysToRespond(null);
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, consultationRequestService, consulteeGroupTeamService);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
+        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).containsOnly(
         entry("consulteeGroupSelection", Set.of("consulteeGroupSelection.required")),
         entry("daysToRespond", Set.of("daysToRespond.required"))
@@ -53,11 +61,13 @@ public class RequestConsultationValidatorTest {
 
     var consulteeGroupDetail = new ConsulteeGroupDetail();
     consulteeGroupDetail.setId(1);
+    consulteeGroupDetail.setConsulteeGroup(new ConsulteeGroup());
 
-    when(consulteeGroupTeamService.getConsulteeGroupDetailById(1)).thenReturn(consulteeGroupDetail);
-    when(consultationRequestService.isConsultationRequestOpen(consulteeGroupDetail)).thenReturn(false);
+    when(consulteeGroupDetailService.getConsulteeGroupDetailById(1)).thenReturn(consulteeGroupDetail);
+    when(consultationRequestService.isConsultationRequestOpen(consulteeGroupDetail.getConsulteeGroup(), pwaApplicationDetail.getPwaApplication())).thenReturn(false);
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, consultationRequestService, consulteeGroupTeamService);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
+        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).isEmpty();
   }
 
@@ -69,11 +79,13 @@ public class RequestConsultationValidatorTest {
 
     var consulteeGroupDetail = new ConsulteeGroupDetail();
     consulteeGroupDetail.setId(1);
+    consulteeGroupDetail.setConsulteeGroup(new ConsulteeGroup());
 
-    when(consulteeGroupTeamService.getConsulteeGroupDetailById(1)).thenReturn(consulteeGroupDetail);
-    when(consultationRequestService.isConsultationRequestOpen(consulteeGroupDetail)).thenReturn(true);
+    when(consulteeGroupDetailService.getConsulteeGroupDetailById(1)).thenReturn(consulteeGroupDetail);
+    when(consultationRequestService.isConsultationRequestOpen(consulteeGroupDetail.getConsulteeGroup(), pwaApplicationDetail.getPwaApplication())).thenReturn(true);
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, consultationRequestService, consulteeGroupTeamService);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
+        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).contains(
         entry("consulteeGroupSelection", Set.of("consulteeGroupSelection.invalid"))
     );
@@ -86,7 +98,8 @@ public class RequestConsultationValidatorTest {
     form.setOtherGroupLogin("myLogin");
     form.setDaysToRespond(5);
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, consultationRequestService, consulteeGroupTeamService);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
+        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).isEmpty();
   }
 
@@ -96,7 +109,8 @@ public class RequestConsultationValidatorTest {
     form.setOtherGroupSelected(true);
     form.setDaysToRespond(5);
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, consultationRequestService, consulteeGroupTeamService);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
+        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).contains(
         entry("otherGroupLogin", Set.of("otherGroupLogin.required"))
     );
@@ -108,7 +122,15 @@ public class RequestConsultationValidatorTest {
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(0);
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, consultationRequestService, consulteeGroupTeamService);
+    var groupDetail = new ConsulteeGroupDetail();
+    groupDetail.setName("My Group");
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+    groupDetail.setConsulteeGroup(consulteeGroup);
+    when(consulteeGroupDetailService.getConsulteeGroupDetailById(1)).thenReturn(groupDetail);
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
+        new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).contains(
         entry("daysToRespond", Set.of("daysToRespond.invalid"))
     );

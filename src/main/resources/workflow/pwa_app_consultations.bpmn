@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1jwmo6d" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.1.1">
   <bpmn:collaboration id="Collaboration_1ypistw">
-    <bpmn:participant id="Participant_0d1y4h6" name="PWA application consultations" processRef="PWA_App_Consultations" />
+    <bpmn:participant id="Participant_0d1y4h6" name="PWA application consultations" processRef="pwaApplicationConsultation" />
   </bpmn:collaboration>
-  <bpmn:process id="PWA_App_Consultations" isExecutable="true">
+  <bpmn:process id="pwaApplicationConsultation" isExecutable="true">
     <bpmn:userTask id="allocation" name="Allocation">
       <bpmn:incoming>Flow_1i9bxzq</bpmn:incoming>
     </bpmn:userTask>

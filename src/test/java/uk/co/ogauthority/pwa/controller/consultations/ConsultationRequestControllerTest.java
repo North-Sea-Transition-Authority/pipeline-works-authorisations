@@ -56,7 +56,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
 
   }
 
-  /* Issues with post test using endpoint tester, to be re-visited.
+  /* TODO: Issues with post test using endpoint tester, to be re-visited.
   @Test
   public void postRequestConsultation() {
     when(consultationRequestService.validate(any(), any(), eq(ValidationType.FULL), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
