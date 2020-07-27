@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees;
 
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -20,11 +19,11 @@ public class ConsulteeGroupDetailService {
 
   public ConsulteeGroupDetail getConsulteeGroupDetailById(Integer entityID) {
     return groupDetailRepository.findById(entityID)
-        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find consultee group with ID: %s", entityID)));
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find consultee group detail with ID: %s", entityID)));
   }
 
   public List<ConsulteeGroupDetail> getAllConsulteeGroupDetails() {
-    return IterableUtils.toList(groupDetailRepository.findAll());
+    return groupDetailRepository.findAllByTipFlagIsTrue();
   }
 
 }

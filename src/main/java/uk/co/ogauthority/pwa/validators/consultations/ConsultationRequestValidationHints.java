@@ -7,9 +7,9 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 public class ConsultationRequestValidationHints {
 
 
-  private ConsultationRequestService consultationRequestService;
-  private ConsulteeGroupDetailService consulteeGroupDetailService;
-  private PwaApplication pwaApplication;
+  private final ConsultationRequestService consultationRequestService;
+  private final ConsulteeGroupDetailService consulteeGroupDetailService;
+  private final PwaApplication pwaApplication;
 
   public ConsultationRequestValidationHints(
       ConsultationRequestService consultationRequestService,
@@ -24,25 +24,11 @@ public class ConsultationRequestValidationHints {
     return consultationRequestService;
   }
 
-  public void setConsultationRequestService(
-      ConsultationRequestService consultationRequestService) {
-    this.consultationRequestService = consultationRequestService;
-  }
-
   public ConsulteeGroupDetailService getConsulteeGroupDetailService() {
     return consulteeGroupDetailService;
   }
 
-  public void setConsulteeGroupDetailService(
-      ConsulteeGroupDetailService consulteeGroupDetailService) {
-    this.consulteeGroupDetailService = consulteeGroupDetailService;
-  }
-
   public PwaApplication getPwaApplication() {
     return pwaApplication;
-  }
-
-  public void setPwaApplication(PwaApplication pwaApplication) {
-    this.pwaApplication = pwaApplication;
   }
 }
