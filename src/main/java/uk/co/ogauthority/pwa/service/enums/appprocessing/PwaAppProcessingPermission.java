@@ -8,7 +8,9 @@ import java.util.stream.Stream;
 public enum PwaAppProcessingPermission {
 
   ACCEPT_INITIAL_REVIEW,
-  CASE_OFFICER_REVIEW;
+  CASE_OFFICER_REVIEW,
+  VIEW_CONSULTATIONS,
+  EDIT_CONSULTATIONS;
 
   public static Stream<PwaAppProcessingPermission> stream() {
     return Stream.of(PwaAppProcessingPermission.values());

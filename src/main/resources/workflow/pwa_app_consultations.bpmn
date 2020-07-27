@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1jwmo6d" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.1.1">
+  <bpmn:collaboration id="Collaboration_1ypistw">
+    <bpmn:participant id="Participant_0d1y4h6" name="PWA application consultations" processRef="pwaApplicationConsultation" />
+  </bpmn:collaboration>
+  <bpmn:process id="pwaApplicationConsultation" isExecutable="true">
+    <bpmn:userTask id="allocation" name="Allocation">
+      <bpmn:incoming>Flow_1i9bxzq</bpmn:incoming>
+    </bpmn:userTask>
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1i9bxzq</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1i9bxzq" sourceRef="StartEvent_1" targetRef="allocation" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1ypistw">
+      <bpmndi:BPMNShape id="Participant_0d1y4h6_di" bpmnElement="Participant_0d1y4h6" isHorizontal="true">
+        <dc:Bounds x="129" y="79" width="600" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1i9bxzq_di" bpmnElement="Flow_1i9bxzq">
+        <di:waypoint x="238" y="180" />
+        <di:waypoint x="330" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1pu5y47_di" bpmnElement="allocation">
+        <dc:Bounds x="330" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="202" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -102,5 +103,30 @@ public class ConsulteeGroupDetail {
 
   public void setEndTimestamp(Instant endTimestamp) {
     this.endTimestamp = endTimestamp;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ConsulteeGroupDetail that = (ConsulteeGroupDetail) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(consulteeGroup, that.consulteeGroup)
+        && Objects.equals(name, that.name)
+        && Objects.equals(abbreviation, that.abbreviation)
+        && Objects.equals(tipFlag, that.tipFlag)
+        && Objects.equals(versionNo, that.versionNo)
+        && Objects.equals(startTimestamp, that.startTimestamp)
+        && Objects.equals(endTimestamp, that.endTimestamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, consulteeGroup, name, abbreviation, tipFlag, versionNo, startTimestamp, endTimestamp);
   }
 }

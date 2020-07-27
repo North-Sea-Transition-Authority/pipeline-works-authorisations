@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.consultations;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -29,12 +33,15 @@ public class CaseManagementController {
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            PwaAppProcessingContext processingContext,
                                            AuthenticatedUserAccount authenticatedUserAccount) {
-    return getCaseManagementModelAndView(authenticatedUserAccount);
+    return getCaseManagementModelAndView(processingContext.getApplicationDetail());
   }
 
 
-  private ModelAndView getCaseManagementModelAndView(AuthenticatedUserAccount authenticatedUserAccount) {
-    return new ModelAndView("consultation/caseManagement");
+  private ModelAndView getCaseManagementModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+    return new ModelAndView("consultation/caseManagement")
+        .addObject("consultationUrl",
+            ReverseRouter.route(on(ConsultationController.class).renderConsultation(
+                pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)));
   }
 
 

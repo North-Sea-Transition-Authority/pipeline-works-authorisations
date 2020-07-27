@@ -12,6 +12,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
@@ -19,9 +20,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = CaseManagementController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
+@WebMvcTest(controllers = ConsultationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
 
-public class CaseManagementControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+public class ConsultationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
   private PwaApplicationEndpointTestBuilder endpointTester;
 
 
@@ -33,13 +34,14 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
 
 
   @Test
-  public void renderCaseManagement_appStatusSmokeTest() {
+  public void renderConsultation_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(CaseManagementController.class)
-                .renderCaseManagement(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+            ReverseRouter.route(on(ConsultationController.class)
+                .renderConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
   }
 
 
