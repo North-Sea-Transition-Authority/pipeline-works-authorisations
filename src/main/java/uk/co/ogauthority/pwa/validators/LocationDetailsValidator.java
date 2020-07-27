@@ -57,8 +57,6 @@ public class LocationDetailsValidator implements Validator {
       ValidationUtils.rejectIfEmpty(errors, "transportationMethod", "transportationMethod.required",
           "You must provide the method of transportation to shore");
     }
-    ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",
-        "pipelineRouteDetails.required", "You must provide pipeline route details");
     if (form.getRouteSurveyUndertaken() == null) {
       errors.rejectValue("routeSurveyUndertaken", "routeSurveyUndertaken.required",
           "Select yes if a pipeline route survey has been undertaken");
@@ -71,6 +69,8 @@ public class LocationDetailsValidator implements Validator {
             form.getSurveyConcludedYear(),
             errors
         );
+        ValidationUtils.rejectIfEmpty(errors, "pipelineRouteDetails",
+            "pipelineRouteDetails.required", "You must provide pipeline route details");
       }
     }
     ValidatorUtils.validateBooleanTrue(errors,

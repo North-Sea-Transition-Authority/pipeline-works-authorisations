@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -114,5 +115,9 @@ public class PadPipelineIdentDataService {
     }
 
     return form;
+  }
+
+  public void saveAll(Collection<PadPipelineIdentData> identData) {
+    repository.saveAll(identData);
   }
 }

@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,7 +44,7 @@ public class PickableHuooPipelineServiceTest {
   private PipelineType IMPORTED_CONSENTED_PIPELINE_TYPE = PipelineType.CONTROL_JUMPER;
 
   @Mock
-  private PipelineService pipelineService;
+  private PipelineDetailService pipelineDetailService;
 
   @Mock
   private PadPipelineService padPipelineService;
@@ -108,7 +108,9 @@ public class PickableHuooPipelineServiceTest {
     setupConsentedPipeline();
     setupApplicationPipelines();
 
-    pickableHuooPipelineService = new PickableHuooPipelineService(pipelineService, padPipelineService,
+    pickableHuooPipelineService = new PickableHuooPipelineService(
+        pipelineDetailService,
+        padPipelineService,
         padOrganisationRoleService);
 
     // Default behaviour is that the application contains a new pipeline and updates a consented pipeline, so
@@ -118,7 +120,7 @@ public class PickableHuooPipelineServiceTest {
             List.of(generateFrom(applicationNewPadPipeline), generateFrom(importedConsentedPadPipeline))
         );
 
-    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication()))
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(
             List.of(consentedPipelineDetail)
         );

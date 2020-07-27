@@ -12,8 +12,10 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +25,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -100,9 +105,11 @@ public class PadPipelineServiceTest {
     });
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(), new CoordinateFormValidator());
+    pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(),
+        new CoordinateFormValidator());
 
-    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
+    padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService,
+        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
 
     mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService);
 
@@ -315,7 +322,7 @@ public class PadPipelineServiceTest {
 
     when(padPipelineRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(padPipeline));
 
-    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
         .thenReturn(List.of(pipelineDetail));
 
     assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
@@ -334,7 +341,7 @@ public class PadPipelineServiceTest {
     var pipelineDetail = new PipelineDetail(pipeline);
     pipelineDetail.setPipelineNumber("CONSENTED_PIPELINE_1");
 
-    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication()))
         .thenReturn(List.of(pipelineDetail));
 
     assertThat(padPipelineService.getApplicationOrConsentedPipelineNumberLookup(detail))
@@ -385,6 +392,101 @@ public class PadPipelineServiceTest {
     when(padPipelineRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(List.of());
     var result = padPipelineService.getAvailableBundleNamesForApplication(detail);
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void canImportConsentedPipelines_applicationTypeSmokeTest() {
+    PwaApplicationType.stream()
+        .forEach(pwaApplicationType -> {
+          var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(pwaApplicationType);
+          var result = padPipelineService.canImportConsentedPipelines(detail);
+
+          var allowed = Arrays.asList(
+              ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types()
+          ).contains(pwaApplicationType);
+
+          assertThat(result).isEqualTo(allowed);
+        });
+  }
+
+  @Test
+  public void getMasterPipelineIds_serviceInteraction() {
+    var pipelineId = new PipelineId(1);
+    when(padPipelineRepository.getMasterPipelineIdsOnApplication(detail)).thenReturn(Set.of(pipelineId));
+    Set<PipelineId> result = padPipelineService.getMasterPipelineIds(detail);
+    assertThat(result).containsExactly(pipelineId);
+  }
+
+  @Test
+  public void copyDataToNewPadPipeline_verifyDataMatches() {
+    var pipelineDetail = new PipelineDetail();
+    var pipeline = new Pipeline();
+
+    var fromCoordinatePair = new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ZERO, LongitudeDirection.EAST)
+    );
+
+    var toCoordinatePair = new CoordinatePair(
+        new LatitudeCoordinate(2, 2, BigDecimal.ZERO, LatitudeDirection.SOUTH),
+        new LongitudeCoordinate(2, 2, BigDecimal.ZERO, LongitudeDirection.WEST)
+    );
+
+    // TODO: PWA-682 - Set added fields
+    pipelineDetail.setBundleName("bundle");
+    pipelineDetail.setPipelineNumber("ref");
+    pipelineDetail.setPipeline(pipeline);
+    pipelineDetail.setComponentPartsDesc("comp desc");
+    pipelineDetail.setFromCoordinates(fromCoordinatePair);
+    pipelineDetail.setFromLocation("a");
+    pipelineDetail.setLength(BigDecimal.ONE);
+    pipelineDetail.setPipelineInBundle(true);
+    pipelineDetail.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+    pipelineDetail.setProductsToBeConveyed("products");
+    pipelineDetail.setToCoordinates(toCoordinatePair);
+    pipelineDetail.setToLocation("b");
+
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+
+    // TODO: PWA-682 - Assert added fields
+    assertThat(pipelineWithCopiedData.getBundleName()).isEqualTo(pipelineDetail.getBundleName());
+    assertThat(pipelineWithCopiedData.getPipeline()).isEqualTo(pipelineDetail.getPipeline());
+    assertThat(pipelineWithCopiedData.getFromCoordinates()).isEqualTo(pipelineDetail.getFromCoordinates());
+    assertThat(pipelineWithCopiedData.getFromLocation()).isEqualTo(pipelineDetail.getFromLocation());
+    assertThat(pipelineWithCopiedData.getLength()).isEqualTo(pipelineDetail.getLength());
+    assertThat(pipelineWithCopiedData.getPipelineInBundle()).isEqualTo(pipelineDetail.getPipelineInBundle());
+    assertThat(pipelineWithCopiedData.getPipelineType()).isEqualTo(pipelineDetail.getPipelineType());
+    assertThat(pipelineWithCopiedData.getProductsToBeConveyed()).isEqualTo(pipelineDetail.getProductsToBeConveyed());
+    assertThat(pipelineWithCopiedData.getToCoordinates()).isEqualTo(pipelineDetail.getToCoordinates());
+    assertThat(pipelineWithCopiedData.getToLocation()).isEqualTo(pipelineDetail.getToLocation());
+    assertThat(pipelineWithCopiedData.getComponentPartsDescription()).isEqualTo(pipelineDetail.getComponentPartsDesc());
+    assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(pipelineDetail.getPipelineNumber());
+
+
+  }
+
+  @Test
+  public void copyDataToNewPadPipeline_verifySaved() {
+    var pipelineDetail = new PipelineDetail();
+
+    var fromCoordinatePair = new CoordinatePair(
+        new LatitudeCoordinate(1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(1, 1, BigDecimal.ZERO, LongitudeDirection.EAST)
+    );
+
+    var toCoordinatePair = new CoordinatePair(
+        new LatitudeCoordinate(2, 2, BigDecimal.ZERO, LatitudeDirection.SOUTH),
+        new LongitudeCoordinate(2, 2, BigDecimal.ZERO, LongitudeDirection.WEST)
+    );
+
+    pipelineDetail.setFromCoordinates(fromCoordinatePair);
+    pipelineDetail.setToCoordinates(toCoordinatePair);
+
+    var result = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+
+    var captor = ArgumentCaptor.forClass(PadPipeline.class);
+    verify(padPipelineRepository, times(1)).save(captor.capture());
+    assertThat(captor.getValue()).isEqualTo(result);
   }
 
   @Test
@@ -533,6 +635,28 @@ public class PadPipelineServiceTest {
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
+  }
+
+  private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
+    return new PadPipelineSummaryDto(
+        padPipeline.getId(),
+        padPipeline.getPipeline().getId(),
+        padPipeline.getPipelineType(),
+        padPipeline.getPipelineRef(),
+        padPipeline.getLength(),
+        padPipeline.getComponentPartsDescription(),
+        padPipeline.getProductsToBeConveyed(),
+        1L,
+        padPipeline.getFromLocation(),
+        1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH,
+        1, 1, BigDecimal.ZERO, LongitudeDirection.EAST,
+        padPipeline.getToLocation(),
+        1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH,
+        1, 1, BigDecimal.ZERO, LongitudeDirection.EAST,
+        padPipeline.getMaxExternalDiameter(),
+        padPipeline.getPipelineInBundle(),
+        padPipeline.getBundleName()
+    );
   }
 
 }

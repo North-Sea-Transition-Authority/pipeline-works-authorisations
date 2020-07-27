@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
 /**
  * Get or resolve pipelineIdentifiers using the PickableHuooPipelineOption to translate from form or url arguments to
@@ -26,17 +26,17 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineSe
 @Service
 public class PickableHuooPipelineService {
 
-  private final PipelineService pipelineService;
+  private final PipelineDetailService pipelineDetailService;
   private final PadPipelineService padPipelineService;
   private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
   public PickableHuooPipelineService(
-      PipelineService pipelineService,
+      PipelineDetailService pipelineDetailService,
       PadPipelineService padPipelineService,
       PadOrganisationRoleService padOrganisationRoleService) {
+    this.pipelineDetailService = pipelineDetailService;
     this.padPipelineService = padPipelineService;
-    this.pipelineService = pipelineService;
     this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
@@ -81,7 +81,7 @@ public class PickableHuooPipelineService {
         .stream()
         .collect(toMap(PadPipelineSummaryDto::getPipelineId, PickableHuooPipelineOption::from));
 
-    Map<PipelineIdentifier, PickableHuooPipelineOption> consentedPipelineIdentifiers = pipelineService
+    Map<PipelineIdentifier, PickableHuooPipelineOption> consentedPipelineIdentifiers = pipelineDetailService
         .getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication())
         .stream()
         .collect(toMap(PipelineDetail::getPipelineId, PickableHuooPipelineOption::from));

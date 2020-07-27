@@ -110,7 +110,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   public void postAddPartnerLetters_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), "")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PartnerLettersController.class)
                 .postAddPartnerLetters(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -122,7 +122,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   public void postAddPartnerLetters_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), "")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PartnerLettersController.class)
                 .postAddPartnerLetters(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -135,7 +135,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   public void postAddPartnerLetters_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), "")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PartnerLettersController.class)
                 .postAddPartnerLetters(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -148,7 +148,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   public void postAddPartnerLetters_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), "")
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PartnerLettersController.class)
                 .postAddPartnerLetters(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));

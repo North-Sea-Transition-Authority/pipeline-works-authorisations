@@ -30,6 +30,11 @@ public class PadPipelineTaskListItem implements PipelineOverview {
   }
 
   @Override
+  public Integer getPipelineId() {
+    return this.pipelineOverview.getPipelineId();
+  }
+
+  @Override
   public String getFromLocation() {
     return this.pipelineOverview.getFromLocation();
   }

@@ -31,5 +31,4 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
         .setParameter("master_pwa", pwaApplicationDetail.getMasterPwaApplication())
         .getResultList();
   }
-
 }

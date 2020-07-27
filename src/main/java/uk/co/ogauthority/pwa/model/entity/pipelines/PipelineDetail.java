@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -42,7 +43,10 @@ public class PipelineDetail {
   private Instant startTimestamp;
   private Instant endTimestamp;
   private Boolean tipFlag;
-  private String pipelineStatus;
+
+  @Enumerated(EnumType.STRING)
+  private PipelineStatus pipelineStatus;
+
   private String detailStatus;
   private String pipelineNumber;
   private BigDecimal maxExternalDiameter;
@@ -174,11 +178,11 @@ public class PipelineDetail {
     this.tipFlag = tipFlag;
   }
 
-  public String getPipelineStatus() {
+  public PipelineStatus getPipelineStatus() {
     return pipelineStatus;
   }
 
-  public void setPipelineStatus(String pipelineStatus) {
+  public void setPipelineStatus(PipelineStatus pipelineStatus) {
     this.pipelineStatus = pipelineStatus;
   }
 

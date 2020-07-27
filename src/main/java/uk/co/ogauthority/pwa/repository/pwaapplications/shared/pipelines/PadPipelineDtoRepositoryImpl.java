@@ -2,10 +2,13 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
@@ -140,5 +143,16 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .getResultList();
   }
 
-
+  @Override
+  public Set<PipelineId> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+    return entityManager.createQuery("" +
+        "SELECT p.id " +
+        "FROM PadPipeline pp " +
+        "JOIN Pipeline p ON pp.pipeline.id = p.id " +
+        "WHERE pp.pwaApplicationDetail = :detail", Integer.class)
+        .setParameter("detail", pwaApplicationDetail)
+        .getResultStream()
+        .map(PipelineId::new)
+        .collect(Collectors.toUnmodifiableSet());
+  }
 }

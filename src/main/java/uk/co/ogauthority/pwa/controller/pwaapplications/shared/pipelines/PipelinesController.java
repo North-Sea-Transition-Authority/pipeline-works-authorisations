@@ -78,6 +78,7 @@ public class PipelinesController {
             .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
             .collect(Collectors.toList()))
         .addObject("pipelineUrlFactory", new PipelineUrlFactory(detail))
+        .addObject("canImportConsentedPipeline", padPipelineService.canImportConsentedPipelines(detail))
         .addObject("taskListUrl", applicationRedirectService.getTaskListRoute(detail.getPwaApplication()));
 
     breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Pipelines");
@@ -117,8 +118,7 @@ public class PipelinesController {
                                                       PadPipeline pipeline) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/addEditPipeline")
-        .addObject("pipelineTypes", PipelineType.stream()
-            .sorted(Comparator.comparing(PipelineType::getDisplayOrder))
+        .addObject("pipelineTypes", PipelineType.streamDisplayValues()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
@@ -128,7 +128,7 @@ public class PipelinesController {
         .addObject("pipelineFlexibilityTypes", PipelineFlexibility.asList())
         .addObject("pipelineMaterialTypes", PipelineMaterial.asList())
         .addObject("bundleNameRestUrl", SearchSelectorService.route(on(PipelineRestController.class)
-            .searchBundleNames(detail.getMasterPwaApplicationId(), null,null)));
+            .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)));
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         type.getSubmitButtonText() + " pipeline");
