@@ -10,13 +10,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 
 @Entity
 @Table(name = "pad_pipeline_org_role_links")
-public class PadPipelineOrganisationRoleLink {
+public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisitor {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -106,5 +112,53 @@ public class PadPipelineOrganisationRoleLink {
   public void setToLocationIdentInclusionMode(
       IdentLocationInclusionMode toLocationIdentInclusionMode) {
     this.toLocationIdentInclusionMode = toLocationIdentInclusionMode;
+  }
+
+  public OrgRoleInstanceType getOrgRoleInstanceType() {
+    if (ObjectUtils.allNotNull(
+        this.fromLocation, this.fromLocationIdentInclusionMode, this.toLocation, this.toLocationIdentInclusionMode)
+    ) {
+      return OrgRoleInstanceType.SPLIT_PIPELINE;
+    }
+
+    return OrgRoleInstanceType.FULL_PIPELINE;
+  }
+
+  public PipelineIdentifier getPipelineIdentifier() {
+    if (this.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE)) {
+
+      return PipelineSegment.from(
+          this.pipeline.getId(),
+          this.fromLocation,
+          this.fromLocationIdentInclusionMode,
+          this.toLocation,
+          this.toLocationIdentInclusionMode
+      );
+
+    }
+
+    return this.pipeline.getPipelineId();
+  }
+
+  @Override
+  public void visit(PipelineId pipelineId) {
+    // TODO revisit if time, this might be shit.
+    this.pipeline = new Pipeline();
+    this.pipeline.setId(pipelineId.getPipelineIdAsInt());
+    this.fromLocation = null;
+    this.fromLocationIdentInclusionMode = null;
+    this.toLocation = null;
+    this.toLocationIdentInclusionMode = null;
+  }
+
+  @Override
+  public void visit(PipelineSegment pipelineSegment) {
+    // TODO revisit if time, this might be shit.
+    this.pipeline = new Pipeline();
+    this.pipeline.setId(pipelineSegment.getPipelineIdAsInt());
+    this.fromLocation = pipelineSegment.getFromPoint().getLocationName();
+    this.fromLocationIdentInclusionMode = pipelineSegment.getFromPointMode();
+    this.toLocation = pipelineSegment.getToPoint().getLocationName();
+    this.toLocationIdentInclusionMode = pipelineSegment.getToPointMode();
   }
 }

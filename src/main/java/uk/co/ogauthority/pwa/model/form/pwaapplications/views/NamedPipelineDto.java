@@ -27,7 +27,7 @@ public class NamedPipelineDto implements NamedPipeline {
 
   public static NamedPipelineDto fromPipelineDetail(PipelineDetail detail) {
     return new NamedPipelineDto(
-        detail.getPipelineId(), detail.getPipelineType(), detail.getPipelineInBundle(),
+        detail.getPipelineId().asInt(), detail.getPipelineType(), detail.getPipelineInBundle(),
         detail.getBundleName(), detail.getMaxExternalDiameter(), detail.getPipelineNumber()
     );
   }

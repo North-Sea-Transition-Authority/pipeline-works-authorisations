@@ -11,18 +11,7 @@ public class PipelineSegment implements PipelineIdentifier {
   private final PipelineIdentPoint fromPoint;
   private final PipelineIdentPoint toPoint;
 
-  public PipelineSegment(int pipelineId,
-                         String fromPoint,
-                         IdentLocationInclusionMode fromPointInclusionMode,
-                         String toPoint,
-                         IdentLocationInclusionMode toPointInclusionMode) {
-    this(
-        new PipelineId(pipelineId),
-        new PipelineIdentPoint(fromPoint, fromPointInclusionMode),
-        new PipelineIdentPoint(toPoint, toPointInclusionMode)
-    );
-  }
-
+  // private constructor to force static method use on object creation
   private PipelineSegment(PipelineId pipelineId,
                           PipelineIdentPoint fromPoint,
                           PipelineIdentPoint toPoint) {
@@ -30,6 +19,29 @@ public class PipelineSegment implements PipelineIdentifier {
     this.fromPoint = fromPoint;
     this.toPoint = toPoint;
   }
+
+  public static PipelineSegment from(int pipelineId,
+                                     String fromPoint,
+                                     IdentLocationInclusionMode fromPointInclusionMode,
+                                     String toPoint,
+                                     IdentLocationInclusionMode toPointInclusionMode) {
+    return new PipelineSegment(
+        new PipelineId(pipelineId),
+        PipelineIdentPoint.from(fromPoint, fromPointInclusionMode),
+        PipelineIdentPoint.from(toPoint, toPointInclusionMode)
+    );
+  }
+
+  public static PipelineSegment from(PipelineId pipelineId,
+                                     PipelineIdentPoint fromPoint,
+                                     PipelineIdentPoint toPoint) {
+    return new PipelineSegment(
+        pipelineId,
+        fromPoint,
+        toPoint
+    );
+  }
+
 
   public String getDisplayString() {
     return String.format("%s %s", fromPoint.getFromPointDisplayString(), toPoint.getToPointDisplayString());
@@ -48,6 +60,14 @@ public class PipelineSegment implements PipelineIdentifier {
   @Override
   public int getPipelineIdAsInt() {
     return pipelineId.asInt();
+  }
+
+  public IdentLocationInclusionMode getFromPointMode() {
+    return fromPoint.getIdentLocationInclusionMode();
+  }
+
+  public IdentLocationInclusionMode getToPointMode() {
+    return toPoint.getIdentLocationInclusionMode();
   }
 
   public PipelineIdentPoint getFromPoint() {

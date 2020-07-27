@@ -1,16 +1,14 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +22,10 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
@@ -42,7 +39,7 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValida
 public class PadPipelinesHuooService implements ApplicationFormSectionService {
   private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelinesHuooService.class);
 
-  private final PickablePipelineService pickablePipelineService;
+  private final PickableHuooPipelineService pickableHuooPipelineService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
@@ -50,12 +47,12 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
   @Autowired
   public PadPipelinesHuooService(
-      PickablePipelineService pickablePipelineService,
+      PickableHuooPipelineService pickableHuooPipelineService,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       PadOrganisationRoleService padOrganisationRoleService,
       PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator,
       PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository) {
-    this.pickablePipelineService = pickablePipelineService;
+    this.pickableHuooPipelineService = pickableHuooPipelineService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.pickHuooPipelinesFormValidator = pickHuooPipelinesFormValidator;
@@ -117,14 +114,14 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
   @Transactional
   public void updatePipelineHuooLinks(PwaApplicationDetail pwaApplicationDetail,
-                                      Set<Pipeline> pipelines,
+                                      Set<PipelineIdentifier> pipelineIdentifiers,
                                       HuooRole huooRole,
                                       Set<OrganisationUnitId> organisationsToLink,
                                       Set<TreatyAgreement> treatiesToLink) {
 
-    padOrganisationRoleService.deletePadPipelineRoleLinksForPipelinesAndRole(
+    padOrganisationRoleService.deletePadPipelineRoleLinksForPipelineIdentifiersAndRole(
         pwaApplicationDetail,
-        pipelines,
+        pipelineIdentifiers,
         huooRole
     );
 
@@ -136,19 +133,22 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
     // This is probably ok...batch inserts aren't really possible atm due to using IDENTITY primary key columns.
     for (PadOrganisationRole padOrganisationRole : organisationRoles) {
-      for (Pipeline pipeline : pipelines) {
-        padOrganisationRoleService.createPadPipelineOrganisationRoleLink(padOrganisationRole, pipeline);
+      for (PipelineIdentifier pipelineIdentifier : pipelineIdentifiers) {
+        padOrganisationRoleService.createPadPipelineOrganisationRoleLink(padOrganisationRole, pipelineIdentifier);
       }
     }
 
   }
 
-  public List<PickablePipelineOption> getSortedPickablePipelineOptionsForApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) {
-    return pickablePipelineService
-        .getAllPickablePipelinesForApplication(pwaApplicationDetail)
+  public List<PickableHuooPipelineOption> getSortedPickablePipelineOptionsForApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole) {
+    return pickableHuooPipelineService
+        .getAllPickablePipelinesForApplicationAndRole(pwaApplicationDetail, huooRole)
         .stream()
-        .sorted(Comparator.comparing(PickablePipelineOption::getPipelineNumber))
+        .sorted(Comparator.comparing(PickableHuooPipelineOption::getPipelineNumber)
+            .thenComparing(o -> StringUtils.defaultIfEmpty(o.getSplitInfo(), ""))
+        )
         .collect(toList());
   }
 
@@ -156,16 +156,24 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   /**
    * Given pipeline ids return successfully reconciled pickable pipelines for the application detail.
    */
-  public Set<ReconciledPickablePipeline> reconcilePickablePipelinesFromPipelineIds(
+  public Set<ReconciledHuooPickablePipeline> reconcilePickablePipelinesFromPipelineIds(
       PwaApplicationDetail pwaApplicationDetail,
-      Set<Integer> pipelineIds) {
+      HuooRole huooRole,
+      Set<String> pickedPipelineStringIds) {
 
-    var allPickablePipelines = pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail);
+    var pickedPipelineIds = pickedPipelineStringIds.stream()
+        .map(PickableHuooPipelineId::from)
+        .collect(toSet());
+
     // Pickable pipelines are not guaranteed to have the actual PipelineId available depending on app or consented model source.
     // reconcile to match pipelineId to arguments and filter out any invalid pipelines
-    return pickablePipelineService.reconcilePickablePipelineOptions(allPickablePipelines)
+    return pickableHuooPipelineService.reconcilePickablePipelineIds(
+        pwaApplicationDetail,
+        huooRole,
+        pickedPipelineIds
+    )
         .stream()
-        .filter(rpp -> pipelineIds.contains(rpp.getPipelineId().asInt()))
+        .filter(rpp -> pickedPipelineStringIds.contains(rpp.getPickableIdAsString()))
         .collect(Collectors.toSet());
   }
 
@@ -204,36 +212,6 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         .filter(o -> searchOrgRoleOwners.contains(o.getOrganisationRoleOwnerDto()))
         .map(OrganisationRoleInstanceDto::getOrganisationRoleOwnerDto)
         .collect(Collectors.toSet());
-  }
-
-  public List<PickablePipelineOption> getPickablePipelineOptionsWithNoRoleOfType(
-      PwaApplicationDetail pwaApplicationDetail,
-      HuooRole huooRole) {
-
-    Set<PipelineId> pipelineIdsWithRole = padOrganisationRoleService.getPipelineIdsWhereRoleOfTypeSet(
-        pwaApplicationDetail, huooRole);
-
-    Map<PickablePipelineId, PickablePipelineOption> allPickablePipelineOptions = pickablePipelineService
-        .getAllPickablePipelinesForApplication(pwaApplicationDetail)
-        .stream()
-        .collect(toMap(PickablePipelineId::from, ppo -> ppo));
-
-    // We want everything in the set of all pickable pipelines where the reconciled PipelineId
-    // does not exist in the set of pipelineIds with an organisation role of the desired type.
-    Set<PickablePipelineId> pickablePipelinesWithoutRole = pickablePipelineService.reconcilePickablePipelineOptions(
-        new HashSet<>(allPickablePipelineOptions.values())
-    )
-        .stream()
-        .filter(rpp -> !pipelineIdsWithRole.contains(rpp.getPipelineId()))
-        .map(ReconciledPickablePipeline::getPickablePipelineId)
-        .collect(toSet());
-
-    return allPickablePipelineOptions.entrySet().stream()
-        .filter(entry -> pickablePipelinesWithoutRole.contains(entry.getKey()))
-        .map(Map.Entry::getValue)
-        .sorted(Comparator.comparing(PickablePipelineOption::getPipelineNumber))
-        .collect(Collectors.toList());
-
   }
 
   public List<OrganisationUnitDetailDto> getAvailableOrgUnitDetailsForRole(PwaApplicationDetail pwaApplicationDetail,

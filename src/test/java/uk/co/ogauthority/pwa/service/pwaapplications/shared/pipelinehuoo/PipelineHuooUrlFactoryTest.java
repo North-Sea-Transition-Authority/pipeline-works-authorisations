@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -26,10 +27,18 @@ public class PipelineHuooUrlFactoryTest {
   private final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
   private final HuooRole ROLE = HuooRole.HOLDER;
 
+  private PipelineId pipelineId;
+  private PickableHuooPipelineId pickableHuooPipelineId;
+  private String encodedPickableWholePipelineId;
+
   private PipelineHuooUrlFactory pipelineHuooUrlFactory;
 
   @Before
   public void setup() {
+    pipelineId = new PipelineId(1);
+    pickableHuooPipelineId = PickableHuooPipelineId.from(PickableHuooPipelineType.createPickableString(pipelineId));
+    encodedPickableWholePipelineId = Base64.getEncoder().encodeToString(pickableHuooPipelineId.asString().getBytes());
+
     pipelineHuooUrlFactory = new PipelineHuooUrlFactory(APP_ID, APP_TYPE);
   }
 
@@ -54,7 +63,7 @@ public class PipelineHuooUrlFactoryTest {
         ROLE,
         null,
         ModifyPipelineHuooJourneyController.JourneyPage.ORGANISATION_SELECTION,
-        Set.of(pipelineId.asInt()),
+        Set.of(encodedPickableWholePipelineId),
         Set.of(orgUnitId.asInt()),
         Set.of(treaty)
     ));
@@ -78,7 +87,7 @@ public class PipelineHuooUrlFactoryTest {
         ROLE,
         null,
         ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-        Set.of(pipelineId.asInt()),
+        Set.of(encodedPickableWholePipelineId),
         Set.of(),
         Set.of()
     ));

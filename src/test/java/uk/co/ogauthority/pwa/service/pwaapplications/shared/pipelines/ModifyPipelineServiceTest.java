@@ -76,19 +76,18 @@ public class ModifyPipelineServiceTest {
   @Test
   public void getConsentedPipelinesNotOnApplication_consentedPipelineAlreadyLinked() {
 
-    var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
-    nonConsentedPipeline.setId(3);
+    var consentedPipeline = new Pipeline(detail.getPwaApplication());
+    consentedPipeline.setId(3);
 
-    var nonConsentedPipelineDetail = new PipelineDetail();
-    nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
+    var consentedPipelineDetail = new PipelineDetail();
+    consentedPipelineDetail.setPipeline(consentedPipeline);
 
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwaApplication()))
-        .thenReturn(List.of(nonConsentedPipelineDetail));
+        .thenReturn(List.of(consentedPipelineDetail));
 
     var padPipeline = new PadPipeline();
-    var pipeline = new Pipeline();
-    pipeline.setId(3);
-    padPipeline.setPipeline(pipeline);
+
+    padPipeline.setPipeline(consentedPipeline);
     when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipeline));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);

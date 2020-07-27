@@ -70,10 +70,8 @@ public class OrganisationPipelineRoleInstanceDtoTest {
         assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
         assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).satisfies(pipelineIdentifier -> {
           var pipelineSegment = (PipelineSegment) pipelineIdentifier;
-          assertThat(pipelineSegment.getFromPoint())
-              .isEqualTo(new PipelineIdentPoint("Start", IdentLocationInclusionMode.INCLUSIVE));
-          assertThat(pipelineSegment.getToPoint())
-              .isEqualTo(new PipelineIdentPoint("End", IdentLocationInclusionMode.EXCLUSIVE));
+          assertThat(pipelineSegment.getFromPoint()).isEqualTo(PipelineIdentPoint.inclusivePoint("Start"));
+          assertThat(pipelineSegment.getToPoint()).isEqualTo(PipelineIdentPoint.exclusivePoint("End"));
           assertThat(pipelineSegment.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
         });
         assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));

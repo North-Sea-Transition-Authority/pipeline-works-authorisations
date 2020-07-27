@@ -1,9 +1,10 @@
 <#include '../../../layout.ftl'>
+<#import 'pipelineHuooTableSelection.ftl' as pwaPipelineHuooTableSelection/>
 
 <#-- @ftlvariable name="pageHeading" type="java.lang.String" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="submitButtonText" type="java.lang.String" -->
-<#-- @ftlvariable name="pickablePipelineOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOption>" -->
+<#-- @ftlvariable name="pickableHuooPipelineOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption>" -->
 <#-- @ftlvariable name="availableTreatyOptions" type="java.util.List<java.lang.String>" -->
 <#-- @ftlvariable name="pickableOrgDetails" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PickableOrganisationUnitDetail>" -->
 
@@ -17,13 +18,12 @@
     </@fdsInsetText.insetText>
 
     <@fdsDetails.summaryDetails summaryTitle="Show selected pipelines">
-        <@pwaPipelineTableSelection.pickablePipelineTableSelection
+        <@pwaPipelineHuooTableSelection.pickablePipelineTableSelection
             path="form.pickedPipelineStrings"
-            pickablePipelineOptions=pickablePipelineOptions
+            pickableHuooPipelineOptions=pickableHuooPipelineOptions
             readOnlySelected=true/>
 
     </@fdsDetails.summaryDetails>
-
 
     <@fdsForm.htmlForm>
         <#if availableTreatyOptions?hasContent>

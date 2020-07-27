@@ -1,63 +1,30 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 
 public class PickablePipelineOptionTestUtil {
 
 
-  public static ReconciledPickablePipeline createConsentedReconciledPickablePipeline(
-      PipelineId pipelineId){
-    return new ReconciledPickablePipeline(
-        PickablePipelineId.from(PickablePipelineType.CONSENTED.createIdString(pipelineId.asInt())),
-        pipelineId);
+  public static ReconciledHuooPickablePipeline createReconciledPickablePipeline(PipelineIdentifier pipelineIdentifier) {
+
+    return new ReconciledHuooPickablePipeline(
+        PickableHuooPipelineId.from(PickableHuooPipelineType.createPickableString(pipelineIdentifier)),
+        pipelineIdentifier);
   }
 
-  public static ReconciledPickablePipeline createApplicationReconciledPickablePipeline(
-      int padPipelineId, PipelineId pipelineId){
-    return new ReconciledPickablePipeline(
-        PickablePipelineId.from(PickablePipelineType.APPLICATION.createIdString(padPipelineId)),
-        pipelineId);
-  }
 
-  public static PickablePipelineOption createOption(int id, PickablePipelineType type, String pipelineNumber) {
-    return new PickablePipelineOption(id,
-        type,
+  public static PickableHuooPipelineOption createOption(PipelineIdentifier pipelineIdentifier, String pipelineNumber) {
+    return new PickableHuooPipelineOption(
+        PickableHuooPipelineType.createPickableString(pipelineIdentifier),
         pipelineNumber,
         null,
         null,
         null,
         null,
         null,
-        null
-    );
-  }
-
-  public static PickablePipelineOption createOption(Pipeline pipeline) {
-    return new PickablePipelineOption(pipeline.getId(),
-        PickablePipelineType.CONSENTED,
-        null,
-        null,
-        null,
-        null,
-        null,
         null,
         null
     );
   }
 
-  public static PickablePipelineOption createOption(PadPipeline padPipeline) {
-    return new PickablePipelineOption(padPipeline.getId(),
-        PickablePipelineType.APPLICATION,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-    );
-
-  }
 }

@@ -163,8 +163,8 @@ public class PadPipelineSummaryDto {
     return numberOfIdents;
   }
 
-  public Integer getPipelineId() {
-    return pipelineId;
+  public PipelineId getPipelineId() {
+    return new PipelineId(pipelineId);
   }
 
   public BigDecimal getMaxExternalDiameter() {
