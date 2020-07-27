@@ -107,8 +107,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   }
 
-  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(PwaApplicationDetail pwaApplicationDetail,
-                                                                                HuooRole huooRole) {
+  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole) {
     return getOrganisationRoleDtos(pwaApplicationDetail).stream()
         .filter(o -> huooRole.equals(o.getHuooRole()))
         .collect(Collectors.toSet());
@@ -251,28 +252,58 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   /**
    * Removes existing linked entries of the organisationUnit, and creates the entries from the form information.
    *
-   * @param pwaApplicationDetail The application detail
-   * @param form                 A validated HuooForm.
+   * @param detail The application detail
+   * @param form   A validated HuooForm.
    */
   @Transactional
-  public void saveEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, HuooForm form) {
+  public void saveEntityUsingForm(PwaApplicationDetail detail, HuooForm form) {
     var rolesToSave = new ArrayList<PadOrganisationRole>();
+
     if (form.getHuooType().equals(HuooType.PORTAL_ORG)) {
+
       var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())
-          .orElse(null);
-      form.getHuooRoles().forEach(huooRole -> {
+          .orElseThrow(() -> new PwaEntityNotFoundException(
+              "Unable to find organisation unit with ID: " + form.getOrganisationUnitId()));
+
+      var currentRoles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail,
+          orgUnit);
+
+      Set<HuooRole> rolesToAdd = form.getHuooRoles()
+          .stream()
+          .filter(huooRole -> currentRoles.stream()
+              .noneMatch(padOrganisationRole -> padOrganisationRole.getRole().equals(huooRole)))
+          .collect(Collectors.toUnmodifiableSet());
+
+      List<PadOrganisationRole> organisationRolesToRemove = currentRoles.stream()
+          .filter(padOrganisationRole -> !form.getHuooRoles().contains(padOrganisationRole.getRole()))
+          .collect(Collectors.toUnmodifiableList());
+
+
+      List<PadPipelineOrganisationRoleLink> pipelineLinks =
+          padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+              organisationRolesToRemove, detail).stream()
+              .filter(roleLink -> organisationRolesToRemove.stream()
+                  .anyMatch(
+                      padOrganisationRole -> padOrganisationRole.getRole().equals(roleLink.getPadOrgRole().getRole())))
+              .collect(Collectors.toUnmodifiableList());
+
+      padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinks);
+      padOrganisationRolesRepository.deleteAll(organisationRolesToRemove);
+
+      rolesToAdd.forEach(huooRole -> {
         var padOrganisationRole = new PadOrganisationRole();
         padOrganisationRole.setAgreement(null);
-        padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
+        padOrganisationRole.setPwaApplicationDetail(detail);
         padOrganisationRole.setRole(huooRole);
         padOrganisationRole.setType(form.getHuooType());
         padOrganisationRole.setOrganisationUnit(orgUnit);
         rolesToSave.add(padOrganisationRole);
       });
+
     } else if (form.getHuooType().equals(HuooType.TREATY_AGREEMENT)) {
       var padOrganisationRole = new PadOrganisationRole();
       padOrganisationRole.setAgreement(form.getTreatyAgreement());
-      padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
+      padOrganisationRole.setPwaApplicationDetail(detail);
       padOrganisationRole.setOrganisationUnit(null);
       padOrganisationRole.setRole(HuooRole.USER);
       padOrganisationRole.setType(form.getHuooType());
@@ -282,17 +313,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   }
 
   @Transactional
-  public void updateEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, PortalOrganisationUnit organisationUnit,
-                                    HuooForm form) {
-    var roles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
-        organisationUnit);
-    padOrganisationRolesRepository.deleteAll(roles);
-    saveEntityUsingForm(pwaApplicationDetail, form);
-  }
-
-  @Transactional
-  public void updateEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, PadOrganisationRole organisationRole,
-                                    HuooForm form) {
+  public void updateEntityUsingForm(PadOrganisationRole organisationRole, HuooForm form) {
     organisationRole.setAgreement(form.getTreatyAgreement());
     padOrganisationRolesRepository.save(organisationRole);
   }

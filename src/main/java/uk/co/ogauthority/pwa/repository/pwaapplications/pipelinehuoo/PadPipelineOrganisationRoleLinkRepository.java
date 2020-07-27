@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 
 public interface PadPipelineOrganisationRoleLinkRepository extends
     CrudRepository<PadPipelineOrganisationRoleLink, Integer>,
@@ -25,6 +26,12 @@ public interface PadPipelineOrganisationRoleLinkRepository extends
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole,
       Set<Pipeline> pipelines
+  );
+
+  @EntityGraph(attributePaths = {"padOrgRole"})
+  List<PadPipelineOrganisationRoleLink> findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+      List<PadOrganisationRole> orgRoles,
+      PwaApplicationDetail pwaApplicationDetail
   );
 
 }

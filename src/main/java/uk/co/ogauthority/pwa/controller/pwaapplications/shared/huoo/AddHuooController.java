@@ -178,7 +178,7 @@ public class AddHuooController {
         padOrganisationRoleService.getValidationViewForOrg(detail, orgUnit), user);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getEditHuooModelAndView(detail, HuooType.PORTAL_ORG), () -> {
-          padOrganisationRoleService.updateEntityUsingForm(detail, orgUnit, form);
+          padOrganisationRoleService.saveEntityUsingForm(detail, form);
           return ReverseRouter.redirect(
               on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null,
                   null));
@@ -215,7 +215,7 @@ public class AddHuooController {
         padOrganisationRoleService.getValidationViewForTreaty(detail, orgRole));
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getEditHuooModelAndView(detail, HuooType.TREATY_AGREEMENT), () -> {
-          padOrganisationRoleService.updateEntityUsingForm(detail, orgRole, form);
+          padOrganisationRoleService.updateEntityUsingForm(orgRole, form);
           return ReverseRouter.redirect(
               on(HuooController.class).renderHuooSummary(pwaApplicationType, detail.getMasterPwaApplicationId(), null,
                   null));

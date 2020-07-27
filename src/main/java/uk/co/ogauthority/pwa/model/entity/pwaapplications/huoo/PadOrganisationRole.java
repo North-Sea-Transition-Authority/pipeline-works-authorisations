@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -40,6 +41,13 @@ public class PadOrganisationRole {
 
   @Enumerated(EnumType.STRING)
   private TreatyAgreement agreement;
+
+  public PadOrganisationRole() { }
+
+  @VisibleForTesting
+  public PadOrganisationRole(HuooRole role) {
+    this.role = role;
+  }
 
   public Integer getId() {
     return id;

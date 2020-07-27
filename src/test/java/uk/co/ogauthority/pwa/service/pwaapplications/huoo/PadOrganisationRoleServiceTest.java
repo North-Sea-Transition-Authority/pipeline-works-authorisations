@@ -78,6 +78,9 @@ public class PadOrganisationRoleServiceTest {
   @Captor
   private ArgumentCaptor<List<PadOrganisationRole>> roleListCaptor;
 
+  @Captor
+  private ArgumentCaptor<List<PadOrganisationRole>> deletedRoleListCaptor;
+
   @Before
   public void setUp() {
     when(entityManager.getReference(eq(Pipeline.class), any())).thenAnswer(invocation -> {
@@ -374,7 +377,7 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
-  public void updateEntityUsingForm_org() {
+  public void saveEntityUsingForm_orgUpdate() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.OPERATOR));
@@ -383,9 +386,10 @@ public class PadOrganisationRoleServiceTest {
     when(portalOrganisationsAccessor.getOrganisationUnitById(2))
         .thenReturn(Optional.of(padOrgUnit2OwnerRole.getOrganisationUnit()));
 
-    padOrganisationRoleService.updateEntityUsingForm(detail, padOrgUnit1UserRole.getOrganisationUnit(), form);
+    padOrganisationRoleService.saveEntityUsingForm(detail, form);
 
     verify(padOrganisationRolesRepository, times(1)).deleteAll(any());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(any());
     verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
 
     var capture = roleListCaptor.getValue().get(0);
@@ -397,6 +401,37 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
+  public void saveEntityUsingForm_orgUpdate_linksDeletedWhereRoleRemoved() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of(HuooRole.OPERATOR));
+    form.setOrganisationUnitId(padOrgUnit2OwnerRole.getOrganisationUnit().getOuId());
+
+    when(portalOrganisationsAccessor.getOrganisationUnitById(2))
+        .thenReturn(Optional.of(padOrgUnit2OwnerRole.getOrganisationUnit()));
+
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail, orgUnit2))
+        .thenReturn(List.of(new PadOrganisationRole(HuooRole.USER), new PadOrganisationRole(HuooRole.OPERATOR)));
+
+    var roleLinkList = List.of(
+        new PadPipelineOrganisationRoleLink(new PadOrganisationRole(HuooRole.USER), new Pipeline()));
+
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+        any(),
+        eq(detail))
+    ).thenReturn(roleLinkList);
+
+    padOrganisationRoleService.saveEntityUsingForm(detail, form);
+
+    verify(padOrganisationRolesRepository, times(1)).deleteAll(deletedRoleListCaptor.capture());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(roleLinkList);
+    verify(padOrganisationRolesRepository, times(1)).saveAll(roleListCaptor.capture());
+
+    assertThat(deletedRoleListCaptor.getValue()).extracting(PadOrganisationRole::getRole)
+        .containsExactly(HuooRole.USER);
+  }
+
+  @Test
   public void updateEntityUsingForm_treaty() {
     var form = new HuooForm();
     form.setTreatyAgreement(TreatyAgreement.NETHERLANDS);
@@ -405,7 +440,7 @@ public class PadOrganisationRoleServiceTest {
     org.setType(HuooType.TREATY_AGREEMENT);
     org.setRole(HuooRole.USER);
 
-    padOrganisationRoleService.updateEntityUsingForm(detail, org, form);
+    padOrganisationRoleService.updateEntityUsingForm(org, form);
 
     verify(padOrganisationRolesRepository, times(1)).save(org);
 
