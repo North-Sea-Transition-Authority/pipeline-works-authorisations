@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +34,9 @@ public class PickablePipelineServiceTest {
 
   @Mock
   private PadPipelineService padPipelineService;
+
+  @Mock
+  private PipelineDetailService pipelineDetailService;
 
   private PickablePipelineService pickablePipelineService;
 
@@ -89,14 +93,14 @@ public class PickablePipelineServiceTest {
     setupConsentedPipeline();
     setupApplicationPipelines();
 
-    pickablePipelineService = new PickablePipelineService(pipelineService, padPipelineService);
+    pickablePipelineService = new PickablePipelineService(pipelineService, padPipelineService, pipelineDetailService);
 
     when(padPipelineService.getAllPadPipelineSummaryDtosForApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(
             PadPipelineSummaryDtoTestUtils.generateFrom(applicationNewPadPipeline),
             PadPipelineSummaryDtoTestUtils.generateFrom(applicationImportedPadPipeline)));
 
-    when(pipelineService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication()))
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(
             List.of(consentedPipelineDetail, applicationImportedPipelineDetail)
         );

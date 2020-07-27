@@ -1,7 +1,15 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
@@ -18,5 +26,35 @@ public class PipelineDetailService {
 
   public List<PipelineBundlePairDto> getSimilarPipelineBundleNamesByDetail(PwaApplicationDetail detail) {
     return pipelineDetailRepository.getBundleNamesByPwaApplicationDetail(detail);
+  }
+
+  public PipelineDetail getLatestByPipelineId(Integer id) {
+    return pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(id)
+        .orElseThrow(() -> new PwaEntityNotFoundException("Could not find PipelineDetail with Pipeline ID: " + id));
+  }
+
+  public List<PipelineDetail> getNonDeletedPipelineDetailsForApplicationMasterPwa(
+      MasterPwa masterPwa) {
+
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotAndTipFlagIsTrue(
+        masterPwa,
+        PipelineStatus.DELETED
+    );
+  }
+
+  public List<PipelineDetail> getActivePipelineDetailsForApplicationMasterPwaById(PwaApplication pwaApplication,
+                                                                                  Set<PipelineId> pipelineIds) {
+    //revisit if performance is bad
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndEndTimestampIsNull(
+        pwaApplication.getMasterPwa()
+    ).stream()
+        .filter(pd -> pipelineIds.contains(new PipelineId(pd.getPipelineId())))
+        .collect(Collectors.toList());
+  }
+
+  public List<PipelineDetail> getActivePipelineDetailsForApplicationMasterPwa(PwaApplication pwaApplication) {
+    return pipelineDetailRepository.findAllByPipeline_MasterPwaAndEndTimestampIsNull(
+        pwaApplication.getMasterPwa()
+    );
   }
 }

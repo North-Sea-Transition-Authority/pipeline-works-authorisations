@@ -107,7 +107,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   public void postAddPipelineOtherProperties_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineOtherPropertiesController.class)
                 .postAddPipelineOtherProperties(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -119,7 +119,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   public void postAddPipelineOtherProperties_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineOtherPropertiesController.class)
                 .postAddPipelineOtherProperties(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -132,7 +132,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   public void postAddPipelineOtherProperties_contactSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineOtherPropertiesController.class)
                 .postAddPipelineOtherProperties(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
@@ -145,7 +145,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   public void postAddPipelineOtherProperties_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
-        .addRequestParam("Complete", "Complete")
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineOtherPropertiesController.class)
                 .postAddPipelineOtherProperties(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));

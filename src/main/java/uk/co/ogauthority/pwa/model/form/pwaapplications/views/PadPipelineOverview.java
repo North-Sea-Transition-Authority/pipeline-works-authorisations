@@ -17,6 +17,8 @@ public class PadPipelineOverview implements PipelineOverview {
   // e.g Optional<Integer> getPadPipelineId(); Optional<Integer> getMasterPipelineId(); or similar
   private Integer padPipelineId;
 
+  private Integer pipelineId;
+
   private String fromLocation;
 
   private CoordinatePair fromCoordinates;
@@ -44,6 +46,7 @@ public class PadPipelineOverview implements PipelineOverview {
   private String bundleName;
 
   private PadPipelineOverview(Integer padPipelineId,
+                              Integer pipelineId,
                               String fromLocation,
                               CoordinatePair fromCoordinates,
                               String toLocation,
@@ -58,6 +61,7 @@ public class PadPipelineOverview implements PipelineOverview {
                               Boolean pipelineInBundle,
                               String bundleName) {
     this.padPipelineId = padPipelineId;
+    this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
     this.fromCoordinates = fromCoordinates;
     this.toLocation = toLocation;
@@ -77,6 +81,7 @@ public class PadPipelineOverview implements PipelineOverview {
   public PadPipelineOverview(PadPipeline padPipeline,
                              Long numberOfIdents) {
     this.padPipelineId = padPipeline.getId();
+    this.pipelineId = padPipeline.getPipeline().getId();
     this.fromLocation = padPipeline.getFromLocation();
     this.fromCoordinates = padPipeline.getFromCoordinates();
     this.toLocation = padPipeline.getToLocation();
@@ -103,6 +108,7 @@ public class PadPipelineOverview implements PipelineOverview {
 
     return new PadPipelineOverview(
         padPipelineSummaryDto.getPadPipelineId(),
+        padPipelineSummaryDto.getPipelineId(),
         padPipelineSummaryDto.getFromLocation(),
         padPipelineSummaryDto.getFromCoordinates(),
         padPipelineSummaryDto.getToLocation(),
@@ -122,6 +128,11 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public Integer getPadPipelineId() {
     return padPipelineId;
+  }
+
+  @Override
+  public Integer getPipelineId() {
+    return pipelineId;
   }
 
   @Override

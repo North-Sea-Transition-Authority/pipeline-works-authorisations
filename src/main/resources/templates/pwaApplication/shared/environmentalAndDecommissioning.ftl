@@ -43,7 +43,7 @@
             <@fdsCheckbox.checkboxes path="form.decommissioningConditions" checkboxes=decommissioningConditions />
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

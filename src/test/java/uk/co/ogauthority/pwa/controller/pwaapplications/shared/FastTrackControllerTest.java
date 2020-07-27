@@ -99,9 +99,6 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
 
   @Test
   public void authenticated_postComplete() throws Exception {
-    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
 
     ControllerTestUtils.failValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.FULL);
 
@@ -110,16 +107,12 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(completeParams)
+            .params(ControllerTestUtils.fullValidationPostParams())
     ).andExpect(status().isOk());
   }
 
   @Test
   public void authenticated_postContinue() throws Exception {
-
-    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
-    }};
 
     ControllerTestUtils.passValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.PARTIAL);
 
@@ -128,7 +121,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(continueParams)
+            .params(ControllerTestUtils.partialValidationPostParams())
     ).andExpect(status().is3xxRedirection());
   }
 
@@ -142,25 +135,19 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
 
   @Test
   public void unauthenticated_postComplete() throws Exception {
-    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
-            .params(completeParams)
+            .params(ControllerTestUtils.fullValidationPostParams())
     ).andExpect(status().isForbidden());
   }
 
   @Test
   public void unauthenticated_postContinue() throws Exception {
-    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
-            .params(continueParams)
+            .params(ControllerTestUtils.partialValidationPostParams())
     ).andExpect(status().isForbidden());
   }
 
@@ -173,27 +160,20 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
             .with(authenticatedUserAndSession(user))
     ).andExpect(status().isForbidden());
 
-
-    MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(completeParams)
+            .params(ControllerTestUtils.fullValidationPostParams())
     ).andExpect(status().isForbidden());
 
-    MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
-    }};
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .params(continueParams)
+            .params(ControllerTestUtils.partialValidationPostParams())
     ).andExpect(status().isForbidden());
   }
 
@@ -211,7 +191,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   public void postCompleteFastTrack_EmptyData() throws Exception {
 
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
+      add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
       add("avoidEnvironmentalDisaster", null);
       add("environmentalDisasterReason", null);
       add("savingBarrels", null);
@@ -237,7 +217,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postCompleteFastTrack_WithData() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
-      add("Complete", "Complete");
+      add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
       add("avoidEnvironmentalDisaster", "true");
       add("environmentalDisasterReason", "reason");
       add("savingBarrels", "true");
@@ -263,7 +243,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postFastTrack_EmptyData() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
+      add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
       add("avoidEnvironmentalDisaster", null);
       add("environmentalDisasterReason", null);
       add("savingBarrels", null);
@@ -289,7 +269,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   @Test
   public void postFastTrack_WithData() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
-      add("Save and complete later", "Save and complete later");
+      add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
       add("avoidEnvironmentalDisaster", "true");
       add("environmentalDisasterReason", "reason");
       add("savingBarrels", "true");

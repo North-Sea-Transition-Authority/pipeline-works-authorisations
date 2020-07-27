@@ -35,10 +35,7 @@ public class PwaApplicationTestUtil {
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType) {
-    return createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL
-        , 20
-    );
+    return createDefaultApplicationDetail(applicationType, 20);
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, int appId) {

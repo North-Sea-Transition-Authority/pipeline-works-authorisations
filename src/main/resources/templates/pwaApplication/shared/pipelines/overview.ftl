@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="pipelineUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory" -->
 <#-- @ftlvariable name="pipelineSummaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
+<#-- @ftlvariable name="canImportConsentedPipeline" type="Boolean" -->
 
 <#macro linkButtonBlue text url>
     <@fdsAction.link linkText=text linkUrl=url linkClass="govuk-button govuk-button--blue" />
@@ -20,6 +21,9 @@
     </#if>
 
     <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
+    <#if canImportConsentedPipeline>
+        <@linkButtonBlue text="Modify consented pipeline" url=springUrl(pipelineUrlFactory.getModifyPipelineUrl()) />
+    </#if>
 
     <#list pipelineTaskListItems as pipeline>
 
@@ -49,6 +53,9 @@
 
     <#if pipelineTaskListItems?size gt 4>
         <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
+        <#if canImportConsentedPipeline>
+            <@linkButtonBlue text="Modify consented pipeline" url=springUrl(pipelineUrlFactory.getModifyPipelineUrl()) />
+        </#if>
     </#if>
 
     <#if pipelineTaskListItems?has_content>

@@ -43,10 +43,10 @@
         <@fdsRadio.radioGroup path="form.routeSurveyUndertaken" labelText="Has a pipeline route survey been undertaken?" hiddenContent=true>
             <@fdsRadio.radioYes path="form.routeSurveyUndertaken">
                 <@fdsDateInput.dateInput dayPath="form.surveyConcludedDay" monthPath="form.surveyConcludedMonth" yearPath="form.surveyConcludedYear" labelText="When was the pipeline route survey concluded?" formId="surveyConcludedDate" nestingPath="form.routeSurveyUndertaken"/>
+                <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details" characterCount=true maxCharacterLength="4000"/>
             </@fdsRadio.radioYes>
             <@fdsRadio.radioNo path="form.routeSurveyUndertaken"/>
         </@fdsRadio.radioGroup>
-        <@fdsTextarea.textarea path="form.pipelineRouteDetails" labelText="Pipeline route details" hintText="Provide pipeline route details, including water depths along the pipeline route, seabed composition, bathymetric data, seabed features, and soil condition details"/>
         <@fdsCheckbox.checkbox path="form.withinLimitsOfDeviation" labelText="I confirm that the limit of deviation during construction will be ±100m"/>
 
     <#-- TODO: PWA-432 Update guidance text with correct supporting documents. -->
@@ -54,7 +54,8 @@
             <@fdsFileUpload.fileUpload id="project-doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons primaryButtonText="Complete" secondaryButtonText="Save and complete later"/>
+        <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+
     </@fdsForm.htmlForm>
 
 </@defaultPage>

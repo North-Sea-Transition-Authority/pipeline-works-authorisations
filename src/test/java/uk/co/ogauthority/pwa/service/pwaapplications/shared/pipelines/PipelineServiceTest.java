@@ -36,7 +36,7 @@ public class PipelineServiceTest {
   public void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    pipelineService = new PipelineService(pipelineRepository, pipelineDetailRepository);
+    pipelineService = new PipelineService(pipelineRepository);
 
     when(pipelineRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
@@ -50,17 +50,11 @@ public class PipelineServiceTest {
   }
 
   @Test
-  public void getActivePipelineDetailsForApplicationMasterPwa_serviceInteraction() {
-    pipelineService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication());
-    verify(pipelineDetailRepository, times(1)).findAllByPipeline_MasterPwaAndEndTimestampIsNull(
-        pwaApplicationDetail.getPwaApplication().getMasterPwa());
-  }
-
-  @Test
   public void getPipelinesFromIds_serviceInteraction(){
     var ids = Set.of(new PipelineId(1), new PipelineId(2));
     pipelineService.getPipelinesFromIds(ids);
     verify(pipelineRepository, times(1)).findAllById(Set.of(1,2));
 
   }
+
 }
