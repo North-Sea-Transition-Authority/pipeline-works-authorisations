@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 /**
  *  Summarises all the organisation roles for a pwa and gives access by huoo type or organisation unit.
- *  "For each HUOO role, group pipelines by the organisations with that role."
+ *  "For each HUOO role, group pipelines by the linked organisations with that role."
  **/
 public class OrganisationRolesSummaryDto {
 
@@ -36,7 +36,7 @@ public class OrganisationRolesSummaryDto {
         .stream()
         .collect(groupingBy(
             OrganisationPipelineRoleInstanceDto::getOrganisationRoleInstanceDto,
-            Collectors.mapping(OrganisationPipelineRoleInstanceDto::getPipelineId, Collectors.toSet())
+            Collectors.mapping(OrganisationPipelineRoleInstanceDto::getPipelineIdentifier, Collectors.toSet())
         ))
         // loop over each grouped entry to create a group object
         .entrySet()

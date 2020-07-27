@@ -1,8 +1,12 @@
 package uk.co.ogauthority.pwa.model.dto.consents;
 
 import java.util.Objects;
+import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -14,7 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
  * */
 public final class OrganisationPipelineRoleInstanceDto {
   private final OrganisationRoleInstanceDto organisationRoleInstanceDto;
-  private final PipelineId pipelineId;
+  private final PipelineIdentifier pipelineIdentifier;
 
 
   public OrganisationPipelineRoleInstanceDto(Integer organisationUnitId,
@@ -22,7 +26,12 @@ public final class OrganisationPipelineRoleInstanceDto {
                                              TreatyAgreement treatyAgreement,
                                              HuooRole huooRole,
                                              HuooType huooType,
-                                             int pipelineId) {
+                                             int pipelineIdentifier,
+                                             String fromLocation,
+                                             IdentLocationInclusionMode fromLocationMode,
+                                             String toLocation,
+                                             IdentLocationInclusionMode toLocationMode
+                                             ) {
     this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(
         organisationUnitId,
         manualOrganisationName,
@@ -30,7 +39,12 @@ public final class OrganisationPipelineRoleInstanceDto {
         huooRole,
         huooType
     );
-    this.pipelineId = new PipelineId(pipelineId);
+
+    if (ObjectUtils.allNotNull(fromLocation, fromLocationMode, toLocation, toLocationMode)) {
+      this.pipelineIdentifier = new PipelineSegment(pipelineIdentifier, fromLocation, fromLocationMode, toLocation, toLocationMode);
+    } else {
+      this.pipelineIdentifier = new PipelineId(pipelineIdentifier);
+    }
   }
 
   public OrganisationUnitId getOrganisationUnitId() {
@@ -53,8 +67,8 @@ public final class OrganisationPipelineRoleInstanceDto {
     return this.organisationRoleInstanceDto.getHuooType();
   }
 
-  public PipelineId getPipelineId() {
-    return this.pipelineId;
+  public PipelineIdentifier getPipelineIdentifier() {
+    return this.pipelineIdentifier;
   }
 
   public OrganisationRoleInstanceDto getOrganisationRoleInstanceDto() {
@@ -71,12 +85,12 @@ public final class OrganisationPipelineRoleInstanceDto {
     }
     OrganisationPipelineRoleInstanceDto that = (OrganisationPipelineRoleInstanceDto) o;
     return Objects.equals(organisationRoleInstanceDto, that.organisationRoleInstanceDto)
-        && Objects.equals(pipelineId, that.pipelineId);
+        && Objects.equals(pipelineIdentifier, that.pipelineIdentifier);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(organisationRoleInstanceDto, pipelineId);
+    return Objects.hash(organisationRoleInstanceDto, pipelineIdentifier);
   }
 
 

@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 /**
  *  Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.
  */
-public final class PipelineId {
+public final class PipelineId implements PipelineIdentifier {
   private final int id;
 
   public PipelineId(int id) {
@@ -29,6 +29,21 @@ public final class PipelineId {
 
   public int asInt() {
     return this.id;
+  }
+
+  @Override
+  public void accept(PipelineIdentifierVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  @Override
+  public PipelineId getPipelineId() {
+    return this;
+  }
+
+  @Override
+  public int getPipelineIdAsInt() {
+    return this.asInt();
   }
 
   @Override

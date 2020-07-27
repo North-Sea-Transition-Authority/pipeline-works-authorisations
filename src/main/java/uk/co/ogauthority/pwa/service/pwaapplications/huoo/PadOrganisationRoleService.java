@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipeline
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -380,7 +381,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   public void createApplicationOrganisationRolesFromSummary(PwaApplicationDetail pwaApplicationDetail,
                                                             OrganisationRolesSummaryDto organisationRolesSummaryDto) {
 
-
     var padOrgRoles = createPadOrganisationRoleForEveryOrganisationRoleGroup(
         organisationRolesSummaryDto,
         pwaApplicationDetail);
@@ -388,7 +388,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     var persistedPadOrgRoleIterable = IterableUtils.toList(padOrganisationRolesRepository.saveAll(padOrgRoles));
     List<PadPipelineOrganisationRoleLink> padPipelineOrgRoleLinks = new ArrayList<>();
 
-    Map<PipelineId, Pipeline> pipelineLookup = new HashMap<>();
+    Map<PipelineIdentifier, Pipeline> pipelineLookup = new HashMap<>();
 
     for (PadOrganisationRole padOrganisationRole : persistedPadOrgRoleIterable) {
       var orgRolePipelineGroup = organisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
@@ -397,13 +397,14 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       );
 
       orgRolePipelineGroup.ifPresent(orgRoleGroup -> {
-        orgRoleGroup.getPipelineIds().forEach(pipelineId -> {
+        orgRoleGroup.getPipelineIdentifiers().forEach(pipelineIdentifier -> {
 
           // create pipeline reference only when we dont have one in the same session.
           // at this point should we just get the pipeline object itself? cost is extra db hits.
-          var pipeline = pipelineLookup.getOrDefault(pipelineId,
-              entityManager.getReference(Pipeline.class, pipelineId.asInt()));
-          pipelineLookup.putIfAbsent(pipelineId, pipeline);
+          var pipeline = pipelineLookup.getOrDefault(pipelineIdentifier,
+              //TODO PWA-676 need to handle pipeline splits
+              entityManager.getReference(Pipeline.class, pipelineIdentifier.getPipelineIdAsInt()));
+          pipelineLookup.putIfAbsent(pipelineIdentifier, pipeline);
           padPipelineOrgRoleLinks.add(
               new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline)
           );

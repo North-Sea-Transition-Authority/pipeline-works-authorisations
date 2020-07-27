@@ -61,7 +61,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
             pipelineAndOrganisationRoleGroupDto -> {
               assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
                   .containsExactly(pipelineOrgRole.getOrganisationRoleOwnerDto());
-              assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
+              assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdentifierSet())
                   .containsExactly(new PipelineId(PIPELINE_ID1));
             });
 
@@ -132,7 +132,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         pipelineAndOrganisationRoleGroupDto -> {
           assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
               .containsExactly(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto());
-          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdentifierSet())
               .containsExactly(new PipelineId(PIPELINE_ID1));
         });
   }
@@ -166,7 +166,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
               .containsExactlyInAnyOrder(
                   holder1Pipeline1.getOrganisationRoleOwnerDto(),
                   holder2Pipeline1.getOrganisationRoleOwnerDto());
-          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdentifierSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID1), new PipelineId(PIPELINE_ID2));
         });
   }
@@ -202,7 +202,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         pipelineAndOrganisationRoleGroupDto -> {
           assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
               .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleOwnerDto());
-          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdentifierSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID1));
         });
 
@@ -212,7 +212,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
           assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
               .containsExactlyInAnyOrder(holder1Pipeline1.getOrganisationRoleOwnerDto(),
                   holder2Pipeline2.getOrganisationRoleOwnerDto());
-          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdentifierSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID2));
         });
 
@@ -221,7 +221,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         pipelineAndOrganisationRoleGroupDto -> {
           assertThat(pipelineAndOrganisationRoleGroupDto.getOrganisationRoleOwnerDtoSet())
               .containsExactlyInAnyOrder(holder2Pipeline2.getOrganisationRoleOwnerDto());
-          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdSet())
+          assertThat(pipelineAndOrganisationRoleGroupDto.getPipelineIdentifierSet())
               .containsExactlyInAnyOrder(new PipelineId(PIPELINE_ID3));
         });
   }
@@ -258,7 +258,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role)
     );
-    assertThat(summary.getAllPipelineIdsInSummary()).containsExactly(new PipelineId(PIPELINE_ID1));
+    assertThat(summary.getAllPipelineIdentifiersInSummary()).containsExactly(new PipelineId(PIPELINE_ID1));
   }
 
   @Test
@@ -274,7 +274,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
         Set.of(holder1Pipeline1, holder1Pipeline2, holder2Pipeline2, holder2Pipeline3)
     );
 
-    assertThat(summary.getAllPipelineIdsInSummary()).containsExactlyInAnyOrder(
+    assertThat(summary.getAllPipelineIdentifiersInSummary()).containsExactlyInAnyOrder(
         new PipelineId(PIPELINE_ID1),
         new PipelineId(PIPELINE_ID2),
         new PipelineId(PIPELINE_ID3)

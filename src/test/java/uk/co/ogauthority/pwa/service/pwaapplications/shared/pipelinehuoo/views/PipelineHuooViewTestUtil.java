@@ -6,17 +6,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 public class PipelineHuooViewTestUtil {
 
-  public static PipelinesAndOrgRoleGroupView createPipelineAndOrgRoleView(Set<PipelineId> pipelineIds,
+  public static PipelinesAndOrgRoleGroupView createPipelineAndOrgRoleView(Set<PipelineIdentifier> pipipelineIdentifiers,
                                                                           Set<OrganisationRoleOwnerDto> organisationRoleOwnerDtos,
                                                                           List<String> pipelineNames,
                                                                           List<String> orgRoleNames
   ) {
     return new PipelinesAndOrgRoleGroupView(
-        pipelineIds,
+        pipipelineIdentifiers,
         organisationRoleOwnerDtos,
         pipelineNames,
         orgRoleNames
