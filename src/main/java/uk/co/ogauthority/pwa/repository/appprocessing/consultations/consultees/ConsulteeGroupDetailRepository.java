@@ -16,4 +16,6 @@ public interface ConsulteeGroupDetailRepository extends CrudRepository<Consultee
   @EntityGraph(attributePaths = "consulteeGroup")
   List<ConsulteeGroupDetail> findAllByConsulteeGroupInAndEndTimestampIsNull(Iterable<ConsulteeGroup> groups);
 
+  List<ConsulteeGroupDetail> findAllByTipFlagIsTrue();
+
 }

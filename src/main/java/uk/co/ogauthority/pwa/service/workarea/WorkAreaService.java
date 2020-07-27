@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
+import uk.co.ogauthority.pwa.controller.consultations.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.PageView;
@@ -139,7 +140,7 @@ public class WorkAreaService {
         return ReverseRouter.route(on(InitialReviewController.class)
             .renderInitialReview(applicationId, applicationType, null, null, null));
       default:
-        return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null));
+        return ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(applicationId, applicationType, null, null));
 
     }
 
