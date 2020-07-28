@@ -39,7 +39,8 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.Crossin
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DEPOSIT_CONSENT
+    PwaApplicationType.DEPOSIT_CONSENT,
+    PwaApplicationType.DECOMMISSIONING
 })
 public class CrossingTypesController {
 

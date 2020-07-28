@@ -63,7 +63,8 @@ public class PipelineCrossingDocumentsControllerTest extends PwaApplicationConte
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.DEPOSIT_CONSENT)
+            PwaApplicationType.DEPOSIT_CONSENT,
+            PwaApplicationType.DECOMMISSIONING)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 

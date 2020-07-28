@@ -140,6 +140,18 @@ public class TaskListServiceIntegrationTestTest {
             );
             break;
           case DECOMMISSIONING:
+            assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.PARTNER_LETTERS.getDisplayName(),
+                ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+                ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
+                ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName()
+            );
+            break;
           case OPTIONS_VARIATION:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
@@ -181,7 +193,8 @@ public class TaskListServiceIntegrationTestTest {
   private EnumSet<PwaApplicationType> getCampaignWorksAppTypes() {
     return EnumSet.of(PwaApplicationType.INITIAL,
         PwaApplicationType.CAT_1_VARIATION,
-        PwaApplicationType.CAT_2_VARIATION
+        PwaApplicationType.CAT_2_VARIATION,
+        PwaApplicationType.DECOMMISSIONING
     );
   }
 

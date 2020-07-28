@@ -115,7 +115,8 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.HUOO_VARIATION)
+            PwaApplicationType.HUOO_VARIATION,
+            PwaApplicationType.DECOMMISSIONING)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 

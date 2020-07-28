@@ -46,7 +46,8 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.Pipelin
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DEPOSIT_CONSENT
+    PwaApplicationType.DEPOSIT_CONSENT,
+    PwaApplicationType.DECOMMISSIONING
 })
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})

@@ -172,6 +172,22 @@ public class TaskListServiceTest {
             );
             break;
           case DECOMMISSIONING:
+            assertThat(taskNamesList).containsOnly(
+                ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
+                ApplicationTask.FAST_TRACK.getDisplayName(),
+                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
+                ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
+                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
+                ApplicationTask.HUOO.getDisplayName(),
+                ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName(),
+                ApplicationTask.PIPELINES.getDisplayName(),
+                ApplicationTask.PIPELINES_HUOO.getDisplayName(),
+                ApplicationTask.CAMPAIGN_WORKS.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
+                ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName(),
+                ApplicationTask.PARTNER_LETTERS.getDisplayName()
+            );
+            break;
           case OPTIONS_VARIATION:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
