@@ -277,13 +277,23 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
     }
     groupValidator.validate(form, bindingResult, hints.toArray());
 
-    if (padAdmiraltyChartFileRepository.countAllByPwaApplicationDetail(pwaApplicationDetail) > 1) {
+    if (((AdmiraltyChartDocumentForm) form).getUploadedFileWithDescriptionForms().size() > 1) {
       bindingResult.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms.exceededMaximumUpload",
               "You may only upload a single admiralty chart");
     }
 
     return bindingResult;
+  }
+
+  public boolean canUploadDocuments(PwaApplicationDetail detail) {
+    switch (detail.getPwaApplicationType()) {
+      case INITIAL:
+      case CAT_1_VARIATION:
+        return true;
+      default:
+        return false;
+    }
   }
   
 }

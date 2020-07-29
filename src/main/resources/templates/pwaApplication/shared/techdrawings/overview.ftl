@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import 'admiraltyChartManagement.ftl' as admiraltyChartManagement>
 <#import 'pipelineDrawingManagement.ftl' as pipelineDrawingManagement>
+<#import 'umbilicalCrossSectionDiagramManagement.ftl' as umbilicalCrossSectionDiagramManagement>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="admiraltyChartUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory" -->
@@ -14,12 +15,23 @@
         <@fdsError.singleErrorSummary errorMessage=errorMessage />
     </#if>
 
-    <@admiraltyChartManagement.admiraltyChartManagement
-    urlFactory=admiraltyChartUrlFactory
-    optionalSection=admiraltyOptional
-    admiraltyChartFileViews=admiraltyChartFileViews />
+    <#if showAdmiraltyChart>
+        <@admiraltyChartManagement.admiraltyChartManagement
+        urlFactory=admiraltyChartUrlFactory
+        optionalSection=admiraltyOptional
+        admiraltyChartFileViews=admiraltyChartFileViews />
 
-    <hr class="govuk-section-break govuk-section-break--m"/>
+        <hr class="govuk-section-break govuk-section-break--m"/>
+    </#if>
+
+    <#if showUmbilicalCrossSection>
+        <@umbilicalCrossSectionDiagramManagement.umbilicalCrossSectionDiagramManagement
+        urlFactory=umbilicalCrossSectionUrlFactory
+        optionalSection=true
+        fileViews=umbilicalCrossSectionFileViews />
+
+        <hr class="govuk-section-break govuk-section-break--m"/>
+    </#if>
 
     <@pipelineDrawingManagement.pipelineDrawingManagement
     urlFactory=pipelineDrawingUrlFactory

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -277,12 +276,6 @@ public class PadFileService {
 
   public List<PadFile> getAllByPwaApplicationDetailAndPurpose(PwaApplicationDetail detail, ApplicationFilePurpose purpose) {
     return padFileRepository.findAllByPwaApplicationDetailAndPurpose(detail, purpose);
-  }
-
-  public void validateFiles(UploadMultipleFilesWithDescriptionForm form, PwaApplicationDetail detail,
-                            boolean atLeastOneFileRequired,
-                            @Nullable int maxFileCount) {
-
   }
 
   /**

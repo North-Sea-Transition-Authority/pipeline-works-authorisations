@@ -1,0 +1,30 @@
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+
+public class UmbilicalCrossSectionUrlFactory {
+
+  private final Integer applicationId;
+  private final PwaApplicationType applicationType;
+
+  public UmbilicalCrossSectionUrlFactory(PwaApplicationDetail detail) {
+    this.applicationId = detail.getMasterPwaApplicationId();
+    this.applicationType = detail.getPwaApplicationType();
+  }
+
+  public String getAddDocumentUrl() {
+    return ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
+        .renderAddDocuments(applicationType, applicationId, null, null));
+  }
+
+  public String getDocumentDownloadUrl() {
+    return ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
+        .handleDownload(applicationType, applicationId, null, null));
+  }
+
+}
