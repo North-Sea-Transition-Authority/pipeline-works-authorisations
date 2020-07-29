@@ -33,7 +33,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadAdmiraltyChartFile;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadAdmiraltyChartFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -74,7 +73,7 @@ public class AdmiraltyChartFileServiceTest {
       Instant.now(),
       "");
 
-  private CrossingDocumentsForm form = new CrossingDocumentsForm();
+  private AdmiraltyChartDocumentForm form = new AdmiraltyChartDocumentForm();
 
   @Before
   public void setUp() {
