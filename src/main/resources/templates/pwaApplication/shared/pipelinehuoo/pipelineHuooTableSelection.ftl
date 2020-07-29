@@ -23,8 +23,8 @@
         <th class="govuk-table__header ${readOnlySelected?then("govuk-visually-hidden", "")}" scope="col"></th>
         <th class="govuk-table__header" scope="col">Pipeline number / <br>Pipeline split details</th>
         <th class="govuk-table__header" scope="col">Pipeline type</th>
-        <th class="govuk-table__header" scope="col">From</th>
-        <th class="govuk-table__header" scope="col">To</th>
+        <th class="govuk-table__header" scope="col">Pipeline start</th>
+        <th class="govuk-table__header" scope="col">Pipeline end</th>
         <th class="govuk-table__header" scope="col">Length</th>
       </tr>
       </thead>
