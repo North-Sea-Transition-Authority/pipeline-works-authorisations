@@ -1,7 +1,5 @@
 <#--Layout-->
-<#include 'fds/objects/layouts/generic.ftl'>
-<#import 'fds/objects/grid/grid.ftl' as grid>
-<#import 'header.ftl' as pipelinesHeader>
+<#include 'pwaLayoutImports.ftl'>
 
 <#macro defaultPagePane
 htmlTitle
