@@ -88,7 +88,7 @@ public class TechnicalDrawingsController {
             padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.UMBILICAL_CROSS_SECTION,
                 ApplicationFileLinkStatus.FULL));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
-        "Admiralty chart and pipeline drawings");
+        "Pipeline schematics and other diagrams");
     return modelAndView;
   }
 

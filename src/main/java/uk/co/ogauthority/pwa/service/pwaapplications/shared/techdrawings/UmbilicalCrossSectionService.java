@@ -43,7 +43,7 @@ public class UmbilicalCrossSectionService implements ApplicationFormSectionServi
     if (((UmbilicalCrossSectionForm) form).getUploadedFileWithDescriptionForms().size() > 1) {
       bindingResult.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms.exceededMaximumUpload",
-          "You may only upload a single admiralty chart");
+          "You may only upload a single umbilical cross-section diagram");
     }
 
     return bindingResult;

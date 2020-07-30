@@ -9,7 +9,7 @@
 <#-- @ftlvariable name="admiraltyOptional" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory" -->
 
-<@defaultPage htmlTitle="Admiralty chart and pipeline drawings" pageHeading="Admiralty chart and pipeline drawings" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle="Pipeline schematics and other diagrams" pageHeading="Pipeline schematics and other diagrams" breadcrumbs=true fullWidthColumn=true>
 
     <#if errorMessage?has_content>
         <@fdsError.singleErrorSummary errorMessage=errorMessage />

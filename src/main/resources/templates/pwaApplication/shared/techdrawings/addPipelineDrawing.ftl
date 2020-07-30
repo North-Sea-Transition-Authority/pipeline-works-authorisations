@@ -28,7 +28,7 @@
             <@pwaPipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineViews/>
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} drawing" linkSecondaryAction=true secondaryLinkText="Back to admiralty chart and pipeline drawings" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} drawing" linkSecondaryAction=true secondaryLinkText="Back to pipeline schematics and other diagrams" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

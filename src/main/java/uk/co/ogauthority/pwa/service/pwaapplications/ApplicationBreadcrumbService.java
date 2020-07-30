@@ -73,7 +73,7 @@ public class ApplicationBreadcrumbService {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
-        "Admiralty chart and pipeline drawings");
+        "Pipeline schematics and other diagrams");
     addAttrs(modelAndView, map, thisPage);
   }
 
