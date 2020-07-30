@@ -19,7 +19,7 @@
 
     <@fdsForm.htmlForm>
 
-        <@fdsTextInput.textInput path="form.reference" labelText="Drawing reference" inputClass="govuk-!-width-two-thirds"/>
+        <@fdsTextInput.textInput path="form.reference" labelText="Schematic reference" inputClass="govuk-!-width-two-thirds"/>
         <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
 
       <hr class="govuk-section-break govuk-section-break--m"/>
@@ -28,7 +28,7 @@
             <@pwaPipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineViews/>
         </@fdsFieldset.fieldset>
 
-        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} drawing" linkSecondaryAction=true secondaryLinkText="Back to pipeline schematics and other diagrams" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} schematic" linkSecondaryAction=true secondaryLinkText="Back to pipeline schematics and other diagrams" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>
