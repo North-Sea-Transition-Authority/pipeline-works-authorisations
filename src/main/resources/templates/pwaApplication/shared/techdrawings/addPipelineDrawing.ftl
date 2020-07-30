@@ -24,7 +24,7 @@
 
       <hr class="govuk-section-break govuk-section-break--m"/>
 
-        <@fdsFieldset.fieldset legendHeading="Which pipelines are linked to this drawing?">
+        <@fdsFieldset.fieldset legendHeading="Which pipelines are linked to this schematic?">
             <@pwaPipelineTableSelection.pipelineTableSelection path="form.padPipelineIds" pipelineOverviews=pipelineViews/>
         </@fdsFieldset.fieldset>
 
