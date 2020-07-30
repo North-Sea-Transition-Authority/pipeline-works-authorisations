@@ -14,6 +14,7 @@
 <#import 'components/widgets/pipelineTableSelection.ftl' as pwaPipelineTableSelection/>
 <#import 'components/widgets/organisationUnitDetailTableSelection.ftl' as pwaOrgDetailTableSelection/>
 <#import 'components/utils/validationResult.ftl' as validationResult/>
+<#import 'components/diff/diffChanges.ftl' as diffChanges/>
 
 <#function springUrl url>
     <#local springUrl>
