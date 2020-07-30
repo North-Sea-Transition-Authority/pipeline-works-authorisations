@@ -8,7 +8,7 @@
         <@fdsSubNavigation.subNavigation>
             <@fdsSubNavigation.subNavigationSection themeHeading="Check your answers of all relevant fields on form">
                 <@fdsSubNavigation.subNavigationSectionItem
-                linkName="Application contacts"
+                linkName="Application users"
                 currentItemHref="something which doesn match. This wont work on client side options"
                 linkAction="#applicationContacts"
                 />
@@ -28,7 +28,7 @@
     </@defaultPagePaneSubNav>
 
     <@defaultPagePaneContent pageHeading=pageHeading>
-        <h2 id="applicationContacts" class="govuk-heading-l">Application contacts</h2>
+        <h2 id="applicationContacts" class="govuk-heading-l">Application users</h2>
         <h3 id="contact1" class="govuk-heading-m">Contact 1 name</h3>
         <p class="govuk-body">filler</p>
         <h3 id="contact1" class="govuk-heading-m">Contact 2 name</h3>

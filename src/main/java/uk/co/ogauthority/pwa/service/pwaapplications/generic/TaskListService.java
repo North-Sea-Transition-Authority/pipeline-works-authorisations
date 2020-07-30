@@ -96,7 +96,7 @@ public class TaskListService {
   public List<TaskListEntry> getAppInfoTasks(PwaApplication application) {
     return List.of(
         new TaskListEntry(
-            "Application contacts",
+            "Application users",
             ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(application.getApplicationType(), application.getId(), null)),
             false,

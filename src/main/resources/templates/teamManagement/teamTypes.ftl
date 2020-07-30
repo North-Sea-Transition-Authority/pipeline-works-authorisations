@@ -2,7 +2,7 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Manage teams" pageHeading="Manage teams" topNavigation=true twoThirdsColumn=false>
+<@defaultPage htmlTitle="Organisation users" pageHeading="Organisation users" topNavigation=true twoThirdsColumn=false>
 
   <div class="category-list">
 

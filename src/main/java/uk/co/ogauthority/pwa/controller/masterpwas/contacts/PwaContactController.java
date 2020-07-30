@@ -107,7 +107,7 @@ public class PwaContactController {
                   ReverseRouter.route(on(InitialTaskListController.class)
                           .viewTaskList(pwaApplication.getId(), null)));
 
-      applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, "Application contacts");
+      applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, "Application users");
 
       return modelAndView;
 

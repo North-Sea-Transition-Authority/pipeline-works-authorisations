@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 public class TopMenuService {
 
   public static final String WORK_AREA_TITLE = "Work area";
-  public static final String TEAM_MANAGEMENT_TITLE = "Manage teams";
+  public static final String TEAM_MANAGEMENT_TITLE = "Organisation users";
 
   private final SystemAreaAccessService systemAreaAccessService;
 

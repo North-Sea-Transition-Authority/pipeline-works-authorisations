@@ -11,7 +11,7 @@
 <@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=showTopNav twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
 
     <#if allRoles??>
-      <@fdsDetails.summaryDetails summaryTitle="What can each role do?" >
+      <@fdsDetails.summaryDetails summaryTitle="What does each role allow a user to do?" >
         <@fdsCheckAnswers.checkAnswers summaryListClass="">
             <#list allRoles as propName, propValue>
               <#assign description = propValue?keep_before("(") >
