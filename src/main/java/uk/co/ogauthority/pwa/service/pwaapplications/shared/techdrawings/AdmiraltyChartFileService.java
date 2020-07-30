@@ -280,7 +280,7 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
     if (((AdmiraltyChartDocumentForm) form).getUploadedFileWithDescriptionForms().size() > 1) {
       bindingResult.rejectValue("uploadedFileWithDescriptionForms",
           "uploadedFileWithDescriptionForms.exceededMaximumUpload",
-              "You may only upload a single admiralty chart");
+              "You must provide a single admiralty chart");
     }
 
     return bindingResult;

@@ -11,7 +11,7 @@
 <#-- @ftlvariable name="actionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
 
-<@defaultPage htmlTitle="${actionType.actionText} a pipeline drawing" pageHeading="${actionType.actionText} a pipeline drawing" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle="${actionType.actionText} a pipeline schematic" pageHeading="${actionType.actionText} a pipeline schematic" breadcrumbs=true fullWidthColumn=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList />
