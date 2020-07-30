@@ -15,6 +15,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
@@ -163,6 +164,10 @@ public class PadPipeline {
 
   public Pipeline getPipeline() {
     return pipeline;
+  }
+
+  public PipelineId getPipelineId() {
+    return pipeline.getPipelineId();
   }
 
   public void setPipeline(Pipeline pipeline) {

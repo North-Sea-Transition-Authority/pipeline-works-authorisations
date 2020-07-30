@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.validators.pipelinehuoo;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PickHuooPipelinesForm;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -23,9 +26,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOptionTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineType;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -42,13 +44,13 @@ public class PickHuooPipelinesFormValidatorTest {
   private final TreatyAgreement VALID_TREATY = TreatyAgreement.BELGIUM;
   private final TreatyAgreement INVALID_TREATY = TreatyAgreement.NORWAY;
   private final int VALID_PICKED_PIPELINE_ID = 10;
-  private final PickablePipelineType VALID_PICKED_PIPELINE_TYPE = PickablePipelineType.CONSENTED;
-  private final String VALID_PICKED_PIPELINE_STRING = VALID_PICKED_PIPELINE_TYPE.createIdString(VALID_PICKED_PIPELINE_ID);
+  private final String VALID_PICKED_PIPELINE_STRING = PickableHuooPipelineType.createPickableString(
+      new PipelineId(VALID_PICKED_PIPELINE_ID));
 
-  private final String INVALID_PICKED_PIPELINE_STRING = PickablePipelineType.APPLICATION.createIdString(VALID_PICKED_PIPELINE_ID);
+  private final String INVALID_PICKED_PIPELINE_STRING = "SomeDodgyString";
 
   @Mock
-  private PickablePipelineService pickablePipelineService;
+  private PickableHuooPipelineService pickableHuooPipelineService;
 
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
@@ -69,7 +71,7 @@ public class PickHuooPipelinesFormValidatorTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     validator = new PickHuooPipelinesFormValidator(
-        pickablePipelineService,
+        pickableHuooPipelineService,
         padOrganisationRoleService
     );
   }
@@ -297,20 +299,22 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFullValidationHint_andInvalidPipelinePicked() {
-
-    when(pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail))
-        .thenReturn(
-            Set.of(PickablePipelineOptionTestUtil.createOption(VALID_PICKED_PIPELINE_ID, VALID_PICKED_PIPELINE_TYPE, "PL000"))
-        );
+  public void validate_whenFullValidationHint_andInvalidPipelinePicked_whereTheStringFormatIsValid_andPickedPipelineInvalid() {
+    var invalidPickedPipelineStringWithValidFormat = PickableHuooPipelineType.createPickableString(new PipelineId(999));
 
     form.setTreatyAgreements(Set.of(VALID_TREATY));
-    form.setPickedPipelineStrings(Set.of(INVALID_PICKED_PIPELINE_STRING));
-
+    form.setPickedPipelineStrings(Set.of(invalidPickedPipelineStringWithValidFormat));
 
     bindingResult = new BeanPropertyBindingResult(form, "form");
-    ValidationUtils.invokeValidator( validator, form, bindingResult, pwaApplicationDetail, HUOO_ROLE, PickHuooPipelineValidationType.FULL);
+
+    ValidationUtils.invokeValidator(validator, form, bindingResult, pwaApplicationDetail, HUOO_ROLE,
+        PickHuooPipelineValidationType.FULL);
     var errorCodeMap = ValidatorTestUtils.extractErrors(bindingResult);
+
+    verify(pickableHuooPipelineService, times(1)).reconcilePickablePipelinesFromStrings(
+        pwaApplicationDetail,
+        HUOO_ROLE,
+        Set.of(invalidPickedPipelineStringWithValidFormat));
 
     assertThat(errorCodeMap).contains(
         entry(FORM_PIPELINES_ATTR, Set.of(FieldValidationErrorCodes.INVALID.errorCode(FORM_PIPELINES_ATTR)))

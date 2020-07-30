@@ -62,7 +62,8 @@ public class AdmiraltyChartDocumentsControllerTest extends PwaApplicationContext
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
-            PwaApplicationType.CAT_2_VARIATION)
+            PwaApplicationType.CAT_2_VARIATION,
+            PwaApplicationType.DECOMMISSIONING)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 

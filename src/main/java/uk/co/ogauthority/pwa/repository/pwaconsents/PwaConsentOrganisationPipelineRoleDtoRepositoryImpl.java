@@ -23,8 +23,12 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
             "  cor.migratedOrganisationName, " +
             "  cor.agreement, " +
             "  cor.role, " +
-            "  cor.type," +
-            "  cporl.pipeline.id" +
+            "  cor.type, " +
+            "  cporl.pipeline.id, " +
+            "  cporl.fromLocation, " +
+            "  cporl.fromLocationIdentInclusionMode, " +
+            "  cporl.toLocation, " +
+            "  cporl.toLocationIdentInclusionMode " +
             ") " +
             "FROM PwaConsentPipelineOrganisationRoleLink cporl " +
             "JOIN PwaConsentOrganisationRole cor ON cporl.pwaConsentOrganisationRole = cor " +

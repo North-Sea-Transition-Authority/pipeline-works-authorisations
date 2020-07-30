@@ -31,9 +31,10 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
@@ -106,8 +107,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   }
 
-  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(PwaApplicationDetail pwaApplicationDetail,
-                                                                                HuooRole huooRole) {
+  public Set<OrganisationRoleInstanceDto> getOrganisationRoleInstanceDtosByRole(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole) {
     return getOrganisationRoleDtos(pwaApplicationDetail).stream()
         .filter(o -> huooRole.equals(o.getHuooRole()))
         .collect(Collectors.toSet());
@@ -250,28 +252,58 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   /**
    * Removes existing linked entries of the organisationUnit, and creates the entries from the form information.
    *
-   * @param pwaApplicationDetail The application detail
-   * @param form                 A validated HuooForm.
+   * @param detail The application detail
+   * @param form   A validated HuooForm.
    */
   @Transactional
-  public void saveEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, HuooForm form) {
+  public void saveEntityUsingForm(PwaApplicationDetail detail, HuooForm form) {
     var rolesToSave = new ArrayList<PadOrganisationRole>();
+
     if (form.getHuooType().equals(HuooType.PORTAL_ORG)) {
+
       var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(form.getOrganisationUnitId())
-          .orElse(null);
-      form.getHuooRoles().forEach(huooRole -> {
+          .orElseThrow(() -> new PwaEntityNotFoundException(
+              "Unable to find organisation unit with ID: " + form.getOrganisationUnitId()));
+
+      var currentRoles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(detail,
+          orgUnit);
+
+      Set<HuooRole> rolesToAdd = form.getHuooRoles()
+          .stream()
+          .filter(huooRole -> currentRoles.stream()
+              .noneMatch(padOrganisationRole -> padOrganisationRole.getRole().equals(huooRole)))
+          .collect(Collectors.toUnmodifiableSet());
+
+      List<PadOrganisationRole> organisationRolesToRemove = currentRoles.stream()
+          .filter(padOrganisationRole -> !form.getHuooRoles().contains(padOrganisationRole.getRole()))
+          .collect(Collectors.toUnmodifiableList());
+
+
+      List<PadPipelineOrganisationRoleLink> pipelineLinks =
+          padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+              organisationRolesToRemove, detail).stream()
+              .filter(roleLink -> organisationRolesToRemove.stream()
+                  .anyMatch(
+                      padOrganisationRole -> padOrganisationRole.getRole().equals(roleLink.getPadOrgRole().getRole())))
+              .collect(Collectors.toUnmodifiableList());
+
+      padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinks);
+      padOrganisationRolesRepository.deleteAll(organisationRolesToRemove);
+
+      rolesToAdd.forEach(huooRole -> {
         var padOrganisationRole = new PadOrganisationRole();
         padOrganisationRole.setAgreement(null);
-        padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
+        padOrganisationRole.setPwaApplicationDetail(detail);
         padOrganisationRole.setRole(huooRole);
         padOrganisationRole.setType(form.getHuooType());
         padOrganisationRole.setOrganisationUnit(orgUnit);
         rolesToSave.add(padOrganisationRole);
       });
+
     } else if (form.getHuooType().equals(HuooType.TREATY_AGREEMENT)) {
       var padOrganisationRole = new PadOrganisationRole();
       padOrganisationRole.setAgreement(form.getTreatyAgreement());
-      padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
+      padOrganisationRole.setPwaApplicationDetail(detail);
       padOrganisationRole.setOrganisationUnit(null);
       padOrganisationRole.setRole(HuooRole.USER);
       padOrganisationRole.setType(form.getHuooType());
@@ -281,17 +313,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   }
 
   @Transactional
-  public void updateEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, PortalOrganisationUnit organisationUnit,
-                                    HuooForm form) {
-    var roles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
-        organisationUnit);
-    padOrganisationRolesRepository.deleteAll(roles);
-    saveEntityUsingForm(pwaApplicationDetail, form);
-  }
-
-  @Transactional
-  public void updateEntityUsingForm(PwaApplicationDetail pwaApplicationDetail, PadOrganisationRole organisationRole,
-                                    HuooForm form) {
+  public void updateEntityUsingForm(PadOrganisationRole organisationRole, HuooForm form) {
     organisationRole.setAgreement(form.getTreatyAgreement());
     padOrganisationRolesRepository.save(organisationRole);
   }
@@ -380,7 +402,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   public void createApplicationOrganisationRolesFromSummary(PwaApplicationDetail pwaApplicationDetail,
                                                             OrganisationRolesSummaryDto organisationRolesSummaryDto) {
 
-
     var padOrgRoles = createPadOrganisationRoleForEveryOrganisationRoleGroup(
         organisationRolesSummaryDto,
         pwaApplicationDetail);
@@ -388,7 +409,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     var persistedPadOrgRoleIterable = IterableUtils.toList(padOrganisationRolesRepository.saveAll(padOrgRoles));
     List<PadPipelineOrganisationRoleLink> padPipelineOrgRoleLinks = new ArrayList<>();
 
-    Map<PipelineId, Pipeline> pipelineLookup = new HashMap<>();
+    Map<PipelineIdentifier, Pipeline> pipelineLookup = new HashMap<>();
 
     for (PadOrganisationRole padOrganisationRole : persistedPadOrgRoleIterable) {
       var orgRolePipelineGroup = organisationRolesSummaryDto.getOrganisationRolePipelineGroupBy(
@@ -397,13 +418,14 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       );
 
       orgRolePipelineGroup.ifPresent(orgRoleGroup -> {
-        orgRoleGroup.getPipelineIds().forEach(pipelineId -> {
+        orgRoleGroup.getPipelineIdentifiers().forEach(pipelineIdentifier -> {
 
           // create pipeline reference only when we dont have one in the same session.
           // at this point should we just get the pipeline object itself? cost is extra db hits.
-          var pipeline = pipelineLookup.getOrDefault(pipelineId,
-              entityManager.getReference(Pipeline.class, pipelineId.asInt()));
-          pipelineLookup.putIfAbsent(pipelineId, pipeline);
+          var pipeline = pipelineLookup.getOrDefault(pipelineIdentifier,
+              //TODO PWA-676 need to handle pipeline splits
+              entityManager.getReference(Pipeline.class, pipelineIdentifier.getPipelineIdAsInt()));
+          pipelineLookup.putIfAbsent(pipelineIdentifier, pipeline);
           padPipelineOrgRoleLinks.add(
               new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline)
           );
@@ -419,34 +441,51 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Transactional
   public PadPipelineOrganisationRoleLink createPadPipelineOrganisationRoleLink(PadOrganisationRole padOrganisationRole,
-                                                                               Pipeline pipeline) {
-    return padPipelineOrganisationRoleLinkRepository.save(
-        new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline));
+                                                                               PipelineIdentifier pipelineIdentifier) {
+    //  Not keen on this use of the visitor pattern. Try to rework if time, this involves a new pipeline object with the same id rather than
+    // an actual Pipeline entity or reference.
+    // to set on the new role, when all we have is the interface.
+    var newRoleLink = new PadPipelineOrganisationRoleLink();
+    newRoleLink.setPadOrgRole(padOrganisationRole);
+    pipelineIdentifier.accept(newRoleLink);
+    return padPipelineOrganisationRoleLinkRepository.save(newRoleLink);
   }
 
   @Transactional
-  public void deletePadPipelineRoleLinksForPipelinesAndRole(PwaApplicationDetail pwaApplicationDetail,
-                                                            Set<Pipeline> pipelines,
-                                                            HuooRole huooRole) {
+  public void deletePadPipelineRoleLinksForPipelineIdentifiersAndRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                      Set<PipelineIdentifier> pipelineIdentifiers,
+                                                                      HuooRole huooRole) {
+    // distinct pipeline Ids, with split pipelines treated as whole.
+    var pipelineIds = pipelineIdentifiers.stream()
+        .map(PipelineIdentifier::getPipelineIdAsInt)
+        .collect(toSet());
+
+    // Performance note, this loads in a lot of data that we dont touch e.g org info.
+    // We only need the role instance id and pipelineIdentifier data, could then use a simple reference to role for deletion.
+    // possible that might remove requirement for the flush as linked objects wont be in the hibernate cache.
     var allRoleLinksForPipelines = padPipelineOrganisationRoleLinkRepository
-        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipelineIn(
+        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
             pwaApplicationDetail,
             huooRole,
-            pipelines
-        );
+            pipelineIds
+        ).stream()
+        // filter out splits that have not been selected so they are not affected by delete
+        .filter(r -> pipelineIdentifiers.contains(r.getPipelineIdentifier()))
+        .collect(toList());
 
     padPipelineOrganisationRoleLinkRepository.deleteAll(allRoleLinksForPipelines);
     // this flush is required to make sure we force the transaction to send the DELETE to the database now
     entityManager.flush();
   }
 
-  public Set<PipelineId> getPipelineIdsWhereRoleOfTypeSet(PwaApplicationDetail pwaApplicationDetail,
+  public Set<PipelineIdentifier> getPipelineSplitsForRole(PwaApplicationDetail pwaApplicationDetail,
                                                           HuooRole huooRole) {
     return padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
-        pwaApplicationDetail, huooRole)
-        .stream()
-        .map(PadPipelineOrganisationRoleLink::getPipeline)
-        .map(p -> new PipelineId(p.getId()))
+        pwaApplicationDetail, huooRole).stream()
+        // This could use a custom visitor ie PipelineIdentifierIsSplitVisitor which set a boolean flag to avoid this
+        // class tagging but I dont think in practice that is much better.
+        .filter(r -> r.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE))
+        .map(PadPipelineOrganisationRoleLink::getPipelineIdentifier)
         .collect(toSet());
   }
 

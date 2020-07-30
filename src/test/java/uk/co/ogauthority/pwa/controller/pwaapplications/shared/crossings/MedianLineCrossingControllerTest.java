@@ -84,7 +84,8 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
         PwaApplicationType.INITIAL,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.DEPOSIT_CONSENT);
+        PwaApplicationType.DEPOSIT_CONSENT,
+        PwaApplicationType.DECOMMISSIONING);
 
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
@@ -96,7 +97,8 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.DEPOSIT_CONSENT
+            PwaApplicationType.DEPOSIT_CONSENT,
+            PwaApplicationType.DECOMMISSIONING
         )
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);

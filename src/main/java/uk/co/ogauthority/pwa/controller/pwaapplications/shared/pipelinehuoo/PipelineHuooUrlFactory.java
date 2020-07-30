@@ -2,13 +2,15 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Base64;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelinesAndOrgRoleGroupView;
 
@@ -53,8 +55,8 @@ public class PipelineHuooUrlFactory {
         huooRole,
         null,
         ModifyPipelineHuooJourneyController.JourneyPage.ORGANISATION_SELECTION,
-        pipelinesAndOrgRoleGroupView.getPipelineIdSet().stream()
-            .map(PipelineId::asInt)
+        pipelinesAndOrgRoleGroupView.getPipelineIdentifierSet().stream()
+            .map(this::getPipelineIdentifierPickableStringAsBase64)
             .collect(Collectors.toSet()),
         pipelinesAndOrgRoleGroupView.getOrganisationIdsOfRoleOwners().stream()
             .map(OrganisationUnitId::asInt)
@@ -64,16 +66,25 @@ public class PipelineHuooUrlFactory {
   }
 
   public String assignUnassignedPipelineOwnersUrl(HuooRole huooRole,
-                                             PipelineHuooRoleSummaryView pipelineHuooRoleSummaryView) {
+                                                  PipelineHuooRoleSummaryView pipelineHuooRoleSummaryView) {
     return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).editGroupRouter(
         applicationType,
         applicationId,
         huooRole,
         null,
         ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-        pipelineHuooRoleSummaryView.getUnassignedPipelineIds().stream().map(PipelineId::asInt).collect(Collectors.toSet()),
+        pipelineHuooRoleSummaryView.getUnassignedPipelineIds()
+            .stream()
+            .map(this::getPipelineIdentifierPickableStringAsBase64)
+            .collect(Collectors.toSet()),
         Collections.emptySet(),
         Collections.emptySet()
     ));
+  }
+
+  private String getPipelineIdentifierPickableStringAsBase64(PipelineIdentifier pipelineIdentifier) {
+    var pickableString = PickableHuooPipelineType.createPickableString(pipelineIdentifier);
+    // Yuck, workaround as otherise string pickableString is not correctly mapped into Set<String> by controller. dont know why.
+    return Base64.getUrlEncoder().encodeToString(pickableString.getBytes());
   }
 }

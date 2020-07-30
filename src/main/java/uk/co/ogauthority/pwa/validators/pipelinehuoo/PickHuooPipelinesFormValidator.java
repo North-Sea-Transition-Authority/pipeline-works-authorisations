@@ -17,21 +17,21 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineOption;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickablePipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.ReconciledHuooPickablePipeline;
 
 @Service
 public class PickHuooPipelinesFormValidator implements SmartValidator {
 
-  private final PickablePipelineService pickablePipelineService;
+  private final PickableHuooPipelineService pickableHuooPipelineService;
   private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
   public PickHuooPipelinesFormValidator(
-      PickablePipelineService pickablePipelineService,
+      PickableHuooPipelineService pickableHuooPipelineService,
       PadOrganisationRoleService padOrganisationRoleService) {
 
-    this.pickablePipelineService = pickablePipelineService;
+    this.pickableHuooPipelineService = pickableHuooPipelineService;
     this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
@@ -194,9 +194,13 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
       }
 
 
-      var validPickablePipelineIds = pickablePipelineService.getAllPickablePipelinesForApplication(pwaApplicationDetail)
+      var validPickablePipelineIds = pickableHuooPipelineService.reconcilePickablePipelinesFromStrings(
+          pwaApplicationDetail,
+          huooRole,
+          form.getPickedPipelineStrings()
+      )
           .stream()
-          .map(PickablePipelineOption::getPickableString)
+          .map(ReconciledHuooPickablePipeline::getPickableIdAsString)
           .collect(toSet());
 
       if (form.getPickedPipelineStrings().stream().anyMatch(

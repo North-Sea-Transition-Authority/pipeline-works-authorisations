@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
@@ -41,11 +42,12 @@ public class ModifyPipelineService {
   public List<PipelineDetail> getConsentedPipelinesNotOnApplication(PwaApplicationDetail pwaApplicationDetail) {
     var consentedPipelines = pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(
         pwaApplicationDetail.getMasterPwaApplication());
-    var padPipelines = padPipelineService.getPipelines(pwaApplicationDetail);
+    var pipelineIdsContainedInApplication = padPipelineService.getPipelines(pwaApplicationDetail).stream()
+        .map(PadPipeline::getPipelineId)
+        .collect(Collectors.toSet());
 
     return consentedPipelines.stream()
-        .filter(pipelineDetail -> padPipelines.stream()
-            .noneMatch(pipeline -> pipeline.getPipeline().getId().equals(pipelineDetail.getPipelineId())))
+        .filter(pipelineDetail -> !pipelineIdsContainedInApplication.contains(pipelineDetail.getPipelineId()))
         .collect(Collectors.toUnmodifiableList());
   }
 

@@ -62,7 +62,9 @@ public class ModifyPipelineController {
         .collect(StreamUtils.toLinkedHashMap(named -> String.valueOf(named.getPipelineId()),
             NamedPipeline::getPipelineName));
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/importConsented")
-        .addObject("consentedPipelines", pipelineSelection);
+        .addObject("consentedPipelines", pipelineSelection)
+        .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class)
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)));
     applicationBreadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         "Modify consented pipeline");
     return modelAndView;

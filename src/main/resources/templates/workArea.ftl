@@ -35,7 +35,7 @@
 
                   <tr class="govuk-table__row">
                     <td class="govuk-table__cell">
-                        <#assign viewLinkText=item.padReference?has_content?then(item.padReference, "Resume draft PWA") />
+                        <#assign viewLinkText=item.padReference?has_content?then(item.padReference, "Resume draft PWA") /> 
                         <@fdsAction.link linkText=viewLinkText
                         linkUrl=springUrl(item.viewApplicationUrl)
                         linkClass="govuk-link govuk-link--no-visited-state"

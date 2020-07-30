@@ -108,7 +108,7 @@ public class PadPipelineOverview implements PipelineOverview {
 
     return new PadPipelineOverview(
         padPipelineSummaryDto.getPadPipelineId(),
-        padPipelineSummaryDto.getPipelineId(),
+        padPipelineSummaryDto.getPipelineId().asInt(),
         padPipelineSummaryDto.getFromLocation(),
         padPipelineSummaryDto.getFromCoordinates(),
         padPipelineSummaryDto.getToLocation(),

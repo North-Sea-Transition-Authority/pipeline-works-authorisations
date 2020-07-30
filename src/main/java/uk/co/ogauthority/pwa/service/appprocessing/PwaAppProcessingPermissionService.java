@@ -43,6 +43,10 @@ public class PwaAppProcessingPermissionService {
               return roles.contains(PwaRegulatorRole.PWA_MANAGER);
             case CASE_OFFICER_REVIEW:
               return roles.contains(PwaRegulatorRole.CASE_OFFICER);
+            case VIEW_CONSULTATIONS:
+              return roles.contains(PwaRegulatorRole.CASE_OFFICER);
+            case EDIT_CONSULTATIONS:
+              return roles.contains(PwaRegulatorRole.CASE_OFFICER);
             default:
               return false;
 

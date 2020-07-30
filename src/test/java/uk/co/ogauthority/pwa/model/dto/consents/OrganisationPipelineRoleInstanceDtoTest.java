@@ -7,7 +7,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
@@ -18,7 +21,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
 
 
   @Test
-  public void organisationPipelineRoleDto_constructorMapsArgsAsExpected() {
+  public void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenWholePipelines() {
 
     for (HuooRole role : HuooRole.values()) {
       for (HuooType type : HuooType.values()) {
@@ -28,12 +31,51 @@ public class OrganisationPipelineRoleInstanceDtoTest {
             null,
             role,
             type,
-            PIPELINE_ID);
+            PIPELINE_ID,
+            null,
+            null,
+            null,
+            null);
 
         assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
         assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
-        assertThat(organisationPipelineRoleDto.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).isEqualTo(new PipelineId(PIPELINE_ID));
         assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).isOfAnyClassIn(PipelineId.class);
+      }
+
+    }
+
+
+  }
+
+  @Test
+  public void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenPipelineSegments() {
+
+    for (HuooRole role : HuooRole.values()) {
+      for (HuooType type : HuooType.values()) {
+        var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
+            OU_ID,
+            null,
+            null,
+            role,
+            type,
+            PIPELINE_ID,
+            "Start",
+            IdentLocationInclusionMode.INCLUSIVE,
+            "End",
+            IdentLocationInclusionMode.EXCLUSIVE);
+
+        assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
+        assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).satisfies(pipelineIdentifier -> {
+          var pipelineSegment = (PipelineSegment) pipelineIdentifier;
+          assertThat(pipelineSegment.getFromPoint()).isEqualTo(PipelineIdentPoint.inclusivePoint("Start"));
+          assertThat(pipelineSegment.getToPoint()).isEqualTo(PipelineIdentPoint.exclusivePoint("End"));
+          assertThat(pipelineSegment.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
+        });
+        assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));
+
       }
 
     }
