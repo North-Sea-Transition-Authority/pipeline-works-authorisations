@@ -23,9 +23,6 @@ public class FastTrackValidator implements Validator {
         && form.getHasOtherReason() == null) {
       errors.rejectValue("avoidEnvironmentalDisaster", "avoidEnvironmentalDisaster.noneSelected",
           "Select at least one reason for fast-tracking the application");
-      errors.rejectValue("savingBarrels", "savingBarrels.noneSelected","");
-      errors.rejectValue("projectPlanning", "projectPlanning.noneSelected","");
-      errors.rejectValue("hasOtherReason", "hasOtherReason.noneSelected","");
     }
     if (BooleanUtils.isTrue(form.getAvoidEnvironmentalDisaster())
         && StringUtils.isBlank(form.getEnvironmentalDisasterReason())) {

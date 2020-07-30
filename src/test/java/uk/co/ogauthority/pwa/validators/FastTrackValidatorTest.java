@@ -28,10 +28,7 @@ public class FastTrackValidatorTest {
   public void validate_EmptyForm() {
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, new FastTrackForm());
     assertThat(errors).containsOnly(
-        entry("avoidEnvironmentalDisaster", Set.of("avoidEnvironmentalDisaster.noneSelected")),
-        entry("savingBarrels", Set.of("savingBarrels.noneSelected")),
-        entry("projectPlanning", Set.of("projectPlanning.noneSelected")),
-        entry("hasOtherReason", Set.of("hasOtherReason.noneSelected"))
+        entry("avoidEnvironmentalDisaster", Set.of("avoidEnvironmentalDisaster.noneSelected"))
     );
   }
 
