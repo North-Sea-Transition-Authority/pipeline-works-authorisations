@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Pe
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
 
 /**
- * Defines basic details about appplication summary sections. inclusing :
+ * Defines basic details about application summary sections. Including:
  * - the order they should be processed when generating a whole app summary;
  * - the path to the template which can render the summary
  * - the service to be used to generate the summary itself.

@@ -28,11 +28,10 @@ public class ApplicationSummaryService {
     return summariseAsDiff(pwaApplicationDetail, pwaApplicationDetail);
   }
 
-
   /**
-   * For when a summary with diff info is required. Lopp over
+   * For when a summary with diff info is required. Loop over
    */
-  @Transactional(readOnly = true)
+  @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
   public List<ApplicationSectionSummary> summariseAsDiff(PwaApplicationDetail newPwaApplicationDetail,
                                                          PwaApplicationDetail oldPwaApplicationDetail) {
 

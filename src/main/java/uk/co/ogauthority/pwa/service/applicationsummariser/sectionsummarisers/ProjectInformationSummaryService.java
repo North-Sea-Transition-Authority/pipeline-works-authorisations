@@ -27,15 +27,13 @@ public class ProjectInformationSummaryService implements ApplicationSectionSumma
 
   @Override
   public boolean canSummarise(PwaApplicationDetail newPwaApplicationDetail,
-                              PwaApplicationDetail oldPwaApplicationDetail) {
+                               PwaApplicationDetail oldPwaApplicationDetail) {
 
-    var taskNameFilter = Set.of(
-        ApplicationTask.PROJECT_INFORMATION.getDisplayName());
+    var taskFilter = Set.of(
+        ApplicationTask.PROJECT_INFORMATION);
 
     return ApplicationSummariserUtil.canSummariseOptimised(newPwaApplicationDetail, oldPwaApplicationDetail,
-        (pwaApplicationDetail -> taskListService.getPrepareAppTasks(newPwaApplicationDetail)
-            .stream()
-            .anyMatch(o -> taskNameFilter.contains(o.getTaskName()))));
+        (pwaApplicationDetail -> taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)));
   }
 
   @Override

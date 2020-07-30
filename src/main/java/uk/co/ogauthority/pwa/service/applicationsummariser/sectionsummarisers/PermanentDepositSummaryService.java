@@ -29,14 +29,14 @@ public class PermanentDepositSummaryService implements ApplicationSectionSummari
   public boolean canSummarise(PwaApplicationDetail newPwaApplicationDetail,
                               PwaApplicationDetail oldPwaApplicationDetail) {
 
-    var taskNameFilter = Set.of(
-        ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(),
-        ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName());
+    var taskFilter = Set.of(
+        ApplicationTask.PERMANENT_DEPOSITS,
+        ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
+    );
 
     return ApplicationSummariserUtil.canSummariseOptimised(newPwaApplicationDetail, oldPwaApplicationDetail,
-        (pwaApplicationDetail -> taskListService.getPrepareAppTasks(newPwaApplicationDetail)
-            .stream()
-            .anyMatch(o -> taskNameFilter.contains(o.getTaskName()))));
+        (pwaApplicationDetail -> taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)));
+
   }
 
   @Override

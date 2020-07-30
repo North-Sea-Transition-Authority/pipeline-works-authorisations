@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListServiceTest {
@@ -301,6 +303,54 @@ public class TaskListServiceTest {
     return taskList.stream()
         .map(TaskListEntry::getTaskName)
         .collect(Collectors.toList());
+  }
+
+  @Test
+  public void anyTaskShownForApplication_callsOutToRequestedTaskServices_whenMultiple_andNeitherShown() {
+
+    var projTask = ApplicationTask.PROJECT_INFORMATION;
+    var permTask = ApplicationTask.PERMANENT_DEPOSITS;
+    ApplicationFormSectionService projService = mock(ApplicationFormSectionService.class);
+    ApplicationFormSectionService permService = mock(ApplicationFormSectionService.class);
+    when(springApplicationContext.getBean(projTask.getServiceClass())).thenAnswer(invocation -> projService);
+    when(springApplicationContext.getBean(permTask.getServiceClass())).thenAnswer(invocation -> permService);
+
+    var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    var result = taskListService.anyTaskShownForApplication(
+        Set.of(projTask, permTask),
+        pwaApplicationDetail
+    );
+
+    verify(projService, times(1)).canShowInTaskList(pwaApplicationDetail);
+    verify(permService, times(1)).canShowInTaskList(pwaApplicationDetail);
+    assertThat(result).isFalse();
+
+  }
+
+  @Test
+  public void anyTaskShownForApplication_callsOutToRequestedTaskServices_whenMultiple_andOnlyOneShown() {
+
+    var projTask = ApplicationTask.PROJECT_INFORMATION;
+    var permTask = ApplicationTask.PERMANENT_DEPOSITS;
+    ApplicationFormSectionService projService = mock(ApplicationFormSectionService.class);
+    ApplicationFormSectionService permService = mock(ApplicationFormSectionService.class);
+    when(springApplicationContext.getBean(projTask.getServiceClass())).thenAnswer(invocation -> projService);
+    when(springApplicationContext.getBean(permTask.getServiceClass())).thenAnswer(invocation -> permService);
+
+    var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    when(projService.canShowInTaskList(pwaApplicationDetail)).thenReturn(true);
+
+    var result = taskListService.anyTaskShownForApplication(
+        Set.of(projTask, permTask),
+        pwaApplicationDetail
+    );
+
+    verify(projService, times(1)).canShowInTaskList(pwaApplicationDetail);
+    verify(permService, times(1)).canShowInTaskList(pwaApplicationDetail);
+    assertThat(result).isTrue();
+
   }
 
 }

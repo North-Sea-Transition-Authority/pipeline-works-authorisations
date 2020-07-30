@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,23 @@ public class TaskListService {
     this.taskCompletionService = taskCompletionService;
     this.pwaContactService = pwaContactService;
     this.masterPwaViewService = masterPwaViewService;
+  }
+
+
+  /**
+   * <p>For a given application return true if one or more task in the provided set is shown in the task list.</p>
+   * <p>This requires eventual performance fixing. API provided for external services ease of use.</p>
+   */
+  public boolean anyTaskShownForApplication(Set<ApplicationTask> applicationTasks,
+                                            PwaApplicationDetail pwaApplicationDetail) {
+    // This step required because we only have access to the whole list designed for use in the templates.
+    var taskDisplayNames = applicationTasks.stream()
+        .map(ApplicationTask::getDisplayName)
+        .collect(Collectors.toSet());
+
+    return getPrepareAppTasks(pwaApplicationDetail)
+        .stream()
+        .anyMatch(o -> taskDisplayNames.contains(o.getTaskName()));
   }
 
   @VisibleForTesting
