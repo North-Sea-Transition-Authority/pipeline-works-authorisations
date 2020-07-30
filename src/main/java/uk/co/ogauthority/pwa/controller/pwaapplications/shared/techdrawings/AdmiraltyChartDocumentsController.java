@@ -43,9 +43,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
-    PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.CAT_1_VARIATION
 })
 public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 

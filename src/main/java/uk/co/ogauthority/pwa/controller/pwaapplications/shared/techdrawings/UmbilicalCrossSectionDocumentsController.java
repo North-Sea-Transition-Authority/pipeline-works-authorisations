@@ -44,9 +44,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
-    PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.CAT_1_VARIATION
 })
 public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
@@ -107,7 +105,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationData
   }
 
   @PostMapping
-  public ModelAndView postDocuments(
+  public ModelAndView postAddDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") UmbilicalCrossSectionForm form,

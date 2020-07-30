@@ -209,7 +209,6 @@ public class AdmiraltyChartFileServiceTest {
 
   @Test
   public void validate_full_whenDocumentRequired_andZeroDocuments() {
-    when(padAdmiraltyChartFileRepository.countAllByPwaApplicationDetail(eq(pwaApplicationDetail))).thenReturn(1);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -219,7 +218,6 @@ public class AdmiraltyChartFileServiceTest {
 
   @Test
   public void validate_full_whenDocumentRequired_andDocumentWithDescriptionProvided() {
-    when(padAdmiraltyChartFileRepository.countAllByPwaApplicationDetail(eq(pwaApplicationDetail))).thenReturn(1);
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);

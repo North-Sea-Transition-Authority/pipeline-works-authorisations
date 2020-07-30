@@ -13,7 +13,7 @@
 
     <@fdsInsetText.insetText>
       You must provide a cross-section diagram for the main umbilical if it is part of your application.
-        <#if fileViews?has_content == false>
+        <#if fileViews?size == 0>
             <br/><br/>
           No umbilical cross-section diagram has been added to this application.
         </#if>
