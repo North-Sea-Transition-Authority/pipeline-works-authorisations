@@ -18,6 +18,10 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelin
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
+
+/**
+ * This is testing the same class as {@link PermanentDepositEntityMappingServiceTest}?.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositViewMappingServiceTest {
 
@@ -29,7 +33,7 @@ public class PermanentDepositViewMappingServiceTest {
   private static final int C_DEPTH = 3;
   private static final String CONTINGENCY = "4 and a half things";
   private static final String SIZE = "Bigger than small";
-  private static final double  QUANTITY = 4.0;
+  private static final double QUANTITY = 4.0;
 
   private static final LocalDate FROM_DATE = LocalDate.now();
   private static final LocalDate TO_DATE = LocalDate.now().plusMonths(3);
@@ -147,12 +151,12 @@ public class PermanentDepositViewMappingServiceTest {
   @Test
   public void createPermanentDepositOverview_materialTypeGroutBags_withNonBioBags() {
     PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", "some reason");
-    var actualView =  permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
 
     assertThat(actualView.getEntityID()).isEqualTo(40);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
     assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.GROUT_BAGS.name());
-    assertThat(actualView.getBioGroutBagsNotUsedDescription()).isEqualTo("some reason");;
+    assertThat(actualView.getBioGroutBagsNotUsedDescription()).isEqualTo("some reason");
     assertThat(actualView.getGroutBagsBioDegradable()).isFalse();
     assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " kilograms");
     assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
@@ -162,7 +166,7 @@ public class PermanentDepositViewMappingServiceTest {
   @Test
   public void createPermanentDepositOverview_materialTypeGroutBags_withBioBags() {
     PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", null);
-    var actualView =  permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
 
     assertThat(actualView.getEntityID()).isEqualTo(40);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
