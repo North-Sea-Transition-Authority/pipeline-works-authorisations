@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 
@@ -17,6 +17,6 @@ public interface PadTechnicalDrawingLinkRepository extends CrudRepository<PadTec
   List<PadTechnicalDrawingLink> getAllByTechnicalDrawing(PadTechnicalDrawing drawing);
 
   List<PadTechnicalDrawingLink> getAllByTechnicalDrawing_PwaApplicationDetailAndPipeline(PwaApplicationDetail detail,
-                                                                                         Pipeline pipeline);
+                                                                                         PadPipeline pipeline);
 
 }

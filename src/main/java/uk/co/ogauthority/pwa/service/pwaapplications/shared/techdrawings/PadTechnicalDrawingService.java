@@ -297,6 +297,30 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .allMatch(pipeline -> linkedPipelineIds.contains(pipeline.getId()));
   }
 
+  /**
+   * A drawing will only become unlinked once all pipelines have been removed.
+   * Could have an effect if someone is mid-editing drawing. Will this be an issue?
+   *
+   * @param pwaApplicationDetail The current application detail
+   */
+  @Transactional
+  public void cleanUnlinkedDrawings(PwaApplicationDetail pwaApplicationDetail) {
+    var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+    Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap =
+        padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings)
+            .stream()
+            .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
+
+    var drawingsToDelete = drawings.stream()
+        .filter(drawing -> linkMap.keySet().stream()
+            .noneMatch(groupedDrawing -> drawing.getId().equals(groupedDrawing.getId())))
+        .collect(Collectors.toUnmodifiableList());
+
+    if (!drawingsToDelete.isEmpty()) {
+      padTechnicalDrawingRepository.deleteAll(drawingsToDelete);
+    }
+  }
+
   public BindingResult validateSection(BindingResult bindingResult, PwaApplicationDetail pwaApplicationDetail) {
 
     if (!getValidationFactory(pwaApplicationDetail).isComplete()) {

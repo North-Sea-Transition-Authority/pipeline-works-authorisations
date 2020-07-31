@@ -243,12 +243,12 @@ public class PermanentDepositsServiceTest {
     PadDepositPipeline depositsForPipelines = new PadDepositPipeline();
     var padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("1");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     depositsForPipelines = new PadDepositPipeline();
     padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("2");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(10)).thenReturn(depositsForPipelinesList);
 
@@ -256,7 +256,7 @@ public class PermanentDepositsServiceTest {
     depositsForPipelines = new PadDepositPipeline();
     padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("3");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
 
@@ -279,7 +279,7 @@ public class PermanentDepositsServiceTest {
     PadDepositPipeline depositsForPipelines = new PadDepositPipeline();
     var padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("1");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(1)).thenReturn(depositsForPipelinesList);
 

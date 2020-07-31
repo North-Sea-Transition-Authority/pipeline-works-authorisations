@@ -480,8 +480,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   }
 
   @Transactional
-  public void deletePadPipelineRoleLinksForPadPipeline(PwaApplicationDetail detail,
-                                                       PadPipeline padPipeline) {
+  public void deletePipelineRoleLinksForPadPipeline(PwaApplicationDetail detail,
+                                                    PadPipeline padPipeline) {
     var links = padPipelineOrganisationRoleLinkRepository.getAllByPadOrgRole_PwaApplicationDetailAndPipeline(
         detail,
         padPipeline.getPipeline()

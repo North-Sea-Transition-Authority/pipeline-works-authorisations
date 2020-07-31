@@ -250,6 +250,25 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     padCampaignWorksPipelineRepository.deleteAll(pipelines);
   }
 
+  public void cleanupUnlinkedSchedules(PwaApplicationDetail pwaApplicationDetail) {
+
+    var schedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+
+    Map<PadCampaignWorkSchedule, List<PadCampaignWorksPipeline>> campaignMap =
+        padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail)
+            .stream()
+            .collect(Collectors.groupingBy(PadCampaignWorksPipeline::getPadCampaignWorkSchedule));
+
+    var schedulesToRemove = schedules.stream()
+        .filter(schedule -> campaignMap.keySet().stream()
+            .noneMatch(groupedSchedule -> schedule.getId().equals(groupedSchedule.getId())))
+        .collect(Collectors.toUnmodifiableList());
+
+    if (!schedulesToRemove.isEmpty()) {
+      padCampaignWorkScheduleRepository.deleteAll(schedulesToRemove);
+    }
+  }
+
   private PadCampaignWorkSchedule setCampaignWorkScheduleValues(LocalDate workStart, LocalDate workEnd,
                                                                 List<PadPipeline> associatedPipelines,
                                                                 PadCampaignWorkSchedule schedule) {

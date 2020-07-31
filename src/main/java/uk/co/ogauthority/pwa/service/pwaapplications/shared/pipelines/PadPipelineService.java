@@ -69,7 +69,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PipelineIdentFormValidator pipelineIdentFormValidator;
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadPipelinePersisterService padPipelinePersisterService;
-  private final PipelineRemovalService pipelineRemovalService;
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
@@ -77,15 +76,13 @@ public class PadPipelineService implements ApplicationFormSectionService {
                             PipelineDetailService pipelineDetailService,
                             PadPipelineIdentService padPipelineIdentService,
                             PipelineIdentFormValidator pipelineIdentFormValidator,
-                            PadPipelinePersisterService padPipelinePersisterService,
-                            PipelineRemovalService pipelineRemovalService) {
+                            PadPipelinePersisterService padPipelinePersisterService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
     this.padPipelinePersisterService = padPipelinePersisterService;
-    this.pipelineRemovalService = pipelineRemovalService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
