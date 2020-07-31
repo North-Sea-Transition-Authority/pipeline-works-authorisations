@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.UmbilicalCrossSectionForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -62,7 +63,8 @@ public class UmbilicalCrossSectionServiceTest {
     ));
     var result = crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     assertThat(result.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .containsExactly("uploadedFileWithDescriptionForms.exceededMaximumUpload");
+        .containsExactly(
+            "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode());
   }
 
   @Test

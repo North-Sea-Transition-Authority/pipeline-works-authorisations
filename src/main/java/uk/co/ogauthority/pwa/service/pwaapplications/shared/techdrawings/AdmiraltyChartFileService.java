@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadAdmiraltyChartFileRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
@@ -89,7 +90,7 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
    * Get admiralty chart files with requested link status as standard uploaded file views.
    */
   public List<UploadedFileView> getAdmiraltyChartFileViews(PwaApplicationDetail pwaApplicationDetail,
-                                                          ApplicationFileLinkStatus fileLinkStatus) {
+                                                           ApplicationFileLinkStatus fileLinkStatus) {
 
     var fileViews = entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.form.files.UploadedFileView(" +
@@ -128,7 +129,7 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
    * Create and persist a new admiralty chart file linked to app detail and uploaded file id.
    */
   private PadAdmiraltyChartFile createAndSaveAdmiraltyChartFile(PwaApplicationDetail pwaApplicationDetail,
-                                                                 String uploadedFileId) {
+                                                                String uploadedFileId) {
     var newFileLink = new PadAdmiraltyChartFile(
         pwaApplicationDetail,
         uploadedFileId,
@@ -144,7 +145,7 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
    */
   @Transactional
   void deleteAdmiraltyChartFilesAndLinkedUploads(Iterable<PadAdmiraltyChartFile> filesToBeRemoved,
-                                                WebUserAccount user) {
+                                                 WebUserAccount user) {
     for (PadAdmiraltyChartFile fileToRemove : filesToBeRemoved) {
       var result = fileUploadService.deleteUploadedFile(fileToRemove.getFileId(), user);
       if (!result.isValid()) {
@@ -279,8 +280,8 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
 
     if (((AdmiraltyChartDocumentForm) form).getUploadedFileWithDescriptionForms().size() > 1) {
       bindingResult.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms.exceededMaximumUpload",
-              "You must provide a single admiralty chart");
+          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
+          "You must provide a single admiralty chart");
     }
 
     return bindingResult;
@@ -295,5 +296,5 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
         return false;
     }
   }
-  
+
 }

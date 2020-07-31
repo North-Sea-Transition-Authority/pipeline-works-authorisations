@@ -182,12 +182,4 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
-
-  @Test
-  public void renderAddDocuments() {
-  }
-
-  @Test
-  public void postDocuments() {
-  }
 }

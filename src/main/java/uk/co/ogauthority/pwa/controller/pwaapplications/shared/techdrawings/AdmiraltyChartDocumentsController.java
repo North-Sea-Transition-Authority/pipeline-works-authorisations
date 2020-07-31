@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
-import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -122,7 +122,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
         applicationContext.getApplicationDetail()
     );
     var modelAndView = createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
-    ValidatorUtils.getErrorMessageFromCode(bindingResult, "uploadedFileWithDescriptionForms.exceededMaximumUpload")
+    FileUploadUtils.getDropzoneErrorMessage(bindingResult)
         .ifPresent(s -> modelAndView.addObject("dropzoneErrorText", s));
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 

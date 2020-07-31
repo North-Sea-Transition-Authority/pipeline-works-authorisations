@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
@@ -15,8 +14,6 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -360,13 +357,5 @@ public class ValidatorUtils {
       errors.rejectValue(field, field + INVALID.getCode(),
           String.format("%s must be %d decimal %s or fewer", fieldLabel, decimalPlaces, placePluralised));
     }
-  }
-
-  public static Optional<String> getErrorMessageFromCode(BindingResult bindingResult, String errorCode) {
-    return bindingResult.getAllErrors()
-        .stream()
-        .filter(objectError -> "uploadedFileWithDescriptionForms.exceededMaximumUpload".equals(objectError.getCode()))
-        .map(DefaultMessageSourceResolvable::getDefaultMessage)
-        .findFirst();
   }
 }
