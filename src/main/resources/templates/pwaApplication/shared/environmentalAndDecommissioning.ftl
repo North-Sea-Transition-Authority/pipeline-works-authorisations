@@ -10,6 +10,8 @@
 
     <@fdsForm.htmlForm>
       <h2 class="govuk-heading-l">Environmental</h2>
+      <@fdsDetails.details detailsTitle="What is the ESPOO convention?" 
+                detailsText="The ESPOO (EIA) Convention sets out the obligations of Parties to assess the environmental impact of certain activities at an early stage of planning. It also lays down the general obligation of States to notify and consult each other on all major projects under consideration that are likely to have a significant adverse environmental impact across boundaries."/>
         <@fdsRadio.radioGroup path="form.transboundaryEffect" labelText="Does the development present a significant trans-boundary environmental effect?" hintText="As described in the ESPOO Convention" fieldsetHeadingClass="govuk-fieldset__legend--m" fieldsetHeadingSize="h3">
             <@fdsRadio.radioYes path="form.transboundaryEffect"/>
             <@fdsRadio.radioNo path="form.transboundaryEffect"/>

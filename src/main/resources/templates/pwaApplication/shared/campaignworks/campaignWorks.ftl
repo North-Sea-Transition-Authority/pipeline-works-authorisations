@@ -47,6 +47,7 @@
     <@fdsInsetText.insetText>
       <p>Your application requires campaign works information due to the information provided in the ${dependencySectionName} section.</p>
       <p><a href="${springUrl(dependencySectionUrl)}" class="govuk-link">Click here to change your campaign works approach.</a></p>
+      <p>Provide the schedule of campaign works for the pipelines on this application. You do not have to provide information on pipelines that are not part of this application. If a pipeline is installed over multiple periods, then add it to each relevant period.</p>
     </@fdsInsetText.insetText>
 
     <@fdsAction.link linkText="Add work schedule" linkUrl=springUrl(urlFactory.addWorkScheduleUrl()) linkClass="govuk-button govuk-button--blue"/>

@@ -20,10 +20,7 @@
         <@fdsDateInput.dateInput dayPath="form.earliestCompletionDay" monthPath="form.earliestCompletionMonth" yearPath="form.earliestCompletionYear" labelText="Earliest completion date" formId="form.earliestCompletion"/>
         <@fdsDateInput.dateInput dayPath="form.latestCompletionDay" monthPath="form.latestCompletionMonth" yearPath="form.latestCompletionYear" labelText="Latest completion date" formId="form.latestCompletion"/>
         
-        <@fdsInsetText.insetText>
-        <p>A licence transfer is in relation to a transfer of equity share from one company to another for a defined asset, field or infrastructure.</p>
-        </@fdsInsetText.insetText>
-        <@fdsRadio.radioGroup path="form.licenceTransferPlanned" labelText="Is a licence transfer planned?" hiddenContent=true>
+        <@fdsRadio.radioGroup path="form.licenceTransferPlanned" labelText="Is a licence transfer planned?" hiddenContent=true hintText="A licence transfer is in relation to a transfer of equity share from one company to another for a defined asset, field or infrastructure.">
             <@fdsRadio.radioYes path="form.licenceTransferPlanned">
                 <@fdsDateInput.dateInput dayPath="form.licenceTransferDay" monthPath="form.licenceTransferMonth" yearPath="form.licenceTransferYear" labelText="Licence transfer date" formId="form.licenceTransfer" nestingPath="form.licenceTransferPlanned"/>
                 <@fdsDateInput.dateInput dayPath="form.commercialAgreementDay" monthPath="form.commercialAgreementMonth" yearPath="form.commercialAgreementYear" labelText="Commercial agreement date" formId="form.commercialAgreement" nestingPath="form.licenceTransferPlanned"/>
@@ -31,10 +28,7 @@
             <@fdsRadio.radioNo path="form.licenceTransferPlanned"/>
         </@fdsRadio.radioGroup>        
 
-        <@fdsInsetText.insetText>
-        <p>Campaign works are a series of planned activities that a Holder will carry out over a defined period of time in order to achieve a particular goal, which is confined to a specified asset or field or PWA.</p>
-        </@fdsInsetText.insetText>
-        <@fdsRadio.radioGroup path="form.usingCampaignApproach" labelText="Will the work be completed using a campaign approach?">
+        <@fdsRadio.radioGroup path="form.usingCampaignApproach" labelText="Will the work be completed using a campaign approach?" hintText="Campaign works are a series of planned activities that a Holder will carry out over a defined period of time in order to achieve a particular goal, which is confined to a specified asset or field or PWA.">
           <@fdsRadio.radioYes path="form.usingCampaignApproach"/>
           <@fdsRadio.radioNo path="form.usingCampaignApproach"/>
         </@fdsRadio.radioGroup>
@@ -57,12 +51,11 @@
                 </@fdsRadio.radioGroup>
             </#if>
 
-             <@fdsInsetText.insetText>
-                <p>A deposit left in place for less than 20 days, unless you have pre-approval from the OGA.</p>
-            </@fdsInsetText.insetText>
-            <@fdsDetails.details detailsTitle="What is a temporary deposit?" detailsText="Temporary deposits are materials which are to be deposited on a temporary basis to provide support to a defined workscope and/or laying of pipelines and will be removed from the seabed back to shore following completion of a proposed work scope."/>
-            <@fdsDetails.details detailsTitle="What information do I need to provide?" detailsText="Details of the type of deposit; how long it will be on the seabed and whether the deposit will be within or outside a HSE 500m safety zone should be provided. This is for OGA information only and applications for temporary deposits should still be directed to the BEIS Environmental Management Team for consideration."/>
-            <@fdsRadio.radioGroup path="form.temporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true>
+            <@fdsDetails.details detailsTitle="What is a temporary deposit?" 
+                detailsText="Temporary deposits are materials which are to be deposited on a temporary basis to provide support to a defined workscope and/or laying of pipelines and will be removed from the seabed back to shore following completion of a proposed work scope."/>
+            <@fdsDetails.details detailsTitle="What information do I need to provide?" 
+                detailsText="Details of the type of deposit; how long it will be on the seabed and whether the deposit will be within or outside a HSE 500m safety zone should be provided. This is for OGA information only and applications for temporary deposits should still be directed to the BEIS Environmental Management Team for consideration."/>
+            <@fdsRadio.radioGroup path="form.temporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true hintText="A deposit left in place for less than 20 days, unless you have pre-approval from the OGA.">
                 <@fdsRadio.radioYes path="form.temporaryDepositsMade">
                     <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description of temporary deposits" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>

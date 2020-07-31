@@ -16,6 +16,12 @@
     <@validationResult.singleErrorSummary summaryValidationResult=pipelineSummaryValidationResult! />
     <@validationResult.errorSummary summaryValidationResult=pipelineSummaryValidationResult! />
 
+    <#--  <#if canImportConsentedPipeline>
+        <@fdsFlash.flash >
+            <p class="govuk-body">The pipeline to be modified has been added to the pipelines listed below</p>
+        </@fdsFlash.flash>
+    </#if>  -->
+
     <#if !pipelineTaskListItems?has_content>
         <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
     </#if>

@@ -94,7 +94,7 @@ public class PwaContactController {
           .collect(Collectors.toList());
 
       var modelAndView = new ModelAndView("teamManagement/teamMembers")
-          .addObject("teamName", "Application contacts")
+          .addObject("teamName", "Application users")
           .addObject("teamMemberViews", teamMemberViews)
           .addObject("addUserUrl", ReverseRouter.route(on(PwaContactController.class)
               .renderAddContact(pwaApplication.getApplicationType(), applicationId, null, user)))

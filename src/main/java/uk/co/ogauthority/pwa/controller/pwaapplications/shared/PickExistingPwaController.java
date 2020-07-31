@@ -70,10 +70,10 @@ public class PickExistingPwaController {
                                                       @ModelAttribute("form") PickPwaForm form,
                                                       AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
-    return getPickPwaModelAndView(user);
+    return getPickPwaModelAndView(user, pwaApplicationType);
   }
 
-  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user) {
+  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user, PwaApplicationType pwaApplicationType) {
 
     Map<String, String> selectablePwaMap = pickedPwaRetrievalService.getPickablePwasWhereAuthorised(user)
         .stream()
@@ -83,7 +83,8 @@ public class PickExistingPwaController {
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
         .addObject("selectablePwaMap", selectablePwaMap)
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .addObject("errorList", List.of());
+        .addObject("errorList", List.of())
+        .addObject("pwaApplicationType", pwaApplicationType);
   }
 
   @PostMapping("/pick-pwa-for-application")
@@ -93,7 +94,7 @@ public class PickExistingPwaController {
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user, pwaApplicationType), () -> {
       var pickedPwa = new PickablePwa(form.getPickablePwaString());
       var newApplication = pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(
           pickedPwa,

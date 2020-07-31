@@ -13,7 +13,14 @@
 
     <@fdsSearchSelector.searchSelectorEnhanced labelHeadingClass="govuk-label--l" path="form.holderOuId" labelText="Consent holder" options=ouMap pageHeading=true/>
 
-      <@fdsInsetText.insetText>You can only create a new PWA for organisations within the following groups: <#list ogList as group> ${group} <#sep>, </#list> </@fdsInsetText.insetText>
+      <#assign groups>
+        <#list ogList as group> ${group} <#sep>, </#list>
+      </#assign>   
+      <@fdsDetails.details detailsTitle="The holder organisation is not in the list" 
+        detailsText="You can only create a new PWA for organisations within the following groups: ${groups}. 
+        If the group you need to create a PWA for is not shown above then you must contact the holder to create the new PWA application on your behalf and provide you with access to the application. Alternatively, they can provide you with access to their organisation account.
+        If you already have access to the holder group but your legal entity as per companies house is not shown in the list then provide the OGA with the holder company name, address including postcode and companies house registration number to add to the PWA service: [service desk email]"
+        />
 
       <#if hasHolderSet>
         <@fdsAction.submitButtons primaryButtonText="Save" linkSecondaryAction=true secondaryLinkText="Back to task list" linkSecondaryActionUrl=springUrl(taskListUrl) />
