@@ -138,6 +138,8 @@ public class PadPipeline {
   private Boolean pipelineInBundle;
   private String bundleName;
 
+  private Long temporaryNumber;
+
   public PadPipeline() {
   }
 
@@ -367,6 +369,14 @@ public class PadPipeline {
         new LongitudeCoordinate(this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection)
     );
 
+  }
+
+  public Long getTemporaryNumber() {
+    return temporaryNumber;
+  }
+
+  public void setTemporaryNumber(Long temporaryNumber) {
+    this.temporaryNumber = temporaryNumber;
   }
 
   @Override

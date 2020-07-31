@@ -34,7 +34,12 @@
 
         <@fdsCard.card cardId=cardId cardClass=hasErrors?then("fds-card--error", "")>
 
-          <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" cardErrorMessage=cardErrorMessage />
+          <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" cardErrorMessage=cardErrorMessage>
+              <@fdsCard.cardAction cardLinkText="Remove"
+                cardLinkScreenReaderText="Remove pipeline ${pipeline.getPipelineName()}"
+                cardLinkUrl=springUrl(pipelineUrlFactory.getRemovePipelineUrl(pipeline.padPipelineId))
+              />
+          </@fdsCard.cardHeader>
 
           <hr class="govuk-section-break govuk-section-break--m"/>
 

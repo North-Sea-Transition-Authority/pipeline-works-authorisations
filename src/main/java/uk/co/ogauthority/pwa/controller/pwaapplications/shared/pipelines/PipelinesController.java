@@ -88,6 +88,13 @@ public class PipelinesController {
 
   }
 
+  private ModelAndView getRemovePipelineModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/removePipeline")
+        .addObject("pipeline", padPipelineService.getPipelineOverview(padPipeline));
+    breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Remove pipeline");
+    return modelAndView;
+  }
+
   @GetMapping
   public ModelAndView renderPipelinesOverview(@PathVariable("applicationId") Integer applicationId,
                                               @PathVariable("applicationType")
@@ -212,6 +219,16 @@ public class PipelinesController {
 
         });
 
+  }
+
+  @GetMapping("/pipeline/{padPipelineId}/remove")
+  public ModelAndView renderRemovePipeline(@PathVariable("applicationId") Integer applicationId,
+                                       @PathVariable("applicationType")
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       @PathVariable("padPipelineId") Integer padPipelineId,
+                                       PwaApplicationContext applicationContext) {
+    var pipeline = padPipelineService.getById(padPipelineId);
+    return getRemovePipelineModelAndView(applicationContext.getApplicationDetail(), pipeline);
   }
 
 }

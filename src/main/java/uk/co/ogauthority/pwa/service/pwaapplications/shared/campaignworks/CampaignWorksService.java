@@ -189,7 +189,8 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
     // need to add in any schedule with no pipeline so that removing the last pipeline from a schedule at the application level
     // will still keep showing the schedule
-    allSchedules.forEach(padCampaignWorkSchedule -> scheduleToSchedulePipelineMap.putIfAbsent(padCampaignWorkSchedule, List.of()));
+    allSchedules.forEach(
+        padCampaignWorkSchedule -> scheduleToSchedulePipelineMap.putIfAbsent(padCampaignWorkSchedule, List.of()));
 
     var listOfWorkScheduleViews = new ArrayList<WorkScheduleView>();
     for (Map.Entry<PadCampaignWorkSchedule, List<PadPipeline>> entry : scheduleToSchedulePipelineMap.entrySet()) {
@@ -240,6 +241,13 @@ public class CampaignWorksService implements ApplicationFormSectionService {
         padCampaignWorkSchedule);
     padCampaignWorksPipelineRepository.deleteAll(schedulePipelines);
     padCampaignWorkScheduleRepository.delete(padCampaignWorkSchedule);
+  }
+
+  @Transactional
+  public void removePipelineFromAllSchedules(PwaApplicationDetail pwaApplicationDetail, PadPipeline padPipeline) {
+    var pipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_PwaApplicationDetailAndAndPadPipeline(
+        pwaApplicationDetail, padPipeline);
+    padCampaignWorksPipelineRepository.deleteAll(pipelines);
   }
 
   private PadCampaignWorkSchedule setCampaignWorkScheduleValues(LocalDate workStart, LocalDate workEnd,

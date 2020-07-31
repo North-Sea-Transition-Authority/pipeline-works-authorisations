@@ -109,9 +109,10 @@ public class PadPipelineServiceTest {
         new CoordinateFormValidator());
 
     padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService,
-        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
+        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService, pipelineRemovalService);
 
-    mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService);
+    mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService,
+        pipelineRemovalService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);

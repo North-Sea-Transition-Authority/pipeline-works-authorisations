@@ -155,4 +155,14 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
         .map(PipelineId::new)
         .collect(Collectors.toUnmodifiableSet());
   }
+
+  @Override
+  public Long getMaxTemporaryNumberByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return entityManager.createQuery("" +
+        "SELECT NVL(MAX(pp.temporaryNumber), 0) " +
+        "FROM PadPipeline pp " +
+        "WHERE pp.pwaApplicationDetail = :detail", Long.class)
+        .setParameter("detail", pwaApplicationDetail)
+        .getSingleResult();
+  }
 }

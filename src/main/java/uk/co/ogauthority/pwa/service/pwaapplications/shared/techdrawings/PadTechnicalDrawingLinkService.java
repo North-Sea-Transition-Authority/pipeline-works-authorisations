@@ -62,4 +62,13 @@ public class PadTechnicalDrawingLinkService {
     var links = getLinksFromDrawingList(List.of(technicalDrawing));
     padTechnicalDrawingLinkRepository.deleteAll(links);
   }
+
+  @Transactional
+  public void removeAllPipelineLinks(PwaApplicationDetail detail, PadPipeline padPipeline) {
+    var links = padTechnicalDrawingLinkRepository.getAllByTechnicalDrawing_PwaApplicationDetailAndPipeline(
+        detail,
+        padPipeline.getPipeline()
+    );
+    padTechnicalDrawingLinkRepository.deleteAll(links);
+  }
 }
