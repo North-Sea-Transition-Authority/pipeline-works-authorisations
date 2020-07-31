@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.diff;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 
 /**
@@ -12,6 +13,7 @@ enum DiffComparisonTypes {
   STRING(Set.of(String.class, Integer.class), new StringComparisonStrategy()),
   LIST(Set.of(List.class), null),
   STRING_WITH_TAG(Set.of(StringWithTag.class), new StringWithTagComparisonStrategy()),
+  COORDINATE_PAIR(Set.of(CoordinatePair.class), new CoordinatePairComparisonStrategy()),
   NOT_SUPPORTED(Collections.emptySet(), null);
 
   private Set<Class<?>> supportedClasses;

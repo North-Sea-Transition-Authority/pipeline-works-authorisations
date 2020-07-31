@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -111,9 +111,8 @@ public class PermanentDepositController {
                                                   @PathVariable("depositId") Integer depositId,
                                                   PwaApplicationContext applicationContext,
                                                   @ModelAttribute("form") PermanentDepositsForm form) {
-    var view = new PermanentDepositsOverview();
-    permanentDepositService.populatePermanentDepositView(depositId, view);
-    return getRemovePermanentDepositsModelAndView(applicationContext.getApplicationDetail(), view);
+    var permanentDepositOverview = permanentDepositService.createViewFromDepositId(depositId);
+    return getRemovePermanentDepositsModelAndView(applicationContext.getApplicationDetail(), permanentDepositOverview);
   }
 
   @PostMapping
@@ -223,14 +222,14 @@ public class PermanentDepositController {
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("screenAction", type);
 
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Permanent deposits");
+    applicationBreadcrumbService.fromPermanentDeposits(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        type.getActionText() + " permanent deposit");
     return modelAndView;
   }
 
 
   private ModelAndView getRemovePermanentDepositsModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                              PermanentDepositsOverview view) {
+                                                              PermanentDepositOverview view) {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdeposits/permanentDepositsRemove");
     modelAndView.addObject("deposit", view)
         .addObject("cancelUrl", ReverseRouter.route(on(PermanentDepositController.class)

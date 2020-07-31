@@ -25,8 +25,8 @@
 
         <#list deposits as deposit>
             <h2 class="govuk-heading-m">${deposit.depositReference}</h2>
-            <@fdsAction.link linkText="Edit" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkScreenReaderText="Edit ${deposit.depositReference}" linkClass="govuk-link govuk-link--button" />
-            <@fdsAction.link linkText="Remove" linkUrl=springUrl(removeDepositUrls[deposit.entityID?string.number]) linkScreenReaderText="Remove ${deposit.depositReference}" linkClass="govuk-link govuk-link--button" />
+            <@fdsAction.link linkText="Edit" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkScreenReaderText="${deposit.depositReference}" linkClass="govuk-link govuk-link--button" />
+            <@fdsAction.link linkText="Remove" linkUrl=springUrl(removeDepositUrls[deposit.entityID?string.number]) linkScreenReaderText="${deposit.depositReference}" linkClass="govuk-link govuk-link--button" />
             <@depositViewSummary deposit/>
         </#list>
 

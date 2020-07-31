@@ -1,11 +1,25 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
+import java.text.DecimalFormat;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOverview;
+import uk.co.ogauthority.pwa.model.view.StringWithTag;
+import uk.co.ogauthority.pwa.model.view.Tag;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
@@ -15,6 +29,13 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
  */
 @Service
 public class PermanentDepositEntityMappingService {
+
+  private final PadDepositPipelineRepository padDepositPipelineRepository;
+
+  @Autowired
+  public PermanentDepositEntityMappingService(PadDepositPipelineRepository padDepositPipelineRepository) {
+    this.padDepositPipelineRepository = padDepositPipelineRepository;
+  }
 
   /**
    * Map Permanent Deposits stored data to form.
@@ -110,49 +131,63 @@ public class PermanentDepositEntityMappingService {
   }
 
 
-
   /**
    * Map Permanent Deposits stored data to view object.
    */
-  void mapDepositInformationDataToView(PadPermanentDeposit entity, PermanentDepositsOverview view) {
-    view.setEntityID(entity.getId());
-    view.setDepositReference(entity.getReference());
-    view.setFromMonth(entity.getFromMonth());
-    view.setFromYear(entity.getFromYear());
-    view.setToMonth(entity.getToMonth());
-    view.setToYear(entity.getToYear());
+  PermanentDepositOverview createPermanentDepositOverview(PadPermanentDeposit entity) {
 
-    if (entity.getMaterialType() != null) {
-      view.setMaterialType(entity.getMaterialType());
+    var sortedLinkedPipelineNames = padDepositPipelineRepository.findAllByPadPermanentDeposit(entity)
+        .stream()
+        .map(PadDepositPipeline::getPadPipeline)
+        .map(NamedPipelineDto::fromPadPipeline)
+        .map(NamedPipeline::getPipelineName)
+        .sorted(Comparator.comparing(String::toLowerCase))
+        .collect(Collectors.toList());
 
-      if (view.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
-        view.setConcreteMattressLength(entity.getConcreteMattressLength());
-        view.setConcreteMattressWidth(entity.getConcreteMattressWidth());
-        view.setConcreteMattressDepth(entity.getConcreteMattressDepth());
-        view.setQuantityConcrete(String.valueOf(entity.getQuantity()));
-        view.setContingencyConcreteAmount(entity.getContingencyAmount());
+    return new PermanentDepositOverview(
+        entity.getId(),
+        entity.getMaterialType().name(), // allows enum name lookup in templates.
+        entity.getReference(),
+        sortedLinkedPipelineNames,
+        getDateEstimateString(entity.getFromMonth(), entity.getFromYear()),
+        getDateEstimateString(entity.getToMonth(), entity.getToYear()),
+        entity.getMaterialType().equals(MaterialType.OTHER)
+            ? new StringWithTag(entity.getOtherMaterialType(), Tag.NOT_FROM_PORTAL)
+            : new StringWithTag(entity.getMaterialType().getDisplayText(), Tag.NONE),
+        getSizeDisplayString(entity),
+        entity.getGroutBagsBioDegradable(),
+        entity.getBagsNotUsedDescription(),
+        new DecimalFormat("#.##").format(entity.getQuantity()),
+        entity.getContingencyAmount(),
+        entity.getFromCoordinates(),
+        entity.getToCoordinates()
+    );
 
-      } else if (view.getMaterialType().equals(MaterialType.ROCK)) {
-        view.setRocksSize(entity.getMaterialSize());
-        view.setQuantityRocks(String.valueOf(entity.getQuantity()));
-        view.setContingencyRocksAmount(entity.getContingencyAmount());
 
-      } else if (view.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
-        view.setGroutBagsSize(Integer.parseInt(entity.getMaterialSize()));
-        view.setQuantityGroutBags(String.valueOf(entity.getQuantity()));
-        view.setContingencyGroutBagsAmount(entity.getContingencyAmount());
-        view.setGroutBagsBioDegradable(entity.getGroutBagsBioDegradable());
-        view.setBioGroutBagsNotUsedDescription(entity.getBagsNotUsedDescription());
+  }
 
-      } else if (view.getMaterialType().equals(MaterialType.OTHER)) {
-        view.setOtherMaterialType(entity.getOtherMaterialType());
-        view.setOtherMaterialSize(entity.getMaterialSize());
-        view.setQuantityOther(String.valueOf(entity.getQuantity()));
-        view.setContingencyOtherAmount(entity.getContingencyAmount());
-      }
+  private String getDateEstimateString(int month, int year) {
+    return Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + year;
+  }
 
-      view.setFromCoordinates(entity.getFromCoordinates());
-      view.setToCoordinates(entity.getToCoordinates());
+  private String getSizeDisplayString(PadPermanentDeposit entity) {
+    var unicodeMultiplication = " × ";
+    var concreteMattressFormat = "%s " + UnitMeasurement.METRE.getSuffixScreenReaderDisplay() +
+        unicodeMultiplication + "%s " + UnitMeasurement.METRE.getSuffixScreenReaderDisplay() +
+        unicodeMultiplication + "%s " + UnitMeasurement.METRE.getSuffixScreenReaderDisplay();
+
+    if (entity.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
+      return String.format(
+          concreteMattressFormat,
+          entity.getConcreteMattressLength(),
+          entity.getConcreteMattressWidth(),
+          entity.getConcreteMattressDepth());
+    } else if (entity.getMaterialType().equals(MaterialType.ROCK)) {
+      return entity.getMaterialSize() + " Grade";
+    } else if (entity.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
+      return entity.getMaterialSize() + " " + UnitMeasurement.KILOGRAM.getSuffixScreenReaderDisplay();
+    } else {
+      return entity.getMaterialSize();
     }
 
   }

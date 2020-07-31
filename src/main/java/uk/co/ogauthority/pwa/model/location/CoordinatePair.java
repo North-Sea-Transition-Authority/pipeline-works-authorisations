@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.location;
 
+import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
@@ -30,6 +31,27 @@ public class CoordinatePair {
 
   public void setLongitude(LongitudeCoordinate longitude) {
     this.longitude = longitude;
+  }
+
+  public String getDisplayString() {
+    var formatString =  "%s ° %s ' %s \" %s";
+    var latString = String.format(
+        formatString,
+        latitude.getDegrees(),
+        latitude.getMinutes(),
+        latitude.getSeconds().setScale(4, RoundingMode.HALF_UP).toPlainString(),
+        latitude.getDirection().getDisplayTextShort()
+    );
+
+    var longString = String.format(
+        formatString,
+        longitude.getDegrees(),
+        longitude.getMinutes(),
+        longitude.getSeconds().setScale(4, RoundingMode.HALF_UP).toPlainString(),
+        longitude.getDirection().getDisplayTextShort()
+    );
+
+    return latString + "\n" + longString;
   }
 
   @Override

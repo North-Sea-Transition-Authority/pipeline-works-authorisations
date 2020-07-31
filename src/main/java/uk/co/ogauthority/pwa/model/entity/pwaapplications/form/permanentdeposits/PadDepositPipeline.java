@@ -21,19 +21,19 @@ public class PadDepositPipeline {
   @NotNull
   @OneToOne
   @JoinColumn(name = "permanent_deposit_info_id")
-  private PadPermanentDeposit permanentDepositInfo;
+  private PadPermanentDeposit padPermanentDeposit;
 
   @NotNull
   @OneToOne
   @JoinColumn(name = "pad_pipeline_id")
-  private PadPipeline padPipelineId;
+  private PadPipeline padPipeline;
 
   public PadDepositPipeline() {
   }
 
-  public PadDepositPipeline(@NotNull PadPermanentDeposit permanentDepositInfo, @NotNull PadPipeline padPipelineId) {
-    this.permanentDepositInfo = permanentDepositInfo;
-    this.padPipelineId = padPipelineId;
+  public PadDepositPipeline(PadPermanentDeposit padPermanentDeposit, PadPipeline padPipeline) {
+    this.padPermanentDeposit = padPermanentDeposit;
+    this.padPipeline = padPipeline;
   }
 
 
@@ -45,19 +45,19 @@ public class PadDepositPipeline {
     this.id = id;
   }
 
-  public PadPermanentDeposit getPermanentDepositInfo() {
-    return permanentDepositInfo;
+  public PadPermanentDeposit getPadPermanentDeposit() {
+    return padPermanentDeposit;
   }
 
-  public void setPermanentDepositInfo(PadPermanentDeposit permanentDepositInfo) {
-    this.permanentDepositInfo = permanentDepositInfo;
+  public void setPadPermanentDeposit(PadPermanentDeposit permanentDepositInfo) {
+    this.padPermanentDeposit = permanentDepositInfo;
   }
 
-  public PadPipeline getPadPipelineId() {
-    return padPipelineId;
+  public PadPipeline getPadPipeline() {
+    return padPipeline;
   }
 
-  public void setPadPipelineId(PadPipeline padPipelineId) {
-    this.padPipelineId = padPipelineId;
+  public void setPadPipeline(PadPipeline padPipelineId) {
+    this.padPipeline = padPipelineId;
   }
 }

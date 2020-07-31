@@ -11,11 +11,14 @@ public enum UnitMeasurement {
   ACID_NUMBER("< mg KOH/g", "of acid number"),
   BAR_A("bar(a)", "in absolute pressure"),
   KG_METRE_CUBED("kg/m³", "in kilograms per metre cubed"),
+  KILOGRAM("kg", "kilograms"),
+  METRE("m", "metre"),
   MICROGRAM_METRE_CUBED("μg/m³", "in micrograms per metre cubed"),
   PARTS_PER_MILLION("ppm", "in parts per million"),
   KSCM_D("kscm/d", "in kilo standard cubic meters per hour"),
   WM2K("W/m2K", "in watts per metre square Kelvin"),
-  BAR_G("barg", "in gauge pressure");
+  BAR_G("barg", "in gauge pressure"),
+  MULTIPLICATION_SYMBOL("×", "times");
   private final String suffixDisplay;
   private final String suffixScreenReaderDisplay;
 
