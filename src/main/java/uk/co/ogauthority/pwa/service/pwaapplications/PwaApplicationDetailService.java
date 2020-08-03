@@ -97,6 +97,7 @@ public class PwaApplicationDetailService {
    */
   public void setNotLinkedFieldDescription(PwaApplicationDetail pwaApplicationDetail, String noLinkedFieldDescription) {
     pwaApplicationDetail.setNotLinkedDescription(noLinkedFieldDescription);
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 
   /**

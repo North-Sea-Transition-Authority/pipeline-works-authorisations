@@ -12,6 +12,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -30,6 +32,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTes
 import uk.co.ogauthority.pwa.service.workarea.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(WorkAreaController.class)
@@ -44,8 +47,11 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   @MockBean
   private WorkAreaService workAreaService;
 
+  @MockBean
+  private WorkAreaTabService workAreaTabService;
+
   private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(
-      new WebUserAccount(),
+      new WebUserAccount(1, new Person()),
       EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
 
   @Before
@@ -53,24 +59,58 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
     var emptyResultPageView = setupFakeWorkAreaResultPageView(0);
     when(workAreaService.getWorkAreaResultPage(any(), any(), anyInt())).thenReturn(emptyResultPageView);
+    when(workAreaTabService.getTabsAvailableToPerson(any())).thenReturn(List.of(WorkAreaTab.values()));
 
   }
 
   @Test
-  public void renderWorkArea_whenUserDoesNotHaveWorkAreaPriv() throws Exception {
+  public void renderWorkArea_noWorkAreaPriv() throws Exception {
     var unauthorisedUserAccount = new AuthenticatedUserAccount(
         new WebUserAccount(),
         EnumSet.noneOf(PwaUserPrivilege.class));
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+        .with(authenticatedUserAndSession(unauthorisedUserAccount)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void renderWorkArea_noDefaultTab() throws Exception {
+
+    when(workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Optional.empty());
+
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .andExpect(status().isForbidden());
+
+  }
+
+  @Test
+  public void renderWorkArea_defaultTab() throws Exception {
+
+    when(workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Optional.of(WorkAreaTab.OPEN_APPLICATIONS));
+
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .andExpect(status().is3xxRedirection());
+
+  }
+
+  @Test
+  public void renderWorkAreaTab_whenUserDoesNotHaveWorkAreaPriv() throws Exception {
+    var unauthorisedUserAccount = new AuthenticatedUserAccount(
+        new WebUserAccount(),
+        EnumSet.noneOf(PwaUserPrivilege.class));
+
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, null, null)))
         .with(authenticatedUserAndSession(unauthorisedUserAccount)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderWorkArea_whenNoParamsProvided_defaultsApplied() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
+  public void renderWorkAreaTab_WhenNoPageParamProvided_defaultsApplied() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isOk());
 
@@ -80,9 +120,9 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void renderWorkArea_whenPageParamProvided() throws Exception {
+  public void renderWorkAreaTab_whenPageParamProvided() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
-        .renderWorkArea(null, null, 100)))
+        .renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, 100)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isOk());
 
@@ -90,6 +130,17 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         .getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 100);
   }
 
+  @Test
+  public void renderWorkAreaTab_notAllowedToAccessTab() throws Exception {
+
+    when(workAreaTabService.getTabsAvailableToPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(List.of());
+
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
+        .renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, null)))
+        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .andExpect(status().isForbidden());
+
+  }
 
   private PageView<PwaApplicationWorkAreaItem> setupFakeWorkAreaResultPageView(int page) {
     var fakePage = ApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(

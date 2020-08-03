@@ -32,8 +32,10 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     var admiraltyForm = new AdmiraltyChartDocumentForm();
-    admiraltyChartFileService.mapDocumentsToForm(pwaApplicationDetail, admiraltyForm);
-    admiraltyChartFileService.validate(admiraltyForm, bindingResult, validationType, pwaApplicationDetail);
+    if (admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)) {
+      admiraltyChartFileService.mapDocumentsToForm(pwaApplicationDetail, admiraltyForm);
+      admiraltyChartFileService.validate(admiraltyForm, bindingResult, validationType, pwaApplicationDetail);
+    }
     padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
     return bindingResult;
   }

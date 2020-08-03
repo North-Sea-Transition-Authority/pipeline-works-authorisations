@@ -110,7 +110,7 @@ public class PrototypePwaHolderController {
           case HUOO_VARIATION:
           case OPTIONS_VARIATION:
           default:
-            return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+            return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null));
         }
 
       });
@@ -127,7 +127,7 @@ public class PrototypePwaHolderController {
 
     return new ModelAndView("pwaApplication/temporary/holder")
         .addObject("ouMap", ouMap)
-        .addObject("backUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
+        .addObject("backUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
         .addObject("errorList", List.of());
   }
 
