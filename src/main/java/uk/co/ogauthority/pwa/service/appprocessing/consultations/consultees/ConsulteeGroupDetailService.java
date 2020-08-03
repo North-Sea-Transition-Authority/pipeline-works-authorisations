@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 
@@ -21,6 +22,13 @@ public class ConsulteeGroupDetailService {
     return groupDetailRepository.findById(entityID)
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find consultee group detail with ID: %s", entityID)));
   }
+
+  public ConsulteeGroupDetail getConsulteeGroupDetailByGroup(ConsulteeGroup consulteeGroup) {
+    return groupDetailRepository.findByConsulteeGroupAndTipFlagIsTrue(consulteeGroup)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find consultee group detail by consultee group ID: %s", consulteeGroup.getId())));
+  }
+
 
   public List<ConsulteeGroupDetail> getAllConsulteeGroupDetails() {
     return groupDetailRepository.findAllByTipFlagIsTrue();

@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.model.entity.consultations;
 
 import java.time.Instant;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,6 +13,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
@@ -32,7 +35,8 @@ public class ConsultationRequest implements WorkflowSubject {
   private ConsulteeGroup consulteeGroup;
 
   private Instant deadlineDate;
-  private String status;
+  @Enumerated(EnumType.STRING)
+  private ConsultationRequestStatus status;
   private Instant startTimestamp;
   private Integer startedByPersonId;
   private Instant endTimestamp;
@@ -73,11 +77,11 @@ public class ConsultationRequest implements WorkflowSubject {
     this.deadlineDate = deadlineDate;
   }
 
-  public String getStatus() {
+  public ConsultationRequestStatus getStatus() {
     return status;
   }
 
-  public void setStatus(String status) {
+  public void setStatus(ConsultationRequestStatus status) {
     this.status = status;
   }
 

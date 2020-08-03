@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -29,12 +30,14 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
+import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -49,6 +52,12 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
   @MockBean
   private PwaApplicationSubmissionService pwaApplicationSubmissionService;
+
+  @MockBean
+  private ApplicationSummaryService applicationSummaryService;
+
+  @MockBean
+  private TemplateRenderingService templateRenderer;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -173,6 +182,23 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
                 .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
         )
         .performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+  }
+
+  @Test
+  public void review_calculatesAppSummary() throws Exception {
+    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+
+    mockMvc.perform(get(ReverseRouter.route(on(ReviewAndSubmitController.class)
+            .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
+        )
+            .with(authenticatedUserAndSession(user))
+    )
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(result -> result.getModelAndView().getViewName().equals(
+            "pwaApplication/shared/submission/submitConfirmation/"));
+
+    verify(applicationSummaryService, times(1)).summarise(detail);
+
   }
 
 
