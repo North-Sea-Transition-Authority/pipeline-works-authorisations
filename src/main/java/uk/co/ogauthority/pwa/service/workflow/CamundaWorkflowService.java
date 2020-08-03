@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
-import uk.co.ogauthority.pwa.model.workflow.PwaApplicationWorkflowSubject;
+import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
@@ -111,7 +111,7 @@ public class CamundaWorkflowService {
     var workflowType = WorkflowType.resolveFromProcessDefinitionKey(isolateProcessDefinitionKey(processInstance.getProcessDefinitionId()));
 
     var workflowTaskInstance = new WorkflowTaskInstance(
-        new PwaApplicationWorkflowSubject(Integer.parseInt(processInstance.getBusinessKey()), workflowType),
+        new GenericWorkflowSubject(Integer.parseInt(processInstance.getBusinessKey()), workflowType),
         UserWorkflowTaskUtils.getTaskByWorkflowAndTaskKey(workflowType, task.getTaskDefinitionKey())
     );
 

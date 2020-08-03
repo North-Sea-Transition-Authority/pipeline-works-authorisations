@@ -204,4 +204,17 @@ public class PwaApplicationDetailServiceTest {
     assertNull(pwaApplicationDetail.getPartnerLettersConfirmed());
   }
 
+  @Test
+  public void setNotLinkedFieldDescription() {
+
+    assertThat(pwaApplicationDetail.getNotLinkedDescription()).isNull();
+
+    pwaApplicationDetailService.setNotLinkedFieldDescription(pwaApplicationDetail, "testDesc");
+
+    assertThat(pwaApplicationDetail.getNotLinkedDescription()).isEqualTo("testDesc");
+
+    verify(applicationDetailRepository, times(1)).save(pwaApplicationDetail);
+
+  }
+
 }
