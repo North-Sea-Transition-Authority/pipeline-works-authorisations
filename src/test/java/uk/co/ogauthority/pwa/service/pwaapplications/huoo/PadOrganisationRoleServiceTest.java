@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
@@ -724,5 +725,19 @@ public class PadOrganisationRoleServiceTest {
     );
   }
 
+  @Test
+  public void deletePipelineRoleLinksForPadPipeline_serviceInteraction() {
+    var pipeline = new Pipeline();
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipeline(pipeline);
+
+    var roleLink = new PadPipelineOrganisationRoleLink(padOrgUnit1UserRole, pipeline);
+
+    when(padPipelineOrganisationRoleLinkRepository.getAllByPadOrgRole_PwaApplicationDetailAndPipeline(detail, pipeline))
+        .thenReturn(List.of(roleLink));
+
+    padOrganisationRoleService.deletePipelineRoleLinksForPadPipeline(detail, padPipeline);
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of(roleLink));
+  }
 
 }

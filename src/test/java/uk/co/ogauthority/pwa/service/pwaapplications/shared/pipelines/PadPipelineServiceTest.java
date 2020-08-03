@@ -109,10 +109,10 @@ public class PadPipelineServiceTest {
         new CoordinateFormValidator());
 
     padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService,
-        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService, pipelineRemovalService);
+        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
 
-    mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService,
-        pipelineRemovalService);
+    mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService,
+        pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -162,7 +162,8 @@ public class PadPipelineServiceTest {
 
     padPipelineService.addPipeline(detail, form);
 
-    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(
+        padPipelineArgumentCaptor.capture());
     verify(pipelineService, times(1)).createApplicationPipeline(detail.getPwaApplication());
 
     var newPadPipeline = padPipelineArgumentCaptor.getValue();
@@ -240,7 +241,8 @@ public class PadPipelineServiceTest {
     form.setTrenchedBuriedBackfilled(false);
 
     padPipelineService.addPipeline(detail, form);
-    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(padPipelineArgumentCaptor.capture());
+    verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(
+        padPipelineArgumentCaptor.capture());
     var newPipeline = padPipelineArgumentCaptor.getValue();
     assertThat(newPipeline.getOtherPipelineMaterialUsed()).isEqualTo(form.getOtherPipelineMaterialUsed());
   }
@@ -255,7 +257,8 @@ public class PadPipelineServiceTest {
         PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
     ));
 
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(List.of(ident));
+    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
+        List.of(ident));
 
     var validationResult = mockValidatorPadPipelineService.getValidationResult(detail);
     var isComplete = mockValidatorPadPipelineService.isComplete(detail);
@@ -558,7 +561,8 @@ public class PadPipelineServiceTest {
         PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
     ));
 
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(List.of(ident));
+    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
+        List.of(ident));
 
     var validationResult = mockValidatorPadPipelineService.getValidationResult(detail);
 
@@ -579,7 +583,8 @@ public class PadPipelineServiceTest {
 
     assertThat(validationResult.isSectionComplete()).isFalse();
     assertThat(validationResult.getErrorItems()).isEmpty();
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo("At least one pipeline must be added. Each pipeline must have at least one valid ident.");
+    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
+        "At least one pipeline must be added. Each pipeline must have at least one valid ident.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).isEmpty();
 
@@ -602,7 +607,8 @@ public class PadPipelineServiceTest {
         .containsExactly(
             tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline is not complete")
         );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo("At least one pipeline must be added. Each pipeline must have at least one valid ident.");
+    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
+        "At least one pipeline must be added. Each pipeline must have at least one valid ident.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
@@ -615,12 +621,13 @@ public class PadPipelineServiceTest {
         PadPipelineSummaryDtoTestUtils.generateFrom(padPipe1)
     ));
 
-    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(List.of(ident));
+    when(padPipelineIdentService.getAllIdentsByPadPipelineIds(eq(List.of(new PadPipelineId(1))))).thenReturn(
+        List.of(ident));
 
     // force error when validating ident
     doAnswer(invocation -> {
       ((BindingResult) invocation.getArgument(1)).rejectValue("length",
-           "length.invalid", "fake");
+          "length.invalid", "fake");
       return invocation;
     }).when(mockValidator).validate(any(), any(), any());
 
@@ -632,7 +639,8 @@ public class PadPipelineServiceTest {
         .containsExactly(
             tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline is not complete")
         );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo("At least one pipeline must be added. Each pipeline must have at least one valid ident.");
+    assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
+        "At least one pipeline must be added. Each pipeline must have at least one valid ident.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 

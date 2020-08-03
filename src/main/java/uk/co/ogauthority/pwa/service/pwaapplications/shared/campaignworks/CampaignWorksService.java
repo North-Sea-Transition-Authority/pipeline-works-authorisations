@@ -251,7 +251,7 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     padCampaignWorksPipelineRepository.deleteAll(pipelines);
   }
 
-  public void cleanupUnlinkedSchedules(PwaApplicationDetail pwaApplicationDetail) {
+  public void cleanUnlinkedSchedules(PwaApplicationDetail pwaApplicationDetail) {
 
     var schedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
 

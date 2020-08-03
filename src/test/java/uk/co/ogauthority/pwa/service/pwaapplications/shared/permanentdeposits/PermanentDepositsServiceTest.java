@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -424,6 +426,39 @@ public class PermanentDepositsServiceTest {
 
     verify(permanentDepositInformationRepository, times(1)).saveAll(eq(List.of(mattress, rock, grout, other)));
 
+  }
+
+  @Test
+  public void removePipelineFromDeposits_serviceInteraction() {
+    var depositPipeline = new PadDepositPipeline();
+    var padPipeline = new PadPipeline();
+    when(padDepositPipelineRepository.getAllByPadPipeline(padPipeline))
+        .thenReturn(List.of(depositPipeline));
+    service.removePipelineFromDeposits(padPipeline);
+    verify(padDepositPipelineRepository, times(1)).deleteAll(List.of(depositPipeline));
+  }
+
+  @Test
+  public void cleanupUnlinkedSchedules_serviceInteraction_noCampaignLinks() {
+    when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(padPermanentDeposit));
+    when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of());
+    service.cleanUnlinkedDeposits(pwaApplicationDetail);
+    verify(permanentDepositInformationRepository, times(1)).deleteAll(List.of(padPermanentDeposit));
+  }
+
+  @Test
+  public void cleanupUnlinkedSchedules_serviceInteraction_remainingPipelineLinks() {
+    var depositPipeline = new PadDepositPipeline();
+    depositPipeline.setPermanentDepositInfo(padPermanentDeposit);
+    padPermanentDeposit.setId(1);
+    when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(padPermanentDeposit));
+    when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(depositPipeline));
+    service.cleanUnlinkedDeposits(pwaApplicationDetail);
+    verify(permanentDepositInformationRepository, never()).deleteAll(any());
   }
 
   private void setAllMaterialData(PadPermanentDeposit deposit) {

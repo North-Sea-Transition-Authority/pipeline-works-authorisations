@@ -484,5 +484,16 @@ public class PadPipelineIdentServiceTest {
     verify(repository, times(1)).saveAll(List.of());
   }
 
+  @Test
+  public void removeAllIdents_serviceInteraction() {
+    var pipeline = new PadPipeline();
+    var ident = new PadPipelineIdent();
+    when(repository.getAllByPadPipeline(pipeline))
+        .thenReturn(List.of(ident));
+    identService.removeAllIdents(pipeline);
+    verify(identDataService, times(1)).removeIdentDataForPipeline(pipeline);
+    verify(repository, times(1)).deleteAll(List.of(ident));
+  }
+
 
 }

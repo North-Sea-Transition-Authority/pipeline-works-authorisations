@@ -71,6 +71,6 @@ public class PipelineRemovalService {
   public void cleanUnlinkedData(PwaApplicationDetail detail) {
     padTechnicalDrawingService.cleanUnlinkedDrawings(detail);
     permanentDepositService.cleanUnlinkedDeposits(detail);
-    campaignWorksService.cleanupUnlinkedSchedules(detail);
+    campaignWorksService.cleanUnlinkedSchedules(detail);
   }
 }
