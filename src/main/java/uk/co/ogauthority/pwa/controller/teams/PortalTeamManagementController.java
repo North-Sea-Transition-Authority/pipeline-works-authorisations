@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,12 +39,15 @@ public class PortalTeamManagementController {
 
   private final TeamManagementService teamManagementService;
   private final AddUserToTeamFormValidator addUserToTeamFormValidator;
+  private final String ogaRegistrationLink;
 
   @Autowired
   public PortalTeamManagementController(TeamManagementService teamManagementService,
-                                        AddUserToTeamFormValidator addUserToTeamFormValidator) {
+                                        AddUserToTeamFormValidator addUserToTeamFormValidator,
+                                        @Value("${oga.registration.link}") String ogaRegistrationLink) {
     this.teamManagementService = teamManagementService;
     this.addUserToTeamFormValidator = addUserToTeamFormValidator;
+    this.ogaRegistrationLink = ogaRegistrationLink;
   }
 
   /**
@@ -109,8 +113,8 @@ public class PortalTeamManagementController {
         .addObject("teamId", team.getId())
         .addObject("showTopNav", true)
         .addObject("cancelUrl", ReverseRouter.route(
-            on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null))
-        );
+            on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null)))
+        .addObject("ogaRegistrationLink", ogaRegistrationLink);
   }
 
   @PostMapping("/teams/{resId}/member/new")

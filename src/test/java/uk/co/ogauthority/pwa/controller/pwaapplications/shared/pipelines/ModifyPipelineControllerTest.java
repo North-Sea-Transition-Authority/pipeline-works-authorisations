@@ -109,7 +109,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
-                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -121,7 +121,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
-                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -133,7 +133,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
-                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
+                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 

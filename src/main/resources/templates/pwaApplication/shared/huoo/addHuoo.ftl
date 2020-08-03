@@ -19,7 +19,7 @@
                     <#if name == "PORTAL_ORG">
                         <@fdsSearchSelector.searchSelectorEnhanced path="form.organisationUnitId" options=portalOrgs labelText="Select the legal entity" nestingPath="form.huooType"/>
                         <@fdsDetails.details detailsTitle="The legal entity is not in the list" 
-                            detailsText="If you are unable to find the legal entity you are looking for then provide the OGA with the holder company name, address, postcode and companies house registration number to add to the PWA service: [service desk email]"/>
+                            detailsText="If you are unable to find the legal entity you are looking for then provide the OGA with the holder company name, address, postcode and companies house registration number to add to the PWA service: ukop@ogauthority.co.uk"/>
                         <@fdsCheckbox.checkboxes path="form.huooRoles" checkboxes=huooRoles fieldsetHeadingText="Which roles will the legal entity have?" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m" nestingPath="form.huooType"/>
                     <#else>
                         <@fdsRadio.radio path="form.treatyAgreement" labelText="Which country is the treaty agreement with?" radioItems=treatyAgreements nestingPath="form.huooType" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m"/>

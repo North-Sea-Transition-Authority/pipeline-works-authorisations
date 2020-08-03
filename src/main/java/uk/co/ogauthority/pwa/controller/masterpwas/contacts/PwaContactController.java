@@ -21,12 +21,15 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -37,6 +40,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormV
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -51,6 +55,7 @@ public class PwaContactController {
   private final TeamManagementService teamManagementService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
+  private final TeamService teamService;
 
   private final Map<String, String> rolesCheckboxMap;
   private final Map<String, String> allRolesMap;
@@ -61,13 +66,15 @@ public class PwaContactController {
                               ApplicationBreadcrumbService applicationBreadcrumbService,
                               TeamManagementService teamManagementService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
-                              ControllerHelperService controllerHelperService) {
+                              ControllerHelperService controllerHelperService,
+                              TeamService teamService) {
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.teamManagementService = teamManagementService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
     this.controllerHelperService = controllerHelperService;
+    this.teamService = teamService;
 
     rolesCheckboxMap = PwaContactRole.stream()
         .sorted(Comparator.comparing(PwaContactRole::getDisplayOrder))
@@ -93,6 +100,11 @@ public class PwaContactController {
           .sorted(Comparator.comparing(TeamMemberView::getFullName))
           .collect(Collectors.toList());
 
+      List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
+          .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
+          .map(e -> e.getName())
+          .collect(Collectors.toList());
+
       var modelAndView = new ModelAndView("teamManagement/teamMembers")
           .addObject("teamName", "Application users")
           .addObject("teamMemberViews", teamMemberViews)
@@ -105,7 +117,8 @@ public class PwaContactController {
           .addObject("allRoles", allRolesMap)
           .addObject("backUrl",
                   ReverseRouter.route(on(InitialTaskListController.class)
-                          .viewTaskList(pwaApplication.getId(), null)));
+                          .viewTaskList(pwaApplication.getId(), null)))
+          .addObject("ogList", ogList);
 
       applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, "Application users");
 
@@ -304,6 +317,14 @@ public class PwaContactController {
 
     });
 
+  }
+
+  private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
+    return teamService.getOrganisationTeamListIfPersonInRole(
+        user.getLinkedPerson(),
+        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
+        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+        .collect(Collectors.toList());
   }
 
 }

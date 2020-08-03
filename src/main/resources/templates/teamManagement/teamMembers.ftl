@@ -22,8 +22,11 @@
         </@fdsCheckAnswers.checkAnswers>  
       </@fdsDetails.summaryDetails>
     
+      <#assign groups>
+          <#list ogList! as group> ${group} <#sep>, </#list>
+      </#assign>
       <@fdsInsetText.insetText>
-          <p>Every user in [holder company groups] has access to view this application. Depending on their role in the organisation they can update the application users listed below, submit the application and will receive notification of consent.</p>
+          <p>Every user in ${groups} has access to view this application. Depending on their role in the organisation they can update the application users listed below, submit the application and will receive notification of consent.</p>
           <p>Only the users listed below have access to work on this application. They will see this application in their work area and receive all notifications from the OGA concerning this application. The roles a user has determines the actions they can carry out on this application. </p>
       </@fdsInsetText.insetText>
 

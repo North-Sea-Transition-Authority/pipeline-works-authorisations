@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaSource;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PickExistingPwaController.class)
@@ -60,6 +61,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingContextService appProcessingContextService;
+
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Collections.emptyList());
