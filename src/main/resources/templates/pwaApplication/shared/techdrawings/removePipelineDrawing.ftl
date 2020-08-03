@@ -5,11 +5,11 @@
 <#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory" -->
 
-<@defaultPage htmlTitle="Remove pipeline drawing" pageHeading="Are you sure you want to remove this pipeline drawing?" breadcrumbs=true>
+<@defaultPage htmlTitle="Remove pipeline schematic" pageHeading="Are you sure you want to remove this pipeline schematic?" breadcrumbs=true>
 
     <@drawingSummary.drawingSummary summary=summary urlFactory=urlFactory validatorFactory={} showReferenceAsKey=true showActions=false />
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline drawing" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline schematic" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

@@ -17,7 +17,7 @@
     </#if>
     <@fdsCheckAnswers.checkAnswers>
         <#if showReferenceAsKey>
-            <@fdsCheckAnswers.checkAnswersRow keyText="Drawing reference" actionUrl="" screenReaderActionText="" actionText="">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Schematic reference" actionUrl="" screenReaderActionText="" actionText="">
                 ${summary.reference}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>

@@ -46,7 +46,7 @@ public class ApplicationBreadcrumbService {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
-        "Blocks and crossing agreements");
+        ApplicationTask.CROSSING_AGREEMENTS.getDisplayName());
     addAttrs(modelAndView, map, thisPage);
   }
 
@@ -56,7 +56,7 @@ public class ApplicationBreadcrumbService {
     map.put(ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
                 null)),
-        "Blocks and crossing agreements");
+        ApplicationTask.CROSSING_AGREEMENTS.getDisplayName());
     map.put(crossingAgreementsTaskListService.getRoute(detail, task), task.getDisplayText());
     addAttrs(modelAndView, map, thisPage);
   }
@@ -65,7 +65,7 @@ public class ApplicationBreadcrumbService {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(LocationDetailsController.class)
             .renderLocationDetails(pwaApplication.getApplicationType(), null, null, null)),
-        "Location details");
+        ApplicationTask.LOCATION_DETAILS.getDisplayName());
     addAttrs(modelAndView, map, thisPage);
   }
 
@@ -73,7 +73,7 @@ public class ApplicationBreadcrumbService {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
-        "Admiralty chart and pipeline drawings");
+        ApplicationTask.TECHNICAL_DRAWINGS.getDisplayName());
     addAttrs(modelAndView, map, thisPage);
   }
 
@@ -81,7 +81,7 @@ public class ApplicationBreadcrumbService {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(HuooController.class)
             .renderHuooSummary(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
-        "Holders, users, operators, and owners");
+        ApplicationTask.HUOO.getDisplayName());
     addAttrs(modelAndView, map, thisPage);
   }
 

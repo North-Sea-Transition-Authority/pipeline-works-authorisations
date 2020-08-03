@@ -22,111 +22,109 @@ import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDow
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.UmbilicalCrossSectionForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/admiralty-chart")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/umbilical-cross-section")
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION
 })
-public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
+public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
-  private final PwaApplicationFileService applicationFileService;
-  private final AdmiraltyChartFileService admiraltyChartFileService;
+  private final UmbilicalCrossSectionService umbilicalCrossSectionService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
-  public AdmiraltyChartDocumentsController(
-      PwaApplicationFileService applicationFileService,
-      AdmiraltyChartFileService admiraltyChartFileService,
+  public UmbilicalCrossSectionDocumentsController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadFileService padFileService,
+      UmbilicalCrossSectionService umbilicalCrossSectionService,
       ControllerHelperService controllerHelperService) {
     super(padFileService);
-    this.applicationFileService = applicationFileService;
-    this.admiraltyChartFileService = admiraltyChartFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.umbilicalCrossSectionService = umbilicalCrossSectionService;
     this.controllerHelperService = controllerHelperService;
   }
 
-  private ModelAndView createAdmiraltyChartModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                        AdmiraltyChartDocumentForm form) {
+  private ModelAndView createFileUploadModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                    UmbilicalCrossSectionForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
+        ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
             .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
+        ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
+        ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
         // only load fully linked (saved) files
-        admiraltyChartFileService.getUpdatedAdmiraltyChartFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, ApplicationFilePurpose.UMBILICAL_CROSS_SECTION)
     );
 
-    modelAndView.addObject("pageTitle", "Admiralty chart")
+    modelAndView.addObject("pageTitle", "Umbilical cross-section diagram")
         .addObject("backButtonText", "Back to technical drawings")
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)))
         .addObject("singleFileUpload", true);
     applicationBreadcrumbService.fromTechnicalDrawings(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Admiralty chart");
+        "Umbilical cross-section diagram");
     return modelAndView;
   }
 
   @GetMapping
-  public ModelAndView renderEditAdmiraltyChartDocuments(
+  public ModelAndView renderAddDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") AdmiraltyChartDocumentForm form,
+      @ModelAttribute("form") UmbilicalCrossSectionForm form,
       PwaApplicationContext applicationContext) {
 
-    admiraltyChartFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
-    return createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
+    padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(),
+        ApplicationFilePurpose.UMBILICAL_CROSS_SECTION);
+    return createFileUploadModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
   @PostMapping
-  public ModelAndView postAdmiraltyChartDocuments(
+  public ModelAndView postAddDocuments(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") AdmiraltyChartDocumentForm form,
+      @ModelAttribute("form") UmbilicalCrossSectionForm form,
       BindingResult bindingResult,
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
-    admiraltyChartFileService.validate(
+    umbilicalCrossSectionService.validate(
         form,
         bindingResult,
         ValidationType.FULL,
         applicationContext.getApplicationDetail()
     );
-    var modelAndView = createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
+    var modelAndView = createFileUploadModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      admiraltyChartFileService.updateOrDeleteLinkedFilesUsingForm(
-          applicationContext.getApplicationDetail(),
-          form,
-          applicationContext.getUser());
+      padFileService.updateFiles(form, detail, ApplicationFilePurpose.UMBILICAL_CROSS_SECTION,
+          FileUpdateMode.DELETE_UNLINKED_FILES, applicationContext.getUser());
+
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
@@ -140,9 +138,9 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    var admiraltyChartFile = admiraltyChartFileService.getAdmiraltyChartFile(fileId,
-        applicationContext.getApplicationDetail());
-    return serveFile(applicationFileService.getUploadedFile(admiraltyChartFile));
+    var detail = applicationContext.getApplicationDetail();
+    var file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, fileId);
+    return serveFile(file);
   }
 
   @PostMapping("/files/upload")
@@ -154,12 +152,8 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
       PwaApplicationContext applicationContext) {
 
     // not creating full link until Save is clicked.
-    return applicationFileService.processApplicationFileUpload(
-        file,
-        applicationContext.getUser(),
-        applicationContext.getApplicationDetail(),
-        admiraltyChartFileService::createUploadedFileLink
-    );
+    return padFileService.processInitialUpload(file, applicationContext.getApplicationDetail(),
+        ApplicationFilePurpose.UMBILICAL_CROSS_SECTION, applicationContext.getUser());
   }
 
   @PostMapping("/files/delete/{fileId}")
@@ -169,11 +163,8 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    return applicationFileService.processApplicationFileDelete(
-        fileId,
-        applicationContext.getApplicationDetail(),
-        applicationContext.getUser(),
-        admiraltyChartFileService::deleteUploadedFileLink
-    );
+    var detail = applicationContext.getApplicationDetail();
+    var file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, fileId);
+    return padFileService.processFileDeletion(file, applicationContext.getUser());
   }
 }

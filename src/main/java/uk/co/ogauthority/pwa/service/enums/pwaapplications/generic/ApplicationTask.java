@@ -103,7 +103,7 @@ public enum ApplicationTask {
   ),
 
   TECHNICAL_DRAWINGS(
-      "Admiralty chart and pipeline drawings",
+      "Pipeline schematics and other diagrams",
       TechnicalDrawingsController.class,
       TechnicalDrawingSectionService.class,
       90
