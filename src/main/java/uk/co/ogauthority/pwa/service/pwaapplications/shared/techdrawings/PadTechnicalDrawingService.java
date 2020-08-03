@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
@@ -311,10 +312,8 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
             .stream()
             .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
 
-    var drawingsToDelete = drawings.stream()
-        .filter(drawing -> linkMap.keySet().stream()
-            .noneMatch(groupedDrawing -> drawing.getId().equals(groupedDrawing.getId())))
-        .collect(Collectors.toUnmodifiableList());
+    var drawingsToDelete = CleanupUtils.getUnlinkedKeys(drawings, linkMap,
+        (drawing, drawing2) -> drawing.getId().equals(drawing2.getId()));
 
     if (!drawingsToDelete.isEmpty()) {
       padTechnicalDrawingRepository.deleteAll(drawingsToDelete);

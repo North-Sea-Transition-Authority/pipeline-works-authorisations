@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Service
@@ -259,10 +260,8 @@ public class CampaignWorksService implements ApplicationFormSectionService {
             .stream()
             .collect(Collectors.groupingBy(PadCampaignWorksPipeline::getPadCampaignWorkSchedule));
 
-    var schedulesToRemove = schedules.stream()
-        .filter(schedule -> campaignMap.keySet().stream()
-            .noneMatch(groupedSchedule -> schedule.getId().equals(groupedSchedule.getId())))
-        .collect(Collectors.toUnmodifiableList());
+    var schedulesToRemove = CleanupUtils.getUnlinkedKeys(schedules, campaignMap,
+        (key, value) -> key.getId().equals(value.getId()));
 
     if (!schedulesToRemove.isEmpty()) {
       padCampaignWorkScheduleRepository.deleteAll(schedulesToRemove);

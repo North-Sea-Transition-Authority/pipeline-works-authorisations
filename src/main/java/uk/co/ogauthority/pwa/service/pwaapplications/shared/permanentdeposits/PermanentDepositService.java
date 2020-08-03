@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
+import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
@@ -298,10 +299,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
             .stream()
             .collect(Collectors.groupingBy(PadDepositPipeline::getPermanentDepositInfo));
 
-    var depositsToRemove = deposits.stream()
-        .filter(deposit -> depositMap.keySet().stream()
-            .noneMatch(groupedDeposit -> deposit.getId().equals(groupedDeposit.getId())))
-        .collect(Collectors.toUnmodifiableList());
+    var depositsToRemove = CleanupUtils.getUnlinkedKeys(deposits, depositMap,
+        (key, value) -> key.getId().equals(value.getId()));
 
     if (!depositsToRemove.isEmpty()) {
       permanentDepositInformationRepository.deleteAll(depositsToRemove);
