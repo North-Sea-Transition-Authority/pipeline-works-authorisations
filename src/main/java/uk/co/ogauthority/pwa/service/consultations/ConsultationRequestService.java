@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestReposit
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
@@ -126,14 +128,18 @@ public class ConsultationRequestService {
 
   private ConsultationRequestView mapConsultationRequestToView(ConsultationRequest consultationRequest) {
     var consulteeGroupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroup(consultationRequest.getConsulteeGroup());
-    var consultationRequestView = new ConsultationRequestView();
-    consultationRequestView.setConsulteeGroupName(consulteeGroupDetail.getName());
-    consultationRequestView.setDueDate(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS));
-    consultationRequestView.setRequestDate(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS));
-    consultationRequestView.setStatus(consultationRequest.getStatus());
-    return consultationRequestView;
+    return new ConsultationRequestView(
+        consulteeGroupDetail.getName(),
+        DateUtils.formatDateTime(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS)),
+        consultationRequest.getStatus(),
+        DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS))
+    );
   }
 
-
+  public ConsultationRequest getConsultationRequestById(Integer consultationRequestId) {
+    return consultationRequestRepository.findById(consultationRequestId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(String.format(
+            "Couldn't find consultation request with id: %s",  consultationRequestId)));
+  }
 
 }

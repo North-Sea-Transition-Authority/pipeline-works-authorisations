@@ -10,7 +10,7 @@
     <@fdsInsetText.insetText>This application has not been consulted on</@fdsInsetText.insetText>
   </#if>
 
-  <#list consulteeGroupRequestsViews as  consultationRequestViewData>              
+  <#list consulteeGroupRequestsViews as consultationRequestViewData>
     <@consultationRequestView consultationRequestViewData/>
   </#list>
 

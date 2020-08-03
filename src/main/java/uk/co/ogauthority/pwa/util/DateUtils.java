@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class DateUtils {
@@ -13,12 +14,18 @@ public class DateUtils {
     throw new AssertionError();
   }
 
-  private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+  private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+  private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm")
+      .withLocale(Locale.UK)
+      .withZone(ZoneId.systemDefault());
 
   public static String formatDate(LocalDate localDate) {
-    return localDate.format(dateTimeFormatter);
+    return localDate.format(dateFormatter);
   }
 
+  public static String formatDateTime(Instant instant) {
+    return dateTimeFormatter.format(instant);
+  }
 
   public static void consumeInstantFromIntegersElseNull(Integer year,
                                                         Integer month,
@@ -48,5 +55,7 @@ public class DateUtils {
       dayConsumer.accept(localDate.getDayOfMonth());
     }
   }
+
+
 
 }

@@ -6,11 +6,16 @@ import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -21,19 +26,25 @@ public class WorkflowAssignmentService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final AssignmentAuditService assignmentAuditService;
   private final TeamService teamService;
+  private final ConsulteeGroupTeamService consulteeGroupTeamService;
+  private final ConsultationRequestService consultationRequestService;
 
   public WorkflowAssignmentService(CamundaWorkflowService camundaWorkflowService,
                                    AssignmentAuditService assignmentAuditService,
-                                   TeamService teamService) {
+                                   TeamService teamService,
+                                   ConsulteeGroupTeamService consulteeGroupTeamService,
+                                   ConsultationRequestService consultationRequestService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.assignmentAuditService = assignmentAuditService;
     this.teamService = teamService;
+    this.consulteeGroupTeamService = consulteeGroupTeamService;
+    this.consultationRequestService = consultationRequestService;
   }
 
   /**
    * Return a set of persons who can be assigned to the passed-in task as they have the correct roles etc.
    */
-  public Set<Person> getAssignmentCandidates(UserWorkflowTask task) {
+  public Set<Person> getAssignmentCandidates(WorkflowSubject workflowSubject, UserWorkflowTask task) {
 
     if (task.getAssignment() == null) {
       return Set.of();
@@ -49,6 +60,22 @@ public class WorkflowAssignmentService {
             .map(PwaTeamMember::getPerson)
             .collect(Collectors.toSet());
 
+      case CONSULTATION_RESPONDER:
+
+        if (workflowSubject.getWorkflowType() != WorkflowType.PWA_APPLICATION_CONSULTATION) {
+          throw new IllegalArgumentException(String.format(
+              "CONSULTATION_RESPONDER not valid assignment for workflow: %s", workflowSubject.getWorkflowType()));
+        }
+
+        // get consultee group from request, then return responders in that group
+        var consulteeGroup = consultationRequestService.getConsultationRequestById(workflowSubject.getBusinessKey())
+            .getConsulteeGroup();
+
+        return consulteeGroupTeamService.getTeamMembersForGroup(consulteeGroup).stream()
+            .filter(member -> member.getRoles().contains(ConsulteeGroupMemberRole.RESPONDER))
+            .map(ConsulteeGroupTeamMember::getPerson)
+            .collect(Collectors.toSet());
+
       default:
         return Set.of();
 
@@ -62,7 +89,7 @@ public class WorkflowAssignmentService {
                      Person personToAssign,
                      Person assigningPerson) {
 
-    boolean allowed = getAssignmentCandidates(task).stream()
+    boolean allowed = getAssignmentCandidates(workflowSubject, task).stream()
         .anyMatch(person -> person.getId().equals(personToAssign.getId()));
 
     if (!allowed) {

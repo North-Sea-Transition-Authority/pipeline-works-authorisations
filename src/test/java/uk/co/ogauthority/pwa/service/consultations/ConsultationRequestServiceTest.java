@@ -1,13 +1,12 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
-import static org.junit.Assert.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneOffset;
@@ -33,8 +32,8 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
@@ -96,7 +95,7 @@ public class ConsultationRequestServiceTest {
     assertThat(consultationRequestArgumentCaptor.getValue().getStatus()).isEqualTo(
         ConsultationRequestStatus.ALLOCATION);
   }
-  
+
 
   @Test
   public void validate_valid() {
@@ -148,21 +147,21 @@ public class ConsultationRequestServiceTest {
     var consultationRequest1 = new ConsultationRequest();
     consultationRequest1.setConsulteeGroup(consulteeGroup1);
     consultationRequest1.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
-        .withDayOfMonth(5).withMonth(2).withYear(2020).withNano(0).toInstant().truncatedTo(ChronoUnit.SECONDS));
+        .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationRequest1.setDeadlineDate(Instant.now());
     consultationRequest1.setStatus(ConsultationRequestStatus.ALLOCATION);
 
     var consultationRequest2 = new ConsultationRequest();
     consultationRequest2.setConsulteeGroup(consulteeGroup2);
     consultationRequest2.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
-        .withDayOfMonth(8).withMonth(2).withYear(2020).withNano(0).toInstant().truncatedTo(ChronoUnit.SECONDS));
+        .withDayOfMonth(8).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationRequest2.setDeadlineDate(Instant.now());
     consultationRequest2.setStatus(ConsultationRequestStatus.ALLOCATION);
 
     var consultationRequest3 = new ConsultationRequest();
     consultationRequest3.setConsulteeGroup(consulteeGroup1);
     consultationRequest3.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
-        .withDayOfMonth(4).withMonth(2).withYear(2020).withNano(0).toInstant().truncatedTo(ChronoUnit.SECONDS));
+        .withDayOfMonth(4).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationRequest3.setDeadlineDate(Instant.now());
     consultationRequest3.setStatus(ConsultationRequestStatus.ALLOCATION);
 
@@ -180,16 +179,13 @@ public class ConsultationRequestServiceTest {
     List<ConsulteeGroupRequestsView> consultationRequestViews = consultationRequestService.getConsultationRequestViews(pwaApplication);
 
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameA");
-    assertThat(consultationRequestViews.get(0).getCurrentRequest().getRequestDate()).isEqualTo(instantTime.atZone(ZoneOffset.UTC)
-        .withDayOfMonth(8).withMonth(2).withYear(2020).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    assertThat(consultationRequestViews.get(0).getCurrentRequest().getRequestDateDisplay()).isEqualTo("08 February 2020 10:09");
 
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameB");
-    assertThat(consultationRequestViews.get(1).getCurrentRequest().getRequestDate()).isEqualTo(instantTime.atZone(ZoneOffset.UTC)
-        .withDayOfMonth(5).withMonth(2).withYear(2020).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    assertThat(consultationRequestViews.get(1).getCurrentRequest().getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
 
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getConsulteeGroupName()).isEqualTo("nameB");
-    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getRequestDate()).isEqualTo(instantTime.atZone(ZoneOffset.UTC)
-        .withDayOfMonth(4).withMonth(2).withYear(2020).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getRequestDateDisplay()).isEqualTo("04 February 2020 10:09");
   }
 
 

@@ -6,7 +6,8 @@ import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignmen
 
 public enum PwaApplicationConsultationWorkflowTask implements UserWorkflowTask {
 
-  ALLOCATION("allocation", null);
+  ALLOCATION("allocation", null),
+  RESPONSE("response", WorkflowAssignment.CONSULTATION_RESPONDER);
 
   private final String taskKey;
   private final WorkflowAssignment workflowAssignment;

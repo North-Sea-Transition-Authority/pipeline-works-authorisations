@@ -8,6 +8,8 @@ public class ConsulteeGroupRequestsView {
   private ConsultationRequestView currentRequest;
   private List<ConsultationRequestView> historicalRequests = new ArrayList<>();
 
+  public ConsulteeGroupRequestsView() {
+  }
 
   public ConsultationRequestView getCurrentRequest() {
     return currentRequest;
