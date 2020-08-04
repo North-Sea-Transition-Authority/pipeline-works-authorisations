@@ -29,9 +29,7 @@ public class MedianLineAgreementValidatorTest {
   public void validate_partial_NoData() {
     form.setAgreementStatus(null);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(result).containsOnly(
-        entry("agreementStatus", Set.of("agreementStatus.required"))
-    );
+    assertThat(result).isEmpty();
   }
 
   @Test

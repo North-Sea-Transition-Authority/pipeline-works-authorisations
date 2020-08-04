@@ -44,6 +44,13 @@ public class MedianLineAgreementValidator implements SmartValidator {
   }
 
   private void fullValidation(MedianLineAgreementsForm form, Errors errors) {
+
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "agreementStatus",
+        "agreementStatus.required",
+        "You must select an agreement status");
+
     if (MedianLineStatus.NEGOTIATIONS_ONGOING.equals(form.getAgreementStatus())) {
       if (StringUtils.isBlank(form.getNegotiatorNameIfOngoing())) {
         errors.rejectValue("negotiatorNameIfOngoing", "negotiatorNameIfOngoing.required", MISSING_NAME);
@@ -63,11 +70,6 @@ public class MedianLineAgreementValidator implements SmartValidator {
   }
 
   private void partialValidation(MedianLineAgreementsForm form, Errors errors) {
-    ValidationUtils.rejectIfEmpty(
-        errors,
-        "agreementStatus",
-        "agreementStatus.required",
-        "You must select an agreement status");
 
     ValidatorUtils.validateDefaultStringLength(
         errors,
