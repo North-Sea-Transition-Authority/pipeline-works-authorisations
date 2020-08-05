@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo;
 
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -29,7 +30,7 @@ public interface PadPipelineOrganisationRoleLinkRepository extends
 
   @EntityGraph(attributePaths = {"padOrgRole"})
   List<PadPipelineOrganisationRoleLink> findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
-      List<PadOrganisationRole> orgRoles,
+      Collection<PadOrganisationRole> orgRoles,
       PwaApplicationDetail pwaApplicationDetail
   );
 
