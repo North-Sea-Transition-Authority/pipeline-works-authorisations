@@ -65,7 +65,7 @@
 
             <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5"/>
 
-            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="e.g. 10” production flowline, electrical lead d B, 2 x 6” Production Jumper within a Wellhead Bundle, 6” flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
+            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength="4000"/>
 
             <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength="4000"/>
 

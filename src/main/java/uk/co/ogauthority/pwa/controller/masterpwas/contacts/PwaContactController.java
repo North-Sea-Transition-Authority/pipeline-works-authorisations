@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
@@ -38,6 +40,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
@@ -56,9 +59,11 @@ public class PwaContactController {
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
   private final TeamService teamService;
+  private final PadOrganisationRoleService padOrganisationRoleService;
 
   private final Map<String, String> rolesCheckboxMap;
   private final Map<String, String> allRolesMap;
+  private final String ogaRegistrationLink;
 
   @Autowired
   public PwaContactController(PwaContactService pwaContactService,
@@ -67,7 +72,9 @@ public class PwaContactController {
                               TeamManagementService teamManagementService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
                               ControllerHelperService controllerHelperService,
-                              TeamService teamService) {
+                              TeamService teamService,
+                              PadOrganisationRoleService padOrganisationRoleService,
+                              @Value("${oga.registration.link}") String ogaRegistrationLink) {
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
@@ -75,6 +82,8 @@ public class PwaContactController {
     this.addPwaContactFormValidator = addPwaContactFormValidator;
     this.controllerHelperService = controllerHelperService;
     this.teamService = teamService;
+    this.padOrganisationRoleService = padOrganisationRoleService;
+    this.ogaRegistrationLink = ogaRegistrationLink;
 
     rolesCheckboxMap = PwaContactRole.stream()
         .sorted(Comparator.comparing(PwaContactRole::getDisplayOrder))
@@ -100,10 +109,11 @@ public class PwaContactController {
           .sorted(Comparator.comparing(TeamMemberView::getFullName))
           .collect(Collectors.toList());
 
-      List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
-          .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
-          .map(e -> e.getName())
+      List<String> orgGroupHolders = padOrganisationRoleService.getOrgRolesForDetail(detail).stream()
+          .filter(orgRole -> orgRole.getOrganisationUnit() != null)
+          .map(orgRole -> orgRole.getOrganisationUnit().getPortalOrganisationGroup().getName())
           .collect(Collectors.toList());
+
 
       var modelAndView = new ModelAndView("teamManagement/teamMembers")
           .addObject("teamName", "Application users")
@@ -118,7 +128,8 @@ public class PwaContactController {
           .addObject("backUrl",
                   ReverseRouter.route(on(InitialTaskListController.class)
                           .viewTaskList(pwaApplication.getId(), null)))
-          .addObject("ogList", ogList);
+          .addObject("orgGroupHolders", orgGroupHolders)
+          .addObject("appUser", true);
 
       applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, "Application users");
 
@@ -137,7 +148,8 @@ public class PwaContactController {
         .addObject("showTopNav", false)
         .addObject("cancelUrl", ReverseRouter.route(
             on(PwaContactController.class).renderContactsScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null)))
-        .addObject("form", form);
+        .addObject("form", form)
+        .addObject("ogaRegistrationLink", ogaRegistrationLink);
   }
 
   @GetMapping("/new")

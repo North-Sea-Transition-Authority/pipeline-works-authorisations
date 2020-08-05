@@ -45,8 +45,8 @@
     </#if>
 
     <@fdsInsetText.insetText>
-      <p>Your application requires campaign works information due to the information provided in the ${dependencySectionName} section.</p>
-      <p><a href="${springUrl(dependencySectionUrl)}" class="govuk-link">Click here to change your campaign works approach.</a></p>
+      Your application requires campaign works information due to the information provided in the ${dependencySectionName} section. </br>
+      <@fdsAction.link linkText="Click here to change your campaign works approach." linkUrl=springUrl(dependencySectionUrl) linkClass="govuk-link"/> 
       <p>Provide the schedule of campaign works for the pipelines on this application. You do not have to provide information on pipelines that are not part of this application. If a pipeline is installed over multiple periods, then add it to each relevant period.</p>
     </@fdsInsetText.insetText>
 

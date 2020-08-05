@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,15 +46,18 @@ public class ConsulteeGroupTeamManagementController {
 
   private final Map<String, String> rolesCheckboxMap;
   private final Map<String, String> allRolesMap;
+  private final String ogaRegistrationLink;
 
   @Autowired
   public ConsulteeGroupTeamManagementController(ConsulteeGroupTeamService consulteeGroupTeamService,
                                                 AddConsulteeGroupTeamMemberFormValidator addMemberFormValidator,
-                                                TeamManagementService teamManagementService) {
+                                                TeamManagementService teamManagementService,
+                                                @Value("${oga.registration.link}") String ogaRegistrationLink) {
 
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.addMemberFormValidator = addMemberFormValidator;
     this.teamManagementService = teamManagementService;
+    this.ogaRegistrationLink = ogaRegistrationLink;
 
     rolesCheckboxMap = ConsulteeGroupMemberRole.stream()
         .sorted(Comparator.comparing(ConsulteeGroupMemberRole::getDisplayOrder))
@@ -108,6 +112,7 @@ public class ConsulteeGroupTeamManagementController {
         .addObject("showBreadcrumbs", false)
         .addObject("userCanManageAccess", true)
         .addObject("showTopNav", true)
+        .addObject("appUser", false)
         .addObject("allRoles", allRolesMap);
 
   }
@@ -126,7 +131,8 @@ public class ConsulteeGroupTeamManagementController {
         .addObject("showTopNav", true)
         .addObject("cancelUrl", ReverseRouter.route(
             on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(groupDetail.getConsulteeGroupId(), null))
-        );
+        )
+        .addObject("ogaRegistrationLink", ogaRegistrationLink);
   }
 
   @PostMapping("/{consulteeGroupId}/members/new")

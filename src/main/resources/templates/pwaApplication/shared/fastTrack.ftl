@@ -21,15 +21,14 @@
         You will lose any progress on this page by clicking this link.
     </@fdsInsetText.insetText>
 
-    <@fdsDetails.details detailsTitle="What justification do I need to fast track my application for the above reasons?" 
-    detailsText="Examples where each reason may apply are provided below:
-        </br></br>
-        •	Avoiding environmental disaster: work required to make the pipeline safe to avoid immediate risks of pipeline rupturing or leaking and to make safe for other users of the sea and why</br>
-        •	Save barrels: quantification of the number of barrels saved and why</br>
-        •	Project planning: quantification of money saved for example due to staff costs or boat hire</br>
-        •	Other reason: fast tracking for reasons not outlined above, ensure full details are provided to support your case
-        "/>
-
+     <@fdsDetails.summaryDetails summaryTitle="What justification do I need to fast track my application for the above reasons?">
+        <ul>
+            <li> Avoiding environmental disaster: work required to make the pipeline safe to avoid immediate risks of pipeline rupturing or leaking and to make safe for other users of the sea and why </li>
+            <li> Save barrels: quantification of the number of barrels saved and why </li>
+            <li> Project planning: quantification of money saved for example due to staff costs or boat hire </li>
+            <li> Other reason: fast tracking for reasons not outlined above, ensure full details are provided to support your case </li>
+        </ul>
+    </@fdsDetails.summaryDetails>
 
     <@fdsForm.htmlForm>
 

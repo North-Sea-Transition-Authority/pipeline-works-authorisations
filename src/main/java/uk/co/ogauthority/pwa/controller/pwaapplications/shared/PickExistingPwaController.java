@@ -97,7 +97,8 @@ public class PickExistingPwaController {
         .addObject("selectablePwaMap", selectablePwaMap)
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
         .addObject("ogList", ogList)
-        .addObject("errorList", List.of());
+        .addObject("errorList", List.of())
+        .addObject("pwaApplicationType", pwaApplicationType);
   }
 
   @PostMapping("/pick-pwa-for-application")

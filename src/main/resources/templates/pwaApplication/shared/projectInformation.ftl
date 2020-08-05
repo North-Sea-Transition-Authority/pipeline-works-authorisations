@@ -52,11 +52,11 @@
             </#if>
 
             <@fdsDetails.details detailsTitle="What is a temporary deposit?" 
-                detailsText="Temporary deposits are materials which are to be deposited on a temporary basis to provide support to a defined workscope and/or laying of pipelines and will be removed from the seabed back to shore following completion of a proposed work scope."/>
-            <@fdsDetails.details detailsTitle="What information do I need to provide?" 
-                detailsText="Details of the type of deposit; how long it will be on the seabed and whether the deposit will be within or outside a HSE 500m safety zone should be provided. This is for OGA information only and applications for temporary deposits should still be directed to the BEIS Environmental Management Team for consideration."/>
+                detailsText="Temporary deposits are materials which are to be deposited on a temporary basis to provide support to a defined workscope and/or laying of pipelines and will be removed from the seabed back to shore following completion of a proposed workscope."/>           
             <@fdsRadio.radioGroup path="form.temporaryDepositsMade" labelText="Are temporary deposits being made as part of this application?" hiddenContent=true hintText="A deposit left in place for less than 20 days, unless you have pre-approval from the OGA.">
                 <@fdsRadio.radioYes path="form.temporaryDepositsMade">
+                    <@fdsDetails.details detailsTitle="What information do I need to provide?" 
+                        detailsText="Details of the type of deposit; how long it will be on the seabed and whether the deposit will be within or outside a HSE 500m safety zone should be provided. This is for OGA information only and applications for temporary deposits should still be directed to the BEIS Environmental Management Team for consideration."/>
                     <@fdsTextarea.textarea path="form.temporaryDepDescription" labelText="Description of temporary deposits" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.temporaryDepositsMade"/>

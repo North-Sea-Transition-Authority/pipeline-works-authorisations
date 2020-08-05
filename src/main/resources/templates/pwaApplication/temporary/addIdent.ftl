@@ -30,7 +30,7 @@
 
             <p class="govuk-body"><span class="govuk-!-font-weight-bold">Ident no.</span> ${identNo}</p>
 
-            <@fdsTextInput.textInput path="form.componentParts" labelText="Description of component parts of the pipeline" hintText="e.g. 10” production flowline, electrical lead d B, 2 x 6” Production Jumper within a Wellhead Bundle, 6” flexible gas lift flowline, control umbilical etc" />
+            <@fdsTextInput.textInput path="form.componentParts" labelText="Description of component parts of the pipeline" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" />
             <@fdsTextInput.textInput path="form.typeOfInsulationOrCoating" labelText="Type of insulation / coating" />
             <@fdsTextInput.textInput path="form.productsToBeConveyed" labelText="Products to be conveyed" />
 

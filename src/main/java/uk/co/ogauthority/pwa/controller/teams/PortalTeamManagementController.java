@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -28,10 +29,12 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRole;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @RequestMapping("/portal-team-management")
@@ -40,6 +43,7 @@ public class PortalTeamManagementController {
   private final TeamManagementService teamManagementService;
   private final AddUserToTeamFormValidator addUserToTeamFormValidator;
   private final String ogaRegistrationLink;
+  private final Map<String, String> allRolesMap;
 
   @Autowired
   public PortalTeamManagementController(TeamManagementService teamManagementService,
@@ -48,6 +52,11 @@ public class PortalTeamManagementController {
     this.teamManagementService = teamManagementService;
     this.addUserToTeamFormValidator = addUserToTeamFormValidator;
     this.ogaRegistrationLink = ogaRegistrationLink;
+
+
+    allRolesMap = PwaOrganisationUserRole.stream()
+        .sorted(Comparator.comparing(PwaOrganisationUserRole::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(PwaOrganisationUserRole::getRoleName, PwaOrganisationUserRole::getRoleDescription));
   }
 
   /**
@@ -96,7 +105,9 @@ public class PortalTeamManagementController {
         ))
         .addObject("showBreadcrumbs", false)
         .addObject("userCanManageAccess", true)
-        .addObject("showTopNav", true);
+        .addObject("showTopNav", true)
+        .addObject("allRoles", allRolesMap)
+        .addObject("appUser", false);
   }
 
 

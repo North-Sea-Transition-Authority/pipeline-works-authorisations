@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="userCanManageAccess" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="showTopNav" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="allRoles" type="java.util.Map<String,String>" -->
+<#-- @ftlvariable name="orgGroupHolders" type="java.util.List<String>" -->
 
 <#include "../layout.ftl">
 
@@ -22,33 +23,22 @@
         </@fdsCheckAnswers.checkAnswers>  
       </@fdsDetails.summaryDetails>
     
-      <#assign groups>
-          <#list ogList! as group> ${group} <#sep>, </#list>
-      </#assign>
-      <@fdsInsetText.insetText>
-          <p>Every user in ${groups} has access to view this application. Depending on their role in the organisation they can update the application users listed below, submit the application and will receive notification of consent.</p>
-          <p>Only the users listed below have access to work on this application. They will see this application in their work area and receive all notifications from the OGA concerning this application. The roles a user has determines the actions they can carry out on this application. </p>
-      </@fdsInsetText.insetText>
-
-    <#else>
-      <@fdsDetails.summaryDetails summaryTitle="What does each role allow a user to do?" >
-          <@fdsCheckAnswers.checkAnswers summaryListClass="">
-               <@fdsCheckAnswers.checkAnswersRow keyText="Access manager:" actionText="" actionUrl="" screenReaderActionText="">
-                  Can add, update or remove users from your organisation account
-                </@fdsCheckAnswers.checkAnswersRow>
-               <@fdsCheckAnswers.checkAnswersRow keyText="Application creator:" actionText="" actionUrl="" screenReaderActionText="">
-                  Can create PWA and associated applications
-                </@fdsCheckAnswers.checkAnswersRow>
-               <@fdsCheckAnswers.checkAnswersRow keyText="Application submitter:" actionText="" actionUrl="" screenReaderActionText="">
-                  Can submit applications to the OGA
-                </@fdsCheckAnswers.checkAnswersRow>
-          </@fdsCheckAnswers.checkAnswers>
-        </@fdsDetails.summaryDetails>                  
-    
+      <#if appUser == true>
+        <#assign groups>
+          <#list orgGroupHolders! as group> ${group} <#sep>, </#list>
+        </#assign>
         <@fdsInsetText.insetText>
-            <p>The users listed below have access to all PWAs for your organisation. The roles a user has determines the actions they can carry out on behalf of your organisation.</p>
-        </@fdsInsetText.insetText>  
-    </#if>
+            <p>Every user in ${groups} has access to view this application. Depending on their role in the organisation they can update the application users listed below, submit the application and will receive notification of consent.</p>
+            <p>Only the users listed below have access to work on this application. They will see this application in their work area and receive all notifications from the OGA concerning this application. The roles a user has determines the actions they can carry out on this application. </p>
+        </@fdsInsetText.insetText>
+
+      <#else>
+        <@fdsInsetText.insetText>
+          <p>The users listed below have access to all PWAs for your organisation. The roles a user has determines the actions they can carry out on behalf of your organisation.</p>
+        </@fdsInsetText.insetText>
+      </#if>
+      
+    </#if>  
 
 
 
