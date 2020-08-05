@@ -36,7 +36,7 @@
 
           <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" cardErrorMessage=cardErrorMessage>
               <@fdsCard.cardAction cardLinkText="Remove"
-                cardLinkScreenReaderText="Remove pipeline ${pipeline.getPipelineName()}"
+                cardLinkScreenReaderText="${pipeline.getPipelineName()}"
                 cardLinkUrl=springUrl(pipelineUrlFactory.getRemovePipelineUrl(pipeline.padPipelineId))
               />
           </@fdsCard.cardHeader>
