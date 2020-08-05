@@ -245,23 +245,26 @@ public class CampaignWorksService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public void removePipelineFromAllSchedules(PwaApplicationDetail pwaApplicationDetail, PadPipeline padPipeline) {
-    var pipelines = padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_PwaApplicationDetailAndAndPadPipeline(
-        pwaApplicationDetail, padPipeline);
+  public void removePipelineFromAllSchedules(PadPipeline padPipeline) {
+    var pipelines = padCampaignWorksPipelineRepository.findAllByPadPipeline(padPipeline);
     padCampaignWorksPipelineRepository.deleteAll(pipelines);
   }
 
-  public void cleanUnlinkedSchedules(PwaApplicationDetail pwaApplicationDetail) {
+  @Transactional
+  public void cleanUnlinkedSchedules(PadPipeline padPipeline) {
+
+    var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
+
+    this.removePipelineFromAllSchedules(padPipeline);
 
     var schedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
-
     Map<PadCampaignWorkSchedule, List<PadCampaignWorksPipeline>> campaignMap =
         padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail)
             .stream()
             .collect(Collectors.groupingBy(PadCampaignWorksPipeline::getPadCampaignWorkSchedule));
 
     var schedulesToRemove = CleanupUtils.getUnlinkedKeys(schedules, campaignMap,
-        (key, value) -> key.getId().equals(value.getId()));
+        (schedule1, schedule2) -> schedule1.getId().equals(schedule2.getId()));
 
     if (!schedulesToRemove.isEmpty()) {
       padCampaignWorkScheduleRepository.deleteAll(schedulesToRemove);

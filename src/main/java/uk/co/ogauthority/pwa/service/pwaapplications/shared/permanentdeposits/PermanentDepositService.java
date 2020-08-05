@@ -284,16 +284,19 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail) > 0 ? true : false;
   }
 
-  public void removePipelineFromDeposits(PadPipeline padPipeline) {
+  @Transactional
+  public void removePadPipelineDepositLinks(PadPipeline padPipeline) {
     var depositPipelineLinks = padDepositPipelineRepository.getAllByPadPipeline(padPipeline);
     padDepositPipelineRepository.deleteAll(depositPipelineLinks);
   }
 
   @Transactional
-  public void cleanUnlinkedDeposits(PwaApplicationDetail pwaApplicationDetail) {
+  public void removePadPipelineFromDeposits(PadPipeline padPipeline) {
 
+    this.removePadPipelineDepositLinks(padPipeline);
+
+    var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
     var deposits = permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
-
     Map<PadPermanentDeposit, List<PadDepositPipeline>> depositMap =
         padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail)
             .stream()

@@ -728,7 +728,7 @@ public class PadOrganisationRoleServiceTest {
   @Test
   public void deletePipelineRoleLinksForPadPipeline_serviceInteraction() {
     var pipeline = new Pipeline();
-    var padPipeline = new PadPipeline();
+    var padPipeline = new PadPipeline(detail);
     padPipeline.setPipeline(pipeline);
 
     var roleLink = new PadPipelineOrganisationRoleLink(padOrgUnit1UserRole, pipeline);
@@ -736,7 +736,7 @@ public class PadOrganisationRoleServiceTest {
     when(padPipelineOrganisationRoleLinkRepository.getAllByPadOrgRole_PwaApplicationDetailAndPipeline(detail, pipeline))
         .thenReturn(List.of(roleLink));
 
-    padOrganisationRoleService.deletePipelineRoleLinksForPadPipeline(detail, padPipeline);
+    padOrganisationRoleService.deletePipelineRoleLinksForPadPipeline(padPipeline);
     verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of(roleLink));
   }
 

@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.dto.pipelines;
 
 import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -14,34 +16,25 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 public class PadPipelineSummaryDto {
 
   private final Integer padPipelineId;
-
   private final Integer pipelineId;
-
   private final String fromLocation;
-
   private final CoordinatePair fromCoordinates;
-
   private final String toLocation;
-
   private final CoordinatePair toCoordinates;
-
   private final String pipelineNumber;
-
   private final PipelineType pipelineType;
-
   private final String componentParts;
-
   private final BigDecimal length;
-
   private final String productsToBeConveyed;
-
   private final Long numberOfIdents;
-
   private final BigDecimal maxExternalDiameter;
-
   private final Boolean pipelineInBundle;
-
   private final String bundleName;
+  private final PipelineFlexibility pipelineFlexibility;
+  private final PipelineMaterial pipelineMaterial;
+  private final String otherPipelineMaterialUsed;
+  private final Boolean trenchedBuriedBackfilled;
+  private final String trenchingMethodsDescription;
 
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
@@ -73,12 +66,18 @@ public class PadPipelineSummaryDto {
                                LongitudeDirection toLongitudeDirection,
                                BigDecimal maxExternalDiameter,
                                Boolean pipelineInBundle,
-                               String bundleName
-  ) {
+                               String bundleName,
+                               PipelineFlexibility pipelineFlexibility,
+                               PipelineMaterial pipelineMaterial,
+                               String otherPipelineMaterialUsed,
+                               Boolean trenchedBuriedBackfilled,
+                               String trenchingMethodsDescription) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
     this.toLocation = toLocation;
+    this.pipelineFlexibility = pipelineFlexibility;
+    this.pipelineMaterial = pipelineMaterial;
 
     var fromLat = new LatitudeCoordinate(
         fromLatitudeDegrees,
@@ -117,6 +116,9 @@ public class PadPipelineSummaryDto {
     this.maxExternalDiameter = maxExternalDiameter;
     this.pipelineInBundle = pipelineInBundle;
     this.bundleName = bundleName;
+    this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
+    this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
+    this.trenchingMethodsDescription = trenchingMethodsDescription;
   }
 
   public int getPadPipelineId() {
@@ -177,5 +179,25 @@ public class PadPipelineSummaryDto {
 
   public String getBundleName() {
     return bundleName;
+  }
+
+  public PipelineFlexibility getPipelineFlexibility() {
+    return pipelineFlexibility;
+  }
+
+  public PipelineMaterial getPipelineMaterial() {
+    return pipelineMaterial;
+  }
+
+  public String getOtherPipelineMaterialUsed() {
+    return otherPipelineMaterialUsed;
+  }
+
+  public Boolean getTrenchedBuriedBackfilled() {
+    return trenchedBuriedBackfilled;
+  }
+
+  public String getTrenchingMethodsDescription() {
+    return trenchingMethodsDescription;
   }
 }

@@ -248,6 +248,22 @@ public class PadPipelineServiceTest {
   }
 
   @Test
+  public void addPipeline_pipelineReference_isSequential() {
+    var form = new PipelineHeaderForm();
+    form.setFromCoordinateForm(new CoordinateForm());
+    form.setToCoordinateForm(new CoordinateForm());
+    form.setTrenchedBuriedBackfilled(false);
+    form.setPipelineMaterial(PipelineMaterial.DUPLEX);
+    form.setPipelineInBundle(false);
+
+    when(padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(detail)).thenReturn(2);
+
+    var padPipeline = padPipelineService.addPipeline(detail, form);
+    assertThat(padPipeline.getTemporaryNumber()).isEqualTo(3);
+    assertThat(padPipeline.getPipelineRef()).isEqualTo("TEMPORARY 3");
+  }
+
+  @Test
   public void isComplete() {
 
     // no errors on validate
@@ -664,8 +680,12 @@ public class PadPipelineServiceTest {
         1, 1, BigDecimal.ZERO, LongitudeDirection.EAST,
         padPipeline.getMaxExternalDiameter(),
         padPipeline.getPipelineInBundle(),
-        padPipeline.getBundleName()
-    );
+        padPipeline.getBundleName(),
+        padPipeline.getPipelineFlexibility(),
+        padPipeline.getPipelineMaterial(),
+        padPipeline.getOtherPipelineMaterialUsed(),
+        padPipeline.getTrenchedBuriedBackfilled(),
+        padPipeline.getTrenchingMethodsDescription());
   }
 
 }

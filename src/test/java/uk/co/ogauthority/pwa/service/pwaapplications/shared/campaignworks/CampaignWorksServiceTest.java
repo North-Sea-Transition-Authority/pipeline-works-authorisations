@@ -502,10 +502,9 @@ public class CampaignWorksServiceTest {
   @Test
   public void removePipelineFromAllSchedules_serviceInteraction() {
     var campaignWorksPipeline = new PadCampaignWorksPipeline();
-    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_PwaApplicationDetailAndAndPadPipeline(
-        pwaApplicationDetail, pipe1)
+    when(padCampaignWorksPipelineRepository.findAllByPadPipeline(pipe1)
     ).thenReturn(List.of(campaignWorksPipeline));
-    campaignWorksService.removePipelineFromAllSchedules(pwaApplicationDetail, pipe1);
+    campaignWorksService.removePipelineFromAllSchedules(pipe1);
     verify(padCampaignWorksPipelineRepository, times(1)).deleteAll(List.of(campaignWorksPipeline));
   }
 
@@ -515,7 +514,7 @@ public class CampaignWorksServiceTest {
         .thenReturn(List.of(workSchedule));
     when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of());
-    campaignWorksService.cleanUnlinkedSchedules(pwaApplicationDetail);
+    campaignWorksService.cleanUnlinkedSchedules(pipe1);
     verify(padCampaignWorkScheduleRepository, times(1)).deleteAll(List.of(workSchedule));
   }
 
@@ -527,7 +526,7 @@ public class CampaignWorksServiceTest {
         .thenReturn(List.of(workSchedule));
     when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(worksPipeline));
-    campaignWorksService.cleanUnlinkedSchedules(pwaApplicationDetail);
+    campaignWorksService.cleanUnlinkedSchedules(pipe1);
     verify(padCampaignWorkScheduleRepository, times(1)).findByPwaApplicationDetail(pwaApplicationDetail);
     verifyNoMoreInteractions(padCampaignWorkScheduleRepository);
   }

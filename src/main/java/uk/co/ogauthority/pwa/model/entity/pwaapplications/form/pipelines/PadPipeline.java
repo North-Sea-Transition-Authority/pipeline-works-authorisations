@@ -138,7 +138,7 @@ public class PadPipeline {
   private Boolean pipelineInBundle;
   private String bundleName;
 
-  private Long temporaryNumber;
+  private Integer temporaryNumber;
 
   public PadPipeline() {
   }
@@ -371,11 +371,11 @@ public class PadPipeline {
 
   }
 
-  public Long getTemporaryNumber() {
+  public Integer getTemporaryNumber() {
     return temporaryNumber;
   }
 
-  public void setTemporaryNumber(Long temporaryNumber) {
+  public void setTemporaryNumber(Integer temporaryNumber) {
     this.temporaryNumber = temporaryNumber;
   }
 

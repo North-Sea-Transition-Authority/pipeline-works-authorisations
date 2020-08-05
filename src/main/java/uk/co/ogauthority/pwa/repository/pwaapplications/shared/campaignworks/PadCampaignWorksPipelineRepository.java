@@ -15,7 +15,6 @@ public interface PadCampaignWorksPipelineRepository extends CrudRepository<PadCa
 
   List<PadCampaignWorksPipeline> findAllByPadCampaignWorkSchedule(PadCampaignWorkSchedule padCampaignWorkSchedule);
 
-  List<PadCampaignWorksPipeline> findAllByPadCampaignWorkSchedule_PwaApplicationDetailAndAndPadPipeline(
-      PwaApplicationDetail detail, PadPipeline pipeline);
+  List<PadCampaignWorksPipeline> findAllByPadPipeline(PadPipeline pipeline);
 
 }

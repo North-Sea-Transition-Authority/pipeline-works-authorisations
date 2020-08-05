@@ -62,23 +62,17 @@ public class PipelineRemovalServiceTest {
 
   @Test
   public void removePipeline() {
-    pipelineRemovalService.removePipeline(pwaApplicationDetail, padPipeline);
+    pipelineRemovalService.removePipeline(padPipeline);
     verify(padPipelineRepository, times(1)).delete(padPipeline);
   }
 
   @Test
-  public void removeLinks_serviceInteraction() {
-    pipelineRemovalService.removeLinks(pwaApplicationDetail, padPipeline);
-    verify(padOrganisationRoleService, times(1))
-        .deletePipelineRoleLinksForPadPipeline(pwaApplicationDetail, padPipeline);
-
-    verify(padTechnicalDrawingLinkService, times(1))
-        .removeAllPipelineLinks(pwaApplicationDetail, padPipeline);
-
-    verify(campaignWorksService, times(1)).
-        removePipelineFromAllSchedules(pwaApplicationDetail, padPipeline);
-
-    verify(permanentDepositService, times(1)).removePipelineFromDeposits(padPipeline);
+  public void removeAndClean_serviceInteraction() {
+    pipelineRemovalService.removeAndClean(padPipeline);
+    verify(padOrganisationRoleService, times(1)).deletePipelineRoleLinksForPadPipeline(padPipeline);
+    verify(padTechnicalDrawingService, times(1)).removePadPipelineFromDrawings(padPipeline);
+    verify(permanentDepositService, times(1)).removePadPipelineFromDeposits(padPipeline);
+    verify(campaignWorksService, times(1)).cleanUnlinkedSchedules(padPipeline);
   }
 
   @Test
@@ -87,13 +81,5 @@ public class PipelineRemovalServiceTest {
     var pipelineIdentifier = PadPipelineId.from(padPipeline);
     verify(padPipelineIdentService, times(1)).getAllIdentsByPadPipelineIds(eq(List.of(pipelineIdentifier)));
     verify(padPipelineIdentService, times(1)).removeAllIdents(padPipeline);
-  }
-
-  @Test
-  public void cleanUnlinkedData_serviceInteraction() {
-    pipelineRemovalService.cleanUnlinkedData(pwaApplicationDetail);
-    verify(padTechnicalDrawingService, times(1)).cleanUnlinkedDrawings(pwaApplicationDetail);
-    verify(permanentDepositService, times(1)).cleanUnlinkedDeposits(pwaApplicationDetail);
-    verify(campaignWorksService, times(1)).cleanUnlinkedSchedules(pwaApplicationDetail);
   }
 }

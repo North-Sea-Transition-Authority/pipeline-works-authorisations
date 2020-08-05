@@ -58,6 +58,11 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.maxExternalDiameter " +
             ", pp.pipelineInBundle " +
             ", pp.bundleName " +
+            ", pp.pipelineFlexibility" +
+            ", pp.pipelineMaterial " +
+            ", pp.otherPipelineMaterialUsed " +
+            ", pp.trenchedBuriedBackfilled " +
+            ", pp.trenchingMethodsDescription " +
             ") " +
             "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
             "JOIN uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline p ON pp.pipeline = p " +
@@ -66,7 +71,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             "WHERE pp.pwaApplicationDetail = :detail " +
             "AND (:padPipelineLineFilter IS NULL OR pp = :padPipelineLineFilter) " +
             "GROUP BY " +
-            " pp.id " +
+            "  pp.id " +
             ", p.id " +
             ", pp.pipelineType " +
             ", pp.pipelineRef " +
@@ -95,7 +100,12 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.toLongitudeDirection " +
             ", pp.maxExternalDiameter " +
             ", pp.pipelineInBundle " +
-            ", pp.bundleName ",
+            ", pp.bundleName " +
+            ", pp.pipelineFlexibility " +
+            ", pp.pipelineMaterial " +
+            ", pp.otherPipelineMaterialUsed " +
+            ", pp.trenchedBuriedBackfilled " +
+            ", pp.trenchingMethodsDescription ",
         PadPipelineSummaryDto.class)
         .setParameter("detail", detail)
         .setParameter("padPipelineLineFilter", padPipeline)
@@ -157,11 +167,11 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   }
 
   @Override
-  public Long getMaxTemporaryNumberByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+  public Integer getMaxTemporaryNumberByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
     return entityManager.createQuery("" +
         "SELECT NVL(MAX(pp.temporaryNumber), 0) " +
         "FROM PadPipeline pp " +
-        "WHERE pp.pwaApplicationDetail = :detail", Long.class)
+        "WHERE pp.pwaApplicationDetail = :detail", Integer.class)
         .setParameter("detail", pwaApplicationDetail)
         .getSingleResult();
   }

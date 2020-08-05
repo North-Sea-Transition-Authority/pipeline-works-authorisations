@@ -233,8 +233,8 @@ public class PipelinesController {
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            @PathVariable("padPipelineId") Integer padPipelineId,
                                            PwaApplicationContext applicationContext) {
-    var pipeline = padPipelineService.getById(padPipelineId);
-    return getRemovePipelineModelAndView(applicationContext.getApplicationDetail(), pipeline);
+    return getRemovePipelineModelAndView(applicationContext.getApplicationDetail(),
+        applicationContext.getPadPipeline());
   }
 
   @PostMapping("/pipeline/{padPipelineId}/remove")
@@ -243,8 +243,7 @@ public class PipelinesController {
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                          @PathVariable("padPipelineId") Integer padPipelineId,
                                          PwaApplicationContext applicationContext) {
-    var pipeline = padPipelineService.getById(padPipelineId);
-    pipelineRemovalService.removePipeline(applicationContext.getApplicationDetail(), pipeline);
+    pipelineRemovalService.removePipeline(applicationContext.getPadPipeline());
     return ReverseRouter.redirect(on(PipelinesController.class)
         .renderPipelinesOverview(applicationId, pwaApplicationType, null));
   }

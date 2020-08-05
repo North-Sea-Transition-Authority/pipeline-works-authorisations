@@ -592,18 +592,20 @@ public class PadTechnicalDrawingServiceTest {
 
   @Test
   public void cleanUnlinkedDrawings_serviceInteraction_noLinks() {
+    var padPipeline = new PadPipeline(pwaApplicationDetail);
     var drawing = new PadTechnicalDrawing();
     drawing.setId(1);
     when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(drawing));
     when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing)))
         .thenReturn(List.of());
-    padTechnicalDrawingService.cleanUnlinkedDrawings(pwaApplicationDetail);
+    padTechnicalDrawingService.removePadPipelineFromDrawings(padPipeline);
     verify(padTechnicalDrawingRepository, times(1)).deleteAll(List.of(drawing));
   }
 
   @Test
   public void cleanUnlinkedDrawings_serviceInteraction_remainingLinks() {
+    var padPipeline = new PadPipeline(pwaApplicationDetail);
     var drawing = new PadTechnicalDrawing();
     drawing.setId(1);
     var link = new PadTechnicalDrawingLink();
@@ -612,7 +614,7 @@ public class PadTechnicalDrawingServiceTest {
         .thenReturn(List.of(drawing));
     when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing)))
         .thenReturn(List.of(link));
-    padTechnicalDrawingService.cleanUnlinkedDrawings(pwaApplicationDetail);
+    padTechnicalDrawingService.removePadPipelineFromDrawings(padPipeline);
     verify(padTechnicalDrawingRepository, never()).deleteAll(any());
   }
 

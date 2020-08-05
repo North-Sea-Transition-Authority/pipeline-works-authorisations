@@ -180,12 +180,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
     // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
-    Long maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(pwaApplicationDetail);
-    // TODO PWA-341 this could cause duplicate pipeline numbers e.g
-    // 1. Add new pipeline "TEMP 1"
-    // 2. Add new pipeline "TEMP 2"
-    // 3. Remove "TEMP 1"
-    // 4. Add new pipeline "TEMP 2"!
+    Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(pwaApplicationDetail);
 
     newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
     newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
@@ -392,7 +387,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     newPadPipeline.setComponentPartsDescription(pipelineDetail.getComponentPartsDesc());
     newPadPipeline.setLength(pipelineDetail.getLength());
     newPadPipeline.setPipelineInBundle(pipelineDetail.getPipelineInBundle());
-    newPadPipeline.setTemporaryNumber(0L);
     if (pipelineDetail.getPipelineType() == null) {
       newPadPipeline.setPipelineType(PipelineType.UNKNOWN);
     } else {
@@ -415,9 +409,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     PwaApplicationType[] appTypes = ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types();
     return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
-  }
-
-  public void removePipelineLinks() {
   }
 
   @Override

@@ -6,7 +6,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -45,19 +44,10 @@ public class PipelineRemovalService {
   }
 
   @Transactional
-  public void removePipeline(PwaApplicationDetail detail, PadPipeline padPipeline) {
-    this.removeLinks(detail, padPipeline);
+  public void removePipeline(PadPipeline padPipeline) {
     this.removeIdents(padPipeline);
+    this.removeAndClean(padPipeline);
     padPipelineRepository.delete(padPipeline);
-    this.cleanUnlinkedData(detail);
-  }
-
-  @VisibleForTesting
-  public void removeLinks(PwaApplicationDetail detail, PadPipeline padPipeline) {
-    padOrganisationRoleService.deletePipelineRoleLinksForPadPipeline(detail, padPipeline);
-    padTechnicalDrawingLinkService.removeAllPipelineLinks(detail, padPipeline);
-    campaignWorksService.removePipelineFromAllSchedules(detail, padPipeline);
-    permanentDepositService.removePipelineFromDeposits(padPipeline);
   }
 
   @VisibleForTesting
@@ -68,9 +58,10 @@ public class PipelineRemovalService {
   }
 
   @VisibleForTesting
-  public void cleanUnlinkedData(PwaApplicationDetail detail) {
-    padTechnicalDrawingService.cleanUnlinkedDrawings(detail);
-    permanentDepositService.cleanUnlinkedDeposits(detail);
-    campaignWorksService.cleanUnlinkedSchedules(detail);
+  public void removeAndClean(PadPipeline padPipeline) {
+    padOrganisationRoleService.deletePipelineRoleLinksForPadPipeline(padPipeline);
+    padTechnicalDrawingService.removePadPipelineFromDrawings(padPipeline);
+    permanentDepositService.removePadPipelineFromDeposits(padPipeline);
+    campaignWorksService.cleanUnlinkedSchedules(padPipeline);
   }
 }

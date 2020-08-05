@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
@@ -298,14 +299,12 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         .allMatch(pipeline -> linkedPipelineIds.contains(pipeline.getId()));
   }
 
-  /**
-   * A drawing will only become unlinked once all pipelines have been removed.
-   * Could have an effect if someone is mid-editing drawing. Will this be an issue?
-   *
-   * @param pwaApplicationDetail The current application detail
-   */
   @Transactional
-  public void cleanUnlinkedDrawings(PwaApplicationDetail pwaApplicationDetail) {
+  public void removePadPipelineFromDrawings(PadPipeline padPipeline) {
+
+    var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
+    padTechnicalDrawingLinkService.removeAllPipelineLinks(pwaApplicationDetail, padPipeline);
+
     var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
     Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap =
         padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings)

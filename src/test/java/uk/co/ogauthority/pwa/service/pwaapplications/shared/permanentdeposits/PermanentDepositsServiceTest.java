@@ -434,22 +434,24 @@ public class PermanentDepositsServiceTest {
     var padPipeline = new PadPipeline();
     when(padDepositPipelineRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(depositPipeline));
-    service.removePipelineFromDeposits(padPipeline);
+    service.removePadPipelineDepositLinks(padPipeline);
     verify(padDepositPipelineRepository, times(1)).deleteAll(List.of(depositPipeline));
   }
 
   @Test
-  public void cleanupUnlinkedSchedules_serviceInteraction_noCampaignLinks() {
+  public void cleanupUnlinkedSchedules_serviceInteraction_noLinks() {
+    var padPipeline = new PadPipeline(pwaApplicationDetail);
     when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padPermanentDeposit));
     when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of());
-    service.cleanUnlinkedDeposits(pwaApplicationDetail);
+    service.removePadPipelineFromDeposits(padPipeline);
     verify(permanentDepositInformationRepository, times(1)).deleteAll(List.of(padPermanentDeposit));
   }
 
   @Test
-  public void cleanupUnlinkedSchedules_serviceInteraction_remainingPipelineLinks() {
+  public void cleanupUnlinkedSchedules_serviceInteraction_remainingLinks() {
+    var padPipeline = new PadPipeline(pwaApplicationDetail);
     var depositPipeline = new PadDepositPipeline();
     depositPipeline.setPermanentDepositInfo(padPermanentDeposit);
     padPermanentDeposit.setId(1);
@@ -457,7 +459,7 @@ public class PermanentDepositsServiceTest {
         .thenReturn(List.of(padPermanentDeposit));
     when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(depositPipeline));
-    service.cleanUnlinkedDeposits(pwaApplicationDetail);
+    service.removePadPipelineFromDeposits(padPipeline);
     verify(permanentDepositInformationRepository, never()).deleteAll(any());
   }
 
