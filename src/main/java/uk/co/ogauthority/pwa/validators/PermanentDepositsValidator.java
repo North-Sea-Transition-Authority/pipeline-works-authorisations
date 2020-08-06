@@ -63,8 +63,8 @@ public class PermanentDepositsValidator implements SmartValidator {
           "depositReference", "Deposit reference must be unique, enter a different reference");
     }
 
-    validateDateIsFutureDate(errors, "From Date", "fromDate", form.getFromDate());
-    validateDateIsFutureDate(errors, "To Date", "toDate", form.getToDate());
+    validateDateIsFutureDate(errors, "Start date", "fromDate", form.getFromDate());
+    validateDateIsFutureDate(errors, "End date", "toDate", form.getToDate());
     if (form.getFromDate().getMonth() != null && form.getFromDate().getYear() != null
         && form.getToDate().getMonth() != null && form.getToDate().getYear() != null) {
       ValidatorUtils.validateDateIsWithinRangeOfTarget(

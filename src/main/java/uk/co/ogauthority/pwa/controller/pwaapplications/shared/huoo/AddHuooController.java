@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Comparator;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,6 +64,7 @@ public class AddHuooController {
   private final EditHuooValidator editHuooValidator;
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final ControllerHelperService controllerHelperService;
+  private final String ogaServiceDeskEmail;
 
   @Autowired
   public AddHuooController(
@@ -71,13 +73,15 @@ public class AddHuooController {
       AddHuooValidator addHuooValidator,
       EditHuooValidator editHuooValidator,
       PadOrganisationRoleService padOrganisationRoleService,
-      ControllerHelperService controllerHelperService) {
+      ControllerHelperService controllerHelperService,
+      @Value("${oga.servicedesk.email}") String ogaServiceDeskEmail) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.addHuooValidator = addHuooValidator;
     this.editHuooValidator = editHuooValidator;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.controllerHelperService = controllerHelperService;
+    this.ogaServiceDeskEmail = ogaServiceDeskEmail;
   }
 
   private void addObjectAttributes(PwaApplicationDetail detail, ModelAndView modelAndView) {
@@ -101,7 +105,8 @@ public class AddHuooController {
 
   private ModelAndView getAddHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/huoo/addHuoo")
-        .addObject("screenActionType", ScreenActionType.ADD);
+        .addObject("screenActionType", ScreenActionType.ADD)
+        .addObject("ogaServiceDeskEmail", ogaServiceDeskEmail);
     addObjectAttributes(pwaApplicationDetail, modelAndView);
     applicationBreadcrumbService.fromHuoo(pwaApplicationDetail.getPwaApplication(), modelAndView, "Add HUOO");
     return modelAndView;

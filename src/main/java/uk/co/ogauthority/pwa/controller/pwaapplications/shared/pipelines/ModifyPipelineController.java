@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ModifyPipelineService;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.pipelines.ModifyPipelineValidator;
@@ -85,13 +87,16 @@ public class ModifyPipelineController {
                                                   @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                   PwaApplicationContext applicationContext,
                                                   @ModelAttribute("form") ModifyPipelineForm form,
-                                                  BindingResult bindingResult) {
+                                                  BindingResult bindingResult,
+                                                  RedirectAttributes redirectAttributes) {
     var detail = applicationContext.getApplicationDetail();
     modifyPipelineValidator.validate(form, bindingResult, detail);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         createImportConsentedPipelineModelAndView(detail),
         () -> {
           modifyPipelineService.importPipeline(detail, form);
+          FlashUtils.success(
+              redirectAttributes, "Success", "The pipeline to be modified has been added to the pipelines listed below");
           return ReverseRouter.redirect(on(PipelinesController.class)
               .renderPipelinesOverview(applicationId, pwaApplicationType, null));
         });

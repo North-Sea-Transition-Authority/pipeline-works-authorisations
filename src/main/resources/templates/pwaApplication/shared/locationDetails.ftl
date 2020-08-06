@@ -13,7 +13,7 @@
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsTextInput.textInput path="form.approximateProjectLocationFromShore" labelText="Approximate project location from shore"/>
+        <@fdsTextInput.textInput path="form.approximateProjectLocationFromShore" labelText="Approximate project location from shore" hintText="e.g. 127km east of Norwick (Shetland Isles) and 390km northeast of Aberdeen"/>
         <@fdsRadio.radioGroup path="form.withinSafetyZone" labelText="Will work be carried out within a HSE recognised 500m safety zone?" hiddenContent=true>
             <#assign firstItem = true/>
             <#list safetyZoneOptions as name, value>

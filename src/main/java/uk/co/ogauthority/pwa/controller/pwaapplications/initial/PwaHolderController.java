@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,6 +58,8 @@ public class PwaHolderController {
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final ApplicationBreadcrumbService breadcrumbService;
   private final ControllerHelperService controllerHelperService;
+  private final String ogaServiceDeskEmail;
+
 
   @Autowired
   public PwaHolderController(TeamService teamService,
@@ -65,7 +68,8 @@ public class PwaHolderController {
                              PwaHolderFormValidator pwaHolderFormValidator,
                              PadOrganisationRoleService padOrganisationRoleService,
                              ApplicationBreadcrumbService breadcrumbService,
-                             ControllerHelperService controllerHelperService) {
+                             ControllerHelperService controllerHelperService,
+                             @Value("${oga.servicedesk.email}") String ogaServiceDeskEmail) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
@@ -73,6 +77,7 @@ public class PwaHolderController {
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.breadcrumbService = breadcrumbService;
     this.controllerHelperService = controllerHelperService;
+    this.ogaServiceDeskEmail = ogaServiceDeskEmail;
   }
 
   /**
@@ -148,7 +153,8 @@ public class PwaHolderController {
         )
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
         .addObject("errorList", List.of())
-        .addObject("hasHolderSet", form != null && form.getHolderOuId() != null);
+        .addObject("hasHolderSet", form != null && form.getHolderOuId() != null)
+        .addObject("ogaServiceDeskEmail", ogaServiceDeskEmail);
 
     breadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Consent holder");
 
@@ -157,10 +163,10 @@ public class PwaHolderController {
 
   private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
     return teamService.getOrganisationTeamListIfPersonInRole(
-            user.getLinkedPerson(),
-            List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
-            .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-            .collect(Collectors.toList());
+        user.getLinkedPerson(),
+        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
+        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+        .collect(Collectors.toList());
   }
 
   private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {

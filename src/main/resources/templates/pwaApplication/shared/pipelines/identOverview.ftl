@@ -17,6 +17,13 @@
 
     <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />
 
+        <@fdsDetails.summaryDetails summaryTitle="What is an ident and what do I need to provide?">
+            <p>Each component part of a pipeline has a unique identifier known as an ident. This represents a specific component or section of a pipeline. Each main component should be added as a separate ident.</p>
+            <p>Main component parts such as ESDV, Manifolds, SSIV, Termination Units or component(s) that affect flow should have their own ident with the from, to and description defined as that component. This only applies to the main production or umbilical pipeline.</p>
+            <p>All idents are to follow the direction of flow.</p>
+        </@fdsDetails.summaryDetails>
+            
+
     <#if summaryView?has_content && summaryView.connectedPipelineIdents?has_content>
         <@fdsTimeline.timeline>
             <@fdsTimeline.timelineSection sectionHeading="">

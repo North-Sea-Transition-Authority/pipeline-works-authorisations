@@ -117,7 +117,7 @@ public class TaskListServiceTest {
 
       assertThat(taskListService.getAppInfoTasks(pwaApplication))
           .extracting(TaskListEntry::getTaskName)
-          .containsExactly("Application contacts");
+          .containsExactly("Application users");
 
     });
 
