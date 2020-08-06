@@ -22,7 +22,7 @@
     </@fdsInsetText.insetText>
 
      <@fdsDetails.summaryDetails summaryTitle="What justification do I need to fast track my application for the above reasons?">
-        <ul>
+        <ul class="govuk-list govuk-list--bullet">
             <li> Avoiding environmental disaster: work required to make the pipeline safe to avoid immediate risks of pipeline rupturing or leaking and to make safe for other users of the sea and why </li>
             <li> Save barrels: quantification of the number of barrels saved and why </li>
             <li> Project planning: quantification of money saved for example due to staff costs or boat hire </li>
