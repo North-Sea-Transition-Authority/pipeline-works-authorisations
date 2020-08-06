@@ -71,25 +71,24 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
       ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
           form.getFlowrateDesignMinMax(), "flowrate design conditions",
           List.of(), List.of(new PositiveNumberHint(), new DecimalPlacesHint(2)));
-    }
 
+      var uvalueOp = createBigDecimal(form.getUvalueOp());
+      if (uvalueOp.isEmpty()) {
+        errors.rejectValue("uvalueOp", "uvalueOp" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a valid value for U-value operating conditions");
+      } else {
+        validatePositiveNumber(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions");
+        validateDecimalPlaces(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions", 1);
+      }
 
-    var uvalueOp = createBigDecimal(form.getUvalueOp());
-    if (uvalueOp.isEmpty()) {
-      errors.rejectValue("uvalueOp", "uvalueOp" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid value for U-value operating conditions");
-    } else if (validationType.equals(ValidationType.FULL)) {
-      validatePositiveNumber(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions");
-      validateDecimalPlaces(errors, uvalueOp.get(), "uvalueOp", "U-value operating conditions", 1);
-    }
-
-    var uvalueDesign = createBigDecimal(form.getUvalueDesign());
-    if (uvalueDesign.isEmpty()) {
-      errors.rejectValue("uvalueDesign", "uvalueDesign" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid value for U-value design conditions");
-    } else if (validationType.equals(ValidationType.FULL)) {
-      validatePositiveNumber(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions");
-      validateDecimalPlaces(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions", 1);
+      var uvalueDesign = createBigDecimal(form.getUvalueDesign());
+      if (uvalueDesign.isEmpty()) {
+        errors.rejectValue("uvalueDesign", "uvalueDesign" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a valid value for U-value design conditions");
+      } else {
+        validatePositiveNumber(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions");
+        validateDecimalPlaces(errors, uvalueDesign.get(), "uvalueDesign", "U-value design conditions", 1);
+      }
     }
   }
 

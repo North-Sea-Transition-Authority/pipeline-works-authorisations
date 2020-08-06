@@ -4,7 +4,9 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public enum WorkflowAssignment {
 
-  CASE_OFFICER(UserType.OGA);
+  CASE_OFFICER(UserType.OGA),
+
+  CONSULTATION_RESPONDER(UserType.CONSULTEE);
 
   private final UserType userType;
 

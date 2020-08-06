@@ -64,7 +64,7 @@ public class PwaApplicationRedirectService {
       case OPTIONS_VARIATION:
         return ReverseRouter.redirect(on(OptionsVariationTaskListController.class).viewTaskList(pwaApplication.getId(), null));
       default:
-        return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+        return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null));
     }
   }
 
@@ -97,7 +97,7 @@ public class PwaApplicationRedirectService {
       case OPTIONS_VARIATION:
         return ReverseRouter.route(on(OptionsVariationTaskListController.class).viewTaskList(pwaApplicationId, null));
       default:
-        return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null));
+        return ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null));
     }
   }
 

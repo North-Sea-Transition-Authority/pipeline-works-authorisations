@@ -43,9 +43,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
-    PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING
+    PwaApplicationType.CAT_1_VARIATION
 })
 public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
@@ -69,7 +67,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
   }
 
   private ModelAndView createAdmiraltyChartModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                       AdmiraltyChartDocumentForm form) {
+                                                        AdmiraltyChartDocumentForm form) {
     var modelAndView = createModelAndView(
         "pwaApplication/form/uploadFiles",
         ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
@@ -89,7 +87,8 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
         .addObject("backButtonText", "Back to technical drawings")
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)))
+        .addObject("singleFileUpload", true);
     applicationBreadcrumbService.fromTechnicalDrawings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Admiralty chart");
     return modelAndView;

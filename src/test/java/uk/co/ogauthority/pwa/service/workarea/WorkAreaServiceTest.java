@@ -1,13 +1,10 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -15,27 +12,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
-import uk.co.ogauthority.pwa.model.workflow.PwaApplicationWorkflowSubject;
-import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
-import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -43,195 +26,51 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 @RunWith(MockitoJUnitRunner.class)
 public class WorkAreaServiceTest {
 
-  private static final int REQUESTED_PAGE = 0;
-
-  @Mock
-  private PwaContactService pwaContactService;
-
-  @Mock
-  private ApplicationDetailSearcher applicationDetailSearcher;
-
-  @Mock
-  private PwaApplicationRedirectService pwaApplicationRedirectService;
-
-  @Mock
-  private PwaAppProcessingPermissionService appProcessingPermissionService;
-
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
+  @Mock
+  private ApplicationWorkAreaPageService applicationWorkAreaPageService;
+
   private WorkAreaService workAreaService;
 
-  private AuthenticatedUserAccount workAreaUser = new AuthenticatedUserAccount(
-      new WebUserAccount(10),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
-
-  private AuthenticatedUserAccount pwaManager = new AuthenticatedUserAccount(
-      new WebUserAccount(10),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_MANAGER));
+  private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), List.of());
 
   @Before
-  public void setup() {
+  public void setUp() {
 
-    workAreaService = new WorkAreaService(
-        pwaContactService,
-        applicationDetailSearcher,
-        pwaApplicationRedirectService,
-        appProcessingPermissionService,
-        camundaWorkflowService);
-
-    when(appProcessingPermissionService.getProcessingPermissions(pwaManager)).thenReturn(Set.of(
-        PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    this.workAreaService = new WorkAreaService(camundaWorkflowService, applicationWorkAreaPageService);
 
   }
 
   @Test
-  public void getWorkAreaResultPage_zeroResults_userIsWorkAreaUser() {
+  public void getWorkAreaResultPage_applicationsTab_resultsExist() {
 
-    var fakePage = new PageImpl<ApplicationDetailSearchItem>(List.of(), getDefaultWorkAreaViewPageable(REQUESTED_PAGE), 0);
-    when(applicationDetailSearcher.searchByPwaContacts(any(), any())).thenReturn(fakePage);
+    var appWorkflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
+    var appWorkflowSubject2 = new GenericWorkflowSubject(2, WorkflowType.PWA_APPLICATION);
+    var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
 
-    var workareaPage = workAreaService.getWorkAreaResultPage(workAreaUser, WorkAreaTab.OPEN_APPLICATIONS, REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(0);
-    verify(pwaContactService, times(1)).getPwaContactRolesForWebUserAccount(
-        workAreaUser,
-        EnumSet.of(PwaContactRole.PREPARER)
-    );
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of(
+      new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+      new AssignedTaskInstance(new WorkflowTaskInstance(appWorkflowSubject2, PwaApplicationWorkflowTask.PREPARE_APPLICATION), authenticatedUserAccount.getLinkedPerson()),
+      new AssignedTaskInstance(new WorkflowTaskInstance(consultationWorkflowSubject, PwaApplicationConsultationWorkflowTask.ALLOCATION), authenticatedUserAccount.getLinkedPerson())
+    ));
 
-    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
-        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
-        Set.of()
-    );
+    workAreaService.getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 0);
 
-    verifyNoInteractions(pwaApplicationRedirectService);
-  }
-
-  @Test
-  public void getWorkAreaResultPage_zeroResults_userIsAdmin() {
-    setupFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
-
-    var workareaPage = workAreaService.getWorkAreaResultPage(pwaManager, WorkAreaTab.OPEN_APPLICATIONS, REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(0);
-
-    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
-        getAdminWorkAreaViewPageable(REQUESTED_PAGE),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
-        Set.of()
-    );
-
-    verifyNoInteractions(pwaApplicationRedirectService);
-  }
-
-  @Test
-  public void getWorkAreaResultPage_assignedApps_userIsAdmin() {
-
-    setupFakeApplicationSearchResultPage(List.of(), REQUESTED_PAGE);
-    var assignedTask = new AssignedTaskInstance(getAppWorkflowTaskInstance(999, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW), pwaManager.getLinkedPerson());
-    var assignedTask2 = new AssignedTaskInstance(getAppWorkflowTaskInstance(9999, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW), pwaManager.getLinkedPerson());
-    when(camundaWorkflowService.getAssignedTasks(pwaManager.getLinkedPerson())).thenReturn(Set.of(assignedTask, assignedTask2));
-
-    var workAreaPage = workAreaService.getWorkAreaResultPage(pwaManager, WorkAreaTab.OPEN_APPLICATIONS, REQUESTED_PAGE);
-
-    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
-        getAdminWorkAreaViewPageable(REQUESTED_PAGE),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
-        Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey())
-    );
+    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of(1,2)), eq(0));
 
   }
 
   @Test
-  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusDraft_userIsWorkAreaUser() {
+  public void getWorkAreaResultPage_applicationsTab_noAssignedTasks() {
 
-    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
+    when(camundaWorkflowService.getAssignedTasks(authenticatedUserAccount.getLinkedPerson())).thenReturn(Set.of());
 
-    setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
+    workAreaService.getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 1);
 
-    var workareaPage = workAreaService.getWorkAreaResultPage(workAreaUser, WorkAreaTab.OPEN_APPLICATIONS, REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(1);
-    verify(pwaContactService, times(1)).getPwaContactRolesForWebUserAccount(
-        workAreaUser,
-        EnumSet.of(PwaContactRole.PREPARER)
-    );
+    verify(applicationWorkAreaPageService, times(1)).getPageView(eq(authenticatedUserAccount), eq(Set.of()), eq(1));
 
-    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
-        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
-        Set.of()
-    );
-
-    verify(pwaApplicationRedirectService, times(1))
-        .getTaskListRoute(searchItem.getPwaApplicationId(), searchItem.getApplicationType());
-
-  }
-
-  @Test
-  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusInitialSubmission_userIsAdminUser() {
-
-    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-
-    setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-
-    var workareaPage = workAreaService.getWorkAreaResultPage(pwaManager, WorkAreaTab.OPEN_APPLICATIONS, REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(1);
-
-    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
-        getAdminWorkAreaViewPageable(REQUESTED_PAGE),
-        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
-        Set.of()
-        );
-
-    verifyNoInteractions(pwaApplicationRedirectService);
-
-  }
-
-  @Test
-  public void getWorkAreaResultPage_viewUrlWhenApplicationStatusInitialSubmission_userIsWorkAreaUser() {
-    var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
-
-    setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);
-
-    var workareaPage = workAreaService.getWorkAreaResultPage(workAreaUser, WorkAreaTab.OPEN_APPLICATIONS, REQUESTED_PAGE);
-    assertThat(workareaPage.getTotalElements()).isEqualTo(1);
-    verify(pwaContactService, times(1)).getPwaContactRolesForWebUserAccount(
-        workAreaUser,
-        EnumSet.of(PwaContactRole.PREPARER)
-    );
-
-    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
-        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
-        Set.of()
-    );
-
-    verifyNoInteractions(pwaApplicationRedirectService);
-
-  }
-
-  private Pageable getDefaultWorkAreaViewPageable(int requestedPage) {
-    return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
-        Sort.by(Sort.Direction.DESC, "padCreatedTimestamp"));
-  }
-
-  private Pageable getAdminWorkAreaViewPageable(int requestedPage) {
-    return PageRequest.of(requestedPage, WorkAreaService.PAGE_SIZE,
-        Sort.by(Sort.Direction.ASC, "padProposedStart"));
-  }
-
-  private Page<ApplicationDetailSearchItem> setupFakeApplicationSearchResultPage(List<ApplicationDetailSearchItem> results, int page) {
-
-    var fakePage = new PageImpl<>(
-        results,
-        getDefaultWorkAreaViewPageable(page),
-        results.size());
-
-    when(applicationDetailSearcher.searchByPwaContacts(any(), any())).thenReturn(fakePage);
-    when(applicationDetailSearcher.searchByStatusOrApplicationIds(any(), any(), any())).thenReturn(fakePage);
-
-    return fakePage;
-
-  }
-
-  private WorkflowTaskInstance getAppWorkflowTaskInstance(Integer businessKey, UserWorkflowTask task) {
-    return new WorkflowTaskInstance(new PwaApplicationWorkflowSubject(businessKey, WorkflowType.PWA_APPLICATION), task);
   }
 
 }
