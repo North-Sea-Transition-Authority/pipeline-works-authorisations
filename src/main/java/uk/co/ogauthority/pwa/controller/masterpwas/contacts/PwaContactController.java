@@ -22,20 +22,17 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
@@ -129,7 +126,8 @@ public class PwaContactController {
                   ReverseRouter.route(on(InitialTaskListController.class)
                           .viewTaskList(pwaApplication.getId(), null)))
           .addObject("orgGroupHolders", orgGroupHolders)
-          .addObject("appUser", true);
+          .addObject("appUser", true)
+          .addObject("userType", UserType.INDUSTRY);
 
       applicationBreadcrumbService.fromTaskList(pwaApplication, modelAndView, "Application users");
 
@@ -331,12 +329,5 @@ public class PwaContactController {
 
   }
 
-  private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
-    return teamService.getOrganisationTeamListIfPersonInRole(
-        user.getLinkedPerson(),
-        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(Collectors.toList());
-  }
 
 }

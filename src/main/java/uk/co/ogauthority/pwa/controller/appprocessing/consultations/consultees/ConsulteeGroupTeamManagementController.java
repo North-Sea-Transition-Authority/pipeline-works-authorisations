@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -113,7 +114,8 @@ public class ConsulteeGroupTeamManagementController {
         .addObject("userCanManageAccess", true)
         .addObject("showTopNav", true)
         .addObject("appUser", false)
-        .addObject("allRoles", allRolesMap);
+        .addObject("allRoles", allRolesMap)
+        .addObject("userType", UserType.CONSULTEE);
 
   }
 

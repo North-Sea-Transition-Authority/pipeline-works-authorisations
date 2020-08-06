@@ -28,8 +28,10 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
+import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaOrganisationUserRole;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
@@ -107,7 +109,9 @@ public class PortalTeamManagementController {
         .addObject("userCanManageAccess", true)
         .addObject("showTopNav", true)
         .addObject("allRoles", allRolesMap)
-        .addObject("appUser", false);
+        .addObject("appUser", false)
+        .addObject("userType", team.getType().equals(PwaTeamType.REGULATOR) ? UserType.OGA : UserType.INDUSTRY);
+
   }
 
 

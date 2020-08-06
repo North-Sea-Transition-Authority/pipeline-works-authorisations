@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="showTopNav" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="allRoles" type="java.util.Map<String,String>" -->
 <#-- @ftlvariable name="orgGroupHolders" type="java.util.List<String>" -->
-
+<#-- @ftlvariable name="userType" type="java.util.List<uk.co.ogauthority.pwa.service.enums.users.UserType>" -->
 <#include "../layout.ftl">
 
 <@defaultPage htmlTitle=teamName backLink=!showBreadcrumbs pageHeading=teamName topNavigation=showTopNav twoThirdsColumn=false breadcrumbs=showBreadcrumbs>
@@ -23,21 +23,23 @@
         </@fdsCheckAnswers.checkAnswers>  
       </@fdsDetails.summaryDetails>
     
-      <#if appUser == true>
-        <#assign groups>
-          <#list orgGroupHolders! as group> ${group} <#sep>, </#list>
-        </#assign>
-        <@fdsInsetText.insetText>
-            <p>Every user in ${groups} has access to view this application. Depending on their role in the organisation they can update the application users listed below, submit the application and will receive notification of consent.</p>
-            <p>Only the users listed below have access to work on this application. They will see this application in their work area and receive all notifications from the OGA concerning this application. The roles a user has determines the actions they can carry out on this application. </p>
-        </@fdsInsetText.insetText>
+      <#if userType == "INDUSTRY">
+        <#if appUser == true>
+          <#assign groups>
+            <#list orgGroupHolders! as group> ${group} <#sep>, </#list>
+          </#assign>
+          <@fdsInsetText.insetText>
+              <p>Every user in ${groups} has access to view this application. Depending on their role in the organisation they can update the application users listed below, submit the application and will receive notification of consent.</p>
+              <p>Only the users listed below have access to work on this application. They will see this application in their work area and receive all notifications from the OGA concerning this application. The roles a user has determines the actions they can carry out on this application. </p>
+          </@fdsInsetText.insetText>
 
-      <#else>
-        <@fdsInsetText.insetText>
-          <p>The users listed below have access to all PWAs for your organisation. The roles a user has determines the actions they can carry out on behalf of your organisation.</p>
-        </@fdsInsetText.insetText>
-      </#if>
-      
+        <#else>
+          <@fdsInsetText.insetText>
+            <p>The users listed below have access to all PWAs for your organisation. The roles a user has determines the actions they can carry out on behalf of your organisation.</p>
+          </@fdsInsetText.insetText>
+        </#if>
+        
+      </#if>  
     </#if>  
 
 
