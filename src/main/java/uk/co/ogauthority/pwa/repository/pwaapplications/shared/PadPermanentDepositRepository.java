@@ -15,4 +15,6 @@ public interface PadPermanentDepositRepository extends CrudRepository<PadPermane
 
   Optional<PadPermanentDeposit> findByPwaApplicationDetailAndReferenceIgnoreCase(
       PwaApplicationDetail pwaApplicationDetail, String reference);
+
+  List<PadPermanentDeposit> getAllByPwaApplicationDetail(PwaApplicationDetail detail);
 }

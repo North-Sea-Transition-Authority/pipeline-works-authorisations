@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Service
@@ -189,7 +191,8 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
     // need to add in any schedule with no pipeline so that removing the last pipeline from a schedule at the application level
     // will still keep showing the schedule
-    allSchedules.forEach(padCampaignWorkSchedule -> scheduleToSchedulePipelineMap.putIfAbsent(padCampaignWorkSchedule, List.of()));
+    allSchedules.forEach(
+        padCampaignWorkSchedule -> scheduleToSchedulePipelineMap.putIfAbsent(padCampaignWorkSchedule, List.of()));
 
     var listOfWorkScheduleViews = new ArrayList<WorkScheduleView>();
     for (Map.Entry<PadCampaignWorkSchedule, List<PadPipeline>> entry : scheduleToSchedulePipelineMap.entrySet()) {
@@ -240,6 +243,33 @@ public class CampaignWorksService implements ApplicationFormSectionService {
         padCampaignWorkSchedule);
     padCampaignWorksPipelineRepository.deleteAll(schedulePipelines);
     padCampaignWorkScheduleRepository.delete(padCampaignWorkSchedule);
+  }
+
+  @VisibleForTesting
+  public void removePipelineFromAllSchedules(PadPipeline padPipeline) {
+    var pipelines = padCampaignWorksPipelineRepository.findAllByPadPipeline(padPipeline);
+    padCampaignWorksPipelineRepository.deleteAll(pipelines);
+  }
+
+  @Transactional
+  public void removePadPipelineFromCampaignWorks(PadPipeline padPipeline) {
+
+    var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
+
+    this.removePipelineFromAllSchedules(padPipeline);
+
+    var schedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+    Map<PadCampaignWorkSchedule, List<PadCampaignWorksPipeline>> campaignMap =
+        padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail)
+            .stream()
+            .collect(Collectors.groupingBy(PadCampaignWorksPipeline::getPadCampaignWorkSchedule));
+
+    var schedulesToRemove = CleanupUtils.getUnlinkedKeys(schedules, campaignMap,
+        (schedule1, schedule2) -> schedule1.getId().equals(schedule2.getId()));
+
+    if (!schedulesToRemove.isEmpty()) {
+      padCampaignWorkScheduleRepository.deleteAll(schedulesToRemove);
+    }
   }
 
   private PadCampaignWorkSchedule setCampaignWorkScheduleValues(LocalDate workStart, LocalDate workEnd,

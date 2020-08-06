@@ -174,6 +174,13 @@ public class PadPipelineIdentService {
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipelineIdent.getPadPipeline());
   }
 
+  @Transactional
+  public void removeAllIdents(PadPipeline padPipeline) {
+    identDataService.removeIdentDataForPipeline(padPipeline);
+    var idents = repository.getAllByPadPipeline(padPipeline);
+    repository.deleteAll(idents);
+  }
+
   public boolean isSectionValid(PadPipeline pipeline) {
     return !repository.countAllByPadPipeline(pipeline).equals(0L);
   }

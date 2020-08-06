@@ -3,13 +3,15 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /*
-* Simple dto for PadPipelines objects which obeys the PipelineOverview interface
-* */
+ * Simple dto for PadPipelines objects which obeys the PipelineOverview interface
+ * */
 public class PadPipelineOverview implements PipelineOverview {
 
   // to be more generic, this should be a composite key of type and id, e.g "PAD_PIPELINE_ID++1" or "PIPELINE_ID++1"
@@ -18,32 +20,24 @@ public class PadPipelineOverview implements PipelineOverview {
   private Integer padPipelineId;
 
   private Integer pipelineId;
-
   private String fromLocation;
-
   private CoordinatePair fromCoordinates;
-
   private String toLocation;
-
   private CoordinatePair toCoordinates;
-
   private String pipelineNumber;
-
   private PipelineType pipelineType;
-
   private String componentParts;
-
   private BigDecimal length;
-
   private String productsToBeConveyed;
-
   private Long numberOfIdents;
-
   private BigDecimal maxExternalDiameter;
-
   private Boolean pipelineInBundle;
-
   private String bundleName;
+  private PipelineFlexibility pipelineFlexibility;
+  private PipelineMaterial pipelineMaterial;
+  private String otherPipelineMaterialUsed;
+  private Boolean trenchedBuriedBackfilled;
+  private String trenchingMethodsDescription;
 
   private PadPipelineOverview(Integer padPipelineId,
                               Integer pipelineId,
@@ -59,7 +53,12 @@ public class PadPipelineOverview implements PipelineOverview {
                               Long numberOfIdents,
                               BigDecimal maxExternalDiameter,
                               Boolean pipelineInBundle,
-                              String bundleName) {
+                              String bundleName,
+                              PipelineFlexibility pipelineFlexibility,
+                              PipelineMaterial pipelineMaterial,
+                              String otherPipelineMaterialUsed,
+                              Boolean trenchedBuriedBackfilled,
+                              String trenchingMethodsDescription) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -75,6 +74,11 @@ public class PadPipelineOverview implements PipelineOverview {
     this.maxExternalDiameter = maxExternalDiameter;
     this.pipelineInBundle = pipelineInBundle;
     this.bundleName = bundleName;
+    this.pipelineFlexibility = pipelineFlexibility;
+    this.pipelineMaterial = pipelineMaterial;
+    this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
+    this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
+    this.trenchingMethodsDescription = trenchingMethodsDescription;
   }
 
   @VisibleForTesting
@@ -91,7 +95,12 @@ public class PadPipelineOverview implements PipelineOverview {
     this.componentParts = padPipeline.getComponentPartsDescription();
     this.length = padPipeline.getLength();
     this.productsToBeConveyed = padPipeline.getProductsToBeConveyed();
+    this.pipelineFlexibility = padPipeline.getPipelineFlexibility();
     this.numberOfIdents = numberOfIdents;
+    this.pipelineMaterial = padPipeline.getPipelineMaterial();
+    this.otherPipelineMaterialUsed = padPipeline.getOtherPipelineMaterialUsed();
+    this.trenchedBuriedBackfilled = padPipeline.getTrenchedBuriedBackfilled();
+    this.trenchingMethodsDescription = padPipeline.getTrenchingMethodsDescription();
   }
 
   @VisibleForTesting
@@ -101,6 +110,12 @@ public class PadPipelineOverview implements PipelineOverview {
     this.maxExternalDiameter = padPipeline.getMaxExternalDiameter();
     this.pipelineInBundle = padPipeline.getPipelineInBundle();
     this.bundleName = padPipeline.getBundleName();
+    this.fromLocation = padPipeline.getFromLocation();
+    this.fromCoordinates = padPipeline.getFromCoordinates();
+    this.toLocation = padPipeline.getToLocation();
+    this.toCoordinates = padPipeline.getToCoordinates();
+    this.componentParts = padPipeline.getComponentPartsDescription();
+    this.length = padPipeline.getLength();
   }
 
 
@@ -121,7 +136,12 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getNumberOfIdents(),
         padPipelineSummaryDto.getMaxExternalDiameter(),
         padPipelineSummaryDto.getPipelineInBundle(),
-        padPipelineSummaryDto.getBundleName()
+        padPipelineSummaryDto.getBundleName(),
+        padPipelineSummaryDto.getPipelineFlexibility(),
+        padPipelineSummaryDto.getPipelineMaterial(),
+        padPipelineSummaryDto.getOtherPipelineMaterialUsed(),
+        padPipelineSummaryDto.getTrenchedBuriedBackfilled(),
+        padPipelineSummaryDto.getTrenchingMethodsDescription()
     );
   }
 
@@ -198,5 +218,30 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public String getBundleName() {
     return bundleName;
+  }
+
+  @Override
+  public PipelineFlexibility getPipelineFlexibility() {
+    return this.pipelineFlexibility;
+  }
+
+  @Override
+  public PipelineMaterial getPipelineMaterial() {
+    return this.pipelineMaterial;
+  }
+
+  @Override
+  public String getOtherPipelineMaterialUsed() {
+    return otherPipelineMaterialUsed;
+  }
+
+  @Override
+  public Boolean getTrenchedBuriedBackfilled() {
+    return trenchedBuriedBackfilled;
+  }
+
+  @Override
+  public String getTrenchingMethodsDescription() {
+    return trenchingMethodsDescription;
   }
 }

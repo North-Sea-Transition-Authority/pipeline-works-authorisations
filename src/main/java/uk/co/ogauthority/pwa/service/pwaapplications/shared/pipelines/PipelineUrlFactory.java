@@ -27,4 +27,9 @@ public class PipelineUrlFactory {
     return ReverseRouter.route(on(ModifyPipelineController.class)
         .renderImportConsentedPipeline(applicationId, applicationType, null, null));
   }
+
+  public String getRemovePipelineUrl(Integer pipelineId) {
+    return ReverseRouter.route(on(PipelinesController.class)
+        .renderRemovePipeline(applicationId, applicationType, pipelineId, null));
+  }
 }

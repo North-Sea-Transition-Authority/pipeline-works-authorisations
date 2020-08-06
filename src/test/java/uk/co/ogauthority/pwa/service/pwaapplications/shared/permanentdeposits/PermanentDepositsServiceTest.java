@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -243,12 +245,12 @@ public class PermanentDepositsServiceTest {
     PadDepositPipeline depositsForPipelines = new PadDepositPipeline();
     var padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("1");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     depositsForPipelines = new PadDepositPipeline();
     padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("2");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(10)).thenReturn(depositsForPipelinesList);
 
@@ -256,7 +258,7 @@ public class PermanentDepositsServiceTest {
     depositsForPipelines = new PadDepositPipeline();
     padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("3");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(11)).thenReturn(depositsForPipelinesList);
 
@@ -279,7 +281,7 @@ public class PermanentDepositsServiceTest {
     PadDepositPipeline depositsForPipelines = new PadDepositPipeline();
     var padPipeLine = new PadPipeline();
     padPipeLine.setPipelineRef("1");
-    depositsForPipelines.setPadPipelineId(padPipeLine);
+    depositsForPipelines.setPadPipeline(padPipeLine);
     depositsForPipelinesList.add(depositsForPipelines);
     when(padDepositPipelineRepository.findAllByPermanentDepositInfoId(1)).thenReturn(depositsForPipelinesList);
 
@@ -424,6 +426,41 @@ public class PermanentDepositsServiceTest {
 
     verify(permanentDepositInformationRepository, times(1)).saveAll(eq(List.of(mattress, rock, grout, other)));
 
+  }
+
+  @Test
+  public void removePipelineFromDeposits_serviceInteraction() {
+    var depositPipeline = new PadDepositPipeline();
+    var padPipeline = new PadPipeline();
+    when(padDepositPipelineRepository.getAllByPadPipeline(padPipeline))
+        .thenReturn(List.of(depositPipeline));
+    service.removePadPipelineDepositLinks(padPipeline);
+    verify(padDepositPipelineRepository, times(1)).deleteAll(List.of(depositPipeline));
+  }
+
+  @Test
+  public void cleanupUnlinkedSchedules_serviceInteraction_noLinks() {
+    var padPipeline = new PadPipeline(pwaApplicationDetail);
+    when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(padPermanentDeposit));
+    when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of());
+    service.removePadPipelineFromDeposits(padPipeline);
+    verify(permanentDepositInformationRepository, times(1)).deleteAll(List.of(padPermanentDeposit));
+  }
+
+  @Test
+  public void cleanupUnlinkedSchedules_serviceInteraction_remainingLinks() {
+    var padPipeline = new PadPipeline(pwaApplicationDetail);
+    var depositPipeline = new PadDepositPipeline();
+    depositPipeline.setPermanentDepositInfo(padPermanentDeposit);
+    padPermanentDeposit.setId(1);
+    when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(padPermanentDeposit));
+    when(padDepositPipelineRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(depositPipeline));
+    service.removePadPipelineFromDeposits(padPipeline);
+    verify(permanentDepositInformationRepository, never()).deleteAll(any());
   }
 
   private void setAllMaterialData(PadPermanentDeposit deposit) {

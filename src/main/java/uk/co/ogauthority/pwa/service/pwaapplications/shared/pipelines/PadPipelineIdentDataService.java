@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
@@ -90,6 +91,12 @@ public class PadPipelineIdentDataService {
   public void removeIdentData(PadPipelineIdent ident) {
     var data = getIdentData(ident);
     repository.delete(data);
+  }
+
+  @Transactional
+  public void removeIdentDataForPipeline(PadPipeline padPipeline) {
+    var data = repository.getAllByPadPipelineIdent_PadPipeline(padPipeline);
+    repository.deleteAll(data);
   }
 
   public PipelineIdentDataForm getDataFormOfIdent(PadPipelineIdent ident) {

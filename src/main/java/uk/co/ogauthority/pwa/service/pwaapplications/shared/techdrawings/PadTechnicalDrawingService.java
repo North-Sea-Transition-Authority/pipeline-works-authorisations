@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
@@ -295,6 +297,26 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
 
     return pipelines.stream()
         .allMatch(pipeline -> linkedPipelineIds.contains(pipeline.getId()));
+  }
+
+  @Transactional
+  public void removePadPipelineFromDrawings(PadPipeline padPipeline) {
+
+    var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
+    padTechnicalDrawingLinkService.removeAllPipelineLinks(pwaApplicationDetail, padPipeline);
+
+    var drawings = padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+    Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap =
+        padTechnicalDrawingLinkService.getLinksFromDrawingList(drawings)
+            .stream()
+            .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
+
+    var drawingsToDelete = CleanupUtils.getUnlinkedKeys(drawings, linkMap,
+        (drawing, drawing2) -> drawing.getId().equals(drawing2.getId()));
+
+    if (!drawingsToDelete.isEmpty()) {
+      padTechnicalDrawingRepository.deleteAll(drawingsToDelete);
+    }
   }
 
   public BindingResult validateSection(BindingResult bindingResult, PwaApplicationDetail pwaApplicationDetail) {

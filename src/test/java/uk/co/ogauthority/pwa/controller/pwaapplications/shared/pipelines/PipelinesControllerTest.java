@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
 import org.junit.Before;
@@ -30,7 +31,12 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -38,6 +44,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineRemovalService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTestUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -53,9 +60,13 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @MockBean
   private PipelineHeaderFormValidator validator;
 
+  @MockBean
+  private PipelineRemovalService pipelineRemovalService;
+
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
+  private PadPipeline padPipeline;
   private int APP_ID = 1;
 
   @Before
@@ -80,6 +91,23 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         pwaApplicationDetail);
     when(pwaContactService.getContactRoles(eq(pwaApplicationDetail.getPwaApplication()), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline = new PadPipeline();
+    padPipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    padPipeline.setLength(BigDecimal.ONE);
+    padPipeline.setPipelineRef("ref");
+    padPipeline.setPipelineType(PipelineType.UNKNOWN);
+    padPipeline.setPipelineMaterial(PipelineMaterial.DUPLEX);
+    padPipeline.setFromLocation("from");
+    padPipeline.setToLocation("to");
+    when(padPipelineService.getById(1)).thenReturn(padPipeline);
+
+    var overview = new PadPipelineOverview(padPipeline, 0L);
+    when(padPipelineService.getPipelineOverview(padPipeline))
+        .thenReturn(overview);
   }
 
   @Test
@@ -298,6 +326,105 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
+
+  }
+
+  @Test
+  public void renderRemovePipeline_contactSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) -> {
+          padPipeline.setPwaApplicationDetail(applicationDetail);
+          return ReverseRouter.route(on(PipelinesController.class)
+              .renderRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+        });
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemovePipeline_appTypeSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) -> {
+          padPipeline.setPwaApplicationDetail(applicationDetail);
+          return ReverseRouter.route(on(PipelinesController.class)
+              .renderRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+        });
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderRemovePipeline_appStatusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) -> {
+          padPipeline.setPwaApplicationDetail(applicationDetail);
+          return ReverseRouter.route(on(PipelinesController.class)
+              .renderRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+        });
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postRemovePipeline_contactSmokeTest() {
+
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) -> {
+          padPipeline.setPwaApplicationDetail(applicationDetail);
+          return ReverseRouter.route(on(PipelinesController.class)
+              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+        });
+
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+    verify(pipelineRemovalService, times(endpointTester.getContactRoles().size())).removePipeline(padPipeline);
+
+  }
+
+  @Test
+  public void postRemovePipeline_appTypeSmokeTest() {
+
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) -> {
+          padPipeline.setPwaApplicationDetail(applicationDetail);
+          return ReverseRouter.route(on(PipelinesController.class)
+              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+        });
+
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+
+    verify(pipelineRemovalService, times(endpointTester.getAllowedTypes().size())).removePipeline(padPipeline);
+
+  }
+
+  @Test
+  public void postRemovePipeline_appStatusSmokeTest() {
+
+    when(padPipelineService.isComplete(any())).thenReturn(true);
+    when(padPipelineService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) -> {
+          padPipeline.setPwaApplicationDetail(applicationDetail);
+          return ReverseRouter.route(on(PipelinesController.class)
+              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+        });
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+    verify(pipelineRemovalService, times(endpointTester.getAllowedStatuses().size())).removePipeline(padPipeline);
 
   }
 
