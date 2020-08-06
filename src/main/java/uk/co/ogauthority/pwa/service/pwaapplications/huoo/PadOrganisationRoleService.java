@@ -216,7 +216,23 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   public void removeRolesOfUnit(PwaApplicationDetail pwaApplicationDetail, PortalOrganisationUnit organisationUnit) {
     var roles = padOrganisationRolesRepository.getAllByPwaApplicationDetailAndOrganisationUnit(pwaApplicationDetail,
         organisationUnit);
+
+    removePipelineLinksForOrgsWithRoles(pwaApplicationDetail, roles);
+
     padOrganisationRolesRepository.deleteAll(roles);
+  }
+
+  @Transactional
+  public void removePipelineLinksForOrgsWithRoles(PwaApplicationDetail detail, Collection<PadOrganisationRole> roles) {
+    List<PadPipelineOrganisationRoleLink> pipelineLinks =
+        padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+            roles, detail).stream()
+            .filter(roleLink -> roles.stream()
+                .anyMatch(
+                    padOrganisationRole -> padOrganisationRole.getRole().equals(roleLink.getPadOrgRole().getRole())))
+            .collect(Collectors.toUnmodifiableList());
+
+    padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinks);
   }
 
   @Transactional
@@ -279,16 +295,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
           .filter(padOrganisationRole -> !form.getHuooRoles().contains(padOrganisationRole.getRole()))
           .collect(Collectors.toUnmodifiableList());
 
+      removePipelineLinksForOrgsWithRoles(detail, organisationRolesToRemove);
 
-      List<PadPipelineOrganisationRoleLink> pipelineLinks =
-          padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
-              organisationRolesToRemove, detail).stream()
-              .filter(roleLink -> organisationRolesToRemove.stream()
-                  .anyMatch(
-                      padOrganisationRole -> padOrganisationRole.getRole().equals(roleLink.getPadOrgRole().getRole())))
-              .collect(Collectors.toUnmodifiableList());
-
-      padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinks);
       padOrganisationRolesRepository.deleteAll(organisationRolesToRemove);
 
       rolesToAdd.forEach(huooRole -> {

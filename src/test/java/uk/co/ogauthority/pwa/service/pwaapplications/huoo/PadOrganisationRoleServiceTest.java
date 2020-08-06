@@ -506,8 +506,55 @@ public class PadOrganisationRoleServiceTest {
         padOrgUnit1UserRole.getOrganisationUnit())
     ).thenReturn(List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole));
 
+    var pipeline = new Pipeline();
+    var roleLink = new PadPipelineOrganisationRoleLink(padOrgUnit1UserRole, pipeline);
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+        List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole), detail)).thenReturn(List.of(roleLink));
+
     padOrganisationRoleService.removeRolesOfUnit(detail, padOrgUnit1UserRole.getOrganisationUnit());
     verify(padOrganisationRolesRepository, times(1)).deleteAll(any());
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of(roleLink));
+  }
+
+  @Test
+  public void removePipelineLinksForOrgsWithRoles_exactMatch() {
+
+    var pipeline = new Pipeline();
+    var roleLink1 = new PadPipelineOrganisationRoleLink(padOrgUnit1UserRole, pipeline);
+    var roleLink2 = new PadPipelineOrganisationRoleLink(padOrgUnit2OwnerRole, pipeline);
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+        Set.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole), detail)).thenReturn(List.of(roleLink1, roleLink2));
+
+    padOrganisationRoleService.removePipelineLinksForOrgsWithRoles(detail,
+        Set.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole));
+
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of(roleLink1, roleLink2));
+  }
+
+  @Test
+  public void removePipelineLinksForOrgsWithRoles_fewerLinked() {
+
+    var pipeline = new Pipeline();
+    var roleLink1 = new PadPipelineOrganisationRoleLink(padOrgUnit1UserRole, pipeline);
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+        Set.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole), detail)).thenReturn(List.of(roleLink1));
+
+    padOrganisationRoleService.removePipelineLinksForOrgsWithRoles(detail,
+        Set.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole));
+
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of(roleLink1));
+  }
+
+  @Test
+  public void removePipelineLinksForOrgsWithRoles_noneLinked() {
+
+    when(padPipelineOrganisationRoleLinkRepository.findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
+        Set.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole), detail)).thenReturn(List.of());
+
+    padOrganisationRoleService.removePipelineLinksForOrgsWithRoles(detail,
+        Set.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole));
+
+    verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of());
   }
 
 
@@ -698,7 +745,7 @@ public class PadOrganisationRoleServiceTest {
     var pipeline2 = new Pipeline();
     pipeline2.setId(pipelineId2.asInt());
 
-    var wholePipelineLink =  PadOrganisationRoleTestUtil.createOrgRolePipelineLink(HuooRole.HOLDER, orgUnit2, pipeline2);
+    var wholePipelineLink = PadOrganisationRoleTestUtil.createOrgRolePipelineLink(HuooRole.HOLDER, orgUnit2, pipeline2);
 
     var split1Link = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
         HuooRole.HOLDER,
@@ -720,8 +767,10 @@ public class PadOrganisationRoleServiceTest {
 
     var splitPipelines = padOrganisationRoleService.getPipelineSplitsForRole(detail, HuooRole.HOLDER);
     assertThat(splitPipelines).containsExactlyInAnyOrder(
-        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_1"), PipelineIdentPoint.inclusivePoint("TO_1")),
-        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_2"), PipelineIdentPoint.inclusivePoint("TO_2"))
+        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_1"),
+            PipelineIdentPoint.inclusivePoint("TO_1")),
+        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_2"),
+            PipelineIdentPoint.inclusivePoint("TO_2"))
     );
   }
 
