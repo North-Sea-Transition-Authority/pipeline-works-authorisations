@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -244,14 +245,14 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     padCampaignWorkScheduleRepository.delete(padCampaignWorkSchedule);
   }
 
-  @Transactional
+  @VisibleForTesting
   public void removePipelineFromAllSchedules(PadPipeline padPipeline) {
     var pipelines = padCampaignWorksPipelineRepository.findAllByPadPipeline(padPipeline);
     padCampaignWorksPipelineRepository.deleteAll(pipelines);
   }
 
   @Transactional
-  public void cleanUnlinkedSchedules(PadPipeline padPipeline) {
+  public void removePadPipelineFromCampaignWorks(PadPipeline padPipeline) {
 
     var pwaApplicationDetail = padPipeline.getPwaApplicationDetail();
 

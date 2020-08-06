@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -284,7 +285,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     return permanentDepositInformationRepository.countByPwaApplicationDetail(pwaApplicationDetail) > 0 ? true : false;
   }
 
-  @Transactional
+  @VisibleForTesting
   public void removePadPipelineDepositLinks(PadPipeline padPipeline) {
     var depositPipelineLinks = padDepositPipelineRepository.getAllByPadPipeline(padPipeline);
     padDepositPipelineRepository.deleteAll(depositPipelineLinks);

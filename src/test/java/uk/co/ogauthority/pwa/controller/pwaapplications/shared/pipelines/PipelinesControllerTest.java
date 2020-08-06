@@ -386,6 +386,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
+    verify(pipelineRemovalService, times(endpointTester.getContactRoles().size())).removePipeline(padPipeline);
+
   }
 
   @Test
@@ -403,6 +405,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
+    verify(pipelineRemovalService, times(endpointTester.getAllowedTypes().size())).removePipeline(padPipeline);
+
   }
 
   @Test
@@ -419,6 +423,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         });
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+    verify(pipelineRemovalService, times(endpointTester.getAllowedStatuses().size())).removePipeline(padPipeline);
 
   }
 

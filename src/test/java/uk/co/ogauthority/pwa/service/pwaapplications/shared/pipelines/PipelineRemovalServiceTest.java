@@ -72,7 +72,7 @@ public class PipelineRemovalServiceTest {
     verify(padOrganisationRoleService, times(1)).deletePipelineRoleLinksForPadPipeline(padPipeline);
     verify(padTechnicalDrawingService, times(1)).removePadPipelineFromDrawings(padPipeline);
     verify(permanentDepositService, times(1)).removePadPipelineFromDeposits(padPipeline);
-    verify(campaignWorksService, times(1)).cleanUnlinkedSchedules(padPipeline);
+    verify(campaignWorksService, times(1)).removePadPipelineFromCampaignWorks(padPipeline);
   }
 
   @Test

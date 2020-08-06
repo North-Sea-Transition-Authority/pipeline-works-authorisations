@@ -62,6 +62,6 @@ public class PipelineRemovalService {
     padOrganisationRoleService.deletePipelineRoleLinksForPadPipeline(padPipeline);
     padTechnicalDrawingService.removePadPipelineFromDrawings(padPipeline);
     permanentDepositService.removePadPipelineFromDeposits(padPipeline);
-    campaignWorksService.cleanUnlinkedSchedules(padPipeline);
+    campaignWorksService.removePadPipelineFromCampaignWorks(padPipeline);
   }
 }
