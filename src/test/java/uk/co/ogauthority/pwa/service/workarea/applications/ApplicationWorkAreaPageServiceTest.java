@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.workarea;
+package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 

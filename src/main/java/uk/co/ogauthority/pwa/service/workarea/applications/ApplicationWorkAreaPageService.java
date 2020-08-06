@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.workarea;
+package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 @Service
@@ -77,7 +78,7 @@ public class ApplicationWorkAreaPageService {
     }
 
     return applicationDetailSearcher.searchByStatusOrApplicationIds(
-        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, WorkAreaSort.PROPOSED_DATE_ASC),
+        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.PROPOSED_DATE_ASC),
         searchStatuses,
         applicationIdList
     );
@@ -91,7 +92,7 @@ public class ApplicationWorkAreaPageService {
         EnumSet.of(PwaContactRole.PREPARER));
 
     return applicationDetailSearcher.searchByPwaContacts(
-        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, WorkAreaSort.CREATED_DATE_DESC),
+        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.CREATED_DATE_DESC),
         applicationContactRoles
     );
 

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,10 +30,11 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
-import uk.co.ogauthority.pwa.service.workarea.PwaApplicationWorkAreaItem;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaResult;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabService;
+import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(WorkAreaController.class)
@@ -58,7 +60,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void setup() {
 
     var emptyResultPageView = setupFakeWorkAreaResultPageView(0);
-    when(workAreaService.getWorkAreaResultPage(any(), any(), anyInt())).thenReturn(emptyResultPageView);
+    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.OPEN_APPLICATIONS), anyInt())).thenReturn(new WorkAreaResult(emptyResultPageView, null));
     when(workAreaTabService.getTabsAvailableToPerson(any())).thenReturn(List.of(WorkAreaTab.values()));
 
   }
@@ -115,7 +117,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 0);
+        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 0);
   }
 
 
@@ -127,7 +129,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
-        .getWorkAreaResultPage(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 100);
+        .getWorkAreaResult(authenticatedUserAccount, WorkAreaTab.OPEN_APPLICATIONS, 100);
   }
 
   @Test

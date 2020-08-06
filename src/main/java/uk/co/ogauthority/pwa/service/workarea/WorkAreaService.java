@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.workarea.applications.ApplicationWorkAreaPageService;
+import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkAreaPageService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
 
@@ -19,35 +20,60 @@ public class WorkAreaService {
 
   private final CamundaWorkflowService camundaWorkflowService;
   private final ApplicationWorkAreaPageService applicationWorkAreaPageService;
-
+  private final ConsultationWorkAreaPageService consultationWorkAreaPageService;
 
   @Autowired
   public WorkAreaService(CamundaWorkflowService camundaWorkflowService,
-                         ApplicationWorkAreaPageService applicationWorkAreaPageService) {
+                         ApplicationWorkAreaPageService applicationWorkAreaPageService,
+                         ConsultationWorkAreaPageService consultationWorkAreaPageService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.applicationWorkAreaPageService = applicationWorkAreaPageService;
+    this.consultationWorkAreaPageService = consultationWorkAreaPageService;
   }
 
   /**
    * Get work area items for user.
    */
-  public PageView<PwaApplicationWorkAreaItem> getWorkAreaResultPage(AuthenticatedUserAccount authenticatedUserAccount,
-                                                                    WorkAreaTab workAreaTab,
-                                                                    int page) {
+  public WorkAreaResult getWorkAreaResult(AuthenticatedUserAccount authenticatedUserAccount,
+                                          WorkAreaTab workAreaTab,
+                                          int page) {
 
     // get tasks assigned to the user, grouped by workflow type
     Map<WorkflowType, List<AssignedTaskInstance>> workflowTypeToTaskMap = camundaWorkflowService
         .getAssignedTasks(authenticatedUserAccount.getLinkedPerson()).stream()
         .collect(Collectors.groupingBy(AssignedTaskInstance::getWorkflowType));
 
-    // convert PWA app tasks into a list of business keys we can use to query apps
-    Set<Integer> applicationIds = workflowTypeToTaskMap.entrySet().stream()
-        .filter(entry -> entry.getKey().equals(WorkflowType.PWA_APPLICATION))
+    Set<Integer> businessKeys;
+
+    switch (workAreaTab) {
+
+      case OPEN_APPLICATIONS:
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION);
+        return new WorkAreaResult(applicationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page), null);
+
+      case OPEN_CONSULTATIONS:
+        businessKeys = getBusinessKeysFromWorkflowToTaskMap(workflowTypeToTaskMap, WorkflowType.PWA_APPLICATION_CONSULTATION);
+        return new WorkAreaResult(null, consultationWorkAreaPageService.getPageView(authenticatedUserAccount, businessKeys, page));
+
+      default:
+        throw new RuntimeException(String.format(
+            "Work area tab page provider not implemented for tab: %s", workAreaTab.name()));
+
+    }
+
+  }
+
+  /**
+   * Retrieve business keys for assigned tasks that are in the requested workflow type.
+   */
+  private Set<Integer> getBusinessKeysFromWorkflowToTaskMap(Map<WorkflowType, List<AssignedTaskInstance>> workflowToTaskMap,
+                                                            WorkflowType workflowType) {
+
+    return workflowToTaskMap.entrySet().stream()
+        .filter(entry -> entry.getKey().equals(workflowType))
         .flatMap(entry -> entry.getValue().stream())
         .map(AssignedTaskInstance::getBusinessKey)
         .collect(Collectors.toSet());
-
-    return applicationWorkAreaPageService.getPageView(authenticatedUserAccount, applicationIds, page);
 
   }
 

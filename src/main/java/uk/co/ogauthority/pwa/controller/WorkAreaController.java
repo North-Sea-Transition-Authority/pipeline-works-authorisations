@@ -75,7 +75,7 @@ public class WorkAreaController {
             ReverseRouter.route(on(StartPrototypePwaApplicationController.class).renderStartApplication(null)))
         .addObject("startPwaApplicationUrl",
             ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
-        .addObject("workAreaPageView", workAreaService.getWorkAreaResultPage(authenticatedUserAccount, tab, page))
+        .addObject("workAreaResult", workAreaService.getWorkAreaResult(authenticatedUserAccount, tab, page))
         .addObject("tabUrlFactory", new WorkAreaTabUrlFactory())
         .addObject("currentWorkAreaTab", tab)
         .addObject("availableTabs", tabs);

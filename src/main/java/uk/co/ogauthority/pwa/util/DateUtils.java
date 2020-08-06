@@ -14,17 +14,17 @@ public class DateUtils {
     throw new AssertionError();
   }
 
-  private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
-  private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm")
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm")
       .withLocale(Locale.UK)
       .withZone(ZoneId.systemDefault());
 
   public static String formatDate(LocalDate localDate) {
-    return localDate.format(dateFormatter);
+    return localDate.format(DATE_FORMATTER);
   }
 
   public static String formatDateTime(Instant instant) {
-    return dateTimeFormatter.format(instant);
+    return DATE_TIME_FORMATTER.format(instant);
   }
 
   public static void consumeInstantFromIntegersElseNull(Integer year,
@@ -55,7 +55,5 @@ public class DateUtils {
       dayConsumer.accept(localDate.getDayOfMonth());
     }
   }
-
-
 
 }
