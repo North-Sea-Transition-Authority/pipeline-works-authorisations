@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.pad_env_and_decom DROP COLUMN decommissioning_plans;

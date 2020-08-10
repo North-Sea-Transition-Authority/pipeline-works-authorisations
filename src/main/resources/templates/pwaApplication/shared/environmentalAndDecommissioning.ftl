@@ -1,6 +1,9 @@
 <#include '../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="hseSafetyZones" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="environmentalConditions" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="decommissioningConditions" type="java.util.Map<String, String>" -->
 
 <@defaultPage htmlTitle="Environmental and decommissioning" pageHeading="Environmental and decommissioning" breadcrumbs=true>
 
@@ -41,7 +44,6 @@
         </@fdsFieldset.fieldset>
 
         <@fdsFieldset.fieldset legendHeading="Decommissioning" legendHeadingSize="h2">
-            <@fdsTextarea.textarea path="form.decommissioningPlans" labelText="What are your decommissioning plans?"/>
             <@fdsCheckbox.checkboxes path="form.decommissioningConditions" checkboxes=decommissioningConditions />
         </@fdsFieldset.fieldset>
 

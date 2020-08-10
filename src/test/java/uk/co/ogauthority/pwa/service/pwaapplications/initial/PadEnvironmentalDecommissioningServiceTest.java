@@ -85,7 +85,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(entity.getPermitsSubmitted()).isEqualTo(form.getPermitsSubmitted());
     assertThat(entity.getEmtHasOutstandingPermits()).isEqualTo(form.getEmtHasOutstandingPermits());
     assertThat(entity.getPermitsPendingSubmission()).isEqualTo(form.getPermitsPendingSubmission());
-    assertThat(entity.getDecommissioningPlans()).isEqualTo(form.getDecommissioningPlans());
     assertThat(LocalDate.ofInstant(entity.getEmtSubmissionTimestamp(), ZoneId.systemDefault()))
         .isEqualTo(LocalDate.of(form.getEmtSubmissionYear(), form.getEmtSubmissionMonth(), form.getEmtSubmissionDay()));
     assertThat(entity.getEnvironmentalConditions()).isEqualTo(form.getEnvironmentalConditions());
@@ -102,7 +101,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(entity.getPermitsSubmitted()).isEqualTo(form.getPermitsSubmitted());
     assertThat(entity.getEmtHasOutstandingPermits()).isEqualTo(form.getEmtHasOutstandingPermits());
     assertThat(entity.getPermitsPendingSubmission()).isEqualTo(form.getPermitsPendingSubmission());
-    assertThat(entity.getDecommissioningPlans()).isEqualTo(form.getDecommissioningPlans());
     assertThat(LocalDate.ofInstant(entity.getEmtSubmissionTimestamp(), ZoneId.systemDefault()))
         .isEqualTo(LocalDate.of(2020, 3, 18));
     assertThat(entity.getEnvironmentalConditions()).isEqualTo(form.getEnvironmentalConditions());
@@ -121,7 +119,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(entity.getPermitsSubmitted()).isNull();
     assertThat(entity.getEmtHasOutstandingPermits()).isEqualTo(form.getEmtHasOutstandingPermits());
     assertThat(entity.getPermitsPendingSubmission()).isNull();
-    assertThat(entity.getDecommissioningPlans()).isEqualTo(form.getDecommissioningPlans());
     assertThat(entity.getEmtSubmissionTimestamp()).isNull();
     assertThat(entity.getEnvironmentalConditions()).isEqualTo(form.getEnvironmentalConditions());
     assertThat(entity.getDecommissioningConditions()).isEqualTo(form.getDecommissioningConditions());
@@ -137,7 +134,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(entity.getPermitsSubmitted()).isNull();
     assertThat(entity.getEmtHasOutstandingPermits()).isNull();
     assertThat(entity.getPermitsPendingSubmission()).isNull();
-    assertThat(entity.getDecommissioningPlans()).isNull();
     assertThat(entity.getEmtSubmissionTimestamp()).isNull();
     assertThat(entity.getEnvironmentalConditions()).isNull();
     assertThat(entity.getDecommissioningConditions()).isNull();
@@ -148,7 +144,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     var form = new EnvironmentalDecommissioningForm();
     form.setPermitsSubmitted(ValidatorTestUtils.over4000Chars());
-    form.setDecommissioningPlans(ValidatorTestUtils.over4000Chars());
     form.setPermitsPendingSubmission(ValidatorTestUtils.over4000Chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -159,7 +154,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     assertThat(errors).containsOnly(
         entry("permitsSubmitted", Set.of("Length")),
-        entry("decommissioningPlans", Set.of("Length")),
         entry("permitsPendingSubmission", Set.of("Length"))
     );
 
@@ -172,7 +166,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
 
     var form = new EnvironmentalDecommissioningForm();
     form.setPermitsSubmitted(ValidatorTestUtils.exactly4000chars());
-    form.setDecommissioningPlans(ValidatorTestUtils.exactly4000chars());
     form.setPermitsPendingSubmission(ValidatorTestUtils.exactly4000chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -205,8 +198,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
         entry("emtHasSubmittedPermits", Set.of("NotNull")),
         entry("permitsSubmitted", Set.of("Length")),
         entry("emtHasOutstandingPermits", Set.of("NotNull")),
-        entry("permitsPendingSubmission", Set.of("Length")),
-        entry("decommissioningPlans", Set.of("NotNull"))
+        entry("permitsPendingSubmission", Set.of("Length"))
     );
 
     verify(validator, times(1)).validate(form, bindingResult);
@@ -221,7 +213,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
     form.setEmtHasSubmittedPermits(false);
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission(ValidatorTestUtils.exactly4000chars());
-    form.setDecommissioningPlans(ValidatorTestUtils.exactly4000chars());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -242,7 +233,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
     entity.setPermitsSubmitted("Submitted permits");
     entity.setEmtHasOutstandingPermits(true);
     entity.setPermitsPendingSubmission("Pending permits");
-    entity.setDecommissioningPlans("Decom plans");
     entity.setEmtSubmissionTimestamp(instant);
     entity.setEnvironmentalConditions(EnumSet.allOf(EnvironmentalCondition.class));
     entity.setDecommissioningConditions(EnumSet.allOf(DecommissioningCondition.class));
@@ -256,7 +246,6 @@ public class PadEnvironmentalDecommissioningServiceTest {
     form.setPermitsSubmitted("Submitted text");
     form.setEmtHasOutstandingPermits(true);
     form.setPermitsPendingSubmission("Pending text");
-    form.setDecommissioningPlans("Decom text");
     form.setEmtSubmissionYear(2020);
     form.setEmtSubmissionMonth(3);
     form.setEmtSubmissionDay(18);

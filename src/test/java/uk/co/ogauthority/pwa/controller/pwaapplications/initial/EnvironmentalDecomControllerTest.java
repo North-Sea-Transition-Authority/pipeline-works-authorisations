@@ -226,7 +226,6 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
       add("permitsPendingSubmission", "other permits");
       add("dischargeFundsAvailable", "true");
       add("acceptsOpolLiability", "true");
-      add("decommissioningPlans", "decom plans");
       add("acceptsEolRegulations", "true");
       add("acceptsEolRemoval", "true");
       add("acceptsRemovalProposal", "true");

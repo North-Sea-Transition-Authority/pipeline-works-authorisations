@@ -37,10 +37,6 @@ public class EnvironmentalDecommissioningForm {
 
   private Set<EnvironmentalCondition> environmentalConditions;
 
-  @NotNull(message = "You must provide your decommissioning plans", groups = Full.class)
-  @Length(max = 4000, message = "Must be 4000 characters or less", groups = {Full.class, Partial.class})
-  private String decommissioningPlans;
-
   private Set<DecommissioningCondition> decommissioningConditions;
 
   public Boolean getTransboundaryEffect() {
@@ -114,14 +110,6 @@ public class EnvironmentalDecommissioningForm {
   public void setEnvironmentalConditions(
       Set<EnvironmentalCondition> environmentalConditions) {
     this.environmentalConditions = environmentalConditions;
-  }
-
-  public String getDecommissioningPlans() {
-    return decommissioningPlans;
-  }
-
-  public void setDecommissioningPlans(String decommissioningPlans) {
-    this.decommissioningPlans = decommissioningPlans;
   }
 
   public Set<DecommissioningCondition> getDecommissioningConditions() {
