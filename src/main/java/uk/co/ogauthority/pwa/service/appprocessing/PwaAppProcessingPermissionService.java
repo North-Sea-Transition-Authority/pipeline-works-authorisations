@@ -29,22 +29,18 @@ public class PwaAppProcessingPermissionService {
 
   public Set<PwaAppProcessingPermission> getProcessingPermissions(WebUserAccount user) {
 
-    Optional<PwaTeamMember> userRegTeamMembership = teamService
+    Optional<PwaTeamMember> userRegTeamMembershipOpt = teamService
         .getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson());
 
-    if (userRegTeamMembership.isEmpty()) {
-      return Set.of();
-    }
-
-    Set<PwaRegulatorRole> roles = userRegTeamMembership.get().getRoleSet().stream()
-        .map(pwaRole -> PwaRegulatorRole.getValueByPortalTeamRoleName(pwaRole.getName()))
-        .collect(Collectors.toSet());
-
+    Set<PwaRegulatorRole> roles = userRegTeamMembershipOpt
+        .map(regTeamMembership -> regTeamMembership.getRoleSet().stream()
+            .map(pwaRole -> PwaRegulatorRole.getValueByPortalTeamRoleName(pwaRole.getName()))
+            .collect(Collectors.toSet()))
+        .orElse(Set.of());
 
     Set<ConsulteeGroupMemberRole> consulteeGroupRoles = new HashSet<>();
     consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())
         .forEach(member -> consulteeGroupRoles.addAll(member.getRoles()));
-
 
     return PwaAppProcessingPermission.stream()
         .filter(permission -> {
@@ -54,9 +50,7 @@ public class PwaAppProcessingPermissionService {
             case ACCEPT_INITIAL_REVIEW:
               return roles.contains(PwaRegulatorRole.PWA_MANAGER);
             case CASE_OFFICER_REVIEW:
-              return roles.contains(PwaRegulatorRole.CASE_OFFICER);
             case VIEW_CONSULTATIONS:
-              return roles.contains(PwaRegulatorRole.CASE_OFFICER);
             case EDIT_CONSULTATIONS:
               return roles.contains(PwaRegulatorRole.CASE_OFFICER);
             case ASSIGN_RESPONDER:

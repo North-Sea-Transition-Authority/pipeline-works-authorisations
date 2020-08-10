@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,13 +12,16 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
 
@@ -30,6 +34,7 @@ public class AssignResponderService {
   private final TeamManagementService teamManagementService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
+  private final NotifyService notifyService;
 
   @Autowired
   public AssignResponderService(
@@ -38,13 +43,15 @@ public class AssignResponderService {
       ConsulteeGroupTeamService consulteeGroupTeamService,
       TeamManagementService teamManagementService,
       CamundaWorkflowService camundaWorkflowService,
-      ConsultationRequestService consultationRequestService) {
+      ConsultationRequestService consultationRequestService,
+      NotifyService notifyService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignResponderValidator = assignResponderValidator;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.teamManagementService = teamManagementService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
+    this.notifyService = notifyService;
   }
 
 
@@ -55,20 +62,47 @@ public class AssignResponderService {
         .collect(Collectors.toList());
   }
 
-  public void assignUserAndCompleteWorkflow(AssignResponderForm form, ConsultationRequest consultationRequest, WebUserAccount user) {
+  public void assignUserAndCompleteWorkflow(AssignResponderForm form,
+                                            ConsultationRequest consultationRequest,
+                                            WebUserAccount assigningUser) {
 
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION));
 
     var responderPerson = teamManagementService.getPerson(form.getResponderPersonId());
+    var assigningPerson = assigningUser.getLinkedPerson();
 
     workflowAssignmentService.assign(
         consultationRequest,
         PwaApplicationConsultationWorkflowTask.RESPONSE,
         responderPerson,
-        user.getLinkedPerson());
+        assigningPerson);
 
     consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
     consultationRequestService.saveConsultationRequest(consultationRequest);
+
+    // if user didn't assign to themselves, email the assigned responder
+    if (!Objects.equals(responderPerson, assigningPerson)) {
+
+      var emailProps = buildAssignedEmailProps(responderPerson, consultationRequest, assigningPerson);
+      notifyService.sendEmail(emailProps, responderPerson.getEmailAddress());
+
+    }
+
+  }
+
+  private ConsultationAssignedToYouEmailProps buildAssignedEmailProps(Person assignee,
+                                                                      ConsultationRequest consultationRequest,
+                                                                      Person assigningPerson) {
+
+    String appRef = consultationRequest.getPwaApplication().getAppReference();
+    String dueDateDisplay = DateUtils.formatDateTime(consultationRequest.getDeadlineDate());
+
+    return new ConsultationAssignedToYouEmailProps(
+        assignee.getFullName(),
+        appRef,
+        assigningPerson.getFullName(),
+        dueDateDisplay
+    );
 
   }
 
