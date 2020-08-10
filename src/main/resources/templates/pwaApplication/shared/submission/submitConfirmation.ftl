@@ -25,6 +25,10 @@
     Your application has been sent for review.
   </p>
 
+  <p class="govuk-body">
+    Any new pipelines with temporary references have been assigned pipeline numbers.
+  </p>
+
   <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="Go back to work area" linkUrl="${springUrl(workAreaUrl)}"/>
 
 </@defaultPage>

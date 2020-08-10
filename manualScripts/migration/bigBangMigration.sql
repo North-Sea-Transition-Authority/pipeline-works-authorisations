@@ -76,6 +76,8 @@ DECLARE
   l_max_pipeline_id NUMBER;
 
   l_max_pipeline_detail_id NUMBER;
+
+  l_max_pipeline_number NUMBER;
   
   l_next_val NUMBER;
   
@@ -122,6 +124,11 @@ BEGIN
   INTO l_max_pipeline_detail_id
   FROM PWA.mig_pipeline_history mph;
 
+  SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(mph.pipeline_number, '[A-Z]+([0-9]+)', 1, 1, NULL, 1)))
+  INTO l_max_pipeline_number
+  FROM PWA.mig_pipeline_history mph;
+
+
 
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwas_id_seq INCREMENT BY ' || l_max_pa_id;
 
@@ -130,6 +137,8 @@ BEGIN
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_id_seq INCREMENT BY ' || l_max_pipeline_id;
 
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_details_id_seq INCREMENT BY ' || l_max_pipeline_detail_id;
+
+  EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_numbering_seq INCREMENT BY ' || l_max_pipeline_number;
   
   
   -- select next val so the sequences update
@@ -148,6 +157,10 @@ BEGIN
   SELECT PWA.pipeline_details_id_seq.NEXTVAL
   INTO l_next_val
   FROM dual;
+
+  SELECT PWA.pipeline_numbering_seq.NEXTVAL
+  INTO l_next_val
+  FROM dual;
   
   -- reset increment value to restore expected behaviour.
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pwas_id_seq INCREMENT BY 1';
@@ -157,6 +170,8 @@ BEGIN
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_id_seq INCREMENT BY 1';
 
   EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_details_id_seq INCREMENT BY 1';
+
+  EXECUTE IMMEDIATE 'ALTER SEQUENCE PWA.pipeline_numbering_seq INCREMENT BY 1';
 
 END;
 

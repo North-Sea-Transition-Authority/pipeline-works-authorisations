@@ -138,6 +138,8 @@ public class PadPipeline {
   private Boolean pipelineInBundle;
   private String bundleName;
 
+  private String temporaryRef;
+
   private Integer temporaryNumber;
 
   public PadPipeline() {
@@ -327,6 +329,13 @@ public class PadPipeline {
     this.bundleName = bundleName;
   }
 
+  public String getTemporaryRef() {
+    return temporaryRef;
+  }
+
+  public void setTemporaryRef(String temporaryRef) {
+    this.temporaryRef = temporaryRef;
+  }
 
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();

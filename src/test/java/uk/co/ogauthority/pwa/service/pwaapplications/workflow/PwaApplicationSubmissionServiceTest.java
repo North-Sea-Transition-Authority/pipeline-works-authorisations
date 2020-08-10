@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -54,6 +55,9 @@ public class PwaApplicationSubmissionServiceTest {
   @Mock
   private PwaApplicationDataCleanupService dataCleanupService;
 
+  @Mock
+  private PadPipelineNumberingService padPipelineNumberingService;
+
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropsCaptor;
 
@@ -69,8 +73,8 @@ public class PwaApplicationSubmissionServiceTest {
         camundaWorkflowService,
         notifyService,
         teamService,
-        dataCleanupService
-    );
+        dataCleanupService,
+        padPipelineNumberingService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -112,30 +116,36 @@ public class PwaApplicationSubmissionServiceTest {
 
     var teamMemberList = List.of(
         TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-          new Person(1, "PWA", "Manager1", "manager1@pwa.co.uk", null),
-          Set.of(PwaRegulatorRole.PWA_MANAGER)),
+            new Person(1, "PWA", "Manager1", "manager1@pwa.co.uk", null),
+            Set.of(PwaRegulatorRole.PWA_MANAGER)),
         TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-          new Person(2, "PWA", "Manager2", "manager2@pwa.co.uk", null),
-          Set.of(PwaRegulatorRole.PWA_MANAGER)),
+            new Person(2, "PWA", "Manager2", "manager2@pwa.co.uk", null),
+            Set.of(PwaRegulatorRole.PWA_MANAGER)),
         TeamTestingUtils.createRegulatorTeamMember(teamService.getRegulatorTeam(),
-          new Person(3, "PWA", "Case officer", "co@pwa.co.uk", null),
-          Set.of(PwaRegulatorRole.CASE_OFFICER))
+            new Person(3, "PWA", "Case officer", "co@pwa.co.uk", null),
+            Set.of(PwaRegulatorRole.CASE_OFFICER))
     );
 
     when(teamService.getTeamMembers(teamService.getRegulatorTeam())).thenReturn(teamMemberList);
 
     pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail);
 
+    verify(padPipelineNumberingService, times(1)).assignPipelineReferences(pwaApplicationDetail);
+
     verify(dataCleanupService, times(1)).cleanupData(pwaApplicationDetail);
 
     verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
-    verify(camundaWorkflowService, times(1)).completeTask(eq(new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.PREPARE_APPLICATION)));
+    verify(camundaWorkflowService, times(1)).completeTask(
+        eq(new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(),
+            PwaApplicationWorkflowTask.PREPARE_APPLICATION)));
 
     verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager1@pwa.co.uk"));
-    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo("PWA Manager1");
+    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
+        "PWA Manager1");
 
     verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager2@pwa.co.uk"));
-    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo("PWA Manager2");
+    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
+        "PWA Manager2");
 
     emailPropsCaptor.getAllValues().forEach(emailProps -> {
 

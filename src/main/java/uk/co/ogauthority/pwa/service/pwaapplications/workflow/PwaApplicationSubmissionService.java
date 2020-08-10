@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDataCleanupService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.submission.PadPipelineNumberingService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -30,18 +31,21 @@ public class PwaApplicationSubmissionService {
   private final NotifyService notifyService;
   private final TeamService teamService;
   private final PwaApplicationDataCleanupService pwaApplicationDataCleanupService;
+  private final PadPipelineNumberingService padPipelineNumberingService;
 
   @Autowired
   public PwaApplicationSubmissionService(PwaApplicationDetailService pwaApplicationDetailService,
                                          CamundaWorkflowService camundaWorkflowService,
                                          NotifyService notifyService,
                                          TeamService teamService,
-                                         PwaApplicationDataCleanupService pwaApplicationDataCleanupService) {
+                                         PwaApplicationDataCleanupService pwaApplicationDataCleanupService,
+                                         PadPipelineNumberingService padPipelineNumberingService) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.notifyService = notifyService;
     this.teamService = teamService;
     this.pwaApplicationDataCleanupService = pwaApplicationDataCleanupService;
+    this.padPipelineNumberingService = padPipelineNumberingService;
   }
 
   @Transactional
@@ -55,6 +59,8 @@ public class PwaApplicationSubmissionService {
       throw new IllegalArgumentException(
           String.format("Application Detail not draft! id: %s status: %s", detail.getId(), detail.getStatus()));
     }
+
+    padPipelineNumberingService.assignPipelineReferences(detail);
 
     pwaApplicationDataCleanupService.cleanupData(detail);
 

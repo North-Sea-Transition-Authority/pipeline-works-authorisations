@@ -3,21 +3,23 @@ package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
 
 public enum PipelineCoreType {
 
-  SINGLE_CORE("Single core"),
-  MULTI_CORE("Multi core");
+  SINGLE_CORE("Single core", "PL"),
+  MULTI_CORE("Multi core", "PLU");
 
-  private String displayName;
+  private final String displayName;
+  private final String referencePrefix;
 
-  PipelineCoreType(String displayName) {
+  PipelineCoreType(String displayName, String referencePrefix) {
     this.displayName = displayName;
+    this.referencePrefix = referencePrefix;
   }
 
   public String getDisplayName() {
     return displayName;
   }
 
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
+  public String getReferencePrefix() {
+    return referencePrefix;
   }
 
 }
