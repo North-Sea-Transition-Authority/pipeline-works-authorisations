@@ -229,7 +229,7 @@ public class DepositDrawingsServiceTest {
   @Test
   public void removeDepositFromDrawing() {
     var deposit = new PadPermanentDeposit();
-    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit)).thenReturn(List.of(new PadDepositDrawingLink()));
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDepositIn(List.of(deposit))).thenReturn(List.of(new PadDepositDrawingLink()));
     depositDrawingsService.removeDepositFromDrawing(deposit);
     verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
   }
@@ -382,6 +382,13 @@ public class DepositDrawingsServiceTest {
 
     verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail), eq(ApplicationFilePurpose.DEPOSIT_DRAWINGS), eq(List.of(1, 2)));
 
+  }
+
+  @Test
+  public void removeDepositsFromDrawings_serviceInteraction() {
+    var deposit = new PadPermanentDeposit();
+    depositDrawingsService.removeDepositsFromDrawings(List.of(deposit));
+    verify(padDepositDrawingLinkRepository, times(1)).getAllByPadPermanentDepositIn(List.of(deposit));
   }
 
 }

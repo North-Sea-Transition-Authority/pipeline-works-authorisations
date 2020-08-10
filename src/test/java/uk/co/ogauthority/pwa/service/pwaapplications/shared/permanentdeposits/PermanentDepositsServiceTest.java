@@ -402,7 +402,7 @@ public class PermanentDepositsServiceTest {
   }
 
   @Test
-  public void cleanupUnlinkedSchedules_serviceInteraction_noLinks() {
+  public void removePadPipelineFromDeposits_serviceInteraction_noLinks() {
     var padPipeline = new PadPipeline(pwaApplicationDetail);
     when(permanentDepositInformationRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padPermanentDeposit));
@@ -410,10 +410,11 @@ public class PermanentDepositsServiceTest {
         .thenReturn(List.of());
     service.removePadPipelineFromDeposits(padPipeline);
     verify(permanentDepositInformationRepository, times(1)).deleteAll(List.of(padPermanentDeposit));
+    verify(depositDrawingsService, times(1)).removeDepositsFromDrawings(List.of(padPermanentDeposit));
   }
 
   @Test
-  public void cleanupUnlinkedSchedules_serviceInteraction_remainingLinks() {
+  public void removePadPipelineFromDeposits_serviceInteraction_remainingLinks() {
     var padPipeline = new PadPipeline(pwaApplicationDetail);
     var depositPipeline = new PadDepositPipeline();
     depositPipeline.setPadPermanentDeposit(padPermanentDeposit);
@@ -424,6 +425,7 @@ public class PermanentDepositsServiceTest {
         .thenReturn(List.of(depositPipeline));
     service.removePadPipelineFromDeposits(padPipeline);
     verify(permanentDepositInformationRepository, never()).deleteAll(any());
+    verify(depositDrawingsService, never()).removeDepositsFromDrawings(any());
   }
 
   private void setAllMaterialData(PadPermanentDeposit deposit) {

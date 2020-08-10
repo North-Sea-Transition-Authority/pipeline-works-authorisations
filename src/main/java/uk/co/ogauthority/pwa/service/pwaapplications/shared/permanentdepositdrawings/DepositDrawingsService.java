@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
 
-  public void mapEntityToForm(PwaApplicationDetail detail, PadDepositDrawing depositDrawing, PermanentDepositDrawingForm form) {
+  public void mapEntityToForm(PwaApplicationDetail detail, PadDepositDrawing depositDrawing,
+                              PermanentDepositDrawingForm form) {
     var depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
     form.setReference(depositDrawing.getReference());
     form.setSelectedDeposits(depositDrawingLinks
@@ -92,7 +94,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
 
-  private void saveDrawingAndLinks(PwaApplicationDetail detail, PermanentDepositDrawingForm form, PadDepositDrawing drawing) {
+  private void saveDrawingAndLinks(PwaApplicationDetail detail, PermanentDepositDrawingForm form,
+                                   PadDepositDrawing drawing) {
     // Validated form will always have 1 file
     PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail,
         form.getUploadedFileWithDescriptionForms().get(0).getUploadedFileId());
@@ -101,7 +104,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     drawing.setReference(form.getReference());
     drawing = padDepositDrawingRepository.save(drawing);
 
-    for (String padPermanentDepositId: form.getSelectedDeposits()) {
+    for (String padPermanentDepositId : form.getSelectedDeposits()) {
       var padPermanentDeposit = permanentDepositService.getDepositById(Integer.parseInt(padPermanentDepositId))
           .orElseThrow(() -> new PwaEntityNotFoundException(
               String.format("Couldn't find padPermanentDeposit with ID: %s", padPermanentDepositId)));
@@ -112,13 +115,12 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
 
-
   public List<PermanentDepositDrawingView> getDepositDrawingSummaryViews(PwaApplicationDetail pwaApplicationDetail) {
     var drawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
     var links = padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(drawings);
     Map<PadDepositDrawing, List<PadDepositDrawingLink>> linkMap = links.stream()
         .collect(Collectors.groupingBy(PadDepositDrawingLink::getPadDepositDrawing));
-    for (var drawing: drawings) {
+    for (var drawing : drawings) {
       if (!linkMap.containsKey(drawing)) {
         linkMap.put(drawing, List.of());
       }
@@ -134,7 +136,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         .collect(Collectors.toList());
   }
 
-  public PermanentDepositDrawingView getDepositDrawingView(Integer depositDrawingId, PwaApplicationDetail pwaApplicationDetail) {
+  public PermanentDepositDrawingView getDepositDrawingView(Integer depositDrawingId,
+                                                           PwaApplicationDetail pwaApplicationDetail) {
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
         .orElseThrow(() -> getDrawingNotFoundException(depositDrawingId));
     var depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
@@ -150,8 +153,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
 
   private PermanentDepositDrawingView buildSummaryView(PadDepositDrawing depositDrawing,
-                                                      List<PadDepositDrawingLink> drawingLinks,
-                                                      List<UploadedFileView> fileViewList) {
+                                                       List<PadDepositDrawingLink> drawingLinks,
+                                                       List<UploadedFileView> fileViewList) {
     Set<String> depositReferences = drawingLinks.stream()
         .map(drawingLink -> drawingLink.getPadPermanentDeposit().getReference())
         .collect(Collectors.toUnmodifiableSet());
@@ -162,7 +165,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
           .findFirst()
           .orElseThrow(() -> new PwaEntityNotFoundException(
               "Unable to get UploadedFileView of file with ID: " + depositDrawing.getFile().getFileId()));
-      return new PermanentDepositDrawingView(depositDrawing.getId(), depositDrawing.getReference(), depositReferences, fileView);
+      return new PermanentDepositDrawingView(depositDrawing.getId(), depositDrawing.getReference(), depositReferences,
+          fileView);
     }
 
     return new PermanentDepositDrawingView(depositDrawing.getId(), depositDrawing.getReference(), depositReferences);
@@ -179,22 +183,33 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
         webUserAccount);
 
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Unable to find permanent deposit drawing with ID: " + depositDrawingId));
-    List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Unable to find permanent deposit drawing with ID: " + depositDrawingId));
+    List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(
+        depositDrawing);
     padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
 
     saveDrawingAndLinks(detail, form, depositDrawing);
   }
 
+  @Transactional
   public void removeDepositFromDrawing(PadPermanentDeposit padPermanentDeposit) {
-    List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(padPermanentDeposit);
-    padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
+    removeDepositsFromDrawings(List.of(padPermanentDeposit));
   }
 
+  @Transactional
+  public void removeDepositsFromDrawings(Collection<PadPermanentDeposit> permanentDeposits) {
+    List<PadDepositDrawingLink> links = padDepositDrawingLinkRepository.getAllByPadPermanentDepositIn(
+        permanentDeposits);
+    padDepositDrawingLinkRepository.deleteAll(links);
+  }
+
+  @Transactional
   public void removeDrawingAndFile(int depositDrawingId, WebUserAccount webUserAccount) {
     var depositDrawing = padDepositDrawingRepository.findById(depositDrawingId)
         .orElseThrow(() -> getDrawingNotFoundException(depositDrawingId));
-    List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(depositDrawing);
+    List<PadDepositDrawingLink> depositDrawingLinks = padDepositDrawingLinkRepository.getAllByPadDepositDrawing(
+        depositDrawing);
     var padFile = depositDrawing.getFile();
     padDepositDrawingLinkRepository.deleteAll(depositDrawingLinks);
     padDepositDrawingRepository.delete(depositDrawing);
@@ -203,7 +218,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     }
   }
 
-  public Optional<PadDepositDrawing> getDrawingLinkedToPadFile(PwaApplicationDetail applicationDetail, PadFile padFile) {
+  public Optional<PadDepositDrawing> getDrawingLinkedToPadFile(PwaApplicationDetail applicationDetail,
+                                                               PadFile padFile) {
     return padDepositDrawingRepository.findByPwaApplicationDetailAndFile(applicationDetail, padFile);
   }
 
@@ -219,18 +235,16 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
 
-
-
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    for (var deposit: permanentDepositService.getPermanentDeposits(detail)) {
+    for (var deposit : permanentDepositService.getPermanentDeposits(detail)) {
       if (padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit).isEmpty()) {
         return false;
       }
     }
 
     var depositDrawings = padDepositDrawingRepository.getAllByPwaApplicationDetail(detail);
-    for (var depositDrawing: depositDrawings) {
+    for (var depositDrawing : depositDrawings) {
       var form = new PermanentDepositDrawingForm();
       mapEntityToForm(detail, depositDrawing, form);
 
@@ -265,8 +279,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
 
-
-  public boolean isDrawingReferenceUnique(String drawingRef, Integer padDepositDrawingId, PwaApplicationDetail pwaApplicationDetail) {
+  public boolean isDrawingReferenceUnique(String drawingRef, Integer padDepositDrawingId,
+                                          PwaApplicationDetail pwaApplicationDetail) {
     var existingDrawings = padDepositDrawingRepository.findByPwaApplicationDetailAndReferenceIgnoreCase(
         pwaApplicationDetail, drawingRef);
     return existingDrawings.isEmpty()

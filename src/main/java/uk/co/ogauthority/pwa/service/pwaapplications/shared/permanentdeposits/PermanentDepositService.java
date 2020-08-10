@@ -281,6 +281,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         (key, value) -> key.getId().equals(value.getId()));
 
     if (!depositsToRemove.isEmpty()) {
+      depositDrawingsService.removeDepositsFromDrawings(depositsToRemove);
       permanentDepositInformationRepository.deleteAll(depositsToRemove);
     }
   }
