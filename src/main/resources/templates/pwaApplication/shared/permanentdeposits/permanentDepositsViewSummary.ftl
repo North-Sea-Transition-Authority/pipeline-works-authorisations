@@ -1,84 +1,63 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" --> 
-<#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview" --> 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOverview" -->
 
 
 <#macro depositViewSummary deposit>
-    <dl class="govuk-summary-list govuk-!-margin-bottom-9">          
-
-        <#assign materialType=deposit.materialType.getDisplayText() size="" quantity="" contingency="" groutBagsDescription=""/>
-        <#if deposit.materialType = "CONCRETE_MATTRESSES">
-            <#assign size= deposit.concreteMattressLength + "m x " + deposit.concreteMattressWidth + "m x " + deposit.concreteMattressDepth + "m"/>
-            <#assign quantity=deposit.quantityConcrete/>
-            <#if deposit.contingencyConcreteAmount??> <#assign contingency=deposit.contingencyConcreteAmount/> </#if>     
-            
-        <#elseif deposit.materialType = "ROCK">
-            <#assign size="Grade " + deposit.rocksSize/>
-            <#assign quantity=deposit.quantityRocks/>
-            <#if deposit.contingencyRocksAmount??> <#assign contingency=deposit.contingencyRocksAmount/> </#if>                  
-            
-        <#elseif deposit.materialType = "GROUT_BAGS">
-            <#assign size=deposit.groutBagsSize + "kg"/>
-            <#assign quantity=deposit.quantityGroutBags/>  
-            <#if deposit.contingencyGroutBagsAmount??> <#assign contingency=deposit.contingencyGroutBagsAmount/> </#if>               
-            <#if deposit.groutBagsBioDegradable?? && deposit.groutBagsBioDegradable == false> <#assign groutBagsDescription=deposit.bioGroutBagsNotUsedDescription/> </#if> 
-            
-        <#elseif deposit.materialType = "OTHER">
-            <#assign materialType=materialType + " - " + deposit.otherMaterialType/>
-            <#assign size=deposit.otherMaterialSize/>
-            <#assign quantity=deposit.quantityOther/>
-            <#if deposit.contingencyOtherAmount??> <#assign contingency=deposit.contingencyOtherAmount/> </#if>    
-        </#if>
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Pipelines</dt>
             <dd class="govuk-summary-list__value">
                 <#list deposit.pipelineRefs as pipelineRef>${pipelineRef}<br> </#list>
-            </dd>                    
+            </dd>
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Proposed start date</dt>
-            <dd class="govuk-summary-list__value"> ${deposit.fromMonth} / ${deposit.fromYear?c}</dd>                    
+            <dd class="govuk-summary-list__value"> ${deposit.fromDateEstimate}</dd>
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">End date</dt>
-            <dd class="govuk-summary-list__value"> ${deposit.toMonth} / ${deposit.toYear?c}</dd>                 
+            <dd class="govuk-summary-list__value"> ${deposit.toDateEstimate}</dd>
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Type of materials</dt>
-            <dd class="govuk-summary-list__value"> ${materialType}</dd>                    
+            <dd class="govuk-summary-list__value"> ${deposit.materialType.value}
+                <#if deposit.materialType.tag.displayName?has_content><strong class="govuk-tag">
+                    ${deposit.materialType.tag.displayName}
+                    </strong> </#if></dd>
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Size</dt>
-            <dd class="govuk-summary-list__value"> ${size} </dd>                    
+            <dd class="govuk-summary-list__value"> ${deposit.materialSize} </dd>
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Quantity</dt>
-            <dd class="govuk-summary-list__value"> ${quantity}</dd>                    
+            <dd class="govuk-summary-list__value"> ${deposit.quantity}</dd>
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Contingency included</dt>
-            <dd class="govuk-summary-list__value"> ${contingency}</dd>                    
+            <dd class="govuk-summary-list__value"> ${deposit.contingencyAmount}</dd>
         </div>
-        <#if deposit.groutBagsBioDegradable?? && deposit.groutBagsBioDegradable == false>
+        <#if deposit.materialTypeLookup == "GROUT_BAGS" && (deposit.groutBagsBioDegradable?? && deposit.groutBagsBioDegradable == false)>
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">Bio-degradable grout bags</dt>
-                <dd class="govuk-summary-list__value"> ${groutBagsDescription}</dd>                  
+                <dt class="govuk-summary-list__key">Non-biodegradable grout bags reason</dt>
+                <dd class="govuk-summary-list__value"> ${deposit.bioGroutBagsNotUsedDescription}</dd>
             </div>
         </#if>
 
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">From (WGS84)</dt>
-            <dd class="govuk-summary-list__value"> 
-                <@pwaCoordinate.display coordinatePair=deposit.fromCoordinates />                            
-            </dd>   
+            <dd class="govuk-summary-list__value">
+                <@pwaCoordinate.display coordinatePair=deposit.fromCoordinates />
+            </dd>
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">To (WGS84)</dt>
-            <dd class="govuk-summary-list__value"> 
-                <@pwaCoordinate.display coordinatePair=deposit.toCoordinates />      
-            </dd>                    
-        </div>  
+            <dd class="govuk-summary-list__value">
+                <@pwaCoordinate.display coordinatePair=deposit.toCoordinates />
+            </dd>
+        </div>
     </dl>
 </#macro>

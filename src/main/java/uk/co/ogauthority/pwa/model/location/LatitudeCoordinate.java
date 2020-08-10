@@ -21,7 +21,6 @@ public class LatitudeCoordinate extends Coordinate {
     this.direction = direction;
   }
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

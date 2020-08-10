@@ -40,9 +40,9 @@ public class DiffServiceTest {
   private final List<String> defaultStringList = Arrays.asList("item1", "item2", "item3");
   private final List<Integer> defaultIntegerList = Arrays.asList(100, 200, 300);
   private final List<SimpleDiffTestClass> defaultSimpleDiffTestClassList = Arrays.asList(
-      new SimpleDiffTestClass("item 1", 1, new StringWithTag("No tag")),
-      new SimpleDiffTestClass("item 2", 2, new StringWithTag("No tag")),
-      new SimpleDiffTestClass("item 3", 3, new StringWithTag("No tag"))
+      new SimpleDiffTestClass("item 1", 1, new StringWithTag("No tag"), new OtherDiffableAsStringClass("other 1")),
+      new SimpleDiffTestClass("item 2", 2, new StringWithTag("No tag"),  new OtherDiffableAsStringClass("other 2")),
+      new SimpleDiffTestClass("item 3", 3, new StringWithTag("No tag"),  new OtherDiffableAsStringClass("other 3"))
   );
 
   private final String defaultStringValue = "string";
@@ -52,8 +52,10 @@ public class DiffServiceTest {
   public void setup() {
     diffService = new DiffService();
 
-    simpleObjectCurrent = new SimpleDiffTestClass(defaultStringValue, defaultIntegerValue, new StringWithTag("No tag"));
-    simpleObjectPrevious = new SimpleDiffTestClass(defaultStringValue, defaultIntegerValue, new StringWithTag("No tag"));
+    simpleObjectCurrent = new SimpleDiffTestClass(defaultStringValue, defaultIntegerValue, new StringWithTag("No tag"),
+        new OtherDiffableAsStringClass(defaultStringValue));
+    simpleObjectPrevious = new SimpleDiffTestClass(defaultStringValue, defaultIntegerValue, new StringWithTag("No tag"),
+        new OtherDiffableAsStringClass(defaultStringValue));
 
     diffWithListsCurrent = new DiffTestWithSimpleListField(defaultStringList, defaultIntegerList);
     diffWithListsPrevious = new DiffTestWithSimpleListField(defaultStringList, defaultIntegerList);
@@ -62,7 +64,10 @@ public class DiffServiceTest {
     listOfSimpleDiffsCurrent.addAll(defaultSimpleDiffTestClassList);
     listOfSimpleDiffsPrevious = new ArrayList<>();
     // we need two lists containing objects different objects which have matching values
-    defaultSimpleDiffTestClassList.forEach(simpleDiffTestClass -> listOfSimpleDiffsPrevious.add(new SimpleDiffTestClass(simpleDiffTestClass.getStringField(), simpleDiffTestClass.getIntegerField(), simpleDiffTestClass.getStringWithTagField())));
+    defaultSimpleDiffTestClassList.forEach(simpleDiffTestClass -> listOfSimpleDiffsPrevious.add(
+        new SimpleDiffTestClass(simpleDiffTestClass.getStringField(), simpleDiffTestClass.getIntegerField(),
+            simpleDiffTestClass.getStringWithTagField(),
+            simpleDiffTestClass.getDiffableAsString())));
 
   }
 
@@ -72,7 +77,9 @@ public class DiffServiceTest {
 
     Set<String> resultKeySet = diffResult.keySet();
 
-    List<String> expectedDiffResultKeySet = FieldUtils.getAllFieldsList(SimpleDiffTestClass.class).stream().filter(f -> !f.isSynthetic()).map(f -> SimpleDiffTestClass.class.getSimpleName() + "_" + f.getName()).collect(toList());
+    List<String> expectedDiffResultKeySet = FieldUtils.getAllFieldsList(SimpleDiffTestClass.class).stream().filter(
+        f -> !f.isSynthetic()).map(f -> SimpleDiffTestClass.class.getSimpleName() + "_" + f.getName()).collect(
+        toList());
 
     assertThat(resultKeySet).containsExactlyInAnyOrderElementsOf(expectedDiffResultKeySet);
 
@@ -82,12 +89,15 @@ public class DiffServiceTest {
   public void diff_whenUsingSimpleObjects_andObjectsAreEquivalent_thenAllDiffedResultObjectsAreTypeUNCHANGED() {
     Map<String, Object> diffResult = diffService.diff(simpleObjectCurrent, simpleObjectPrevious);
 
-    Set<DiffedField> resultDiffedFields = diffResult.values().stream().map(o -> ((DiffedField) o)).collect(Collectors.toSet());
+    Set<DiffedField> resultDiffedFields = diffResult.values().stream().map(o -> ((DiffedField) o)).collect(
+        Collectors.toSet());
 
     // types of all entries is UNCHANGED
-    assertThat(resultDiffedFields.stream().allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.UNCHANGED))).isTrue();
+    assertThat(resultDiffedFields.stream().allMatch(
+        diffedField -> diffedField.getDiffType().equals(DiffType.UNCHANGED))).isTrue();
     // currentValue and previousValue match for each field
-    assertThat(resultDiffedFields.stream().allMatch(dangerField -> dangerField.getCurrentValue().equals(dangerField.getPreviousValue()))).isTrue();
+    assertThat(resultDiffedFields.stream().allMatch(
+        dangerField -> dangerField.getCurrentValue().equals(dangerField.getPreviousValue()))).isTrue();
 
 
   }
@@ -97,16 +107,20 @@ public class DiffServiceTest {
     simpleObjectCurrent.setIntegerField(999);
     simpleObjectCurrent.setStringField("Updated String");
     simpleObjectCurrent.setStringWithTagField(new StringWithTag("Updated String"));
+    simpleObjectCurrent.setDiffableAsString(new OtherDiffableAsStringClass("Updated String"));
 
     Map<String, Object> diffResult = diffService.diff(simpleObjectCurrent, simpleObjectPrevious);
 
-    Set<DiffedField> resultDiffedFields = diffResult.values().stream().map(o -> ((DiffedField) o)).collect(Collectors.toSet());
+    Set<DiffedField> resultDiffedFields = diffResult.values().stream().map(o -> ((DiffedField) o)).collect(
+        Collectors.toSet());
 
     // type of all entries is UPDATED
-    assertThat(resultDiffedFields.stream().allMatch(diffedfield -> diffedfield.getDiffType().equals(DiffType.UPDATED))).isTrue();
+    assertThat(resultDiffedFields.stream().allMatch(
+        diffedfield -> diffedfield.getDiffType().equals(DiffType.UPDATED))).isTrue();
 
     // currentValue and previousValue do not match for each field
-    assertThat(resultDiffedFields.stream().noneMatch(diffedfield -> diffedfield.getCurrentValue().equals(diffedfield.getPreviousValue()))).isTrue();
+    assertThat(resultDiffedFields.stream().noneMatch(
+        diffedfield -> diffedfield.getCurrentValue().equals(diffedfield.getPreviousValue()))).isTrue();
 
   }
 
@@ -115,17 +129,21 @@ public class DiffServiceTest {
     simpleObjectCurrent.setIntegerField(null);
     simpleObjectCurrent.setStringField(null);
     simpleObjectCurrent.setStringWithTagField(new StringWithTag());
+    simpleObjectCurrent.setDiffableAsString(null);
 
     Map<String, Object> diffResult = diffService.diff(simpleObjectCurrent, simpleObjectPrevious);
 
-    Set<DiffedField> resultDiffedFields = diffResult.values().stream().map(o -> ((DiffedField) o)).collect(Collectors.toSet());
+    Set<DiffedField> resultDiffedFields = diffResult.values().stream().map(o -> ((DiffedField) o)).collect(
+        Collectors.toSet());
 
     // type of all entries is DELETED
-    assertThat(resultDiffedFields.stream().allMatch(diffedfield -> diffedfield.getDiffType().equals(DiffType.DELETED))).isTrue();
+    assertThat(resultDiffedFields.stream().allMatch(
+        diffedfield -> diffedfield.getDiffType().equals(DiffType.DELETED))).isTrue();
 
     // currentValue is blank and previous value has value each field
     assertThat(resultDiffedFields.stream().allMatch(diffedfield -> StringUtils.isBlank(diffedfield.getCurrentValue())));
-    assertThat(resultDiffedFields.stream().allMatch(diffedfield -> StringUtils.isNotBlank(diffedfield.getPreviousValue())));
+    assertThat(
+        resultDiffedFields.stream().allMatch(diffedfield -> StringUtils.isNotBlank(diffedfield.getPreviousValue())));
 
   }
 
@@ -165,13 +183,15 @@ public class DiffServiceTest {
     for (Object diffResultObject : diffResult.values()) {
 
       List<Object> resultObjectList = ((List) diffResultObject);
-      List<DiffedField> diffedFieldList = resultObjectList.stream().filter(o -> o instanceof DiffedField).map(o -> ((DiffedField) o)).collect(toList());
+      List<DiffedField> diffedFieldList = resultObjectList.stream().filter(o -> o instanceof DiffedField).map(
+          o -> ((DiffedField) o)).collect(toList());
 
       assertThat(diffedFieldList.size()).isGreaterThan(0);
       // all objects in list are of the expected type
       assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.UNCHANGED));
       // all objects in list have equal previous and current values
-      assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getCurrentValue().equals(diffedField.getPreviousValue()));
+      assertThat(diffedFieldList).allMatch(
+          diffedField -> diffedField.getCurrentValue().equals(diffedField.getPreviousValue()));
 
     }
 
@@ -188,7 +208,8 @@ public class DiffServiceTest {
     for (Object diffResultObject : diffResult.values()) {
 
       List<Object> resultObjectList = ((List) diffResultObject);
-      List<DiffedField> diffedFieldList = resultObjectList.stream().filter(o -> o instanceof DiffedField).map(o -> ((DiffedField) o)).collect(toList());
+      List<DiffedField> diffedFieldList = resultObjectList.stream().filter(o -> o instanceof DiffedField).map(
+          o -> ((DiffedField) o)).collect(toList());
 
       assertThat(diffedFieldList.size()).isEqualTo(defaultStringList.size());
       // all objects in list are of the expected type
@@ -212,7 +233,8 @@ public class DiffServiceTest {
     for (Object diffResultObject : diffResult.values()) {
 
       List<Object> resultObjectList = ((List) diffResultObject);
-      List<DiffedField> diffedFieldList = resultObjectList.stream().filter(o -> o instanceof DiffedField).map(o -> ((DiffedField) o)).collect(toList());
+      List<DiffedField> diffedFieldList = resultObjectList.stream().filter(o -> o instanceof DiffedField).map(
+          o -> ((DiffedField) o)).collect(toList());
 
       assertThat(diffedFieldList.size()).isEqualTo(defaultStringList.size());
       // all objects in list are of the expected type
@@ -227,13 +249,15 @@ public class DiffServiceTest {
 
   @Test
   public void diffComplexLists_whenListsObjectsCompletelyMap_andThereAreNoUpdatedObjects_thenResultListContainsOnlyUNCHANGEDDiffs() {
-    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent, listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
+    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent,
+        listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
 
     assertThat(diffResultList.size()).isEqualTo(defaultSimpleDiffTestClassList.size());
     for (Map<String, ?> diffResultMap : diffResultList) {
       // this test works for the simple class where we know no List is contained within the object
       assertThat(diffResultMap.values()).allMatch(o -> o instanceof DiffedField);
-      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(o -> (DiffedField) o).collect(toList());
+      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(
+          o -> (DiffedField) o).collect(toList());
       assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.UNCHANGED));
     }
   }
@@ -244,13 +268,15 @@ public class DiffServiceTest {
       listOfSimpleDiffsCurrent.get(i).setStringField("Updated Item");
     }
 
-    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent, listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
+    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent,
+        listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
 
     assertThat(diffResultList.size()).isEqualTo(defaultSimpleDiffTestClassList.size());
     for (Map<String, ?> diffResultMap : diffResultList) {
       // this test works for the simple class where we know no List is contained within the object
       assertThat(diffResultMap.values()).allMatch(o -> o instanceof DiffedField);
-      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(o -> (DiffedField) o).collect(toList());
+      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(
+          o -> (DiffedField) o).collect(toList());
       assertThat(diffedFieldList).anyMatch(diffedField -> diffedField.getDiffType().equals(DiffType.UPDATED));
     }
   }
@@ -259,13 +285,15 @@ public class DiffServiceTest {
   public void diffComplexLists_whenPreviousListIsEmpty_thenResultListContainsADDEDDiffsOnly() {
     listOfSimpleDiffsPrevious = Collections.emptyList();
 
-    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent, listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
+    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent,
+        listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
 
     assertThat(diffResultList.size()).isEqualTo(defaultSimpleDiffTestClassList.size());
     for (Map<String, ?> diffResultMap : diffResultList) {
       // this test works for the simple class where we know no List is contained within the object
       assertThat(diffResultMap.values()).allMatch(o -> o instanceof DiffedField);
-      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(o -> (DiffedField) o).collect(toList());
+      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(
+          o -> (DiffedField) o).collect(toList());
       assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.ADDED));
     }
   }
@@ -274,13 +302,15 @@ public class DiffServiceTest {
   public void diffComplexLists_whenCurrentListIsEmpty_thenResultListContainsDeletedDiffsOnly() {
     listOfSimpleDiffsCurrent = Collections.emptyList();
 
-    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent, listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
+    List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent,
+        listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
 
     assertThat(diffResultList.size()).isEqualTo(defaultSimpleDiffTestClassList.size());
     for (Map<String, ?> diffResultMap : diffResultList) {
       // this test works for the simple class where we know no List is contained within the object
       assertThat(diffResultMap.values()).allMatch(o -> o instanceof DiffedField);
-      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(o -> (DiffedField) o).collect(toList());
+      List<DiffedField> diffedFieldList = diffResultMap.values().stream().filter(o -> o instanceof DiffedField).map(
+          o -> (DiffedField) o).collect(toList());
       assertThat(diffedFieldList).allMatch(diffedField -> diffedField.getDiffType().equals(DiffType.DELETED));
     }
   }
@@ -290,15 +320,16 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void allSupportedDiffClassesAreIncludedInTestedObject(){
+  public void allSupportedDiffClassesAreIncludedInTestedObject() {
     Set<Class> supportedClassSet = new HashSet<>();
-    Set<Class> testedClassMemberClassSet = new HashSet<Field>(Arrays.asList(FieldUtils.getAllFields(SimpleDiffTestClass.class)))
+    Set<Class> testedClassMemberClassSet = new HashSet<Field>(
+        Arrays.asList(FieldUtils.getAllFields(SimpleDiffTestClass.class)))
         .stream()
         .map(Field::getType)
         .collect(Collectors.toSet());
 
-    for(DiffComparisonTypes diffComparisonType : DiffComparisonTypes.values()){
-      if(!diffComparisonType.equals(DiffComparisonTypes.LIST)) {
+    for (DiffComparisonTypes diffComparisonType : DiffComparisonTypes.values()) {
+      if (!diffComparisonType.equals(DiffComparisonTypes.LIST)) {
         supportedClassSet.addAll(diffComparisonType.getSupportedClasses());
       }
     }
@@ -306,7 +337,7 @@ public class DiffServiceTest {
     // Assert that every supported class is the class of a field in SimpleDiffTestClass. This ensures we dont add new comparison types and forget to test them
     try {
       assertThat(supportedClassSet).allMatch(testedClassMemberClassSet::contains);
-    } catch(AssertionError e){
+    } catch (AssertionError e) {
       throw new AssertionError("All supported diff comparison classes  need to added to the SimpleDiffTestClass!", e);
     }
 

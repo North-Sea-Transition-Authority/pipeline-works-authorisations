@@ -1,189 +1,195 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.text.DecimalFormat;
+import java.time.LocalDate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositsOverview;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
+import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
+import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-import java.math.BigDecimal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+/**
+ * This is testing the same class as {@link PermanentDepositEntityMappingServiceTest}?.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositViewMappingServiceTest {
 
+  private static final int ID = 100;
+  private static final String REFERENCE = "TEST";
+
+  private static final int C_LENGTH = 1;
+  private static final int C_WIDTH = 2;
+  private static final int C_DEPTH = 3;
+  private static final String CONTINGENCY = "4 and a half things";
+  private static final String SIZE = "Bigger than small";
+  private static final double QUANTITY = 4.0;
+
+  private static final LocalDate FROM_DATE = LocalDate.now();
+  private static final LocalDate TO_DATE = LocalDate.now().plusMonths(3);
+
   private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
+
+  private PwaApplicationDetail pwaApplicationDetail;
+
+  @Mock
+  private PadDepositPipelineRepository padDepositPipelineRepository;
 
   @Before
   public void setUp() {
-    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    permanentDepositEntityMappingService = new PermanentDepositEntityMappingService(padDepositPipelineRepository);
   }
 
-  //Common Properties
-  public PadPermanentDeposit buildBaseEntity() {
-    PadPermanentDeposit baseEntity = new PadPermanentDeposit();
-    baseEntity.setId(1);
-    baseEntity.setReference("my ref");
-    baseEntity.setFromMonth(2);
-    baseEntity.setFromYear(2020);
-    baseEntity.setToMonth(3);
-    baseEntity.setToYear(2020);
+  private PadPermanentDeposit getConcreteDeposit(int id, String reference) {
+    return PadPermanentDepositTestUtil.createConcreteMattressPadDeposit(
+        id,
+        reference,
+        pwaApplicationDetail,
+        C_LENGTH,
+        C_WIDTH,
+        C_DEPTH,
+        QUANTITY,
+        CONTINGENCY,
+        FROM_DATE,
+        TO_DATE,
+        CoordinatePairTestUtil.getDefaultCoordinate(),
+        CoordinatePairTestUtil.getDefaultCoordinate()
+    );
 
-    baseEntity.setQuantity(Double.parseDouble("5.7"));
-    baseEntity.setContingencyAmount("88");
-    baseEntity.setFromCoordinates(new CoordinatePair(
-        new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
-        new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
-    ));
-    baseEntity.setToCoordinates(new CoordinatePair(
-        new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
-        new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
-    ));
-    return baseEntity;
   }
 
-  public PermanentDepositsOverview buildBaseView(PadPermanentDeposit baseEntity) {
-    PermanentDepositsOverview baseView = new PermanentDepositsOverview();
-    baseView.setEntityID(baseEntity.getId());
-    baseView.setDepositReference(baseEntity.getReference());
-    baseView.setFromMonth(baseEntity.getFromMonth());
-    baseView.setFromYear(baseEntity.getFromYear());
-    baseView.setToMonth(baseEntity.getToMonth());
-    baseView.setToYear(baseEntity.getToYear());
-    baseView.setFromCoordinates(baseEntity.getFromCoordinates());
-    baseView.setToCoordinates(baseEntity.getToCoordinates());
-    return baseView;
+  private PadPermanentDeposit getRockDeposit(int id, String reference) {
+    return PadPermanentDepositTestUtil.createRockPadDeposit(
+        id,
+        reference,
+        pwaApplicationDetail,
+        SIZE,
+        QUANTITY,
+        CONTINGENCY,
+        FROM_DATE,
+        TO_DATE,
+        CoordinatePairTestUtil.getDefaultCoordinate(),
+        CoordinatePairTestUtil.getDefaultCoordinate()
+    );
+
   }
 
+  private PadPermanentDeposit getGroutBagDeposit(int id, String reference, String nonBioReason) {
+    return PadPermanentDepositTestUtil.createGroutBagPadDeposit(
+        id,
+        reference,
+        pwaApplicationDetail,
+        SIZE,
+        QUANTITY,
+        CONTINGENCY,
+        FROM_DATE,
+        TO_DATE,
+        CoordinatePairTestUtil.getDefaultCoordinate(),
+        CoordinatePairTestUtil.getDefaultCoordinate(),
+        nonBioReason
+    );
 
-  //Unique Properties
-  public void setEntityConcreteProperties(PadPermanentDeposit entity){
-    entity.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    entity.setConcreteMattressLength(13);
-    entity.setConcreteMattressWidth(22);
-    entity.setConcreteMattressDepth(32);
   }
 
-  public void setEntityGroutBagProperties(PadPermanentDeposit entity){
-    entity.setMaterialType(MaterialType.GROUT_BAGS);
-    entity.setMaterialSize("43");
-    entity.setGroutBagsBioDegradable(true);
-    entity.setBagsNotUsedDescription("...");
-  }
+  private PadPermanentDeposit getOtherTypeDeposit(int id, String reference, String type) {
+    return PadPermanentDepositTestUtil.createOtherPadDeposit(
+        id,
+        reference,
+        pwaApplicationDetail,
+        type,
+        SIZE,
+        QUANTITY,
+        CONTINGENCY,
+        FROM_DATE,
+        TO_DATE,
+        CoordinatePairTestUtil.getDefaultCoordinate(),
+        CoordinatePairTestUtil.getDefaultCoordinate()
+    );
 
-  public void setEntityRockProperties(PadPermanentDeposit entity){
-    entity.setMaterialType(MaterialType.ROCK);
-    entity.setMaterialSize("43");
-  }
-
-  public void setEntityOtherProperties(PadPermanentDeposit entity){
-    entity.setMaterialType(MaterialType.OTHER);
-    entity.setOtherMaterialType("metal");
-    entity.setMaterialSize("43");
-  }
-
-  public void setFormConcreteProperties(PermanentDepositsOverview view) {
-    var entity = buildBaseEntity();
-    setEntityConcreteProperties(entity);
-    view.setMaterialType(entity.getMaterialType());
-    view.setConcreteMattressLength(entity.getConcreteMattressLength());
-    view.setConcreteMattressWidth(entity.getConcreteMattressWidth());
-    view.setConcreteMattressDepth(entity.getConcreteMattressDepth());
-    view.setQuantityConcrete(String.valueOf(entity.getQuantity()));
-    view.setContingencyConcreteAmount(entity.getContingencyAmount());
-  }
-
-  public void setFormRocksProperties(PermanentDepositsOverview view) {
-    var entity = buildBaseEntity();
-    setEntityRockProperties(entity);
-    view.setMaterialType(MaterialType.ROCK);
-    view.setRocksSize(entity.getMaterialSize());
-    view.setQuantityRocks(String.valueOf(entity.getQuantity()));
-    view.setContingencyRocksAmount(entity.getContingencyAmount());
-  }
-
-  public void setFormGroutBagsProperties(PermanentDepositsOverview view) {
-    var entity = buildBaseEntity();
-    setEntityGroutBagProperties(entity);
-    view.setMaterialType(entity.getMaterialType());
-    view.setGroutBagsSize(Integer.parseInt(entity.getMaterialSize()));
-    view.setQuantityGroutBags(String.valueOf(entity.getQuantity()));
-    view.setContingencyGroutBagsAmount(entity.getContingencyAmount());
-    view.setGroutBagsBioDegradable(entity.getGroutBagsBioDegradable());
-    view.setBioGroutBagsNotUsedDescription(entity.getBagsNotUsedDescription());
-  }
-
-  public void setFormOtherMaterialProperties(PermanentDepositsOverview view) {
-    var entity = buildBaseEntity();
-    setEntityOtherProperties(entity);
-    view.setMaterialType(MaterialType.OTHER);
-    view.setOtherMaterialType(entity.getOtherMaterialType());
-    view.setOtherMaterialSize(entity.getMaterialSize());
-    view.setQuantityOther(String.valueOf(entity.getQuantity()));
-    view.setContingencyOtherAmount(entity.getContingencyAmount());
-  }
-
-
-  //TESTS
-
-  @Test
-  public void mapDepositInformationDataToView_materialTypeConcrete() {
-    PadPermanentDeposit entity = buildBaseEntity();
-    setEntityConcreteProperties(entity);
-    var actualView = new PermanentDepositsOverview();
-    permanentDepositEntityMappingService.mapDepositInformationDataToView(entity, actualView);
-
-    PermanentDepositsOverview expectedView = buildBaseView(entity);
-    setFormConcreteProperties(expectedView);
-    assertThat(actualView).isEqualTo(expectedView);
   }
 
   @Test
-  public void mapDepositInformationDataToView_materialTypeRocks() {
-    PadPermanentDeposit entity = buildBaseEntity();
-    setEntityRockProperties(entity);
-    var actualView = new PermanentDepositsOverview();
-    permanentDepositEntityMappingService.mapDepositInformationDataToView(entity, actualView);
+  public void createPermanentDepositOverview_materialTypeConcrete() {
+    PadPermanentDeposit entity = getConcreteDeposit(20, "TEST");
 
-    PermanentDepositsOverview expectedView = buildBaseView(entity);
-    setFormRocksProperties(expectedView);
-    assertThat(actualView).isEqualTo(expectedView);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+
+    assertThat(actualView.getEntityID()).isEqualTo(20);
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.CONCRETE_MATTRESSES);
+    assertThat(actualView.getDepositReference()).isEqualTo("TEST");
+    assertThat(actualView.getBioGroutBagsNotUsedDescription()).isNull();
+    assertThat(actualView.getMaterialSize()).isEqualTo("1 metre × 2 metre × 3 metre");
+    assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
+    assertThat(actualView.getQuantity()).isEqualTo(new DecimalFormat("##.####").format(QUANTITY));
   }
 
   @Test
-  public void mapDepositInformationDataToView_materialTypeGroutBags() {
-    PadPermanentDeposit entity = buildBaseEntity();
-    setEntityGroutBagProperties(entity);
-    var actualView = new PermanentDepositsOverview();
-    permanentDepositEntityMappingService.mapDepositInformationDataToView(entity, actualView);
+  public void createPermanentDepositOverview_materialTypeRocks() {
+    PadPermanentDeposit entity = getRockDeposit(30, "TEST1");
 
-    PermanentDepositsOverview expectedView = buildBaseView(entity);
-    setFormGroutBagsProperties(expectedView);
-    assertThat(actualView).isEqualTo(expectedView);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    assertThat(actualView.getEntityID()).isEqualTo(30);
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.ROCK);
+    assertThat(actualView.getDepositReference()).isEqualTo("TEST1");
+    assertThat(actualView.getBioGroutBagsNotUsedDescription()).isNull();
+    assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " grade");
+    assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
+    assertThat(actualView.getQuantity()).isEqualTo(new DecimalFormat("##.####").format(QUANTITY));
   }
 
   @Test
-  public void mapDepositInformationDataToView_materialTypeOther() {
-    PadPermanentDeposit entity = buildBaseEntity();
-    setEntityOtherProperties(entity);
-    var actualView = new PermanentDepositsOverview();
-    permanentDepositEntityMappingService.mapDepositInformationDataToView(entity, actualView);
+  public void createPermanentDepositOverview_materialTypeGroutBags_withNonBioBags() {
+    PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", "some reason");
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
 
-    PermanentDepositsOverview expectedView = buildBaseView(entity);
-    setFormOtherMaterialProperties(expectedView);
-    assertThat(actualView).isEqualTo(expectedView);
+    assertThat(actualView.getEntityID()).isEqualTo(40);
+    assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.GROUT_BAGS);
+    assertThat(actualView.getBioGroutBagsNotUsedDescription()).isEqualTo("some reason");
+    assertThat(actualView.getGroutBagsBioDegradable()).isFalse();
+    assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " kilograms");
+    assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
+    assertThat(actualView.getQuantity()).isEqualTo(new DecimalFormat("##.####").format(QUANTITY));
   }
 
+  @Test
+  public void createPermanentDepositOverview_materialTypeGroutBags_withBioBags() {
+    PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", null);
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
 
+    assertThat(actualView.getEntityID()).isEqualTo(40);
+    assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.GROUT_BAGS);
+    assertThat(actualView.getBioGroutBagsNotUsedDescription()).isBlank();
+    assertThat(actualView.getGroutBagsBioDegradable()).isTrue();
+    assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " kilograms");
+    assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
+    assertThat(actualView.getQuantity()).isEqualTo(new DecimalFormat("##.####").format(QUANTITY));
+  }
 
+  @Test
+  public void createPermanentDepositOverview_materialTypeOther() {
+    PadPermanentDeposit entity = getOtherTypeDeposit(50, "TEST3", "SOME_TYPE");
+    var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
+    assertThat(actualView.getEntityID()).isEqualTo(50);
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.OTHER);
+    assertThat(actualView.getDepositReference()).isEqualTo("TEST3");
+    assertThat(actualView.getBioGroutBagsNotUsedDescription()).isNull();
+    assertThat(actualView.getMaterialSize()).isEqualTo(SIZE);
+    assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
+    assertThat(actualView.getQuantity()).isEqualTo(new DecimalFormat("##.####").format(QUANTITY));
+  }
 
 
 }

@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 public class NamedPipelineDto implements NamedPipeline {
 
@@ -29,6 +30,13 @@ public class NamedPipelineDto implements NamedPipeline {
     return new NamedPipelineDto(
         detail.getPipelineId().asInt(), detail.getPipelineType(), detail.getPipelineInBundle(),
         detail.getBundleName(), detail.getMaxExternalDiameter(), detail.getPipelineNumber()
+    );
+  }
+
+  public static NamedPipelineDto fromPadPipeline(PadPipeline padPipeline) {
+    return new NamedPipelineDto(
+        padPipeline.getPipelineId().asInt(), padPipeline.getPipelineType(), padPipeline.getPipelineInBundle(),
+        padPipeline.getBundleName(), padPipeline.getMaxExternalDiameter(), padPipeline.getPipelineRef()
     );
   }
 
