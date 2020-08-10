@@ -2,9 +2,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo
 
 
 import java.util.Objects;
-import javax.validation.constraints.Pattern;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 public class DesignOpConditionsForm {
 
@@ -17,6 +15,14 @@ public class DesignOpConditionsForm {
   private String uvalueOp;
   private String uvalueDesign;
 
+  public DesignOpConditionsForm() {
+    this.temperatureOpMinMax = new MinMaxInput();
+    this.temperatureDesignMinMax = new MinMaxInput();
+    this.pressureOpInternalExternal = new MinMaxInput();
+    this.pressureDesignInternalExternal = new MinMaxInput();
+    this.flowrateOpMinMax = new MinMaxInput();
+    this.flowrateDesignMinMax = new MinMaxInput();
+  }
 
   public MinMaxInput getTemperatureOpMinMax() {
     return temperatureOpMinMax;
@@ -81,8 +87,6 @@ public class DesignOpConditionsForm {
   public void setUvalueDesign(String uvalueDesign) {
     this.uvalueDesign = uvalueDesign;
   }
-
-
 
 
   @Override

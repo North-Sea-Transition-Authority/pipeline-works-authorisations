@@ -154,7 +154,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    ControllerTestUtils.mockValidatorErrors(validator, List.of("caseOfficerPersonId"));
+    ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("caseOfficerPersonId"));
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))

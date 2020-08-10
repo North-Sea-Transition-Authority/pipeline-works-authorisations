@@ -34,7 +34,6 @@ public class PadEnvironmentalDecommissioning {
   private String permitsSubmitted;
   private Boolean emtHasOutstandingPermits;
   private String permitsPendingSubmission;
-  private String decommissioningPlans;
 
   @Convert(converter = EnvironmentalConditionConverter.class)
   private Set<EnvironmentalCondition> environmentalConditions;
@@ -114,14 +113,6 @@ public class PadEnvironmentalDecommissioning {
   public void setEnvironmentalConditions(
       Set<EnvironmentalCondition> environmentalConditions) {
     this.environmentalConditions = environmentalConditions;
-  }
-
-  public String getDecommissioningPlans() {
-    return decommissioningPlans;
-  }
-
-  public void setDecommissioningPlans(String decommissioningPlans) {
-    this.decommissioningPlans = decommissioningPlans;
   }
 
   public Set<DecommissioningCondition> getDecommissioningConditions() {

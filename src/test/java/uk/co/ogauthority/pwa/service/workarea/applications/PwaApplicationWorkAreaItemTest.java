@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.workarea;
+package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,26 +55,24 @@ public class PwaApplicationWorkAreaItemTest {
 
     assertThat(pwaApplicationWorkAreaItem.getPwaApplicationId())
         .isEqualTo(applicationDetailSearchItem.getPwaApplicationId());
-    assertThat(pwaApplicationWorkAreaItem.getApplicationType())
+    assertThat(pwaApplicationWorkAreaItem.getApplicationTypeDisplay())
         .isEqualTo(applicationDetailSearchItem.getApplicationType().getDisplayName());
     assertThat(pwaApplicationWorkAreaItem.getOrderedFieldList()).isEqualTo(List.of("FIELD1", "FIELD2"));
     assertThat(pwaApplicationWorkAreaItem.getMasterPwaReference())
         .isEqualTo(applicationDetailSearchItem.getPwaReference());
-    assertThat(pwaApplicationWorkAreaItem.getPadReference()).isEqualTo(applicationDetailSearchItem.getPadReference());
-    assertThat(pwaApplicationWorkAreaItem.getViewApplicationUrl()).isEqualTo(VIEW_URL);
-    assertThat(pwaApplicationWorkAreaItem.getPadDisplayStatus())
+    assertThat(pwaApplicationWorkAreaItem.getApplicationReference()).isEqualTo(applicationDetailSearchItem.getPadReference());
+    assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isEqualTo(VIEW_URL);
+    assertThat(pwaApplicationWorkAreaItem.getApplicationStatusDisplay())
         .isEqualTo(applicationDetailSearchItem.getPadStatus().getDisplayName());
 
     assertThat(pwaApplicationWorkAreaItem.getMasterPwaReference()).isEqualTo("PWA_REF");
-    assertThat(pwaApplicationWorkAreaItem.getPadReference()).isEqualTo("PAD_REF");
+    assertThat(pwaApplicationWorkAreaItem.getApplicationReference()).isEqualTo("PAD_REF");
 
     assertThat(pwaApplicationWorkAreaItem.getProjectName()).isEqualTo("PROJECT_NAME");
-    assertThat(pwaApplicationWorkAreaItem.getPadStatusSetInstant())
-        .isEqualTo(applicationDetailSearchItem.getPadStatusTimestamp());
-    assertThat(pwaApplicationWorkAreaItem.getPadStatusSetInstant())
-        .isEqualTo(applicationDetailSearchItem.getPadStatusTimestamp());
+    assertThat(pwaApplicationWorkAreaItem.getFormattedStatusSetDatetime())
+        .isEqualTo("03/02/2020 04:05");
 
-    assertThat(pwaApplicationWorkAreaItem.getIsTipFlag()).isEqualTo(applicationDetailSearchItem.isTipFlag());
+    assertThat(pwaApplicationWorkAreaItem.isTipFlag()).isEqualTo(applicationDetailSearchItem.isTipFlag());
 
   }
 
@@ -82,14 +80,14 @@ public class PwaApplicationWorkAreaItemTest {
   @Test
   public void getFormattedProposedStartDate_whenSet() {
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
-    assertThat(pwaApplicationWorkAreaItem.getFormattedProposedStartDate()).isEqualTo("02/01/2020");
+    assertThat(pwaApplicationWorkAreaItem.getProposedStartDateDisplay()).isEqualTo("02/01/2020");
   }
 
   @Test
   public void getFormattedProposedStartDate_whenNull() {
     applicationDetailSearchItem.setPadProposedStart(null);
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
-    assertThat(pwaApplicationWorkAreaItem.getFormattedProposedStartDate()).isNull();
+    assertThat(pwaApplicationWorkAreaItem.getProposedStartDateDisplay()).isNull();
   }
 
   @Test

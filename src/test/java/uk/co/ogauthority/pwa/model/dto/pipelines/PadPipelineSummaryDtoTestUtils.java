@@ -43,8 +43,12 @@ public class PadPipelineSummaryDtoTestUtils {
         LongitudeDirection.EAST,
         padPipeline.getMaxExternalDiameter(),
         padPipeline.getPipelineInBundle(),
-        padPipeline.getBundleName()
-    );
+        padPipeline.getBundleName(),
+        padPipeline.getPipelineFlexibility(),
+        padPipeline.getPipelineMaterial(),
+        padPipeline.getOtherPipelineMaterialUsed(),
+        padPipeline.getTrenchedBuriedBackfilled(),
+        padPipeline.getTrenchingMethodsDescription());
 
   }
 

@@ -50,7 +50,6 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
   }
 
   public void mapEntityToForm(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning, EnvironmentalDecommissioningForm form) {
-    form.setDecommissioningPlans(padEnvironmentalDecommissioning.getDecommissioningPlans());
     form.setEmtHasOutstandingPermits(padEnvironmentalDecommissioning.getEmtHasOutstandingPermits());
     form.setEmtHasSubmittedPermits(padEnvironmentalDecommissioning.getEmtHasSubmittedPermits());
     form.setPermitsSubmitted(padEnvironmentalDecommissioning.getPermitsSubmitted());
@@ -69,7 +68,6 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
 
   @Transactional
   public void saveEntityUsingForm(PadEnvironmentalDecommissioning padEnvironmentalDecommissioning, EnvironmentalDecommissioningForm form) {
-    padEnvironmentalDecommissioning.setDecommissioningPlans(form.getDecommissioningPlans());
     padEnvironmentalDecommissioning.setEmtHasOutstandingPermits(form.getEmtHasOutstandingPermits());
     padEnvironmentalDecommissioning.setEmtHasSubmittedPermits(form.getEmtHasSubmittedPermits());
     padEnvironmentalDecommissioning.setEnvironmentalConditions(form.getEnvironmentalConditions());

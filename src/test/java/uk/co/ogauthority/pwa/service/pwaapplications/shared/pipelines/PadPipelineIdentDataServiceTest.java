@@ -272,4 +272,14 @@ public class PadPipelineIdentDataServiceTest {
     verify(repository, times(1)).saveAll(List.of());
   }
 
+  @Test
+  public void removeIdentDataForPipeline_serviceInteraction() {
+    var pipeline = new PadPipeline();
+    var identData = new PadPipelineIdentData();
+    when(repository.getAllByPadPipelineIdent_PadPipeline(pipeline))
+        .thenReturn(List.of(identData));
+    identDataService.removeIdentDataForPipeline(pipeline);
+    verify(repository, times(1)).deleteAll(List.of(identData));
+  }
+
 }

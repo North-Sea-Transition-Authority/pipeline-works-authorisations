@@ -57,6 +57,7 @@ public class PwaHolderControllerTest extends PwaApplicationContextAbstractContro
   @MockBean
   private PwaHolderFormValidator pwaHolderFormValidator;
 
+
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Collections.emptyList());
 

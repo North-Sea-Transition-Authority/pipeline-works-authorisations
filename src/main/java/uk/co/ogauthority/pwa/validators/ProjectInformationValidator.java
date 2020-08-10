@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.validators;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -90,7 +91,7 @@ public class ProjectInformationValidator implements SmartValidator {
       if (projectInfoValidationHints.isPermanentDepositQuestionRequired()) {
         if (form.getPermanentDepositsMadeType() == null) {
           errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
-                  "Select yes if permanent deposits are being made");
+              "Select yes if permanent deposits are being made");
         } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositRadioOption.LATER_APP)) {
           List<Object> toDateHints = new ArrayList<>();
           toDateHints.add(new FormInputLabel("Submission date"));
@@ -106,19 +107,21 @@ public class ProjectInformationValidator implements SmartValidator {
 
       if (form.getTemporaryDepositsMade() == null) {
         errors.rejectValue("temporaryDepositsMade", "temporaryDepositsMade.notSelected",
-                "Select yes if temporary deposits are being made");
+            "Select yes if temporary deposits are being made");
 
       } else if (form.getTemporaryDepositsMade() && form.getTemporaryDepDescription() == null) {
         errors.rejectValue("temporaryDepDescription", "temporaryDepDescription.empty",
-                "Enter why temporary deposits are being made.");
+            "Enter why temporary deposits are being made.");
       }
 
       if (projectInfoValidationHints.isFdpQuestionRequired()) {
         if (form.getFdpOptionSelected() == null) {
           errors.rejectValue("fdpOptionSelected", "fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "Select yes if you have an approved field development plan");
-        } else if (form.getFdpOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getFdpConfirmationFlag(), false)) {
-          errors.rejectValue("fdpConfirmationFlag", "fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        } else if (form.getFdpOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getFdpConfirmationFlag(),
+            false)) {
+          errors.rejectValue("fdpConfirmationFlag",
+              "fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "You must confirm the proposed works outlined in this application are consistent with the field development plan");
         } else if (!form.getFdpOptionSelected()) {
           ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason",
@@ -128,7 +131,15 @@ public class ProjectInformationValidator implements SmartValidator {
 
       }
 
+
     }
+
+    if (ListUtils.emptyIfNull(form.getUploadedFileWithDescriptionForms()).size() > 1) {
+      errors.rejectValue("uploadedFileWithDescriptionForms",
+          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
+          "You must upload a maximum of one file");
+    }
+
   }
 
 

@@ -66,9 +66,10 @@ public class InitialReviewController {
         .addObject("appRef", detail.getPwaApplicationRef())
         .addObject("isOptionsVariation", detail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION))
         .addObject("isFastTrack", detail.getSubmittedAsFastTrackFlag())
-        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
+        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
         .addObject("caseOfficerCandidates",
-            workflowAssignmentService.getAssignmentCandidates(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
+            workflowAssignmentService
+                .getAssignmentCandidates(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
                 .sorted(Comparator.comparing(Person::getFullName))
                 .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
                     Person::getFullName)));
@@ -100,7 +101,7 @@ public class InitialReviewController {
                                         AuthenticatedUserAccount user,
                                         RedirectAttributes redirectAttributes) {
 
-    initialReviewFormValidator.validate(form, bindingResult);
+    initialReviewFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getInitialReviewModelAndView(processingContext.getApplicationDetail()),
@@ -116,7 +117,7 @@ public class InitialReviewController {
                 processingContext.getApplicationDetail().getPwaApplicationRef()));
           }
 
-          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
+          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null));
 
         });
 

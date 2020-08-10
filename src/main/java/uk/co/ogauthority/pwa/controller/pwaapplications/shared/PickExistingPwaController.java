@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,8 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PickPwaForm;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -30,6 +34,7 @@ import uk.co.ogauthority.pwa.service.pickpwa.PickablePwa;
 import uk.co.ogauthority.pwa.service.pickpwa.PickablePwaDto;
 import uk.co.ogauthority.pwa.service.pickpwa.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -50,17 +55,20 @@ public class PickExistingPwaController {
   private final PickedPwaRetrievalService pickedPwaRetrievalService;
   private final PickPwaForVariationService pickPwaForVariationService;
   private final ControllerHelperService controllerHelperService;
+  private final TeamService teamService;
 
   @Autowired
   public PickExistingPwaController(
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PickedPwaRetrievalService pickPwaService,
       PickPwaForVariationService pickPwaForVariationService,
-      ControllerHelperService controllerHelperService) {
+      ControllerHelperService controllerHelperService,
+      TeamService teamService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
     this.pickPwaForVariationService = pickPwaForVariationService;
     this.controllerHelperService = controllerHelperService;
+    this.teamService = teamService;
   }
 
 
@@ -70,20 +78,27 @@ public class PickExistingPwaController {
                                                       @ModelAttribute("form") PickPwaForm form,
                                                       AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
-    return getPickPwaModelAndView(user);
+    return getPickPwaModelAndView(user, pwaApplicationType);
   }
 
-  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user) {
+  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user, PwaApplicationType pwaApplicationType) {
 
     Map<String, String> selectablePwaMap = pickedPwaRetrievalService.getPickablePwasWhereAuthorised(user)
         .stream()
         .sorted(Comparator.comparing(PickablePwaDto::getReference))
         .collect(StreamUtils.toLinkedHashMap(PickablePwaDto::getPickablePwaString, PickablePwaDto::getReference));
 
+    List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
+        .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
+        .map(e -> e.getName())
+        .collect(Collectors.toList());
+
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
         .addObject("selectablePwaMap", selectablePwaMap)
-        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .addObject("errorList", List.of());
+        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+        .addObject("ogList", ogList)
+        .addObject("errorList", List.of())
+        .addObject("pwaApplicationType", pwaApplicationType);
   }
 
   @PostMapping("/pick-pwa-for-application")
@@ -93,7 +108,7 @@ public class PickExistingPwaController {
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
     checkApplicationTypeValid(pwaApplicationType);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getPickPwaModelAndView(user, pwaApplicationType), () -> {
       var pickedPwa = new PickablePwa(form.getPickablePwaString());
       var newApplication = pickPwaForVariationService.createPwaVariationApplicationForPickedPwa(
           pickedPwa,
@@ -109,6 +124,14 @@ public class PickExistingPwaController {
     if (!VALID_START_APPLICATION_TYPES.contains(pwaApplicationType)) {
       throw new AccessDeniedException("Unsupported type for pick pwa: " + pwaApplicationType);
     }
+  }
+
+  private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
+    return teamService.getOrganisationTeamListIfPersonInRole(
+        user.getLinkedPerson(),
+        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
+        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+        .collect(Collectors.toList());
   }
 
 

@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
+<#-- @ftlvariable name="dropzoneErrorText" type="String"-->
 
 <@defaultPage htmlTitle="${screenAction.actionText} deposit drawing" pageHeading="${screenAction.actionText} deposit drawing" breadcrumbs=true>
 
@@ -12,7 +13,7 @@
         <@fdsTextInput.textInput path="form.reference" labelText="Drawing reference" inputClass="govuk-!-width-two-thirds"/>
 
         <@fdsFileUpload.fileUpload path="form.uploadedFileWithDescriptionForms" id="deposit-doc-upload-file-id" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize
-         allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your document here" multiFile=false/>
+         allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your document here" dropzoneErrorText=dropzoneErrorText multiFile=false/>
 
         <@fdsSearchSelector.searchSelectorEnhanced path="form.selectedDeposits" options=depositOptions labelText="Select deposits" multiSelect=true />
 

@@ -96,7 +96,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         .addObject("actionType", ScreenActionType.ADD);
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
-        ScreenActionType.ADD.getActionText() + " pipeline drawing");
+        ScreenActionType.ADD.getActionText() + " pipeline schematic");
 
     padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
@@ -121,7 +121,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         .addObject("actionType", ScreenActionType.EDIT);
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
-        ScreenActionType.EDIT.getActionText() + " pipeline drawing");
+        ScreenActionType.EDIT.getActionText() + " pipeline schematic");
 
     padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
@@ -134,7 +134,7 @@ public class PipelineDrawingController extends PwaApplicationDataFileUploadAndDo
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
-        "Remove pipeline drawing");
+        "Remove pipeline schematic");
     return modelAndView;
   }
 

@@ -1,6 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import 'admiraltyChartManagement.ftl' as admiraltyChartManagement>
 <#import 'pipelineDrawingManagement.ftl' as pipelineDrawingManagement>
+<#import 'umbilicalCrossSectionDiagramManagement.ftl' as umbilicalCrossSectionDiagramManagement>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="admiraltyChartUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory" -->
@@ -8,18 +9,29 @@
 <#-- @ftlvariable name="admiraltyOptional" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory" -->
 
-<@defaultPage htmlTitle="Admiralty chart and pipeline drawings" pageHeading="Admiralty chart and pipeline drawings" breadcrumbs=true fullWidthColumn=true>
+<@defaultPage htmlTitle="Pipeline schematics and other diagrams" pageHeading="Pipeline schematics and other diagrams" breadcrumbs=true fullWidthColumn=true>
 
     <#if errorMessage?has_content>
         <@fdsError.singleErrorSummary errorMessage=errorMessage />
     </#if>
 
-    <@admiraltyChartManagement.admiraltyChartManagement
-    urlFactory=admiraltyChartUrlFactory
-    optionalSection=admiraltyOptional
-    admiraltyChartFileViews=admiraltyChartFileViews />
+    <#if showAdmiraltyChart>
+        <@admiraltyChartManagement.admiraltyChartManagement
+        urlFactory=admiraltyChartUrlFactory
+        optionalSection=admiraltyOptional
+        admiraltyChartFileViews=admiraltyChartFileViews />
 
-    <hr class="govuk-section-break govuk-section-break--m"/>
+        <hr class="govuk-section-break govuk-section-break--m"/>
+    </#if>
+
+    <#if showUmbilicalCrossSection>
+        <@umbilicalCrossSectionDiagramManagement.umbilicalCrossSectionDiagramManagement
+        urlFactory=umbilicalCrossSectionUrlFactory
+        optionalSection=true
+        fileViews=umbilicalCrossSectionFileViews />
+
+        <hr class="govuk-section-break govuk-section-break--m"/>
+    </#if>
 
     <@pipelineDrawingManagement.pipelineDrawingManagement
     urlFactory=pipelineDrawingUrlFactory

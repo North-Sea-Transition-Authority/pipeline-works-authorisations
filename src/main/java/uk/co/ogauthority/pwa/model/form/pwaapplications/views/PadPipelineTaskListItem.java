@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -97,5 +99,30 @@ public class PadPipelineTaskListItem implements PipelineOverview {
   @Override
   public String getBundleName() {
     return this.pipelineOverview.getBundleName();
+  }
+
+  @Override
+  public PipelineFlexibility getPipelineFlexibility() {
+    return this.pipelineOverview.getPipelineFlexibility();
+  }
+
+  @Override
+  public PipelineMaterial getPipelineMaterial() {
+    return this.pipelineOverview.getPipelineMaterial();
+  }
+
+  @Override
+  public String getOtherPipelineMaterialUsed() {
+    return this.pipelineOverview.getOtherPipelineMaterialUsed();
+  }
+
+  @Override
+  public Boolean getTrenchedBuriedBackfilled() {
+    return this.pipelineOverview.getTrenchedBuriedBackfilled();
+  }
+
+  @Override
+  public String getTrenchingMethodsDescription() {
+    return this.pipelineOverview.getTrenchingMethodsDescription();
   }
 }

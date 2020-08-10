@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.workarea;
+package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WorkAreaSortTest {
+public class ApplicationWorkAreaSortTest {
 
   @Test
   public void allValuesHaveValidSortProperty() {
@@ -21,11 +21,11 @@ public class WorkAreaSortTest {
         .map(Field::getName)
         .collect(Collectors.toSet());
 
-    for (WorkAreaSort workAreaSort : WorkAreaSort.values()) {
+    for (ApplicationWorkAreaSort applicationWorkAreaSort : ApplicationWorkAreaSort.values()) {
       try {
-        assertThat(validFieldsSet.contains(workAreaSort.getSortAttribute())).isTrue();
+        assertThat(validFieldsSet.contains(applicationWorkAreaSort.getSortAttribute())).isTrue();
       } catch (AssertionError e) {
-        throw new AssertionError("Fail at sort:" + workAreaSort.toString() + "\n" + e.getMessage(), e);
+        throw new AssertionError("Fail at sort:" + applicationWorkAreaSort.toString() + "\n" + e.getMessage(), e);
       }
     }
 

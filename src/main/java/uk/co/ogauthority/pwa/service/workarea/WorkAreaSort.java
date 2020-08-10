@@ -2,32 +2,14 @@ package uk.co.ogauthority.pwa.service.workarea;
 
 import org.springframework.data.domain.Sort;
 
-public enum WorkAreaSort {
-  CREATED_DATE_DESC("padCreatedTimestamp", Sort.Direction.DESC),
-  PROPOSED_DATE_ASC("padProposedStart", Sort.Direction.ASC);
+public interface WorkAreaSort {
 
-  private final String sortAttribute;
-  private final Sort.Direction sortDirection;
+  String getSortAttribute();
 
-  WorkAreaSort(String sortAttribute, Sort.Direction sortDirection) {
-    this.sortAttribute = sortAttribute;
-    this.sortDirection = sortDirection;
+  Sort.Direction getSortDirection();
+
+  default Sort getSort() {
+    return Sort.by(getSortDirection(), getSortAttribute());
   }
 
-  public Sort getSort() {
-    return Sort.by(this.sortDirection, sortAttribute);
-  }
-
-  String getSortAttribute() {
-    return this.sortAttribute;
-  }
-
-  @Override
-  public String toString() {
-    return "WorkAreaSort{" +
-        "name='" + this.name() +
-        ", sortAttribute='" + sortAttribute + '\'' +
-        ", sortDirection=" + sortDirection +
-        '}';
-  }
 }

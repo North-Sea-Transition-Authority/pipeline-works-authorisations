@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -17,5 +18,7 @@ public interface ConsulteeGroupDetailRepository extends CrudRepository<Consultee
   List<ConsulteeGroupDetail> findAllByConsulteeGroupInAndEndTimestampIsNull(Iterable<ConsulteeGroup> groups);
 
   List<ConsulteeGroupDetail> findAllByTipFlagIsTrue();
+
+  Optional<ConsulteeGroupDetail> findByConsulteeGroupAndTipFlagIsTrue(ConsulteeGroup consulteeGroup);
 
 }

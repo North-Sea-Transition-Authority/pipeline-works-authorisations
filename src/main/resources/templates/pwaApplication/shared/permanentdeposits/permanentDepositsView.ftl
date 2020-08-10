@@ -23,6 +23,8 @@
 
         <@fdsAction.link linkText="Add deposit" linkUrl=springUrl(addDepositUrl) linkClass="govuk-button govuk-button--blue"/>
 
+        <hr class="govuk-section-break govuk-section-break--s">
+
         <#list deposits as deposit>
             <h2 class="govuk-heading-m">${deposit.depositReference}</h2>
             <!-- To avoid putting the actions within the summary macro recreate the fds pattern using a standard list with small padding. -->

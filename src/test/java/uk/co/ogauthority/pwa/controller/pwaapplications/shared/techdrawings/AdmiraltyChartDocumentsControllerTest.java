@@ -61,9 +61,7 @@ public class AdmiraltyChartDocumentsControllerTest extends PwaApplicationContext
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaContactService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
-            PwaApplicationType.CAT_1_VARIATION,
-            PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.DECOMMISSIONING)
+            PwaApplicationType.CAT_1_VARIATION)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
 

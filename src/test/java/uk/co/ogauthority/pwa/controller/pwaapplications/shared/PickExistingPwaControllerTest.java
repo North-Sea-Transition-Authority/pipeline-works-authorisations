@@ -61,6 +61,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @MockBean
   private PwaAppProcessingContextService appProcessingContextService;
 
+
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Collections.emptyList());
 

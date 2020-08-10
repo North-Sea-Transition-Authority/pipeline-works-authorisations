@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo;
 
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
@@ -29,8 +31,11 @@ public interface PadPipelineOrganisationRoleLinkRepository extends
 
   @EntityGraph(attributePaths = {"padOrgRole"})
   List<PadPipelineOrganisationRoleLink> findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
-      List<PadOrganisationRole> orgRoles,
+      Collection<PadOrganisationRole> orgRoles,
       PwaApplicationDetail pwaApplicationDetail
   );
+
+  List<PadPipelineOrganisationRoleLink> getAllByPadOrgRole_PwaApplicationDetailAndPipeline(PwaApplicationDetail detail,
+                                                                                           Pipeline pipeline);
 
 }

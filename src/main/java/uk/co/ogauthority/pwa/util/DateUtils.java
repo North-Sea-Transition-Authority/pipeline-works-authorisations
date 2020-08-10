@@ -16,16 +16,22 @@ public class DateUtils {
     throw new AssertionError();
   }
 
-  private static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm")
+      .withLocale(Locale.UK)
+      .withZone(ZoneId.systemDefault());
 
   public static String formatDate(LocalDate localDate) {
-    return localDate.format(dateTimeFormatter);
+    return localDate.format(DATE_FORMATTER);
   }
 
   public static String createDateEstimateString(int month, int year) {
     return Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + year;
   }
 
+  public static String formatDateTime(Instant instant) {
+    return DATE_TIME_FORMATTER.format(instant);
+  }
 
   public static void consumeInstantFromIntegersElseNull(Integer year,
                                                         Integer month,

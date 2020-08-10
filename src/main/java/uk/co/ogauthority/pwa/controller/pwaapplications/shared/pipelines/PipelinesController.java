@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineRemovalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -54,6 +55,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class PipelinesController {
 
   private final PadPipelineService padPipelineService;
+  private final PipelineRemovalService pipelineRemovalService;
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PwaApplicationRedirectService applicationRedirectService;
@@ -61,11 +63,13 @@ public class PipelinesController {
 
   @Autowired
   public PipelinesController(PadPipelineService padPipelineService,
+                             PipelineRemovalService pipelineRemovalService,
                              ApplicationBreadcrumbService breadcrumbService,
                              PipelineHeaderFormValidator pipelineHeaderFormValidator,
                              PwaApplicationRedirectService applicationRedirectService,
                              ControllerHelperService controllerHelperService) {
     this.padPipelineService = padPipelineService;
+    this.pipelineRemovalService = pipelineRemovalService;
     this.breadcrumbService = breadcrumbService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.applicationRedirectService = applicationRedirectService;
@@ -86,6 +90,15 @@ public class PipelinesController {
 
     return modelAndView;
 
+  }
+
+  private ModelAndView getRemovePipelineModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/removePipeline")
+        .addObject("pipeline", padPipelineService.getPipelineOverview(padPipeline))
+        .addObject("backUrl", ReverseRouter.route(on(PipelinesController.class)
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)));
+    breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Remove pipeline");
+    return modelAndView;
   }
 
   @GetMapping
@@ -212,6 +225,27 @@ public class PipelinesController {
 
         });
 
+  }
+
+  @GetMapping("/pipeline/{padPipelineId}/remove")
+  public ModelAndView renderRemovePipeline(@PathVariable("applicationId") Integer applicationId,
+                                           @PathVariable("applicationType")
+                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                           @PathVariable("padPipelineId") Integer padPipelineId,
+                                           PwaApplicationContext applicationContext) {
+    return getRemovePipelineModelAndView(applicationContext.getApplicationDetail(),
+        applicationContext.getPadPipeline());
+  }
+
+  @PostMapping("/pipeline/{padPipelineId}/remove")
+  public ModelAndView postRemovePipeline(@PathVariable("applicationId") Integer applicationId,
+                                         @PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable("padPipelineId") Integer padPipelineId,
+                                         PwaApplicationContext applicationContext) {
+    pipelineRemovalService.removePipeline(applicationContext.getPadPipeline());
+    return ReverseRouter.redirect(on(PipelinesController.class)
+        .renderPipelinesOverview(applicationId, pwaApplicationType, null));
   }
 
 }

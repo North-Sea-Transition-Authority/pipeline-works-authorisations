@@ -222,8 +222,8 @@ public class PermanentDepositController {
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("screenAction", type);
 
-    applicationBreadcrumbService.fromPermanentDeposits(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        type.getActionText() + " permanent deposit");
+    applicationBreadcrumbService.fromDepositsOverview(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        type.getSubmitButtonText() + " deposit");
     return modelAndView;
   }
 
@@ -236,8 +236,8 @@ public class PermanentDepositController {
             .renderPermanentDepositsOverview(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)));
 
-    applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
-        "Permanent deposits");
+    applicationBreadcrumbService.fromDepositsOverview(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        "Remove deposit");
     return modelAndView;
   }
 

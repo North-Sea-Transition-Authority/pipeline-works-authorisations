@@ -102,4 +102,14 @@ public class PadTechnicalDrawingLinkServiceTest {
     var result = padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail);
     assertThat(result).isEqualTo(List.of(dto));
   }
+
+  @Test
+  public void removeAllPipelineLinks_serviceInteraction() {
+    var padPipeline = new PadPipeline();
+    var link = new PadTechnicalDrawingLink();
+    when(padTechnicalDrawingLinkRepository.getAllByTechnicalDrawing_PwaApplicationDetailAndPipeline(pwaApplicationDetail, padPipeline))
+        .thenReturn(List.of(link));
+    padTechnicalDrawingLinkService.removeAllPipelineLinks(pwaApplicationDetail, padPipeline);
+    verify(padTechnicalDrawingLinkRepository, times(1)).deleteAll(List.of(link));
+  }
 }

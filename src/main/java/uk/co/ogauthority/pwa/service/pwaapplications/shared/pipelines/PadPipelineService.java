@@ -112,7 +112,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public List<PadPipelineTaskListItem> getPipelineTaskListItems(PwaApplicationDetail detail) {
 
-    return  getApplicationPipelineOverviews(detail)
+    return getApplicationPipelineOverviews(detail)
         .stream()
         .map(pipelineOverview -> new PadPipelineTaskListItem(
                 pipelineOverview,
@@ -180,14 +180,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
     // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
-    Long numberOfPipesForDetail = padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
-    // TODO PWA-341 this could cause duplicate pipeline numbers e.g
-    // 1. Add new pipeline "TEMP 1"
-    // 2. Add new pipeline "TEMP 2"
-    // 3. Remove "TEMP 1"
-    // 4. Add new pipeline "TEMP 2"!
+    Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(pwaApplicationDetail);
 
-    newPadPipeline.setPipelineRef("TEMPORARY " + (numberOfPipesForDetail.intValue() + 1));
+    newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
+    newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
 
     saveEntityUsingForm(newPadPipeline, form);
 
@@ -482,7 +478,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
     String sectionIncompleteError = !sectionComplete
         ? "At least one pipeline must be added. Each pipeline must have at least one valid ident." : null;
 
-    return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "is not complete", sectionComplete, sectionIncompleteError);
+    return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "is not complete", sectionComplete,
+        sectionIncompleteError);
 
   }
 

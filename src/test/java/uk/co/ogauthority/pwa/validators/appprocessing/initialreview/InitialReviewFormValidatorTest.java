@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.validators.appprocessing.initialreview;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
@@ -11,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialReviewForm;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
@@ -34,12 +37,12 @@ public class InitialReviewFormValidatorTest {
 
     var caseOfficerPerson = new Person(1, null, null, null, null);
 
-    when(workflowAssignmentService.getAssignmentCandidates(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)).thenReturn(Set.of(caseOfficerPerson));
+    when(workflowAssignmentService.getAssignmentCandidates(any(), eq(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))).thenReturn(Set.of(caseOfficerPerson));
 
     var form = new InitialReviewForm();
     form.setCaseOfficerPersonId(1);
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
 
     assertThat(errors).isEmpty();
 
@@ -50,7 +53,7 @@ public class InitialReviewFormValidatorTest {
 
     var form = new InitialReviewForm();
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
 
     assertThat(errors).containsOnly(
         entry("caseOfficerPersonId", Set.of("caseOfficerPersonId.required"))
@@ -64,9 +67,9 @@ public class InitialReviewFormValidatorTest {
     var form = new InitialReviewForm();
     form.setCaseOfficerPersonId(99);
 
-    when(workflowAssignmentService.getAssignmentCandidates(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)).thenReturn(Set.of(new Person(1, null, null, null, null)));
+    when(workflowAssignmentService.getAssignmentCandidates(any(), eq(PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))).thenReturn(Set.of(new Person(1, null, null, null, null)));
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, new PwaApplication());
 
     assertThat(errors).containsOnly(
         entry("caseOfficerPersonId", Set.of("caseOfficerPersonId.invalid"))

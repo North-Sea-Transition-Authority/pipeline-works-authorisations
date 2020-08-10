@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -496,6 +497,38 @@ public class CampaignWorksServiceTest {
   public void isComplete_whenSubsetOfApplicationPipelineScheduled_andNoFormValidationErrors(){
     setupValidationResultMocks_whenSubsetOfApplicationPipelineScheduled_andNoFormValidationErrors();
     assertThat(campaignWorksService.isComplete(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void removePipelineFromAllSchedules_serviceInteraction() {
+    var campaignWorksPipeline = new PadCampaignWorksPipeline();
+    when(padCampaignWorksPipelineRepository.findAllByPadPipeline(pipe1)
+    ).thenReturn(List.of(campaignWorksPipeline));
+    campaignWorksService.removePipelineFromAllSchedules(pipe1);
+    verify(padCampaignWorksPipelineRepository, times(1)).deleteAll(List.of(campaignWorksPipeline));
+  }
+
+  @Test
+  public void removePadPipelineFromCampaignWorks_serviceInteraction_noCampaignLinks() {
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(workSchedule));
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of());
+    campaignWorksService.removePadPipelineFromCampaignWorks(pipe1);
+    verify(padCampaignWorkScheduleRepository, times(1)).deleteAll(List.of(workSchedule));
+  }
+
+  @Test
+  public void removePadPipelineFromCampaignWorks_serviceInteraction_remainingCampaignLinks() {
+    var padPipeline = new PadPipeline();
+    var worksPipeline = new PadCampaignWorksPipeline(workSchedule, padPipeline);
+    when(padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(workSchedule));
+    when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(worksPipeline));
+    campaignWorksService.removePadPipelineFromCampaignWorks(pipe1);
+    verify(padCampaignWorkScheduleRepository, times(1)).findByPwaApplicationDetail(pwaApplicationDetail);
+    verifyNoMoreInteractions(padCampaignWorkScheduleRepository);
   }
 
   /* duplicate logic required for generation of validation result, and that used by the isComplete method. */

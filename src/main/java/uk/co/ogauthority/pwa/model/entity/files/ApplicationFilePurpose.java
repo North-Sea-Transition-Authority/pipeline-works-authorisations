@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.Pipelin
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.partnerletters.PartnerLettersController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
 
 /**
  * Enumeration of the different areas of a PWA application that can have file links.
@@ -24,7 +25,8 @@ public enum ApplicationFilePurpose {
   MEDIAN_LINE_CROSSING(MedianLineDocumentsController.class),
   PIPELINE_DRAWINGS(PipelineDrawingController.class),
   DEPOSIT_DRAWINGS(PermanentDepositDrawingsController.class),
-  PARTNER_LETTERS(PartnerLettersController.class);
+  PARTNER_LETTERS(PartnerLettersController.class),
+  UMBILICAL_CROSS_SECTION(UmbilicalCrossSectionDocumentsController.class);
 
   private final Class<? extends PwaApplicationDataFileUploadAndDownloadController> fileControllerClass;
 
