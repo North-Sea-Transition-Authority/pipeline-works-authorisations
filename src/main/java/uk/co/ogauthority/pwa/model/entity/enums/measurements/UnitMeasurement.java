@@ -18,7 +18,8 @@ public enum UnitMeasurement {
   KSCM_D("kscm/d", "in kilo standard cubic meters per hour"),
   WM2K("W/m2K", "in watts per metre square Kelvin"),
   BAR_G("barg", "in gauge pressure"),
-  MULTIPLICATION_SYMBOL("×", "times");
+  MULTIPLICATION_SYMBOL("×", "times"),
+  ROCK_GRADE("grade", "grade");
   private final String suffixDisplay;
   private final String suffixScreenReaderDisplay;
 

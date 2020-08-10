@@ -126,7 +126,7 @@ public class PermanentDepositViewMappingServiceTest {
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
 
     assertThat(actualView.getEntityID()).isEqualTo(20);
-    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.CONCRETE_MATTRESSES.name());
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.CONCRETE_MATTRESSES);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST");
     assertThat(actualView.getBioGroutBagsNotUsedDescription()).isNull();
     assertThat(actualView.getMaterialSize()).isEqualTo("1 metre × 2 metre × 3 metre");
@@ -140,10 +140,10 @@ public class PermanentDepositViewMappingServiceTest {
 
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
     assertThat(actualView.getEntityID()).isEqualTo(30);
-    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.ROCK.name());
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.ROCK);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST1");
     assertThat(actualView.getBioGroutBagsNotUsedDescription()).isNull();
-    assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " Grade");
+    assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " grade");
     assertThat(actualView.getContingencyAmount()).isEqualTo(CONTINGENCY);
     assertThat(actualView.getQuantity()).isEqualTo(new DecimalFormat("##.####").format(QUANTITY));
   }
@@ -155,7 +155,7 @@ public class PermanentDepositViewMappingServiceTest {
 
     assertThat(actualView.getEntityID()).isEqualTo(40);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
-    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.GROUT_BAGS.name());
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.GROUT_BAGS);
     assertThat(actualView.getBioGroutBagsNotUsedDescription()).isEqualTo("some reason");
     assertThat(actualView.getGroutBagsBioDegradable()).isFalse();
     assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " kilograms");
@@ -170,7 +170,7 @@ public class PermanentDepositViewMappingServiceTest {
 
     assertThat(actualView.getEntityID()).isEqualTo(40);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST2");
-    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.GROUT_BAGS.name());
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.GROUT_BAGS);
     assertThat(actualView.getBioGroutBagsNotUsedDescription()).isBlank();
     assertThat(actualView.getGroutBagsBioDegradable()).isTrue();
     assertThat(actualView.getMaterialSize()).isEqualTo(SIZE + " kilograms");
@@ -183,7 +183,7 @@ public class PermanentDepositViewMappingServiceTest {
     PadPermanentDeposit entity = getOtherTypeDeposit(50, "TEST3", "SOME_TYPE");
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity);
     assertThat(actualView.getEntityID()).isEqualTo(50);
-    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.OTHER.name());
+    assertThat(actualView.getMaterialTypeLookup()).isEqualTo(MaterialType.OTHER);
     assertThat(actualView.getDepositReference()).isEqualTo("TEST3");
     assertThat(actualView.getBioGroutBagsNotUsedDescription()).isNull();
     assertThat(actualView.getMaterialSize()).isEqualTo(SIZE);

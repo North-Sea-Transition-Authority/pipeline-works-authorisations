@@ -12,7 +12,7 @@
 <#macro diffedDepositViewSummary deposit>
   <dl class="govuk-summary-list govuk-!-margin-bottom-9">
 
-    <h3 class="govuk-heading-s">${deposit.depositReference}</h3>
+    <h3 class="govuk-heading-m">${deposit.depositReference}</h3>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Pipelines</dt>
       <dd class="govuk-summary-list__value">

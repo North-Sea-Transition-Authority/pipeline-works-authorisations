@@ -3,8 +3,11 @@ package uk.co.ogauthority.pwa.util;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class DateUtils {
@@ -17,6 +20,10 @@ public class DateUtils {
 
   public static String formatDate(LocalDate localDate) {
     return localDate.format(dateTimeFormatter);
+  }
+
+  public static String createDateEstimateString(int month, int year) {
+    return Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + year;
   }
 
 

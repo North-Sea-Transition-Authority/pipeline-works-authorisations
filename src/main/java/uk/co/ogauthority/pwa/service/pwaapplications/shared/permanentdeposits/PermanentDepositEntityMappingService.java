@@ -1,10 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import java.text.DecimalFormat;
-import java.time.Month;
-import java.time.format.TextStyle;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +18,7 @@ import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelineRepository;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 
@@ -29,6 +27,7 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
  */
 @Service
 public class PermanentDepositEntityMappingService {
+  private static final DecimalFormat DECIMAL_FORMAT_2DP = new DecimalFormat("#.##");
 
   private final PadDepositPipelineRepository padDepositPipelineRepository;
 
@@ -146,28 +145,24 @@ public class PermanentDepositEntityMappingService {
 
     return new PermanentDepositOverview(
         entity.getId(),
-        entity.getMaterialType().name(), // allows enum name lookup in templates.
+        entity.getMaterialType(),
         entity.getReference(),
         sortedLinkedPipelineNames,
-        getDateEstimateString(entity.getFromMonth(), entity.getFromYear()),
-        getDateEstimateString(entity.getToMonth(), entity.getToYear()),
+        DateUtils.createDateEstimateString(entity.getFromMonth(), entity.getFromYear()),
+        DateUtils.createDateEstimateString(entity.getToMonth(), entity.getToYear()),
         entity.getMaterialType().equals(MaterialType.OTHER)
             ? new StringWithTag(entity.getOtherMaterialType(), Tag.NOT_FROM_PORTAL)
             : new StringWithTag(entity.getMaterialType().getDisplayText(), Tag.NONE),
         getSizeDisplayString(entity),
         entity.getGroutBagsBioDegradable(),
         entity.getBagsNotUsedDescription(),
-        new DecimalFormat("#.##").format(entity.getQuantity()),
+        DECIMAL_FORMAT_2DP.format(entity.getQuantity()),
         entity.getContingencyAmount(),
         entity.getFromCoordinates(),
         entity.getToCoordinates()
     );
 
 
-  }
-
-  private String getDateEstimateString(int month, int year) {
-    return Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + year;
   }
 
   private String getSizeDisplayString(PadPermanentDeposit entity) {
@@ -183,7 +178,7 @@ public class PermanentDepositEntityMappingService {
           entity.getConcreteMattressWidth(),
           entity.getConcreteMattressDepth());
     } else if (entity.getMaterialType().equals(MaterialType.ROCK)) {
-      return entity.getMaterialSize() + " Grade";
+      return entity.getMaterialSize() + " " + UnitMeasurement.ROCK_GRADE.getSuffixScreenReaderDisplay();
     } else if (entity.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
       return entity.getMaterialSize() + " " + UnitMeasurement.KILOGRAM.getSuffixScreenReaderDisplay();
     } else {

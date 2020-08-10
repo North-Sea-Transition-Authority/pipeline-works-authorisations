@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.util.List;
+import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 
@@ -8,7 +9,7 @@ import uk.co.ogauthority.pwa.model.view.StringWithTag;
 public class PermanentDepositOverview {
 
   private final Integer entityID;
-  private final String materialTypeLookup;
+  private final MaterialType materialTypeLookup;
   private final String depositReference;
   private final List<String> pipelineRefs;
   private final String fromDateEstimate;
@@ -28,7 +29,7 @@ public class PermanentDepositOverview {
 
   public PermanentDepositOverview(Integer entityID,
                                   // this stores the enum name so decisions can be made easily when processing templates.
-                                  String materialTypeLookup,
+                                  MaterialType materialTypeLookup,
                                   String depositReference,
                                   List<String> pipelineRefs,
                                   String fromDateEstimate,
@@ -61,7 +62,7 @@ public class PermanentDepositOverview {
     return entityID;
   }
 
-  public String getMaterialTypeLookup() {
+  public MaterialType getMaterialTypeLookup() {
     return materialTypeLookup;
   }
 
