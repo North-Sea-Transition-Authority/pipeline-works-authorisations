@@ -2,11 +2,12 @@ package uk.co.ogauthority.pwa.model.location;
 
 import java.math.RoundingMode;
 import java.util.Objects;
+import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
 /**
  * Data class to store a pair of lat/long coordinates.
  */
-public class CoordinatePair {
+public class CoordinatePair implements DiffableAsString {
 
   private LatitudeCoordinate latitude;
 
@@ -52,6 +53,11 @@ public class CoordinatePair {
     );
 
     return latString + "\n" + longString;
+  }
+
+  @Override
+  public String getDiffableString() {
+    return this.getDisplayString();
   }
 
   @Override

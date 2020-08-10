@@ -15,6 +15,7 @@
 <#import 'components/widgets/organisationUnitDetailTableSelection.ftl' as pwaOrgDetailTableSelection/>
 <#import 'components/utils/validationResult.ftl' as validationResult/>
 <#import 'components/diff/diffChanges.ftl' as diffChanges/>
+<#import 'components/utils/multiLineText.ftl' as multiLineText>
 
 <#function springUrl url>
     <#local springUrl>

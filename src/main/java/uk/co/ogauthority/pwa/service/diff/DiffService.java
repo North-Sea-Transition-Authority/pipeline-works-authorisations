@@ -41,7 +41,6 @@ public class DiffService {
       // To avoid clashing member variable names between objects, use the simple class name for a slightly better chance
       // at uniqueness in the map
       String attributeName = createAttributeName(current.getClass(), field);
-
       compare(diffResult, attributeName, currentValue, previousValue, field);
     });
 
@@ -124,16 +123,25 @@ public class DiffService {
    * @param addedObject The object to show as added.
    * @return A map of all fields on the object to an ADDED DiffType.
    */
-  private Map<String, DiffedField> createdAddedObject(Object addedObject) {
+  private Map<String, Object> createdAddedObject(Object addedObject) {
 
-    Map<String, DiffedField> diffResult = new HashMap<>();
+    Map<String, Object> diffResult = new HashMap<>();
 
     doWithField(addedObject.getClass(), field -> {
       String attributeName = addedObject.getClass().getSimpleName() + "_" + field.getName();
       Object currentField = getFieldValue(field, addedObject);
-      DiffComparisonStrategy diffComparisonStrategy = DiffComparisonTypes.findDiffComparisonType(field.getType())
-          .getDiffComparisonStrategy();
-      diffResult.put(attributeName, diffComparisonStrategy.createAddedDiffedField(currentField));
+
+      DiffComparisonTypes diffType = DiffComparisonTypes.findDiffComparisonType(field.getType());
+      // Workaround for Diffable Lists. There is no specific diff strategy for diffed objects containing lists
+      // As a workaround for the "added object" case where we dont bother doing a real diff, we need to recreate the compare() special case
+      // contained in {@link this::compare} in order to get our output model correctly populated
+      if (diffType.equals(DiffComparisonTypes.LIST)) {
+        compare(diffResult, attributeName, currentField, List.of(), field);
+      } else {
+        DiffComparisonStrategy diffComparisonStrategy = diffType.getDiffComparisonStrategy();
+        diffResult.put(attributeName, diffComparisonStrategy.createAddedDiffedField(currentField));
+      }
+
     });
 
     return diffResult;
@@ -145,16 +153,23 @@ public class DiffService {
    * @param deletedObject The object to show as deleted.
    * @return A map of all fields on the object to an DELETED DiffType.
    */
-  private Map<String, DiffedField> createdDeletedObject(Object deletedObject) {
+  private Map<String, Object> createdDeletedObject(Object deletedObject) {
 
-    Map<String, DiffedField> diffResult = new HashMap<>();
+    Map<String, Object> diffResult = new HashMap<>();
 
     doWithField(deletedObject.getClass(), field -> {
       String attributeName = createAttributeName(deletedObject.getClass(), field);
       Object deletedField = getFieldValue(field, deletedObject);
-      DiffComparisonStrategy diffComparisonStrategy = DiffComparisonTypes.findDiffComparisonType(field.getType())
-          .getDiffComparisonStrategy();
-      diffResult.put(attributeName, diffComparisonStrategy.createDeletedDiffedField(deletedField));
+      DiffComparisonTypes diffType = DiffComparisonTypes.findDiffComparisonType(field.getType());
+      // Workaround for Diffable Lists. There is no specific diff strategy for diffed objects containing lists
+      // As a workaround for the "deleted object" case where we dont bother doing a real diff, we need to recreate the diff special case
+      // contained in {@link this::compare} in order to get our output model correctly populated
+      if (diffType.equals(DiffComparisonTypes.LIST)) {
+        compare(diffResult, attributeName, List.of(), deletedField, field);
+      } else {
+        DiffComparisonStrategy diffComparisonStrategy = diffType.getDiffComparisonStrategy();
+        diffResult.put(attributeName, diffComparisonStrategy.createDeletedDiffedField(deletedField));
+      }
     });
 
     return diffResult;

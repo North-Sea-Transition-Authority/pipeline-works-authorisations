@@ -42,6 +42,7 @@
          -->
         <@fdsBreadcrumbs.breadcrumbs crumbsList=breadcrumbMap currentPage=currentPage/>
 
+        <@diffChanges.toggler/>
         ${combinedSummaryHtml?no_esc}
 
         <@fdsForm.htmlForm>
