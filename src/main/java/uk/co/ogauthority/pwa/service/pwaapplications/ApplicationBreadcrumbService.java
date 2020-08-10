@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelineIdentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
@@ -127,6 +128,19 @@ public class ApplicationBreadcrumbService {
     map.put(ReverseRouter.route(on(CampaignWorksController.class)
         .renderSummary(pwaApplication.getApplicationType(), pwaApplication.getId(), null)), "Campaign works");
     addAttrs(modelAndView, map, thisPage);
+  }
+
+  public void fromDepositsOverview(
+      PwaApplication pwaApplication,
+      ModelAndView modelAndView,
+      String thisPage) {
+
+    var map = taskList(pwaApplication);
+    map.put(ReverseRouter.route(on(PermanentDepositController.class)
+        .renderPermanentDepositsOverview(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)),
+        ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
+    addAttrs(modelAndView, map, thisPage);
+
   }
 
   public void fromTaskList(PwaApplication application, ModelAndView modelAndView, String thisPage) {

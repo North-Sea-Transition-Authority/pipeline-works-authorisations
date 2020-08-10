@@ -31,8 +31,11 @@
 
 
         <@fdsRadio.radioGroup path="form.materialType" labelText="Select the material type to be used" hiddenContent=true>
+
             <#assign firstItem=true/>
             <#assign contingencyGuidance = "Contingency should be included if appropriate as if more is required you will have to request a new consent"/>
+            <#assign contingencyLabelText = "How much contingency was included? (optional)"/>
+
             <#list materialTypes as  materialTypeOption>
                 <@fdsRadio.radioItem path="form.materialType" itemMap={materialTypeOption : materialTypeOption.getDisplayText()} isFirstItem=firstItem>
                     <#assign hintText = "e.g. \"the above deposits include a contingency of 10 mattresses\" or \"includes 5% rock as a contingency\""/>
@@ -42,13 +45,13 @@
                         <@fdsTextInput.textInput path="form.concreteMattressDepth" nestingPath="form.materialType" labelText="Depth" suffix="m" inputClass="govuk-input--width-10"/>
                         <@fdsTextInput.textInput path="form.quantityConcrete" nestingPath="form.materialType" labelText="Enter quantity of material to be used"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyConcreteAmount" nestingPath="form.materialType" labelText="How much contingency was included?" hintText=hintText/>
+                        <@fdsTextInput.textInput path="form.contingencyConcreteAmount" nestingPath="form.materialType" labelText=contingencyLabelText hintText=hintText/>
 
                     <#elseif materialTypeOption == "ROCK">
                         <@fdsTextInput.textInput path="form.rocksSize" nestingPath="form.materialType" labelText="Size" hintText="For example 1-5" suffix="Grade" inputClass="govuk-input--width-10"/>
                         <@fdsTextInput.textInput path="form.quantityRocks" nestingPath="form.materialType" labelText="Quantity of material to be used (decimal tonnes)" inputClass="govuk-input--width-10"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyRocksAmount" nestingPath="form.materialType" labelText="How much contingency was included?" hintText=hintText/>
+                        <@fdsTextInput.textInput path="form.contingencyRocksAmount" nestingPath="form.materialType" labelText=contingencyLabelText hintText=hintText/>
 
                     <#elseif materialTypeOption == "GROUT_BAGS">
                         <@fdsTextInput.textInput path="form.groutBagsSize" nestingPath="form.materialType" labelText="Size" suffix="kg" inputClass="govuk-input--width-20"/>
@@ -60,14 +63,14 @@
                         </@fdsRadio.radioGroup>
                         <@fdsTextInput.textInput path="form.quantityGroutBags" nestingPath="form.materialType" labelText="Quantity of material to be used" inputClass="govuk-input--width-20"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyGroutBagsAmount" nestingPath="form.materialType" labelText="How much contingency was included?" hintText=hintText/>
+                        <@fdsTextInput.textInput path="form.contingencyGroutBagsAmount" nestingPath="form.materialType" labelText=contingencyLabelText hintText=hintText/>
 
                     <#elseif materialTypeOption == "OTHER">
                         <@fdsTextInput.textInput path="form.otherMaterialType" nestingPath="form.materialType" labelText="Deposit material" inputClass="govuk-input--width-20"/>
                         <@fdsTextInput.textInput path="form.otherMaterialSize" nestingPath="form.materialType" labelText="Size" inputClass="govuk-input--width-20"/>
                         <@fdsTextInput.textInput path="form.quantityOther" nestingPath="form.materialType" labelText="Quantity of material to be used" inputClass="govuk-input--width-20"/>
                         <@fdsInsetText.insetText> ${contingencyGuidance} </@fdsInsetText.insetText>
-                        <@fdsTextInput.textInput path="form.contingencyOtherAmount" nestingPath="form.materialType" labelText="How much contingency was included?" hintText=hintText/>
+                        <@fdsTextInput.textInput path="form.contingencyOtherAmount" nestingPath="form.materialType" labelText=contingencyLabelText hintText=hintText/>
                     </#if>
                 </@fdsRadio.radioItem>
             <#assign firstItem=false/>

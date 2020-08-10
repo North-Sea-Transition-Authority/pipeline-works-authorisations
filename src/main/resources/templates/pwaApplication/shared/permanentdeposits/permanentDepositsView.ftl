@@ -23,6 +23,8 @@
 
         <@fdsAction.link linkText="Add deposit" linkUrl=springUrl(addDepositUrl) linkClass="govuk-button govuk-button--blue"/>
 
+        <hr class="govuk-section-break govuk-section-break--s">
+
         <#list deposits as deposit>
             <h2 class="govuk-heading-m">${deposit.depositReference}</h2>
             <@fdsAction.link linkText="Edit" linkUrl=springUrl(editDepositUrls[deposit.entityID?string.number]) linkScreenReaderText="Edit ${deposit.depositReference}" linkClass="govuk-link govuk-link--button" />
