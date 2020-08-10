@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -73,6 +74,9 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
+
+  @MockBean
+  private ConsulteeGroupTeamService consulteeGroupTeamService;
 
   @SpyBean
   private ControllerHelperService controllerHelperService;

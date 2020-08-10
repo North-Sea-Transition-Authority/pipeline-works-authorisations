@@ -36,7 +36,9 @@
               </td>
               <td class="govuk-table__cell">
                 <ul class="govuk-list">
-                  <@applicationWorkAreaItem.statusLabelListItem item=item />
+                  <@applicationWorkAreaItem.statusLabelListItem>
+                    ${item.getApplicationStatusDisplay()}
+                  </@applicationWorkAreaItem.statusLabelListItem>
                     <#if item.caseOfficerName?has_content>
                       <li>Case officer: ${item.caseOfficerName}</li>
                     </#if>

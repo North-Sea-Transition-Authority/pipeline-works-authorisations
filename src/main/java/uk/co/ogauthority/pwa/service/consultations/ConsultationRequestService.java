@@ -57,6 +57,10 @@ public class ConsultationRequestService {
     return consulteeGroupDetailService.getAllConsulteeGroupDetails();
   }
 
+  public void saveConsultationRequest(ConsultationRequest consultationRequest) {
+    consultationRequestRepository.save(consultationRequest);
+  }
+
 
   public void saveEntitiesAndStartWorkflow(ConsultationRequestForm form,
                                            PwaApplicationDetail applicationDetail, AuthenticatedUserAccount user) {

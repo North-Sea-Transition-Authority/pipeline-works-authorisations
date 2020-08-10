@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
@@ -11,8 +12,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
@@ -21,6 +25,8 @@ public class PwaAppProcessingPermissionServiceTest {
 
   @Mock
   private TeamService teamService;
+  @Mock
+  private ConsulteeGroupTeamService consulteeGroupTeamService;
 
   private PwaAppProcessingPermissionService processingPermissionService;
 
@@ -30,7 +36,7 @@ public class PwaAppProcessingPermissionServiceTest {
   @Before
   public void setUp() {
 
-    processingPermissionService = new PwaAppProcessingPermissionService(teamService);
+    processingPermissionService = new PwaAppProcessingPermissionService(teamService, consulteeGroupTeamService);
 
     regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("PWA_MANAGER", "Pwa Manager", null, 10)));
     when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
@@ -67,6 +73,28 @@ public class PwaAppProcessingPermissionServiceTest {
 
     assertThat(permissions).isEmpty();
 
+  }
+
+
+  @Test
+  public void getProcessingPermissions_hasAssignResponderPermission() {
+    var consulteeGroupTeamMember = new ConsulteeGroupTeamMember();
+    consulteeGroupTeamMember.setRoles(Set.of(ConsulteeGroupMemberRole.RESPONDER));
+    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).contains(PwaAppProcessingPermission.ASSIGN_RESPONDER);
+  }
+
+
+  @Test
+  public void getProcessingPermissions_noAssignResponderPermission() {
+    var consulteeGroupTeamMember = new ConsulteeGroupTeamMember();
+    consulteeGroupTeamMember.setRoles(Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
+    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.ASSIGN_RESPONDER);
   }
 
 }

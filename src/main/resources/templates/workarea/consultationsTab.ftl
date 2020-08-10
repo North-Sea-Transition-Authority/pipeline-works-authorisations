@@ -36,7 +36,9 @@
               </td>
               <td class="govuk-table__cell">
                 <ul class="govuk-list">
-                  <@applicationWorkAreaItem.statusLabelListItem item=item />
+                  <@applicationWorkAreaItem.statusLabelListItem>
+                    ${item.consultationRequestStatus}
+                  </@applicationWorkAreaItem.statusLabelListItem>
                   <li>
                     Consultation due date: ${item.consultationRequestDeadlineDateTime}
                   </li>

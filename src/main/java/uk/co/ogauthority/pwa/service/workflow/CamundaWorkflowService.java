@@ -4,8 +4,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +28,16 @@ import uk.co.ogauthority.pwa.util.workflow.UserWorkflowTaskUtils;
 public class CamundaWorkflowService {
 
   private final RuntimeService runtimeService;
+  private final RepositoryService repositoryService;
   private final TaskService taskService;
 
   @Autowired
   public CamundaWorkflowService(RuntimeService runtimeService,
-                                TaskService taskService) {
+                                TaskService taskService,
+                                RepositoryService repositoryService) {
     this.taskService = taskService;
     this.runtimeService = runtimeService;
+    this.repositoryService = repositoryService;
   }
 
   public void startWorkflow(WorkflowSubject workflowSubject) {
@@ -92,6 +97,15 @@ public class CamundaWorkflowService {
       return Set.of();
     }
 
+    // get list of current process definitions and map proc def id to proc def key in order to resolve proc def key
+    // from process instance proc def id later so that we can transform proc def key into a WorkflowType value
+    Map<String, String> processDefinitionIdToProcDefKeyMap = repositoryService.createProcessDefinitionQuery()
+        .active()
+        .latestVersion()
+        .list()
+        .stream()
+        .collect(Collectors.toMap(ProcessDefinition::getId, ProcessDefinition::getKey));
+
     // query process instances to get business keys and map all queried values into a data object to return
     return runtimeService.createProcessInstanceQuery()
         .processInstanceIds(processInstanceIdTaskMap.keySet())
@@ -99,6 +113,7 @@ public class CamundaWorkflowService {
         .list()
         .stream()
         .map(processInstance -> getAssignedTaskInstance(
+            processDefinitionIdToProcDefKeyMap.get(processInstance.getProcessDefinitionId()),
             processInstance,
             processInstanceIdTaskMap.get(processInstance.getProcessInstanceId()),
             person))
@@ -106,9 +121,12 @@ public class CamundaWorkflowService {
 
   }
 
-  private AssignedTaskInstance getAssignedTaskInstance(ProcessInstance processInstance, Task task, Person person) {
+  private AssignedTaskInstance getAssignedTaskInstance(String processDefinitionKey,
+                                                       ProcessInstance processInstance,
+                                                       Task task,
+                                                       Person person) {
 
-    var workflowType = WorkflowType.resolveFromProcessDefinitionKey(isolateProcessDefinitionKey(processInstance.getProcessDefinitionId()));
+    var workflowType = WorkflowType.resolveFromProcessDefinitionKey(processDefinitionKey);
 
     var workflowTaskInstance = new WorkflowTaskInstance(
         new GenericWorkflowSubject(Integer.parseInt(processInstance.getBusinessKey()), workflowType),
@@ -117,10 +135,6 @@ public class CamundaWorkflowService {
 
     return new AssignedTaskInstance(workflowTaskInstance, person);
 
-  }
-
-  private String isolateProcessDefinitionKey(String procDefId) {
-    return procDefId.substring(0, procDefId.indexOf(":"));
   }
 
 }

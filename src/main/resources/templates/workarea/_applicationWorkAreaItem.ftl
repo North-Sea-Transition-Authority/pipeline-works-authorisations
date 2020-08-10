@@ -25,8 +25,8 @@
   </ul>
 </#macro>
 
-<#macro statusLabelListItem item>
-  <li><strong class="govuk-tag govuk-tag--blue">${item.getApplicationStatusDisplay()}</strong></li>
+<#macro statusLabelListItem>
+  <li><strong class="govuk-tag govuk-tag--blue"><#nested></strong></li>
 </#macro>
 
 <#macro fastTrackLabelListItem item>
