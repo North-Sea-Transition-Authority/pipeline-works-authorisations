@@ -15,6 +15,19 @@
         </br>
         Due: ${consultationRequestViewData.currentRequest.dueDateDisplay}
         </@fdsCheckAnswers.checkAnswersRow>
+
+        <#if consultationRequestViewData.currentRequest.responseType?? >
+            <@fdsCheckAnswers.checkAnswersRow keyText="Response" actionText="" actionUrl="" screenReaderActionText="">
+                ${consultationRequestViewData.currentRequest.responseType.getDisplayText()}
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>        
+
+        <#if consultationRequestViewData.currentRequest.responseByPerson?? >
+            <@fdsCheckAnswers.checkAnswersRow keyText="Response by" actionText="" actionUrl="" screenReaderActionText="">
+                ${consultationRequestViewData.currentRequest.responseByPerson}
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
     </@fdsCheckAnswers.checkAnswers>
 
 

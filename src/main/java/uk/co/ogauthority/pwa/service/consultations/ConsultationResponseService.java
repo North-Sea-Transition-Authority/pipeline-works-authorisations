@@ -21,6 +21,9 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
+/*
+ A service to  create response /assign response to consultation request
+ */
 @Service
 public class ConsultationResponseService {
 
@@ -42,6 +45,11 @@ public class ConsultationResponseService {
     this.consultationResponseValidator = consultationResponseValidator;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
+  }
+
+
+  public Optional<ConsultationResponse> getResponseByConsultationRequest(ConsultationRequest consultationRequest) {
+    return consultationResponseRepository.findByConsultationRequest(consultationRequest);
   }
 
   public boolean isUserAssignedResponderForConsultation(WebUserAccount user, ConsultationRequest consultationRequest) {
