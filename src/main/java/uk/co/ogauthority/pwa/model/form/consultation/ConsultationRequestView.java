@@ -11,6 +11,7 @@ public class ConsultationRequestView {
   private final ConsultationRequestStatus status;
   private final String dueDateDisplay;
   private final ConsultationResponseOption responseType;
+  private final String responseRejectionReason;
   private final String responseByPerson;
 
   public ConsultationRequestView(String consulteeGroupName,
@@ -22,6 +23,7 @@ public class ConsultationRequestView {
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
     this.responseType = null;
+    this.responseRejectionReason = null;
     this.responseByPerson = null;
   }
 
@@ -30,12 +32,14 @@ public class ConsultationRequestView {
                                  ConsultationRequestStatus status,
                                  String dueDateDisplay,
                                  ConsultationResponseOption responseType,
-                                 String responseByPerson) {
+                                 String responseByPerson,
+                                 String responseRejectionReason) {
     this.consulteeGroupName = consulteeGroupName;
     this.requestDateDisplay = requestDateDisplay;
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
     this.responseType = responseType;
+    this.responseRejectionReason = responseRejectionReason;
     this.responseByPerson = responseByPerson;
   }
 
@@ -57,6 +61,10 @@ public class ConsultationRequestView {
 
   public ConsultationResponseOption getResponseType() {
     return responseType;
+  }
+
+  public String getResponseRejectionReason() {
+    return responseRejectionReason;
   }
 
   public String getResponseByPerson() {

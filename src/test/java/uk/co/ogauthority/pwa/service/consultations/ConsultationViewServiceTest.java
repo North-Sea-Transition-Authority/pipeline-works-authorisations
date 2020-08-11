@@ -88,7 +88,8 @@ public class ConsultationViewServiceTest {
 
 
     var consultationResponse = new ConsultationResponse();
-    consultationResponse.setResponseType(ConsultationResponseOption.CONFIRMED);
+    consultationResponse.setResponseType(ConsultationResponseOption.REJECTED);
+    consultationResponse.setResponseText("my reason");
     consultationResponse.setRespondingPersonId(1);
     when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
 
@@ -122,17 +123,20 @@ public class ConsultationViewServiceTest {
 
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameA");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getRequestDateDisplay()).isEqualTo("08 February 2020 10:09");
-    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseType()).isEqualTo(ConsultationResponseOption.CONFIRMED);
+    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
+    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseRejectionReason()).isEqualTo("my reason");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseByPerson()).isEqualTo("Michael Scott");
 
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseType()).isNull();
+    assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseRejectionReason()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseByPerson()).isNull();
 
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getRequestDateDisplay()).isEqualTo("04 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseType()).isNull();
+    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseRejectionReason()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseByPerson()).isNull();
   }
 

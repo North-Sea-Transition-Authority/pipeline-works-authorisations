@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
+import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -85,7 +86,9 @@ public class ConsultationViewService {
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
           consultationResponse.get().getResponseType(),
-          teamManagementService.getPerson(consultationResponse.get().getRespondingPersonId()).getFullName());
+          teamManagementService.getPerson(consultationResponse.get().getRespondingPersonId()).getFullName(),
+          consultationResponse.get().getResponseType().equals(ConsultationResponseOption.REJECTED)
+              ? consultationResponse.get().getResponseText() : null);
 
     } else {
       return new ConsultationRequestView(

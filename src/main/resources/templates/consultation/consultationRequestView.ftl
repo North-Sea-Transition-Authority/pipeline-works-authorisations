@@ -22,6 +22,12 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>        
 
+        <#if consultationRequestViewData.currentRequest.responseRejectionReason?? >
+            <@fdsCheckAnswers.checkAnswersRow keyText="Rejection reason" actionText="" actionUrl="" screenReaderActionText="">
+                ${consultationRequestViewData.currentRequest.responseRejectionReason}
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>  
+
         <#if consultationRequestViewData.currentRequest.responseByPerson?? >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response by" actionText="" actionUrl="" screenReaderActionText="">
                 ${consultationRequestViewData.currentRequest.responseByPerson}
