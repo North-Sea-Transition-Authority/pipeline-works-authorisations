@@ -26,6 +26,11 @@ public class StringComparisonStrategy extends DiffComparisonStrategy<String> {
       return current.toString();
     }
 
+    if (value instanceof Boolean) {
+      Boolean current = (Boolean) value;
+      return current ? "Yes" : "No";
+    }
+
     throw new IllegalArgumentException(String.format("Cannot represent value of type '%s' as String", value.getClass()));
   }
 

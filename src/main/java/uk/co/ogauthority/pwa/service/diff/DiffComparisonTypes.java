@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.model.view.StringWithTag;
  * Package private enum defining which classes are supported by diffService.
  */
 enum DiffComparisonTypes {
-  STRING(Set.of(String.class, Integer.class), new StringComparisonStrategy()),
+  STRING(Set.of(String.class, Integer.class, Boolean.class), new StringComparisonStrategy()),
   LIST(Set.of(List.class), null),
   STRING_WITH_TAG(Set.of(StringWithTag.class), new StringWithTagComparisonStrategy()),
   OBJECT_DIFFABLE_AS_STRING(Set.of(DiffableAsString.class), new ObjectDiffableAsStringStrategy()),
@@ -32,7 +32,7 @@ enum DiffComparisonTypes {
   public static DiffComparisonTypes findDiffComparisonType(Class searchClass) {
     for (DiffComparisonTypes type : DiffComparisonTypes.values()) {
       for (Class<?> clazz : type.getSupportedClasses()) {
-        if (clazz.equals(searchClass)) {
+        if (clazz.equals(searchClass) || clazz.isAssignableFrom(searchClass)) {
           return type;
         }
       }

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.model.view.sidebarnav;
 
+import java.util.Objects;
+
 /**
  * Represents a sidebar link for template macro processing decisions.
  */
@@ -35,5 +37,24 @@ public final class SidebarSectionLink {
 
   public static SidebarSectionLink createExternalLink(String displayText, String link) {
     return new SidebarSectionLink(false, link, displayText);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    SidebarSectionLink that = (SidebarSectionLink) o;
+    return isAnchorLink == that.isAnchorLink
+        && Objects.equals(link, that.link)
+        && Objects.equals(displayText, that.displayText);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(isAnchorLink, link, displayText);
   }
 }

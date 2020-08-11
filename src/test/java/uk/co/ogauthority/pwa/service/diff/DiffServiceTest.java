@@ -40,9 +40,26 @@ public class DiffServiceTest {
   private final List<String> defaultStringList = Arrays.asList("item1", "item2", "item3");
   private final List<Integer> defaultIntegerList = Arrays.asList(100, 200, 300);
   private final List<SimpleDiffTestClass> defaultSimpleDiffTestClassList = Arrays.asList(
-      new SimpleDiffTestClass("item 1", 1, new StringWithTag("No tag"), new OtherDiffableAsStringClass("other 1")),
-      new SimpleDiffTestClass("item 2", 2, new StringWithTag("No tag"),  new OtherDiffableAsStringClass("other 2")),
-      new SimpleDiffTestClass("item 3", 3, new StringWithTag("No tag"),  new OtherDiffableAsStringClass("other 3"))
+      new SimpleDiffTestClass(
+          true,
+          "item 1",
+          1,
+          new StringWithTag("No tag"),
+          new OtherDiffableAsStringClass("other 1")
+      ),
+      new SimpleDiffTestClass(
+          true,
+          "item 2",
+          2,
+          new StringWithTag("No tag"),
+          new OtherDiffableAsStringClass("other 2")
+      ),
+      new SimpleDiffTestClass(true,
+          "item 3",
+          3,
+          new StringWithTag("No tag"),
+          new OtherDiffableAsStringClass("other 3")
+      )
   );
 
   private final String defaultStringValue = "string";
@@ -52,9 +69,15 @@ public class DiffServiceTest {
   public void setup() {
     diffService = new DiffService();
 
-    simpleObjectCurrent = new SimpleDiffTestClass(defaultStringValue, defaultIntegerValue, new StringWithTag("No tag"),
+    simpleObjectCurrent = new SimpleDiffTestClass(true,
+        defaultStringValue,
+        defaultIntegerValue,
+        new StringWithTag("No tag"),
         new OtherDiffableAsStringClass(defaultStringValue));
-    simpleObjectPrevious = new SimpleDiffTestClass(defaultStringValue, defaultIntegerValue, new StringWithTag("No tag"),
+    simpleObjectPrevious = new SimpleDiffTestClass(true,
+        defaultStringValue,
+        defaultIntegerValue,
+        new StringWithTag("No tag"),
         new OtherDiffableAsStringClass(defaultStringValue));
 
     diffWithListsCurrent = new DiffTestWithSimpleListField(defaultStringList, defaultIntegerList);
@@ -65,7 +88,9 @@ public class DiffServiceTest {
     listOfSimpleDiffsPrevious = new ArrayList<>();
     // we need two lists containing objects different objects which have matching values
     defaultSimpleDiffTestClassList.forEach(simpleDiffTestClass -> listOfSimpleDiffsPrevious.add(
-        new SimpleDiffTestClass(simpleDiffTestClass.getStringField(), simpleDiffTestClass.getIntegerField(),
+        new SimpleDiffTestClass(true,
+            simpleDiffTestClass.getStringField(),
+            simpleDiffTestClass.getIntegerField(),
             simpleDiffTestClass.getStringWithTagField(),
             simpleDiffTestClass.getDiffableAsString())));
 
@@ -104,6 +129,7 @@ public class DiffServiceTest {
 
   @Test
   public void diff_whenUsingSimpleObjects_andAllFieldsHaveChanged_thenAllDiffedResultObjectsAreTypeUPDATED() {
+    simpleObjectCurrent.setBooleanField(false);
     simpleObjectCurrent.setIntegerField(999);
     simpleObjectCurrent.setStringField("Updated String");
     simpleObjectCurrent.setStringWithTagField(new StringWithTag("Updated String"));
@@ -126,6 +152,7 @@ public class DiffServiceTest {
 
   @Test
   public void diff_whenUsingSimpleObjects_andAllFieldsHaveChanged_thenAllDiffedResultObjectsAreTypeDELETED() {
+    simpleObjectCurrent.setBooleanField(null);
     simpleObjectCurrent.setIntegerField(null);
     simpleObjectCurrent.setStringField(null);
     simpleObjectCurrent.setStringWithTagField(new StringWithTag());
