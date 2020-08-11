@@ -106,6 +106,7 @@ public class AssignResponderService {
 
   }
 
+
   public boolean isUserMemberOfRequestGroup(WebUserAccount user, ConsultationRequest consultationRequest) {
     for (var member: consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())) {
       if ((member.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT)
@@ -117,10 +118,15 @@ public class AssignResponderService {
     return false;
   }
 
+
+
   public BindingResult validate(AssignResponderForm form, BindingResult bindingResult, ConsultationRequest consultationRequest) {
     assignResponderValidator.validate(form, bindingResult,
         new AssignResponderValidationHints(this, consultationRequest));
     return bindingResult;
   }
+
+
+
 
 }

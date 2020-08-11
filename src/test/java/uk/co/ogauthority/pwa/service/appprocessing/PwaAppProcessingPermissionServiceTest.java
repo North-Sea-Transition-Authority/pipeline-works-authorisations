@@ -93,4 +93,27 @@ public class PwaAppProcessingPermissionServiceTest {
 
   }
 
+
+  @Test
+  public void getProcessingPermissions_hasConsultationResponderPermission() {
+    var consulteeGroupTeamMember = new ConsulteeGroupTeamMember();
+    consulteeGroupTeamMember.setRoles(Set.of(ConsulteeGroupMemberRole.RESPONDER));
+    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).contains(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
+  }
+
+
+  @Test
+  public void getProcessingPermissions_noConsultationResponderPermission() {
+    var consulteeGroupTeamMember = new ConsulteeGroupTeamMember();
+    consulteeGroupTeamMember.setRoles(Set.of(ConsulteeGroupMemberRole.RECIPIENT));
+    when(consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())).thenReturn(List.of(consulteeGroupTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
+  }
+
+
 }

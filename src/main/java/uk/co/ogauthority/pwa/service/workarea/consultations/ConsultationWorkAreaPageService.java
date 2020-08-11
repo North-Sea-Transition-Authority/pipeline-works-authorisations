@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.consultations.responses.AssignResponderController;
+import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
@@ -73,11 +74,20 @@ public class ConsultationWorkAreaPageService {
 
   private String consultationUrlProducer(ConsultationRequestSearchItem consultationRequestSearchItem) {
 
-    return ReverseRouter.route(on(AssignResponderController.class).renderAssignResponder(
-        consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
-        consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
-        consultationRequestSearchItem.getConsultationRequestId(), null, null, null, null));
+    if (consultationRequestSearchItem.getConsultationRequestStatus().equals(ConsultationRequestStatus.ALLOCATION)) {
+      return ReverseRouter.route(on(AssignResponderController.class).renderAssignResponder(
+          consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
+          consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
+          consultationRequestSearchItem.getConsultationRequestId(), null, null, null, null));
 
+    } else {
+      return ReverseRouter.route(on(ConsultationResponseController.class).renderResponder(
+          consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
+          consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
+          consultationRequestSearchItem.getConsultationRequestId(), null, null, null, null));
+    }
   }
+
+
 
 }

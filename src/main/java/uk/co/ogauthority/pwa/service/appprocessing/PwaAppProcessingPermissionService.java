@@ -56,6 +56,8 @@ public class PwaAppProcessingPermissionService {
             case ASSIGN_RESPONDER:
               return consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RECIPIENT)
                   || consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RESPONDER);
+            case CONSULTATION_RESPONDER:
+              return consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RESPONDER);
             default:
               return false;
 

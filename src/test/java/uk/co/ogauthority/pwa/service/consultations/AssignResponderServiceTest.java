@@ -139,7 +139,6 @@ public class AssignResponderServiceTest {
         );
 
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.AWAITING_RESPONSE);
-
   }
 
   @Test
@@ -187,7 +186,6 @@ public class AssignResponderServiceTest {
     form.setResponderPersonId(5);
 
     assignResponderService.assignUserAndCompleteWorkflow(form, new ConsultationRequest(), new WebUserAccount());
-
   }
 
   @Test

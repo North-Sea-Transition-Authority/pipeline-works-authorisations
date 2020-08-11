@@ -15,7 +15,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -35,11 +37,14 @@ public class CamundaWorkflowServiceTest {
   private TaskService taskService;
 
   private PwaApplication application;
+  private ConsultationRequest consultationRequest;
 
   @Before
   public void setUp() {
     application = new PwaApplication();
     application.setId(1);
+    consultationRequest = new ConsultationRequest();
+    consultationRequest.setId(1);
   }
 
   @Test
@@ -142,6 +147,47 @@ public class CamundaWorkflowServiceTest {
 
     var person = new Person(2, null, null, null, null);
     assertThat(camundaWorkflowService.getAssignedTasks(person)).isEmpty();
+
+  }
+
+  @Test
+  public void getAssignedPersonId_taskExists_present() {
+
+    var person = new Person(11, null, null, null, null);
+
+    camundaWorkflowService.startWorkflow(consultationRequest);
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(consultationRequest,
+        PwaApplicationConsultationWorkflowTask.ALLOCATION));
+
+    var responseTaskInstance = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE);
+
+    camundaWorkflowService.assignTaskToUser(responseTaskInstance, person);
+
+    var assignedPersonId = camundaWorkflowService.getAssignedPersonId(responseTaskInstance);
+
+    assertThat(assignedPersonId).isPresent();
+
+    assertThat(assignedPersonId.get()).isEqualTo(person.getId());
+
+  }
+
+  @Test
+  public void getAssignedPersonId_taskExists_empty() {
+
+    camundaWorkflowService.startWorkflow(consultationRequest);
+
+    var assignedPersonId = camundaWorkflowService.getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION));
+
+    assertThat(assignedPersonId).isEmpty();
+
+  }
+
+  @Test
+  public void getAssignedPersonId_noTask() {
+
+    var assignedPersonId = camundaWorkflowService.getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION));
+
+    assertThat(assignedPersonId).isEmpty();
 
   }
 

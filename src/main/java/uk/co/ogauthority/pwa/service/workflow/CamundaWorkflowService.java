@@ -13,6 +13,7 @@ import org.camunda.bpm.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
@@ -135,6 +136,14 @@ public class CamundaWorkflowService {
 
     return new AssignedTaskInstance(workflowTaskInstance, person);
 
+  }
+
+  public Optional<PersonId> getAssignedPersonId(WorkflowTaskInstance workflowTaskInstance) {
+
+    return getWorkflowTask(workflowTaskInstance)
+        .filter(task -> task.getAssignee() != null)
+        .map(task -> new PersonId(Integer.parseInt(task.getAssignee())));
+    
   }
 
 }

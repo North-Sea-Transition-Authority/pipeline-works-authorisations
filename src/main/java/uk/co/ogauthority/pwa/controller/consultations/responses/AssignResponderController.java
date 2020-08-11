@@ -49,6 +49,7 @@ public class AssignResponderController {
     this.controllerHelperService = controllerHelperService;
   }
 
+
   @GetMapping
   public ModelAndView renderAssignResponder(@PathVariable("applicationId") Integer applicationId,
                                             @PathVariable("applicationType")
@@ -92,6 +93,7 @@ public class AssignResponderController {
         });
   }
 
+
   private ModelAndView getAssignResponderModelAndView(ConsultationRequest consultationRequest,
                                                       AuthenticatedUserAccount authenticatedUserAccount) {
     return new ModelAndView("consultation/responses/assignResponder")
@@ -101,5 +103,6 @@ public class AssignResponderController {
         .addObject("cancelUrl",
                 ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(authenticatedUserAccount)));
   }
+
 
 }

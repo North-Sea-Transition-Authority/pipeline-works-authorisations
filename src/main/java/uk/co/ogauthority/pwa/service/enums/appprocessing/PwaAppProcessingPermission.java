@@ -11,7 +11,8 @@ public enum PwaAppProcessingPermission {
   CASE_OFFICER_REVIEW,
   VIEW_CONSULTATIONS,
   EDIT_CONSULTATIONS,
-  ASSIGN_RESPONDER;
+  ASSIGN_RESPONDER,
+  CONSULTATION_RESPONDER;
 
   public static Stream<PwaAppProcessingPermission> stream() {
     return Stream.of(PwaAppProcessingPermission.values());
