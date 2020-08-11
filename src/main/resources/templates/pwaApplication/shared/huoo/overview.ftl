@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="huooOrgs" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUnitRoleView>" -->
 <#-- @ftlvariable name="treatyAgreements" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView>" -->
 <#-- @ftlvariable name="errorMessage" type="String" -->
+<#-- @ftlvariable name="showHolderGuidance" type="Boolean" -->
 
 <#include '../../../layout.ftl'>
 
@@ -15,6 +16,14 @@
   <#if errorMessage?has_content>
     <@fdsError.singleErrorSummary errorMessage=errorMessage />
   </#if>
+
+    <#if showHolderGuidance>
+      <@fdsInsetText.insetText>
+        You can only have a single holder on a PWA.
+        <br/><br/>
+        To change the holder you must edit the current holder and update the organisation. You can only set the holder to an organisation that you are a member of.
+      </@fdsInsetText.insetText>
+    </#if>
 
   <@fdsAction.link linkText="Add holder, user, operator or owner" linkUrl=springUrl(addHuooUrl) linkClass="govuk-link govuk-link--button govuk-button govuk-button--blue" role=true/>
 

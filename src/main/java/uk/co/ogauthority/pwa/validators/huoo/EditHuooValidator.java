@@ -70,11 +70,15 @@ public class EditHuooValidator implements SmartValidator {
             return null;
           });
 
+      boolean holderSelected = SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)
+          || (!SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)
+          && SetUtils.emptyIfNull(huooValidationView.getRoles()).contains(HuooRole.HOLDER));
+
       if (validationHints.length >= 3 && validationHints[2] instanceof AuthenticatedUserAccount
-          && detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL)) {
+          && detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL) && holderSelected) {
         var userCanAccessOrgUnit = false;
         var user = (AuthenticatedUserAccount) validationHints[2];
-        for (var orgUnitUserCanAccess: getOrgUnitsUserCanAccess(user)) {
+        for (var orgUnitUserCanAccess : getOrgUnitsUserCanAccess(user)) {
           if (form.getOrganisationUnitId() == orgUnitUserCanAccess.getOuId()) {
             userCanAccessOrgUnit = true;
             break;
@@ -83,7 +87,7 @@ public class EditHuooValidator implements SmartValidator {
         if (!userCanAccessOrgUnit) {
           errors.rejectValue("organisationUnitId",
               "organisationUnitId" + FieldValidationErrorCodes.INVALID.getCode(),
-              "You do not have access to the selected organisation.");
+              "You must be a member of this organisation's team to assign this organisation");
         }
       }
 
@@ -123,7 +127,7 @@ public class EditHuooValidator implements SmartValidator {
       if (SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)) {
         var holdersTxt = detail.getNumOfHolders() > 1 ? "holders" : "holder";
         errors.rejectValue("huooRoles", "huooRoles.alreadyUsed",
-            "You may only have " + detail.getNumOfHolders() + " " + holdersTxt +  " on an application");
+            "You may only have " + detail.getNumOfHolders() + " " + holdersTxt + " on an application");
       }
     }
 

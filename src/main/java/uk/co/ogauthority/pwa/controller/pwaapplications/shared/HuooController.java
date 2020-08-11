@@ -67,7 +67,8 @@ public class HuooController {
             .getHuooOrganisationUnitRoleViews(pwaApplicationDetail, padOrganisationRoleList))
         .addObject("treatyAgreements",
             padOrganisationRoleService.getTreatyAgreementViews(pwaApplicationDetail, padOrganisationRoleList))
-        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
+        .addObject("showHolderGuidance", padOrganisationRoleService.canShowHolderGuidance(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Holders, users, operators, and owners");

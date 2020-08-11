@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreemen
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -507,6 +508,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .collect(toSet());
   }
 
+  public boolean canShowHolderGuidance(PwaApplicationDetail pwaApplicationDetail) {
+    return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.INITIAL);
+  }
 
   private List<PadOrganisationRole> createPadOrganisationRoleForEveryOrganisationRoleGroup(
       OrganisationRolesSummaryDto organisationRolesSummaryDto,

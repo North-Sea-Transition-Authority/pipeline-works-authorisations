@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -787,6 +788,21 @@ public class PadOrganisationRoleServiceTest {
 
     padOrganisationRoleService.deletePipelineRoleLinksForPadPipeline(padPipeline);
     verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of(roleLink));
+  }
+
+  @Test
+  public void canShowHolderGuidance_appTypes() {
+    EnumSet.allOf(PwaApplicationType.class).forEach(pwaApplicationType -> {
+      detail.getPwaApplication().setApplicationType(pwaApplicationType);
+      boolean result = padOrganisationRoleService.canShowHolderGuidance(detail);
+      switch (pwaApplicationType) {
+        case INITIAL:
+          assertThat(result).isTrue();
+          break;
+        default:
+          assertThat(result).isFalse();
+      }
+    });
   }
 
 }

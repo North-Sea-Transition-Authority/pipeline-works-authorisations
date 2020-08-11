@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.camunda.bpm.model.dmn.instance.OrganizationUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -119,6 +118,7 @@ public class EditHuooValidatorTest {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
+    form.setHuooRoles(Set.of());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles));
 
     assertThat(result).containsOnly(
@@ -219,11 +219,14 @@ public class EditHuooValidatorTest {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(1);
+    form.setHuooRoles(Set.of());
     var application = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     detail.setPwaApplication(application);
 
+    portalOrgRoles = List.of(
+        new PadOrganisationRole(HuooRole.USER)
+    );
     when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(new PortalOrganisationUnit(1, "name")));
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(new PortalOrganisationUnit(1, "name")));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles), new AuthenticatedUserAccount(new WebUserAccount(), List.of(PwaUserPrivilege.PWA_MANAGER)));
 
     assertThat(result).doesNotContain(
@@ -232,14 +235,26 @@ public class EditHuooValidatorTest {
   }
 
 
+  /**
+   * GIVEN:
+   *  Org to edit previously had HOLDER role.
+   *  Org to edit still has HOLDER role.
+   *  Org to edit is not owned by the organisation performing the edit.
+   * EXPECT:
+   *  Validation error
+   */
   @Test
-  public void unitSelectedIsPartOfUsersOrg_invalid() {
+  public void unitSelectedIsPartOfUsersOrg_invalid_stillHolder() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(1);
+    form.setHuooRoles(Set.of(HuooRole.HOLDER));
     var application = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     detail.setPwaApplication(application);
 
+    portalOrgRoles = List.of(
+        new PadOrganisationRole(HuooRole.HOLDER)
+    );
     when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(new PortalOrganisationUnit(1, "name")));
     when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(new PortalOrganisationUnit(2, "name")));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles), new AuthenticatedUserAccount(new WebUserAccount(), List.of(PwaUserPrivilege.PWA_MANAGER)));
@@ -249,11 +264,67 @@ public class EditHuooValidatorTest {
     );
   }
 
+  /**
+   * GIVEN:
+   *  Org to edit previously had HOLDER role.
+   *  Org to edit no longer has a HOLDER role.
+   *  Org to edit is not owned by the organisation performing the edit.
+   * EXPECT:
+   *  Validation error
+   */
+  @Test
+  public void unitSelectedIsPartOfUsersOrg_invalid_wasHolder() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setOrganisationUnitId(1);
+    form.setHuooRoles(Set.of());
+    var application = new PwaApplication(null, PwaApplicationType.INITIAL, null);
+    detail.setPwaApplication(application);
+
+    portalOrgRoles = List.of(
+        new PadOrganisationRole(HuooRole.HOLDER)
+    );
+    when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(new PortalOrganisationUnit(1, "name")));
+    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(new PortalOrganisationUnit(2, "name")));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles), new AuthenticatedUserAccount(new WebUserAccount(), List.of(PwaUserPrivilege.PWA_MANAGER)));
+
+    assertThat(result).contains(
+        entry("organisationUnitId", Set.of("organisationUnitId.invalid"))
+    );
+  }
+
+  /**
+   * GIVEN:
+   *  Org to edit previously did not have a HOLDER role.
+   *  Org to edit now has a HOLDER role.
+   *  Org to edit is not owned by the organisation performing the edit.
+   * EXPECT:
+   *  Validation error
+   */
+  @Test
+  public void unitSelectedIsPartOfUsersOrg_invalid_nonHolder() {
+    var form = new HuooForm();
+    form.setHuooType(HuooType.PORTAL_ORG);
+    form.setOrganisationUnitId(1);
+    form.setHuooRoles(Set.of(HuooRole.USER, HuooRole.OPERATOR, HuooRole.OWNER));
+    var application = new PwaApplication(null, PwaApplicationType.INITIAL, null);
+    detail.setPwaApplication(application);
+
+    portalOrgRoles = List.of(
+        new PadOrganisationRole(HuooRole.USER)
+    );
+    when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(new PortalOrganisationUnit(1, "name")));
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, getValidationView(portalOrgRoles), new AuthenticatedUserAccount(new WebUserAccount(), List.of(PwaUserPrivilege.PWA_MANAGER)));
+
+    assertThat(result).doesNotContainKeys("organisationUnitId");
+  }
+
   @Test
   public void unitSelectedIsPartOfUsersOrg_variationPwa() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(1);
+    form.setHuooRoles(Set.of());
     var application = new PwaApplication(null, PwaApplicationType.HUOO_VARIATION, null);
     detail.setPwaApplication(application);
 
