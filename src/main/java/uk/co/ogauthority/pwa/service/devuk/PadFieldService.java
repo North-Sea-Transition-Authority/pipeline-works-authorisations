@@ -5,31 +5,39 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @Service
-public class PadFieldService {
+public class PadFieldService implements ApplicationFormSectionService {
 
   private final PadFieldRepository padFieldRepository;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PadProjectInformationService projectInformationService;
   private final DevukFieldService devukFieldService;
+  private final PwaFieldFormValidator pwaFieldFormValidator;
 
   @Autowired
   public PadFieldService(PadFieldRepository padFieldRepository,
                          PwaApplicationDetailService pwaApplicationDetailService,
                          PadProjectInformationService projectInformationService,
-                         DevukFieldService devukFieldService) {
+                         DevukFieldService devukFieldService,
+                         PwaFieldFormValidator pwaFieldFormValidator) {
     this.padFieldRepository = padFieldRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.projectInformationService = projectInformationService;
     this.devukFieldService = devukFieldService;
+    this.pwaFieldFormValidator = pwaFieldFormValidator;
   }
 
   public List<PadField> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -105,4 +113,34 @@ public class PadFieldService {
     }
 
   }
+
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    var form = new PwaFieldForm();
+    mapEntityToForm(detail, form);
+    BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+    bindingResult = validate(form, bindingResult, ValidationType.FULL, detail);
+    return !bindingResult.hasErrors();
+  }
+
+  public void mapEntityToForm(PwaApplicationDetail pwaApplicationDetail, PwaFieldForm form) {
+    var fields = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
+    form.setLinkedToField(pwaApplicationDetail.getLinkedToField());
+    if (fields.size() == 1) {
+      if (fields.get(0).isLinkedToDevuk()) {
+        form.setFieldId(fields.get(0).getDevukField().getFieldId());
+      }
+    } else if (fields.size() == 0) {
+      form.setNoLinkedFieldDescription(pwaApplicationDetail.getNotLinkedDescription());
+    }
+  }
+
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
+    pwaFieldFormValidator.validate(form, bindingResult, validationType);
+    return bindingResult;
+  }
+
 }

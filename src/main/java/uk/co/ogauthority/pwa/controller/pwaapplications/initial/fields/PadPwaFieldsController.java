@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
@@ -30,46 +26,42 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/fields")
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-public class InitialFieldsController {
+public class PadPwaFieldsController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
   private final DevukFieldService devukFieldService;
   private final PadFieldService padFieldService;
-  private final PwaFieldFormValidator pwaFieldFormValidator;
   private final ControllerHelperService controllerHelperService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
-  public InitialFieldsController(ApplicationBreadcrumbService breadcrumbService,
-                                 DevukFieldService devukFieldService,
-                                 PadFieldService padFieldService,
-                                 PwaFieldFormValidator pwaFieldFormValidator,
-                                 ControllerHelperService controllerHelperService) {
+  public PadPwaFieldsController(ApplicationBreadcrumbService breadcrumbService,
+                                DevukFieldService devukFieldService,
+                                PadFieldService padFieldService,
+                                ControllerHelperService controllerHelperService,
+                                PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.breadcrumbService = breadcrumbService;
     this.devukFieldService = devukFieldService;
     this.padFieldService = padFieldService;
-    this.pwaFieldFormValidator = pwaFieldFormValidator;
     this.controllerHelperService = controllerHelperService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
-  private ModelAndView getFieldsModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                             PwaFieldForm form,
-                                             AuthenticatedUserAccount user) {
-    var modelAndView = new ModelAndView("pwaApplication/initial/fieldInformation")
+  private ModelAndView getFieldsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/fieldInformation/fieldInformation")
         .addObject("backUrl",
-            ReverseRouter.route(on(InitialTaskListController.class)
-                .viewTaskList(pwaApplicationDetail.getMasterPwaApplicationId(), null)));
+            pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
 
-    modelAndView.addObject("fields",
-        padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
+    modelAndView.addObject("fields", padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
     modelAndView.addObject("fieldMap", getDevukFieldMap());
     modelAndView.addObject("errorList", List.of());
 
@@ -87,19 +79,8 @@ public class InitialFieldsController {
       PwaApplicationContext applicationContext
   ) {
 
-
-    var modelAndView = getFieldsModelAndView(applicationContext.getApplicationDetail(), form, user);
-
-    var fields = padFieldService.getActiveFieldsForApplicationDetail(applicationContext.getApplicationDetail());
-    form.setLinkedToField(applicationContext.getApplicationDetail().getLinkedToField());
-    if (fields.size() == 1) {
-      if (fields.get(0).isLinkedToDevuk()) {
-        form.setFieldId(fields.get(0).getDevukField().getFieldId());
-      }
-    } else if (fields.size() == 0) {
-      form.setNoLinkedFieldDescription(applicationContext.getApplicationDetail().getNotLinkedDescription());
-    }
-
+    var modelAndView = getFieldsModelAndView(applicationContext.getApplicationDetail());
+    padFieldService.mapEntityToForm(applicationContext.getApplicationDetail(), form);
     return modelAndView;
 
   }
@@ -114,14 +95,14 @@ public class InitialFieldsController {
       PwaApplicationContext applicationContext,
       ValidationType validationType) {
 
-    pwaFieldFormValidator.validate(form, bindingResult, validationType);
+    bindingResult = padFieldService.validate(form, bindingResult, validationType, applicationContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getFieldsModelAndView(applicationContext.getApplicationDetail(), form, user), () -> {
+        getFieldsModelAndView(applicationContext.getApplicationDetail()), () -> {
 
           padFieldService.updateFieldInformation(applicationContext.getApplicationDetail(), form);
 
-          return ReverseRouter.redirect(on(InitialTaskListController.class).viewTaskList(applicationId, null));
+          return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
 
         });
 
