@@ -6,12 +6,20 @@ import static java.util.stream.Collectors.toList;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
@@ -44,28 +52,30 @@ public class ConsultationViewService {
     this.teamManagementService = teamManagementService;
   }
 
-
-
-
   public List<ConsulteeGroupRequestsView> getConsultationRequestViews(PwaApplication pwaApplication) {
     List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByApplication(pwaApplication);
     List<ConsulteeGroupRequestsView> consulteeGroupRequestsViews = new ArrayList<>();
 
-    Map<ConsulteeGroup, List<ConsultationRequest>> requestMap =  consultationRequests.stream()
-        .collect(groupingBy(ConsultationRequest::getConsulteeGroup, toList()));
+    var requestResponseMap = getRequestResponseMap(consultationRequests);
+    var groupAndDetailMap = getGroupAndDetailMap(consultationRequests);
+    var groupRequestMap =  getGroupRequestMap(consultationRequests);
 
-    requestMap.forEach((group, requestList) -> {
-      consulteeGroupRequestsViews.add(createGroupRequestView(requestList));
+    groupRequestMap.forEach((group, requestList) -> {
+      consulteeGroupRequestsViews.add(createGroupRequestView(requestList, requestResponseMap, groupAndDetailMap));
     });
-
     consulteeGroupRequestsViews.sort(Comparator.comparing(x -> x.getCurrentRequest().getConsulteeGroupName()));
     return consulteeGroupRequestsViews;
   }
 
-  private ConsulteeGroupRequestsView createGroupRequestView(List<ConsultationRequest> requestList) {
+
+  private ConsulteeGroupRequestsView createGroupRequestView(List<ConsultationRequest> requestList,
+                                                            Map<ConsultationRequest, Optional<ConsultationResponse>> requestResponseMap,
+                                                            Map<ConsulteeGroup, ConsulteeGroupDetail> groupAndDetailMap) {
     var consulteeGroupRequestsView = new ConsulteeGroupRequestsView();
     for (int requestIndex = 0; requestIndex < requestList.size(); requestIndex++) {
-      var consultationRequestView = mapConsultationRequestToView(requestList.get(requestIndex));
+      var consultationRequest = requestList.get(requestIndex);
+      var consultationRequestView = mapConsultationRequestToView(
+          consultationRequest, requestResponseMap.get(consultationRequest), groupAndDetailMap.get(consultationRequest.getConsulteeGroup()));
       if (requestIndex == 0) {
         consulteeGroupRequestsView.setCurrentRequest(consultationRequestView);
       } else {
@@ -75,16 +85,17 @@ public class ConsultationViewService {
     return consulteeGroupRequestsView;
   }
 
-  private ConsultationRequestView mapConsultationRequestToView(ConsultationRequest consultationRequest) {
-    var consulteeGroupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroup(consultationRequest.getConsulteeGroup());
 
-    var consultationResponse = consultationResponseService.getResponseByConsultationRequest(consultationRequest);
+  private ConsultationRequestView mapConsultationRequestToView(ConsultationRequest consultationRequest,
+                                                               Optional<ConsultationResponse> consultationResponse,
+                                                               ConsulteeGroupDetail consulteeGroupDetail) {
     if (consultationResponse.isPresent()) {
       return new ConsultationRequestView(
           consulteeGroupDetail.getName(),
           DateUtils.formatDateTime(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS)),
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
+          DateUtils.formatDateTime(consultationResponse.get().getResponseTimestamp().truncatedTo(ChronoUnit.SECONDS)),
           consultationResponse.get().getResponseType(),
           teamManagementService.getPerson(consultationResponse.get().getRespondingPersonId()).getFullName(),
           consultationResponse.get().getResponseType().equals(ConsultationResponseOption.REJECTED)
@@ -97,6 +108,28 @@ public class ConsultationViewService {
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)));
     }
+  }
+
+
+  private Map<ConsultationRequest, Optional<ConsultationResponse>> getRequestResponseMap(List<ConsultationRequest> consultationRequests) {
+    Map<ConsultationRequest, Optional<ConsultationResponse>> requestResponseMap = new LinkedHashMap<>();
+    consultationRequests.forEach(consultationRequest -> {
+      requestResponseMap.put(consultationRequest, consultationResponseService.getResponseByConsultationRequest(consultationRequest));
+    });
+    return requestResponseMap;
+  }
+
+  private Map<ConsulteeGroup, ConsulteeGroupDetail> getGroupAndDetailMap(List<ConsultationRequest> consultationRequests) {
+    Set<ConsulteeGroup> consulteeGroups = new HashSet<>();
+    consultationRequests.forEach(request -> consulteeGroups.add(request.getConsulteeGroup()));
+    var consulteeGroupDetails = consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(consulteeGroups);
+    return consulteeGroupDetails.stream()
+        .collect(Collectors.toMap(ConsulteeGroupDetail::getConsulteeGroup, Function.identity()));
+  }
+
+  private Map<ConsulteeGroup, List<ConsultationRequest>> getGroupRequestMap(List<ConsultationRequest> consultationRequests) {
+    return  consultationRequests.stream()
+        .collect(groupingBy(ConsultationRequest::getConsulteeGroup, toList()));
   }
 
 

@@ -8,14 +8,12 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -30,7 +28,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -90,6 +87,8 @@ public class ConsultationViewServiceTest {
     var consultationResponse = new ConsultationResponse();
     consultationResponse.setResponseType(ConsultationResponseOption.REJECTED);
     consultationResponse.setResponseText("my reason");
+    consultationResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
+        .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationResponse.setRespondingPersonId(1);
     when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
 
@@ -116,8 +115,8 @@ public class ConsultationViewServiceTest {
     when(consultationRequestService.getAllRequestsByApplication(pwaApplication))
         .thenReturn(List.of(consultationRequest1, consultationRequest3, consultationRequest2));
 
-    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroup(consulteeGroup1)).thenReturn(consulteeGroupDetail1);
-    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroup(consulteeGroup2)).thenReturn(consulteeGroupDetail2);
+    when(consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(Set.of(consulteeGroup1, consulteeGroup2)))
+        .thenReturn(List.of(consulteeGroupDetail1, consulteeGroupDetail2));
 
     List<ConsulteeGroupRequestsView> consultationRequestViews = consultationViewService.getConsultationRequestViews(pwaApplication);
 
@@ -126,18 +125,21 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseRejectionReason()).isEqualTo("my reason");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseByPerson()).isEqualTo("Michael Scott");
+    assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
 
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseType()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseRejectionReason()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseByPerson()).isNull();
+    assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseDateDisplay()).isNull();
 
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getRequestDateDisplay()).isEqualTo("04 February 2020 10:09");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseType()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseRejectionReason()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseByPerson()).isNull();
+    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseDateDisplay()).isNull();
   }
 
 

@@ -13,22 +13,26 @@
         <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
         ${consultationRequestViewData.currentRequest.status.getDisplayName()}
         </br>
-        Due: ${consultationRequestViewData.currentRequest.dueDateDisplay}
+        <#if consultationRequestViewData.currentRequest.status == "RESPONDED">
+            ${consultationRequestViewData.currentRequest.responseDateDisplay}
+        <#else>
+            Due: ${consultationRequestViewData.currentRequest.dueDateDisplay}
+        </#if>
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <#if consultationRequestViewData.currentRequest.responseType?? >
+        <#if consultationRequestViewData.currentRequest.responseType?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response" actionText="" actionUrl="" screenReaderActionText="">
                 ${consultationRequestViewData.currentRequest.responseType.getDisplayText()}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>        
 
-        <#if consultationRequestViewData.currentRequest.responseRejectionReason?? >
+        <#if consultationRequestViewData.currentRequest.responseRejectionReason?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Rejection reason" actionText="" actionUrl="" screenReaderActionText="">
                 ${consultationRequestViewData.currentRequest.responseRejectionReason}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>  
 
-        <#if consultationRequestViewData.currentRequest.responseByPerson?? >
+        <#if consultationRequestViewData.currentRequest.responseByPerson?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response by" actionText="" actionUrl="" screenReaderActionText="">
                 ${consultationRequestViewData.currentRequest.responseByPerson}
             </@fdsCheckAnswers.checkAnswersRow>
