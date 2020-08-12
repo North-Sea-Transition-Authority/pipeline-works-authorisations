@@ -183,7 +183,7 @@ public class ModifyPipelineServiceTest {
 
     when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
     modifyPipelineService.importPipeline(detail, form);
-    verify(padPipelineService, times(1)).copyDataToNewPadPipeline(detail, pipelineDetail);
+    verify(padPipelineService, times(1)).copyDataToNewPadPipeline(detail, pipelineDetail, form);
     verify(pipelineDetailIdentDataImportService, times(1)).importIdentsAndData(eq(pipelineDetail), any());
   }
 }

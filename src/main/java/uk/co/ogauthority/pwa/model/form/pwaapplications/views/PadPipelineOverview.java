@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -38,6 +39,7 @@ public class PadPipelineOverview implements PipelineOverview {
   private String otherPipelineMaterialUsed;
   private Boolean trenchedBuriedBackfilled;
   private String trenchingMethodsDescription;
+  private PipelineStatus pipelineStatus;
 
   private PadPipelineOverview(Integer padPipelineId,
                               Integer pipelineId,
@@ -58,7 +60,8 @@ public class PadPipelineOverview implements PipelineOverview {
                               PipelineMaterial pipelineMaterial,
                               String otherPipelineMaterialUsed,
                               Boolean trenchedBuriedBackfilled,
-                              String trenchingMethodsDescription) {
+                              String trenchingMethodsDescription,
+                              PipelineStatus pipelineStatus) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -79,6 +82,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
     this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
     this.trenchingMethodsDescription = trenchingMethodsDescription;
+    this.pipelineStatus = pipelineStatus;
   }
 
   @VisibleForTesting
@@ -141,7 +145,8 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getPipelineMaterial(),
         padPipelineSummaryDto.getOtherPipelineMaterialUsed(),
         padPipelineSummaryDto.getTrenchedBuriedBackfilled(),
-        padPipelineSummaryDto.getTrenchingMethodsDescription()
+        padPipelineSummaryDto.getTrenchingMethodsDescription(),
+        padPipelineSummaryDto.getPipelineStatus()
     );
   }
 
@@ -243,5 +248,10 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public String getTrenchingMethodsDescription() {
     return trenchingMethodsDescription;
+  }
+
+  @Override
+  public PipelineStatus getPipelineStatus() {
+    return pipelineStatus;
   }
 }

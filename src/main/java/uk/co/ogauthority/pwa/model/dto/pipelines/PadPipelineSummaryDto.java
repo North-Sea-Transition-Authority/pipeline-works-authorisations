@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.dto.pipelines;
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -35,6 +36,7 @@ public class PadPipelineSummaryDto {
   private final String otherPipelineMaterialUsed;
   private final Boolean trenchedBuriedBackfilled;
   private final String trenchingMethodsDescription;
+  private final PipelineStatus pipelineStatus;
 
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
@@ -71,13 +73,15 @@ public class PadPipelineSummaryDto {
                                PipelineMaterial pipelineMaterial,
                                String otherPipelineMaterialUsed,
                                Boolean trenchedBuriedBackfilled,
-                               String trenchingMethodsDescription) {
+                               String trenchingMethodsDescription,
+                               PipelineStatus pipelineStatus) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
     this.toLocation = toLocation;
     this.pipelineFlexibility = pipelineFlexibility;
     this.pipelineMaterial = pipelineMaterial;
+    this.pipelineStatus = pipelineStatus;
 
     var fromLat = new LatitudeCoordinate(
         fromLatitudeDegrees,
@@ -199,5 +203,9 @@ public class PadPipelineSummaryDto {
 
   public String getTrenchingMethodsDescription() {
     return trenchingMethodsDescription;
+  }
+
+  public PipelineStatus getPipelineStatus() {
+    return pipelineStatus;
   }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
@@ -66,7 +67,8 @@ public class ModifyPipelineController {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/importConsented")
         .addObject("consentedPipelines", pipelineSelection)
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesController.class)
-            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)));
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
+        .addObject("serviceStatuses", PipelineStatus.toOrderedListWithoutHistorical());
     applicationBreadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         "Modify consented pipeline");
     return modelAndView;

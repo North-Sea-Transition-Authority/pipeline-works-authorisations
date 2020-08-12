@@ -61,7 +61,7 @@ public class ModifyPipelineService {
   public void importPipeline(PwaApplicationDetail detail, ModifyPipelineForm form) {
     var pipelineId = Integer.parseInt(form.getPipelineId());
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
-    var padPipeline = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+    var padPipeline = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, form);
     pipelineDetailIdentDataImportService.importIdentsAndData(pipelineDetail, padPipeline);
   }
 }

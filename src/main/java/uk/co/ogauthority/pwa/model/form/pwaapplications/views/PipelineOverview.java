@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /* Regardless of application or consented status, provide consistent interface for basic summarised pipeline data */
@@ -44,5 +45,7 @@ public interface PipelineOverview extends NamedPipeline {
   Boolean getTrenchedBuriedBackfilled();
 
   String getTrenchingMethodsDescription();
+
+  PipelineStatus getPipelineStatus();
 
 }

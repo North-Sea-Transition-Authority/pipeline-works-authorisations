@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -92,9 +93,12 @@ public class PadPipelineServiceTest {
   private PadPipeline padPipe1;
   private Pipeline pipe1;
   private PadPipelineIdent ident;
+  private ModifyPipelineForm modifyPipelineForm;
 
   @Before
   public void setUp() {
+
+    modifyPipelineForm = new ModifyPipelineForm();
 
     // mimic save of new pipeline behaviour.
     when(pipelineService.createApplicationPipeline(any())).thenAnswer(invocation -> {
@@ -466,7 +470,7 @@ public class PadPipelineServiceTest {
     pipelineDetail.setToCoordinates(toCoordinatePair);
     pipelineDetail.setToLocation("b");
 
-    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
 
     // TODO: PWA-682 - Assert added fields
     assertThat(pipelineWithCopiedData.getBundleName()).isEqualTo(pipelineDetail.getBundleName());
@@ -502,7 +506,7 @@ public class PadPipelineServiceTest {
     pipelineDetail.setFromCoordinates(fromCoordinatePair);
     pipelineDetail.setToCoordinates(toCoordinatePair);
 
-    var result = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+    var result = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
 
     var captor = ArgumentCaptor.forClass(PadPipeline.class);
     verify(padPipelineRepository, times(1)).save(captor.capture());
@@ -685,7 +689,8 @@ public class PadPipelineServiceTest {
         padPipeline.getPipelineMaterial(),
         padPipeline.getOtherPipelineMaterialUsed(),
         padPipeline.getTrenchedBuriedBackfilled(),
-        padPipeline.getTrenchingMethodsDescription());
+        padPipeline.getTrenchingMethodsDescription(),
+        padPipeline.getPipelineStatus());
   }
 
 }

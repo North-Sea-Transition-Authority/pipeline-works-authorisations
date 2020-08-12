@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pwa.validators.pwaapplications.shared.pipelines;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -31,6 +34,19 @@ public class ModifyPipelineValidator implements SmartValidator {
     if (!isValidPipeline) {
       errors.rejectValue("pipelineId", "pipelineId" + FieldValidationErrorCodes.INVALID.getCode(),
           "You must select a valid pipeline");
+    }
+    ValidationUtils.rejectIfEmpty(errors, "pipelineStatus",
+        "pipelineStatus" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "You must select the status of the pipeline after changes");
+    if (form.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
+      ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
+          "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "You must provide a reason for leaving the pipeline on the seabed");
+      if (StringUtils.length(form.getPipelineStatusReason()) > 4000) {
+        errors.rejectValue("pipelineStatusReason",
+            "pipelineStatusReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+            "The reason for leaving the pipeline on the seabed must be 4000 characters or less");
+      }
     }
   }
 
