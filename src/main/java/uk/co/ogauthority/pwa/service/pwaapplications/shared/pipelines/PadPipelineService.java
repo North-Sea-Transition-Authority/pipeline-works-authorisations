@@ -168,8 +168,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
         applicationId,
         applicationType,
         padPipelineId,
-        null
-    ));
+        null,
+        null));
   }
 
   @Transactional

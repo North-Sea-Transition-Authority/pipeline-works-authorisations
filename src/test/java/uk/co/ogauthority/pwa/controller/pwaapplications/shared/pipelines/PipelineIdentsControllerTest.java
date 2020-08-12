@@ -155,7 +155,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
+                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
@@ -167,7 +167,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
+                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -179,7 +179,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
+                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -205,7 +205,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 pwaApplicationDetail.getPwaApplicationType(),
                 99,
                 null,
-                null)))
+                null, null)))
             .with(authenticatedUserAndSession(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
@@ -239,7 +239,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 pwaApplicationDetail.getPwaApplicationType(),
                 99,
                 null,
-                null)))
+                null, null)))
             .with(authenticatedUserAndSession(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
@@ -258,7 +258,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null)));
+                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -270,7 +270,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null)));
+                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -282,7 +282,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null)));
+                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -300,7 +300,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             99,
             null,
             null,
-            null)))
+            null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -321,7 +321,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             99,
             null,
             null,
-            null)))
+            null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -343,7 +343,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
@@ -361,7 +361,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -380,7 +380,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -393,7 +393,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1)));
+                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
@@ -405,7 +405,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1)));
+                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -417,7 +417,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1)));
+                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -429,7 +429,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1)));
+                .renderRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -441,7 +441,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1)));
+                .postRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -453,7 +453,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1)));
+                .postRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -465,7 +465,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
-        .postRemoveIdent(APP_ID, PwaApplicationType.INITIAL, padPipeline.getId(), null, 1)))
+        .postRemoveIdent(APP_ID, PwaApplicationType.INITIAL, padPipeline.getId(), null, 1, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -505,7 +505,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -517,7 +517,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -529,7 +529,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -549,7 +549,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null)));
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
@@ -561,7 +561,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
@@ -573,7 +573,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -585,7 +585,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+                .renderEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -597,7 +597,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -609,7 +609,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -621,7 +621,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -633,7 +633,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+                .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null)));
 
     doAnswer(invocationOnMock -> {
       var errors = (Errors) invocationOnMock.getArgument(1);
@@ -651,7 +651,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+                .renderInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
@@ -663,7 +663,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+                .renderInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -675,7 +675,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .renderInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null)));
+                .renderInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -703,7 +703,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 99,
                 1,
                 null,
-                null)))
+                null, null)))
             .with(authenticatedUserAndSession(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
@@ -736,7 +736,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 99,
                 1,
                 null,
-                null)))
+                null, null)))
             .with(authenticatedUserAndSession(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
@@ -762,7 +762,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null,
+                    null)));
 
     endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -774,7 +775,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null,
+                    null)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -786,7 +788,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null)));
+                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null,
+                    null)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -805,7 +808,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             1,
             null,
             null,
-            null)))
+            null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
@@ -827,7 +830,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             1,
             null,
             null,
-            null)))
+            null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());

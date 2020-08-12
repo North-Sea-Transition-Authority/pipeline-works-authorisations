@@ -21,16 +21,16 @@ public class IdentUrlFactory {
 
   public String getRemoveUrl(Integer identId) {
     return ReverseRouter.route(on(PipelineIdentsController.class)
-        .renderRemoveIdent(applicationId, pwaApplicationType, pipelineId, null, identId));
+        .renderRemoveIdent(applicationId, pwaApplicationType, pipelineId, null, identId, null));
   }
 
   public String getEditUrl(Integer identId) {
     return ReverseRouter.route(on(PipelineIdentsController.class)
-        .renderEditIdent(applicationId, pwaApplicationType, pipelineId, identId, null, null));
+        .renderEditIdent(applicationId, pwaApplicationType, pipelineId, identId, null, null, null));
   }
 
   public String getInsertAboveUrl(Integer identId) {
     return ReverseRouter.route(on(PipelineIdentsController.class)
-        .renderInsertIdentAbove(applicationId, pwaApplicationType, pipelineId, identId, null, null));
+        .renderInsertIdentAbove(applicationId, pwaApplicationType, pipelineId, identId, null, null, null));
   }
 }
