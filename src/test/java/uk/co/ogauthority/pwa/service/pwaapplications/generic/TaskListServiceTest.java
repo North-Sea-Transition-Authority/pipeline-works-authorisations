@@ -91,6 +91,8 @@ public class TaskListServiceTest {
           case INITIAL:
           case CAT_1_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.FAST_TRACK.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -112,6 +114,8 @@ public class TaskListServiceTest {
             break;
           case DEPOSIT_CONSENT:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.FAST_TRACK.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -124,6 +128,8 @@ public class TaskListServiceTest {
             break;
           case DECOMMISSIONING:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.FAST_TRACK.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -141,6 +147,8 @@ public class TaskListServiceTest {
             break;
           case OPTIONS_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.FAST_TRACK.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -153,6 +161,8 @@ public class TaskListServiceTest {
             break;
           case CAT_2_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.FAST_TRACK.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
@@ -169,6 +179,8 @@ public class TaskListServiceTest {
             break;
           case HUOO_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.FAST_TRACK.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
@@ -206,9 +218,7 @@ public class TaskListServiceTest {
 
       assertThat(modelAndView.getViewName()).isEqualTo(TaskListService.TASK_LIST_TEMPLATE_PATH);
 
-      assertThat(modelAndView.getModel().get("pwaInfoTasks")).isNotNull();
-      assertThat(modelAndView.getModel().get("appInfoTasks")).isNotNull();
-      assertThat(modelAndView.getModel().get("prepareAppTasks")).isNotNull();
+      assertThat(modelAndView.getModel().get("applicationTasks")).isNotNull();
 
       if (applicationType != PwaApplicationType.INITIAL) {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example");
