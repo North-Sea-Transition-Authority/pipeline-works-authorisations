@@ -282,7 +282,8 @@ public class PickableHuooPipelineServiceTest {
         padPipeline.getOtherPipelineMaterialUsed(),
         padPipeline.getTrenchedBuriedBackfilled(),
         padPipeline.getTrenchingMethodsDescription(),
-        padPipeline.getPipelineStatus());
+        padPipeline.getPipelineStatus(),
+        padPipeline.getPipelineStatusReason());
 
 
   }

@@ -37,6 +37,7 @@ public class PadPipelineSummaryDto {
   private final Boolean trenchedBuriedBackfilled;
   private final String trenchingMethodsDescription;
   private final PipelineStatus pipelineStatus;
+  private final String pipelineStatusReason;
 
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
@@ -74,7 +75,7 @@ public class PadPipelineSummaryDto {
                                String otherPipelineMaterialUsed,
                                Boolean trenchedBuriedBackfilled,
                                String trenchingMethodsDescription,
-                               PipelineStatus pipelineStatus) {
+                               PipelineStatus pipelineStatus, String pipelineStatusReason) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -82,6 +83,7 @@ public class PadPipelineSummaryDto {
     this.pipelineFlexibility = pipelineFlexibility;
     this.pipelineMaterial = pipelineMaterial;
     this.pipelineStatus = pipelineStatus;
+    this.pipelineStatusReason = pipelineStatusReason;
 
     var fromLat = new LatitudeCoordinate(
         fromLatitudeDegrees,
@@ -207,5 +209,9 @@ public class PadPipelineSummaryDto {
 
   public PipelineStatus getPipelineStatus() {
     return pipelineStatus;
+  }
+
+  public String getPipelineStatusReason() {
+    return pipelineStatusReason;
   }
 }

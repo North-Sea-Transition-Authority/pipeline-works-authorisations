@@ -40,6 +40,7 @@ public class PadPipelineOverview implements PipelineOverview {
   private Boolean trenchedBuriedBackfilled;
   private String trenchingMethodsDescription;
   private PipelineStatus pipelineStatus;
+  private String pipelineStatusReason;
 
   private PadPipelineOverview(Integer padPipelineId,
                               Integer pipelineId,
@@ -61,7 +62,8 @@ public class PadPipelineOverview implements PipelineOverview {
                               String otherPipelineMaterialUsed,
                               Boolean trenchedBuriedBackfilled,
                               String trenchingMethodsDescription,
-                              PipelineStatus pipelineStatus) {
+                              PipelineStatus pipelineStatus,
+                              String pipelineStatusReason) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -83,6 +85,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
     this.trenchingMethodsDescription = trenchingMethodsDescription;
     this.pipelineStatus = pipelineStatus;
+    this.pipelineStatusReason = pipelineStatusReason;
   }
 
   @VisibleForTesting
@@ -146,7 +149,8 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getOtherPipelineMaterialUsed(),
         padPipelineSummaryDto.getTrenchedBuriedBackfilled(),
         padPipelineSummaryDto.getTrenchingMethodsDescription(),
-        padPipelineSummaryDto.getPipelineStatus()
+        padPipelineSummaryDto.getPipelineStatus(),
+        padPipelineSummaryDto.getPipelineStatusReason()
     );
   }
 
@@ -253,5 +257,10 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public PipelineStatus getPipelineStatus() {
     return pipelineStatus;
+  }
+
+  @Override
+  public String getPipelineStatusReason() {
+    return pipelineStatusReason;
   }
 }

@@ -48,4 +48,6 @@ public interface PipelineOverview extends NamedPipeline {
 
   PipelineStatus getPipelineStatus();
 
+  String getPipelineStatusReason();
+
 }

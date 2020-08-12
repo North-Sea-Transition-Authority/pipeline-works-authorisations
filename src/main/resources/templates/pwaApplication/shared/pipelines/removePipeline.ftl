@@ -55,6 +55,14 @@
                 </#if>
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
+            ${pipeline.pipelineStatus.displayText}
+        </@fdsCheckAnswers.checkAnswersRow>
+        <#if pipeline.pipelineStatus == "OUT_OF_USE_ON_SEABED">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
+                ${pipeline.pipelineStatus.displayText}
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
     </@fdsCheckAnswers.checkAnswers>
     <@fdsForm.htmlForm>
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Remove pipeline" secondaryLinkText="Back to overview" linkSecondaryActionUrl=springUrl(backUrl)/>

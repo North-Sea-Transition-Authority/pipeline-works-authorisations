@@ -690,7 +690,8 @@ public class PadPipelineServiceTest {
         padPipeline.getOtherPipelineMaterialUsed(),
         padPipeline.getTrenchedBuriedBackfilled(),
         padPipeline.getTrenchingMethodsDescription(),
-        padPipeline.getPipelineStatus());
+        padPipeline.getPipelineStatus(),
+        padPipeline.getPipelineStatusReason());
   }
 
 }
