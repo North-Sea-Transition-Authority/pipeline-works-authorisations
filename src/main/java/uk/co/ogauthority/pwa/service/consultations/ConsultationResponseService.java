@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,7 @@ public class ConsultationResponseService {
     return consultationResponse;
   }
 
+  @Transactional
   public void saveResponseAndCompleteWorkflow(ConsultationResponseForm form, ConsultationRequest consultationRequest, WebUserAccount user) {
     ConsultationResponse consultationResponse = mapFormToResponse(form, consultationRequest, user);
     consultationResponseRepository.save(consultationResponse);
