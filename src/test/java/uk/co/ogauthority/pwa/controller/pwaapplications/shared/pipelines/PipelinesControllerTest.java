@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -103,6 +104,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
     padPipeline.setPipelineMaterial(PipelineMaterial.DUPLEX);
     padPipeline.setFromLocation("from");
     padPipeline.setToLocation("to");
+    padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     when(padPipelineService.getById(1)).thenReturn(padPipeline);
 
     var overview = new PadPipelineOverview(padPipeline, 0L);

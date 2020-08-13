@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -214,6 +215,8 @@ public class PadPipelineServiceTest {
     assertThat(newPadPipeline.getComponentPartsDescription()).isEqualTo(form.getComponentPartsDescription());
     assertThat(form.getTrenchedBuriedBackfilled()).isEqualTo(form.getTrenchedBuriedBackfilled());
     assertThat(form.getTrenchingMethods()).isEqualTo(form.getTrenchingMethods());
+
+    assertThat(newPadPipeline.getPipelineStatus()).isEqualTo(PipelineStatus.IN_SERVICE);
 
   }
 
@@ -470,6 +473,9 @@ public class PadPipelineServiceTest {
     pipelineDetail.setToCoordinates(toCoordinatePair);
     pipelineDetail.setToLocation("b");
 
+    modifyPipelineForm.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    modifyPipelineForm.setPipelineStatusReason("reason");
+
     var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
 
     // TODO: PWA-682 - Assert added fields
@@ -485,8 +491,19 @@ public class PadPipelineServiceTest {
     assertThat(pipelineWithCopiedData.getToLocation()).isEqualTo(pipelineDetail.getToLocation());
     assertThat(pipelineWithCopiedData.getComponentPartsDescription()).isEqualTo(pipelineDetail.getComponentPartsDesc());
     assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(pipelineDetail.getPipelineNumber());
+    assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
+    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(modifyPipelineForm.getPipelineStatusReason());
 
+  }
 
+  @Test
+  public void copyDataToNewPadPipeline_noReason_notOnSeabed() {
+    var pipelineDetail = new PipelineDetail();
+    modifyPipelineForm.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    modifyPipelineForm.setPipelineStatusReason("reason");
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
+    assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
+    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isNull();
   }
 
   @Test

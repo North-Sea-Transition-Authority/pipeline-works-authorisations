@@ -38,6 +38,11 @@ public class ModifyPipelineValidator implements SmartValidator {
     ValidationUtils.rejectIfEmpty(errors, "pipelineStatus",
         "pipelineStatus" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "You must select the status of the pipeline after changes");
+    if (form.getPipelineStatus() != null && form.getPipelineStatus().getHistorical()) {
+      errors.rejectValue("pipelineStatus",
+          "pipelineStatus" + FieldValidationErrorCodes.INVALID.getCode(),
+          "The selected pipeline status is invalid");
+    }
     if (form.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
       ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
           "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),

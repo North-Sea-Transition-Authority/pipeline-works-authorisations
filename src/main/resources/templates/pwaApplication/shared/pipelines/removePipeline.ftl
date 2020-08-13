@@ -60,7 +60,7 @@
         </@fdsCheckAnswers.checkAnswersRow>
         <#if pipeline.pipelineStatus == "OUT_OF_USE_ON_SEABED">
             <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
-                ${pipeline.pipelineStatus.displayText}
+                ${pipeline.pipelineStatusReason}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
     </@fdsCheckAnswers.checkAnswers>
