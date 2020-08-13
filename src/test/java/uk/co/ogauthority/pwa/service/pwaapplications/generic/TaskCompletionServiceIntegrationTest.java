@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
@@ -100,6 +103,57 @@ public class TaskCompletionServiceIntegrationTest {
   @MockBean
   private PadPartnerLettersService padPartnerLettersService;
 
+  @MockBean
+  private PadFieldService padFieldService;
+
+  @MockBean
+  private PwaContactService pwaContactService;
+
+  private ApplicationFormSectionService getMockedTaskService(ApplicationTask applicationTask) {
+    switch (applicationTask) {
+      case FIELD_INFORMATION:
+        return padFieldService;
+      case APPLICATION_USERS:
+        return pwaContactService;
+      case PROJECT_INFORMATION:
+        return projectInformationService;
+      case FAST_TRACK:
+        return padFastTrackService;
+      case ENVIRONMENTAL_DECOMMISSIONING:
+        return padEnvironmentalDecommissioningService;
+      case CROSSING_AGREEMENTS:
+        return crossingAgreementsService;
+      case LOCATION_DETAILS:
+        return padLocationDetailsService;
+      case HUOO:
+        return padOrganisationRoleService;
+      case PIPELINES:
+        return padPipelineService;
+      case PIPELINES_HUOO:
+        return padPipelinesHuooService;
+      case CAMPAIGN_WORKS:
+        return campaignWorksService;
+      case TECHNICAL_DRAWINGS:
+        return technicalDrawingSectionService;
+      case PERMANENT_DEPOSITS:
+        return permanentDepositService;
+      case PERMANENT_DEPOSIT_DRAWINGS:
+        return depositDrawingsService;
+      case GENERAL_TECH_DETAILS:
+        return padPipelineTechInfoService;
+      case FLUID_COMPOSITION:
+        return padFluidCompositionInfoService;
+      case PIPELINE_OTHER_PROPERTIES:
+        return padPipelineOtherPropertiesService;
+      case DESIGN_OP_CONDITIONS:
+        return padDesignOpConditionsService;
+      case PARTNER_LETTERS:
+        return padPartnerLettersService;
+      default:
+        throw new AssertionError(applicationTask);
+    }
+  }
+
   @Test
   public void isTaskComplete() {
 
@@ -107,64 +161,7 @@ public class TaskCompletionServiceIntegrationTest {
 
     ApplicationTask.stream().forEach(task -> {
 
-      ApplicationFormSectionService service;
-
-      switch (task) {
-
-        case PROJECT_INFORMATION:
-          service = projectInformationService;
-          break;
-        case FAST_TRACK:
-          service = padFastTrackService;
-          break;
-        case ENVIRONMENTAL_DECOMMISSIONING:
-          service = padEnvironmentalDecommissioningService;
-          break;
-        case CROSSING_AGREEMENTS:
-          service = crossingAgreementsService;
-          break;
-        case LOCATION_DETAILS:
-          service = padLocationDetailsService;
-          break;
-        case HUOO:
-          service = padOrganisationRoleService;
-          break;
-        case PIPELINES:
-          service = padPipelineService;
-          break;
-        case PIPELINES_HUOO:
-          service = padPipelinesHuooService;
-          break;
-        case CAMPAIGN_WORKS:
-          service = campaignWorksService;
-          break;
-        case TECHNICAL_DRAWINGS:
-          service = technicalDrawingSectionService;
-          break;
-        case PERMANENT_DEPOSITS:
-          service = permanentDepositService;
-          break;
-        case PERMANENT_DEPOSIT_DRAWINGS:
-          service = depositDrawingsService;
-          break;
-        case GENERAL_TECH_DETAILS:
-          service = padPipelineTechInfoService;
-          break;
-        case FLUID_COMPOSITION:
-          service = padFluidCompositionInfoService;
-          break;
-        case PIPELINE_OTHER_PROPERTIES:
-          service = padPipelineOtherPropertiesService;
-          break;
-        case DESIGN_OP_CONDITIONS:
-          service = padDesignOpConditionsService;
-          break;
-        case PARTNER_LETTERS:
-          service = padPartnerLettersService;
-          break;
-        default:
-          throw new AssertionError(task);
-      }
+      ApplicationFormSectionService service = getMockedTaskService(task);
 
       when(service.isComplete(detail)).thenReturn(true);
 
@@ -173,6 +170,27 @@ public class TaskCompletionServiceIntegrationTest {
       verify(service, times(1)).isComplete(detail);
 
       assertThat(isComplete).isTrue();
+
+    });
+
+  }
+
+  @Test
+  public void getTaskInfoList() {
+
+    var detail = new PwaApplicationDetail();
+
+    ApplicationTask.stream().forEach(task -> {
+
+      ApplicationFormSectionService service = getMockedTaskService(task);
+
+      when(service.getTaskInfoList(detail)).thenReturn(List.of());
+
+      var taskInfoList = taskCompletionService.getTaskInfoList(detail, task);
+
+      verify(service, times(1)).getTaskInfoList(detail);
+
+      assertThat(taskInfoList).isEmpty();
 
     });
 

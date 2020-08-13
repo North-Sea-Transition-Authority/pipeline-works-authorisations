@@ -27,7 +27,7 @@ public class PwaApplicationDataCleanupService {
   @Transactional
   public void cleanupData(PwaApplicationDetail detail) {
 
-    taskListService.getPrepareAppTasks(detail).stream()
+    taskListService.getApplicationTasks(detail).stream()
         .map(taskListEntry -> ApplicationTask.resolveFromName(taskListEntry.getTaskName()))
         .forEach(applicationTask -> applicationContext.getBean(applicationTask.getServiceClass()).cleanupData(detail));
 

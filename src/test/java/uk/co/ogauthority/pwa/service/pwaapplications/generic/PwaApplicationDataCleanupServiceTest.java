@@ -105,7 +105,7 @@ public class PwaApplicationDataCleanupServiceTest {
 
     var detail = new PwaApplicationDetail();
 
-    when(taskListService.getPrepareAppTasks(detail)).thenReturn(List.of(
+    when(taskListService.getApplicationTasks(detail)).thenReturn(List.of(
         new TaskListEntry(ApplicationTask.PROJECT_INFORMATION.getDisplayName(), null, false),
         new TaskListEntry(ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName(), null, false),
         new TaskListEntry(ApplicationTask.LOCATION_DETAILS.getDisplayName(), null, false)

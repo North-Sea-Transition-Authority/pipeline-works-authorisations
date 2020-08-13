@@ -29,7 +29,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskCompletionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
@@ -65,9 +64,6 @@ public class TaskListServiceIntegrationTestTest {
   @Autowired
   private TaskCompletionService taskCompletionService;
 
-  @Autowired
-  private PwaContactService pwaContactService;
-
   // this needs to be mocked so we dont try increment a sequence that doesnt exist in h2
   @MockBean
   private PwaApplicationReferencingService pwaApplicationReferencingService;
@@ -97,24 +93,25 @@ public class TaskListServiceIntegrationTestTest {
         pwaApplicationRedirectService,
         breadcrumbService,
         taskCompletionService,
-        pwaContactService,
         masterPwaViewService);
 
   }
 
 
   @Test
-  public void prepareAppTasks_forEveryAppType_assertAllTasksWithNoCrossSectionDependencies() {
+  public void getApplicationTasks_forEveryAppType_assertAllTasksWithNoCrossSectionDependencies() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
 
         switch (appType) {
           case INITIAL:
           case CAT_1_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
@@ -132,6 +129,8 @@ public class TaskListServiceIntegrationTestTest {
             break;
           case DEPOSIT_CONSENT:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
@@ -141,6 +140,8 @@ public class TaskListServiceIntegrationTestTest {
             break;
           case DECOMMISSIONING:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
@@ -154,6 +155,8 @@ public class TaskListServiceIntegrationTestTest {
             break;
           case OPTIONS_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
@@ -163,6 +166,8 @@ public class TaskListServiceIntegrationTestTest {
             break;
           case CAT_2_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.CROSSING_AGREEMENTS.getDisplayName(),
                 ApplicationTask.LOCATION_DETAILS.getDisplayName(),
@@ -175,6 +180,8 @@ public class TaskListServiceIntegrationTestTest {
             break;
           case HUOO_VARIATION:
             assertThat(taskNamesList).containsOnly(
+                ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),
                 ApplicationTask.PIPELINES_HUOO.getDisplayName()
@@ -213,12 +220,12 @@ public class TaskListServiceIntegrationTestTest {
 
 
   @Test
-  public void prepareAppTasks_campaignWorksNotInTaskList_whenCampaignWorksServiceAnswersNo() {
+  public void getApplicationTasks_campaignWorksNotInTaskList_whenCampaignWorksServiceAnswersNo() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -229,7 +236,7 @@ public class TaskListServiceIntegrationTestTest {
   }
 
   @Test
-  public void prepareAppTasks_campaignWorksInTaskList_forValidAppTypes_whenCampaignWorksServiceAnswersYes() {
+  public void getApplicationTasks_campaignWorksInTaskList_forValidAppTypes_whenCampaignWorksServiceAnswersYes() {
 
     when(campaignWorksService.canShowInTaskList(any())).thenReturn(true);
 
@@ -238,7 +245,7 @@ public class TaskListServiceIntegrationTestTest {
     validApplicationTypes.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).contains(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -249,7 +256,7 @@ public class TaskListServiceIntegrationTestTest {
   }
 
   @Test
-  public void prepareAppTasks_campaignWorksNotInTaskList_forInvalidAppTypes_whenCampaignWorksServiceAnswersYes() {
+  public void getApplicationTasks_campaignWorksNotInTaskList_forInvalidAppTypes_whenCampaignWorksServiceAnswersYes() {
     // task list service uses controller annotations and part of the integration test is making sure this markup is as expected
     when(campaignWorksService.canShowInTaskList(any())).thenReturn(true);
 
@@ -258,7 +265,7 @@ public class TaskListServiceIntegrationTestTest {
     invalidApplicationTypes.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -270,12 +277,12 @@ public class TaskListServiceIntegrationTestTest {
 
 
   @Test
-  public void prepareAppTasks_fastTrackNotInTaskList_whenFastTrackServiceAnswersNo() {
+  public void getApplicationTasks_fastTrackNotInTaskList_whenFastTrackServiceAnswersNo() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -286,7 +293,7 @@ public class TaskListServiceIntegrationTestTest {
   }
 
   @Test
-  public void prepareAppTasks_fastTrackInTaskList_forValidAppTypes_whenFastTrackServiceAnswersYes() {
+  public void getApplicationTasks_fastTrackInTaskList_forValidAppTypes_whenFastTrackServiceAnswersYes() {
 
     when(padFastTrackService.canShowInTaskList(any())).thenReturn(true);
 
@@ -295,7 +302,7 @@ public class TaskListServiceIntegrationTestTest {
     validApplicationTypes.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).contains(ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -306,7 +313,7 @@ public class TaskListServiceIntegrationTestTest {
   }
 
   @Test
-  public void prepareAppTasks_fastTrackNotInTaskList_forInvalidAppTypes_whenFastTrackServiceAnswersYes() {
+  public void getApplicationTasks_fastTrackNotInTaskList_forInvalidAppTypes_whenFastTrackServiceAnswersYes() {
     // task list service uses controller annotations and part of the integration test is making sure this markup is as expected
     when(padFastTrackService.canShowInTaskList(any())).thenReturn(true);
 
@@ -315,7 +322,7 @@ public class TaskListServiceIntegrationTestTest {
     invalidApplicationTypes.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -326,12 +333,12 @@ public class TaskListServiceIntegrationTestTest {
   }
 
   @Test
-  public void prepareAppTasks_permDepositsNotInTaskList_whenPermDepositsServiceAnswersNo() {
+  public void getApplicationTasks_permDepositsNotInTaskList_whenPermDepositsServiceAnswersNo() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -342,7 +349,7 @@ public class TaskListServiceIntegrationTestTest {
   }
 
   @Test
-  public void prepareAppTasks_permDepositsInTaskList_forValidAppTypes_whenPermDepositsServiceAnswersYes() {
+  public void getApplicationTasks_permDepositsInTaskList_forValidAppTypes_whenPermDepositsServiceAnswersYes() {
 
     when(permanentDepositService.canShowInTaskList(any())).thenReturn(true);
 
@@ -351,7 +358,7 @@ public class TaskListServiceIntegrationTestTest {
     validApplicationTypes.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).contains(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -362,7 +369,7 @@ public class TaskListServiceIntegrationTestTest {
   }
 
   @Test
-  public void prepareAppTasks_permDepositsNotInTaskList_forInvalidAppTypes_whenPermDepositsServiceAnswersYes() {
+  public void getApplicationTasks_permDepositsNotInTaskList_forInvalidAppTypes_whenPermDepositsServiceAnswersYes() {
     // task list service uses controller annotations and part of the integration test is making sure this markup is as expected
     when(permanentDepositService.canShowInTaskList(any())).thenReturn(true);
 
@@ -371,7 +378,7 @@ public class TaskListServiceIntegrationTestTest {
     invalidApplicationTypes.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getPrepareAppTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);

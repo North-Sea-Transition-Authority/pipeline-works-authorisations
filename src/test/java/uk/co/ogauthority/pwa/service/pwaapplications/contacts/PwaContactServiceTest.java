@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactDto;
@@ -52,14 +53,16 @@ public class PwaContactServiceTest {
   private WebUserAccount wua = new WebUserAccount(10, person);
 
   private PwaApplication pwaApplication;
+  private PwaApplicationDetail pwaApplicationDetail;
   private PwaContact allRolesContact;
 
   @Before
   public void setUp() {
 
     pwaContactService = new PwaContactService(pwaContactRepository);
-    pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL).getPwaApplication();
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
+        PwaApplicationType.INITIAL);
+    pwaApplication = pwaApplicationDetail.getPwaApplication();
     allRolesContact = new PwaContact(pwaApplication, person, EnumSet.allOf(PwaContactRole.class));
   }
 
@@ -404,6 +407,23 @@ public class PwaContactServiceTest {
     );
 
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void isComplete_alwaysReturnsTrue(){
+    assertThat(pwaContactService.isComplete(pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void getTaskInfoList_alwaysContainsContactCountItem(){
+
+    when(pwaContactRepository.countByPwaApplication(pwaApplication)).thenReturn(1L);
+    var taskInfoList = pwaContactService.getTaskInfoList(pwaApplicationDetail);
+    assertThat(taskInfoList).hasSize(1);
+    assertThat(taskInfoList.get(0)).satisfies(taskInfo -> {
+      assertThat(taskInfo.getCount()).isEqualTo(1L);
+      assertThat(taskInfo.getCountType()).isEqualTo("CONTACT");
+    });
   }
 
 }

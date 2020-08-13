@@ -10,25 +10,30 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactDto;
 import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 
 /**
  * Service to administer PWA application-scoped teams (known as contacts).
  */
 @Service
-public class PwaContactService {
+public class PwaContactService implements ApplicationFormSectionService {
 
   private final PwaContactRepository pwaContactRepository;
 
@@ -181,5 +186,21 @@ public class PwaContactService {
     }
 
     return appContactRoles;
+  }
+
+  @Override
+  public boolean isComplete(PwaApplicationDetail detail) {
+    return true;
+  }
+
+  @Override
+  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
+                                PwaApplicationDetail pwaApplicationDetail) {
+    return bindingResult;
+  }
+
+  @Override
+  public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
+    return List.of(new TaskInfo("CONTACT", countContactsByPwaApplication(pwaApplicationDetail.getPwaApplication())));
   }
 }
