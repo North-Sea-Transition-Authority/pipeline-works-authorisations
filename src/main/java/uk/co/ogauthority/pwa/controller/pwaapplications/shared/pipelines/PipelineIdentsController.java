@@ -110,7 +110,7 @@ public class PipelineIdentsController {
                                           @PathVariable("padPipelineId") Integer padPipelineId,
                                           PwaApplicationContext applicationContext,
                                           RedirectAttributes redirectAttributes) {
-    return PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
         () -> getIdentOverviewModelAndView(applicationContext.getApplicationDetail(),
             applicationContext.getPadPipeline()));
   }
@@ -140,17 +140,19 @@ public class PipelineIdentsController {
                                         PwaApplicationContext applicationContext,
                                         RedirectAttributes redirectAttributes) {
 
-    var sectionValid = padIdentService.isSectionValid(applicationContext.getPadPipeline());
-    if (sectionValid) {
-      return ReverseRouter.redirect(on(PipelinesController.class)
-          .renderPipelinesOverview(applicationId, pwaApplicationType, null));
-    } else {
-      return PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
-          () -> getIdentOverviewModelAndView(
-              applicationContext.getApplicationDetail(),
-              applicationContext.getPadPipeline()
-          ).addObject("errorMessage", "At least one ident must be added"));
-    }
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
+      var sectionValid = padIdentService.isSectionValid(applicationContext.getPadPipeline());
+      if (sectionValid) {
+        return ReverseRouter.redirect(on(PipelinesController.class)
+            .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+      } else {
+        return getIdentOverviewModelAndView(
+            applicationContext.getApplicationDetail(),
+            applicationContext.getPadPipeline()
+        ).addObject("errorMessage", "At least one ident must be added");
+      }
+    });
+
   }
 
   @GetMapping("/add")
@@ -163,17 +165,19 @@ public class PipelineIdentsController {
                                      RedirectAttributes redirectAttributes) {
 
     // set the fromLocation of our new ident to the toLocation of the previous ident if one exists
-    padIdentService.getMaxIdent(applicationContext.getPadPipeline())
-        .ifPresent(previousIdent -> {
-          var fromCoordinateForm = new CoordinateForm();
-          CoordinateUtils.mapCoordinatePairToForm(previousIdent.getToCoordinates(), fromCoordinateForm);
-          form.setFromLocation(previousIdent.getToLocation());
-          form.setFromCoordinateForm(fromCoordinateForm);
-        });
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes, () -> {
+      padIdentService.getMaxIdent(applicationContext.getPadPipeline())
+          .ifPresent(previousIdent -> {
+            var fromCoordinateForm = new CoordinateForm();
+            CoordinateUtils.mapCoordinatePairToForm(previousIdent.getToCoordinates(), fromCoordinateForm);
+            form.setFromLocation(previousIdent.getToLocation());
+            form.setFromCoordinateForm(fromCoordinateForm);
+          });
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
-        () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
-            applicationContext.getPadPipeline(), ScreenActionType.ADD));
+      return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
+          () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
+              applicationContext.getPadPipeline(), ScreenActionType.ADD));
+    });
 
   }
 
@@ -188,18 +192,20 @@ public class PipelineIdentsController {
                                              RedirectAttributes redirectAttributes) {
 
     // set the fromLocation of our new ident to the toLocation of the previous ident if one exists
-    var nextIdent = padIdentService.getIdent(applicationContext.getPadPipeline(), insertAboveIdentId);
-    padIdentService.getIdentByIdentNumber(applicationContext.getPadPipeline(), nextIdent.getIdentNo() - 1)
-        .ifPresent(previousIdent -> {
-          var fromCoordinateForm = new CoordinateForm();
-          CoordinateUtils.mapCoordinatePairToForm(previousIdent.getToCoordinates(), fromCoordinateForm);
-          form.setFromLocation(previousIdent.getToLocation());
-          form.setFromCoordinateForm(fromCoordinateForm);
-        });
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes, () -> {
+      var nextIdent = padIdentService.getIdent(applicationContext.getPadPipeline(), insertAboveIdentId);
+      padIdentService.getIdentByIdentNumber(applicationContext.getPadPipeline(), nextIdent.getIdentNo() - 1)
+          .ifPresent(previousIdent -> {
+            var fromCoordinateForm = new CoordinateForm();
+            CoordinateUtils.mapCoordinatePairToForm(previousIdent.getToCoordinates(), fromCoordinateForm);
+            form.setFromLocation(previousIdent.getToLocation());
+            form.setFromCoordinateForm(fromCoordinateForm);
+          });
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
-        () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
-            applicationContext.getPadPipeline(), ScreenActionType.ADD));
+      return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
+          () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
+              applicationContext.getPadPipeline(), ScreenActionType.ADD));
+    });
 
   }
 
@@ -214,20 +220,20 @@ public class PipelineIdentsController {
                                            BindingResult bindingResult,
                                            RedirectAttributes redirectAttributes) {
 
-    var coreType = applicationContext.getPadPipeline().getCoreType();
-    var nextIdent = padIdentService.getIdent(applicationContext.getPadPipeline(), insertAboveIdentId);
-    validator.validate(form, bindingResult, applicationContext, coreType);
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
+      var coreType = applicationContext.getPadPipeline().getCoreType();
+      var nextIdent = padIdentService.getIdent(applicationContext.getPadPipeline(), insertAboveIdentId);
+      validator.validate(form, bindingResult, applicationContext, coreType);
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
-            applicationContext.getPadPipeline(), ScreenActionType.ADD),
-        () -> PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
-            () -> {
-              padIdentService.addIdentAtPosition(applicationContext.getPadPipeline(), form, nextIdent.getIdentNo());
-              return ReverseRouter.redirect(on(PipelineIdentsController.class).renderIdentOverview(
-                  applicationId, pwaApplicationType, padPipelineId, applicationContext, null));
-            })
-    );
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+          getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
+              applicationContext.getPadPipeline(), ScreenActionType.ADD),
+          () -> {
+            padIdentService.addIdentAtPosition(applicationContext.getPadPipeline(), form, nextIdent.getIdentNo());
+            return ReverseRouter.redirect(on(PipelineIdentsController.class).renderIdentOverview(
+                applicationId, pwaApplicationType, padPipelineId, applicationContext, null));
+          });
+    });
 
   }
 
@@ -241,22 +247,21 @@ public class PipelineIdentsController {
                                    BindingResult bindingResult,
                                    RedirectAttributes redirectAttributes) {
 
-    validator.validate(form, bindingResult, applicationContext,
-        applicationContext.getPadPipeline().getCoreType());
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
-            applicationContext.getPadPipeline(),
-            ScreenActionType.ADD),
-        () ->
-            PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
-                () -> {
-                  padIdentService.addIdent(applicationContext.getPadPipeline(), form);
-                  return ReverseRouter.redirect(on(PipelineIdentsController.class).renderIdentOverview(
-                      applicationId, pwaApplicationType, padPipelineId, applicationContext, null));
-                })
+      validator.validate(form, bindingResult, applicationContext,
+          applicationContext.getPadPipeline().getCoreType());
 
-    );
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+          getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
+              applicationContext.getPadPipeline(),
+              ScreenActionType.ADD),
+          () -> {
+            padIdentService.addIdent(applicationContext.getPadPipeline(), form);
+            return ReverseRouter.redirect(on(PipelineIdentsController.class).renderIdentOverview(
+                applicationId, pwaApplicationType, padPipelineId, applicationContext, null));
+          });
+    });
 
   }
 
@@ -269,7 +274,7 @@ public class PipelineIdentsController {
                                         @PathVariable("identId") Integer identId,
                                         RedirectAttributes redirectAttributes) {
     var identView = padIdentService.getIdentView(applicationContext.getPadPipeline(), identId);
-    return PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
         () -> getRemoveIdentModelAndView(applicationContext.getApplicationDetail(), identView,
             applicationContext.getPadPipeline()));
   }
@@ -283,7 +288,7 @@ public class PipelineIdentsController {
                                       @PathVariable("identId") Integer identId,
                                       RedirectAttributes redirectAttributes) {
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
-    return PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes,
         () -> {
           padIdentService.removeIdent(ident);
           return ReverseRouter.redirect(on(PipelineIdentsController.class)
@@ -305,7 +310,7 @@ public class PipelineIdentsController {
 
     padIdentService.mapEntityToForm(ident, form);
 
-    return PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
         () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
             applicationContext.getPadPipeline(), ScreenActionType.EDIT));
 
@@ -323,23 +328,21 @@ public class PipelineIdentsController {
                                     RedirectAttributes redirectAttributes) {
 
     var ident = padIdentService.getIdent(applicationContext.getPadPipeline(), identId);
-    validator.validate(form, bindingResult, applicationContext,
-        applicationContext.getPadPipeline().getCoreType());
 
-    var addEditModelAndView = PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext,
-        redirectAttributes,
-        () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
-            applicationContext.getPadPipeline(),
-            ScreenActionType.EDIT));
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes,
+        () -> {
+          validator.validate(form, bindingResult, applicationContext,
+              applicationContext.getPadPipeline().getCoreType());
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, addEditModelAndView, () ->
-        PipelineControllerRouteUtils.ifAllowedFromOverview(applicationContext, redirectAttributes,
-            () -> {
-              padIdentService.updateIdent(ident, form);
-              return ReverseRouter.redirect(on(PipelineIdentsController.class).renderIdentOverview(
-                  applicationId, pwaApplicationType, padPipelineId, applicationContext, null));
-            })
-    );
+          return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+              getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
+                  applicationContext.getPadPipeline(), ScreenActionType.EDIT), () -> {
+
+                padIdentService.updateIdent(ident, form);
+                return ReverseRouter.redirect(on(PipelineIdentsController.class).renderIdentOverview(
+                    applicationId, pwaApplicationType, padPipelineId, applicationContext, null));
+              });
+        });
 
   }
 

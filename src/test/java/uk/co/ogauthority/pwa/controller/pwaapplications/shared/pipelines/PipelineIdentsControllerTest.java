@@ -263,6 +263,34 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
+  public void renderAddIdent_pipelineStatusAllowed() {
+    allowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.GET)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+    });
+  }
+
+  @Test
+  public void renderAddIdent_pipelineStatusNotAllowed() {
+    disallowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.GET)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+    });
+  }
+
+  @Test
   public void postAddIdent_contactSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -341,6 +369,34 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
+  public void postAddIdent_pipelineStatusAllowed() {
+    allowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.POST)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+    });
+  }
+
+  @Test
+  public void postAddIdent_pipelineStatusNotAllowed() {
+    disallowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.POST)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().is(403), status().isForbidden());
+    });
+  }
+
+  @Test
   public void renderIdentOverview_contactSmokeTest() {
 
     PadPipeline padPipeline = new PadPipeline();
@@ -394,6 +450,34 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
+  }
+
+  @Test
+  public void renderIdentOverview_pipelineStatusAllowed() {
+    allowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.GET)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+    });
+  }
+
+  @Test
+  public void renderIdentOverview_pipelineStatusNotAllowed() {
+    disallowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.GET)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .renderIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+    });
   }
 
   @Test
@@ -528,7 +612,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 .postRemoveIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, 1, null));
           });
 
-      endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+      endpointTester.performAppTypeChecks(status().is(403), status().isForbidden());
     });
   }
 
@@ -611,6 +695,34 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
+  }
+
+  @Test
+  public void postIdentOverview_pipelineStatusAllowed() {
+    allowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.POST)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+    });
+  }
+
+  @Test
+  public void postIdentOverview_pipelineStatusNotAllowed() {
+    disallowedPipelineStatuses.forEach(pipelineStatus -> {
+      endpointTester.setRequestMethod(HttpMethod.POST)
+          .setEndpointUrlProducer((applicationDetail, type) -> {
+            endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
+            return ReverseRouter.route(on(PipelineIdentsController.class)
+                .postAddIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null));
+          });
+
+      endpointTester.performAppTypeChecks(status().is(403), status().isForbidden());
+    });
   }
 
   @Test
@@ -755,7 +867,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 .postEditIdent(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null));
           });
 
-      endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+      endpointTester.performAppTypeChecks(status().is(403), status().isForbidden());
     });
   }
 
@@ -988,7 +1100,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
           .setEndpointUrlProducer((applicationDetail, type) -> {
             endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
             return ReverseRouter.route(on(PipelineIdentsController.class)
-                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null));
+                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null, null));
           });
 
       endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
@@ -1002,10 +1114,10 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
           .setEndpointUrlProducer((applicationDetail, type) -> {
             endpointTester.getPadPipeline().setPipelineStatus(pipelineStatus);
             return ReverseRouter.route(on(PipelineIdentsController.class)
-                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, 1, null, null, null, null));
+                .postInsertIdentAbove(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null, null, null, null));
           });
 
-      endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
+      endpointTester.performAppTypeChecks(status().is(403), status().isForbidden());
     });
   }
 
