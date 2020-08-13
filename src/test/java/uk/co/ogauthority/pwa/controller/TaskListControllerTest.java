@@ -72,7 +72,6 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
         pwaApplicationRedirectService,
         applicationBreadcrumbService,
         taskCompletionService,
-        pwaContactService,
         masterPwaViewService);
 
 

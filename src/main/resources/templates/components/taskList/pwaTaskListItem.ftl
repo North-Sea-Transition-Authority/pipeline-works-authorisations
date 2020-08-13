@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="taskName" type="String" -->
 <#-- @ftlvariable name="taskInfo" type="uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo" -->
 
-<#macro taskInfoItem taskName taskInfoList route>
+<#macro taskInfoItem taskName taskInfoList route isCompleted>
   <li class="fds-task-list__item">
     <span class="fds-task-list__task-name">
       <a class="govuk-link" href="${springUrl(route)}">
@@ -18,5 +18,10 @@
             </strong>
           </#if>
       </#list>
+      <#if isCompleted>
+        <strong class="govuk-tag fds-task-list__task-completed">COMPLETED</strong>
+      <#else>
+        <strong class="govuk-tag govuk-tag--grey">NOT COMPLETED</strong>
+      </#if>
   </li>
 </#macro>

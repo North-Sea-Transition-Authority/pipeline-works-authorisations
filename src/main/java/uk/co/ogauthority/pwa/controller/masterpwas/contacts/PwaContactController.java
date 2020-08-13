@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.initial.InitialTaskListController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -35,6 +34,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -57,6 +57,7 @@ public class PwaContactController {
   private final ControllerHelperService controllerHelperService;
   private final TeamService teamService;
   private final PadOrganisationRoleService padOrganisationRoleService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   private final Map<String, String> rolesCheckboxMap;
   private final Map<String, String> allRolesMap;
@@ -71,6 +72,7 @@ public class PwaContactController {
                               ControllerHelperService controllerHelperService,
                               TeamService teamService,
                               PadOrganisationRoleService padOrganisationRoleService,
+                              PwaApplicationRedirectService pwaApplicationRedirectService,
                               @Value("${oga.registration.link}") String ogaRegistrationLink) {
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
@@ -80,6 +82,7 @@ public class PwaContactController {
     this.controllerHelperService = controllerHelperService;
     this.teamService = teamService;
     this.padOrganisationRoleService = padOrganisationRoleService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.ogaRegistrationLink = ogaRegistrationLink;
 
     rolesCheckboxMap = PwaContactRole.stream()
@@ -123,8 +126,7 @@ public class PwaContactController {
               .personHasContactRoleForPwaApplication(pwaApplication, user.getLinkedPerson(), PwaContactRole.ACCESS_MANAGER))
           .addObject("allRoles", allRolesMap)
           .addObject("backUrl",
-                  ReverseRouter.route(on(InitialTaskListController.class)
-                          .viewTaskList(pwaApplication.getId(), null)))
+                  pwaApplicationRedirectService.getTaskListRoute(pwaApplication))
           .addObject("orgGroupHolders", orgGroupHolders)
           .addObject("appUser", true)
           .addObject("userType", UserType.INDUSTRY);
