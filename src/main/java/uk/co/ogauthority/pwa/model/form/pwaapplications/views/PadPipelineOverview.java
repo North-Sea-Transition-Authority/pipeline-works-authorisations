@@ -108,6 +108,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.otherPipelineMaterialUsed = padPipeline.getOtherPipelineMaterialUsed();
     this.trenchedBuriedBackfilled = padPipeline.getTrenchedBuriedBackfilled();
     this.trenchingMethodsDescription = padPipeline.getTrenchingMethodsDescription();
+    this.pipelineStatus = padPipeline.getPipelineStatus();
   }
 
   @VisibleForTesting

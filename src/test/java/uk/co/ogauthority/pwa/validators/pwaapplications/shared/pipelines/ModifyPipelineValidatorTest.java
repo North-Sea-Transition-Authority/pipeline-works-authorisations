@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -48,6 +49,7 @@ public class ModifyPipelineValidatorTest {
     );
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");
+    form.setPipelineStatus(PipelineStatus.IN_SERVICE);
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
     assertThat(errors).isEmpty();
   }
@@ -64,8 +66,75 @@ public class ModifyPipelineValidatorTest {
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
-    assertThat(errors).containsExactly(
+    assertThat(errors).contains(
         entry("pipelineId", Set.of("pipelineId" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_pipelineStatus_notSelected() {
+    when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
+    var form = new ModifyPipelineForm();
+    var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
+    assertThat(errors).contains(
+        entry("pipelineStatus", Set.of("pipelineStatus" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_pipelineStatus_historical() {
+    when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
+    var form = new ModifyPipelineForm();
+    form.setPipelineStatus(PipelineStatus.AUTHORISED);
+    var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
+    assertThat(errors).contains(
+        entry("pipelineStatus", Set.of("pipelineStatus" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_pipelineStatus_selected() {
+    when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
+    var form = new ModifyPipelineForm();
+    form.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
+    assertThat(errors).doesNotContain(
+        entry("pipelineStatus", Set.of("pipelineStatus" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_pipelineStatusReason_invalid() {
+    when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
+    var form = new ModifyPipelineForm();
+    form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
+    assertThat(errors).contains(
+        entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_pipelineStatusReason_over4k() {
+    when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
+    var form = new ModifyPipelineForm();
+    form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    form.setPipelineStatusReason("a".repeat(4001));
+    var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
+    assertThat(errors).contains(
+        entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_pipelineStatusReason_valid() {
+    when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
+    var form = new ModifyPipelineForm();
+    form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    form.setPipelineStatusReason("reason");
+    var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
+    assertThat(errors).doesNotContain(
+        entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
 
