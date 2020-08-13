@@ -393,7 +393,9 @@ public class PadPipelineService implements ApplicationFormSectionService {
     newPadPipeline.setLength(pipelineDetail.getLength());
     newPadPipeline.setPipelineInBundle(pipelineDetail.getPipelineInBundle());
     newPadPipeline.setPipelineStatus(form.getPipelineStatus());
-    newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
+    if (newPadPipeline.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
+      newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
+    }
     if (pipelineDetail.getPipelineType() == null) {
       newPadPipeline.setPipelineType(PipelineType.UNKNOWN);
     } else {
