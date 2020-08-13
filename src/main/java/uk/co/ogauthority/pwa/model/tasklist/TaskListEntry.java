@@ -3,26 +3,34 @@ package uk.co.ogauthority.pwa.model.tasklist;
 import java.util.List;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 
+/**
+ * A single task within a task list.
+ */
 public class TaskListEntry {
 
-  private String taskName;
-  private String route;
-  private boolean completed;
+  private final String taskName;
+  private final String route;
+  private final boolean completed;
   private final List<TaskInfo> taskInfoList;
+  private final int displayOrder;
 
-  public TaskListEntry(String taskName, String route, boolean completed) {
-    this.taskName = taskName;
-    this.route = route;
-    this.completed = completed;
-    this.taskInfoList = List.of();
+  public TaskListEntry(String taskName,
+                       String route,
+                       boolean completed,
+                       int displayOrder) {
+    this(taskName, route, completed, List.of(), displayOrder);
   }
 
-  public TaskListEntry(String taskName, String route, boolean completed,
-                       List<TaskInfo> taskInfoList) {
+  public TaskListEntry(String taskName,
+                       String route,
+                       boolean completed,
+                       List<TaskInfo> taskInfoList,
+                       int displayOrder) {
     this.taskName = taskName;
     this.route = route;
     this.completed = completed;
     this.taskInfoList = taskInfoList;
+    this.displayOrder = displayOrder;
   }
 
   public String getTaskName() {
@@ -39,5 +47,9 @@ public class TaskListEntry {
 
   public List<TaskInfo> getTaskInfoList() {
     return taskInfoList;
+  }
+
+  public int getDisplayOrder() {
+    return displayOrder;
   }
 }

@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
+/**
+ * This is a single piece of additional information about a single application task.
+ */
 public class TaskInfo {
 
   private String countType;

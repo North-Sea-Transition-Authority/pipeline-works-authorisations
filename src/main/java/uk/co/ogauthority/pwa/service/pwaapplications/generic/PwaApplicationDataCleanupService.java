@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 @Service
 public class PwaApplicationDataCleanupService {
@@ -27,8 +26,7 @@ public class PwaApplicationDataCleanupService {
   @Transactional
   public void cleanupData(PwaApplicationDetail detail) {
 
-    taskListService.getApplicationTasks(detail).stream()
-        .map(taskListEntry -> ApplicationTask.resolveFromName(taskListEntry.getTaskName()))
+    taskListService.getShownApplicationTasksForDetail(detail)
         .forEach(applicationTask -> applicationContext.getBean(applicationTask.getServiceClass()).cleanupData(detail));
 
   }

@@ -139,13 +139,14 @@ public class PadPipelineService implements ApplicationFormSectionService {
         new TaskListEntry(
             "Header information",
             editPipelineHeaderUrl,
-            true
-        ),
+            true,
+            10),
         new TaskListEntry(
             "Idents",
             identTaskUrl,
             false,
-            List.of(new TaskInfo("IDENT", pipelineOverview.getNumberOfIdents()))
+            List.of(new TaskInfo("IDENT", pipelineOverview.getNumberOfIdents())),
+            20
         )
     );
 

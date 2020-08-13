@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
@@ -19,7 +18,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskCompletionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
@@ -35,10 +35,10 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   protected TaskListService taskListService;
 
   @MockBean
-  protected TaskCompletionService taskCompletionService;
+  protected TaskListEntryFactory taskListEntryFactory;
 
   @MockBean
-  protected ApplicationContext springApplicationContext;
+  protected ApplicationTaskService applicationTaskService;
 
   @MockBean(name = "contactServiceForTaskListService")
   protected PwaContactService pwaContactService;
@@ -65,13 +65,11 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   public void taskListControllerTestSetup() {
     when(masterPwaView.getReference()).thenReturn("EXAMPLE_REFERENCE");
     when(masterPwaViewService.getCurrentMasterPwaView(any())).thenReturn(masterPwaView);
-    when(springApplicationContext.getBean(any(Class.class))).thenReturn(applicationFormSectionService);
 
     taskListService = new TaskListService(
-        springApplicationContext,
-        pwaApplicationRedirectService,
         applicationBreadcrumbService,
-        taskCompletionService,
+        taskListEntryFactory,
+        applicationTaskService,
         masterPwaViewService);
 
 
