@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -22,17 +22,17 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/consultation")
-@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_CONSULTATIONS})
+@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS})
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ConsultationController {
 
 
-  private final ConsultationRequestService consultationRequestService;
+  private final ConsultationViewService consultationViewService;
 
   @Autowired
   public ConsultationController(
-      ConsultationRequestService consultationRequestService) {
-    this.consultationRequestService = consultationRequestService;
+      ConsultationViewService consultationViewService) {
+    this.consultationViewService = consultationViewService;
   }
 
 
@@ -56,7 +56,7 @@ public class ConsultationController {
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("consulteeGroupRequestsViews",
-            consultationRequestService.getConsultationRequestViews(pwaApplicationDetail.getPwaApplication()));
+            consultationViewService.getConsultationRequestViews(pwaApplicationDetail.getPwaApplication()));
   }
 
 

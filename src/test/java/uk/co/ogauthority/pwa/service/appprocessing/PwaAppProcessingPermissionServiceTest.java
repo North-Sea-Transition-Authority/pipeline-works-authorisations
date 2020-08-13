@@ -65,6 +65,27 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
+  public void getProcessingPermissions_acceptViewAllConsultationsPermission_success() {
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).contains(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
+
+  }
+
+  @Test
+  public void getProcessingPermissions_acceptViewAllConsultationsPermission_failed() {
+
+    regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("ORGANISATION_MANAGER", "Org Manager", null, 10)));
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
+
+  }
+
+
+  @Test
   public void getProcessingPermissions_hasAssignResponderPermission() {
 
     when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.empty());

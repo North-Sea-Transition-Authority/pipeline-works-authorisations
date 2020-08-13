@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControlle
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
@@ -27,7 +27,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   @MockBean
-  private ConsultationRequestService consultationRequestService;
+  private ConsultationViewService consultationViewService;
 
 
   @Before

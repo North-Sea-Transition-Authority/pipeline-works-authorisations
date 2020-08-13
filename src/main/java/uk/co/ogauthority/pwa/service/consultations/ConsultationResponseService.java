@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.transaction.Transactional;
@@ -22,6 +23,9 @@ import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
+/*
+ A service to  create response /assign response to consultation request
+ */
 @Service
 public class ConsultationResponseService {
 
@@ -43,6 +47,11 @@ public class ConsultationResponseService {
     this.consultationResponseValidator = consultationResponseValidator;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
+  }
+
+
+  public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
+    return consultationResponseRepository.getAllByConsultationRequestIn(consultationRequests);
   }
 
   public boolean isUserAssignedResponderForConsultation(WebUserAccount user, ConsultationRequest consultationRequest) {
