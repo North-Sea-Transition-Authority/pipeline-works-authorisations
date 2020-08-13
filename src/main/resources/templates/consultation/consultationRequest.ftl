@@ -1,6 +1,9 @@
+<#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
+
 <#include '../layout.ftl'>
 
 <@defaultPage htmlTitle="${appRef} request consultations" pageHeading="${appRef} request consultations" topNavigation=true twoThirdsColumn=false>
+  <@fdsError.errorSummary errorItems=errorList />
 
   <@fdsForm.htmlForm>
 

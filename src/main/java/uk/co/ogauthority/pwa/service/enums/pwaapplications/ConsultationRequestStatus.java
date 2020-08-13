@@ -7,7 +7,7 @@ public enum ConsultationRequestStatus {
 
   ALLOCATION("Allocation"),
   AWAITING_RESPONSE("Awaiting response"),
-  RESPONDED("Responded");
+  RESPONDED("Response received");
 
   private final String displayName;
 
