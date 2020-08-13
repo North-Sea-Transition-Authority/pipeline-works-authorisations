@@ -391,4 +391,22 @@ public class DepositDrawingsServiceTest {
     verify(padDepositDrawingLinkRepository, times(1)).getAllByPadPermanentDepositIn(List.of(deposit));
   }
 
+
+  @Test
+  public void canShowInTaskList_whenPermanentDepositsTaskShown_andPermanentDepositsAdded(){
+    when(permanentDepositService.canShowInTaskList(pwaApplicationDetail)).thenReturn(true);
+    when(permanentDepositService.hasPermanentDepositBeenMade(pwaApplicationDetail)).thenReturn(true);
+
+    assertThat(depositDrawingsService.canShowInTaskList(pwaApplicationDetail)).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_whenPermanentDepositsTaskIsNotShown_andLegacyPermanentDepositsAdded(){
+    when(permanentDepositService.hasPermanentDepositBeenMade(pwaApplicationDetail)).thenReturn(true);
+    when(permanentDepositService.canShowInTaskList(pwaApplicationDetail)).thenReturn(false);
+
+    assertThat(depositDrawingsService.canShowInTaskList(pwaApplicationDetail)).isFalse();
+
+  }
 }
