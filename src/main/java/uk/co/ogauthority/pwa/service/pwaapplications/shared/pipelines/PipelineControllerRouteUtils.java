@@ -18,7 +18,8 @@ import uk.co.ogauthority.pwa.util.FlashUtils;
 
 public class PipelineControllerRouteUtils {
 
-  private static Set<PipelineStatus> disallowedStatuses = Set.of(
+  @VisibleForTesting
+  static final Set<PipelineStatus> disallowedStatuses = Set.of(
       PipelineStatus.NEVER_LAID, PipelineStatus.RETURNED_TO_SHORE
   );
 
