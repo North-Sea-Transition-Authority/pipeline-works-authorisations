@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,8 @@ public class ConsultationResponseService {
   }
 
 
-  public Optional<ConsultationResponse> getResponseByConsultationRequest(ConsultationRequest consultationRequest) {
-    return consultationResponseRepository.findByConsultationRequest(consultationRequest);
+  public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
+    return consultationResponseRepository.getAllByConsultationRequestIn(consultationRequests);
   }
 
   public boolean isUserAssignedResponderForConsultation(WebUserAccount user, ConsultationRequest consultationRequest) {

@@ -69,7 +69,7 @@ public class ConsultationViewService {
 
 
   private ConsulteeGroupRequestsView createGroupRequestView(List<ConsultationRequest> requestList,
-                                                            Map<ConsultationRequest, Optional<ConsultationResponse>> requestResponseMap,
+                                                            Map<ConsultationRequest, ConsultationResponse> requestResponseMap,
                                                             Map<ConsulteeGroup, ConsulteeGroupDetail> groupAndDetailMap) {
     var consulteeGroupRequestsView = new ConsulteeGroupRequestsView();
     for (int requestIndex = 0; requestIndex < requestList.size(); requestIndex++) {
@@ -87,19 +87,19 @@ public class ConsultationViewService {
 
 
   private ConsultationRequestView mapConsultationRequestToView(ConsultationRequest consultationRequest,
-                                                               Optional<ConsultationResponse> consultationResponse,
+                                                               ConsultationResponse consultationResponse,
                                                                ConsulteeGroupDetail consulteeGroupDetail) {
-    if (consultationResponse.isPresent()) {
+    if (consultationResponse != null) {
       return new ConsultationRequestView(
           consulteeGroupDetail.getName(),
           DateUtils.formatDateTime(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS)),
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
-          DateUtils.formatDateTime(consultationResponse.get().getResponseTimestamp().truncatedTo(ChronoUnit.SECONDS)),
-          consultationResponse.get().getResponseType(),
-          teamManagementService.getPerson(consultationResponse.get().getRespondingPersonId()).getFullName(),
-          consultationResponse.get().getResponseType().equals(ConsultationResponseOption.REJECTED)
-              ? consultationResponse.get().getResponseText() : null);
+          DateUtils.formatDateTime(consultationResponse.getResponseTimestamp().truncatedTo(ChronoUnit.SECONDS)),
+          consultationResponse.getResponseType(),
+          teamManagementService.getPerson(consultationResponse.getRespondingPersonId()).getFullName(),
+          consultationResponse.getResponseType().equals(ConsultationResponseOption.REJECTED)
+              ? consultationResponse.getResponseText() : null);
 
     } else {
       return new ConsultationRequestView(
@@ -110,11 +110,12 @@ public class ConsultationViewService {
     }
   }
 
-
-  private Map<ConsultationRequest, Optional<ConsultationResponse>> getRequestResponseMap(List<ConsultationRequest> consultationRequests) {
-    Map<ConsultationRequest, Optional<ConsultationResponse>> requestResponseMap = new LinkedHashMap<>();
-    consultationRequests.forEach(consultationRequest -> {
-      requestResponseMap.put(consultationRequest, consultationResponseService.getResponseByConsultationRequest(consultationRequest));
+  
+  private Map<ConsultationRequest, ConsultationResponse> getRequestResponseMap(List<ConsultationRequest> consultationRequests) {
+    List<ConsultationResponse> consultationResponses = consultationResponseService.getResponsesByConsultationRequests(consultationRequests);
+    Map<ConsultationRequest, ConsultationResponse> requestResponseMap = new LinkedHashMap<>();
+    consultationResponses.forEach(consultationResponse -> {
+      requestResponseMap.put(consultationResponse.getConsultationRequest(), consultationResponse);
     });
     return requestResponseMap;
   }

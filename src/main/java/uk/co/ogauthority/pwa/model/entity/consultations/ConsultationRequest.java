@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.consultations;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -139,4 +140,30 @@ public class ConsultationRequest implements WorkflowSubject {
 
 
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ConsultationRequest that = (ConsultationRequest) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(pwaApplication, that.pwaApplication)
+        && Objects.equals(consulteeGroup, that.consulteeGroup)
+        && Objects.equals(deadlineDate, that.deadlineDate)
+        && status == that.status
+        && Objects.equals(startTimestamp, that.startTimestamp)
+        && Objects.equals(startedByPersonId, that.startedByPersonId)
+        && Objects.equals(endTimestamp, that.endTimestamp)
+        && Objects.equals(endedByPersonId, that.endedByPersonId)
+        && Objects.equals(endedReason, that.endedReason);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pwaApplication, consulteeGroup, deadlineDate, status, startTimestamp, startedByPersonId,
+        endTimestamp, endedByPersonId, endedReason);
+  }
 }

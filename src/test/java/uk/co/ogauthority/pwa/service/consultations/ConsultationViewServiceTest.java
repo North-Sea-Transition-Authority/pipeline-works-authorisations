@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,6 +76,7 @@ public class ConsultationViewServiceTest {
     //Create 3 Consultation Requests - 2 requests of the same group with 1 older request. The other request from a separate Consultee Group
     var instantTime = Instant.now();
     var consultationRequest1 = new ConsultationRequest();
+    consultationRequest1.setId(1);
     consultationRequest1.setConsulteeGroup(consulteeGroup1);
     consultationRequest1.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
@@ -84,28 +84,34 @@ public class ConsultationViewServiceTest {
     consultationRequest1.setStatus(ConsultationRequestStatus.ALLOCATION);
 
 
+    var consultationRequest2 = new ConsultationRequest();
+    consultationRequest2.setId(2);
+    consultationRequest2.setConsulteeGroup(consulteeGroup2);
+    consultationRequest2.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
+        .withDayOfMonth(8).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    consultationRequest2.setDeadlineDate(Instant.now());
+    consultationRequest2.setStatus(ConsultationRequestStatus.ALLOCATION);
+
     var consultationResponse = new ConsultationResponse();
     consultationResponse.setResponseType(ConsultationResponseOption.REJECTED);
     consultationResponse.setResponseText("my reason");
     consultationResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationResponse.setRespondingPersonId(1);
+    consultationResponse.setConsultationRequest(consultationRequest2);
     when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
 
-    var consultationRequest2 = new ConsultationRequest();
-    consultationRequest2.setConsulteeGroup(consulteeGroup2);
-    consultationRequest2.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
-        .withDayOfMonth(8).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
-    consultationRequest2.setDeadlineDate(Instant.now());
-    consultationRequest2.setStatus(ConsultationRequestStatus.ALLOCATION);
-    when(consultationResponseService.getResponseByConsultationRequest(consultationRequest2)).thenReturn(Optional.of(consultationResponse));
 
     var consultationRequest3 = new ConsultationRequest();
+    consultationRequest3.setId(3);
     consultationRequest3.setConsulteeGroup(consulteeGroup1);
     consultationRequest3.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(4).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationRequest3.setDeadlineDate(Instant.now());
     consultationRequest3.setStatus(ConsultationRequestStatus.ALLOCATION);
+
+
+
 
     //consultationRequest1: name - nameB, startDate - 5/02/2020
     //consultationRequest2: name - nameA, startDate 8/02/2020
@@ -114,6 +120,8 @@ public class ConsultationViewServiceTest {
     pwaApplication.setId(1);
     when(consultationRequestService.getAllRequestsByApplication(pwaApplication))
         .thenReturn(List.of(consultationRequest1, consultationRequest3, consultationRequest2));
+
+    when(consultationResponseService.getResponsesByConsultationRequests(List.of(consultationRequest1, consultationRequest3, consultationRequest2))).thenReturn(List.of(consultationResponse));
 
     when(consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(Set.of(consulteeGroup1, consulteeGroup2)))
         .thenReturn(List.of(consulteeGroupDetail1, consulteeGroupDetail2));
