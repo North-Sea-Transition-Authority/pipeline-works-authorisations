@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -123,6 +124,7 @@ public class PadPipelineServiceTest {
     padPipe1.setId(1);
     padPipe1.setPipelineInBundle(false);
     padPipe1.setPipelineRef("TEMPORARY 1");
+    padPipe1.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     pipe1 = new Pipeline();
     pipe1.setId(1);
@@ -681,6 +683,28 @@ public class PadPipelineServiceTest {
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
+  }
+
+  @Test
+  public void doesPipelineHaveTasks_false() {
+    EnumSet.of(PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID).forEach(pipelineStatus -> {
+      padPipe1.setPipelineStatus(pipelineStatus);
+      var dto = createPadPipelineSummaryDto(padPipe1);
+      var result = padPipelineService.doesPipelineHaveTasks(dto);
+      assertThat(result).isFalse();
+    });
+  }
+
+  @Test
+  public void doesPipelineHaveTasks_true() {
+    var statusEnums = EnumSet.allOf(PipelineStatus.class);
+    statusEnums.removeAll(EnumSet.of(PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID));
+    statusEnums.forEach(pipelineStatus -> {
+      padPipe1.setPipelineStatus(pipelineStatus);
+      var dto = createPadPipelineSummaryDto(padPipe1);
+      var result = padPipelineService.doesPipelineHaveTasks(dto);
+      assertThat(result).isTrue();
+    });
   }
 
   private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {

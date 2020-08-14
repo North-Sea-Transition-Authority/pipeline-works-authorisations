@@ -42,10 +42,12 @@
             </@fdsCard.cardHeader>
 
             <#if pipeline.pipelineStatus != "IN_SERVICE">
-                <p class="govuk-tag">${pipeline.pipelineStatus.displayText}</p>
+              <p class="govuk-tag">${pipeline.pipelineStatus.displayText}</p>
             </#if>
-            <#if pipeline.pipelineStatus != "RETURNED_TO_SHORE" && pipeline.pipelineStatus != "NEVER_LAID">
-                <hr class="govuk-section-break govuk-section-break--m"/>
+            <#if pipeline.hasTasks>
+                <#if pipeline.pipelineStatus == "IN_SERVICE">
+                  <hr class="govuk-section-break govuk-section-break--m"/>
+                </#if>
                 <@fdsTaskList.taskList>
                     <#list pipeline.getTaskList() as task>
                         <#if task.taskInfoList?has_content>

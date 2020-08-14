@@ -98,7 +98,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public PipelineOverview getPipelineOverview(PadPipeline padPipeline) {
 
     return padPipelineRepository.findPipelineAsSummaryDtoByPadPipeline(padPipeline)
-        .map(PadPipelineOverview::from)
+        .map(padPipelineSummaryDto -> PadPipelineOverview.from(
+            padPipelineSummaryDto,
+            doesPipelineHaveTasks(padPipelineSummaryDto)
+        ))
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
   }
@@ -106,7 +109,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()
-        .map(PadPipelineOverview::from)
+        .map(padPipelineSummaryDto -> PadPipelineOverview.from(
+            padPipelineSummaryDto,
+            doesPipelineHaveTasks(padPipelineSummaryDto)
+        ))
         .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
         .collect(Collectors.toList());
 
@@ -418,6 +424,17 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     PwaApplicationType[] appTypes = ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types();
     return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
+  }
+
+  @VisibleForTesting
+  boolean doesPipelineHaveTasks(PadPipelineSummaryDto padPipelineSummaryDto) {
+    switch (padPipelineSummaryDto.getPipelineStatus()) {
+      case RETURNED_TO_SHORE:
+      case NEVER_LAID:
+        return false;
+      default:
+        return true;
+    }
   }
 
   @Override

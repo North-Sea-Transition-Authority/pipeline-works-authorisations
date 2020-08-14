@@ -136,4 +136,11 @@ public class PadPipelineTaskListItem implements PipelineOverview {
   public String getPipelineStatusReason() {
     return this.pipelineOverview.getPipelineStatusReason();
   }
+
+  public Boolean getHasTasks() {
+    if (this.pipelineOverview instanceof PadPipelineOverview) {
+      return ((PadPipelineOverview) this.pipelineOverview).getHasTasks();
+    }
+    return false;
+  }
 }

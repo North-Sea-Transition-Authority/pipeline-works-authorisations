@@ -22,7 +22,7 @@
           <#list serviceStatuses as option>
             <@fdsRadio.radioItem path="form.pipelineStatus" itemMap={option: option.displayText}>
               <#if option == "OUT_OF_USE_ON_SEABED">
-                <@fdsTextarea.textarea path="form.pipelineStatusReason" labelText="Why is the pipeline not being returned to shore?" nestingPath="form.pipelineStatus"/>
+                <@fdsTextarea.textarea path="form.pipelineStatusReason" labelText="Why is the pipeline not being returned to shore?" nestingPath="form.pipelineStatus" characterCount=true maxCharacterLength="4000"/>
               </#if>
             </@fdsRadio.radioItem>
           </#list>

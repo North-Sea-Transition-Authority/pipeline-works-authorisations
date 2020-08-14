@@ -41,6 +41,7 @@ public class PadPipelineOverview implements PipelineOverview {
   private String trenchingMethodsDescription;
   private PipelineStatus pipelineStatus;
   private String pipelineStatusReason;
+  private Boolean hasTasks;
 
   private PadPipelineOverview(Integer padPipelineId,
                               Integer pipelineId,
@@ -63,7 +64,8 @@ public class PadPipelineOverview implements PipelineOverview {
                               Boolean trenchedBuriedBackfilled,
                               String trenchingMethodsDescription,
                               PipelineStatus pipelineStatus,
-                              String pipelineStatusReason) {
+                              String pipelineStatusReason,
+                              Boolean hasTasks) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -86,6 +88,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.trenchingMethodsDescription = trenchingMethodsDescription;
     this.pipelineStatus = pipelineStatus;
     this.pipelineStatusReason = pipelineStatusReason;
+    this.hasTasks = hasTasks;
   }
 
   @VisibleForTesting
@@ -127,7 +130,7 @@ public class PadPipelineOverview implements PipelineOverview {
   }
 
 
-  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto) {
+  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto, Boolean hasTasks) {
 
     return new PadPipelineOverview(
         padPipelineSummaryDto.getPadPipelineId(),
@@ -151,7 +154,8 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getTrenchedBuriedBackfilled(),
         padPipelineSummaryDto.getTrenchingMethodsDescription(),
         padPipelineSummaryDto.getPipelineStatus(),
-        padPipelineSummaryDto.getPipelineStatusReason()
+        padPipelineSummaryDto.getPipelineStatusReason(),
+        hasTasks
     );
   }
 
@@ -263,5 +267,9 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public String getPipelineStatusReason() {
     return pipelineStatusReason;
+  }
+
+  public Boolean getHasTasks() {
+    return hasTasks;
   }
 }

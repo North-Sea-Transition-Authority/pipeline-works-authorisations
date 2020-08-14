@@ -6,6 +6,14 @@
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline name" actionUrl="" screenReaderActionText="" actionText="">
             ${pipeline.pipelineName}
         </@fdsCheckAnswers.checkAnswersRow>
+        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
+            ${pipeline.pipelineStatus.displayText}
+        </@fdsCheckAnswers.checkAnswersRow>
+        <#if pipeline.pipelineStatus == "OUT_OF_USE_ON_SEABED">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
+                ${pipeline.pipelineStatusReason}
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
         <@fdsCheckAnswers.checkAnswersRow keyText="Number of idents" actionUrl="" screenReaderActionText="" actionText="">
             ${pipeline.getNumberOfIdents()}
         </@fdsCheckAnswers.checkAnswersRow>
@@ -53,14 +61,6 @@
                 <#if pipeline.otherPipelineMaterialUsed?has_content>
                     ${pipeline.otherPipelineMaterialUsed}
                 </#if>
-            </@fdsCheckAnswers.checkAnswersRow>
-        </#if>
-        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
-            ${pipeline.pipelineStatus.displayText}
-        </@fdsCheckAnswers.checkAnswersRow>
-        <#if pipeline.pipelineStatus == "OUT_OF_USE_ON_SEABED">
-            <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
-                ${pipeline.pipelineStatusReason}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
     </@fdsCheckAnswers.checkAnswers>
