@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDow
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -30,8 +31,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartFileService;
@@ -47,20 +48,19 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 })
 public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
 
-  private final PwaApplicationFileService applicationFileService;
-  private final AdmiraltyChartFileService admiraltyChartFileService;
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.ADMIRALTY_CHART;
+
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final ControllerHelperService controllerHelperService;
+  private final AdmiraltyChartFileService admiraltyChartFileService;
 
   @Autowired
   public AdmiraltyChartDocumentsController(
-      PwaApplicationFileService applicationFileService,
       AdmiraltyChartFileService admiraltyChartFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadFileService padFileService,
       ControllerHelperService controllerHelperService) {
     super(padFileService);
-    this.applicationFileService = applicationFileService;
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.controllerHelperService = controllerHelperService;
@@ -80,7 +80,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
         // only load fully linked (saved) files
-        admiraltyChartFileService.getUpdatedAdmiraltyChartFileViewsWhenFileOnForm(pwaApplicationDetail, form)
+        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE)
     );
 
     modelAndView.addObject("pageTitle", "Admiralty chart")
@@ -101,7 +101,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
       @ModelAttribute("form") AdmiraltyChartDocumentForm form,
       PwaApplicationContext applicationContext) {
 
-    admiraltyChartFileService.mapDocumentsToForm(applicationContext.getApplicationDetail(), form);
+    padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(), FILE_PURPOSE);
     return createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
@@ -123,9 +123,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
     var modelAndView = createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      admiraltyChartFileService.updateOrDeleteLinkedFilesUsingForm(
-          applicationContext.getApplicationDetail(),
-          form,
+      padFileService.updateFiles(form, detail, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES,
           applicationContext.getUser());
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
@@ -140,9 +138,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    var admiraltyChartFile = admiraltyChartFileService.getAdmiraltyChartFile(fileId,
-        applicationContext.getApplicationDetail());
-    return serveFile(applicationFileService.getUploadedFile(admiraltyChartFile));
+    return serveFile(applicationContext.getPadFile());
   }
 
   @PostMapping("/files/upload")
@@ -153,13 +149,8 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
       @RequestParam("file") MultipartFile file,
       PwaApplicationContext applicationContext) {
 
-    // not creating full link until Save is clicked.
-    return applicationFileService.processApplicationFileUpload(
-        file,
-        applicationContext.getUser(),
-        applicationContext.getApplicationDetail(),
-        admiraltyChartFileService::createUploadedFileLink
-    );
+    return padFileService.processInitialUpload(file, applicationContext.getApplicationDetail(), FILE_PURPOSE,
+        applicationContext.getUser());
   }
 
   @PostMapping("/files/delete/{fileId}")
@@ -169,11 +160,6 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDataFileUpl
       @PathVariable("applicationId") Integer applicationId,
       @PathVariable("fileId") String fileId,
       PwaApplicationContext applicationContext) {
-    return applicationFileService.processApplicationFileDelete(
-        fileId,
-        applicationContext.getApplicationDetail(),
-        applicationContext.getUser(),
-        admiraltyChartFileService::deleteUploadedFileLink
-    );
+    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
   }
 }

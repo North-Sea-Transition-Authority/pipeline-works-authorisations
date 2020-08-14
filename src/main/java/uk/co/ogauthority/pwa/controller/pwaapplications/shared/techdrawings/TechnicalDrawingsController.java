@@ -76,7 +76,8 @@ public class TechnicalDrawingsController {
     var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/overview")
         .addObject("showAdmiraltyChart", admiraltyChartFileService.canUploadDocuments(detail))
         .addObject("admiraltyChartFileViews",
-            admiraltyChartFileService.getAdmiraltyChartFileViews(detail, ApplicationFileLinkStatus.FULL))
+            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.ADMIRALTY_CHART,
+                ApplicationFileLinkStatus.FULL))
         .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
