@@ -53,7 +53,7 @@ public class StartPwaApplicationController {
 
     return new ModelAndView("pwaApplication/selectApplication")
       .addObject("contactEmail", contactEmail)
-      .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+      .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
       .addObject("applicationTypes", applicationTypes)
       .addObject("errorList", List.of());
   }

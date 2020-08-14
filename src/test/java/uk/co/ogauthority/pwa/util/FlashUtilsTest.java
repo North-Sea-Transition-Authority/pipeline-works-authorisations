@@ -21,7 +21,7 @@ public class FlashUtilsTest {
   @Test
   public void success_onlyTitle() {
     FlashUtils.success(redirectAttributes, "title");
-    assertThat((Map<String, String>) redirectAttributes.getFlashAttributes())
+    assertThat(getFlashAttributes())
         .containsExactly(
             entry("flashClass", "fds-flash--green"),
             entry("flashTitle", "title"),
@@ -32,7 +32,7 @@ public class FlashUtilsTest {
   @Test
   public void success_titleAndMessage() {
     FlashUtils.success(redirectAttributes, "title", "message");
-    assertThat((Map<String, String>) redirectAttributes.getFlashAttributes())
+    assertThat(getFlashAttributes())
         .containsExactly(
             entry("flashClass", "fds-flash--green"),
             entry("flashTitle", "title"),
@@ -43,7 +43,7 @@ public class FlashUtilsTest {
   @Test
   public void error_onlyTitle() {
     FlashUtils.error(redirectAttributes, "title");
-    assertThat((Map<String, String>) redirectAttributes.getFlashAttributes())
+    assertThat(getFlashAttributes())
         .containsExactly(
             entry("flashClass", "fds-flash--red"),
             entry("flashTitle", "title"),
@@ -54,7 +54,7 @@ public class FlashUtilsTest {
   @Test
   public void error_titleAndMessage() {
     FlashUtils.error(redirectAttributes, "title", "message");
-    assertThat((Map<String, String>) redirectAttributes.getFlashAttributes())
+    assertThat(getFlashAttributes())
         .containsExactly(
             entry("flashClass", "fds-flash--red"),
             entry("flashTitle", "title"),
@@ -65,7 +65,7 @@ public class FlashUtilsTest {
   @Test
   public void info_onlyTitle() {
     FlashUtils.info(redirectAttributes, "title");
-    assertThat((Map<String, String>) redirectAttributes.getFlashAttributes())
+    assertThat(getFlashAttributes())
         .containsExactly(
             entry("flashTitle", "title"),
             entry("flashMessage", null)
@@ -75,10 +75,41 @@ public class FlashUtilsTest {
   @Test
   public void info_titleAndMessage() {
     FlashUtils.info(redirectAttributes, "title", "message");
-    assertThat((Map<String, String>) redirectAttributes.getFlashAttributes())
+    assertThat(getFlashAttributes())
         .containsExactly(
             entry("flashTitle", "title"),
             entry("flashMessage", "message")
         );
+  }
+
+  @Test
+  public void reFlashIfExists_flashExists() {
+
+    var flashMap = Map.of(
+        "flashTitle", "title",
+        "flashMessage", "message",
+        "flashClass", "success"
+    );
+
+    FlashUtils.reFlashIfExists(flashMap, redirectAttributes);
+
+    assertThat(getFlashAttributes())
+        .containsExactlyInAnyOrderEntriesOf(flashMap);
+
+  }
+
+  @Test
+  public void reFlashIfExists_flashDoesntExist() {
+
+    FlashUtils.reFlashIfExists(Map.of(), redirectAttributes);
+
+    assertThat(getFlashAttributes())
+        .isEmpty();
+
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, String> getFlashAttributes() {
+    return (Map<String, String>) redirectAttributes.getFlashAttributes();
   }
 }

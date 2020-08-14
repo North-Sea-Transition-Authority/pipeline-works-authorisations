@@ -151,7 +151,7 @@ public class PwaHolderController {
             ReverseRouter.route(
                 on(InitialTaskListController.class).viewTaskList(detail.getMasterPwaApplicationId(), null))
         )
-        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("errorList", List.of())
         .addObject("hasHolderSet", form != null && form.getHolderOuId() != null)
         .addObject("ogaServiceDeskEmail", ogaServiceDeskEmail);

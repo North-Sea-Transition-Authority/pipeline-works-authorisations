@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Map;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -19,6 +23,7 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabUrlFactory;
 import uk.co.ogauthority.pwa.temp.controller.StartPrototypePwaApplicationController;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 
 @Controller
 @RequestMapping
@@ -38,12 +43,19 @@ public class WorkAreaController {
    * Figures out which tab to select for user and redirect accordingly.
    */
   @GetMapping("/work-area")
-  public ModelAndView renderWorkArea(AuthenticatedUserAccount authenticatedUserAccount) {
+  public ModelAndView renderWorkArea(HttpServletRequest httpServletRequest,
+                                     AuthenticatedUserAccount authenticatedUserAccount,
+                                     RedirectAttributes redirectAttributes) {
 
     Optional<WorkAreaTab> tab = workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson());
 
     if (tab.isPresent()) {
+
+      Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(httpServletRequest);
+      FlashUtils.reFlashIfExists(inputFlashMap, redirectAttributes);
+
       return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkAreaTab(null, tab.get(), null));
+
     }
 
     throw new AccessDeniedException(

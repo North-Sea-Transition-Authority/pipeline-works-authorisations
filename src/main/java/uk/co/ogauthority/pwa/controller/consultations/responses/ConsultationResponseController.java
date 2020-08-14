@@ -92,7 +92,7 @@ public class ConsultationResponseController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getResponderModelAndView(authenticatedUserAccount, processingContext.getPwaApplication().getAppReference()), () -> {
           consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, authenticatedUserAccount);
-          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(authenticatedUserAccount));
+          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null));
         });
 
   }
@@ -100,7 +100,7 @@ public class ConsultationResponseController {
   private ModelAndView getResponderModelAndView(AuthenticatedUserAccount authenticatedUserAccount, String appReference) {
     return new ModelAndView("consultation/responses/responderForm")
         .addObject("cancelUrl",
-                ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(authenticatedUserAccount)))
+                ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null)))
         .addObject("responseOptions", ConsultationResponseOption.asList())
         .addObject("appRef", appReference);
   }

@@ -95,7 +95,7 @@ public class PickExistingPwaController {
 
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
         .addObject("selectablePwaMap", selectablePwaMap)
-        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+        .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("ogList", ogList)
         .addObject("errorList", List.of())
         .addObject("pwaApplicationType", pwaApplicationType);

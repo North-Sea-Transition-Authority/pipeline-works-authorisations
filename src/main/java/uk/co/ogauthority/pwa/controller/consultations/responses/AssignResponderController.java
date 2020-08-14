@@ -88,8 +88,8 @@ public class AssignResponderController {
         getAssignResponderModelAndView(consultationRequest, authenticatedUserAccount), () -> {
           assignResponderService.assignUserAndCompleteWorkflow(form, consultationRequest, authenticatedUserAccount);
           FlashUtils.success(
-              redirectAttributes, "Success", "You have been successfully assigned as a responder for the consultation");
-          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(authenticatedUserAccount));
+              redirectAttributes, "Responder assigned.");
+          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null));
         });
   }
 
@@ -101,7 +101,7 @@ public class AssignResponderController {
             StreamUtils.toLinkedHashMap(
                 person -> String.valueOf(person.getId().asInt()), Person::getFullName)))
         .addObject("cancelUrl",
-                ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(authenticatedUserAccount)));
+                ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null)));
   }
 
 

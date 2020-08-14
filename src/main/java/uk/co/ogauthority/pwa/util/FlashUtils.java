@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.util;
 
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -45,4 +48,21 @@ public class FlashUtils {
     redirectAttributes.addFlashAttribute("flashMessage", message);
   }
 
+  /**
+   * If a flash message was added by the previous request, flash it again so it is available to the next request.
+   * @param inputFlashMap map of flash attributes attached to the request
+   * @param redirectAttributes to add flash to
+   */
+  public static void reFlashIfExists(@Nullable Map<String, ?> inputFlashMap,
+                                     RedirectAttributes redirectAttributes) {
+
+    if (inputFlashMap != null) {
+
+      inputFlashMap.entrySet().stream()
+          .filter(entry -> List.of("flashTitle", "flashMessage", "flashClass").contains(entry.getKey()))
+          .forEach(entry -> redirectAttributes.addFlashAttribute(entry.getKey(), entry.getValue()));
+
+    }
+
+  }
 }

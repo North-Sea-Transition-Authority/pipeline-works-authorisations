@@ -71,7 +71,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         new WebUserAccount(),
         EnumSet.noneOf(PwaUserPrivilege.class));
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .with(authenticatedUserAndSession(unauthorisedUserAccount)))
         .andExpect(status().isForbidden());
   }
@@ -81,7 +81,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
     when(workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Optional.empty());
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isForbidden());
 
@@ -92,7 +92,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
     when(workAreaTabService.getDefaultTabForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Optional.of(WorkAreaTab.OPEN_APPLICATIONS));
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().is3xxRedirection());
 

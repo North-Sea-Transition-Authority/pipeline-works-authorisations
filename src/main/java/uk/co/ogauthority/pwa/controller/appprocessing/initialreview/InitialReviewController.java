@@ -66,7 +66,7 @@ public class InitialReviewController {
         .addObject("appRef", detail.getPwaApplicationRef())
         .addObject("isOptionsVariation", detail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION))
         .addObject("isFastTrack", detail.getSubmittedAsFastTrackFlag())
-        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null)))
+        .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("caseOfficerCandidates",
             workflowAssignmentService
                 .getAssignmentCandidates(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
@@ -117,7 +117,7 @@ public class InitialReviewController {
                 processingContext.getApplicationDetail().getPwaApplicationRef()));
           }
 
-          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null));
+          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
 
         });
 
