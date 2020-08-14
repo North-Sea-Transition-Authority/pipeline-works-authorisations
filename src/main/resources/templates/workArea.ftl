@@ -3,7 +3,6 @@
 <#import 'workarea/consultationsTab.ftl' as consultationsTab>
 
 <#-- @ftlvariable name="startPwaApplicationUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="prototypeApplicationUrl" type="java.lang.String" -->
 <#--@ftlvariable name="workAreaResult" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaResult" -->
 <#--@ftlvariable name="tabUrlFactory" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaTabUrlFactory" -->
 <#--@ftlvariable name="currentWorkAreaTab" type="uk.co.ogauthority.pwa.service.workarea.WorkAreaTab" -->
@@ -13,8 +12,6 @@
 
 
     <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button"/>
-
-    <@fdsAction.link linkText="Start Prototype PWA application" linkUrl=springUrl(prototypeApplicationUrl) linkClass="govuk-button"/>
 
     <@fdsTabs.tabs tabsHeading="Work area tabs">
         <@fdsTabs.tabList>
