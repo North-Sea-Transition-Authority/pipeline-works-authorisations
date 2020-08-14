@@ -50,7 +50,7 @@ public class ApplicationTaskService {
   }
 
   /**
-   * Helper which asks Spring to provide the app specific task if its available.
+   * Helper which asks Spring to provide the app task service if its available.
    */
   private ApplicationFormSectionService getTaskService(ApplicationTask applicationTask) {
     if (applicationTask.getServiceClass() == null) {
@@ -69,7 +69,7 @@ public class ApplicationTaskService {
     var taskService = getTaskService(applicationTask);
     var taskAppTypes = getValidApplicationTypesForTask(applicationTask);
 
-    // Is the task valid for app type and does the specific app detail quality for task?
+    // Is the task valid for app type and does the specific app detail qualify for task?
     return taskAppTypes.contains(pwaApplicationDetail.getPwaApplicationType())
         && taskService.canShowInTaskList(pwaApplicationDetail);
   }
