@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTabUrlFactory;
-import uk.co.ogauthority.pwa.temp.controller.StartPrototypePwaApplicationController;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 
 @Controller
@@ -83,8 +82,6 @@ public class WorkAreaController {
     }
 
     return new ModelAndView("workArea")
-        .addObject("prototypeApplicationUrl",
-            ReverseRouter.route(on(StartPrototypePwaApplicationController.class).renderStartApplication(null)))
         .addObject("startPwaApplicationUrl",
             ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
         .addObject("workAreaResult", workAreaService.getWorkAreaResult(authenticatedUserAccount, tab, page))
