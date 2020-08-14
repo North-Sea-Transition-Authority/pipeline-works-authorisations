@@ -166,8 +166,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
         applicationType,
         padPipelineId,
         null,
-        null
-    ));
+        null,
+        null));
   }
 
   private String getPipelineIdentOverviewUrl(int applicationId, PwaApplicationType applicationType, int padPipelineId) {
@@ -175,8 +175,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
         applicationId,
         applicationType,
         padPipelineId,
-        null
-    ));
+        null,
+        null));
   }
 
   @Transactional

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.controller.pwaapplications.rest.PipelineRestController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
@@ -35,6 +36,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineControllerRouteUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineHeaderFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineRemovalService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory;
@@ -191,13 +193,16 @@ public class PipelinesController {
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                          @PathVariable("padPipelineId") Integer padPipelineId,
                                          PwaApplicationContext applicationContext,
-                                         @ModelAttribute("form") PipelineHeaderForm form) {
+                                         @ModelAttribute("form") PipelineHeaderForm form,
+                                         RedirectAttributes redirectAttributes) {
 
-    padPipelineService.mapEntityToForm(form, applicationContext.getPadPipeline());
-
-    return getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT,
-        applicationContext.getPadPipeline())
-        .addObject("form", form);
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
+        () -> {
+          padPipelineService.mapEntityToForm(form, applicationContext.getPadPipeline());
+          return getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT,
+              applicationContext.getPadPipeline())
+              .addObject("form", form);
+        });
 
   }
 
@@ -208,22 +213,22 @@ public class PipelinesController {
                                        @PathVariable("padPipelineId") Integer padPipelineId,
                                        PwaApplicationContext applicationContext,
                                        @ModelAttribute("form") PipelineHeaderForm form,
-                                       BindingResult bindingResult) {
+                                       BindingResult bindingResult,
+                                       RedirectAttributes redirectAttributes) {
 
-    pipelineHeaderFormValidator.validate(form, bindingResult, applicationContext);
+    return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
 
-    var pipeline = applicationContext.getPadPipeline();
+      pipelineHeaderFormValidator.validate(form, bindingResult, applicationContext);
+      var pipeline = applicationContext.getPadPipeline();
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),
-        () -> {
-
-          padPipelineService.updatePipeline(pipeline, form);
-
-          return ReverseRouter.redirect(
-              on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
-
-        });
+      return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+          getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, pipeline),
+          () -> {
+            padPipelineService.updatePipeline(pipeline, form);
+            return ReverseRouter.redirect(
+                on(PipelinesController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
+          });
+    });
 
   }
 

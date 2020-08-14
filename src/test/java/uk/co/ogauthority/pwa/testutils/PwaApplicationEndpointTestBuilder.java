@@ -27,6 +27,7 @@ import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -69,7 +70,7 @@ public class PwaApplicationEndpointTestBuilder {
   private WebUserAccount userWua;
   private AuthenticatedUserAccount user;
   private PwaApplicationDetail detail;
-  private PadPipeline pipeline;
+  private PadPipeline padPipeline;
 
   private HttpMethod requestMethod;
 
@@ -225,24 +226,25 @@ public class PwaApplicationEndpointTestBuilder {
     this.userWua = new WebUserAccount(1);
     this.user = new AuthenticatedUserAccount(userWua, EnumSet.allOf(PwaUserPrivilege.class));
     this.detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    this.pipeline = new PadPipeline();
-    pipeline.setId(99);
-    pipeline.setPwaApplicationDetail(detail);
-    pipeline.setPipelineRef("TEMPORARY_1");
-    pipeline.setFromLocation("from");
-    pipeline.setToLocation("to");
-    pipeline.setFromCoordinates(new CoordinatePair(
+    this.padPipeline = new PadPipeline();
+    padPipeline.setId(99);
+    padPipeline.setPwaApplicationDetail(detail);
+    padPipeline.setPipelineRef("TEMPORARY_1");
+    padPipeline.setFromLocation("from");
+    padPipeline.setToLocation("to");
+    padPipeline.setFromCoordinates(new CoordinatePair(
         new LatitudeCoordinate(45, 2, BigDecimal.valueOf(2.2), LatitudeDirection.NORTH),
         new LongitudeCoordinate(12, 1, BigDecimal.valueOf(1), LongitudeDirection.EAST)
     ));
-    pipeline.setToCoordinates(new CoordinatePair(
+    padPipeline.setToCoordinates(new CoordinatePair(
         new LatitudeCoordinate(46, 2, BigDecimal.valueOf(2.2), LatitudeDirection.NORTH),
         new LongitudeCoordinate(12, 1, BigDecimal.valueOf(1), LongitudeDirection.EAST)
     ));
-    pipeline.setProductsToBeConveyed("prod");
-    pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
-    pipeline.setComponentPartsDescription("comp");
-    pipeline.setLength(BigDecimal.valueOf(200));
+    padPipeline.setProductsToBeConveyed("prod");
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
+    padPipeline.setComponentPartsDescription("comp");
+    padPipeline.setLength(BigDecimal.valueOf(200));
+    padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     detail.setStatus(defaultStatus);
     detail.getPwaApplication().setApplicationType(defaultType);
@@ -255,7 +257,7 @@ public class PwaApplicationEndpointTestBuilder {
     }
 
     if (padPipelineService != null) {
-      when(padPipelineService.getById(pipeline.getId())).thenReturn(pipeline);
+      when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
     }
 
     var defaultRegulatorRoles = EnumSet.allOf(PwaRegulatorRole.class);
@@ -408,5 +410,9 @@ public class PwaApplicationEndpointTestBuilder {
 
   public Set<PwaContactRole> getContactRoles() {
     return contactRolesGivenAccess;
+  }
+
+  public PadPipeline getPadPipeline() {
+    return padPipeline;
   }
 }

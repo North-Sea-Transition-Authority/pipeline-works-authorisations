@@ -115,7 +115,8 @@ public class ApplicationBreadcrumbService {
     map.put(ReverseRouter.route(on(PipelinesController.class)
         .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
     map.put(ReverseRouter.route(on(PipelineIdentsController.class)
-            .renderIdentOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), padPipeline.getId(), null)),
+            .renderIdentOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), padPipeline.getId(), null,
+                null)),
         padPipeline.getPipelineRef() + " idents");
     addAttrs(modelAndView, map, thisPage);
   }
