@@ -174,9 +174,8 @@ public class PipelineIdentsController {
             form.setFromCoordinateForm(fromCoordinateForm);
           });
 
-      return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
-          () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
-              applicationContext.getPadPipeline(), ScreenActionType.ADD));
+      return getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
+          applicationContext.getPadPipeline(), ScreenActionType.ADD);
     });
 
   }
@@ -202,9 +201,8 @@ public class PipelineIdentsController {
             form.setFromCoordinateForm(fromCoordinateForm);
           });
 
-      return PipelineControllerRouteUtils.ifAllowedFromOverviewOrRedirect(applicationContext, redirectAttributes,
-          () -> getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
-              applicationContext.getPadPipeline(), ScreenActionType.ADD));
+      return getAddEditIdentModelAndView(applicationContext.getApplicationDetail(), form,
+          applicationContext.getPadPipeline(), ScreenActionType.ADD);
     });
 
   }

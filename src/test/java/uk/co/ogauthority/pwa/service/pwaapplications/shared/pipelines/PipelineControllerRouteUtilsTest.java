@@ -89,10 +89,8 @@ public class PipelineControllerRouteUtilsTest {
 
   @Test
   public void isAccessible_assertNotAllowed() {
-    PipelineControllerRouteUtils.disallowedStatuses.forEach(pipelineStatus -> {
-      padPipeline.setPipelineStatus(pipelineStatus);
-      assertThat(PipelineControllerRouteUtils.isAccessible(padPipeline)).isFalse();
-    });
+    PipelineControllerRouteUtils.disallowedStatuses.forEach(pipelineStatus ->
+      assertThat(PipelineControllerRouteUtils.isAccessible(pipelineStatus)).isFalse());
   }
 
   @Test
@@ -100,9 +98,7 @@ public class PipelineControllerRouteUtilsTest {
     var allowedStatuses = EnumSet.allOf(PipelineStatus.class);
     allowedStatuses.removeAll(PipelineControllerRouteUtils.disallowedStatuses);
 
-    allowedStatuses.forEach(pipelineStatus -> {
-      padPipeline.setPipelineStatus(pipelineStatus);
-      assertThat(PipelineControllerRouteUtils.isAccessible(padPipeline)).isTrue();
-    });
+    allowedStatuses.forEach(pipelineStatus ->
+      assertThat(PipelineControllerRouteUtils.isAccessible(pipelineStatus)).isTrue());
   }
 }
