@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.consultations;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -87,6 +88,7 @@ public class ConsultationRequestController {
   private ModelAndView getRequestConsultationModelAndView(
       PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount authenticatedUserAccount) {
     return new ModelAndView("consultation/consultationRequest")
+        .addObject("errorList", List.of())
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("consulteeGroups", consultationRequestService.getConsulteeGroups(authenticatedUserAccount).stream()
           .sorted(Comparator.comparing(ConsulteeGroupDetail::getName))
