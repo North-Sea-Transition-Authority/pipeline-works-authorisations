@@ -1,4 +1,4 @@
-<#include '../../layout.ftl'>
+<#include '../../../layout.ftl'>
 
 <@defaultPage htmlTitle="Field information" breadcrumbs=true>
 

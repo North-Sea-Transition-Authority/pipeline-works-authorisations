@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.service.devuk;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -16,13 +18,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadFieldServiceTest {
@@ -38,6 +43,9 @@ public class PadFieldServiceTest {
 
   @Mock
   private DevukFieldService devukFieldService;
+
+  @Mock
+  private PwaFieldFormValidator pwaFieldFormValidator;
 
   @Captor
   private ArgumentCaptor<List<PadField>> padFieldsArgumentCaptor;
@@ -55,6 +63,7 @@ public class PadFieldServiceTest {
     pwaApplicationDetail = new PwaApplicationDetail();
 
     devukField = new DevukField();
+    devukField.setFieldId(DEVUK_FIELD_ID);
 
     existingField = new PadField();
     existingField.setPwaApplicationDetail(pwaApplicationDetail);
@@ -64,7 +73,9 @@ public class PadFieldServiceTest {
 
     when(padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(existingField));
 
-    padFieldService = new PadFieldService(padFieldRepository, pwaApplicationDetailService, padProjectInformationService, devukFieldService);
+    padFieldService = new PadFieldService(padFieldRepository, pwaApplicationDetailService, padProjectInformationService,
+        devukFieldService,
+        pwaFieldFormValidator);
 
   }
 
@@ -81,7 +92,8 @@ public class PadFieldServiceTest {
 
     padFieldService.updateFieldInformation(pwaApplicationDetail, new PwaFieldForm());
 
-    verifyNoInteractions(padFieldRepository, pwaApplicationDetailService, padProjectInformationService, devukFieldService);
+    verifyNoInteractions(padFieldRepository, pwaApplicationDetailService, padProjectInformationService,
+        devukFieldService);
 
   }
 
@@ -98,7 +110,8 @@ public class PadFieldServiceTest {
     verify(padFieldRepository, times(1)).getAllByPwaApplicationDetail(pwaApplicationDetail);
     verify(padFieldRepository, times(1)).deleteAll(eq(List.of(existingField)));
 
-    verifyNoMoreInteractions(padFieldRepository, pwaApplicationDetailService, padProjectInformationService, devukFieldService);
+    verifyNoMoreInteractions(padFieldRepository, pwaApplicationDetailService, padProjectInformationService,
+        devukFieldService);
 
   }
 
@@ -172,6 +185,69 @@ public class PadFieldServiceTest {
     verify(padProjectInformationService, times(1)).removeFdpQuestionData(pwaApplicationDetail);
 
     verifyNoMoreInteractions(devukFieldService, padFieldRepository);
+
+  }
+
+  @Test
+  public void mapEntityToForm_whenNoFieldData() {
+    var form = new PwaFieldForm();
+    when(padFieldRepository.getAllByPwaApplicationDetail(any())).thenReturn(List.of());
+
+    padFieldService.mapEntityToForm(pwaApplicationDetail, form);
+
+    assertThat(form.getFieldId()).isNull();
+    assertThat(form.getLinkedToField()).isNull();
+    assertThat(form.getNoLinkedFieldDescription()).isNull();
+  }
+
+  @Test
+  public void mapEntityToForm_whenNotLinkedToField() {
+    var form = new PwaFieldForm();
+    var desc = "DESC";
+    when(padFieldRepository.getAllByPwaApplicationDetail(any())).thenReturn(List.of());
+    pwaApplicationDetail.setLinkedToField(false);
+    pwaApplicationDetail.setNotLinkedDescription(desc);
+
+    padFieldService.mapEntityToForm(pwaApplicationDetail, form);
+
+    assertThat(form.getFieldId()).isNull();
+    assertThat(form.getLinkedToField()).isFalse();
+    assertThat(form.getNoLinkedFieldDescription()).isEqualTo(desc);
+  }
+
+  @Test
+  public void mapEntityToForm_whenLinkedToField() {
+    var form = new PwaFieldForm();
+    pwaApplicationDetail.setLinkedToField(true);
+
+    padFieldService.mapEntityToForm(pwaApplicationDetail, form);
+
+    assertThat(form.getFieldId()).isEqualTo(DEVUK_FIELD_ID);
+    assertThat(form.getLinkedToField()).isTrue();
+    assertThat(form.getNoLinkedFieldDescription()).isNull();
+  }
+
+
+  @Test
+  public void isComplete_serviceInteraction_whenValidateResultAddsErrors() {
+
+    doAnswer(invocation -> {
+      var errors = (Errors) invocation.getArgument(1);
+      errors.rejectValue("fieldId", "fieldId.error");
+      return invocation;
+    }).when(pwaFieldFormValidator).validate(any(), any(), any());
+
+    assertThat(padFieldService.isComplete(pwaApplicationDetail)).isFalse();
+
+    verify(pwaFieldFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL) );
+
+  }
+  @Test
+  public void isComplete_serviceInteraction_whenValidateAddsNoErrors() {
+
+    assertThat(padFieldService.isComplete(pwaApplicationDetail)).isTrue();
+
+    verify(pwaFieldFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL) );
 
   }
 

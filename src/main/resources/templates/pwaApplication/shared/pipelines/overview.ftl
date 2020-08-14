@@ -51,7 +51,7 @@
                 <@fdsTaskList.taskList>
                     <#list pipeline.getTaskList() as task>
                         <#if task.taskInfoList?has_content>
-                            <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route/>
+                            <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route isCompleted=task.completed/>
                         <#else>
                             <@fdsTaskList.taskListItem itemText=task.taskName itemUrl=springUrl(task.route) completed=task.completed/>
                         </#if>
