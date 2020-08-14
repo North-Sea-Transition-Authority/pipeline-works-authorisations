@@ -1,10 +1,13 @@
 <#import '/spring.ftl' as spring>
 <#include '../../layout.ftl'>
 
-<#-- @ftlvariable name="taskName" type="String" -->
-<#-- @ftlvariable name="taskInfo" type="uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo" -->
+<#-- @ftlvariable name="taskName" type="java.lang.String" -->
+<#-- @ftlvariable name="route" type="java.lang.String" -->
+<#-- @ftlvariable name="isCompleted" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="taskInfoList" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo>" -->
 
 <#macro taskInfoItem taskName taskInfoList route isCompleted>
+
   <li class="fds-task-list__item">
     <span class="fds-task-list__task-name">
       <a class="govuk-link" href="${springUrl(route)}">

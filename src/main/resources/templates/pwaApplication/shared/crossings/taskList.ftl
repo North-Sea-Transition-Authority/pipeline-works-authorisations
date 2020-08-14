@@ -4,6 +4,7 @@
 <#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
+<#-- @ftlvariable name="tasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
 
 <@defaultPage htmlTitle="Blocks and crossing agreements" pageHeading="Blocks and crossing agreements" breadcrumbs=true>
 
@@ -14,11 +15,7 @@
     <@fdsTaskList.taskList>
         <@fdsTaskList.taskListSection>
             <#list tasks as entry>
-                <@fdsTaskList.taskListItem itemUrl=springUrl(entry.route) itemText=entry.taskName completed=entry.completed>
-                  <#list entry.taskInfoList as taskInfo>
-                    <span class="govuk-tag">${taskInfo.count} ${taskInfo.countType}</span>&nbsp;
-                  </#list>
-                </@fdsTaskList.taskListItem>
+                <@pwaTaskListItem.taskInfoItem taskName=entry.taskName taskInfoList=entry.taskInfoList route=entry.route isCompleted=entry.completed/>
             </#list>
         </@fdsTaskList.taskListSection>
     </@fdsTaskList.taskList>
