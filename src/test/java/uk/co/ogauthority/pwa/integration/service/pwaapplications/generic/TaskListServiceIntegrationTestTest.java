@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,7 +28,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskCompletionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
@@ -53,16 +53,16 @@ public class TaskListServiceIntegrationTestTest {
   private PwaApplicationCreationService pwaApplicationCreationService;
 
   @Autowired
-  private ApplicationContext applicationContext;
-
-  @Autowired
   private PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   private ApplicationBreadcrumbService breadcrumbService;
 
   @Autowired
-  private TaskCompletionService taskCompletionService;
+  private TaskListEntryFactory taskListEntryFactory;
+
+  @Autowired
+  private ApplicationTaskService applicationTaskService;
 
   // this needs to be mocked so we dont try increment a sequence that doesnt exist in h2
   @MockBean
@@ -89,14 +89,13 @@ public class TaskListServiceIntegrationTestTest {
     // by default, conditional app tasks not shown
     pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(new WebUserAccount(1));
     pwaApplication = pwaApplicationDetail.getPwaApplication();
-    taskListService = new TaskListService(applicationContext,
-        pwaApplicationRedirectService,
+    taskListService = new TaskListService(
         breadcrumbService,
-        taskCompletionService,
-        masterPwaViewService);
-
+        taskListEntryFactory,
+        applicationTaskService,
+        masterPwaViewService
+    );
   }
-
 
   @Test
   public void getApplicationTasks_forEveryAppType_assertAllTasksWithNoCrossSectionDependencies() {
@@ -104,7 +103,7 @@ public class TaskListServiceIntegrationTestTest {
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
 
         switch (appType) {
           case INITIAL:
@@ -225,7 +224,7 @@ public class TaskListServiceIntegrationTestTest {
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -242,10 +241,10 @@ public class TaskListServiceIntegrationTestTest {
 
     Set<PwaApplicationType> validApplicationTypes = getCampaignWorksAppTypes();
 
-    validApplicationTypes.stream().forEach(appType -> {
+    validApplicationTypes.forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).contains(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -262,10 +261,10 @@ public class TaskListServiceIntegrationTestTest {
 
     Set<PwaApplicationType> invalidApplicationTypes = EnumSet.complementOf(getCampaignWorksAppTypes());
 
-    invalidApplicationTypes.stream().forEach(appType -> {
+    invalidApplicationTypes.forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.CAMPAIGN_WORKS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -282,7 +281,7 @@ public class TaskListServiceIntegrationTestTest {
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -299,10 +298,10 @@ public class TaskListServiceIntegrationTestTest {
 
     Set<PwaApplicationType> validApplicationTypes = getFastTrackAppTypes();
 
-    validApplicationTypes.stream().forEach(appType -> {
+    validApplicationTypes.forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).contains(ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -319,10 +318,10 @@ public class TaskListServiceIntegrationTestTest {
 
     Set<PwaApplicationType> invalidApplicationTypes = EnumSet.complementOf(getFastTrackAppTypes());
 
-    invalidApplicationTypes.stream().forEach(appType -> {
+    invalidApplicationTypes.forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.FAST_TRACK.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -338,7 +337,7 @@ public class TaskListServiceIntegrationTestTest {
     PwaApplicationType.stream().forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -355,10 +354,10 @@ public class TaskListServiceIntegrationTestTest {
 
     Set<PwaApplicationType> validApplicationTypes = getPermanentDepositAppTypes();
 
-    validApplicationTypes.stream().forEach(appType -> {
+    validApplicationTypes.forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).contains(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);
@@ -375,10 +374,10 @@ public class TaskListServiceIntegrationTestTest {
 
     Set<PwaApplicationType> invalidApplicationTypes = EnumSet.complementOf(getPermanentDepositAppTypes());
 
-    invalidApplicationTypes.stream().forEach(appType -> {
+    invalidApplicationTypes.forEach(appType -> {
       try {
         pwaApplication.setApplicationType(appType);
-        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTasks(pwaApplicationDetail));
+        var taskNamesList = getKeysFromTaskList(taskListService.getApplicationTaskListEntries(pwaApplicationDetail));
         assertThat(taskNamesList).doesNotContain(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName());
       } catch (AssertionError e) {
         throw new AssertionError("Failed at type: " + appType + "\n" + e.getMessage(), e);

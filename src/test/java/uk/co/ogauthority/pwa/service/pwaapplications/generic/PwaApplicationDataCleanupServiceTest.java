@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
@@ -105,10 +104,10 @@ public class PwaApplicationDataCleanupServiceTest {
 
     var detail = new PwaApplicationDetail();
 
-    when(taskListService.getApplicationTasks(detail)).thenReturn(List.of(
-        new TaskListEntry(ApplicationTask.PROJECT_INFORMATION.getDisplayName(), null, false),
-        new TaskListEntry(ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName(), null, false),
-        new TaskListEntry(ApplicationTask.LOCATION_DETAILS.getDisplayName(), null, false)
+    when(taskListService.getShownApplicationTasksForDetail(detail)).thenReturn(List.of(
+        ApplicationTask.PROJECT_INFORMATION,
+        ApplicationTask.GENERAL_TECH_DETAILS,
+        ApplicationTask.LOCATION_DETAILS
     ));
 
     pwaApplicationDataCleanupService.cleanupData(detail);

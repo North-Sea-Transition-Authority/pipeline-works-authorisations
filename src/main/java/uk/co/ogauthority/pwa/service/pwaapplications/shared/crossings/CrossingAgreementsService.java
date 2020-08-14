@@ -90,7 +90,8 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
         task.getDisplayText(),
         crossingAgreementsTaskListService.getRoute(detail, task),
         service.isComplete(detail),
-        service.getTaskInfoList(detail)
+        service.getTaskInfoList(detail),
+        task.getDisplayOrder()
     );
     return Optional.of(taskListEntry);
   }
