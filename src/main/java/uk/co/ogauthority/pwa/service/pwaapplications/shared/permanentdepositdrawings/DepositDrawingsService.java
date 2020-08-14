@@ -275,7 +275,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return permanentDepositService.hasPermanentDepositBeenMade(pwaApplicationDetail);
+    return permanentDepositService.hasPermanentDepositBeenMade(pwaApplicationDetail)
+        && permanentDepositService.canShowInTaskList(pwaApplicationDetail);
   }
 
 

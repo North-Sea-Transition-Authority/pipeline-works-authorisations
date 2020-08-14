@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
@@ -27,6 +28,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListServiceTest {
   private final ApplicationTask DEFAULT_APP_TASK = ApplicationTask.FIELD_INFORMATION;
+  private final ApplicationTaskGroup DEFAULT_APP_TASK_GROUP = ApplicationTaskGroup.ADMINISTRATIVE_DETAILS;
 
   @Mock
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -77,7 +79,7 @@ public class TaskListServiceTest {
 
       assertThat(modelAndView.getViewName()).isEqualTo(TaskListService.TASK_LIST_TEMPLATE_PATH);
 
-      assertThat(modelAndView.getModel().get("applicationTasks")).isNotNull();
+      assertThat(modelAndView.getModel().get("applicationTaskGroups")).isNotNull();
 
       if (applicationType != PwaApplicationType.INITIAL) {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example");
@@ -126,7 +128,7 @@ public class TaskListServiceTest {
   }
 
   @Test
-  public void getShownApplicationTasksForDetail_allTasksQueried(){
+  public void getShownApplicationTasksForDetail_allTasksQueried() {
     taskListService.getApplicationTaskListEntries(pwaApplicationDetail);
 
     ApplicationTask.stream().forEach(applicationTask -> {
@@ -136,9 +138,10 @@ public class TaskListServiceTest {
   }
 
   @Test
-  public void getApplicationTaskListEntries_whenNoTasksCanBeShown_thenReturnNoTasksItem(){
+  public void getApplicationTaskListEntries_whenNoTasksCanBeShown_thenReturnNoTasksItem() {
     var fakeNoTasksTaskListEntry = new TaskListEntry("fake name", "fake route", false, 0);
-    when(taskListEntryFactory.createNoTasksEntry(pwaApplicationDetail.getPwaApplication())).thenReturn(fakeNoTasksTaskListEntry);
+    when(taskListEntryFactory.createNoTasksEntry(pwaApplicationDetail.getPwaApplication())).thenReturn(
+        fakeNoTasksTaskListEntry);
 
     var taskListEntries = taskListService.getApplicationTaskListEntries(pwaApplicationDetail);
 
@@ -147,7 +150,7 @@ public class TaskListServiceTest {
   }
 
   @Test
-  public void getApplicationTaskListEntries_whenSomeTaskCanBeShown_thenOnlyReturnThatTaskListEntry(){
+  public void getApplicationTaskListEntries_whenSomeTaskCanBeShown_thenOnlyReturnThatTaskListEntry() {
     var fakeTaskListEntry = new TaskListEntry("fake name", "fake route", false, 0);
     when(applicationTaskService.canShowTask(DEFAULT_APP_TASK, pwaApplicationDetail)).thenReturn(true);
     when(taskListEntryFactory.createApplicationTaskListEntry(any(), any())).thenReturn(fakeTaskListEntry);
@@ -155,8 +158,30 @@ public class TaskListServiceTest {
     var taskListEntries = taskListService.getApplicationTaskListEntries(pwaApplicationDetail);
 
     assertThat(taskListEntries).containsExactly(fakeTaskListEntry);
-    verify(taskListEntryFactory,times(1)).createApplicationTaskListEntry(pwaApplicationDetail, DEFAULT_APP_TASK);
+    verify(taskListEntryFactory, times(1)).createApplicationTaskListEntry(pwaApplicationDetail, DEFAULT_APP_TASK);
     verifyNoMoreInteractions(taskListEntryFactory);
+
+  }
+
+  @Test
+  public void getTaskListGroups_whenNoApplicationTasksShown() {
+    assertThat(taskListService.getTaskListGroups(pwaApplicationDetail).isEmpty());
+  }
+
+  @Test
+  public void getTaskListGroups_whenOneTaskInGroupIsShown() {
+    var fakeTaskListEntry = new TaskListEntry("fake name", "fake route", false, 0);
+    when(taskListEntryFactory.createApplicationTaskListEntry(any(), any())).thenReturn(fakeTaskListEntry);
+    when(applicationTaskService.canShowTask(DEFAULT_APP_TASK, pwaApplicationDetail)).thenReturn(true);
+
+    var taskListGroups = taskListService.getTaskListGroups(pwaApplicationDetail);
+
+    assertThat(taskListGroups).hasSize(1);
+    assertThat(taskListGroups.get(0)).satisfies(taskListGroup -> {
+      assertThat(taskListGroup.getGroupName()).isEqualTo(DEFAULT_APP_TASK_GROUP.getDisplayName());
+      assertThat(taskListGroup.getDisplayOrder()).isEqualTo(DEFAULT_APP_TASK_GROUP.getDisplayOrder());
+      assertThat(taskListGroup.getTaskListEntries()).containsExactly(fakeTaskListEntry);
+    });
 
   }
 

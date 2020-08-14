@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
 
-import java.util.Objects;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.PadPwaFieldsController;
@@ -21,10 +24,12 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
-import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.GeneralPurposeApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
@@ -46,7 +51,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.Technic
 /**
  * Enumeration of all app form tasks for the PWA application task list.
  */
-public enum ApplicationTask {
+public enum ApplicationTask implements GeneralPurposeApplicationTask {
 
   FIELD_INFORMATION(
       "Field information",
@@ -98,7 +103,7 @@ public enum ApplicationTask {
       60),
 
   PIPELINES(
-    "Pipelines",
+      "Pipelines",
       PipelinesController.class,
       PadPipelineService.class,
       70
@@ -127,9 +132,9 @@ public enum ApplicationTask {
   ),
 
   PERMANENT_DEPOSITS(
-    "Permanent deposits",
-    PermanentDepositController.class,
-    PermanentDepositService.class,
+      "Permanent deposits",
+      PermanentDepositController.class,
+      PermanentDepositService.class,
       100
   ),
 
@@ -197,32 +202,98 @@ public enum ApplicationTask {
     this(displayName, displayName, controllerClass, serviceClass, displayOrder);
   }
 
-  public static ApplicationTask resolveFromName(String taskName) {
-    return Stream.of(ApplicationTask.values())
-        .filter(task -> Objects.equals(task.getDisplayName(), taskName))
-        .findFirst()
-        .orElseThrow(() -> new ValueNotFoundException(
-            String.format("Couldn't find an ApplicationTask with display name: %s", taskName)));
-  }
-
+  @Override
   public String getDisplayName() {
     return displayName;
   }
 
+  @Override
   public String getShortenedDisplayName() {
     return shortenedDisplayName;
   }
 
+  @Override
   public Class<?> getControllerClass() {
     return controllerClass;
   }
 
+  @Override
   public Class<? extends ApplicationFormSectionService> getServiceClass() {
     return serviceClass;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
+  }
+
+  @Override
+  public String getTaskLandingPageRoute(PwaApplication pwaApplication) {
+    var applicationId = pwaApplication.getId();
+    var applicationType = pwaApplication.getApplicationType();
+    Map<String, Object> uriVariables = new HashMap<>();
+    uriVariables.put("applicationId", applicationId);
+    switch (this) {
+      case FIELD_INFORMATION:
+        return ReverseRouter.route(on(PadPwaFieldsController.class)
+            .renderFields(applicationType, applicationId, null, null, null));
+      case APPLICATION_USERS:
+        return ReverseRouter.route(on(PwaContactController.class)
+            .renderContactsScreen(applicationType, applicationId, null));
+      case PROJECT_INFORMATION:
+        return ReverseRouter.route(on(ProjectInformationController.class)
+            .renderProjectInformation(applicationType, applicationId, null, null));
+      case FAST_TRACK:
+        return ReverseRouter.route(on(FastTrackController.class)
+            .renderFastTrack(applicationType, applicationId, null, null, null));
+      case ENVIRONMENTAL_DECOMMISSIONING:
+        return ReverseRouter.route(on(EnvironmentalDecomController.class)
+            .renderEnvDecom(applicationType, null, null), uriVariables);
+      case CROSSING_AGREEMENTS:
+        return ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(applicationType, applicationId, null, null));
+      case LOCATION_DETAILS:
+        return ReverseRouter.route(on(LocationDetailsController.class)
+            .renderLocationDetails(applicationType, null, null, null), Map.of("applicationId", applicationId));
+      case HUOO:
+        return ReverseRouter.route(on(HuooController.class)
+            .renderHuooSummary(applicationType, applicationId, null, null));
+      case PIPELINES:
+        return ReverseRouter.route(on(PipelinesController.class)
+            .renderPipelinesOverview(applicationId, applicationType, null));
+      case PIPELINES_HUOO:
+        return ReverseRouter.route(on(PipelinesHuooController.class)
+            .renderSummary(applicationType, applicationId, null));
+      case CAMPAIGN_WORKS:
+        return ReverseRouter.route(on(CampaignWorksController.class)
+            .renderSummary(applicationType, applicationId, null));
+      case TECHNICAL_DRAWINGS:
+        return ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(applicationType, applicationId, null, null));
+      case PERMANENT_DEPOSITS:
+        return ReverseRouter.route(on(PermanentDepositController.class)
+            .renderPermanentDepositsOverview(applicationType, applicationId, null, null));
+      case PERMANENT_DEPOSIT_DRAWINGS:
+        return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+            .renderDepositDrawingsOverview(applicationType, applicationId, null, null));
+      case GENERAL_TECH_DETAILS:
+        return ReverseRouter.route(on(PipelineTechInfoController.class)
+            .renderAddPipelineTechInfo(applicationType, applicationId, null, null));
+      case FLUID_COMPOSITION:
+        return ReverseRouter.route(on(FluidCompositionInfoController.class)
+            .renderAddFluidCompositionInfo(applicationType, applicationId, null, null));
+      case PIPELINE_OTHER_PROPERTIES:
+        return ReverseRouter.route(on(PipelineOtherPropertiesController.class)
+            .renderAddPipelineOtherProperties(applicationType, applicationId, null, null));
+      case DESIGN_OP_CONDITIONS:
+        return ReverseRouter.route(on(DesignOpConditionsController.class)
+            .renderAddDesignOpConditions(applicationType, applicationId, null, null));
+      case PARTNER_LETTERS:
+        return ReverseRouter.route(on(PartnerLettersController.class)
+            .renderAddPartnerLetters(applicationType, applicationId, null, null));
+      default:
+        return "";
+    }
   }
 
   public static Stream<ApplicationTask> stream() {

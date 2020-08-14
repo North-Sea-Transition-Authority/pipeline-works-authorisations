@@ -1,0 +1,97 @@
+package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.OrderedTaskGroupTask;
+
+/**
+ * defines groups of applications tasks for the task list page.
+ */
+public enum ApplicationTaskGroup {
+  APPLICATION_USERS(
+      "Application users",
+      10,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.APPLICATION_USERS, 10)
+      )),
+  ADMINISTRATIVE_DETAILS(
+      "Administrative details",
+      20,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.FIELD_INFORMATION, 10),
+          OrderedTaskGroupTask.from(ApplicationTask.PROJECT_INFORMATION, 20),
+          OrderedTaskGroupTask.from(ApplicationTask.FAST_TRACK, 30),
+          OrderedTaskGroupTask.from(ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING, 40),
+          OrderedTaskGroupTask.from(ApplicationTask.HUOO, 50),
+          OrderedTaskGroupTask.from(ApplicationTask.PARTNER_LETTERS, 60)
+      )),
+  LOCATION_DETAILS(
+      "Location details",
+      30,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.LOCATION_DETAILS, 10),
+          OrderedTaskGroupTask.from(ApplicationTask.CROSSING_AGREEMENTS, 20)
+      )),
+  TECHNICAL_DETAILS(
+      "Technical details",
+      40,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.GENERAL_TECH_DETAILS, 10),
+          OrderedTaskGroupTask.from(ApplicationTask.FLUID_COMPOSITION, 20),
+          OrderedTaskGroupTask.from(ApplicationTask.PIPELINE_OTHER_PROPERTIES, 30),
+          OrderedTaskGroupTask.from(ApplicationTask.DESIGN_OP_CONDITIONS, 40)
+      )),
+  PIPELINES(
+      "Pipelines",
+      50,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.PIPELINES, 10),
+          OrderedTaskGroupTask.from(ApplicationTask.TECHNICAL_DRAWINGS, 20),
+          OrderedTaskGroupTask.from(ApplicationTask.PIPELINES_HUOO, 30),
+          OrderedTaskGroupTask.from(ApplicationTask.CAMPAIGN_WORKS, 40)
+      )),
+  DEPOSITS(
+      "Deposits",
+      60,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.PERMANENT_DEPOSITS, 10),
+          OrderedTaskGroupTask.from(ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS, 20)
+      ));
+
+
+  private final String displayName;
+  private final int displayOrder;
+  private final List<OrderedTaskGroupTask> tasks;
+
+  ApplicationTaskGroup(String displayName, int displayOrder, List<OrderedTaskGroupTask> tasks) {
+    this.displayName = displayName;
+    this.displayOrder = displayOrder;
+    this.tasks = tasks;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public int getDisplayOrder() {
+    return displayOrder;
+  }
+
+  public List<OrderedTaskGroupTask> getTasks() {
+    return tasks;
+  }
+
+  public Set<ApplicationTask> getApplicationTaskSet() {
+    return tasks.stream()
+        .map(OrderedTaskGroupTask::getApplicationTask)
+        .collect(Collectors.toSet());
+  }
+
+  public static List<ApplicationTaskGroup> asList() {
+    return Arrays.stream(ApplicationTaskGroup.values())
+        .collect(Collectors.toList());
+  }
+
+}
