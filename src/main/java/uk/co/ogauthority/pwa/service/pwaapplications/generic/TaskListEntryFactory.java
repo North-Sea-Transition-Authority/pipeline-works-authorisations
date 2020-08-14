@@ -9,7 +9,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 
 /**
@@ -30,14 +29,10 @@ public class TaskListEntryFactory {
   }
 
   TaskListEntry createApplicationTaskListEntry(PwaApplicationDetail pwaApplicationDetail,
-                                               ApplicationTask applicationTask) {
-
-    var applicationId = pwaApplicationDetail.getMasterPwaApplicationId();
-    var applicationType = pwaApplicationDetail.getPwaApplicationType();
-
+                                               GeneralPurposeApplicationTask applicationTask) {
     return new TaskListEntry(
         applicationTask.getDisplayName(),
-        applicationTaskService.getRouteForTask(applicationTask, applicationType, applicationId),
+        applicationTask.getTaskLandingPageRoute(pwaApplicationDetail.getPwaApplication()),
         applicationTaskService.isTaskComplete(applicationTask, pwaApplicationDetail),
         applicationTaskService.getTaskInfoList(applicationTask, pwaApplicationDetail),
         applicationTask.getDisplayOrder()
@@ -60,6 +55,5 @@ public class TaskListEntryFactory {
         false,
         999);
   }
-
 
 }

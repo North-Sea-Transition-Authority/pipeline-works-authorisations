@@ -81,22 +81,30 @@ public class TaskListService {
         .stream()
         // filter out groups where no tasks in the group are shown
         .filter(applicationTaskGroup -> !SetUtils.intersection(
-            applicationTaskGroup.getTasksAsSet(),
+            applicationTaskGroup.getApplicationTaskSet(),
             shownApplicationTasks
             ).isEmpty()
         )
         // for each group where tasks are shown, create a task list group object
-        .map(applicationTaskGroup -> new TaskListGroup(
-                applicationTaskGroup.getDisplayName(),
-                applicationTaskGroup.getDisplayOrder(),
+        .map(applicationTaskGroup -> {
+          // per group, filter out tasks that are not shown.
+          var visibleTasksInGroup = applicationTaskGroup.getTasks().stream()
+              .filter(o -> shownApplicationTasks.contains(o.getApplicationTask()))
+              .collect(Collectors.toList());
 
-                SetUtils.intersection(applicationTaskGroup.getTasksAsSet(), shownApplicationTasks).stream()
-                    .map(applicationTask -> taskListEntryFactory.createApplicationTaskListEntry(pwaApplicationDetail,
-                        applicationTask))
-                    .collect(Collectors.toList())
-            )
-        )
-        // sort the groups so they appear in the correct order
+          return new TaskListGroup(
+              applicationTaskGroup.getDisplayName(),
+              applicationTaskGroup.getDisplayOrder(),
+              visibleTasksInGroup.stream()
+                  .map(orderedTaskGroupTask -> taskListEntryFactory.createApplicationTaskListEntry(pwaApplicationDetail,
+                      orderedTaskGroupTask))
+                  // sort the tasks by their display order
+                  .sorted(Comparator.comparing(TaskListEntry::getDisplayOrder))
+                  .collect(Collectors.toList())
+          );
+        })
+        // sort the groups by their display order
+        .sorted(Comparator.comparing(TaskListGroup::getDisplayOrder))
         .collect(Collectors.toList());
   }
 

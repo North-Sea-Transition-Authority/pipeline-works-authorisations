@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactor
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationReferencingService;
@@ -68,9 +70,6 @@ public class TaskListServiceIntegrationTestTest {
   @MockBean
   private PwaApplicationReferencingService pwaApplicationReferencingService;
 
-  private PwaApplication pwaApplication;
-  private PwaApplicationDetail pwaApplicationDetail;
-
   @MockBean
   private CampaignWorksService campaignWorksService;
 
@@ -81,7 +80,13 @@ public class TaskListServiceIntegrationTestTest {
   private PermanentDepositService permanentDepositService;
 
   @MockBean
+  private DepositDrawingsService depositDrawingsService;
+
+  @MockBean
   private MasterPwaViewService masterPwaViewService;
+
+  private PwaApplication pwaApplication;
+  private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setup() {
@@ -391,5 +396,50 @@ public class TaskListServiceIntegrationTestTest {
     return taskList.stream()
         .map(TaskListEntry::getTaskName)
         .collect(Collectors.toList());
+  }
+
+  private void setupConditionalTaskServices(boolean tasksShow) {
+
+    when(permanentDepositService.canShowInTaskList(any())).thenReturn(tasksShow);
+    when(campaignWorksService.canShowInTaskList(any())).thenReturn(tasksShow);
+    when(padFastTrackService.canShowInTaskList(any())).thenReturn(tasksShow);
+    when(depositDrawingsService.canShowInTaskList(any())).thenReturn(tasksShow);
+  }
+
+  @Test
+  public void getTaskListGroups_whenAllTasksShown_confirmOrderingOfGroupsAndTasksMatchesEnumDefinition() {
+    setupConditionalTaskServices(true);
+
+    var taskListGroups = taskListService.getTaskListGroups(pwaApplicationDetail);
+
+    // loop over all take groups and make sure the constructed groups are in the same order as group enum definition
+    for (int i = 0; i < taskListGroups.size(); i++) {
+      var expectedGroup = ApplicationTaskGroup.values()[i];
+      var actualTaskListGroup = taskListGroups.get(i);
+      try {
+        assertThat(expectedGroup.getDisplayName()).isEqualTo(actualTaskListGroup.getGroupName());
+      } catch (AssertionError e) {
+        throw new AssertionError("Group out of order! Group position:" + i + "\n" + e.getMessage(), e);
+      }
+
+      for (int j = 0; j < expectedGroup.getTasks().size(); j++) {
+        var expectedTask = expectedGroup.getTasks().get(j);
+        var actualTaskListEntry = actualTaskListGroup.getTaskListEntries().get(j);
+        try {
+          assertThat(expectedTask.getDisplayName()).isEqualTo(actualTaskListEntry.getTaskName());
+        } catch (AssertionError e) {
+          throw new AssertionError(String.format("Group Task out of order! Group: %s Task position: %s \n %s",
+              expectedGroup,
+              j,
+              e.getMessage()),
+              e
+          );
+        }
+      }
+
+    }
+
+
+    ;
   }
 }

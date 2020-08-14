@@ -12,18 +12,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TaskListEntryFactoryTest {
 
-  private final ApplicationTask DEFAULT_APP_TASK = ApplicationTask.APPLICATION_USERS;
   private final String DEFAULT_APP_TASK_ROUTE = "/My_Task/route";
+  private final int DEFAULT_DISPLAY_ORDER = 500;
+  private final String DEFAULT_DISPLAY_NAME = "NAME";
   private final String DEFAULT_TASK_LIST_ROUTE = "/Task_list/route";
 
   @Mock
@@ -35,17 +36,12 @@ public class TaskListEntryFactoryTest {
   private TaskListEntryFactory taskListEntryFactory;
 
   private PwaApplicationDetail pwaApplicationDetail;
+  private TestGeneralPurposeApplicationTask testGeneralPurposeApplicationTask;
 
   @Before
   public void setup() {
-
+    testGeneralPurposeApplicationTask = new TestGeneralPurposeApplicationTask();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-
-    when(applicationTaskService.getRouteForTask(
-        eq(DEFAULT_APP_TASK),
-        eq(pwaApplicationDetail.getPwaApplicationType()),
-        eq(pwaApplicationDetail.getMasterPwaApplicationId()))
-    ).thenReturn(DEFAULT_APP_TASK_ROUTE);
 
     when(pwaApplicationRedirectService.getTaskListRoute(eq(pwaApplicationDetail.getPwaApplication())))
         .thenReturn(DEFAULT_TASK_LIST_ROUTE);
@@ -58,10 +54,10 @@ public class TaskListEntryFactoryTest {
   @Test
   public void createApplicationTaskListEntry_whenNotComplete_andNoTaskInfoItems() {
 
-    var taskListEntry = taskListEntryFactory.createApplicationTaskListEntry(pwaApplicationDetail, DEFAULT_APP_TASK);
+    var taskListEntry = taskListEntryFactory.createApplicationTaskListEntry(pwaApplicationDetail, testGeneralPurposeApplicationTask);
     assertThat(taskListEntry.isCompleted()).isFalse();
-    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(DEFAULT_APP_TASK.getDisplayOrder());
-    assertThat(taskListEntry.getTaskName()).isEqualTo(DEFAULT_APP_TASK.getDisplayName());
+    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(DEFAULT_DISPLAY_ORDER);
+    assertThat(taskListEntry.getTaskName()).isEqualTo(DEFAULT_DISPLAY_NAME);
     assertThat(taskListEntry.getRoute()).isEqualTo(DEFAULT_APP_TASK_ROUTE);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
@@ -72,21 +68,21 @@ public class TaskListEntryFactoryTest {
   public void createApplicationTaskListEntry_whenComplete_andTaskInfoItems() {
 
     when(applicationTaskService.isTaskComplete(
-        eq(DEFAULT_APP_TASK),
+        eq(testGeneralPurposeApplicationTask),
         eq(pwaApplicationDetail))
     ).thenReturn(true);
 
     var taskInfo = new TaskInfo("TYPE", 1L);
 
     when(applicationTaskService.getTaskInfoList(
-        eq(DEFAULT_APP_TASK),
+        eq(testGeneralPurposeApplicationTask),
         eq(pwaApplicationDetail))
     ).thenReturn(List.of(taskInfo));
 
-    var taskListEntry = taskListEntryFactory.createApplicationTaskListEntry(pwaApplicationDetail, DEFAULT_APP_TASK);
+    var taskListEntry = taskListEntryFactory.createApplicationTaskListEntry(pwaApplicationDetail, testGeneralPurposeApplicationTask);
     assertThat(taskListEntry.isCompleted()).isTrue();
-    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(DEFAULT_APP_TASK.getDisplayOrder());
-    assertThat(taskListEntry.getTaskName()).isEqualTo(DEFAULT_APP_TASK.getDisplayName());
+    assertThat(taskListEntry.getDisplayOrder()).isEqualTo(DEFAULT_DISPLAY_ORDER);
+    assertThat(taskListEntry.getTaskName()).isEqualTo(DEFAULT_DISPLAY_NAME);
     assertThat(taskListEntry.getRoute()).isEqualTo(DEFAULT_APP_TASK_ROUTE);
     assertThat(taskListEntry.getTaskInfoList()).containsExactly(taskInfo);
 
@@ -118,5 +114,40 @@ public class TaskListEntryFactoryTest {
         )
     );
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
+  }
+
+  /**
+   * class for use in tests only which implements the generic interface required by class under test
+   */
+  private class TestGeneralPurposeApplicationTask implements GeneralPurposeApplicationTask{
+    @Override
+    public Class<? extends ApplicationFormSectionService> getServiceClass() {
+      return ApplicationFormSectionService.class;
+    }
+
+    @Override
+    public Class getControllerClass() {
+      return null;
+    }
+
+    @Override
+    public int getDisplayOrder() {
+      return DEFAULT_DISPLAY_ORDER;
+    }
+
+    @Override
+    public String getDisplayName() {
+      return DEFAULT_DISPLAY_NAME;
+    }
+
+    @Override
+    public String getShortenedDisplayName() {
+      return null;
+    }
+
+    @Override
+    public String getTaskLandingPageRoute(PwaApplication pwaApplication) {
+      return DEFAULT_APP_TASK_ROUTE;
+    }
   }
 }

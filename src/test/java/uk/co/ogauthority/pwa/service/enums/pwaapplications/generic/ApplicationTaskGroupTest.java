@@ -13,7 +13,7 @@ public class ApplicationTaskGroupTest {
   @Test
   public void applicationTaskGroup_allApplicationTasksAssignedAGroup(){
     var allTasks = ApplicationTaskGroup.asList().stream()
-        .flatMap(applicationTaskGroup -> applicationTaskGroup.getTasksAsSet().stream())
+        .flatMap(applicationTaskGroup -> applicationTaskGroup.getApplicationTaskSet().stream())
         .collect(Collectors.toSet());
 
     assertThat(allTasks).isEqualTo(ApplicationTask.stream().collect(Collectors.toSet()));
