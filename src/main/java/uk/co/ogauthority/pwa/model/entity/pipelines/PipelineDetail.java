@@ -46,6 +46,7 @@ public class PipelineDetail {
 
   @Enumerated(EnumType.STRING)
   private PipelineStatus pipelineStatus;
+  private String pipelineStatusReason;
 
   private String detailStatus;
   private String pipelineNumber;
@@ -406,6 +407,14 @@ public class PipelineDetail {
 
   public void setBundleName(String bundleName) {
     this.bundleName = bundleName;
+  }
+
+  public String getPipelineStatusReason() {
+    return pipelineStatusReason;
+  }
+
+  public void setPipelineStatusReason(String pipelineServiceStatusReason) {
+    this.pipelineStatusReason = pipelineServiceStatusReason;
   }
 
   @PostLoad

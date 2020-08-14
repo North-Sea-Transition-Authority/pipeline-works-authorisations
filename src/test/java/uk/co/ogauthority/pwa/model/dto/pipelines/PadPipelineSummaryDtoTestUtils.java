@@ -48,7 +48,9 @@ public class PadPipelineSummaryDtoTestUtils {
         padPipeline.getPipelineMaterial(),
         padPipeline.getOtherPipelineMaterialUsed(),
         padPipeline.getTrenchedBuriedBackfilled(),
-        padPipeline.getTrenchingMethodsDescription());
+        padPipeline.getTrenchingMethodsDescription(),
+        padPipeline.getPipelineStatus(),
+        padPipeline.getPipelineStatusReason());
 
   }
 

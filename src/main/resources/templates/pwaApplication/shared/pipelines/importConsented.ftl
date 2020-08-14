@@ -18,6 +18,16 @@
 
         <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineId" options=consentedPipelines labelText="Which pipeline is being modified?" hintText="You can only modify pipelines on the PWA this variation is for"/>
 
+        <@fdsRadio.radioGroup path="form.pipelineStatus" labelText="What will the status of the pipeline be after your changes?" hiddenContent=true>
+          <#list serviceStatuses as option>
+            <@fdsRadio.radioItem path="form.pipelineStatus" itemMap={option: option.displayText}>
+              <#if option == "OUT_OF_USE_ON_SEABED">
+                <@fdsTextarea.textarea path="form.pipelineStatusReason" labelText="Why is the pipeline not being returned to shore?" nestingPath="form.pipelineStatus" characterCount=true maxCharacterLength="4000"/>
+              </#if>
+            </@fdsRadio.radioItem>
+          </#list>
+        </@fdsRadio.radioGroup>
+
         <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Modify consented pipeline" secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
     </@fdsForm.htmlForm>

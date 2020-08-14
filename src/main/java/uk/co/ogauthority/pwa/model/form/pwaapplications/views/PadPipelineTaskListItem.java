@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
@@ -124,5 +125,22 @@ public class PadPipelineTaskListItem implements PipelineOverview {
   @Override
   public String getTrenchingMethodsDescription() {
     return this.pipelineOverview.getTrenchingMethodsDescription();
+  }
+
+  @Override
+  public PipelineStatus getPipelineStatus() {
+    return this.pipelineOverview.getPipelineStatus();
+  }
+
+  @Override
+  public String getPipelineStatusReason() {
+    return this.pipelineOverview.getPipelineStatusReason();
+  }
+
+  public Boolean getHasTasks() {
+    if (this.pipelineOverview instanceof PadPipelineOverview) {
+      return ((PadPipelineOverview) this.pipelineOverview).getHasTasks();
+    }
+    return false;
   }
 }

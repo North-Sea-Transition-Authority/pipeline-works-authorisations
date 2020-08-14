@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -41,6 +43,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
@@ -92,9 +95,12 @@ public class PadPipelineServiceTest {
   private PadPipeline padPipe1;
   private Pipeline pipe1;
   private PadPipelineIdent ident;
+  private ModifyPipelineForm modifyPipelineForm;
 
   @Before
   public void setUp() {
+
+    modifyPipelineForm = new ModifyPipelineForm();
 
     // mimic save of new pipeline behaviour.
     when(pipelineService.createApplicationPipeline(any())).thenAnswer(invocation -> {
@@ -118,6 +124,7 @@ public class PadPipelineServiceTest {
     padPipe1.setId(1);
     padPipe1.setPipelineInBundle(false);
     padPipe1.setPipelineRef("TEMPORARY 1");
+    padPipe1.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     pipe1 = new Pipeline();
     pipe1.setId(1);
@@ -210,6 +217,8 @@ public class PadPipelineServiceTest {
     assertThat(newPadPipeline.getComponentPartsDescription()).isEqualTo(form.getComponentPartsDescription());
     assertThat(form.getTrenchedBuriedBackfilled()).isEqualTo(form.getTrenchedBuriedBackfilled());
     assertThat(form.getTrenchingMethods()).isEqualTo(form.getTrenchingMethods());
+
+    assertThat(newPadPipeline.getPipelineStatus()).isEqualTo(PipelineStatus.IN_SERVICE);
 
   }
 
@@ -466,7 +475,10 @@ public class PadPipelineServiceTest {
     pipelineDetail.setToCoordinates(toCoordinatePair);
     pipelineDetail.setToLocation("b");
 
-    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+    modifyPipelineForm.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    modifyPipelineForm.setPipelineStatusReason("reason");
+
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
 
     // TODO: PWA-682 - Assert added fields
     assertThat(pipelineWithCopiedData.getBundleName()).isEqualTo(pipelineDetail.getBundleName());
@@ -481,8 +493,19 @@ public class PadPipelineServiceTest {
     assertThat(pipelineWithCopiedData.getToLocation()).isEqualTo(pipelineDetail.getToLocation());
     assertThat(pipelineWithCopiedData.getComponentPartsDescription()).isEqualTo(pipelineDetail.getComponentPartsDesc());
     assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(pipelineDetail.getPipelineNumber());
+    assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
+    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(modifyPipelineForm.getPipelineStatusReason());
 
+  }
 
+  @Test
+  public void copyDataToNewPadPipeline_noReason_notOnSeabed() {
+    var pipelineDetail = new PipelineDetail();
+    modifyPipelineForm.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    modifyPipelineForm.setPipelineStatusReason("reason");
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
+    assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
+    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isNull();
   }
 
   @Test
@@ -502,7 +525,7 @@ public class PadPipelineServiceTest {
     pipelineDetail.setFromCoordinates(fromCoordinatePair);
     pipelineDetail.setToCoordinates(toCoordinatePair);
 
-    var result = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail);
+    var result = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
 
     var captor = ArgumentCaptor.forClass(PadPipeline.class);
     verify(padPipelineRepository, times(1)).save(captor.capture());
@@ -662,6 +685,28 @@ public class PadPipelineServiceTest {
 
   }
 
+  @Test
+  public void doesPipelineHaveTasks_false() {
+    EnumSet.of(PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID).forEach(pipelineStatus -> {
+      padPipe1.setPipelineStatus(pipelineStatus);
+      var dto = createPadPipelineSummaryDto(padPipe1);
+      var result = padPipelineService.doesPipelineHaveTasks(dto);
+      assertThat(result).isFalse();
+    });
+  }
+
+  @Test
+  public void doesPipelineHaveTasks_true() {
+    var statusEnums = EnumSet.allOf(PipelineStatus.class);
+    statusEnums.removeAll(EnumSet.of(PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID));
+    statusEnums.forEach(pipelineStatus -> {
+      padPipe1.setPipelineStatus(pipelineStatus);
+      var dto = createPadPipelineSummaryDto(padPipe1);
+      var result = padPipelineService.doesPipelineHaveTasks(dto);
+      assertThat(result).isTrue();
+    });
+  }
+
   private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
     return new PadPipelineSummaryDto(
         padPipeline.getId(),
@@ -685,7 +730,9 @@ public class PadPipelineServiceTest {
         padPipeline.getPipelineMaterial(),
         padPipeline.getOtherPipelineMaterialUsed(),
         padPipeline.getTrenchedBuriedBackfilled(),
-        padPipeline.getTrenchingMethodsDescription());
+        padPipeline.getTrenchingMethodsDescription(),
+        padPipeline.getPipelineStatus(),
+        padPipeline.getPipelineStatusReason());
   }
 
 }

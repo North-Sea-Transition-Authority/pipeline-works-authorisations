@@ -1,8 +1,12 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+
 public class ModifyPipelineForm {
 
   private String pipelineId;
+  private PipelineStatus pipelineStatus;
+  private String pipelineStatusReason;
 
   public String getPipelineId() {
     return pipelineId;
@@ -10,5 +14,21 @@ public class ModifyPipelineForm {
 
   public void setPipelineId(String pipelineId) {
     this.pipelineId = pipelineId;
+  }
+
+  public PipelineStatus getPipelineStatus() {
+    return pipelineStatus;
+  }
+
+  public void setPipelineStatus(PipelineStatus pipelineStatus) {
+    this.pipelineStatus = pipelineStatus;
+  }
+
+  public String getPipelineStatusReason() {
+    return pipelineStatusReason;
+  }
+
+  public void setPipelineStatusReason(String pipelineStatusReason) {
+    this.pipelineStatusReason = pipelineStatusReason;
   }
 }

@@ -63,6 +63,8 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.otherPipelineMaterialUsed " +
             ", pp.trenchedBuriedBackfilled " +
             ", pp.trenchingMethodsDescription " +
+            ", pp.pipelineStatus" +
+            ", pp.pipelineStatusReason " +
             ") " +
             "FROM uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline pp " +
             "JOIN uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline p ON pp.pipeline = p " +
@@ -105,7 +107,9 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
             ", pp.pipelineMaterial " +
             ", pp.otherPipelineMaterialUsed " +
             ", pp.trenchedBuriedBackfilled " +
-            ", pp.trenchingMethodsDescription ",
+            ", pp.trenchingMethodsDescription" +
+            ", pp.pipelineStatus" +
+            ", pp.pipelineStatusReason ",
         PadPipelineSummaryDto.class)
         .setParameter("detail", detail)
         .setParameter("padPipelineLineFilter", padPipeline)

@@ -34,24 +34,30 @@
 
         <@fdsCard.card cardId=cardId cardClass=hasErrors?then("fds-card--error", "")>
 
-          <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" cardErrorMessage=cardErrorMessage>
-              <@fdsCard.cardAction cardLinkText="Remove"
+            <@fdsCard.cardHeader cardHeadingText="${pipeline.getPipelineName()}" cardErrorMessage=cardErrorMessage>
+                <@fdsCard.cardAction cardLinkText="Remove"
                 cardLinkScreenReaderText="${pipeline.getPipelineName()}"
                 cardLinkUrl=springUrl(pipelineUrlFactory.getRemovePipelineUrl(pipeline.padPipelineId))
-              />
-          </@fdsCard.cardHeader>
+                />
+            </@fdsCard.cardHeader>
 
-          <hr class="govuk-section-break govuk-section-break--m"/>
-
-            <@fdsTaskList.taskList>
-                <#list pipeline.getTaskList() as task>
-                    <#if task.taskInfoList?has_content>
-                        <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route isCompleted=task.completed/>
-                    <#else>
-                        <@fdsTaskList.taskListItem itemText=task.taskName itemUrl=springUrl(task.route) completed=task.completed/>
-                    </#if>
-                </#list>
-            </@fdsTaskList.taskList>
+            <#if pipeline.pipelineStatus != "IN_SERVICE">
+              <p class="govuk-tag">${pipeline.pipelineStatus.displayText}</p>
+            </#if>
+            <#if pipeline.hasTasks>
+                <#if pipeline.pipelineStatus == "IN_SERVICE">
+                  <hr class="govuk-section-break govuk-section-break--m"/>
+                </#if>
+                <@fdsTaskList.taskList>
+                    <#list pipeline.getTaskList() as task>
+                        <#if task.taskInfoList?has_content>
+                            <@pwaTaskListItem.taskInfoItem taskName=task.taskName taskInfoList=task.taskInfoList route=task.route isCompleted=task.completed/>
+                        <#else>
+                            <@fdsTaskList.taskListItem itemText=task.taskName itemUrl=springUrl(task.route) completed=task.completed/>
+                        </#if>
+                    </#list>
+                </@fdsTaskList.taskList>
+            </#if>
         </@fdsCard.card>
 
     </#list>

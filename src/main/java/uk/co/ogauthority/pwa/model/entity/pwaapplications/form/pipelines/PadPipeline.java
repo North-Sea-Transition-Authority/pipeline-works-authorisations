@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -141,6 +142,10 @@ public class PadPipeline {
   private String temporaryRef;
 
   private Integer temporaryNumber;
+
+  @Enumerated(EnumType.STRING)
+  private PipelineStatus pipelineStatus;
+  private String pipelineStatusReason;
 
   public PadPipeline() {
   }
@@ -388,6 +393,23 @@ public class PadPipeline {
     this.temporaryNumber = temporaryNumber;
   }
 
+  public PipelineStatus getPipelineStatus() {
+    return pipelineStatus;
+  }
+
+  public void setPipelineStatus(
+      PipelineStatus pipelineServiceStatus) {
+    this.pipelineStatus = pipelineServiceStatus;
+  }
+
+  public String getPipelineStatusReason() {
+    return pipelineStatusReason;
+  }
+
+  public void setPipelineStatusReason(String pipelineServiceStatusReason) {
+    this.pipelineStatusReason = pipelineServiceStatusReason;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -432,7 +454,9 @@ public class PadPipeline {
         && Objects.equals(otherPipelineMaterialUsed, that.otherPipelineMaterialUsed)
         && Objects.equals(pipelineDesignLife, that.pipelineDesignLife)
         && Objects.equals(pipelineInBundle, that.pipelineInBundle)
-        && Objects.equals(bundleName, that.bundleName);
+        && Objects.equals(bundleName, that.bundleName)
+        && Objects.equals(pipelineStatus, that.pipelineStatus)
+        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason);
   }
 
   @Override
@@ -444,6 +468,6 @@ public class PadPipeline {
         toLatitudeDirection, toLongitudeDegrees, toLongitudeMinutes, toLongitudeSeconds, toLongitudeDirection,
         componentPartsDescription, length, productsToBeConveyed, trenchedBuriedBackfilled, trenchingMethodsDescription,
         pipelineRef, fromCoordinates, toCoordinates, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
-        pipelineDesignLife, pipelineInBundle, bundleName);
+        pipelineDesignLife, pipelineInBundle, bundleName, pipelineStatus, pipelineStatusReason);
   }
 }

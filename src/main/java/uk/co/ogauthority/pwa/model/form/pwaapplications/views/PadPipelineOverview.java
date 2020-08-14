@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
@@ -38,6 +39,9 @@ public class PadPipelineOverview implements PipelineOverview {
   private String otherPipelineMaterialUsed;
   private Boolean trenchedBuriedBackfilled;
   private String trenchingMethodsDescription;
+  private PipelineStatus pipelineStatus;
+  private String pipelineStatusReason;
+  private Boolean hasTasks;
 
   private PadPipelineOverview(Integer padPipelineId,
                               Integer pipelineId,
@@ -58,7 +62,10 @@ public class PadPipelineOverview implements PipelineOverview {
                               PipelineMaterial pipelineMaterial,
                               String otherPipelineMaterialUsed,
                               Boolean trenchedBuriedBackfilled,
-                              String trenchingMethodsDescription) {
+                              String trenchingMethodsDescription,
+                              PipelineStatus pipelineStatus,
+                              String pipelineStatusReason,
+                              Boolean hasTasks) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -79,6 +86,9 @@ public class PadPipelineOverview implements PipelineOverview {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
     this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
     this.trenchingMethodsDescription = trenchingMethodsDescription;
+    this.pipelineStatus = pipelineStatus;
+    this.pipelineStatusReason = pipelineStatusReason;
+    this.hasTasks = hasTasks;
   }
 
   @VisibleForTesting
@@ -101,6 +111,7 @@ public class PadPipelineOverview implements PipelineOverview {
     this.otherPipelineMaterialUsed = padPipeline.getOtherPipelineMaterialUsed();
     this.trenchedBuriedBackfilled = padPipeline.getTrenchedBuriedBackfilled();
     this.trenchingMethodsDescription = padPipeline.getTrenchingMethodsDescription();
+    this.pipelineStatus = padPipeline.getPipelineStatus();
   }
 
   @VisibleForTesting
@@ -119,7 +130,7 @@ public class PadPipelineOverview implements PipelineOverview {
   }
 
 
-  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto) {
+  public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto, Boolean hasTasks) {
 
     return new PadPipelineOverview(
         padPipelineSummaryDto.getPadPipelineId(),
@@ -141,7 +152,10 @@ public class PadPipelineOverview implements PipelineOverview {
         padPipelineSummaryDto.getPipelineMaterial(),
         padPipelineSummaryDto.getOtherPipelineMaterialUsed(),
         padPipelineSummaryDto.getTrenchedBuriedBackfilled(),
-        padPipelineSummaryDto.getTrenchingMethodsDescription()
+        padPipelineSummaryDto.getTrenchingMethodsDescription(),
+        padPipelineSummaryDto.getPipelineStatus(),
+        padPipelineSummaryDto.getPipelineStatusReason(),
+        hasTasks
     );
   }
 
@@ -243,5 +257,19 @@ public class PadPipelineOverview implements PipelineOverview {
   @Override
   public String getTrenchingMethodsDescription() {
     return trenchingMethodsDescription;
+  }
+
+  @Override
+  public PipelineStatus getPipelineStatus() {
+    return pipelineStatus;
+  }
+
+  @Override
+  public String getPipelineStatusReason() {
+    return pipelineStatusReason;
+  }
+
+  public Boolean getHasTasks() {
+    return hasTasks;
   }
 }

@@ -35,11 +35,13 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
@@ -96,7 +98,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public PipelineOverview getPipelineOverview(PadPipeline padPipeline) {
 
     return padPipelineRepository.findPipelineAsSummaryDtoByPadPipeline(padPipeline)
-        .map(PadPipelineOverview::from)
+        .map(padPipelineSummaryDto -> PadPipelineOverview.from(
+            padPipelineSummaryDto,
+            doesPipelineHaveTasks(padPipelineSummaryDto)
+        ))
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Pipeline Summary not found. Pad pipeline id: " + padPipeline.getId()));
   }
@@ -104,7 +109,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public List<PipelineOverview> getApplicationPipelineOverviews(PwaApplicationDetail detail) {
 
     return padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail).stream()
-        .map(PadPipelineOverview::from)
+        .map(padPipelineSummaryDto -> PadPipelineOverview.from(
+            padPipelineSummaryDto,
+            doesPipelineHaveTasks(padPipelineSummaryDto)
+        ))
         .sorted(Comparator.comparing(PipelineOverview::getPipelineNumber))
         .collect(Collectors.toList());
 
@@ -178,10 +186,12 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     var newPadPipeline = new PadPipeline(pwaApplicationDetail);
     newPadPipeline.setPipeline(newPipeline);
+    newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
     // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
-    Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(pwaApplicationDetail);
+    Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(
+        pwaApplicationDetail);
 
     newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
     newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
@@ -379,7 +389,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail) {
+  public PadPipeline copyDataToNewPadPipeline(PwaApplicationDetail detail, PipelineDetail pipelineDetail,
+                                              ModifyPipelineForm form) {
     // TODO: PWA-682 - Map added fields from PipelineDetail to newPadPipeline.
     var newPadPipeline = new PadPipeline(detail);
     newPadPipeline.setBundleName(pipelineDetail.getBundleName());
@@ -388,6 +399,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
     newPadPipeline.setComponentPartsDescription(pipelineDetail.getComponentPartsDesc());
     newPadPipeline.setLength(pipelineDetail.getLength());
     newPadPipeline.setPipelineInBundle(pipelineDetail.getPipelineInBundle());
+    newPadPipeline.setPipelineStatus(form.getPipelineStatus());
+    if (newPadPipeline.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
+      newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
+    }
     if (pipelineDetail.getPipelineType() == null) {
       newPadPipeline.setPipelineType(PipelineType.UNKNOWN);
     } else {
@@ -410,6 +425,17 @@ public class PadPipelineService implements ApplicationFormSectionService {
   public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     PwaApplicationType[] appTypes = ModifyPipelineController.class.getAnnotation(PwaApplicationTypeCheck.class).types();
     return Arrays.asList(appTypes).contains(pwaApplicationDetail.getPwaApplicationType());
+  }
+
+  @VisibleForTesting
+  boolean doesPipelineHaveTasks(PadPipelineSummaryDto padPipelineSummaryDto) {
+    switch (padPipelineSummaryDto.getPipelineStatus()) {
+      case RETURNED_TO_SHORE:
+      case NEVER_LAID:
+        return false;
+      default:
+        return true;
+    }
   }
 
   @Override
