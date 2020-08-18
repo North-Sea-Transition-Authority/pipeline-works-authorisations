@@ -9,11 +9,14 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 
 @Service
 public class AddPwaContactFormValidator implements Validator {
+
+  private static final String USER_ID_FORM_FIELD = "userIdentifier";
 
   private final TeamManagementService teamManagementService;
   private final PwaContactService pwaContactService;
@@ -38,24 +41,34 @@ public class AddPwaContactFormValidator implements Validator {
 
     var form = (AddPwaContactForm) target;
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userIdentifier", "userIdentifier.required",
+    ValidationUtils.rejectIfEmptyOrWhitespace(
+        errors,
+        USER_ID_FORM_FIELD,
+        FieldValidationErrorCodes.REQUIRED.errorCode(USER_ID_FORM_FIELD),
         "Enter an email address or login ID");
 
     if (StringUtils.isNotEmpty(form.getUserIdentifier())) {
 
       Optional<Person> person = teamManagementService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
 
-      if (person.isEmpty()) {
-        errors.rejectValue("userIdentifier", "userIdentifier.userNotFound", "User not found");
-      } else {
+      if (!person.isEmpty()) {
         // check if the person is already a contact on the PWA
         var application = pwaApplicationService.getApplicationFromId(form.getPwaApplicationId());
         Person personToBeAdded = person.get();
         if (pwaContactService.personIsContactOnApplication(application, personToBeAdded)) {
-          errors.rejectValue("userIdentifier", "userIdentifier.userAlreadyExists", "This person is already a contact for this application");
+          errors.rejectValue(
+              USER_ID_FORM_FIELD,
+              USER_ID_FORM_FIELD + ".userAlreadyExists",
+              "This person is already a contact for this application");
         }
+      } else {
+        errors.rejectValue(
+            USER_ID_FORM_FIELD,
+            USER_ID_FORM_FIELD + ".userNotFound",
+            "User not found");
       }
     }
+
   }
 
 }
