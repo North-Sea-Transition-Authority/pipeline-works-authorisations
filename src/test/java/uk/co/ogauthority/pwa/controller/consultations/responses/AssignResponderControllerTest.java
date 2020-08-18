@@ -44,7 +44,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
   }
 
 
-  //TODO: PWA-712
+  //TODO: PWA-712 - These tests will need updating once the endpoint tester has been updated to handle the new app-processing permissions
   @Test
   public void renderAssignResponder_roleSmokeTest() {
 /*    endpointTester.setRequestMethod(HttpMethod.GET)
