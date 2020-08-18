@@ -644,7 +644,7 @@ public class PadPipelineServiceTest {
     assertThat(validationResult.getErrorItems())
         .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline is not complete")
+            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline must have all sections completed")
         );
     assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
         "At least one pipeline must be added. Each pipeline must have at least one valid ident.");
@@ -676,7 +676,7 @@ public class PadPipelineServiceTest {
     assertThat(validationResult.getErrorItems())
         .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline is not complete")
+            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline must have all sections completed")
         );
     assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
         "At least one pipeline must be added. Each pipeline must have at least one valid ident.");

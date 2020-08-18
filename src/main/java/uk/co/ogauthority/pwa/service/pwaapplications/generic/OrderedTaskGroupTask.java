@@ -5,7 +5,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 
 /**
  * Wrapper for the application tasks contained within a task group that allows custom ordering. Required so the group
- * can define the order of tasks as it might be different to the natural ordering of tasks if they were within the a
+ * can define the order of tasks as it might be different to the natural ordering of tasks if they were within a
  * single combined list.
  */
 public class OrderedTaskGroupTask implements GeneralPurposeApplicationTask {

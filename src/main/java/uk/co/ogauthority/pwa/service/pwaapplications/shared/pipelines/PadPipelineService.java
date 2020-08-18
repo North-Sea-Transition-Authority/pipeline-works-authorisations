@@ -505,7 +505,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     String sectionIncompleteError = !sectionComplete
         ? "At least one pipeline must be added. Each pipeline must have at least one valid ident." : null;
 
-    return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "is not complete", sectionComplete,
+    return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "must have all sections completed", sectionComplete,
         sectionIncompleteError);
 
   }

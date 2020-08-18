@@ -39,12 +39,15 @@ Params:
 </#function>
 
 <#--
-If the validation result is present and has a section incomplete error, show it in a single error banner.
+If the validation result is present and has a section incomplete error, show it in a single error banner provided specific errors are not also provided.
 Params:
   SummaryScreensummaryValidationResult summaryValidationResult
 -->
 <#macro singleErrorSummary summaryValidationResult>
-  <#if summaryValidationResult?has_content && summaryValidationResult.sectionIncompleteError?has_content>
+  <#if summaryValidationResult?has_content
+      && summaryValidationResult.sectionIncompleteError?has_content
+      && !summaryValidationResult.errorItems?has_content
+  >
     <@fdsError.singleErrorSummary errorMessage=summaryValidationResult.sectionIncompleteError />
   </#if>
 </#macro>
