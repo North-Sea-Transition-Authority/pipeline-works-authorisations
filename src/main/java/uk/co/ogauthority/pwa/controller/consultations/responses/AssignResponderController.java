@@ -70,16 +70,36 @@ public class AssignResponderController {
   }
 
 
+  @GetMapping("/re-assign")
+  public ModelAndView renderReAssignResponder(@PathVariable("applicationId") Integer applicationId,
+                                            @PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            @PathVariable("consultationRequestId") Integer consultationRequestId,
+                                            PwaAppProcessingContext processingContext,
+                                            AuthenticatedUserAccount authenticatedUserAccount,
+                                            @ModelAttribute("form") AssignResponderForm form,
+                                            BindingResult bindingResult) {
+    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+    if (assignResponderService.isUserMemberOfRequestGroup(processingContext.getUser(), consultationRequest)) {
+      return getAssignResponderModelAndView(consultationRequest, authenticatedUserAccount);
+    }
+    throw new AccessDeniedException(
+        String.format("User with WUA ID: %s cannot access the re-assign responder page as they either do not have the " +
+                "ASSIGN_RESPONDER permission and/or they are not a member of the consultee group of the consultation request.",
+            processingContext.getUser().getWuaId()));
+  }
+
+
   @PostMapping
-  public ModelAndView postRequestConsultation(@PathVariable("applicationType")
+  public ModelAndView postAssignResponder(@PathVariable("applicationType")
                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                              @PathVariable("applicationId") Integer applicationId,
-                                              @PathVariable("consultationRequestId") Integer consultationRequestId,
-                                              PwaAppProcessingContext processingContext,
-                                              AuthenticatedUserAccount authenticatedUserAccount,
-                                              @ModelAttribute("form") AssignResponderForm form,
-                                              BindingResult bindingResult,
-                                              RedirectAttributes redirectAttributes) {
+                                          @PathVariable("applicationId") Integer applicationId,
+                                          @PathVariable("consultationRequestId") Integer consultationRequestId,
+                                          PwaAppProcessingContext processingContext,
+                                          AuthenticatedUserAccount authenticatedUserAccount,
+                                          @ModelAttribute("form") AssignResponderForm form,
+                                          BindingResult bindingResult,
+                                          RedirectAttributes redirectAttributes) {
 
     var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
     bindingResult = assignResponderService.validate(form, bindingResult, consultationRequest);
@@ -92,6 +112,32 @@ public class AssignResponderController {
           return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null));
         });
   }
+
+
+  @PostMapping("/re-assign")
+  public ModelAndView postReAssignResponder(@PathVariable("applicationType")
+                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                          @PathVariable("applicationId") Integer applicationId,
+                                          @PathVariable("consultationRequestId") Integer consultationRequestId,
+                                          PwaAppProcessingContext processingContext,
+                                          AuthenticatedUserAccount authenticatedUserAccount,
+                                          @ModelAttribute("form") AssignResponderForm form,
+                                          BindingResult bindingResult,
+                                          RedirectAttributes redirectAttributes) {
+
+    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+    bindingResult = assignResponderService.validate(form, bindingResult, consultationRequest);
+
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+        getAssignResponderModelAndView(consultationRequest, authenticatedUserAccount), () -> {
+          assignResponderService.reassignUser(form, consultationRequest, authenticatedUserAccount);
+          FlashUtils.success(
+              redirectAttributes, "Responder re-assigned.");
+          return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null));
+        });
+  }
+
+
 
 
   private ModelAndView getAssignResponderModelAndView(ConsultationRequest consultationRequest,
