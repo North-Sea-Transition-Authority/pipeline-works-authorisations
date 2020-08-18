@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Captures basic details that can be displayed in any column of the workarea.
@@ -86,5 +87,26 @@ public class WorkAreaColumnItemView {
     INFO,
     SUCCESS,
     DANGER
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    WorkAreaColumnItemView that = (WorkAreaColumnItemView) o;
+    return labelType == that.labelType
+        && valueTagType == that.valueTagType
+        && Objects.equals(label, that.label)
+        && Objects.equals(value, that.value)
+        && Objects.equals(listItems, that.listItems);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(labelType, valueTagType, label, value, listItems);
   }
 }

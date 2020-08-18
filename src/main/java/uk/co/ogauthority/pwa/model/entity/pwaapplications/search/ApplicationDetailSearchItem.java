@@ -230,8 +230,15 @@ public class ApplicationDetailSearchItem {
     return pwaHolderNameList;
   }
 
+  public void setPwaHolderNameList(List<String> pwaHolderNameList) {
+    this.pwaHolderNameList = pwaHolderNameList;
+  }
+
   public List<String> getPadHolderNameList() {
     return padHolderNameList;
   }
 
+  public void setPadHolderNameList(List<String> padHolderNameList) {
+    this.padHolderNameList = padHolderNameList;
+  }
 }

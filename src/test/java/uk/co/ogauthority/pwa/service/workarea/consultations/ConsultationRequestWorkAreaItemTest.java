@@ -16,6 +16,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItemTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
+import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConsultationRequestWorkAreaItemTest {
@@ -25,6 +28,8 @@ public class ConsultationRequestWorkAreaItemTest {
   private ConsultationRequestSearchItem consultationRequestSearchItem;
 
   private static final String VIEW_URL = "EXAMPLE_URL";
+  private static final String CONSULTEE_GROUP_NAME = "LONG_NAME";
+  private static final String CONSULTEE_GROUP_NAME_ABBREV = "NAME";
 
 
   @Before
@@ -33,6 +38,8 @@ public class ConsultationRequestWorkAreaItemTest {
     applicationDetailSearchItem = new ApplicationDetailSearchItem();
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
     applicationDetailSearchItem.setPwaApplicationId(100);
+    applicationDetailSearchItem.setPadHolderNameList(List.of("PAD_HOLDER"));
+    applicationDetailSearchItem.setPwaHolderNameList(List.of("PWA_HOLDER"));
     applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
     applicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
     applicationDetailSearchItem.setPadProposedStart(
@@ -52,8 +59,8 @@ public class ConsultationRequestWorkAreaItemTest {
     consultationRequestSearchItem = new ConsultationRequestSearchItem();
     consultationRequestSearchItem.setApplicationDetailSearchItem(applicationDetailSearchItem);
     consultationRequestSearchItem.setConsulteeGroupId(101);
-    consultationRequestSearchItem.setConsulteeGroupName("Test");
-    consultationRequestSearchItem.setConsulteeGroupAbbr("T");
+    consultationRequestSearchItem.setConsulteeGroupName(CONSULTEE_GROUP_NAME);
+    consultationRequestSearchItem.setConsulteeGroupAbbr(CONSULTEE_GROUP_NAME_ABBREV);
     consultationRequestSearchItem.setConsultationRequestStatus(ConsultationRequestStatus.ALLOCATION);
     consultationRequestSearchItem.setAssignedResponderName("Assigned Responder");
     consultationRequestSearchItem.setDeadlineDate(LocalDateTime.of(2020, 3, 3, 14, 5, 6).toInstant(ZoneOffset.ofTotalSeconds(0)));
@@ -164,6 +171,111 @@ public class ConsultationRequestWorkAreaItemTest {
 
     assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(ApplicationTask.FAST_TRACK.getDisplayName() + " accepted");
 
+  }
+
+
+  @Test
+  public void getApplicationStatusColumn_whenConsultationDue_andFastTrackApproved_andNoResponder() {
+    var caseOfficer = "NAME";
+    applicationDetailSearchItem.setCaseOfficerName(caseOfficer);
+    applicationDetailSearchItem.setCaseOfficerPersonId(1);
+    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+
+    consultationRequestSearchItem.setAssignedResponderName(null);
+
+    var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+
+    assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
+        WorkAreaColumnItemView.createTagItem(
+            WorkAreaColumnItemView.TagType.INFO,
+            consultationRequestSearchItem.getConsultationRequestStatus().getDisplayName()),
+        WorkAreaColumnItemView.createLabelledItem(
+            "Consultation due date",
+            workAreItem.getConsultationRequestDeadlineDateTime()),
+        WorkAreaColumnItemView.createLabelledItem(
+            "Consultee",
+            CONSULTEE_GROUP_NAME + " (" + CONSULTEE_GROUP_NAME_ABBREV + ")"),
+        WorkAreaColumnItemView.createTagItem(
+            WorkAreaColumnItemView.TagType.SUCCESS,
+            workAreItem.getFastTrackLabelText())
+    );
+  }
+
+  @Test
+  public void getApplicationStatusColumn_whenConsultationDue_andFastTrackApproved_andResponderAssigned() {
+    var caseOfficer = "NAME";
+    applicationDetailSearchItem.setCaseOfficerName(caseOfficer);
+    applicationDetailSearchItem.setCaseOfficerPersonId(1);
+    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+
+    consultationRequestSearchItem.setAssignedResponderName("RESPONDER");
+
+    var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
+
+    assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
+        WorkAreaColumnItemView.createTagItem(
+            WorkAreaColumnItemView.TagType.INFO,
+            consultationRequestSearchItem.getConsultationRequestStatus().getDisplayName()),
+        WorkAreaColumnItemView.createLabelledItem(
+            "Consultation due date",
+            workAreItem.getConsultationRequestDeadlineDateTime()),
+        WorkAreaColumnItemView.createLabelledItem(
+            "Consultee",
+            CONSULTEE_GROUP_NAME + " (" + CONSULTEE_GROUP_NAME_ABBREV + ")"),
+        WorkAreaColumnItemView.createLabelledItem(
+            "Responder",
+            "RESPONDER"),
+        WorkAreaColumnItemView.createTagItem(
+            WorkAreaColumnItemView.TagType.SUCCESS,
+            workAreItem.getFastTrackLabelText())
+    );
+  }
+
+ /* Below are super type tests*/
+  @Test
+  public void getSummaryColumn_whenFieldsExist(){
+    ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+  }
+
+  @Test
+  public void getSummaryColumn_whenNoFields(){
+    ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+  }
+
+  @Test
+  public void getHolderColumn_whenInitialType(){
+    ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+
+  }
+
+  @Test
+  public void getHolderColumn_whenNotInitialType() {
+    ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+  }
+
+  @Test
+  public void getApplicationColumn_whenInitialType(){
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+
+  }
+
+  @Test
+  public void getApplicationColumn_whenNotInitialType() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
 
 }

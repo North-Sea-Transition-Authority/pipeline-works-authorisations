@@ -14,6 +14,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDeta
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
+import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem;
+import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItemTestUtil;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationWorkAreaItemTest {
@@ -29,6 +32,9 @@ public class PwaApplicationWorkAreaItemTest {
     applicationDetailSearchItem = new ApplicationDetailSearchItem();
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
     applicationDetailSearchItem.setPwaApplicationId(100);
+    applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
+    applicationDetailSearchItem.setPadHolderNameList(List.of("PAD_HOLDER"));
+    applicationDetailSearchItem.setPwaHolderNameList(List.of("PWA_HOLDER"));
     applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
     applicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
     applicationDetailSearchItem.setPadProposedStart(
@@ -60,7 +66,8 @@ public class PwaApplicationWorkAreaItemTest {
     assertThat(pwaApplicationWorkAreaItem.getOrderedFieldList()).isEqualTo(List.of("FIELD1", "FIELD2"));
     assertThat(pwaApplicationWorkAreaItem.getMasterPwaReference())
         .isEqualTo(applicationDetailSearchItem.getPwaReference());
-    assertThat(pwaApplicationWorkAreaItem.getApplicationReference()).isEqualTo(applicationDetailSearchItem.getPadReference());
+    assertThat(pwaApplicationWorkAreaItem.getApplicationReference()).isEqualTo(
+        applicationDetailSearchItem.getPadReference());
     assertThat(pwaApplicationWorkAreaItem.getAccessUrl()).isEqualTo(VIEW_URL);
     assertThat(pwaApplicationWorkAreaItem.getApplicationStatusDisplay())
         .isEqualTo(applicationDetailSearchItem.getPadStatus().getDisplayName());
@@ -132,8 +139,97 @@ public class PwaApplicationWorkAreaItemTest {
 
     var workAreaItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
 
-    assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(ApplicationTask.FAST_TRACK.getDisplayName() + " accepted");
+    assertThat(workAreaItem.getFastTrackLabelText()).isEqualTo(
+        ApplicationTask.FAST_TRACK.getDisplayName() + " accepted");
 
   }
 
+
+  @Test
+  public void getApplicationStatusColumn_whenNoCaseOfficer_andNotFastTrack() {
+    applicationDetailSearchItem.setCaseOfficerName(null);
+
+    var workAreItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+
+    assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
+        WorkAreaColumnItemView.createTagItem(
+            WorkAreaColumnItemView.TagType.INFO,
+            PwaApplicationStatus.DRAFT.getDisplayName()),
+        WorkAreaColumnItemView.createLabelledItem(
+            ApplicationWorkAreaItem.DEFAULT_APP_STATUS_SET_LABEL,
+            workAreItem.getFormattedStatusSetDatetime())
+    );
+
+  }
+
+  @Test
+  public void getApplicationStatusColumn_whenCaseOfficer_andFastTrackApproved() {
+    var caseOfficer = "NAME";
+    applicationDetailSearchItem.setCaseOfficerName(caseOfficer);
+    applicationDetailSearchItem.setCaseOfficerPersonId(1);
+    applicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
+    applicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
+
+    var workAreItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
+
+    assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
+        WorkAreaColumnItemView.createTagItem(
+            WorkAreaColumnItemView.TagType.INFO,
+            PwaApplicationStatus.DRAFT.getDisplayName()),
+        WorkAreaColumnItemView.createLabelledItem(
+            ApplicationWorkAreaItem.CASE_OFFICER_DISPLAY_LABEL,
+            caseOfficer),
+        WorkAreaColumnItemView.createLabelledItem(
+            ApplicationWorkAreaItem.DEFAULT_APP_STATUS_SET_LABEL,
+            workAreItem.getFormattedStatusSetDatetime()),
+        WorkAreaColumnItemView.createTagItem(
+            WorkAreaColumnItemView.TagType.SUCCESS,
+            workAreItem.getFastTrackLabelText())
+    );
+  }
+
+  /* Below are super type tests*/
+  @Test
+  public void getSummaryColumn_whenFieldsExist(){
+    ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+  }
+
+  @Test
+  public void getSummaryColumn_whenNoFields(){
+    ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+  }
+
+  @Test
+  public void getHolderColumn_whenInitialType(){
+    ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+
+  }
+
+  @Test
+  public void getHolderColumn_whenNotInitialType() {
+    ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+  }
+
+  @Test
+  public void getApplicationColumn_whenInitialType(){
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o , searchItem -> VIEW_URL));
+
+  }
+
+  @Test
+  public void getApplicationColumn_whenNotInitialType() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+  }
 }

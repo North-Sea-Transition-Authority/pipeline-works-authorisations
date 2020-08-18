@@ -19,9 +19,9 @@ import uk.co.ogauthority.pwa.util.WorkAreaUtils;
  */
 public abstract class ApplicationWorkAreaItem {
 
-  protected static final String DEFAULT_APP_STATUS_SET_LABEL = "Status set";
+  public static final String DEFAULT_APP_STATUS_SET_LABEL = "Status set";
 
-  protected static final String CASE_OFFICER_DISPLAY_LABEL = "Case officer";
+  public static final String CASE_OFFICER_DISPLAY_LABEL = "Case officer";
 
   private final int pwaApplicationId;
 
@@ -187,7 +187,9 @@ public abstract class ApplicationWorkAreaItem {
         ));
 
     if (!PwaApplicationType.INITIAL.equals(this.applicationType)) {
-      WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, this.masterPwaReference);
+      columnItemList.add(
+          WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, this.masterPwaReference)
+      );
     }
 
     return columnItemList;
