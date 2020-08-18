@@ -189,6 +189,78 @@ public class AssignResponderServiceTest {
   }
 
   @Test
+  public void reassignUser_assignToDifferentUser_emailSent() {
+    ConsultationRequest consultationRequest = new ConsultationRequest();
+    var app = new PwaApplication();
+    app.setAppReference("PA/2/2");
+    consultationRequest.setPwaApplication(app);
+    var deadline = Instant.now().plusSeconds(86400);
+    consultationRequest.setDeadlineDate(deadline);
+    consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
+
+    var form = new AssignResponderForm();
+    form.setResponderPersonId(2);
+
+    var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
+
+    var responderPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
+    when(teamManagementService.getPerson(2)).thenReturn(responderPerson);
+
+    assignResponderService.reassignUser(form, consultationRequest, assigningUser);
+
+    verify(workflowAssignmentService, times(1)).assign(
+        consultationRequest,
+        PwaApplicationConsultationWorkflowTask.RESPONSE,
+        responderPerson,
+        assigningUser.getLinkedPerson()
+    );
+
+    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(responderPerson.getEmailAddress()));
+
+    var emailProps = emailPropsCaptor.getValue();
+
+    assertThat(emailProps.getEmailPersonalisation().entrySet())
+        .extracting(Map.Entry::getKey, Map.Entry::getValue)
+        .contains(
+            tuple("RECIPIENT_FULL_NAME", responderPerson.getFullName()),
+            tuple("APPLICATION_REFERENCE", app.getAppReference()),
+            tuple("ASSIGNER_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
+            tuple("DUE_DATE", DateUtils.formatDateTime(deadline))
+        );
+  }
+
+  @Test
+  public void reassignUser_assigningToSelf_noEmailSent() {
+
+    ConsultationRequest consultationRequest = new ConsultationRequest();
+    var app = new PwaApplication();
+    app.setAppReference("PA/2/2");
+    consultationRequest.setPwaApplication(app);
+    var deadline = Instant.now().plusSeconds(86400);
+    consultationRequest.setDeadlineDate(deadline);
+    consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
+
+    var form = new AssignResponderForm();
+    form.setResponderPersonId(1);
+
+    var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
+
+    when(teamManagementService.getPerson(1)).thenReturn(assigningUser.getLinkedPerson());
+
+    assignResponderService.reassignUser(form, consultationRequest, assigningUser);
+
+    verify(workflowAssignmentService, times(1)).assign(
+        consultationRequest,
+        PwaApplicationConsultationWorkflowTask.RESPONSE,
+        assigningUser.getLinkedPerson(),
+        assigningUser.getLinkedPerson()
+    );
+
+    verifyNoInteractions(notifyService);
+  }
+
+
+  @Test
   public void validate() {
     var form = new AssignResponderForm();
     assignResponderService.validate(form, new BeanPropertyBindingResult(form, "form"), new ConsultationRequest());

@@ -58,11 +58,34 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
 
   @Test
-  public void postRequestConsultation_roleSmokeTest() {
+  public void postAssignResponder_roleSmokeTest() {
 //    endpointTester.setRequestMethod(HttpMethod.POST)
 //        .setEndpointUrlProducer((applicationDetail, type) ->
 //            ReverseRouter.route(on(AssignResponderController.class)
-//                .postRequestConsultation(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)));
+//                .postAssignResponder(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)));
+//
+//    endpointTester.performRegulatorRoleCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderReAssignResponder_roleSmokeTest() {
+/*    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(AssignResponderController.class)
+                .renderReAssignResponder(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
+
+    endpointTester.performRegulatorRoleCheck(status().isOk(), status().isForbidden());*/
+
+  }
+
+
+  @Test
+  public void postReAssignResponder_roleSmokeTest() {
+//    endpointTester.setRequestMethod(HttpMethod.POST)
+//        .setEndpointUrlProducer((applicationDetail, type) ->
+//            ReverseRouter.route(on(AssignResponderController.class)
+//                .postReAssignResponder(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)));
 //
 //    endpointTester.performRegulatorRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
