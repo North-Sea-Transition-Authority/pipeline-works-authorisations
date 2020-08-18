@@ -36,16 +36,16 @@
 
             <@fdsCheckbox.checkboxGroup path="form.avoidEnvironmentalDisaster" hiddenContent=true>
               <@fdsCheckbox.checkboxItem path="form.avoidEnvironmentalDisaster" labelText="Avoiding environmental disaster">
-                <@fdsTextarea.textarea path="form.environmentalDisasterReason" labelText="Why have you selected this reason?" nestingPath="form.avoidEnvironmentalDisaster" characterCount=true maxCharacterLength="4000"/>
+                <@fdsTextarea.textarea path="form.environmentalDisasterReason" labelText="Why have you selected avoiding environmental disaster?"  nestingPath="form.avoidEnvironmentalDisaster" characterCount=true maxCharacterLength="4000"/>
               </@fdsCheckbox.checkboxItem>
                 <@fdsCheckbox.checkboxItem path="form.savingBarrels" labelText="Save barrels">
-                    <@fdsTextarea.textarea path="form.savingBarrelsReason" labelText="Why have you selected this reason?" nestingPath="form.savingBarrels" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.savingBarrelsReason" labelText="Why have you selected save barrels?" nestingPath="form.savingBarrels" characterCount=true maxCharacterLength="4000"/>
                 </@fdsCheckbox.checkboxItem>
                 <@fdsCheckbox.checkboxItem path="form.projectPlanning" labelText="Project planning">
-                    <@fdsTextarea.textarea path="form.projectPlanningReason" labelText="Why have you selected this reason?" nestingPath="form.projectPlanning" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.projectPlanningReason" labelText="Why have you selected project planning?" nestingPath="form.projectPlanning" characterCount=true maxCharacterLength="4000"/>
                 </@fdsCheckbox.checkboxItem>
                 <@fdsCheckbox.checkboxItem path="form.hasOtherReason" labelText="Other reason">
-                    <@fdsTextarea.textarea path="form.otherReason" labelText="Why have you selected this reason?" nestingPath="form.hasOtherReason" characterCount=true maxCharacterLength="4000"/>
+                    <@fdsTextarea.textarea path="form.otherReason" labelText="Why have you selected other reason?" nestingPath="form.hasOtherReason" characterCount=true maxCharacterLength="4000"/>
                 </@fdsCheckbox.checkboxItem>
             </@fdsCheckbox.checkboxGroup>
 
