@@ -24,9 +24,9 @@ public enum PipelineType {
   UMBILICAL_JUMPER("Umbilical Jumper", 12, PipelineCoreType.MULTI_CORE),
   CABLE("Cable", 13, PipelineCoreType.SINGLE_CORE);
 
-  private String displayName;
-  private int displayOrder;
-  private PipelineCoreType coreType;
+  private final String displayName;
+  private final int displayOrder;
+  private final PipelineCoreType coreType;
 
   PipelineType(String displayName, int displayOrder, PipelineCoreType coreType) {
     this.displayName = displayName;
@@ -38,24 +38,12 @@ public enum PipelineType {
     return displayName;
   }
 
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-
   public int getDisplayOrder() {
     return displayOrder;
   }
 
-  public void setDisplayOrder(int displayOrder) {
-    this.displayOrder = displayOrder;
-  }
-
   public PipelineCoreType getCoreType() {
     return coreType;
-  }
-
-  public void setCoreType(PipelineCoreType coreType) {
-    this.coreType = coreType;
   }
 
   public static Stream<PipelineType> stream() {

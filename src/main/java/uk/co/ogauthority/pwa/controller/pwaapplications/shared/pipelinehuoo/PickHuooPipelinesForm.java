@@ -10,7 +10,7 @@ public class PickHuooPipelinesForm {
 
   private Set<Integer> organisationUnitIds;
 
-  public Set<TreatyAgreement> treatyAgreements;
+  private Set<TreatyAgreement> treatyAgreements;
 
   public Set<Integer> getOrganisationUnitIds() {
     return SetUtils.emptyIfNull(organisationUnitIds);
