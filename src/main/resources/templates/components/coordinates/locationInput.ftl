@@ -68,11 +68,11 @@ captionClass="govuk-caption-m">
                 <#if direction=="NS">
                   <div class="govuk-date-input__item">
                     <div class="govuk-form-group">
-                      <label class="govuk-label govuk-date-input__label" for="hemisphere-north">
+                      <label class="govuk-label govuk-date-input__label" for="${formId}-hemisphere-north">
                         Hemisphere (north / south)
                       </label>
                       <input class="govuk-input <#if hasError>govuk-input--error</#if> govuk-date-input__input govuk-input--width-3 govuk-input--read-only"
-                        id="hemisphere-north" name="hemisphere-north" type="text" disabled value="North">
+                        id="${formId}-hemisphere-north" name="hemisphere-north" type="text" disabled value="North">
                     </div>
                   </div>
                 <#elseif direction=="NS_MANUAL">
