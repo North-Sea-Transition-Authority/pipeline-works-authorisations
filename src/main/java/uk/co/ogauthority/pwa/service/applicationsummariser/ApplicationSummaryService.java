@@ -22,7 +22,8 @@ public class ApplicationSummaryService {
   }
 
   /**
-   * For when a summary with diff info is required. Loop over
+   * Loop over each possible summary section, determine if it is appropriate for the application then generate the
+   * list of ApplicationSectionSummary objects.
    */
   @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
   public List<ApplicationSectionSummary> summarise(PwaApplicationDetail pwaApplicationDetail) {
