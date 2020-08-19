@@ -22,50 +22,41 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 public class ApplicationSummaryServiceTest {
 
   private final static int APP_ID = 1;
-  private final static int NEW_APP_DETAIL_ID = 2;
-  private final static int OLD_APP_DETAIL_ID = 1;
+  private final static int APP_DETAIL_ID = 2;
 
   @Mock
   private ApplicationContext springAppContext;
 
-  private PwaApplicationDetail newPwaApplicationDetail;
-  private PwaApplicationDetail oldPwaApplicationDetail;
+  private PwaApplicationDetail pwaApplicationDetail;
 
   private ApplicationSummaryService applicationSummaryService;
 
   @Before
   public void setUp() throws Exception {
 
-    newPwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL,
         APP_ID,
-        NEW_APP_DETAIL_ID);
-
-    oldPwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL,
-        APP_ID,
-        OLD_APP_DETAIL_ID);
-
+        APP_DETAIL_ID);
 
     applicationSummaryService = new ApplicationSummaryService(springAppContext);
   }
 
   @Test
-  public void summarise_allSectionSummariesProcessedInOrder_withIdenticalAppDetail() {
+  public void summarise_allSectionSummariesProcessedInOrder() {
 
     var mockAppSummariserService = mock(ApplicationSectionSummariser.class);
-    when(mockAppSummariserService.canSummarise(newPwaApplicationDetail, newPwaApplicationDetail)).thenReturn(true);
+    when(mockAppSummariserService.canSummarise(pwaApplicationDetail)).thenReturn(true);
 
     when(springAppContext.getBean(any(Class.class))).thenAnswer(invocation -> mockAppSummariserService);
 
-    var summaryList = applicationSummaryService.summariseAsDiff(newPwaApplicationDetail, newPwaApplicationDetail);
+    var summaryList = applicationSummaryService.summarise(pwaApplicationDetail);
 
     InOrder verifyOrder = Mockito.inOrder(mockAppSummariserService);
     ApplicationSectionSummaryType.getSummarySectionByProcessingOrder().forEach(type -> {
-          verifyOrder.verify(mockAppSummariserService).canSummarise(newPwaApplicationDetail, newPwaApplicationDetail);
-          verifyOrder.verify(mockAppSummariserService).summariseDifferences(
-              newPwaApplicationDetail,
-              newPwaApplicationDetail,
+          verifyOrder.verify(mockAppSummariserService).canSummarise(pwaApplicationDetail);
+          verifyOrder.verify(mockAppSummariserService).summariseSection(
+              pwaApplicationDetail,
               type.getTemplatePath()
           );
         }
@@ -74,28 +65,4 @@ public class ApplicationSummaryServiceTest {
     assertThat(summaryList).hasSize(ApplicationSectionSummaryType.values().length);
   }
 
-  @Test
-  public void summariseAsDiff_allSectionSummariesProcessedInOrder() {
-
-    var mockAppSummariserService = mock(ApplicationSectionSummariser.class);
-    when(mockAppSummariserService.canSummarise(newPwaApplicationDetail, oldPwaApplicationDetail)).thenReturn(true);
-
-    when(springAppContext.getBean(any(Class.class))).thenAnswer(invocation -> mockAppSummariserService);
-
-    var summaryList = applicationSummaryService.summariseAsDiff(newPwaApplicationDetail, oldPwaApplicationDetail);
-
-    InOrder verifyOrder = Mockito.inOrder(mockAppSummariserService);
-    ApplicationSectionSummaryType.getSummarySectionByProcessingOrder().forEach(type -> {
-          verifyOrder.verify(mockAppSummariserService).canSummarise(newPwaApplicationDetail, oldPwaApplicationDetail);
-          verifyOrder.verify(mockAppSummariserService).summariseDifferences(
-              newPwaApplicationDetail,
-              oldPwaApplicationDetail,
-              type.getTemplatePath()
-          );
-        }
-    );
-    verifyOrder.verifyNoMoreInteractions();
-    assertThat(summaryList).hasSize(ApplicationSectionSummaryType.values().length);
-
-  }
 }

@@ -55,8 +55,8 @@ public class PermanentDepositSummaryService implements ApplicationSectionSummari
   }
 
   @Override
-  public ApplicationSectionSummary summariseDifferences(PwaApplicationDetail pwaApplicationDetail,
-                                                        String templateName) {
+  public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
+                                                    String templateName) {
 
     var newDetailList = permanentDepositService.getPermanentDepositViews(pwaApplicationDetail)
         .stream()

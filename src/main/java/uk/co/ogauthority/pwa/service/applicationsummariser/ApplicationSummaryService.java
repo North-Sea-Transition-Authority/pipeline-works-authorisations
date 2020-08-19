@@ -22,17 +22,10 @@ public class ApplicationSummaryService {
   }
 
   /**
-   * For when a summary with no diff info is required.
-   */
-  public List<ApplicationSectionSummary> summarise(PwaApplicationDetail pwaApplicationDetail) {
-    return summariseAsDiff(pwaApplicationDetail);
-  }
-
-  /**
    * For when a summary with diff info is required. Loop over
    */
   @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
-  public List<ApplicationSectionSummary> summariseAsDiff(PwaApplicationDetail pwaApplicationDetail) {
+  public List<ApplicationSectionSummary> summarise(PwaApplicationDetail pwaApplicationDetail) {
 
     var appSummarySections = new ArrayList<ApplicationSectionSummary>();
     ApplicationSectionSummaryType.getSummarySectionByProcessingOrder().forEach(applicationSectionSummaryType -> {
@@ -42,7 +35,7 @@ public class ApplicationSummaryService {
       if (summariserService.canSummarise(pwaApplicationDetail)) {
 
         appSummarySections.add(
-            summariserService.summariseDifferences(
+            summariserService.summariseSection(
                 pwaApplicationDetail,
                 applicationSectionSummaryType.getTemplatePath())
         );

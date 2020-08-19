@@ -13,8 +13,8 @@ public interface ApplicationSectionSummariser {
   /**
    * Generate a summary of differences between two versions of an application where the intended rendering template is known.
    */
-  ApplicationSectionSummary summariseDifferences(PwaApplicationDetail pwaApplicationDetail,
-                                                 String templateName);
+  ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
+                                             String templateName);
 
 
 

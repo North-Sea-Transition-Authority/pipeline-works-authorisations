@@ -34,8 +34,8 @@ public class ProjectInformationSummaryService implements ApplicationSectionSumma
   }
 
   @Override
-  public ApplicationSectionSummary summariseDifferences(PwaApplicationDetail pwaApplicationDetail,
-                                                        String templateName) {
+  public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
+                                                    String templateName) {
     var sectionDisplayText = ApplicationTask.PROJECT_INFORMATION.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);

@@ -45,8 +45,7 @@ public class PermanentDepositSummaryServiceTest {
   private DiffService diffService;
 
   private PermanentDepositSummaryService permanentDepositSummaryService;
-  private PwaApplicationDetail oldPwaApplicationDetail;
-  private PwaApplicationDetail newPwaApplicationDetail;
+  private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() throws Exception {
@@ -55,8 +54,7 @@ public class PermanentDepositSummaryServiceTest {
         permanentDepositService,
         diffService);
 
-    oldPwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 1);
-    newPwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
 
 
   }
@@ -64,40 +62,34 @@ public class PermanentDepositSummaryServiceTest {
   @Test
   public void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
-    assertThat(permanentDepositSummaryService.canSummarise(newPwaApplicationDetail, oldPwaApplicationDetail)).isTrue();
+    assertThat(permanentDepositSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
 
   }
 
-  @Test
-  public void canSummarise_whenOnlyOldVersionHasTask() {
-    when(taskListService.anyTaskShownForApplication(any(), eq(oldPwaApplicationDetail))).thenReturn(true);
-    assertThat(permanentDepositSummaryService.canSummarise(newPwaApplicationDetail, oldPwaApplicationDetail)).isTrue();
 
+  @Test
+  public void canSummarise_whenHasTaskShown() {
+    when(taskListService.anyTaskShownForApplication(any(), eq(pwaApplicationDetail))).thenReturn(true);
+    assertThat(permanentDepositSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenOnlyNewVersionHasTask() {
-    when(taskListService.anyTaskShownForApplication(any(), eq(newPwaApplicationDetail))).thenReturn(true);
-    assertThat(permanentDepositSummaryService.canSummarise(newPwaApplicationDetail, oldPwaApplicationDetail)).isTrue();
+  public void canSummarise_whenTaskNotShown() {
+    assertThat(permanentDepositSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void canSummarise_whenNeitherVersionHasTask() {
-    assertThat(permanentDepositSummaryService.canSummarise(newPwaApplicationDetail, oldPwaApplicationDetail)).isFalse();
-  }
-
-  @Test
-  public void summariseDifferences_verifyServiceInteractions() {
+  public void summariseSection_verifyServiceInteractions() {
     var newDetailOverviewList = List.of(
         getOverview(1, "ONE", "Type 1"),
         getOverview(2, "TWO", "Type 2")
     );
-    when(permanentDepositService.getPermanentDepositViews(newPwaApplicationDetail)).thenReturn(newDetailOverviewList);
+    when(permanentDepositService.getPermanentDepositViews(pwaApplicationDetail)).thenReturn(newDetailOverviewList);
 
     List<Map<String, ?>> fakeDiffOutput = List.of();
     when(diffService.diffComplexLists(any(), any(), any(), any())).thenReturn(fakeDiffOutput);
 
-    var appSummary = permanentDepositSummaryService.summariseDifferences(newPwaApplicationDetail, oldPwaApplicationDetail, TEMPLATE);
+    var appSummary = permanentDepositSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     verify(diffService, times(1)).diffComplexLists(eq(newDetailOverviewList), any(), any(), any());
 
