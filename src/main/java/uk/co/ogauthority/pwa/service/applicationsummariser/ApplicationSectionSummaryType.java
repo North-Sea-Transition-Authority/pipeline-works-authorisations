@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
 
 /**
@@ -22,7 +23,11 @@ public enum ApplicationSectionSummaryType {
   PERMANENT_DEPOSIT(
       20,
       "pwaApplication/applicationSummarySections/permanentDepositsSummary.ftl",
-      PermanentDepositSummaryService.class);
+      PermanentDepositSummaryService.class),
+  PIPELINES(
+      30,
+          "pwaApplication/applicationSummarySections/pipelineSummary.ftl",
+      PipelinesSummaryService.class);
 
   private final int processingOrder;
   private final String templatePath;
