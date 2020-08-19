@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummarySer
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
@@ -43,17 +43,17 @@ public class ReviewAndSubmitController {
 
   private static final String PAGE_NAME = "Review and submit";
 
-  private final ApplicationBreadcrumbService breadcrumbService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaApplicationSubmissionService pwaApplicationSubmissionService;
   private final ApplicationSummaryService applicationSummaryService;
   private final TemplateRenderingService templateRenderer;
 
   @Autowired
-  public ReviewAndSubmitController(ApplicationBreadcrumbService breadcrumbService,
+  public ReviewAndSubmitController(PwaApplicationRedirectService pwaApplicationRedirectService,
                                    PwaApplicationSubmissionService pwaApplicationSubmissionService,
                                    ApplicationSummaryService applicationSummaryService,
                                    TemplateRenderingService templateRenderer) {
-    this.breadcrumbService = breadcrumbService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
     this.applicationSummaryService = applicationSummaryService;
     this.templateRenderer = templateRenderer;
@@ -67,20 +67,20 @@ public class ReviewAndSubmitController {
       PwaApplicationContext applicationContext) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/submission/reviewAndSubmit");
-    breadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, PAGE_NAME);
 
     var summarisedSections = applicationSummaryService.summarise(applicationContext.getApplicationDetail());
     String combinedRenderedSummaryHtml = summarisedSections.stream()
         .map(summary -> templateRenderer.render(summary.getTemplatePath(), summary.getTemplateModel(), true))
         .collect(Collectors.joining());
 
-    // TODO PWA-677 will this maintain order? could loop in old fashoned way to ensure order of app summaries if not.
     List<SidebarSectionLink> sidebarSectionLinks = summarisedSections.stream()
         .flatMap(o -> o.getSidebarSectionLinks().stream())
         .collect(Collectors.toList());
 
-    modelAndView.addObject("combinedSummaryHtml", combinedRenderedSummaryHtml);
-    modelAndView.addObject("sidebarSectionLinks", sidebarSectionLinks);
+    modelAndView.addObject("combinedSummaryHtml", combinedRenderedSummaryHtml)
+        .addObject("sidebarSectionLinks", sidebarSectionLinks)
+        .addObject("taskListUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
+        .addObject("applicationReference", applicationContext.getPwaApplication().getAppReference());
 
     return modelAndView;
 

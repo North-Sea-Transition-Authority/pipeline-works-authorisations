@@ -52,10 +52,25 @@ mainClasses=""
 captionClass="govuk-caption-xl"
 caption=""
 pageHeadingClass="govuk-heading-xl"
-pageHeading="">
+pageHeading=""
+backLink=false
+backLinkUrl=""
+backLinkText="Back"
+breadcrumbs=false
+>
 
   <div class="fds-pane__content">
     <main id="main-content" class="fds-content ${mainClasses}" role="main">
+        <#--Breadcrumbs-->
+        <#if breadcrumbs && !backLink>
+            <@fdsBreadcrumbs.breadcrumbs crumbsList=breadcrumbMap currentPage=currentPage/>
+        </#if>
+
+        <#--Back link-->
+        <#if backLink && !breadcrumbs>
+            <@fdsBackLink.backLink backLinkUrl=backLinkUrl backLinkText=backLinkText/>
+        </#if>
+
       <div class="fds-content__header">
           <@defaultHeading caption=caption captionClass=captionClass pageHeading=pageHeading pageHeadingClass=pageHeadingClass/>
       </div>

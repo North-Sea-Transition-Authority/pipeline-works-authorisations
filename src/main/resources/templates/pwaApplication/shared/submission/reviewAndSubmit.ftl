@@ -3,11 +3,10 @@
 <#-- @ftlvariable name="combinedSummaryHtml" type="java.lang.String" -->
 <#-- @ftlvariable name="sidebarSectionLinks" type="java.util.List<uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink>" -->
 <#-- @ftlvariable name="sidebarLink" type="uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink" -->
+<#-- @ftlvariable name="taskListUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="applicationReference" type="java.lang.String" -->
 
-
-
-
-<#assign pageHeading="Review and Submit Application XXX/YYY/ZZZ"/>
+<#assign pageHeading="Review and Submit Application ${applicationReference}"/>
 
 <#macro renderSidebarLink sidebarLink>
     <#local linkUrl = sidebarLink.isAnchorLink?then(sidebarLink.link, springUrl(sidebarLink.link) )>
@@ -36,21 +35,14 @@
     </@defaultPagePaneSubNav>
 
     <@defaultPagePaneContent pageHeading=pageHeading>
-      <!-- This should be supported by the fds component. but it isnt. spent enough time faffing around with LayoutPane.ftl
-       to add the same div as in layout.ftl but the css goes nuts and everything breaks.
-         Located here to make navigating back from this page easy for basic testing.
-         -->
-        <@fdsBreadcrumbs.breadcrumbs crumbsList=breadcrumbMap currentPage=currentPage/>
-
         <@diffChanges.toggler/>
         ${combinedSummaryHtml?no_esc}
 
         <@fdsForm.htmlForm>
+            <!-- Submit button macro not used to allow for hiding of button when application is not valid. -->
             <@fdsAction.button buttonText="Submit" buttonValue="submit" />
+            <@fdsAction.link linkText="Back to task list" linkClass="govuk-link govuk-link--button" linkUrl=springUrl(taskListUrl)/>
         </@fdsForm.htmlForm>
     </@defaultPagePaneContent>
-
-
-
 
 </@defaultPagePane>
