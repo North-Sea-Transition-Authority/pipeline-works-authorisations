@@ -6,18 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationsUrlFactory;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -26,19 +32,20 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.CASE_OFFICER_REVIEW)
 public class ConsultationController {
 
-
+  private final ConsultationRequestService consultationRequestService;
   private final ConsultationViewService consultationViewService;
 
   @Autowired
   public ConsultationController(
+      ConsultationRequestService consultationRequestService,
       ConsultationViewService consultationViewService) {
+    this.consultationRequestService = consultationRequestService;
     this.consultationViewService = consultationViewService;
   }
 
 
 
-
-
+  //Endpoints
   @GetMapping
   public ModelAndView renderConsultation(@PathVariable("applicationId") Integer applicationId,
                                          @PathVariable("applicationType")
@@ -49,6 +56,50 @@ public class ConsultationController {
   }
 
 
+  @GetMapping("/withdraw/{consultationRequestId}")
+  @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.WITHDRAW_CONSULTATION})
+  public ModelAndView renderWithdrawConsultation(@PathVariable("applicationId") Integer applicationId,
+                                         @PathVariable("applicationType")
+                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable("consultationRequestId") Integer consultationRequestId,
+                                         PwaAppProcessingContext processingContext,
+                                         AuthenticatedUserAccount authenticatedUserAccount,
+                                         RedirectAttributes redirectAttributes) {
+
+    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+    if (!consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
+      FlashUtils.error(
+          redirectAttributes, "Error", "The selected consultation request can no longer be withdrawn");
+      return ReverseRouter.redirect(on(ConsultationController.class).renderConsultation(
+          applicationId, pwaApplicationType, null, null));
+    }
+    return getWithdrawConsultationModelAndView(consultationRequest, applicationId, pwaApplicationType);
+  }
+
+
+
+
+  @PostMapping("/withdraw/{consultationRequestId}")
+  @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.WITHDRAW_CONSULTATION})
+  public ModelAndView postWithdrawConsultation(@PathVariable("applicationId") Integer applicationId,
+                                                 @PathVariable("applicationType")
+                                                 @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                 @PathVariable("consultationRequestId") Integer consultationRequestId,
+                                                 PwaAppProcessingContext processingContext,
+                                                 AuthenticatedUserAccount authenticatedUserAccount) {
+
+    var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
+    if (consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
+      consultationRequestService.withdrawConsultationRequest(consultationRequest, authenticatedUserAccount);
+    }
+    return ReverseRouter.redirect(on(ConsultationController.class).renderConsultation(
+        applicationId, pwaApplicationType, null, null));
+  }
+
+
+
+
+  //Model//Views
   private ModelAndView getConsultationModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     return new ModelAndView("consultation/consultation")
         .addObject("requestConsultationsUrl",
@@ -56,7 +107,19 @@ public class ConsultationController {
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("consulteeGroupRequestsViews",
-            consultationViewService.getConsultationRequestViews(pwaApplicationDetail.getPwaApplication()));
+            consultationViewService.getConsultationRequestViews(pwaApplicationDetail.getPwaApplication()))
+        .addObject("consultationsUrlFactory", new ConsultationsUrlFactory(
+            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()));
+  }
+
+
+  private ModelAndView getWithdrawConsultationModelAndView(ConsultationRequest consultationRequest,
+                                                           Integer applicationId, PwaApplicationType pwaApplicationType) {
+    return new ModelAndView("consultation/withdrawConsultation")
+        .addObject("consultationRequestView",
+            consultationViewService.getConsultationRequestView(consultationRequest))
+        .addObject("cancelUrl", ReverseRouter.route(
+          on(ConsultationController.class).renderConsultation(applicationId, pwaApplicationType, null, null)));
   }
 
 

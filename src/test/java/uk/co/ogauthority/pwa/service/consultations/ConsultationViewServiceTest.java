@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
@@ -108,7 +110,11 @@ public class ConsultationViewServiceTest {
     consultationRequest3.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(4).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationRequest3.setDeadlineDate(Instant.now());
-    consultationRequest3.setStatus(ConsultationRequestStatus.ALLOCATION);
+    consultationRequest3.setStatus(ConsultationRequestStatus.WITHDRAWN);
+    consultationRequest3.setEndedByPersonId(2);
+    consultationRequest3.setEndTimestamp(instantTime.atZone(ZoneOffset.UTC)
+        .withDayOfMonth(9).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    when(teamManagementService.getPerson(2)).thenReturn(new Person(2, "David", "Henry", null, null));
 
 
 
@@ -134,6 +140,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseRejectionReason()).isEqualTo("my reason");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseByPerson()).isEqualTo("Michael Scott");
     assertThat(consultationRequestViews.get(0).getCurrentRequest().getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
+    assertThat(consultationRequestViews.get(0).getCurrentRequest().getWithdrawnByUser()).isNull();
 
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
@@ -141,6 +148,7 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseRejectionReason()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseByPerson()).isNull();
     assertThat(consultationRequestViews.get(1).getCurrentRequest().getResponseDateDisplay()).isNull();
+    assertThat(consultationRequestViews.get(1).getCurrentRequest().getWithdrawnByUser()).isNull();
 
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getConsulteeGroupName()).isEqualTo("nameB");
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getRequestDateDisplay()).isEqualTo("04 February 2020 10:09");
@@ -148,6 +156,83 @@ public class ConsultationViewServiceTest {
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseRejectionReason()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseByPerson()).isNull();
     assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getResponseDateDisplay()).isNull();
+    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getWithdrawnByUser()).isEqualTo("David Henry");
+    assertThat(consultationRequestViews.get(1).getHistoricalRequests().get(0).getEndTimeStamp()).isEqualTo("09 February 2020 10:09");
+  }
+
+
+  //Single Request View Tests
+  @Test
+  public void getConsultationRequestView_allocation() {
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+
+    var consulteeGroupDetail1 = new ConsulteeGroupDetail();
+    consulteeGroupDetail1.setName("group name");
+    consulteeGroupDetail1.setConsulteeGroup(consulteeGroup);
+
+    var instantTime = Instant.now();
+    var consultationRequest = new ConsultationRequest();
+    consultationRequest.setId(1);
+    consultationRequest.setConsulteeGroup(consulteeGroup);
+    consultationRequest.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
+        .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    consultationRequest.setDeadlineDate(Instant.now());
+    consultationRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
+
+    when(consultationResponseService.getResponseByConsultationRequest(consultationRequest)).thenReturn(Optional.empty());
+    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup)).thenReturn(consulteeGroupDetail1);
+
+    ConsultationRequestView requestView = consultationViewService.getConsultationRequestView(consultationRequest);
+
+    assertThat(requestView.getConsulteeGroupName()).isEqualTo("group name");
+    assertThat(requestView.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
+    assertThat(requestView.getResponseType()).isNull();
+    assertThat(requestView.getResponseRejectionReason()).isNull();
+    assertThat(requestView.getResponseByPerson()).isNull();
+    assertThat(requestView.getResponseDateDisplay()).isNull();
+
+  }
+
+
+  @Test
+  public void getConsultationRequestView_responseRejected() {
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+
+    var consulteeGroupDetail1 = new ConsulteeGroupDetail();
+    consulteeGroupDetail1.setName("group name");
+    consulteeGroupDetail1.setConsulteeGroup(consulteeGroup);
+
+    var instantTime = Instant.now();
+    var consultationRequest = new ConsultationRequest();
+    consultationRequest.setId(1);
+    consultationRequest.setConsulteeGroup(consulteeGroup);
+    consultationRequest.setStartTimestamp(instantTime.atZone(ZoneOffset.UTC)
+        .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    consultationRequest.setDeadlineDate(Instant.now());
+    consultationRequest.setStatus(ConsultationRequestStatus.RESPONDED);
+
+    var consultationResponse = new ConsultationResponse();
+    consultationResponse.setResponseType(ConsultationResponseOption.REJECTED);
+    consultationResponse.setResponseText("my reason");
+    consultationResponse.setResponseTimestamp(instantTime.atZone(ZoneOffset.UTC)
+        .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
+    consultationResponse.setRespondingPersonId(1);
+    consultationResponse.setConsultationRequest(consultationRequest);
+    when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
+
+    when(consultationResponseService.getResponseByConsultationRequest(consultationRequest)).thenReturn(Optional.of(consultationResponse));
+    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup)).thenReturn(consulteeGroupDetail1);
+
+    ConsultationRequestView requestView = consultationViewService.getConsultationRequestView(consultationRequest);
+
+    assertThat(requestView.getConsulteeGroupName()).isEqualTo("group name");
+    assertThat(requestView.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
+    assertThat(requestView.getResponseType()).isEqualTo(ConsultationResponseOption.REJECTED);
+    assertThat(requestView.getResponseRejectionReason()).isEqualTo("my reason");
+    assertThat(requestView.getResponseByPerson()).isEqualTo("Michael Scott");
+    assertThat(requestView.getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
 
 
