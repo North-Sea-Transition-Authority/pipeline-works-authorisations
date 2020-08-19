@@ -10,7 +10,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
-import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummariserUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 
@@ -26,19 +25,16 @@ public class ProjectInformationSummaryService implements ApplicationSectionSumma
   }
 
   @Override
-  public boolean canSummarise(PwaApplicationDetail newPwaApplicationDetail,
-                               PwaApplicationDetail oldPwaApplicationDetail) {
+  public boolean canSummarise(PwaApplicationDetail pwaApplicationDetail) {
 
     var taskFilter = Set.of(
         ApplicationTask.PROJECT_INFORMATION);
 
-    return ApplicationSummariserUtil.canSummariseOptimised(newPwaApplicationDetail, oldPwaApplicationDetail,
-        (pwaApplicationDetail -> taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)));
+    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
   }
 
   @Override
-  public ApplicationSectionSummary summariseDifferences(PwaApplicationDetail newPwaApplicationDetail,
-                                                        PwaApplicationDetail oldPwaApplicationDetail,
+  public ApplicationSectionSummary summariseDifferences(PwaApplicationDetail pwaApplicationDetail,
                                                         String templateName) {
     var sectionDisplayText = ApplicationTask.PROJECT_INFORMATION.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();

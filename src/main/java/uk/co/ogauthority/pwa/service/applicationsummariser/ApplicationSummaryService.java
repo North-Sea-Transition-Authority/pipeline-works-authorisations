@@ -25,27 +25,25 @@ public class ApplicationSummaryService {
    * For when a summary with no diff info is required.
    */
   public List<ApplicationSectionSummary> summarise(PwaApplicationDetail pwaApplicationDetail) {
-    return summariseAsDiff(pwaApplicationDetail, pwaApplicationDetail);
+    return summariseAsDiff(pwaApplicationDetail);
   }
 
   /**
    * For when a summary with diff info is required. Loop over
    */
   @Transactional(readOnly = true) // just a hint, not guaranteed to be enforced read only.
-  public List<ApplicationSectionSummary> summariseAsDiff(PwaApplicationDetail newPwaApplicationDetail,
-                                                         PwaApplicationDetail oldPwaApplicationDetail) {
+  public List<ApplicationSectionSummary> summariseAsDiff(PwaApplicationDetail pwaApplicationDetail) {
 
     var appSummarySections = new ArrayList<ApplicationSectionSummary>();
     ApplicationSectionSummaryType.getSummarySectionByProcessingOrder().forEach(applicationSectionSummaryType -> {
       var summariserService = springApplicationContext.getBean(
           applicationSectionSummaryType.getSectionSummariserServiceClass());
 
-      if (summariserService.canSummarise(newPwaApplicationDetail, oldPwaApplicationDetail)) {
+      if (summariserService.canSummarise(pwaApplicationDetail)) {
 
         appSummarySections.add(
             summariserService.summariseDifferences(
-                newPwaApplicationDetail,
-                oldPwaApplicationDetail,
+                pwaApplicationDetail,
                 applicationSectionSummaryType.getTemplatePath())
         );
 

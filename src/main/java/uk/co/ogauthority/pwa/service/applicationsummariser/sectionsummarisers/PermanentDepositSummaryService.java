@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
-import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummariserUtil;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
@@ -44,30 +43,27 @@ public class PermanentDepositSummaryService implements ApplicationSectionSummari
   }
 
   @Override
-  public boolean canSummarise(PwaApplicationDetail newPwaApplicationDetail,
-                              PwaApplicationDetail oldPwaApplicationDetail) {
+  public boolean canSummarise(PwaApplicationDetail pwaApplicationDetail) {
 
     var taskFilter = Set.of(
         ApplicationTask.PERMANENT_DEPOSITS,
         ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS
     );
 
-    return ApplicationSummariserUtil.canSummariseOptimised(newPwaApplicationDetail, oldPwaApplicationDetail,
-        (pwaApplicationDetail -> taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail)));
+    return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
 
   }
 
   @Override
-  public ApplicationSectionSummary summariseDifferences(PwaApplicationDetail newPwaApplicationDetail,
-                                                        PwaApplicationDetail oldPwaApplicationDetail,
+  public ApplicationSectionSummary summariseDifferences(PwaApplicationDetail pwaApplicationDetail,
                                                         String templateName) {
 
-    var newDetailList = permanentDepositService.getPermanentDepositViews(newPwaApplicationDetail)
+    var newDetailList = permanentDepositService.getPermanentDepositViews(pwaApplicationDetail)
         .stream()
         .sorted(Comparator.comparing(PermanentDepositOverview::getDepositReference))
         .collect(Collectors.toList());
 
-    // TODO PWA-96 this needs to be updated to use previous version detail instead of example data
+    // TODO PWA-96 this isnt required for this summary section. only diffs to consented model are planned. This is just an example.
     var exampleOldDetailViewList = List.of(
         getRemovedDeposit("Removed Rock", 9999, List.of("PL1", "PL2")),
         getUpdatedDeposit("Updated Grout Bag", 9998, List.of("PL2"))
