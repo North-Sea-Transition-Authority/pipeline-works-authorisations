@@ -78,7 +78,7 @@ public class ConsultationRequestWorkAreaItem extends ApplicationWorkAreaItem {
 
     columnItemList.add(
         WorkAreaColumnItemView.createLabelledItem(
-            "Consultation due date", this.consultationRequestDeadlineDateTime)
+            "Due date", this.consultationRequestDeadlineDateTime)
     );
 
     var consulteeGroupAbbreviation = this.consulteeGroupAbbr != null

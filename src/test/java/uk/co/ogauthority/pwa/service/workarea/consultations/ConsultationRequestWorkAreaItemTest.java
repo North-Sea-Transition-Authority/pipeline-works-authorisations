@@ -191,7 +191,7 @@ public class ConsultationRequestWorkAreaItemTest {
             WorkAreaColumnItemView.TagType.INFO,
             consultationRequestSearchItem.getConsultationRequestStatus().getDisplayName()),
         WorkAreaColumnItemView.createLabelledItem(
-            "Consultation due date",
+            "Due date",
             workAreItem.getConsultationRequestDeadlineDateTime()),
         WorkAreaColumnItemView.createLabelledItem(
             "Consultee",
@@ -219,7 +219,7 @@ public class ConsultationRequestWorkAreaItemTest {
             WorkAreaColumnItemView.TagType.INFO,
             consultationRequestSearchItem.getConsultationRequestStatus().getDisplayName()),
         WorkAreaColumnItemView.createLabelledItem(
-            "Consultation due date",
+            "Due date",
             workAreItem.getConsultationRequestDeadlineDateTime()),
         WorkAreaColumnItemView.createLabelledItem(
             "Consultee",
