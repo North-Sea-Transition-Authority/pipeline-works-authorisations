@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
@@ -10,6 +11,7 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 public class IdentView {
 
   private final Integer identId;
+  private final PipelineCoreType pipelineCoreType;
 
   private final CoordinatePair fromCoordinates;
   private final CoordinatePair toCoordinates;
@@ -36,10 +38,11 @@ public class IdentView {
   private final String productsToBeConveyedMultiCore;
 
 
-
   public IdentView(PadPipelineIdentData identData) {
     var ident = identData.getPadPipelineIdent();
     this.identId = ident.getId();
+    this.pipelineCoreType = ident.getPadPipeline().getCoreType();
+
     this.fromCoordinates = ident.getFromCoordinates();
     this.toCoordinates = ident.getToCoordinates();
     this.fromLocation = ident.getFromLocation();
@@ -142,5 +145,9 @@ public class IdentView {
 
   public String getProductsToBeConveyedMultiCore() {
     return productsToBeConveyedMultiCore;
+  }
+
+  public PipelineCoreType getPipelineCoreType() {
+    return pipelineCoreType;
   }
 }
