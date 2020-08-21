@@ -63,10 +63,14 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
     var applicationPipelineSummaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(
         pwaApplicationDetail);
 
-    //TODO PWA-762 actually grab info from the consented Model.
-    var consentedPipelineSummaryList = List.of();
+    var consentedPipelineSummaryList = pipelineDiffableSummaryService.getConsentedPipelines(
+        pwaApplicationDetail.getPwaApplication(),
+        applicationPipelineSummaryList.stream()
+            .map(PipelineDiffableSummary::getPipelineId)
+            .collect(Collectors.toSet())
+    );
 
-    var diffedPipelineSummaryList = getDiffedPipelineSummaryList(applicationPipelineSummaryList, List.of());
+    var diffedPipelineSummaryList = getDiffedPipelineSummaryList(applicationPipelineSummaryList, consentedPipelineSummaryList);
 
     var sectionDisplayText = ApplicationTask.PIPELINES.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();

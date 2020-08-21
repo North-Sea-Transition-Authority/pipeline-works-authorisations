@@ -108,7 +108,7 @@ public class PipelineDetailIdentDataImportService {
   @VisibleForTesting
   public PadPipelineIdentData mapIdentDataToPadPipelineIdentData(PadPipelineIdent ident, PipelineDetailIdentData identData) {
     var padPipelineIdentData = new PadPipelineIdentData(ident);
-    padPipelineIdentData.setComponentPartsDescription(identData.getComponentPartsDesc());
+    padPipelineIdentData.setComponentPartsDesc(identData.getComponentPartsDesc());
     padPipelineIdentData.setExternalDiameter(identData.getExternalDiameter());
     padPipelineIdentData.setInternalDiameter(identData.getInternalDiameter());
     padPipelineIdentData.setWallThickness(identData.getWallThickness());

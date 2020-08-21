@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdentData;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /**
@@ -38,10 +38,10 @@ public class IdentView {
   private final String productsToBeConveyedMultiCore;
 
 
-  public IdentView(PadPipelineIdentData identData) {
-    var ident = identData.getPadPipelineIdent();
-    this.identId = ident.getId();
-    this.pipelineCoreType = ident.getPadPipeline().getCoreType();
+  public IdentView(PipelineIdentData identData) {
+    var ident = identData.getPipelineIdent();
+    this.identId = ident.getPipelineIdentId();
+    this.pipelineCoreType = ident.getPipelineCoreType();
 
     this.fromCoordinates = ident.getFromCoordinates();
     this.toCoordinates = ident.getToCoordinates();
@@ -49,7 +49,7 @@ public class IdentView {
     this.toLocation = ident.getToLocation();
     this.identNumber = ident.getIdentNo();
     this.length = ident.getLength();
-    this.componentPartsDescription = identData.getComponentPartsDescription();
+    this.componentPartsDescription = identData.getComponentPartsDesc();
     this.externalDiameter = identData.getExternalDiameter();
     this.insulationCoatingType = identData.getInsulationCoatingType();
     this.maop = identData.getMaop();

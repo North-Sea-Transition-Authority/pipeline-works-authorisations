@@ -73,7 +73,7 @@ public class PadPipelineIdentDataServiceTest {
     var identData = identDataCaptor.getValue();
 
     assertThat(identData.getPadPipelineIdent()).isEqualTo(ident);
-    assertThat(identData.getComponentPartsDescription()).isEqualTo(form.getComponentPartsDescription());
+    assertThat(identData.getComponentPartsDesc()).isEqualTo(form.getComponentPartsDescription());
     assertThat(identData.getInsulationCoatingType()).isEqualTo(form.getInsulationCoatingType());
     assertThat(identData.getProductsToBeConveyed()).isEqualTo(form.getProductsToBeConveyed());
     assertThat(identData.getExternalDiameter()).isEqualTo(form.getExternalDiameter());
@@ -89,7 +89,7 @@ public class PadPipelineIdentDataServiceTest {
     ident.setIdentNo(1);
 
     var identData = new PadPipelineIdentData(ident);
-    identData.setComponentPartsDescription("parts");
+    identData.setComponentPartsDesc("parts");
 
     when(repository.getAllByPadPipelineIdentIn(eq(List.of(ident)))).thenReturn(List.of(identData));
     var result = identDataService.getDataFromIdentList(List.of(ident));
@@ -104,7 +104,7 @@ public class PadPipelineIdentDataServiceTest {
     ident.setIdentNo(1);
 
     var identData = new PadPipelineIdentData(ident);
-    identData.setComponentPartsDescription("parts");
+    identData.setComponentPartsDesc("parts");
 
     when(repository.getAllByPadPipelineIdentIn(eq(List.of()))).thenReturn(List.of());
     var result = identDataService.getDataFromIdentList(List.of());
@@ -156,7 +156,7 @@ public class PadPipelineIdentDataServiceTest {
 
     var identData = new PadPipelineIdentData();
     identData.setInsulationCoatingType("ins");
-    identData.setComponentPartsDescription("comp");
+    identData.setComponentPartsDesc("comp");
     identData.setProductsToBeConveyed("prod");
     identData.setExternalDiameter(BigDecimal.valueOf(10));
     identData.setInternalDiameter(BigDecimal.valueOf(11));
@@ -178,7 +178,7 @@ public class PadPipelineIdentDataServiceTest {
 
     identDataService.saveEntityUsingForm(identData, form);
 
-    assertThat(identData.getComponentPartsDescription()).isEqualTo(form.getComponentPartsDescription());
+    assertThat(identData.getComponentPartsDesc()).isEqualTo(form.getComponentPartsDescription());
     assertThat(identData.getInsulationCoatingType()).isEqualTo(form.getInsulationCoatingType());
     assertThat(identData.getProductsToBeConveyed()).isEqualTo(form.getProductsToBeConveyed());
     assertThat(identData.getExternalDiameter()).isEqualTo(form.getExternalDiameter());
@@ -209,7 +209,7 @@ public class PadPipelineIdentDataServiceTest {
 
     var identData = new PadPipelineIdentData();
     identData.setInsulationCoatingType("ins");
-    identData.setComponentPartsDescription("comp");
+    identData.setComponentPartsDesc("comp");
     identData.setProductsToBeConveyed("prod");
     identData.setExternalDiameter(BigDecimal.valueOf(10));
     identData.setInternalDiameter(BigDecimal.valueOf(11));
@@ -231,7 +231,7 @@ public class PadPipelineIdentDataServiceTest {
 
     identDataService.saveEntityUsingForm(identData, form);
 
-    assertThat(identData.getComponentPartsDescription()).isEqualTo("comp");
+    assertThat(identData.getComponentPartsDesc()).isEqualTo("comp");
     assertThat(identData.getInsulationCoatingType()).isNull();
     assertThat(identData.getProductsToBeConveyed()).isNull();
     assertThat(identData.getExternalDiameter()).isNull();

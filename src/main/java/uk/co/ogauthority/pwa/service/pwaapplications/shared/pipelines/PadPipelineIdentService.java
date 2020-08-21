@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -54,7 +55,7 @@ public class PadPipelineIdentService {
 
     return identData.keySet()
         .stream()
-        .sorted(Comparator.comparing(PadPipelineIdent::getIdentNo))
+        .sorted(Comparator.comparing(PipelineIdent::getIdentNo))
         .map(ident -> new IdentView(identData.get(ident)))
         .collect(Collectors.toUnmodifiableList());
 

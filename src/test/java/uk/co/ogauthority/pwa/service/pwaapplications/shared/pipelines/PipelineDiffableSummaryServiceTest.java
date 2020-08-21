@@ -3,15 +3,23 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +41,12 @@ public class PipelineDiffableSummaryServiceTest {
 
   @Mock
   private PipelineOverview padPipelineOverview;
+
+  @Mock
+  private PipelineDetailService pipelineDetailService;
+
+  @Mock
+  private PipelineDetailIdentService pipelineDetailIdentService;
 
   private PipelineDiffableSummaryService pipelineDiffableSummaryService;
 
@@ -61,7 +75,9 @@ public class PipelineDiffableSummaryServiceTest {
 
     pipelineDiffableSummaryService = new PipelineDiffableSummaryService(
         padPipelineService,
-        padPipelineIdentService);
+        padPipelineIdentService,
+        pipelineDetailIdentService,
+        pipelineDetailService);
   }
 
 
@@ -120,6 +136,53 @@ public class PipelineDiffableSummaryServiceTest {
   }
 
 
+  @Test
+  public void getConsentedPipelines_whenOnePipeline_andMultipleIdents_thenMappedAsExpected() {
+    var pipelineId = new PipelineId(PIPELINE_ID);
+    var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
+
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwaById(
+        pwaApplicationDetail.getPwaApplication(),
+        Set.of(pipelineId)
+    )).thenReturn(List.of(pipelineDetail));
+
+    when(pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineId))
+        .thenReturn(List.of(identStart, identMid, identEnd));
+
+    var summaryList = pipelineDiffableSummaryService.getConsentedPipelines(pwaApplicationDetail.getPwaApplication(), Set.of(pipelineId));
+
+    var summary = summaryList.get(0);
+
+    assertThat(summary.getIdentViews()).hasSize(3);
+    assertThat(summary.getIdentViews().get(0).getFromLocation()).isEqualTo(PIPELINE_POINT_1);
+    assertThat(summary.getIdentViews().get(0).getToLocation()).isEqualTo(PIPELINE_POINT_2);
+    assertThat(summary.getIdentViews().get(0).getConnectedToPrevious()).isFalse();
+    assertThat(summary.getIdentViews().get(0).getConnectedToNext()).isTrue();
+
+    assertThat(summary.getIdentViews().get(1).getFromLocation()).isEqualTo(PIPELINE_POINT_2);
+    assertThat(summary.getIdentViews().get(1).getToLocation()).isEqualTo(PIPELINE_POINT_3);
+    assertThat(summary.getIdentViews().get(1).getConnectedToPrevious()).isTrue();
+    assertThat(summary.getIdentViews().get(1).getConnectedToNext()).isTrue();
+
+    assertThat(summary.getIdentViews().get(2).getFromLocation()).isEqualTo(PIPELINE_POINT_3);
+    assertThat(summary.getIdentViews().get(2).getToLocation()).isEqualTo(PIPELINE_POINT_4);
+    assertThat(summary.getIdentViews().get(2).getConnectedToPrevious()).isTrue();
+    assertThat(summary.getIdentViews().get(2).getConnectedToNext()).isFalse();
+
+  }
+
+  private PipelineDetail getPipelineDetail(PipelineId pipelineId,
+                                           BigDecimal maxExternalDiameter,
+                                           PipelineType pipelineType){
+
+
+    var pipeline = new Pipeline();
+    pipeline.setId(pipelineId.asInt());
+    var pipelineDetail = new PipelineDetail(pipeline);
+    pipelineDetail.setPipelineType(pipelineType);
+    pipelineDetail.setMaxExternalDiameter(maxExternalDiameter);
+    return pipelineDetail;
+  }
 
 
 }

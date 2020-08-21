@@ -176,7 +176,7 @@ public class PipelineDetailIdentDataImportServiceTest {
     var result = pipelineDetailIdentDataImportService.mapIdentDataToPadPipelineIdentData(padPipelineIdent,
         pipelineDetailIdentData);
     // TODO: PWA-682 - Add assertions
-    assertThat(result.getComponentPartsDescription()).isEqualTo(pipelineDetailIdentData.getComponentPartsDesc());
+    assertThat(result.getComponentPartsDesc()).isEqualTo(pipelineDetailIdentData.getComponentPartsDesc());
     assertThat(result.getExternalDiameter()).isEqualTo(pipelineDetailIdentData.getExternalDiameter());
     assertThat(result.getInternalDiameter()).isEqualTo(pipelineDetailIdentData.getInternalDiameter());
     assertThat(result.getWallThickness()).isEqualTo(pipelineDetailIdentData.getWallThickness());

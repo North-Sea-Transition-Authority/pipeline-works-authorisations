@@ -1,0 +1,87 @@
+package uk.co.ogauthority.pwa.service.pwaconsents;
+
+
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdent;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
+import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
+import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentRepository;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PipelineDetailIdentServiceTest {
+
+  private final PipelineId PIPELINE_ID = new PipelineId(1);
+
+  @Mock
+  private PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository;
+
+  @Mock
+  private PipelineDetailIdentRepository pipelineDetailIdentRepository;
+
+  private PipelineDetailIdentService pipelineDetailIdentService;
+
+  @Before
+  public void setUp() throws Exception {
+
+    pipelineDetailIdentService = new PipelineDetailIdentService(
+        pipelineDetailIdentDataRepository,
+        pipelineDetailIdentRepository
+    );
+  }
+
+  @Test
+  public void getSortedPipelineIdentViewsForPipeline_sortsIdentsByNumber() {
+
+    var identData = List.of(
+        createPipelineIdentData(PIPELINE_ID, 2),
+        createPipelineIdentData(PIPELINE_ID, 1)
+    );
+
+    var idents = identData.stream()
+        .map(PipelineDetailIdentData::getPipelineDetailIdent)
+        .collect(toList());
+
+    when(pipelineDetailIdentRepository.findByPipelineDetail_Pipeline_IdInAndPipelineDetail_tipFlagIsTrue(
+        Set.of(PIPELINE_ID.asInt()))
+    ).thenReturn(idents);
+
+    when(pipelineDetailIdentDataRepository.getAllByPipelineDetailIdentIn(any())).thenReturn(identData);
+
+    var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(PIPELINE_ID);
+
+    assertThat(identViews).hasSize(2);
+
+    assertThat(identViews.get(0).getIdentNumber()).isEqualTo(1);
+    assertThat(identViews.get(1).getIdentNumber()).isEqualTo(2);
+
+  }
+
+  private PipelineDetailIdentData createPipelineIdentData(PipelineId pipelineId, int identNumber) {
+    var pipeline = new Pipeline();
+    pipeline.setId(pipelineId.asInt());
+    var pipelineDetail = new PipelineDetail(pipeline);
+
+    var ident = new PipelineDetailIdent();
+    ident.setPipelineDetail(pipelineDetail);
+    ident.setIdentNo(identNumber);
+
+    var identData = new PipelineDetailIdentData();
+    identData.setPipelineDetailIdent(ident);
+
+    return identData;
+  }
+}

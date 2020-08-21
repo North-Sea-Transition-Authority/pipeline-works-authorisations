@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -21,7 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 @Entity
 @Table(name = "pad_pipeline_idents")
-public class PadPipelineIdent {
+public class PadPipelineIdent implements PipelineIdent {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -105,70 +107,110 @@ public class PadPipelineIdent {
     this.identNo = identNo;
   }
 
-  public Integer getId() {
-    return id;
+  //Custom behaviour
+  @PostLoad
+  public void postLoad() {
+
+    this.fromCoordinates = new CoordinatePair(
+        new LatitudeCoordinate(this.fromLatitudeDegrees, this.fromLatitudeMinutes, this.fromLatitudeSeconds, this.fromLatitudeDirection),
+        new LongitudeCoordinate(
+            this.fromLongitudeDegrees,
+            this.fromLongitudeMinutes,
+            this.fromLongitudeSeconds,
+            this.fromLongitudeDirection)
+    );
+
+    this.toCoordinates = new CoordinatePair(
+        new LatitudeCoordinate(this.toLatitudeDegrees, this.toLatitudeMinutes, this.toLatitudeSeconds, this.toLatitudeDirection),
+        new LongitudeCoordinate(this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection)
+    );
+
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  // Interface implementations
+  @Override
+  public Integer getPipelineIdentId() {
+    return this.id;
+  }
+
+  @Override
+  public int getIdentNo() {
+    return this.identNo;
+  }
+
+  @Override
+  public String getFromLocation() {
+    return this.fromLocation;
+  }
+
+  @Override
+  public String getToLocation() {
+    return this.toLocation;
+  }
+
+  @Override
+  public BigDecimal getLength() {
+    return this.length;
+  }
+
+  @Override
+  public CoordinatePair getFromCoordinates() {
+    return this.fromCoordinates;
+  }
+
+  @Override
+  public CoordinatePair getToCoordinates() {
+    return this.toCoordinates;
+  }
+
+  @Override
+  public PipelineCoreType getPipelineCoreType() {
+    return this.padPipeline.getCoreType();
+  }
+
+  // Getters
+
+  public Integer getId() {
+    return id;
   }
 
   public PadPipeline getPadPipeline() {
     return padPipeline;
   }
 
-  public void setPadPipeline(PadPipeline padPipeline) {
-    this.padPipeline = padPipeline;
+  // Setters
+  public void setFromCoordinates(CoordinatePair fromCoordinates) {
+    this.fromCoordinates = fromCoordinates;
+    updateFromCoordinateValues();
   }
 
-  public int getIdentNo() {
-    return identNo;
+  public void setToCoordinates(CoordinatePair toCoordinates) {
+    this.toCoordinates = toCoordinates;
+    updateToCoordinateValues();
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public void setPadPipeline(PadPipeline padPipeline) {
+    this.padPipeline = padPipeline;
   }
 
   public void setIdentNo(int identNo) {
     this.identNo = identNo;
   }
 
-  public String getFromLocation() {
-    return fromLocation;
-  }
-
   public void setFromLocation(String fromLocation) {
     this.fromLocation = fromLocation;
-  }
-
-  public String getToLocation() {
-    return toLocation;
   }
 
   public void setToLocation(String toLocation) {
     this.toLocation = toLocation;
   }
 
-  public BigDecimal getLength() {
-    return length;
-  }
-
   public void setLength(BigDecimal length) {
     this.length = length;
-  }
-
-  public CoordinatePair getFromCoordinates() {
-    return fromCoordinates;
-  }
-
-  public void setFromCoordinates(CoordinatePair fromCoordinates) {
-    this.fromCoordinates = fromCoordinates;
-    updateFromCoordinateValues();
-  }
-
-  public CoordinatePair getToCoordinates() {
-    return toCoordinates;
-  }
-
-  public void setToCoordinates(CoordinatePair toCoordinates) {
-    this.toCoordinates = toCoordinates;
-    updateToCoordinateValues();
   }
 
   private void updateFromCoordinateValues() {
@@ -195,23 +237,5 @@ public class PadPipelineIdent {
     this.toLongitudeDirection = this.toCoordinates.getLongitude().getDirection();
   }
 
-  @PostLoad
-  public void postLoad() {
-
-    this.fromCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(this.fromLatitudeDegrees, this.fromLatitudeMinutes, this.fromLatitudeSeconds, this.fromLatitudeDirection),
-        new LongitudeCoordinate(
-            this.fromLongitudeDegrees,
-            this.fromLongitudeMinutes,
-            this.fromLongitudeSeconds,
-            this.fromLongitudeDirection)
-    );
-
-    this.toCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(this.toLatitudeDegrees, this.toLatitudeMinutes, this.toLatitudeSeconds, this.toLatitudeDirection),
-        new LongitudeCoordinate(this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection)
-    );
-
-  }
 
 }
