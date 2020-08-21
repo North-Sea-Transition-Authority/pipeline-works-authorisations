@@ -87,6 +87,30 @@ public class CamundaWorkflowServiceTest {
   }
 
   @Test
+  public void deleteProcessAndTask() {
+
+    camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.deleteProcessAndTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+
+    assertThat(taskService
+        .createTaskQuery()
+        .processDefinitionKey(WorkflowType.PWA_APPLICATION.getProcessDefinitionKey())
+        .processInstanceBusinessKey("1")
+        .active()
+        .taskDefinitionKey(PwaApplicationWorkflowTask.PREPARE_APPLICATION.getTaskKey())
+        .singleResult()).isNull();
+
+  }
+
+  @Test(expected = WorkflowException.class)
+  public void deleteProcessAndTask_doesntExist() {
+
+    camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.deleteProcessAndTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
+
+  }
+
+  @Test
   public void assignTaskToUser_valid() {
 
     var person = new Person(111, null, null, null, null);

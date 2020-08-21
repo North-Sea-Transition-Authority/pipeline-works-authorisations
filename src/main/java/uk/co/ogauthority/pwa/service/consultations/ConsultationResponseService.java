@@ -54,6 +54,10 @@ public class ConsultationResponseService {
     return consultationResponseRepository.getAllByConsultationRequestIn(consultationRequests);
   }
 
+  public Optional<ConsultationResponse> getResponseByConsultationRequest(ConsultationRequest consultationRequest) {
+    return consultationResponseRepository.findByConsultationRequest(consultationRequest);
+  }
+
   public boolean isUserAssignedResponderForConsultation(WebUserAccount user, ConsultationRequest consultationRequest) {
 
     Optional<PersonId> assignedResponderPersonId = camundaWorkflowService

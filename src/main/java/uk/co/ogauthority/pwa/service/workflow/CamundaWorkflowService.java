@@ -67,6 +67,17 @@ public class CamundaWorkflowService {
 
   }
 
+  public void deleteProcessAndTask(WorkflowTaskInstance workflowTaskInstance) {
+
+    getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
+        foundTask -> {
+            runtimeService.deleteProcessInstance(foundTask.getProcessInstanceId(), null);
+            taskService.deleteTask(foundTask.getId());
+        }, () -> throwTaskNotFoundException(workflowTaskInstance)
+    );
+
+  }
+
   public void assignTaskToUser(WorkflowTaskInstance workflowTaskInstance, Person person) {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(

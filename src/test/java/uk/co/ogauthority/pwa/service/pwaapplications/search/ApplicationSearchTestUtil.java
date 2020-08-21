@@ -24,6 +24,8 @@ public class ApplicationSearchTestUtil {
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
     applicationDetailSearchItem.setPwaApplicationId(100);
     applicationDetailSearchItem.setPadFields(List.of("FIELD2", "FIELD1"));
+    applicationDetailSearchItem.setPadHolderNameList(List.of("PAD HOLDER 1", "PAD HOLDER 2"));
+    applicationDetailSearchItem.setPwaHolderNameList(List.of("PWA HOLDER 1", "PWA HOLDER 2"));
     applicationDetailSearchItem.setPadProjectName("PROJECT_NAME");
     applicationDetailSearchItem.setPadProposedStart(
         LocalDateTime.of(2020, 1, 2, 3, 4, 5)

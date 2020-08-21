@@ -1,8 +1,11 @@
 package uk.co.ogauthority.pwa.service.workarea.consultations;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem;
+import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 public class ConsultationRequestWorkAreaItem extends ApplicationWorkAreaItem {
@@ -66,4 +69,36 @@ public class ConsultationRequestWorkAreaItem extends ApplicationWorkAreaItem {
     return assignedResponderName;
   }
 
+  @Override
+  public List<WorkAreaColumnItemView> getApplicationStatusColumn() {
+    var columnItemList = new ArrayList<WorkAreaColumnItemView>();
+    columnItemList.add(
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.INFO, this.consultationRequestStatus)
+    );
+
+    columnItemList.add(
+        WorkAreaColumnItemView.createLabelledItem(
+            "Due date", this.consultationRequestDeadlineDateTime)
+    );
+
+    var consulteeGroupAbbreviation = this.consulteeGroupAbbr != null
+        ? String.format(" (%s)", this.consulteeGroupAbbr)
+        : "";
+
+    columnItemList.add(
+        WorkAreaColumnItemView.createLabelledItem(
+            "Consultee", this.consulteeGroupName + consulteeGroupAbbreviation)
+    );
+
+    if (this.assignedResponderName != null) {
+      columnItemList.add(
+          WorkAreaColumnItemView.createLabelledItem(
+              "Responder", this.assignedResponderName)
+      );
+    }
+
+    createFastTrackColumnItem().ifPresent(columnItemList::add);
+
+    return columnItemList;
+  }
 }

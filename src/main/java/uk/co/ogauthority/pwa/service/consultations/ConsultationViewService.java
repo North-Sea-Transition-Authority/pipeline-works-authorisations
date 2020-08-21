@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,6 +24,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -52,6 +52,7 @@ public class ConsultationViewService {
     this.teamManagementService = teamManagementService;
   }
 
+
   public List<ConsulteeGroupRequestsView> getConsultationRequestViews(PwaApplication pwaApplication) {
     List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByApplication(pwaApplication);
     List<ConsulteeGroupRequestsView> consulteeGroupRequestsViews = new ArrayList<>();
@@ -66,6 +67,17 @@ public class ConsultationViewService {
     consulteeGroupRequestsViews.sort(Comparator.comparing(x -> x.getCurrentRequest().getConsulteeGroupName()));
     return consulteeGroupRequestsViews;
   }
+
+
+  public ConsultationRequestView getConsultationRequestView(ConsultationRequest consultationRequest) {
+
+    var response = consultationResponseService.getResponseByConsultationRequest(consultationRequest).orElse(null);
+    var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consultationRequest.getConsulteeGroup());
+
+    return mapConsultationRequestToView(consultationRequest, response, groupDetail);
+  }
+
+
 
 
   private ConsulteeGroupRequestsView createGroupRequestView(List<ConsultationRequest> requestList,
@@ -91,22 +103,30 @@ public class ConsultationViewService {
                                                                ConsulteeGroupDetail consulteeGroupDetail) {
     if (consultationResponse != null) {
       return new ConsultationRequestView(
+          consultationRequest.getId(),
           consulteeGroupDetail.getName(),
           DateUtils.formatDateTime(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS)),
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
           DateUtils.formatDateTime(consultationResponse.getResponseTimestamp().truncatedTo(ChronoUnit.SECONDS)),
           consultationResponse.getResponseType(),
+          false,
           teamManagementService.getPerson(consultationResponse.getRespondingPersonId()).getFullName(),
           consultationResponse.getResponseType().equals(ConsultationResponseOption.REJECTED)
               ? consultationResponse.getResponseText() : null);
 
-    } else {
+    } else { //awaiting response or withdrawn
       return new ConsultationRequestView(
+          consultationRequest.getId(),
           consulteeGroupDetail.getName(),
           DateUtils.formatDateTime(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS)),
           consultationRequest.getStatus(),
-          DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)));
+          DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
+          consultationRequest.getStatus() != ConsultationRequestStatus.WITHDRAWN,
+          consultationRequest.getStatus() == ConsultationRequestStatus.WITHDRAWN
+              ? teamManagementService.getPerson(consultationRequest.getEndedByPersonId()).getFullName() : null,
+          consultationRequest.getStatus() == ConsultationRequestStatus.WITHDRAWN
+              ? DateUtils.formatDateTime(consultationRequest.getEndTimestamp().truncatedTo(ChronoUnit.SECONDS)) : null);
     }
   }
 
