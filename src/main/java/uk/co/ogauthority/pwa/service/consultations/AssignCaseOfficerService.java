@@ -1,0 +1,82 @@
+package uk.co.ogauthority.pwa.service.consultations;
+
+import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.users.UserAccountService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
+
+@Service
+public class AssignCaseOfficerService {
+
+  private final WorkflowAssignmentService workflowAssignmentService;
+  private final TeamManagementService teamManagementService;
+  private final NotifyService notifyService;
+  private final UserAccountService userAccountService;
+  private final AssignCaseOfficerValidator assignCaseOfficerValidator;
+
+
+  @Autowired
+  public AssignCaseOfficerService(
+      WorkflowAssignmentService workflowAssignmentService,
+      TeamManagementService teamManagementService,
+      NotifyService notifyService,
+      UserAccountService userAccountService,
+      AssignCaseOfficerValidator assignCaseOfficerValidator) {
+    this.workflowAssignmentService = workflowAssignmentService;
+    this.teamManagementService = teamManagementService;
+    this.notifyService = notifyService;
+    this.userAccountService = userAccountService;
+    this.assignCaseOfficerValidator = assignCaseOfficerValidator;
+  }
+
+
+
+  public void assignCaseOfficer(
+      PersonId caseOfficerPersonId, PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount assigningUser) {
+
+    var caseOfficer = teamManagementService.getPerson(caseOfficerPersonId.asInt());
+
+    workflowAssignmentService.assign(
+        pwaApplicationDetail.getPwaApplication(),
+        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        caseOfficer,
+        assigningUser.getLinkedPerson());
+
+    sendCaseOfficerAssignedEmail(pwaApplicationDetail, caseOfficer);
+    //TODO: PWA-808 - Send email to new case officer when reassigning
+  }
+
+
+  private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, Person caseOfficer) {
+    var submitterPerson = userAccountService.getWebUserAccount(applicationDetail.getSubmittedByWuaId())
+        .getLinkedPerson();
+
+    var props = new CaseOfficerAssignedEmailProps(
+        submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficer.getFullName());
+    notifyService.sendEmail(props, submitterPerson.getEmailAddress());
+  }
+
+
+
+
+  public BindingResult validate(AssignCaseOfficerForm form, BindingResult bindingResult, PwaApplication pwaApplication) {
+    assignCaseOfficerValidator.validate(form, bindingResult, pwaApplication);
+    return bindingResult;
+  }
+
+
+
+}

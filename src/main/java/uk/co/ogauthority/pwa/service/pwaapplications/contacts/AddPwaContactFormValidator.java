@@ -51,7 +51,7 @@ public class AddPwaContactFormValidator implements Validator {
 
       Optional<Person> person = teamManagementService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
 
-      if (!person.isEmpty()) {
+      if (person.isPresent()) {
         // check if the person is already a contact on the PWA
         var application = pwaApplicationService.getApplicationFromId(form.getPwaApplicationId());
         Person personToBeAdded = person.get();

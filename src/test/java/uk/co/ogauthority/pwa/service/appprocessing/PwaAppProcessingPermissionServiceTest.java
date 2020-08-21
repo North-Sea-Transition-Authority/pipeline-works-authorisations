@@ -65,6 +65,47 @@ public class PwaAppProcessingPermissionServiceTest {
   }
 
   @Test
+  public void getProcessingPermissions_acceptAssignCaseOfficerPermission_success() {
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+
+    assertThat(permissions).contains(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER);
+
+  }
+
+  @Test
+  public void getProcessingPermissions_acceptAssignCaseOfficerPermission_failed() {
+
+    regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("ORGANISATION_MANAGER", "Org Manager", null, 10)));
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER);
+
+  }
+
+
+  public void getProcessingPermissions_acceptWithdrawConsultationsPermission_success() {
+
+    regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("CASE_OFFICER", "Case Officer", null, 10)));
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).contains(PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
+  }
+
+  @Test
+  public void getProcessingPermissions_acceptWithdrawConsultationsPermission_failed() {
+
+    regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("ORGANISATION_MANAGER", "Org Manager", null, 10)));
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
+  }
+
+  @Test
   public void getProcessingPermissions_acceptViewAllConsultationsPermission_success() {
 
     var permissions = processingPermissionService.getProcessingPermissions(user);

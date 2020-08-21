@@ -90,6 +90,27 @@ public class AssignResponderService {
 
   }
 
+  public void reassignUser(AssignResponderForm form,
+                           ConsultationRequest consultationRequest,
+                           WebUserAccount assigningUser) {
+
+    var responderPerson = teamManagementService.getPerson(form.getResponderPersonId());
+    var assigningPerson = assigningUser.getLinkedPerson();
+
+    workflowAssignmentService.assign(
+        consultationRequest,
+        PwaApplicationConsultationWorkflowTask.RESPONSE,
+        responderPerson,
+        assigningPerson);
+
+    // if user didn't assign to themselves, email the assigned responder
+    if (!Objects.equals(responderPerson, assigningPerson)) {
+      var emailProps = buildAssignedEmailProps(responderPerson, consultationRequest, assigningPerson);
+      notifyService.sendEmail(emailProps, responderPerson.getEmailAddress());
+    }
+  }
+
+
   private ConsultationAssignedToYouEmailProps buildAssignedEmailProps(Person assignee,
                                                                       ConsultationRequest consultationRequest,
                                                                       Person assigningPerson) {

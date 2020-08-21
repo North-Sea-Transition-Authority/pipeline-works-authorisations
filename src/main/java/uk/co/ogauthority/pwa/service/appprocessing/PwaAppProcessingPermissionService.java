@@ -48,9 +48,11 @@ public class PwaAppProcessingPermissionService {
           switch (permission) {
 
             case ACCEPT_INITIAL_REVIEW:
+            case ASSIGN_CASE_OFFICER:
               return roles.contains(PwaRegulatorRole.PWA_MANAGER);
             case CASE_OFFICER_REVIEW:
             case EDIT_CONSULTATIONS:
+            case WITHDRAW_CONSULTATION:
               return roles.contains(PwaRegulatorRole.CASE_OFFICER);
             case VIEW_ALL_CONSULTATIONS:
               return roles.contains(PwaRegulatorRole.CASE_OFFICER)

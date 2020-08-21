@@ -39,6 +39,16 @@ public class ApplicationDetailSearchItem {
   @Column(name = "pad_field_name_list")
   private List<String> padFields;
 
+  // from the consented model
+  @Convert(converter = SemiColonSeparatedListConverter.class)
+  @Column(name = "pwa_holder_name_list")
+  private List<String> pwaHolderNameList;
+
+  // from the current app detail
+  @Convert(converter = SemiColonSeparatedListConverter.class)
+  @Column(name = "pad_holder_name_list")
+  private List<String> padHolderNameList;
+
   private String padProjectName;
 
   @Column(name = "pad_proposed_start_timestamp")
@@ -214,5 +224,21 @@ public class ApplicationDetailSearchItem {
 
   public void setCaseOfficerName(String caseOfficerName) {
     this.caseOfficerName = caseOfficerName;
+  }
+
+  public List<String> getPwaHolderNameList() {
+    return pwaHolderNameList;
+  }
+
+  public void setPwaHolderNameList(List<String> pwaHolderNameList) {
+    this.pwaHolderNameList = pwaHolderNameList;
+  }
+
+  public List<String> getPadHolderNameList() {
+    return padHolderNameList;
+  }
+
+  public void setPadHolderNameList(List<String> padHolderNameList) {
+    this.padHolderNameList = padHolderNameList;
   }
 }

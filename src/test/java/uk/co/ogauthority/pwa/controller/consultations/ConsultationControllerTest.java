@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.consultations;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -13,10 +15,13 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
@@ -26,6 +31,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 public class ConsultationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
   private PwaApplicationEndpointTestBuilder endpointTester;
 
+  @MockBean
+  private ConsultationRequestService consultationRequestService;
   @MockBean
   private ConsultationViewService consultationViewService;
 
@@ -43,6 +50,23 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationController.class)
                 .renderConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderWithdrawConsultation_appStatusSmokeTest() {
+
+    ConsultationRequestView consultationRequestView = new ConsultationRequestView(
+        1, "", "", ConsultationRequestStatus.ALLOCATION, "", true, null, null);
+    when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
+    when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(ConsultationController.class)
+                .renderWithdrawConsultation(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
