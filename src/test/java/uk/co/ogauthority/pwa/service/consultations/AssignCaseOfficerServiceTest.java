@@ -1,0 +1,101 @@
+package uk.co.ogauthority.pwa.service.consultations;
+
+import static java.util.Map.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
+import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.notify.NotifyService;
+import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.users.UserAccountService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
+
+
+@RunWith(MockitoJUnitRunner.class)
+public class AssignCaseOfficerServiceTest {
+
+  private AssignCaseOfficerService assignCaseOfficerService;
+
+  @Mock
+  private WorkflowAssignmentService workflowAssignmentService;
+  @Mock
+  private TeamManagementService teamManagementService;
+  @Mock
+  private NotifyService notifyService;
+  @Mock
+  private UserAccountService userAccountService;
+  @Mock
+  private AssignCaseOfficerValidator assignCaseOfficerValidator;
+
+  PwaApplicationDetail appDetail;
+
+  @Captor
+  private ArgumentCaptor<CaseOfficerAssignedEmailProps> emailPropsCaptor;
+
+
+  @Before
+  public void setUp() {
+    assignCaseOfficerService = new AssignCaseOfficerService(workflowAssignmentService, teamManagementService, notifyService,
+        userAccountService, assignCaseOfficerValidator);
+    appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 1);
+  }
+
+
+
+  @Test
+  public void assignCaseOfficer_assignToDifferentUser_emailSent() {
+
+    var form = new AssignCaseOfficerForm();
+    form.setCaseOfficerPersonId(2);
+
+    var assigningUser = new AuthenticatedUserAccount(
+        new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null)), null);
+
+    var caseOfficerPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
+    when(teamManagementService.getPerson(2)).thenReturn(caseOfficerPerson);
+
+    appDetail.setSubmittedByWuaId(1);
+    when(userAccountService.getWebUserAccount(appDetail.getSubmittedByWuaId())).thenReturn(assigningUser);
+
+    assignCaseOfficerService.assignCaseOfficer(form.getCaseOfficerPerson(), appDetail, assigningUser);
+
+    //verify new case officer assignment done and email is sent
+    verify(workflowAssignmentService, times(1)).assign(
+        appDetail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, assigningUser.getLinkedPerson());
+
+    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(assigningUser.getLinkedPerson().getEmailAddress()));
+
+    var emailProps = emailPropsCaptor.getValue();
+
+    assertThat(emailProps.getEmailPersonalisation()).contains(
+        entry("RECIPIENT_FULL_NAME", assigningUser.getLinkedPerson().getFullName()),
+        entry("CASE_OFFICER_NAME", caseOfficerPerson.getFullName()),
+        entry("APPLICATION_REFERENCE", appDetail.getPwaApplicationRef())
+    );
+
+  }
+
+
+
+}
+
