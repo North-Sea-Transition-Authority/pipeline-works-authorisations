@@ -1,18 +1,15 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 /**
- * A view that combines both ident and identData information in a simplified format. Easy to give consume using DiffService.
+ * A view that combines both ident and identData information in a simplified format. Easy to consume using DiffService.
  */
 public class IdentDiffableView {
-
-  private static final DecimalFormat DECIMAL_FORMAT_2DP = new DecimalFormat("#.##");
 
   private final Boolean connectedToNext;
   private final Boolean connectedToPrevious;
@@ -88,12 +85,12 @@ public class IdentDiffableView {
         identView.getFromLocation(),
         identView.getToLocation(),
         identView.getIdentNumber(),
-        formatDecimalOrNull(identView.getLength()),
+        StringDisplayUtils.formatDecimal2DpOrNull(identView.getLength()),
         identView.getComponentPartsDescription(),
         // External diameter
         identView.getPipelineCoreType().equals(PipelineCoreType.MULTI_CORE)
             ? identView.getExternalDiameterMultiCore()
-            : formatDecimalOrNull(identView.getExternalDiameter()),
+            : StringDisplayUtils.formatDecimal2DpOrNull(identView.getExternalDiameter()),
         // Insulation coating type
         identView.getPipelineCoreType().equals(PipelineCoreType.MULTI_CORE)
             ? identView.getInsulationCoatingTypeMultiCore()
@@ -101,7 +98,7 @@ public class IdentDiffableView {
         // MOAP
         identView.getPipelineCoreType().equals(PipelineCoreType.MULTI_CORE)
             ? identView.getMaopMultiCore()
-            : formatDecimalOrNull(identView.getMaop()),
+            : StringDisplayUtils.formatDecimal2DpOrNull(identView.getMaop()),
         // Products conveyed
         identView.getPipelineCoreType().equals(PipelineCoreType.MULTI_CORE)
             ? identView.getProductsToBeConveyedMultiCore()
@@ -109,19 +106,15 @@ public class IdentDiffableView {
         // Internal diameter
         identView.getPipelineCoreType().equals(PipelineCoreType.MULTI_CORE)
             ? identView.getInternalDiameterMultiCore()
-            : formatDecimalOrNull(identView.getInternalDiameter()),
+            : StringDisplayUtils.formatDecimal2DpOrNull(identView.getInternalDiameter()),
         // Wall thickness
         identView.getPipelineCoreType().equals(PipelineCoreType.MULTI_CORE)
             ? identView.getWallThicknessMultiCore()
-            : formatDecimalOrNull(identView.getWallThickness())
+            : StringDisplayUtils.formatDecimal2DpOrNull(identView.getWallThickness())
     );
 
   }
-
-  public static DecimalFormat getDecimalFormat2dp() {
-    return DECIMAL_FORMAT_2DP;
-  }
-
+  
   public Boolean getConnectedToNext() {
     return connectedToNext;
   }
@@ -181,8 +174,5 @@ public class IdentDiffableView {
   public String getWallThickness() {
     return wallThickness;
   }
-
-  private static String formatDecimalOrNull(BigDecimal bigDecimal) {
-    return bigDecimal != null ? DECIMAL_FORMAT_2DP.format(bigDecimal) : null;
-  }
+  
 }

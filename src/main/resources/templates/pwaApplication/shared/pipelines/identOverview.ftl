@@ -62,7 +62,7 @@
                                 <@dataValueForCoreType coreType=coreType key="Products to be conveyed" valueSingleCore=(identView.productsToBeConveyed)! valueMultiCore=(identView.productsToBeConveyedMultiCore)!/>
                             </@fdsDataItems.dataItem>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
-                                <@fdsDataItems.dataValues key="Description of component parts" value="${identView.componentPartsDescription!}"/>
+                                <@dataValueForCoreType coreType=coreType key="Description of component parts" valueSingleCore=(identView.componentPartsDescription)! valueMultiCore=(identView.componentPartsDescription)!/>
                             </@fdsDataItems.dataItem>
                         </@fdsTimeline.timelineTimeStamp>
                     </#list>
@@ -92,6 +92,7 @@
         <#if (valueMultiCore?has_content) == false>
             <#assign unit = ""/>
         </#if>
-        <@fdsDataItems.dataValues key=key value="${valueMultiCore} ${unit}"/>
+        <#local whiteSpacePreservedValue><@multiLineText.multiLineText blockClass="fds-data-items-list">${valueMultiCore}</@multiLineText.multiLineText></#local>
+        <@fdsDataItems.dataValues key="${key} (${unit})" value="${whiteSpacePreservedValue}"/>
     </#if>
 </#macro>

@@ -2,7 +2,10 @@ package uk.co.ogauthority.pwa.model.location;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 public class LatitudeCoordinate extends Coordinate {
 
@@ -19,6 +22,19 @@ public class LatitudeCoordinate extends Coordinate {
 
   public void setDirection(LatitudeDirection direction) {
     this.direction = direction;
+  }
+
+  @Override
+  public String getDisplayString() {
+    return ObjectUtils.allNotNull(this.direction, this.getDegrees(), this.getMinutes(), this.getSeconds())
+        ? String.format(
+        CoordinateUtils.FORMAT_STRING,
+        StringDisplayUtils.formatInteger2DigitZeroPaddingOrNull(this.getDegrees()),
+        StringDisplayUtils.formatInteger2DigitZeroPaddingOrNull(this.getMinutes()),
+        StringDisplayUtils.formatDecimal2DpOrNull(this.getSeconds()),
+        this.getDirection().getDisplayTextShort()
+    )
+        : null;
   }
 
   @Override

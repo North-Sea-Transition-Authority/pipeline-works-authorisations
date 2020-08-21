@@ -42,4 +42,6 @@ public abstract class Coordinate {
   public void setSeconds(BigDecimal seconds) {
     this.seconds = seconds;
   }
+
+  public abstract String getDisplayString();
 }

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.diff;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
@@ -367,6 +368,19 @@ public class DiffServiceTest {
     } catch (AssertionError e) {
       throw new AssertionError("All supported diff comparison classes  need to added to the SimpleDiffTestClass!", e);
     }
+
+  }
+
+  @Test
+  public void diff_ignoresFieldsWithinIgnoreSet(){
+
+    var allFieldNames = Arrays.stream(FieldUtils.getAllFields(SimpleDiffTestClass.class))
+        .map(Field::getName)
+        .collect(toSet());
+
+    Map<String, Object> diffResult = diffService.diff(simpleObjectCurrent, simpleObjectPrevious, allFieldNames);
+
+    assertThat(diffResult).isEmpty();
 
   }
 

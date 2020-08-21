@@ -2,10 +2,12 @@ package uk.co.ogauthority.pwa.service.diff;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -20,10 +22,9 @@ import uk.co.ogauthority.pwa.model.diff.DiffedField;
 @Service
 public class DiffService {
 
+
   /**
-   * Calculate the difference between 2 objects, by comparing all their fields.
-   * All accessible fields must be representable in String form.
-   * The result of the diff is returned as a DiffField.
+   * Overload diff to be used when there are no fields on the object to be ignored.
    *
    * @param current  The current instance of the object.
    * @param previous A previous instance of the same type to compare against.
@@ -31,17 +32,37 @@ public class DiffService {
    * @return A map of field name to DiffedField or List of DiffedFields
    */
   public <T> Map<String, Object> diff(T current, T previous) {
+    return diff(current, previous, Collections.emptySet());
+  }
+
+  /**
+   * Calculate the difference between 2 objects, by comparing all their fields.
+   * All accessible fields must be representable in String form.
+   * The result of the diff is returned as a DiffField.
+   *
+   * @param current     The current instance of the object.
+   * @param previous    A previous instance of the same type to compare against.
+   * @param ignoreFieldNames if provided, do not diff field where name is within set
+   * @param <T>         The type of both objects.
+   * @return A map of field name to DiffedField or List of DiffedFields
+   */
+  public <T> Map<String, Object> diff(T current, T previous, Set<String> ignoreFieldNames) {
 
     Map<String, Object> diffResult = new HashMap<>();
 
-    doWithField(current.getClass(), field -> {
-      Object currentValue = getFieldValue(field, current);
-      Object previousValue = getFieldValue(field, previous);
 
-      // To avoid clashing member variable names between objects, use the simple class name for a slightly better chance
-      // at uniqueness in the map
-      String attributeName = createAttributeName(current.getClass(), field);
-      compare(diffResult, attributeName, currentValue, previousValue, field);
+    doWithField(current.getClass(), field -> {
+      var processField = !ignoreFieldNames.contains(field.getName());
+
+      if (processField) {
+        Object currentValue = getFieldValue(field, current);
+        Object previousValue = getFieldValue(field, previous);
+
+        // To avoid clashing member variable names between objects, use the simple class name for a slightly better chance
+        // at uniqueness in the map
+        String attributeName = createAttributeName(current.getClass(), field);
+        compare(diffResult, attributeName, currentValue, previousValue, field);
+      }
     });
 
     return diffResult;

@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
  * Utility class for common interactions with coordinates and associated objects.
  */
 public class CoordinateUtils {
+  public static final String FORMAT_STRING =  "%s ° %s ' %s \" %s";
 
   private CoordinateUtils() {
     throw new AssertionError();

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.pipelines;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -9,7 +10,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 /**
  *  Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.
  */
-public final class PipelineId implements PipelineIdentifier {
+public final class PipelineId implements PipelineIdentifier, DiffableAsString {
   private final int id;
 
   public PipelineId(int id) {
@@ -34,6 +35,11 @@ public final class PipelineId implements PipelineIdentifier {
 
   public int asInt() {
     return this.id;
+  }
+
+  @Override
+  public String getDiffableString() {
+    return String.valueOf(id);
   }
 
   @Override
