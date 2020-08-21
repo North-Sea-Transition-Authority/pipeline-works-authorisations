@@ -21,37 +21,61 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = ConsultationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
-
+@WebMvcTest(controllers = ConsultationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class ConsultationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
-  private PwaApplicationEndpointTestBuilder endpointTester;
+
+  private PwaApplicationEndpointTestBuilder viewAllConsultationsEndpointTester;
+  private PwaApplicationEndpointTestBuilder withdrawConsultationEndpointTester;
 
   @MockBean
   private ConsultationRequestService consultationRequestService;
   @MockBean
   private ConsultationViewService consultationViewService;
 
+  @MockBean
+  private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   @Before
   public void setUp() {
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, teamService, pwaApplicationDetailService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    viewAllConsultationsEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
+
+    withdrawConsultationEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
+
   }
 
 
   @Test
   public void renderConsultation_appStatusSmokeTest() {
-    endpointTester.setRequestMethod(HttpMethod.GET)
+
+    viewAllConsultationsEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationController.class)
                 .renderConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    viewAllConsultationsEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderConsultation_processingPermissionSmokeTest() {
+
+    viewAllConsultationsEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(ConsultationController.class)
+                .renderConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+
+    viewAllConsultationsEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
@@ -63,15 +87,30 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
     when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
     when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
 
-    endpointTester.setRequestMethod(HttpMethod.GET)
+    withdrawConsultationEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationController.class)
                 .renderWithdrawConsultation(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
 
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    withdrawConsultationEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
   }
 
+  @Test
+  public void renderWithdrawConsultation_permissionSmokeTest() {
 
+    ConsultationRequestView consultationRequestView = new ConsultationRequestView(
+        1, "", "", ConsultationRequestStatus.ALLOCATION, "", true, null, null);
+    when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
+    when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
+
+    withdrawConsultationEndpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(ConsultationController.class)
+                .renderWithdrawConsultation(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null, null)));
+
+    withdrawConsultationEndpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
 
 }

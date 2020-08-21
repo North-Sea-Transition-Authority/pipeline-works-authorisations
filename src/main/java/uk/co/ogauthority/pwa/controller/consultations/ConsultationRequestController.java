@@ -46,11 +46,6 @@ public class ConsultationRequestController {
     this.controllerHelperService = controllerHelperService;
   }
 
-
-
-
-
-
   @GetMapping
   public ModelAndView renderRequestConsultation(@PathVariable("applicationId") Integer applicationId,
                                          @PathVariable("applicationType")
@@ -61,15 +56,14 @@ public class ConsultationRequestController {
     return getRequestConsultationModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount);
   }
 
-
   @PostMapping
-  public ModelAndView postRequestConsultation(@PathVariable("applicationType")
-                                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                                  @PathVariable("applicationId") Integer applicationId,
-                                                  PwaAppProcessingContext processingContext,
-                                                  AuthenticatedUserAccount authenticatedUserAccount,
-                                                  @ModelAttribute("form") ConsultationRequestForm form,
-                                                  BindingResult bindingResult) {
+  public ModelAndView postRequestConsultation(@PathVariable("applicationId") Integer applicationId,
+                                              @PathVariable("applicationType")
+                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                              PwaAppProcessingContext processingContext,
+                                              AuthenticatedUserAccount authenticatedUserAccount,
+                                              @ModelAttribute("form") ConsultationRequestForm form,
+                                              BindingResult bindingResult) {
 
     bindingResult = consultationRequestService.validate(form, bindingResult, processingContext.getPwaApplication());
     var appDetail = processingContext.getApplicationDetail();
@@ -84,7 +78,6 @@ public class ConsultationRequestController {
 
   }
 
-
   private ModelAndView getRequestConsultationModelAndView(
       PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount authenticatedUserAccount) {
     return new ModelAndView("consultation/consultationRequest")
@@ -96,6 +89,5 @@ public class ConsultationRequestController {
         .addObject("cancelUrl", ReverseRouter.route(on(ConsultationController.class).renderConsultation(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)));
   }
-
 
 }

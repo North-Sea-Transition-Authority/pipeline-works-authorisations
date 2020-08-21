@@ -29,11 +29,11 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
@@ -43,7 +43,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.appprocessing.initialreview.InitialReviewFormValidator;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = InitialReviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
+@WebMvcTest(controllers = InitialReviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class InitialReviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTester;
@@ -60,6 +60,9 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   @MockBean
   private InitialReviewFormValidator validator;
 
+  @MockBean
+  private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
   @Before
   public void setUp() {
 
@@ -67,9 +70,9 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, teamService, pwaApplicationDetailService)
-        .setAllowedRegulatorRoles(PwaRegulatorRole.PWA_MANAGER)
-        .setAllowedStatuses(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
+        .setAllowedStatuses(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .setAllowedProcessingPermissions(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
@@ -78,14 +81,14 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderInitialReview_roleSmokeTest() {
+  public void renderInitialReview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
                 .renderInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null)));
 
-    endpointTester.performRegulatorRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
   }
 
@@ -102,14 +105,14 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postInitialReview_roleSmokeTest() {
+  public void postInitialReview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialReviewController.class)
                 .postInitialReview(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, null)));
 
-    endpointTester.performRegulatorRoleCheck(status().is3xxRedirection(), status().isForbidden());
+    endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -117,6 +120,8 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   public void postInitialReview() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -139,6 +144,8 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     doCallRealMethod().when(initialReviewService).acceptApplication(pwaApplicationDetail, 5, user);
 
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .param("caseOfficerPersonId", "5")
@@ -153,6 +160,8 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   public void postInitialReview_validationFail() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("caseOfficerPersonId"));
 

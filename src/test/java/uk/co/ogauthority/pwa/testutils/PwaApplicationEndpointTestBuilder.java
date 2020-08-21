@@ -14,11 +14,9 @@ import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -34,9 +32,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
+import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -45,7 +42,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 public class PwaApplicationEndpointTestBuilder {
 
@@ -53,13 +49,14 @@ public class PwaApplicationEndpointTestBuilder {
   private Set<PwaApplicationType> allowedTypes = Set.of();
   private Set<PwaApplicationStatus> allowedStatuses = Set.of();
   private Set<PwaContactRole> contactRolesGivenAccess = Set.of();
-  private Set<PwaRegulatorRole> regulatorRolesGivenAccess = Set.of();
+  private Set<PwaAppProcessingPermission> allowedProcessingPermissions = Set.of();
 
   private PwaContactService pwaContactService;
   private PwaApplicationDetailService pwaApplicationDetailService;
 
   private PadPipelineService padPipelineService;
-  private TeamService teamService;
+
+  private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   private BiFunction<PwaApplicationDetail, PwaApplicationType, String> endpointUrlProducer;
 
@@ -104,11 +101,22 @@ public class PwaApplicationEndpointTestBuilder {
   }
 
   public PwaApplicationEndpointTestBuilder(MockMvc mockMvc,
-                                           TeamService teamService,
+                                           PwaApplicationDetailService pwaApplicationDetailService,
+                                           PwaAppProcessingPermissionService pwaAppProcessingPermissionService) {
+    this.mockMvc = mockMvc;
+    this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.pwaAppProcessingPermissionService = pwaAppProcessingPermissionService;
+
+    setupTestObjects();
+    // do nothing by default
+    this.preTestSetup = (detail) -> {};
+
+  }
+
+  public PwaApplicationEndpointTestBuilder(MockMvc mockMvc,
                                            PwaApplicationDetailService pwaApplicationDetailService) {
 
     this.mockMvc = mockMvc;
-    this.teamService = teamService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
 
     setupTestObjects();
@@ -155,8 +163,8 @@ public class PwaApplicationEndpointTestBuilder {
     return this;
   }
 
-  public PwaApplicationEndpointTestBuilder setAllowedRegulatorRoles(PwaRegulatorRole... roles) {
-    this.regulatorRolesGivenAccess = Set.of(roles);
+  public PwaApplicationEndpointTestBuilder setAllowedProcessingPermissions(PwaAppProcessingPermission... permissions) {
+    this.allowedProcessingPermissions = Set.of(permissions);
     return this;
   }
 
@@ -260,19 +268,11 @@ public class PwaApplicationEndpointTestBuilder {
       when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
     }
 
-    var defaultRegulatorRoles = EnumSet.allOf(PwaRegulatorRole.class);
-
-    if (teamService != null) {
-      when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(
-          Optional.of(new PwaTeamMember(null, user.getLinkedPerson(), convertRegRolesToPwaRoles(defaultRegulatorRoles))));
+    var defaultPermissions = EnumSet.allOf(PwaAppProcessingPermission.class);
+    if (pwaAppProcessingPermissionService != null) {
+      when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(defaultPermissions);
     }
 
-  }
-
-  private Set<PwaRole> convertRegRolesToPwaRoles(Set<PwaRegulatorRole> roles) {
-    return roles.stream()
-        .map(role -> new PwaRole(role.getPortalTeamRoleName(), role.name(), null, 1))
-        .collect(Collectors.toSet());
   }
 
   public void performAppStatusChecks(ResultMatcher matchingTypeResultMatcher, ResultMatcher otherTypeResultMatcher) {
@@ -357,17 +357,16 @@ public class PwaApplicationEndpointTestBuilder {
 
   }
 
-  public void performRegulatorRoleCheck(ResultMatcher matchingTypeResultMatcher,
-                                        ResultMatcher otherTypeResultMatcher) {
+  public void performProcessingPermissionCheck(ResultMatcher matchingTypeResultMatcher,
+                                               ResultMatcher otherTypeResultMatcher) {
     setupTestObjects();
-    for (PwaRegulatorRole role : PwaRegulatorRole.values()) {
+    for (PwaAppProcessingPermission permission : PwaAppProcessingPermission.values()) {
       try {
-        var userRegRoles = Set.of(role);
+        var userPermissions = Set.of(permission);
         preTestSetup.accept(detail);
-        when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(
-            Optional.of(new PwaTeamMember(null, user.getLinkedPerson(), convertRegRolesToPwaRoles(userRegRoles))));
+        when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(userPermissions);
         // Based on required permission for endpoint, if role under test grants required permission
-        var expected = this.regulatorRolesGivenAccess.contains(role);
+        var expected = this.allowedProcessingPermissions.contains(permission);
 
         performRequest(
             this.endpointUrlProducer.apply(detail, detail.getPwaApplicationType()),
@@ -375,19 +374,19 @@ public class PwaApplicationEndpointTestBuilder {
         );
 
       } catch (AssertionError | Exception e) {
-        throw new AssertionError("Failed at Role:" + role + "\n" + e.getMessage(), e);
+        throw new AssertionError("Failed at permission:" + permission + "\n" + e.getMessage(), e);
       }
     }
-    // try when zero app contact roles
+    // try when zero permissions
     try {
-      when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.empty());
+      when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of());
       performRequest(
           this.endpointUrlProducer.apply(detail, detail.getPwaApplicationType()),
           otherTypeResultMatcher
       );
 
     } catch (AssertionError | Exception e) {
-      throw new AssertionError("Failed when ZERO reg roles\n" + e.getMessage(), e);
+      throw new AssertionError("Failed when ZERO permissions\n" + e.getMessage(), e);
     }
 
     // try unauthenticated requests

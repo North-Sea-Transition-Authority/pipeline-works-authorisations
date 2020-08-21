@@ -78,13 +78,13 @@ public class ConsultationWorkAreaPageService {
       return ReverseRouter.route(on(AssignResponderController.class).renderAssignResponder(
           consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
           consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
-          consultationRequestSearchItem.getConsultationRequestId(), null, null, null, null));
+          consultationRequestSearchItem.getConsultationRequestId(), null, null, null));
 
     } else {
       return ReverseRouter.route(on(ConsultationResponseController.class).renderResponder(
           consultationRequestSearchItem.getApplicationDetailSearchItem().getPwaApplicationId(),
           consultationRequestSearchItem.getApplicationDetailSearchItem().getApplicationType(),
-          consultationRequestSearchItem.getConsultationRequestId(), null, null, null, null));
+          consultationRequestSearchItem.getConsultationRequestId(), null, null, null));
     }
   }
 

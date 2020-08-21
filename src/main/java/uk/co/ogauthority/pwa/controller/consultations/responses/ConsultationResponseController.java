@@ -51,8 +51,7 @@ public class ConsultationResponseController {
                                       @PathVariable("consultationRequestId") Integer consultationRequestId,
                                       PwaAppProcessingContext processingContext,
                                       AuthenticatedUserAccount authenticatedUserAccount,
-                                      @ModelAttribute("form") ConsultationResponseForm form,
-                                      BindingResult bindingResult) {
+                                      @ModelAttribute("form") ConsultationResponseForm form) {
 
     var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
 
@@ -69,9 +68,9 @@ public class ConsultationResponseController {
   }
 
   @PostMapping
-  public ModelAndView postResponder(@PathVariable("applicationType")
+  public ModelAndView postResponder(@PathVariable("applicationId") Integer applicationId,
+                                    @PathVariable("applicationType")
                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                    @PathVariable("applicationId") Integer applicationId,
                                     @PathVariable("consultationRequestId") Integer consultationRequestId,
                                     PwaAppProcessingContext processingContext,
                                     AuthenticatedUserAccount authenticatedUserAccount,

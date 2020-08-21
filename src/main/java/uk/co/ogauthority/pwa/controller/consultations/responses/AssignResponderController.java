@@ -49,7 +49,6 @@ public class AssignResponderController {
     this.controllerHelperService = controllerHelperService;
   }
 
-
   @GetMapping
   public ModelAndView renderAssignResponder(@PathVariable("applicationId") Integer applicationId,
                                             @PathVariable("applicationType")
@@ -57,8 +56,7 @@ public class AssignResponderController {
                                             @PathVariable("consultationRequestId") Integer consultationRequestId,
                                             PwaAppProcessingContext processingContext,
                                             AuthenticatedUserAccount authenticatedUserAccount,
-                                            @ModelAttribute("form") AssignResponderForm form,
-                                            BindingResult bindingResult) {
+                                            @ModelAttribute("form") AssignResponderForm form) {
     var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
     if (assignResponderService.isUserMemberOfRequestGroup(processingContext.getUser(), consultationRequest)) {
       return getAssignResponderModelAndView(consultationRequest, authenticatedUserAccount);
@@ -69,16 +67,14 @@ public class AssignResponderController {
             processingContext.getUser().getWuaId()));
   }
 
-
   @GetMapping("/re-assign")
   public ModelAndView renderReAssignResponder(@PathVariable("applicationId") Integer applicationId,
-                                            @PathVariable("applicationType")
-                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                            @PathVariable("consultationRequestId") Integer consultationRequestId,
-                                            PwaAppProcessingContext processingContext,
-                                            AuthenticatedUserAccount authenticatedUserAccount,
-                                            @ModelAttribute("form") AssignResponderForm form,
-                                            BindingResult bindingResult) {
+                                              @PathVariable("applicationType")
+                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                              @PathVariable("consultationRequestId") Integer consultationRequestId,
+                                              PwaAppProcessingContext processingContext,
+                                              AuthenticatedUserAccount authenticatedUserAccount,
+                                              @ModelAttribute("form") AssignResponderForm form) {
     var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
     if (assignResponderService.isUserMemberOfRequestGroup(processingContext.getUser(), consultationRequest)) {
       return getAssignResponderModelAndView(consultationRequest, authenticatedUserAccount);
@@ -89,11 +85,10 @@ public class AssignResponderController {
             processingContext.getUser().getWuaId()));
   }
 
-
   @PostMapping
-  public ModelAndView postAssignResponder(@PathVariable("applicationType")
-                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                          @PathVariable("applicationId") Integer applicationId,
+  public ModelAndView postAssignResponder(@PathVariable("applicationId") Integer applicationId,
+                                          @PathVariable("applicationType")
+                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           @PathVariable("consultationRequestId") Integer consultationRequestId,
                                           PwaAppProcessingContext processingContext,
                                           AuthenticatedUserAccount authenticatedUserAccount,
@@ -113,17 +108,16 @@ public class AssignResponderController {
         });
   }
 
-
   @PostMapping("/re-assign")
-  public ModelAndView postReAssignResponder(@PathVariable("applicationType")
-                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                          @PathVariable("applicationId") Integer applicationId,
-                                          @PathVariable("consultationRequestId") Integer consultationRequestId,
-                                          PwaAppProcessingContext processingContext,
-                                          AuthenticatedUserAccount authenticatedUserAccount,
-                                          @ModelAttribute("form") AssignResponderForm form,
-                                          BindingResult bindingResult,
-                                          RedirectAttributes redirectAttributes) {
+  public ModelAndView postReAssignResponder(@PathVariable("applicationId") Integer applicationId,
+                                            @PathVariable("applicationType")
+                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                            @PathVariable("consultationRequestId") Integer consultationRequestId,
+                                            PwaAppProcessingContext processingContext,
+                                            AuthenticatedUserAccount authenticatedUserAccount,
+                                            @ModelAttribute("form") AssignResponderForm form,
+                                            BindingResult bindingResult,
+                                            RedirectAttributes redirectAttributes) {
 
     var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
     bindingResult = assignResponderService.validate(form, bindingResult, consultationRequest);
@@ -136,9 +130,6 @@ public class AssignResponderController {
           return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null));
         });
   }
-
-
-
 
   private ModelAndView getAssignResponderModelAndView(ConsultationRequest consultationRequest,
                                                       AuthenticatedUserAccount authenticatedUserAccount) {
