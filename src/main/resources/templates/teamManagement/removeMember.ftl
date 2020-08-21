@@ -13,41 +13,34 @@
     </#if>
 
     <@fdsForm.htmlForm>
-      <table class="govuk-table">
-        <caption class="govuk-table__caption govuk-visually-hidden">Are you sure you want to remove this user from ${teamName}?</caption>
-        <tbody class="govuk-table__body">
-        <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="row">Full name</th>
-          <td class="govuk-table__cell">
+
+        <@fdsCheckAnswers.checkAnswers summaryListClass="">
+
+          <@fdsCheckAnswers.checkAnswersRow keyText="Full name" actionText="" actionUrl="" screenReaderActionText="">
               ${teamMember.getFullName()}
-          </td>
-        </tr>
-        <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="row">Email address</th>
-          <td class="govuk-table__cell">
+          </@fdsCheckAnswers.checkAnswersRow>
+
+          <@fdsCheckAnswers.checkAnswersRow keyText="Email address" actionText="" actionUrl="" screenReaderActionText="">
               <#if teamMember.emailAddress?has_content>
                   ${teamMember.emailAddress}
               </#if>
-          </td>
-        </tr>
-        <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="row">Telephone number</th>
-          <td class="govuk-table__cell">
+          </@fdsCheckAnswers.checkAnswersRow>
+
+          <@fdsCheckAnswers.checkAnswersRow keyText="Telephone number" actionText="" actionUrl="" screenReaderActionText="">
               <#if teamMember.telephoneNo?has_content>
                   ${teamMember.telephoneNo}
               </#if>
-          </td>
-        </tr>
-        <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="row">Roles</th>
-          <td class="govuk-table__cell">
+          </@fdsCheckAnswers.checkAnswersRow>
+
+          <@fdsCheckAnswers.checkAnswersRow keyText="Roles" actionText="" actionUrl="" screenReaderActionText="">
               <#list teamMember.roleViews?sort_by("displaySequence") as role>
                   ${role.title}<#if role_has_next>,</#if>
               </#list>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+          </@fdsCheckAnswers.checkAnswersRow>
+
+        </@fdsCheckAnswers.checkAnswers>
+
         <@fdsAction.submitButtons primaryButtonText="Remove" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(cancelUrl)/>
+
     </@fdsForm.htmlForm>
 </@defaultPage>
