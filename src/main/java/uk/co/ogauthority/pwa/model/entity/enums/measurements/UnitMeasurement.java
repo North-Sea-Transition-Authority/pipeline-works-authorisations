@@ -13,6 +13,7 @@ public enum UnitMeasurement {
   KG_METRE_CUBED("kg/m³", "in kilograms per metre cubed"),
   KILOGRAM("kg", "kilograms"),
   METRE("m", "metre"),
+  MILLIMETRE("mm", "millimetre"),
   MICROGRAM_METRE_CUBED("μg/m³", "in micrograms per metre cubed"),
   PARTS_PER_MILLION("ppm", "in parts per million"),
   KSCM_D("kscm/d", "in kilo standard cubic meters per hour"),

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,6 +22,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
@@ -28,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -149,13 +152,32 @@ public class PadPipelineIdentServiceTest {
 
   }
 
+  @Test(expected= PwaEntityNotFoundException.class)
+  public void getIdentViewsFromOverview_whenNoPadPipelineIdentOnOverview(){
+
+   var pipelineOverview = mock(PipelineOverview.class);
+   when(pipelineOverview.getPadPipelineId()).thenReturn(null);
+    identService.getIdentViewsFromOverview(pipelineOverview);
+
+  }
+
+  @Test
+  public void getIdentViewsFromOverview_whenIdentFoundMapsCorrectly(){
+    var ident = makeIdent(1, "from", "to");
+    var identData = makeIdentData(ident);
+    var pipelineOverview = mock(PipelineOverview.class);
+    when(repository.getAllByPadPipeline_IdIn(any())).thenReturn(List.of(ident));
+    when(identDataService.getDataFromIdentList(eq(List.of(ident)))).thenReturn(Map.of(ident, identData));
+
+    List<IdentView> identViews =  identService.getIdentViewsFromOverview(pipelineOverview);
+
+    var view = identViews.get(0);
+    assertIdentViewMatchesIdent(view, ident, identData);
+
+  }
+
   @Test
   public void getIdentViews() {
-
-    var coordinatePair = new CoordinatePair(
-        new LatitudeCoordinate(1, 1, BigDecimal.ONE, LatitudeDirection.NORTH),
-        new LongitudeCoordinate(1, 1, BigDecimal.ONE, LongitudeDirection.EAST)
-    );
 
     var ident = makeIdent(1, "from", "to");
     var identData = makeIdentData(ident);
@@ -166,7 +188,11 @@ public class PadPipelineIdentServiceTest {
     List<IdentView> identViews = identService.getIdentViews(pipeline);
 
     var view = identViews.get(0);
+    assertIdentViewMatchesIdent(view, ident, identData);
 
+  }
+
+  private void assertIdentViewMatchesIdent(IdentView view, PadPipelineIdent ident,PadPipelineIdentData identData){
     assertThat(view.getFromCoordinates()).isEqualTo(ident.getFromCoordinates());
     assertThat(view.getToCoordinates()).isEqualTo(ident.getToCoordinates());
     assertThat(view.getFromLocation()).isEqualTo(ident.getFromLocation());
@@ -192,7 +218,6 @@ public class PadPipelineIdentServiceTest {
 
     var identB = makeIdent(3, "from2", "to2");
     var identDataB = makeIdentData(identB);
-
 
     var pipeline = new PadPipeline();
     when(repository.getAllByPadPipeline(pipeline)).thenReturn(List.of(identAStart, identAEnd, identB));
@@ -228,7 +253,10 @@ public class PadPipelineIdentServiceTest {
         new LatitudeCoordinate(1, 1, BigDecimal.ONE, LatitudeDirection.NORTH),
         new LongitudeCoordinate(1, 1, BigDecimal.ONE, LongitudeDirection.EAST)
     );
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     var ident = new PadPipelineIdent();
+    ident.setPadPipeline(padPipeline);
     ident.setLength(new BigDecimal(32));
     ident.setFromCoordinates(coordinatePair);
     ident.setToCoordinates(coordinatePair);

@@ -4,6 +4,7 @@ import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 
 /**
  *  Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.
@@ -17,6 +18,10 @@ public final class PipelineId implements PipelineIdentifier {
 
   public static PipelineId from(Pipeline pipeline) {
     return new PipelineId(pipeline.getId());
+  }
+
+  public static PipelineId from(NamedPipeline pipeline) {
+    return new PipelineId(pipeline.getPipelineId());
   }
 
   public static PipelineId from(PipelineDetail pipelineDetail) {

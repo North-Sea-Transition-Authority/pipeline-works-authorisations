@@ -9,9 +9,14 @@ public class CoordinatePairTestUtil {
 
 
   public static CoordinatePair getDefaultCoordinate(){
+    return getDefaultCoordinate(46, 0);
+
+  }
+
+  public static CoordinatePair getDefaultCoordinate(int latDegrees, int longDegrees){
     return new CoordinatePair(
-        new LatitudeCoordinate(45, 46, BigDecimal.ZERO, LatitudeDirection.NORTH),
-        new LongitudeCoordinate(0, 1, BigDecimal.TEN, LongitudeDirection.EAST)
+        new LatitudeCoordinate(latDegrees, 46, BigDecimal.ZERO, LatitudeDirection.NORTH),
+        new LongitudeCoordinate(longDegrees, 1, BigDecimal.TEN, LongitudeDirection.EAST)
     );
 
   }

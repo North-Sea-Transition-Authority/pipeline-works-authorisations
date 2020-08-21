@@ -16,5 +16,4 @@ public interface ApplicationSectionSummariser {
                                              String templateName);
 
 
-
 }

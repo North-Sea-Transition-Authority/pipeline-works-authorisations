@@ -15,27 +15,28 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Service
 public class PadPipelineIdentService {
 
-  private final PadPipelineIdentRepository repository;
+  private final PadPipelineIdentRepository padPipelineIdentRepository;
   private final PadPipelineIdentDataService identDataService;
   private final PadPipelinePersisterService padPipelinePersisterService;
 
   @Autowired
-  public PadPipelineIdentService(PadPipelineIdentRepository repository,
+  public PadPipelineIdentService(PadPipelineIdentRepository padPipelineIdentRepository,
                                  PadPipelineIdentDataService identDataService,
                                  PadPipelinePersisterService padPipelinePersisterService) {
-    this.repository = repository;
+    this.padPipelineIdentRepository = padPipelineIdentRepository;
     this.identDataService = identDataService;
     this.padPipelinePersisterService = padPipelinePersisterService;
   }
 
   public PadPipelineIdent getIdent(PadPipeline pipeline, Integer identId) {
-    return repository.getPadPipelineIdentByPadPipelineAndId(pipeline, identId)
+    return padPipelineIdentRepository.getPadPipelineIdentByPadPipelineAndId(pipeline, identId)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Couldn't find ident with id '%d' linked to pipeline with id '%d'", identId,
                 pipeline.getId())));
@@ -47,14 +48,31 @@ public class PadPipelineIdentService {
     return new IdentView(identData);
   }
 
-  public List<IdentView> getIdentViews(PadPipeline pipeline) {
-    var idents = repository.getAllByPadPipeline(pipeline);
-    var identData = identDataService.getDataFromIdentList(idents);
+
+  private List<IdentView> createIdentViewsFromPipelineIdents(List<PadPipelineIdent> padPipelineIdents) {
+    var identData = identDataService.getDataFromIdentList(padPipelineIdents);
+
     return identData.keySet()
         .stream()
         .sorted(Comparator.comparing(PadPipelineIdent::getIdentNo))
         .map(ident -> new IdentView(identData.get(ident)))
         .collect(Collectors.toUnmodifiableList());
+
+  }
+
+  public List<IdentView> getIdentViewsFromOverview(PipelineOverview pipeline) {
+    var padPipelineId = Optional.ofNullable(pipeline.getPadPipelineId())
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "No padPipelineId available from pipelineOverview. pipelineId:" + pipeline.getPipelineId())
+        );
+    var idents = padPipelineIdentRepository.getAllByPadPipeline_IdIn(List.of(padPipelineId));
+    return createIdentViewsFromPipelineIdents(idents);
+
+  }
+
+  public List<IdentView> getIdentViews(PadPipeline pipeline) {
+    var idents = padPipelineIdentRepository.getAllByPadPipeline(pipeline);
+    return createIdentViewsFromPipelineIdents(idents);
   }
 
   public ConnectedPipelineIdentSummaryView getConnectedPipelineIdentSummaryView(PadPipeline pipeline) {
@@ -89,13 +107,13 @@ public class PadPipelineIdentService {
   }
 
   public Optional<PadPipelineIdent> getMaxIdent(PadPipeline pipeline) {
-    return repository.findTopByPadPipelineOrderByIdentNoDesc(pipeline);
+    return padPipelineIdentRepository.findTopByPadPipelineOrderByIdentNoDesc(pipeline);
   }
 
   @Transactional
   public void addIdent(PadPipeline pipeline, PipelineIdentForm form) {
 
-    var numberOfIdents = repository.countAllByPadPipeline(pipeline);
+    var numberOfIdents = padPipelineIdentRepository.countAllByPadPipeline(pipeline);
     var ident = new PadPipelineIdent(pipeline, numberOfIdents.intValue() + 1);
 
     saveEntityUsingForm(ident, form);
@@ -107,12 +125,12 @@ public class PadPipelineIdentService {
 
     var ident = new PadPipelineIdent(pipeline, position);
 
-    var idents = repository.getAllByPadPipeline(pipeline);
+    var idents = padPipelineIdentRepository.getAllByPadPipeline(pipeline);
     idents.stream()
         .filter(existingIdent -> existingIdent.getIdentNo() >= position)
         .forEachOrdered(existingIdent -> existingIdent.setIdentNo(existingIdent.getIdentNo() + 1));
 
-    repository.saveAll(idents);
+    padPipelineIdentRepository.saveAll(idents);
 
     saveEntityUsingForm(ident, form);
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(ident.getPadPipeline());
@@ -126,7 +144,7 @@ public class PadPipelineIdentService {
 
   @Transactional
   public Optional<PadPipelineIdent> getIdentByIdentNumber(PadPipeline pipeline, Integer identNumber) {
-    return repository.getByPadPipelineAndAndIdentNo(pipeline, identNumber);
+    return padPipelineIdentRepository.getByPadPipelineAndAndIdentNo(pipeline, identNumber);
   }
 
   public void saveEntityUsingForm(PadPipelineIdent ident, PipelineIdentForm form) {
@@ -137,7 +155,7 @@ public class PadPipelineIdentService {
     ident.setToCoordinates(CoordinateUtils.coordinatePairFromForm(form.getToCoordinateForm()));
     ident.setLength(form.getLength());
 
-    repository.save(ident);
+    padPipelineIdentRepository.save(ident);
 
     identDataService.getOptionalOfIdentData(ident)
         .ifPresentOrElse(
@@ -163,26 +181,26 @@ public class PadPipelineIdentService {
   @Transactional
   public void removeIdent(PadPipelineIdent pipelineIdent) {
     identDataService.removeIdentData(pipelineIdent);
-    repository.delete(pipelineIdent);
-    var remainingIdents = repository.getAllByPadPipeline(pipelineIdent.getPadPipeline());
+    padPipelineIdentRepository.delete(pipelineIdent);
+    var remainingIdents = padPipelineIdentRepository.getAllByPadPipeline(pipelineIdent.getPadPipeline());
 
     remainingIdents.stream()
         .filter(ident -> ident.getIdentNo() > pipelineIdent.getIdentNo())
         .forEachOrdered(ident -> ident.setIdentNo(ident.getIdentNo() - 1));
 
-    repository.saveAll(remainingIdents);
+    padPipelineIdentRepository.saveAll(remainingIdents);
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(pipelineIdent.getPadPipeline());
   }
 
   @Transactional
   public void removeAllIdents(PadPipeline padPipeline) {
     identDataService.removeIdentDataForPipeline(padPipeline);
-    var idents = repository.getAllByPadPipeline(padPipeline);
-    repository.deleteAll(idents);
+    var idents = padPipelineIdentRepository.getAllByPadPipeline(padPipeline);
+    padPipelineIdentRepository.deleteAll(idents);
   }
 
   public boolean isSectionValid(PadPipeline pipeline) {
-    return !repository.countAllByPadPipeline(pipeline).equals(0L);
+    return !padPipelineIdentRepository.countAllByPadPipeline(pipeline).equals(0L);
   }
 
   public List<PadPipelineIdent> getAllIdentsByPadPipelineIds(List<PadPipelineId> padPipelineIds) {
@@ -191,12 +209,12 @@ public class PadPipelineIdentService {
         .map(PadPipelineId::asInt)
         .collect(Collectors.toList());
 
-    return repository.getAllByPadPipeline_IdIn(ids);
+    return padPipelineIdentRepository.getAllByPadPipeline_IdIn(ids);
 
   }
 
   public void saveAll(Collection<PadPipelineIdent> padPipelineIdents) {
-    repository.saveAll(padPipelineIdents);
+    padPipelineIdentRepository.saveAll(padPipelineIdents);
   }
 
 }

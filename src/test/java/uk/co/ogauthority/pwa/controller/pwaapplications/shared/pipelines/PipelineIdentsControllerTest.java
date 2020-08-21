@@ -130,6 +130,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
 
     ident = new PadPipelineIdent();
+    ident.setPadPipeline(padPipeline);
     ident.setId(1);
     ident.setIdentNo(1);
     ident.setFromLocation("from");
