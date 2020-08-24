@@ -77,6 +77,20 @@ public class ConsultationViewService {
     return mapConsultationRequestToView(consultationRequest, response, groupDetail);
   }
 
+  public List<ConsultationRequestView> getConsultationRequestViewsRespondedOnly(PwaApplication pwaApplication) {
+
+    List<ConsultationRequestView> consulteeGroupRequestsViews = new ArrayList<>();
+    List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByApplicationRespondedOnly(pwaApplication);
+    var requestResponseMap = getRequestResponseMap(consultationRequests);
+
+    requestResponseMap.forEach((request, response) -> {
+      var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(request.getConsulteeGroup()); //refactor
+      consulteeGroupRequestsViews.add(mapConsultationRequestToView(request, response, groupDetail));
+    });
+
+    return consulteeGroupRequestsViews;
+  }
+
 
 
 

@@ -16,4 +16,7 @@ public interface ConsultationRequestRepository extends CrudRepository<Consultati
       ConsulteeGroup consulteeGroup, PwaApplication pwaApplication, List<ConsultationRequestStatus> statuses);
 
   List<ConsultationRequest> findByPwaApplicationOrderByConsulteeGroupDescStartTimestampDesc(PwaApplication pwaApplication);
+
+  List<ConsultationRequest> findByPwaApplicationAndStatusOrderByConsulteeGroupDescStartTimestampDesc(
+      PwaApplication pwaApplication, ConsultationRequestStatus status);
 }

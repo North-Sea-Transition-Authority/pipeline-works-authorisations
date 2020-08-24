@@ -199,4 +199,9 @@ public class ConsultationRequestService {
     return consultationRequestRepository.findByPwaApplicationOrderByConsulteeGroupDescStartTimestampDesc(pwaApplication);
   }
 
+  public List<ConsultationRequest> getAllRequestsByApplicationRespondedOnly(PwaApplication pwaApplication) {
+    return consultationRequestRepository.findByPwaApplicationAndStatusOrderByConsulteeGroupDescStartTimestampDesc(
+        pwaApplication, ConsultationRequestStatus.RESPONDED);
+  }
+
 }
