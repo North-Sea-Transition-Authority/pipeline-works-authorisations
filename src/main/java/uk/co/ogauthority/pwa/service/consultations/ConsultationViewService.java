@@ -94,6 +94,10 @@ public class ConsultationViewService {
         consulteeGroupRequestsView.addHistoricalRequest(consultationRequestView);
       }
     }
+
+    Comparator<ConsultationRequestView> requestViewComparator
+        = Comparator.comparing(ConsultationRequestView::getRequestDate).reversed();
+    consulteeGroupRequestsView.getHistoricalRequests().sort(requestViewComparator);
     return consulteeGroupRequestsView;
   }
 
@@ -105,7 +109,7 @@ public class ConsultationViewService {
       return new ConsultationRequestView(
           consultationRequest.getId(),
           consulteeGroupDetail.getName(),
-          DateUtils.formatDateTime(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS)),
+          consultationRequest.getStartTimestamp(),
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
           DateUtils.formatDateTime(consultationResponse.getResponseTimestamp().truncatedTo(ChronoUnit.SECONDS)),
@@ -119,7 +123,7 @@ public class ConsultationViewService {
       return new ConsultationRequestView(
           consultationRequest.getId(),
           consulteeGroupDetail.getName(),
-          DateUtils.formatDateTime(consultationRequest.getStartTimestamp().truncatedTo(ChronoUnit.SECONDS)),
+          consultationRequest.getStartTimestamp(),
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
           consultationRequest.getStatus() != ConsultationRequestStatus.WITHDRAWN,

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.time.Instant;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,7 +84,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   public void renderWithdrawConsultation_appStatusSmokeTest() {
 
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
-        1, "", "", ConsultationRequestStatus.ALLOCATION, "", true, null, null);
+        1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", true, null, null);
     when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
     when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
 
@@ -100,7 +101,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   public void renderWithdrawConsultation_permissionSmokeTest() {
 
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
-        1, "", "", ConsultationRequestStatus.ALLOCATION, "", true, null, null);
+        1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", true, null, null);
     when(consultationViewService.getConsultationRequestView(any())).thenReturn(consultationRequestView);
     when(consultationRequestService.canWithDrawConsultationRequest(any())).thenReturn(true);
 
