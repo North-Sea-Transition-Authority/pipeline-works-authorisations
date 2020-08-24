@@ -35,6 +35,11 @@
 
 
 <#macro identViewTimelinePoint identView>
+    <#-- Detect if ident is completely removed and hide on page load -->
+    <#if identView.IdentDiffableView_fromLocation.diffType == "DELETED">
+        <#local diffHideGroup = "hide-when-diff-disabled"/>
+    </#if>
+
     <#-- interpret diffed Boolean -->
     <#local connectedToNext = identView.IdentDiffableView_connectedToNext.currentValue=='Yes'/>
 
@@ -57,7 +62,7 @@
     <#local productsToBeConveyed><@diffChanges.renderDiff diffedField=identView.IdentDiffableView_productsToBeConveyed multiLineTextBlockClass="fds-data-items-list"/></#local>
     <#local componentPartsDescription><@diffChanges.renderDiff diffedField=identView.IdentDiffableView_componentPartsDescription multiLineTextBlockClass="fds-data-items-list" /></#local>
 
-    <@fdsTimeline.timelineTimeStamp timeStampHeading=fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" >
+    <@fdsTimeline.timelineTimeStamp timeStampHeading=fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp ${diffHideGroup!}" >
 
         <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
             <@fdsDataItems.dataValuesNumber smallNumber=true key="${identNumber}" value="Ident number"/>
@@ -84,7 +89,7 @@
     </@fdsTimeline.timelineTimeStamp>
 
     <#if !connectedToNext>
-        <@fdsTimeline.timelineTimeStamp timeStampHeading=toLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
+        <@fdsTimeline.timelineTimeStamp timeStampHeading=toLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border ${diffHideGroup!}"/>
     </#if>
 
 </#macro>

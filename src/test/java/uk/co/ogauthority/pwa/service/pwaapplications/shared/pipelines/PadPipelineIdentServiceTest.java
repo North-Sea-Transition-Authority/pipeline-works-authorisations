@@ -199,7 +199,7 @@ public class PadPipelineIdentServiceTest {
     assertThat(view.getToLocation()).isEqualTo(ident.getToLocation());
     assertThat(view.getIdentNumber()).isEqualTo(ident.getIdentNo());
     assertThat(view.getLength()).isEqualTo(ident.getLength());
-    assertThat(view.getComponentPartsDescription()).isEqualTo(identData.getComponentPartsDescription());
+    assertThat(view.getComponentPartsDescription()).isEqualTo(identData.getComponentPartsDesc());
     assertThat(view.getExternalDiameter()).isEqualTo(identData.getExternalDiameter());
     assertThat(view.getInsulationCoatingType()).isEqualTo(identData.getInsulationCoatingType());
     assertThat(view.getMaop()).isEqualTo(identData.getMaop());
@@ -268,7 +268,7 @@ public class PadPipelineIdentServiceTest {
 
   private PadPipelineIdentData makeIdentData(PadPipelineIdent ident) {
     var identData = new PadPipelineIdentData(ident);
-    identData.setComponentPartsDescription("desc");
+    identData.setComponentPartsDesc("desc");
     identData.setExternalDiameter(BigDecimal.ONE);
     identData.setInsulationCoatingType("type");
     identData.setMaop(BigDecimal.ONE);

@@ -55,7 +55,7 @@ public class PadPipelineIdentDataService {
 
   void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {
 
-    identData.setComponentPartsDescription(dataForm.getComponentPartsDescription());
+    identData.setComponentPartsDesc(dataForm.getComponentPartsDescription());
     if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
       identData.setExternalDiameter(dataForm.getExternalDiameter());
       identData.setInternalDiameter(dataForm.getInternalDiameter());
@@ -103,7 +103,7 @@ public class PadPipelineIdentDataService {
     var form = new PipelineIdentDataForm();
     var identData = getIdentData(ident);
 
-    form.setComponentPartsDescription(identData.getComponentPartsDescription());
+    form.setComponentPartsDescription(identData.getComponentPartsDesc());
     if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
       form.setExternalDiameter(identData.getExternalDiameter());
       form.setInternalDiameter(identData.getInternalDiameter());

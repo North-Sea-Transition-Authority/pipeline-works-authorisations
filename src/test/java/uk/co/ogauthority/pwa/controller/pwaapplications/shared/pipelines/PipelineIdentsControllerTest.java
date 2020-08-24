@@ -145,7 +145,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
     var identData = new PadPipelineIdentData(ident);
     identData.setPadPipelineIdent(ident);
-    identData.setComponentPartsDescription("");
+    identData.setComponentPartsDesc("");
     identData.setExternalDiameter(BigDecimal.ZERO);
     identData.setInternalDiameter(BigDecimal.ZERO);
     identData.setWallThickness(BigDecimal.ZERO);

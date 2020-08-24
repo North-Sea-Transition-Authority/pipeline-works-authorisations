@@ -9,10 +9,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdentData;
 
 @Entity
 @Table(name = "pad_pipeline_ident_data")
-public class PadPipelineIdentData {
+public class PadPipelineIdentData implements PipelineIdentData {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +25,7 @@ public class PadPipelineIdentData {
   private PadPipelineIdent padPipelineIdent;
 
   @Column(name = "component_parts_desc")
-  private String componentPartsDescription;
+  private String componentPartsDesc;
 
   private BigDecimal externalDiameter;
 
@@ -36,7 +38,6 @@ public class PadPipelineIdentData {
   private BigDecimal maop;
 
   private String productsToBeConveyed;
-
 
   @Column(name = "external_diameter_mc")
   private String externalDiameterMultiCore;
@@ -57,8 +58,6 @@ public class PadPipelineIdentData {
   private String productsToBeConveyedMultiCore;
 
 
-
-
   public PadPipelineIdentData() {
   }
 
@@ -66,16 +65,96 @@ public class PadPipelineIdentData {
     this.padPipelineIdent = padPipelineIdent;
   }
 
+
+  // Interface implementations
+
+  @Override
+  public Integer getPipelineIdentDataId() {
+    return this.id;
+  }
+
+  @Override
+  public PipelineIdent getPipelineIdent() {
+    return this.padPipelineIdent;
+  }
+
+  @Override
+  public String getComponentPartsDesc() {
+    return this.componentPartsDesc;
+  }
+
+  @Override
+  public BigDecimal getExternalDiameter() {
+    return this.externalDiameter;
+  }
+
+  @Override
+  public BigDecimal getInternalDiameter() {
+    return this.internalDiameter;
+  }
+
+  @Override
+  public BigDecimal getWallThickness() {
+    return this.wallThickness;
+  }
+
+  @Override
+  public String getInsulationCoatingType() {
+    return this.insulationCoatingType;
+  }
+
+  @Override
+  public BigDecimal getMaop() {
+    return this.maop;
+  }
+
+  @Override
+  public String getProductsToBeConveyed() {
+    return this.productsToBeConveyed;
+  }
+
+  @Override
+  public String getExternalDiameterMultiCore() {
+    return this.externalDiameterMultiCore;
+  }
+
+  @Override
+  public String getInternalDiameterMultiCore() {
+    return this.internalDiameterMultiCore;
+  }
+
+  @Override
+  public String getWallThicknessMultiCore() {
+    return this.wallThicknessMultiCore;
+  }
+
+  @Override
+  public String getInsulationCoatingTypeMultiCore() {
+    return this.insulationCoatingTypeMultiCore;
+  }
+
+  @Override
+  public String getMaopMultiCore() {
+    return this.maopMultiCore;
+  }
+
+  @Override
+  public String getProductsToBeConveyedMultiCore() {
+    return this.productsToBeConveyedMultiCore;
+  }
+
+  // Getters
   public Integer getId() {
     return id;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
-
   public PadPipelineIdent getPadPipelineIdent() {
     return padPipelineIdent;
+  }
+
+  // Setters
+  public void setId(Integer id) {
+    this.id = id;
   }
 
   public void setPadPipelineIdent(
@@ -83,105 +162,52 @@ public class PadPipelineIdentData {
     this.padPipelineIdent = padPipelineIdent;
   }
 
-  public String getComponentPartsDescription() {
-    return componentPartsDescription;
-  }
-
-  public void setComponentPartsDescription(String componentPartsDescription) {
-    this.componentPartsDescription = componentPartsDescription;
-  }
-
-  public BigDecimal getExternalDiameter() {
-    return externalDiameter;
+  public void setComponentPartsDesc(String componentPartsDesc) {
+    this.componentPartsDesc = componentPartsDesc;
   }
 
   public void setExternalDiameter(BigDecimal externalDiameter) {
     this.externalDiameter = externalDiameter;
   }
 
-  public BigDecimal getInternalDiameter() {
-    return internalDiameter;
-  }
-
   public void setInternalDiameter(BigDecimal internalDiameter) {
     this.internalDiameter = internalDiameter;
-  }
-
-  public BigDecimal getWallThickness() {
-    return wallThickness;
   }
 
   public void setWallThickness(BigDecimal wallThickness) {
     this.wallThickness = wallThickness;
   }
 
-  public String getInsulationCoatingType() {
-    return insulationCoatingType;
-  }
-
   public void setInsulationCoatingType(String insulationCoatingType) {
     this.insulationCoatingType = insulationCoatingType;
-  }
-
-  public BigDecimal getMaop() {
-    return maop;
   }
 
   public void setMaop(BigDecimal maop) {
     this.maop = maop;
   }
 
-  public String getProductsToBeConveyed() {
-    return productsToBeConveyed;
-  }
-
   public void setProductsToBeConveyed(String productsToBeConveyed) {
     this.productsToBeConveyed = productsToBeConveyed;
-  }
-
-
-  public String getExternalDiameterMultiCore() {
-    return externalDiameterMultiCore;
   }
 
   public void setExternalDiameterMultiCore(String externalDiameterMultiCore) {
     this.externalDiameterMultiCore = externalDiameterMultiCore;
   }
 
-  public String getInternalDiameterMultiCore() {
-    return internalDiameterMultiCore;
-  }
-
   public void setInternalDiameterMultiCore(String internalDiameterMultiCore) {
     this.internalDiameterMultiCore = internalDiameterMultiCore;
-  }
-
-  public String getWallThicknessMultiCore() {
-    return wallThicknessMultiCore;
   }
 
   public void setWallThicknessMultiCore(String wallThicknessMultiCore) {
     this.wallThicknessMultiCore = wallThicknessMultiCore;
   }
 
-  public String getInsulationCoatingTypeMultiCore() {
-    return insulationCoatingTypeMultiCore;
-  }
-
   public void setInsulationCoatingTypeMultiCore(String insulationCoatingTypeMultiCore) {
     this.insulationCoatingTypeMultiCore = insulationCoatingTypeMultiCore;
   }
 
-  public String getMaopMultiCore() {
-    return maopMultiCore;
-  }
-
   public void setMaopMultiCore(String maopMultiCore) {
     this.maopMultiCore = maopMultiCore;
-  }
-
-  public String getProductsToBeConveyedMultiCore() {
-    return productsToBeConveyedMultiCore;
   }
 
   public void setProductsToBeConveyedMultiCore(String productsToBeConveyedMultiCore) {
