@@ -22,14 +22,10 @@
 
     
     <#if (consultationRequestViewData.historicalRequests)?has_content>
-      <@fdsDetails.summaryDetails summaryTitle="Show previous consultations">
-          
+      <@fdsDetails.summaryDetails summaryTitle="Show previous consultations">          
           <#list consultationRequestViewData.historicalRequests as consultationRequestHistoricalView>
-              <div>
                 <@consultationRequestView consultationRequestHistoricalView/> 
-              </div>
-          </#list>
-              
+          </#list>              
       </@fdsDetails.summaryDetails>
     </#if>
 
