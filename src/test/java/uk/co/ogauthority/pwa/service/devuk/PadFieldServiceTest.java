@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.devuk;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +25,13 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
+import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,6 +50,9 @@ public class PadFieldServiceTest {
   private DevukFieldService devukFieldService;
 
   @Mock
+  private SearchSelectorService searchSelectorService;
+
+  @Mock
   private PwaFieldFormValidator pwaFieldFormValidator;
 
   @Captor
@@ -56,6 +64,7 @@ public class PadFieldServiceTest {
   private PadField existingField;
   private final int DEVUK_FIELD_ID = 1;
   private DevukField devukField;
+  private String manuallyEnteredFieldName = "my entered field";
 
   @Before
   public void setUp() {
@@ -69,13 +78,15 @@ public class PadFieldServiceTest {
     existingField.setPwaApplicationDetail(pwaApplicationDetail);
     existingField.setDevukField(devukField);
 
+    when(searchSelectorService.removePrefix(SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName)).thenReturn(manuallyEnteredFieldName);
+
     when(devukFieldService.findById(DEVUK_FIELD_ID)).thenReturn(devukField);
 
     when(padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(existingField));
 
     padFieldService = new PadFieldService(padFieldRepository, pwaApplicationDetailService, padProjectInformationService,
         devukFieldService,
-        pwaFieldFormValidator);
+        searchSelectorService, pwaFieldFormValidator);
 
   }
 
@@ -120,7 +131,12 @@ public class PadFieldServiceTest {
 
     var form = new PwaFieldForm();
     form.setLinkedToField(true);
-    form.setFieldId(DEVUK_FIELD_ID);
+
+    form.setFieldIds(List.of(String.valueOf(DEVUK_FIELD_ID),  SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
+
+    var searchSelectionView = new SearchSelectionView<>(form.getFieldIds(),
+        pickedFieldString -> devukFieldService.findById(Integer.parseInt(pickedFieldString)));
+    when(devukFieldService.getLinkedAndManualFieldEntries(form.getFieldIds())).thenReturn(searchSelectionView);
 
     padFieldService.updateFieldInformation(pwaApplicationDetail, form);
 
@@ -129,17 +145,21 @@ public class PadFieldServiceTest {
     verify(padFieldRepository, times(1)).getAllByPwaApplicationDetail(pwaApplicationDetail);
     verify(padFieldRepository, times(1)).deleteAll(eq(List.of(existingField)));
 
-    verify(padFieldRepository, times(1)).saveAll(padFieldsArgumentCaptor.capture());
+    verify(padFieldRepository, times(2)).saveAll(padFieldsArgumentCaptor.capture());
 
-    var newFields = padFieldsArgumentCaptor.getValue();
+    var newFields = padFieldsArgumentCaptor.getAllValues();
 
-    assertThat(newFields.size()).isEqualTo(1);
+    assertThat(newFields.size()).isEqualTo(2);
 
-    var newField = newFields.get(0);
+    var actualLinkedField = newFields.get(0);
+    assertThat(actualLinkedField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(actualLinkedField.get(0).getDevukField()).isEqualTo(devukField);
+    assertThat(actualLinkedField.get(0).getFieldName()).isNull();
 
-    assertThat(newField.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
-    assertThat(newField.getDevukField()).isEqualTo(devukField);
-    assertThat(newField.getFieldName()).isNull();
+    var actualManuallyEnteredField = newFields.get(1);
+    assertThat(actualManuallyEnteredField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(actualManuallyEnteredField.get(0).getDevukField()).isNull();
+    assertThat(actualManuallyEnteredField.get(0).getFieldName()).isEqualTo(manuallyEnteredFieldName);
 
     verifyNoInteractions(padProjectInformationService);
 
@@ -195,7 +215,7 @@ public class PadFieldServiceTest {
 
     padFieldService.mapEntityToForm(pwaApplicationDetail, form);
 
-    assertThat(form.getFieldId()).isNull();
+    assertThat(form.getFieldIds()).isNull();
     assertThat(form.getLinkedToField()).isNull();
     assertThat(form.getNoLinkedFieldDescription()).isNull();
   }
@@ -210,7 +230,7 @@ public class PadFieldServiceTest {
 
     padFieldService.mapEntityToForm(pwaApplicationDetail, form);
 
-    assertThat(form.getFieldId()).isNull();
+    assertThat(form.getFieldIds()).isNull();
     assertThat(form.getLinkedToField()).isFalse();
     assertThat(form.getNoLinkedFieldDescription()).isEqualTo(desc);
   }
@@ -220,12 +240,32 @@ public class PadFieldServiceTest {
     var form = new PwaFieldForm();
     pwaApplicationDetail.setLinkedToField(true);
 
+    var padFieldManaullyEntered = new PadField();
+    padFieldManaullyEntered.setFieldName(manuallyEnteredFieldName);
+    when(padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(existingField, padFieldManaullyEntered));
+
     padFieldService.mapEntityToForm(pwaApplicationDetail, form);
 
-    assertThat(form.getFieldId()).isEqualTo(DEVUK_FIELD_ID);
+    assertThat(form.getFieldIds()).isEqualTo(List.of(String.valueOf(DEVUK_FIELD_ID), SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
     assertThat(form.getLinkedToField()).isTrue();
     assertThat(form.getNoLinkedFieldDescription()).isNull();
   }
+
+
+  @Test
+  public void getPreSelectedItems() {
+    devukField.setFieldName("a field");
+    var padFieldManaullyEntered = new PadField();
+    padFieldManaullyEntered.setFieldName(manuallyEnteredFieldName);
+    when(padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(existingField, padFieldManaullyEntered));
+
+    Map<String, String> preSelectedItems = padFieldService.getPreSelectedApplicationFields(pwaApplicationDetail);
+
+    assertThat(preSelectedItems).contains(
+        entry(String.valueOf(DEVUK_FIELD_ID) , "a field"),
+        entry(SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName , manuallyEnteredFieldName));
+  }
+
 
 
   @Test
@@ -233,7 +273,7 @@ public class PadFieldServiceTest {
 
     doAnswer(invocation -> {
       var errors = (Errors) invocation.getArgument(1);
-      errors.rejectValue("fieldId", "fieldId.error");
+      errors.rejectValue("fieldIds", "fieldIds.error");
       return invocation;
     }).when(pwaFieldFormValidator).validate(any(), any(), any());
 

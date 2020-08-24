@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.fields;
 
+import java.util.List;
+
 public class PwaFieldForm {
 
   private Boolean linkedToField;
 
-  private Integer fieldId;
+  private List<String> fieldIds;
 
   private String noLinkedFieldDescription;
 
@@ -16,12 +18,12 @@ public class PwaFieldForm {
     this.linkedToField = linkedToField;
   }
 
-  public Integer getFieldId() {
-    return fieldId;
+  public List<String> getFieldIds() {
+    return fieldIds;
   }
 
-  public void setFieldId(Integer fieldId) {
-    this.fieldId = fieldId;
+  public void setFieldIds(List<String> fieldIds) {
+    this.fieldIds = fieldIds;
   }
 
   public String getNoLinkedFieldDescription() {

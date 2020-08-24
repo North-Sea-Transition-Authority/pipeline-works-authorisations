@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.DevukFieldRepository;
 
 @Service
@@ -29,6 +30,11 @@ public class DevukFieldService {
   public DevukField findById(int id) {
     return devukFieldRepository.findById(id)
         .orElseThrow(() -> new PwaEntityNotFoundException("Couldn't find DEVUK field with ID: " + id));
+  }
+
+  public SearchSelectionView getLinkedAndManualFieldEntries(List<String> fieldIds) {
+    return new SearchSelectionView<>(fieldIds,
+        pickedFieldString -> findById(Integer.parseInt(pickedFieldString)));
   }
 
 }

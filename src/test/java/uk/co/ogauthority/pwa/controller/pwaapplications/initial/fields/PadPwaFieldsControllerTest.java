@@ -63,9 +63,6 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
   @MockBean
   private PadFieldService padFieldService;
 
-  @MockBean
-  private DevukFieldService devukFieldService;
-
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
   private PadField padField;

@@ -9,6 +9,7 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
+import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -42,9 +43,9 @@ public class PwaFieldFormValidator implements SmartValidator {
           FieldValidationErrorCodes.REQUIRED.errorCode("linkedToField"),
           "Select yes if your application is linked to a field");
 
-      if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldId() == null) {
-
-        errors.rejectValue("fieldId", FieldValidationErrorCodes.REQUIRED.errorCode("fieldId"), "Select a field");
+      if (BooleanUtils.isTrue(fieldForm.getLinkedToField())) {
+        ValidationUtils.rejectIfEmpty(errors,
+            "fieldIds", FieldValidationErrorCodes.REQUIRED.errorCode("fieldIds"), "Select a field");
 
       } else if (BooleanUtils.isFalse(fieldForm.getLinkedToField())) {
 
@@ -58,12 +59,12 @@ public class PwaFieldFormValidator implements SmartValidator {
     }
 
     // regardless of validation type, make sure that selected field is valid
-    if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldId() != null) {
+    if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldIds() != null) {
 
       try {
-        devukFieldService.findById(fieldForm.getFieldId());
+        devukFieldService.getLinkedAndManualFieldEntries(fieldForm.getFieldIds());
       } catch (PwaEntityNotFoundException e) {
-        errors.rejectValue("fieldId", FieldValidationErrorCodes.INVALID.errorCode("fieldId"), "Select a valid field");
+        errors.rejectValue("fieldIds", FieldValidationErrorCodes.INVALID.errorCode("fieldIds"), "Select a valid field");
       }
 
     }

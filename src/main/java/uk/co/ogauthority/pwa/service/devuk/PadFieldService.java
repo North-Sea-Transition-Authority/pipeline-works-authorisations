@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.devuk;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +13,14 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
+import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @Service
@@ -25,6 +30,7 @@ public class PadFieldService implements ApplicationFormSectionService {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PadProjectInformationService projectInformationService;
   private final DevukFieldService devukFieldService;
+  private final SearchSelectorService searchSelectorService;
   private final PwaFieldFormValidator pwaFieldFormValidator;
 
   @Autowired
@@ -32,11 +38,13 @@ public class PadFieldService implements ApplicationFormSectionService {
                          PwaApplicationDetailService pwaApplicationDetailService,
                          PadProjectInformationService projectInformationService,
                          DevukFieldService devukFieldService,
+                         SearchSelectorService searchSelectorService,
                          PwaFieldFormValidator pwaFieldFormValidator) {
     this.padFieldRepository = padFieldRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.projectInformationService = projectInformationService;
     this.devukFieldService = devukFieldService;
+    this.searchSelectorService = searchSelectorService;
     this.pwaFieldFormValidator = pwaFieldFormValidator;
   }
 
@@ -57,6 +65,27 @@ public class PadFieldService implements ApplicationFormSectionService {
           var padField = new PadField();
           padField.setPwaApplicationDetail(pwaApplicationDetail);
           padField.setDevukField(devukField);
+          return padField;
+        })
+        .collect(Collectors.toList());
+
+    padFieldRepository.saveAll(newPadFields);
+
+  }
+
+  /**
+   * Add manually entered field names to an application detail.
+   *
+   * @param pwaApplicationDetail The current application detail.
+   * @param fieldNames A list of field names to save as PadFields.
+   */
+  private void addManuallyEnteredFields(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames) {
+
+    List<PadField> newPadFields = fieldNames.stream()
+        .map(fieldName -> {
+          var padField = new PadField();
+          padField.setPwaApplicationDetail(pwaApplicationDetail);
+          padField.setFieldName(searchSelectorService.removePrefix(fieldName));
           return padField;
         })
         .collect(Collectors.toList());
@@ -95,13 +124,14 @@ public class PadFieldService implements ApplicationFormSectionService {
       removeAllFields(applicationDetail);
 
       // if they've said yes to field link and selected a field, add field
-      if (form.getLinkedToField() && form.getFieldId() != null) {
+      if (form.getLinkedToField() && form.getFieldIds() != null) {
 
-        var devukField = devukFieldService.findById(form.getFieldId());
-        addFields(applicationDetail, List.of(devukField));
+        //differentiate between existing devUkFields and manually entered field names
+        var reconciledOptions = devukFieldService.getLinkedAndManualFieldEntries(form.getFieldIds());
+        addFields(applicationDetail, reconciledOptions.getLinkedEntries());
+        addManuallyEnteredFields(applicationDetail, reconciledOptions.getManualEntries());
 
       } else if (!form.getLinkedToField()) {
-
         // otherwise they've said no to field link, update linked field description
         pwaApplicationDetailService.setNotLinkedFieldDescription(applicationDetail, form.getNoLinkedFieldDescription());
 
@@ -126,13 +156,33 @@ public class PadFieldService implements ApplicationFormSectionService {
   public void mapEntityToForm(PwaApplicationDetail pwaApplicationDetail, PwaFieldForm form) {
     var fields = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
     form.setLinkedToField(pwaApplicationDetail.getLinkedToField());
-    if (fields.size() == 1) {
-      if (fields.get(0).isLinkedToDevuk()) {
-        form.setFieldId(fields.get(0).getDevukField().getFieldId());
-      }
-    } else if (fields.size() == 0) {
+
+    if (!fields.isEmpty()) {
+      form.setFieldIds(fields.stream()
+          .map(field -> field.isLinkedToDevuk() ? field.getDevukField().getFieldId().toString()
+              : SearchSelectable.FREE_TEXT_PREFIX + field.getFieldName())
+          .collect(Collectors.toList())
+      );
+
+    } else {
       form.setNoLinkedFieldDescription(pwaApplicationDetail.getNotLinkedDescription());
     }
+  }
+
+
+  public Map<String, String> getPreSelectedApplicationFields(PwaApplicationDetail pwaApplicationDetail) {
+    var fields = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
+    Map<String, String> preSelectedItems = new HashMap<>();
+
+    fields.forEach(field -> {
+      if (field.isLinkedToDevuk()) {
+        preSelectedItems.put(field.getDevukField().getFieldId().toString(), field.getDevukField().getFieldName());
+      } else {
+        preSelectedItems.put(SearchSelectable.FREE_TEXT_PREFIX + field.getFieldName(), field.getFieldName());
+      }
+    });
+
+    return preSelectedItems;
   }
 
 

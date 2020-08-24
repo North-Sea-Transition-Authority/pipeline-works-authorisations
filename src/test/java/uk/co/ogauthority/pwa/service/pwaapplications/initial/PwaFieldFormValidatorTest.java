@@ -5,13 +5,13 @@ import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.INVALID;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -59,8 +59,8 @@ public class PwaFieldFormValidatorTest {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
-    assertThat(errors.keySet()).containsOnly("fieldId");
-    assertThat(errors.get("fieldId")).containsOnly(REQUIRED.errorCode("fieldId"));
+    assertThat(errors.keySet()).containsOnly("fieldIds");
+    assertThat(errors.get("fieldIds")).containsOnly(REQUIRED.errorCode("fieldIds"));
 
   }
 
@@ -79,9 +79,7 @@ public class PwaFieldFormValidatorTest {
   public void full_linkedToField_true_fieldId_valid_pass() {
 
     form.setLinkedToField(true);
-    form.setFieldId(1);
-
-    when(devukFieldService.findById(1)).thenReturn(new DevukField());
+    form.setFieldIds(List.of("1"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -93,9 +91,7 @@ public class PwaFieldFormValidatorTest {
   public void partial_linkedToField_true_fieldId_valid_pass() {
 
     form.setLinkedToField(true);
-    form.setFieldId(1);
-
-    when(devukFieldService.findById(1)).thenReturn(new DevukField());
+    form.setFieldIds(List.of("1"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 
@@ -107,14 +103,14 @@ public class PwaFieldFormValidatorTest {
   public void full_linkedToField_true_fieldId_invalid_fail() {
 
     form.setLinkedToField(true);
-    form.setFieldId(1);
+    form.setFieldIds(List.of("1"));
 
-    when(devukFieldService.findById(1)).thenThrow(new PwaEntityNotFoundException("not found"));
+    when(devukFieldService.getLinkedAndManualFieldEntries(List.of("1"))).thenThrow(new PwaEntityNotFoundException("not found"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
-    assertThat(errors.keySet()).containsOnly("fieldId");
-    assertThat(errors.get("fieldId")).containsOnly(INVALID.errorCode("fieldId"));
+    assertThat(errors.keySet()).containsOnly("fieldIds");
+    assertThat(errors.get("fieldIds")).containsOnly(INVALID.errorCode("fieldIds"));
 
   }
 
@@ -122,14 +118,14 @@ public class PwaFieldFormValidatorTest {
   public void partial_linkedToField_true_fieldId_invalid_fail() {
 
     form.setLinkedToField(true);
-    form.setFieldId(1);
+    form.setFieldIds(List.of("1"));
 
-    when(devukFieldService.findById(1)).thenThrow(new PwaEntityNotFoundException("not found"));
+    when(devukFieldService.getLinkedAndManualFieldEntries(List.of("1"))).thenThrow(new PwaEntityNotFoundException("not found"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 
-    assertThat(errors.keySet()).containsOnly("fieldId");
-    assertThat(errors.get("fieldId")).containsOnly(INVALID.errorCode("fieldId"));
+    assertThat(errors.keySet()).containsOnly("fieldIds");
+    assertThat(errors.get("fieldIds")).containsOnly(INVALID.errorCode("fieldIds"));
 
   }
 

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.pwaapplications.rest.FieldRestController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
@@ -28,6 +31,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -64,6 +68,9 @@ public class PadPwaFieldsController {
     modelAndView.addObject("fields", padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
     modelAndView.addObject("fieldMap", getDevukFieldMap());
     modelAndView.addObject("errorList", List.of());
+    modelAndView.addObject("preSelectedItems", padFieldService.getPreSelectedApplicationFields(pwaApplicationDetail));
+    modelAndView.addObject("fieldNameRestUrl", SearchSelectorService.route(on(FieldRestController.class)
+            .searchFields(pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
 
     breadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Field information");
 
