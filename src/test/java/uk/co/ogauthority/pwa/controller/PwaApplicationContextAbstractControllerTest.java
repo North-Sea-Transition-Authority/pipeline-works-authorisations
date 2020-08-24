@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -83,6 +84,9 @@ public abstract class PwaApplicationContextAbstractControllerTest {
 
   @MockBean
   protected PadFileService padFileService;
+
+  @MockBean
+  protected DevukFieldService devukFieldService;
 
   @MockBean
   private PwaAppProcessingContextService appProcessingContextService;

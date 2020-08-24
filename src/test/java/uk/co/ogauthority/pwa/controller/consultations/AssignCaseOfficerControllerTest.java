@@ -42,7 +42,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = AssignCaseOfficerController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
+@WebMvcTest(controllers = AssignCaseOfficerController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 
 public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
@@ -50,6 +50,7 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
 
   @MockBean
   private AssignCaseOfficerService assignCaseOfficerService;
+
   @MockBean
   private WorkflowAssignmentService workflowAssignmentService;
 
@@ -58,7 +59,6 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
-
 
   @Before
   public void setUp() {
