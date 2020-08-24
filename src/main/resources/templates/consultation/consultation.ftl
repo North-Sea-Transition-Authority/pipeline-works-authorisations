@@ -10,31 +10,31 @@
     <@fdsInsetText.insetText>This application has not been consulted on</@fdsInsetText.insetText>
   </#if>
 
+
   <#list consulteeGroupRequestsViews as consultationRequestViewData>
 
-    <h2 class="govuk-heading-m"> ${consultationRequestViewData.currentRequest.consulteeGroupName} </h2>
-    <h3 class="govuk-heading-s"> Requested ${consultationRequestViewData.currentRequest.requestDateDisplay} </h3>
-
-    <#if consultationRequestViewData.currentRequest.canWithdraw>
-        <@fdsAction.link linkText="Withdraw consultation" linkUrl=springUrl(consultationsUrlFactory.getWithdrawConsultationUrl(consultationRequestViewData.currentRequest.consultationRequestId)) 
-        linkClass="govuk-link" linkScreenReaderText="Withdraw consultation" role=false start=false openInNewTab=true/>
-    </#if>
-
-    <@consultationRequestView consultationRequestViewData=consultationRequestViewData.currentRequest/>
+    <@consultationRequestView consultationRequestViewData=consultationRequestViewData.currentRequest>    
+      <#if consultationRequestViewData.currentRequest.canWithdraw>
+          <@fdsAction.link linkText="Withdraw consultation" linkUrl=springUrl(consultationsUrlFactory.getWithdrawConsultationUrl(consultationRequestViewData.currentRequest.consultationRequestId)) 
+          linkClass="govuk-link" linkScreenReaderText="Withdraw consultation" role=false start=false openInNewTab=true/>
+      </#if>
+    </@consultationRequestView>
 
     
     <#if (consultationRequestViewData.historicalRequests)?has_content>
       <@fdsDetails.summaryDetails summaryTitle="Show previous consultations">
           
           <#list consultationRequestViewData.historicalRequests as consultationRequestHistoricalView>
-              <@consultationRequestView consultationRequestHistoricalView/> 
-              </br>
+              <div>
+                <@consultationRequestView consultationRequestHistoricalView/> 
+              </div>
           </#list>
               
       </@fdsDetails.summaryDetails>
     </#if>
 
-    </br>
+
+  <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
   </#list>
 
 

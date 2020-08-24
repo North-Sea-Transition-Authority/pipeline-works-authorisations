@@ -7,8 +7,11 @@
 
 <#macro consultationRequestView consultationRequestViewData>   
 
-    <@fdsCheckAnswers.checkAnswers summaryListClass="">
+    <h2 class="govuk-heading-m"> ${consultationRequestViewData.consulteeGroupName} </h2>
+    <h3 class="govuk-heading-s"> Requested ${consultationRequestViewData.requestDateDisplay} </h3>
 
+    <@fdsCheckAnswers.checkAnswers summaryListClass="">
+        <#nested/>
         <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
         ${consultationRequestViewData.status.getDisplayName()}
         </br>
@@ -41,6 +44,7 @@
                 ${consultationRequestViewData.responseByPerson}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+
 
     </@fdsCheckAnswers.checkAnswers>
 
