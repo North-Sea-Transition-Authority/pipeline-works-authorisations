@@ -2,18 +2,20 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
 
 /**
  * Designed to be consumed by the pipeline summary service and associated templates.
  */
-public class PipelineDiffableSummary {
+public final class PipelineDiffableSummary {
   private final PipelineId pipelineId;
   private final String pipelineName;
   private final List<IdentDiffableView> identViews;
 
-  private PipelineDiffableSummary(PipelineId pipelineId, String pipelineName,
+  private PipelineDiffableSummary(PipelineId pipelineId,
+                                  String pipelineName,
                                   List<IdentDiffableView> identViews) {
     this.pipelineId = pipelineId;
     this.pipelineName = pipelineName;
@@ -30,10 +32,10 @@ public class PipelineDiffableSummary {
       var previousIdent = i > 0 ? identViews.get(i - 1) : null;
       diffableIdents.add(
           IdentDiffableView.fromIdentViews(
-          previousIdent,
-          currentIdent,
-          nextIdent
-      ));
+              previousIdent,
+              currentIdent,
+              nextIdent
+          ));
 
     }
 
@@ -43,6 +45,10 @@ public class PipelineDiffableSummary {
         diffableIdents
     );
 
+  }
+
+  public static PipelineDiffableSummary empty() {
+    return new PipelineDiffableSummary(null, null, List.of());
   }
 
 
@@ -56,5 +62,24 @@ public class PipelineDiffableSummary {
 
   public List<IdentDiffableView> getIdentViews() {
     return identViews;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PipelineDiffableSummary that = (PipelineDiffableSummary) o;
+    return Objects.equals(pipelineId, that.pipelineId)
+        && Objects.equals(pipelineName, that.pipelineName)
+        && Objects.equals(identViews, that.identViews);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(pipelineId, pipelineName, identViews);
   }
 }

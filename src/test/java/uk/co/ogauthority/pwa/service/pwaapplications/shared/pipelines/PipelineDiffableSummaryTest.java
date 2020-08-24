@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -90,6 +91,14 @@ public class PipelineDiffableSummaryTest {
       assertThat(identDiffableView.getConnectedToPrevious()).isTrue();
       assertThat(identDiffableView.getConnectedToNext()).isFalse();
     });
+
+  }
+
+  @Test
+  public void equals_hashcode(){
+
+    EqualsVerifier.forClass(PipelineDiffableSummary.class)
+        .verify();
 
   }
 

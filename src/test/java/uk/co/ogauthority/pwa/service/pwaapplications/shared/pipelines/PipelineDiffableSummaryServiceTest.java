@@ -18,7 +18,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 public class PipelineDiffableSummaryServiceTest {
 
   private static final int PIPELINE_ID = 1;
-//  private static final int PAD_PIPELINE_ID = 20;
   private static final String PAD_PIPELINE_NAME = "PAD_PIPELINE_NAME";
 
   private static final String PIPELINE_POINT_1 = "POINT_1";
@@ -78,8 +77,6 @@ public class PipelineDiffableSummaryServiceTest {
 
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(padPipelineOverview));
-//    when(padPipelineIdentService.getIdentViewsFromOverview(padPipelineOverview))
-//        .thenReturn(List.of(identStart, identMid, identEnd));
 
     var summaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail);
 

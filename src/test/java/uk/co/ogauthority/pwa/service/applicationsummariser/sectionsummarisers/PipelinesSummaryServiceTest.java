@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,15 +18,29 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
+import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentViewTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelinesSummaryServiceTest {
+
+
+  private static final int PIPELINE_ID = 1;
+  private static final String PIPELINE_NAME = "PAD_PIPELINE_NAME";
+
+  private static final String PIPELINE_POINT_1 = "POINT_1";
+  private static final String PIPELINE_POINT_2 = "POINT_2";
+  private static final String PIPELINE_POINT_3 = "POINT_3";
+  private static final String PIPELINE_POINT_4 = "POINT_4";
 
   private final String TEMPLATE = "TEMPLATE";
 
@@ -35,15 +50,39 @@ public class PipelinesSummaryServiceTest {
   @Mock
   private PipelineDiffableSummaryService pipelineDiffableSummaryService;
 
+  @Mock
+  private DiffService diffService;
+
+  @Mock
+  private PipelineOverview pipelineOverview;
+
+  @Mock
+  private IdentView identStart;
+
+  @Mock
+  private IdentView identMid;
+
+  @Mock
+  private IdentView identEnd;
+
+
   private PipelinesSummaryService pipelinesSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() throws Exception {
+
+    when(pipelineOverview.getPipelineName()).thenReturn(PIPELINE_NAME);
+    when(pipelineOverview.getPipelineId()).thenReturn(PIPELINE_ID);
+
+    IdentViewTestUtil.setupSingleCoreIdentViewMock(identStart, PIPELINE_POINT_1, PIPELINE_POINT_2, 1);
+    IdentViewTestUtil.setupSingleCoreIdentViewMock(identMid, PIPELINE_POINT_2, PIPELINE_POINT_3, 2);
+    IdentViewTestUtil.setupSingleCoreIdentViewMock(identEnd, PIPELINE_POINT_3, PIPELINE_POINT_4, 3);
+
     pipelinesSummaryService = new PipelinesSummaryService(
         taskListService,
-        pipelineDiffableSummaryService
-    );
+        pipelineDiffableSummaryService,
+        diffService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
 
@@ -84,6 +123,28 @@ public class PipelinesSummaryServiceTest {
     );
 
     verify(pipelineDiffableSummaryService, times(1)).getApplicationDetailPipelines(pwaApplicationDetail);
+
+  }
+
+  @Test
+  public void getDiffedPipelineSummaryList_serviceInteractions_whenSingleAppPipelineAdded() {
+
+    var appPipelineSummary = PipelineDiffableSummary.from(pipelineOverview, List.of(identStart, identMid, identEnd));
+    var diffedSummaryList = pipelinesSummaryService.getDiffedPipelineSummaryList(List.of(appPipelineSummary), List.of());
+
+    assertThat(diffedSummaryList).hasSize(1);
+    assertThat(diffedSummaryList.get(0)).containsOnlyKeys("pipelineHeader", "pipelineIdents");
+
+    verify(diffService, times(1)).diff(
+        eq(appPipelineSummary),
+        eq(PipelineDiffableSummary.empty()),
+        eq(Set.of("identViews")));
+
+    verify(diffService, times(1)).diffComplexLists(
+        eq(appPipelineSummary.getIdentViews()),
+        eq(PipelineDiffableSummary.empty().getIdentViews()),
+        any(), // how can we test what lambda Function are given?
+        any());
 
   }
 
