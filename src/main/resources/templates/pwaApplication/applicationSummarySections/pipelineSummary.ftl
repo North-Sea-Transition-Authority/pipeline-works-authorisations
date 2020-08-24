@@ -35,7 +35,7 @@
 
 
 <#macro identViewTimelinePoint identView>
-    <#-- Detect if ident is completely remove and hide on page load -->
+    <#-- Detect if ident is completely removed and hide on page load -->
     <#if identView.IdentDiffableView_fromLocation.diffType == "DELETED">
         <#local diffHideGroup = "hide-when-diff-disabled"/>
     </#if>
