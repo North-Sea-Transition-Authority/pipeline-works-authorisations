@@ -17,13 +17,12 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
-import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = AssignCaseOfficerController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class, PwaAppProcessingPermissionService.class}))
+@WebMvcTest(controllers = AssignCaseOfficerController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 
 public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
@@ -31,15 +30,16 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
 
   @MockBean
   private AssignCaseOfficerService assignCaseOfficerService;
+
   @MockBean
   private WorkflowAssignmentService workflowAssignmentService;
-  @MockBean
-  private ControllerHelperService controllerHelperService;
 
+  @MockBean
+  private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   @Before
   public void setUp() {
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, teamService, pwaApplicationDetailService)
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW);
   }
 
