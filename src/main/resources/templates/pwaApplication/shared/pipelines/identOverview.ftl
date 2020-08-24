@@ -93,6 +93,7 @@
             <#assign unit = ""/>
         </#if>
         <#local whiteSpacePreservedValue><@multiLineText.multiLineText blockClass="fds-data-items-list">${valueMultiCore}</@multiLineText.multiLineText></#local>
-        <@fdsDataItems.dataValues key="${key} (${unit})" value="${whiteSpacePreservedValue}"/>
+        <#local bracketedUnit = unit?has_content?then("(" + unit + ")", "")/>
+        <@fdsDataItems.dataValues key="${key}${bracketedUnit}" value="${whiteSpacePreservedValue}"/>
     </#if>
 </#macro>
