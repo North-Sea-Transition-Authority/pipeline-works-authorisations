@@ -257,6 +257,16 @@ public class ConsultationRequestServiceTest {
 
 
   @Test
+  public void isConsultationRequestOpen() {
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+    consultationRequestService.isConsultationRequestOpen(consulteeGroup, pwaApplicationDetail.getPwaApplication());
+    verify(consultationRequestRepository, times(1)).findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
+        consulteeGroup, pwaApplicationDetail.getPwaApplication(), List.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN));
+  }
+
+
+  @Test
   public void canWithDrawConsultationRequest_allocation() {
     var consultationRequest = new ConsultationRequest();
     consultationRequest.setStatus(ConsultationRequestStatus.ALLOCATION);

@@ -178,7 +178,8 @@ public class ConsultationRequestService {
 
 
   public boolean isConsultationRequestOpen(ConsulteeGroup consulteeGroup, PwaApplication pwaApplication) {
-    return consultationRequestRepository.findByConsulteeGroupAndPwaApplication(consulteeGroup, pwaApplication).isPresent();
+    return consultationRequestRepository.findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
+        consulteeGroup, pwaApplication, List.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN)).isPresent();
   }
 
   public boolean canWithDrawConsultationRequest(ConsultationRequest consultationRequest) {

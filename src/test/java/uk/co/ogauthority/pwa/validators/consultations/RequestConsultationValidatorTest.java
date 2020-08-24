@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.validators.consultations;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
@@ -69,6 +71,8 @@ public class RequestConsultationValidatorTest {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
         new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).isEmpty();
+
+    verify(consultationRequestService, times(1)).isConsultationRequestOpen(consulteeGroupDetail.getConsulteeGroup(), pwaApplicationDetail.getPwaApplication());
   }
 
   @Test
@@ -89,6 +93,8 @@ public class RequestConsultationValidatorTest {
     assertThat(errorsMap).contains(
         entry("consulteeGroupSelection", Set.of("consulteeGroupSelection.invalid"))
     );
+
+    verify(consultationRequestService, times(1)).isConsultationRequestOpen(consulteeGroupDetail.getConsulteeGroup(), pwaApplicationDetail.getPwaApplication());
   }
 
 
