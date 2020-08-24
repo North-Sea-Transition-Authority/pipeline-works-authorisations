@@ -5,18 +5,20 @@ import java.util.stream.Stream;
 
 public enum TreatyAgreement {
 
-  NORWAY("Norway", "Any body corporate which is party to an arrangement to export gas to the " +
-      "United Kingdom from the Norwegian Continental Shelf (NCS)"),
-  BELGIUM("Belgium", "Placeholder Belgium treaty agreement"),
-  NETHERLANDS("Netherlands", "Placeholder Netherlands treaty agreement"),
-  IRELAND("Ireland", "Placeholder Ireland treaty agreement");
+  NORWAY("Norway", "Norwegian Continental Shelf", "NCS"),
+  BELGIUM("Belgium", "Belgium Continental Shelf", "BCS"),
+  NETHERLANDS("Netherlands", "Netherlands Continental Shelf", "NCS"),
+  IRELAND("Ireland", "Ireland Continental Shelf", "ICS");
 
-  private String country;
-  private String agreementText;
+  private static final String STANDARD_AGREEMENT_TEXT_FORMAT = "Any body corporate which is party to an arrangement to export gas to the " +
+      "United Kingdom from the %s (%s)";
 
-  TreatyAgreement(String country, String agreementText) {
+  private final String country;
+  private final String agreementText;
+
+  TreatyAgreement(String country, String continentalShelf, String continentalShelfAbbreviation) {
     this.country = country;
-    this.agreementText = agreementText;
+    this.agreementText = String.format(STANDARD_AGREEMENT_TEXT_FORMAT, continentalShelf, continentalShelfAbbreviation);
   }
 
   public String getCountry() {
