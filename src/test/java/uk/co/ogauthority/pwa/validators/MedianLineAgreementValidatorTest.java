@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 public class MedianLineAgreementValidatorTest {
 
-  private final String VALID_EMAIL = "email@email.com";
+  private final String VALID_EMAIL = "test@tester.london";
   private final String INVALID_EMAIL = "email @ email . com";
 
   private MedianLineAgreementValidator validator;
