@@ -77,18 +77,21 @@ public class ConsultationViewService {
     return mapConsultationRequestToView(consultationRequest, response, groupDetail);
   }
 
-  public List<ConsultationRequestView> getConsultationRequestViewsRespondedOnly(PwaApplication pwaApplication) {
+  public List<ConsultationRequestView> getConsultationRequestViewsRespondedOnly(PwaApplication pwaApplication,
+                                                                                ConsultationRequest consultationRequest) {
 
-    List<ConsultationRequestView> consulteeGroupRequestsViews = new ArrayList<>();
-    List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByApplicationRespondedOnly(pwaApplication);
+    List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByAppAndGroupRespondedOnly(
+        pwaApplication, consultationRequest.getConsulteeGroup());
+
     var requestResponseMap = getRequestResponseMap(consultationRequests);
+    var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consultationRequest.getConsulteeGroup());
 
+    List<ConsultationRequestView> consultationRequestViews = new ArrayList<>();
     requestResponseMap.forEach((request, response) -> {
-      var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(request.getConsulteeGroup()); //refactor
-      consulteeGroupRequestsViews.add(mapConsultationRequestToView(request, response, groupDetail));
+      consultationRequestViews.add(mapConsultationRequestToView(request, response, groupDetail));
     });
 
-    return consulteeGroupRequestsViews;
+    return consultationRequestViews;
   }
 
 
