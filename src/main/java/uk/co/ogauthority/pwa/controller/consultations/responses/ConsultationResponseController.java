@@ -62,8 +62,8 @@ public class ConsultationResponseController {
     var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
 
     if (consultationResponseService.isUserAssignedResponderForConsultation(authenticatedUserAccount, consultationRequest)) {
-      return getResponderModelAndView(
-          authenticatedUserAccount, processingContext.getPwaApplication().getAppReference(), processingContext.getPwaApplication(), consultationRequest);
+      return getResponderModelAndView(authenticatedUserAccount,
+          processingContext.getPwaApplication().getAppReference(), processingContext.getPwaApplication(), consultationRequest);
     }
 
     throw new AccessDeniedException(
@@ -105,13 +105,15 @@ public class ConsultationResponseController {
   }
 
   private ModelAndView getResponderModelAndView(AuthenticatedUserAccount authenticatedUserAccount,
-                                                String appReference, PwaApplication pwaApplication, ConsultationRequest consultationRequest) {
+                                                String appReference, PwaApplication pwaApplication,
+                                                ConsultationRequest consultationRequest) {
     return new ModelAndView("consultation/responses/responderForm")
         .addObject("cancelUrl",
                 ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null)))
         .addObject("responseOptions", ConsultationResponseOption.asList())
         .addObject("appRef", appReference)
-        .addObject("previousResponses", consultationViewService.getConsultationRequestViewsRespondedOnly(pwaApplication, consultationRequest));
+        .addObject("previousResponses",
+            consultationViewService.getConsultationRequestViewsRespondedOnly(pwaApplication, consultationRequest));
   }
 
 }

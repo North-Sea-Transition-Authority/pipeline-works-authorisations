@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -53,6 +54,9 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @MockBean
+  private ConsultationViewService consultationViewService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
