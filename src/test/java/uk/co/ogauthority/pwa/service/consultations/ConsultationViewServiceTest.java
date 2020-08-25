@@ -235,7 +235,25 @@ public class ConsultationViewServiceTest {
     assertThat(requestView.getResponseDateDisplay()).isEqualTo("05 February 2020 10:09");
   }
 
+  @Test
+  public void consultationRequestViewDateDisplayCreation_noResponseDataConstructor() {
+    var instantTime = Instant.now();
+    var consulationRequest = new ConsultationRequestView(null, null,
+        instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
+        null, null, null, null, null);
 
+    assertThat(consulationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
+  }
+
+  @Test
+  public void consultationRequestViewDateDisplayCreation_withResponseDataConstructor() {
+    var instantTime = Instant.now();
+    var consulationRequest = new ConsultationRequestView(null, null,
+        instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
+        null, null, null, null, null, null, null);
+
+    assertThat(consulationRequest.getRequestDateDisplay()).isEqualTo("05 February 2020 10:09");
+  }
 
 
 

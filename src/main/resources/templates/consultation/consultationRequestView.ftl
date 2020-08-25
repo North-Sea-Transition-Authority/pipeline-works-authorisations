@@ -5,49 +5,46 @@
 <#-- @ftlvariable name="consultationsUrlFactory" type="uk.co.ogauthority.pwa.service.consultations.ConsultationsUrlFactory" -->
 
 
-<#macro consultationRequestView consultationRequestViewData>
-    <h2 class="govuk-heading-m"> ${consultationRequestViewData.currentRequest.consulteeGroupName} </h2>
-    <h3 class="govuk-heading-s"> Requested ${consultationRequestViewData.currentRequest.requestDateDisplay} </h3>
+<#macro consultationRequestView consultationRequestViewData>   
 
-    <#if consultationRequestViewData.currentRequest.canWithdraw>
-        <@fdsAction.link linkText="Withdraw consultation" linkUrl=springUrl(consultationsUrlFactory.getWithdrawConsultationUrl(consultationRequestViewData.currentRequest.consultationRequestId)) 
-        linkClass="govuk-link" linkScreenReaderText="Withdraw consultation" role=false start=false openInNewTab=true/>
-    </#if>
+    <h2 class="govuk-heading-m"> ${consultationRequestViewData.consulteeGroupName} </h2>
+    <h3 class="govuk-heading-s"> Requested ${consultationRequestViewData.requestDateDisplay} </h3>
 
     <@fdsCheckAnswers.checkAnswers summaryListClass="">
-
+        <#nested/>
         <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
-        ${consultationRequestViewData.currentRequest.status.getDisplayName()}
+        ${consultationRequestViewData.status.getDisplayName()}
         </br>
-        <#if consultationRequestViewData.currentRequest.status == "RESPONDED">
-            ${consultationRequestViewData.currentRequest.responseDateDisplay}
-        <#elseif consultationRequestViewData.currentRequest.status == "WITHDRAWN">
-            Withdrawn by ${consultationRequestViewData.currentRequest.withdrawnByUser} &nbsp; ${consultationRequestViewData.currentRequest.endTimeStamp}
+        <#if consultationRequestViewData.status == "RESPONDED">
+            ${consultationRequestViewData.responseDateDisplay}
+        <#elseif consultationRequestViewData.status == "WITHDRAWN">
+            Withdrawn by ${consultationRequestViewData.withdrawnByUser} &nbsp; ${consultationRequestViewData.endTimeStamp}
         <#else>
-            Due: ${consultationRequestViewData.currentRequest.dueDateDisplay}
+            Due: ${consultationRequestViewData.dueDateDisplay}
         </#if>
         </@fdsCheckAnswers.checkAnswersRow>
 
 
-        <#if consultationRequestViewData.currentRequest.responseType?has_content >
+        <#if consultationRequestViewData.responseType?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response" actionText="" actionUrl="" screenReaderActionText="">
-                ${consultationRequestViewData.currentRequest.responseType.getDisplayText()}
+                ${consultationRequestViewData.responseType.getDisplayText()}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>        
 
 
-        <#if consultationRequestViewData.currentRequest.responseRejectionReason?has_content >
+        <#if consultationRequestViewData.responseRejectionReason?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Rejection reason" actionText="" actionUrl="" screenReaderActionText="">
-                ${consultationRequestViewData.currentRequest.responseRejectionReason}
+                ${consultationRequestViewData.responseRejectionReason}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>  
 
 
-        <#if consultationRequestViewData.currentRequest.responseByPerson?has_content >
+        <#if consultationRequestViewData.responseByPerson?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Response by" actionText="" actionUrl="" screenReaderActionText="">
-                ${consultationRequestViewData.currentRequest.responseByPerson}
+                ${consultationRequestViewData.responseByPerson}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+
 
     </@fdsCheckAnswers.checkAnswers>
 

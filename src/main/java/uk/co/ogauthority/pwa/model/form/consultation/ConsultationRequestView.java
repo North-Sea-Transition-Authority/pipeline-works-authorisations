@@ -1,13 +1,17 @@
 package uk.co.ogauthority.pwa.model.form.consultation;
 
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class ConsultationRequestView {
 
   private final Integer consultationRequestId;
   private final String consulteeGroupName;
+  private final Instant requestDate;
   private final String requestDateDisplay;
   private final ConsultationRequestStatus status;
   private final String dueDateDisplay;
@@ -21,7 +25,7 @@ public class ConsultationRequestView {
 
   public ConsultationRequestView(Integer consultationRequestId,
                                  String consulteeGroupName,
-                                 String requestDateDisplay,
+                                 Instant requestDate,
                                  ConsultationRequestStatus status,
                                  String dueDateDisplay,
                                  Boolean canWithdraw,
@@ -29,7 +33,8 @@ public class ConsultationRequestView {
                                  String endTimeStamp) {
     this.consultationRequestId = consultationRequestId;
     this.consulteeGroupName = consulteeGroupName;
-    this.requestDateDisplay = requestDateDisplay;
+    this.requestDate = requestDate;
+    this.requestDateDisplay =  DateUtils.formatDateTime(requestDate.truncatedTo(ChronoUnit.SECONDS));
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
     this.responseDateDisplay = null;
@@ -43,7 +48,7 @@ public class ConsultationRequestView {
 
   public ConsultationRequestView(Integer consultationRequestId,
                                  String consulteeGroupName,
-                                 String requestDateDisplay,
+                                 Instant requestDate,
                                  ConsultationRequestStatus status,
                                  String dueDateDisplay,
                                  String responseDateDisplay,
@@ -53,7 +58,8 @@ public class ConsultationRequestView {
                                  String responseRejectionReason) {
     this.consultationRequestId = consultationRequestId;
     this.consulteeGroupName = consulteeGroupName;
-    this.requestDateDisplay = requestDateDisplay;
+    this.requestDate = requestDate;
+    this.requestDateDisplay =  DateUtils.formatDateTime(requestDate.truncatedTo(ChronoUnit.SECONDS));
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
     this.responseDateDisplay = responseDateDisplay;
@@ -71,6 +77,10 @@ public class ConsultationRequestView {
 
   public String getConsulteeGroupName() {
     return consulteeGroupName;
+  }
+
+  public Instant getRequestDate() {
+    return requestDate;
   }
 
   public String getRequestDateDisplay() {
