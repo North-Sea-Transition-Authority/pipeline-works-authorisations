@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -17,13 +19,17 @@ import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.C
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.enums.teams.ManageTeamType;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
+import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -35,6 +41,9 @@ public class ManageTeamServiceTest {
   @Mock
   private ConsulteeGroupTeamService consulteeGroupTeamService;
 
+  private PortalOrganisationGroup orgGroup;
+  private PwaOrganisationTeam orgGroupTeam;
+
   private ManageTeamService manageTeamService;
 
   private WebUserAccount user;
@@ -45,6 +54,9 @@ public class ManageTeamServiceTest {
 
   @Before
   public void setUp() {
+
+    orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "TEST GROUP", "TG");
+    orgGroupTeam = new PwaOrganisationTeam(2, "test team", "a test team", orgGroup);
 
     when(teamService.getRegulatorTeam()).thenReturn(new PwaRegulatorTeam(1, "name", "desc"));
 
@@ -76,7 +88,7 @@ public class ManageTeamServiceTest {
   }
 
   @Test
-  public void getManageTeamTypesAndUrlsForUser_orgManager() {
+  public void getManageTeamTypesAndUrlsForUser_regulatorOrgManager() {
 
     returnMemberWithRegRoles(Set.of(PwaRegulatorRole.ORGANISATION_MANAGER));
 
@@ -118,6 +130,19 @@ public class ManageTeamServiceTest {
     assertThat(manageTeamService.getManageTeamTypesAndUrlsForUser(user)).containsExactly(
         orgTeamEntry,
         consulteeTeamEntry
+    );
+
+  }
+
+  @Test
+  public void getManageTeamTypesAndUrlsForUser_orgGroupTeamManagerOnly() {
+
+
+    when(teamService.getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(), EnumSet.of(PwaOrganisationRole.TEAM_ADMINISTRATOR)))
+        .thenReturn(List.of(orgGroupTeam));
+
+    assertThat(manageTeamService.getManageTeamTypesAndUrlsForUser(user)).containsExactly(
+        orgTeamEntry
     );
 
   }
