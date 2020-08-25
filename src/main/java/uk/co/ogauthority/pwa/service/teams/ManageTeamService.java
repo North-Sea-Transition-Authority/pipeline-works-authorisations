@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.teams;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.enums.teams.ManageTeamType;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -43,8 +45,14 @@ public class ManageTeamService {
             .collect(Collectors.toSet()))
         .orElse(Set.of());
 
-    // if user in regulator team org manager role, can access org teams
-    if (userRegRoles.contains(PwaRegulatorRole.ORGANISATION_MANAGER)) {
+
+    var userCanManageOrgTeams = !teamService.getOrganisationTeamListIfPersonInRole(
+        user.getLinkedPerson(),
+        EnumSet.of(PwaOrganisationRole.TEAM_ADMINISTRATOR)
+    ).isEmpty();
+
+    // if user in regulator team org manager role, can access org teams, or use is team admin for at least one org
+    if (userRegRoles.contains(PwaRegulatorRole.ORGANISATION_MANAGER) || userCanManageOrgTeams) {
       teamTypeUrls.put(ManageTeamType.ORGANISATION_TEAMS, ManageTeamType.ORGANISATION_TEAMS.getLinkUrl());
     }
 
