@@ -39,7 +39,6 @@
           
         <#list previousResponses as previousResponse>
             <@consultationRequestView previousResponse/> 
-            </br>
         </#list>
             
     </@fdsDetails.summaryDetails>
