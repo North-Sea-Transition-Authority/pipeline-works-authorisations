@@ -1,11 +1,12 @@
 <#-- @ftlvariable name="consultationUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="assignCaseOfficerUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="requestUpdateUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="hasAssignCaseOfficerPermission" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="hasRequestApplicationUpdatePermission" type="java.lang.Boolean" -->
 
 <#include '../layout.ftl'>
 
 <@defaultPage htmlTitle="Case management" pageHeading="Case management" topNavigation=true fullWidthColumn=true>
-
 
   <@fdsAction.link linkText="Consultations" linkClass="govuk-link govuk-link--no-visited-state category-list__link" linkUrl=springUrl(consultationUrl)/>
   <span class="govuk-hint">Send application to consultee groups for comment</span>
@@ -15,5 +16,9 @@
     <span class="govuk-hint">Reassign an application that already has a case officer assigned</span>
   </#if>
 
+  <#if hasRequestApplicationUpdatePermission>
+    <@fdsAction.link linkText="Request application update" linkClass="govuk-link govuk-link--no-visited-state category-list__link" linkUrl=springUrl(requestUpdateUrl)/>
+    <span class="govuk-hint">Request an update to the application from the submitter</span>
+  </#if>
 
 </@defaultPage>

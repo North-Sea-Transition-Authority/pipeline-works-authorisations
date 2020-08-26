@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestApplicationUpdateController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -44,16 +45,24 @@ public class CaseManagementController {
   }
 
 
-  private ModelAndView getCaseManagementModelAndView(PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount userAccount) {
+  private ModelAndView getCaseManagementModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                     AuthenticatedUserAccount userAccount) {
+    var appId = pwaApplicationDetail.getMasterPwaApplicationId();
+    var applicationType = pwaApplicationDetail.getPwaApplicationType();
+
     return new ModelAndView("appprocessing/caseManagement")
-        .addObject("consultationUrl",
-            ReverseRouter.route(on(ConsultationController.class).renderConsultation(
-                pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .addObject("assignCaseOfficerUrl",
-            ReverseRouter.route(on(AssignCaseOfficerController.class).renderAssignCaseOfficer(
-                pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .addObject("hasAssignCaseOfficerPermission", pwaAppProcessingPermissionService.getProcessingPermissions(userAccount).contains(
-            PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
+        .addObject("requestUpdateUrl", ReverseRouter.route(on(RequestApplicationUpdateController.class)
+            .renderRequestUpdate(appId, applicationType, null, null, null)))
+        .addObject("consultationUrl", ReverseRouter.route(on(ConsultationController.class)
+            .renderConsultation(appId, applicationType, null, null)))
+        .addObject("assignCaseOfficerUrl", ReverseRouter.route(on(AssignCaseOfficerController.class)
+            .renderAssignCaseOfficer(appId, applicationType, null, null, null)))
+        .addObject("hasAssignCaseOfficerPermission",
+            pwaAppProcessingPermissionService.getProcessingPermissions(userAccount).contains(
+                PwaAppProcessingPermission.ASSIGN_CASE_OFFICER))
+        .addObject("hasRequestApplicationUpdatePermission",
+            pwaAppProcessingPermissionService.getProcessingPermissions(userAccount).contains(
+                PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
   }
 
 

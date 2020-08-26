@@ -53,6 +53,7 @@ public class PwaAppProcessingPermissionService {
             case CASE_OFFICER_REVIEW:
             case EDIT_CONSULTATIONS:
             case WITHDRAW_CONSULTATION:
+            case REQUEST_APPLICATION_UPDATE:
               return roles.contains(PwaRegulatorRole.CASE_OFFICER);
             case VIEW_ALL_CONSULTATIONS:
               return roles.contains(PwaRegulatorRole.CASE_OFFICER)
