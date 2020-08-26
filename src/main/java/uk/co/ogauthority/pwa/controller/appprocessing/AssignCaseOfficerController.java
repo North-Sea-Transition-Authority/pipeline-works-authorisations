@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.consultations;
+package uk.co.ogauthority.pwa.controller.appprocessing;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
