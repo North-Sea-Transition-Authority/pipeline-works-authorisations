@@ -411,6 +411,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     newPadPipeline.setProductsToBeConveyed(pipelineDetail.getProductsToBeConveyed());
     newPadPipeline.setFromLocation(pipelineDetail.getFromLocation());
     newPadPipeline.setToLocation(pipelineDetail.getToLocation());
+    newPadPipeline.setMaxExternalDiameter(pipelineDetail.getMaxExternalDiameter());
     try {
       newPadPipeline.setFromCoordinates(pipelineDetail.getFromCoordinates());
       newPadPipeline.setToCoordinates(pipelineDetail.getToCoordinates());

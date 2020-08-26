@@ -474,6 +474,7 @@ public class PadPipelineServiceTest {
     pipelineDetail.setProductsToBeConveyed("products");
     pipelineDetail.setToCoordinates(toCoordinatePair);
     pipelineDetail.setToLocation("b");
+    pipelineDetail.setMaxExternalDiameter(BigDecimal.TEN);
 
     modifyPipelineForm.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     modifyPipelineForm.setPipelineStatusReason("reason");
@@ -495,6 +496,7 @@ public class PadPipelineServiceTest {
     assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(pipelineDetail.getPipelineNumber());
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
     assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(modifyPipelineForm.getPipelineStatusReason());
+    assertThat(pipelineWithCopiedData.getMaxExternalDiameter()).isEqualTo(pipelineDetail.getMaxExternalDiameter());
 
   }
 
