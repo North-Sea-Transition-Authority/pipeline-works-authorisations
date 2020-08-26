@@ -163,7 +163,7 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("consultation/assignCaseOfficer"));
+        .andExpect(view().name("appprocessing/assignCaseOfficer"));
 
   }
 
