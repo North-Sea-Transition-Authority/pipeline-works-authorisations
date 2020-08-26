@@ -35,13 +35,15 @@
       </#list>
     </@fdsRadio.radioGroup>
 
-    <@fdsDetails.summaryDetails summaryTitle="Show my previous advice">
-          
-        <#list previousResponses as previousResponse>
-            <@consultationRequestView previousResponse/> 
-        </#list>
+    <#if previousResponses?has_content>
+      <@fdsDetails.summaryDetails summaryTitle="Show my previous advice">
             
-    </@fdsDetails.summaryDetails>
+          <#list previousResponses as previousResponse>
+              <@consultationRequestView previousResponse/> 
+          </#list>
+              
+      </@fdsDetails.summaryDetails>
+    </#if>
 
 
 
