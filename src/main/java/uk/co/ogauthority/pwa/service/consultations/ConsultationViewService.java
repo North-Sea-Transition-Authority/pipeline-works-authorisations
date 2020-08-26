@@ -77,6 +77,23 @@ public class ConsultationViewService {
     return mapConsultationRequestToView(consultationRequest, response, groupDetail);
   }
 
+  public List<ConsultationRequestView> getConsultationRequestViewsRespondedOnly(PwaApplication pwaApplication,
+                                                                                ConsultationRequest consultationRequest) {
+
+    List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByAppAndGroupRespondedOnly(
+        pwaApplication, consultationRequest.getConsulteeGroup());
+    List<ConsultationRequestView> consultationRequestViews = new ArrayList<>();
+
+    var requestResponseMap = getRequestResponseMap(consultationRequests);
+    var groupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consultationRequest.getConsulteeGroup());
+    requestResponseMap.forEach((request, response) -> {
+      consultationRequestViews.add(mapConsultationRequestToView(request, response, groupDetail));
+    });
+
+    consultationRequestViews.sort(Comparator.comparing(ConsultationRequestView::getResponseDate).reversed());
+    return consultationRequestViews;
+  }
+
 
 
 
@@ -112,7 +129,7 @@ public class ConsultationViewService {
           consultationRequest.getStartTimestamp(),
           consultationRequest.getStatus(),
           DateUtils.formatDateTime(consultationRequest.getDeadlineDate().truncatedTo(ChronoUnit.SECONDS)),
-          DateUtils.formatDateTime(consultationResponse.getResponseTimestamp().truncatedTo(ChronoUnit.SECONDS)),
+          consultationResponse.getResponseTimestamp(),
           consultationResponse.getResponseType(),
           false,
           teamManagementService.getPerson(consultationResponse.getRespondingPersonId()).getFullName(),

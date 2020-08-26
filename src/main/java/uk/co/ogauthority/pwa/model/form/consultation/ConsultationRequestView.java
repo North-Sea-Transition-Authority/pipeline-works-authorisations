@@ -15,6 +15,7 @@ public class ConsultationRequestView {
   private final String requestDateDisplay;
   private final ConsultationRequestStatus status;
   private final String dueDateDisplay;
+  private final Instant responseDate;
   private final String responseDateDisplay;
   private final ConsultationResponseOption responseType;
   private final String responseRejectionReason;
@@ -37,6 +38,7 @@ public class ConsultationRequestView {
     this.requestDateDisplay =  DateUtils.formatDateTime(requestDate.truncatedTo(ChronoUnit.SECONDS));
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
+    this.responseDate = null;
     this.responseDateDisplay = null;
     this.responseType = null;
     this.responseRejectionReason = null;
@@ -51,7 +53,7 @@ public class ConsultationRequestView {
                                  Instant requestDate,
                                  ConsultationRequestStatus status,
                                  String dueDateDisplay,
-                                 String responseDateDisplay,
+                                 Instant responseDate,
                                  ConsultationResponseOption responseType,
                                  Boolean canWithdraw,
                                  String responseByPerson,
@@ -62,7 +64,8 @@ public class ConsultationRequestView {
     this.requestDateDisplay =  DateUtils.formatDateTime(requestDate.truncatedTo(ChronoUnit.SECONDS));
     this.status = status;
     this.dueDateDisplay = dueDateDisplay;
-    this.responseDateDisplay = responseDateDisplay;
+    this.responseDate = responseDate;
+    this.responseDateDisplay =   DateUtils.formatDateTime(responseDate.truncatedTo(ChronoUnit.SECONDS));;
     this.responseType = responseType;
     this.responseRejectionReason = responseRejectionReason;
     this.responseByPerson = responseByPerson;
@@ -93,6 +96,10 @@ public class ConsultationRequestView {
 
   public String getDueDateDisplay() {
     return dueDateDisplay;
+  }
+
+  public Instant getResponseDate() {
+    return responseDate;
   }
 
   public String getResponseDateDisplay() {

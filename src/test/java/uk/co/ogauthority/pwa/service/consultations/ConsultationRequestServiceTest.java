@@ -295,6 +295,16 @@ public class ConsultationRequestServiceTest {
   }
 
 
+  @Test
+  public void getAllRequestsByAppAndGroupRespondedOnly() {
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+    consultationRequestService.getAllRequestsByAppAndGroupRespondedOnly(pwaApplicationDetail.getPwaApplication(), consulteeGroup);
+    verify(consultationRequestRepository, times(1)).findByConsulteeGroupAndPwaApplicationAndStatus(
+        consulteeGroup, pwaApplicationDetail.getPwaApplication(), ConsultationRequestStatus.RESPONDED);
+  }
+
+
 
 
 
