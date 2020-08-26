@@ -89,7 +89,7 @@ public class AssignCaseOfficerController {
 
   private ModelAndView getAssignCaseOfficerModelAndView(
       PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount authenticatedUserAccount) {
-    return new ModelAndView("consultation/assignCaseOfficer")
+    return new ModelAndView("appprocessing/assignCaseOfficer")
         .addObject("errorList", List.of())
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("cancelUrl", ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(

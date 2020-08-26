@@ -45,7 +45,7 @@ public class CaseManagementController {
 
 
   private ModelAndView getCaseManagementModelAndView(PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount userAccount) {
-    return new ModelAndView("consultation/caseManagement")
+    return new ModelAndView("appprocessing/caseManagement")
         .addObject("consultationUrl",
             ReverseRouter.route(on(ConsultationController.class).renderConsultation(
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
