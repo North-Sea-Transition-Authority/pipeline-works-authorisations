@@ -5,6 +5,7 @@ import java.util.List;
 
 public enum Chemical {
 
+  H2S("H₂S"),
   CO2("CO₂"),
   H2O("H₂O"),
   N2("N₂"),
