@@ -25,14 +25,16 @@ public class CoordinateUtils {
   }
 
   public static void mapCoordinatePairToForm(CoordinatePair pair, CoordinateForm form) {
-    form.setLatitudeDegrees(pair.getLatitude().getDegrees());
-    form.setLatitudeMinutes(pair.getLatitude().getMinutes());
-    form.setLatitudeSeconds(pair.getLatitude().getSeconds());
-    form.setLatitudeDirection(pair.getLatitude().getDirection());
-    form.setLongitudeDegrees(pair.getLongitude().getDegrees());
-    form.setLongitudeMinutes(pair.getLongitude().getMinutes());
-    form.setLongitudeSeconds(pair.getLongitude().getSeconds());
-    form.setLongitudeDirection(pair.getLongitude().getDirection());
+    if (pair != null) {
+      form.setLatitudeDegrees(pair.getLatitude().getDegrees());
+      form.setLatitudeMinutes(pair.getLatitude().getMinutes());
+      form.setLatitudeSeconds(pair.getLatitude().getSeconds());
+      form.setLatitudeDirection(pair.getLatitude().getDirection());
+      form.setLongitudeDegrees(pair.getLongitude().getDegrees());
+      form.setLongitudeMinutes(pair.getLongitude().getMinutes());
+      form.setLongitudeSeconds(pair.getLongitude().getSeconds());
+      form.setLongitudeDirection(pair.getLongitude().getDirection());
+    }
   }
 
 }

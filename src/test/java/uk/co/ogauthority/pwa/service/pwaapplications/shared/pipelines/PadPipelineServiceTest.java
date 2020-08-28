@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.ModifyPipelineController;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
@@ -45,6 +46,7 @@ import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -74,6 +76,9 @@ public class PadPipelineServiceTest {
 
   @Mock
   private PadPipelinePersisterService padPipelinePersisterService;
+
+  @Mock
+  private PipelineHeaderFormValidator pipelineHeaderFormValidator;
 
   private PadPipelineService padPipelineService;
 
@@ -115,10 +120,11 @@ public class PadPipelineServiceTest {
         new CoordinateFormValidator());
 
     padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService,
-        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService);
+        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService, pipelineHeaderFormValidator);
 
     mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService,
-        pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService);
+        pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService,
+        pipelineHeaderFormValidator);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -132,6 +138,9 @@ public class PadPipelineServiceTest {
 
     ident = new PadPipelineIdent();
     ident.setPadPipeline(padPipe1);
+
+    when(padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, List.of(1)))
+        .thenReturn(List.of(padPipe1));
 
   }
 
@@ -479,7 +488,8 @@ public class PadPipelineServiceTest {
     modifyPipelineForm.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     modifyPipelineForm.setPipelineStatusReason("reason");
 
-    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail,
+        modifyPipelineForm);
 
     // TODO: PWA-682 - Assert added fields
     assertThat(pipelineWithCopiedData.getBundleName()).isEqualTo(pipelineDetail.getBundleName());
@@ -495,7 +505,8 @@ public class PadPipelineServiceTest {
     assertThat(pipelineWithCopiedData.getComponentPartsDescription()).isEqualTo(pipelineDetail.getComponentPartsDesc());
     assertThat(pipelineWithCopiedData.getPipelineRef()).isEqualTo(pipelineDetail.getPipelineNumber());
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
-    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(modifyPipelineForm.getPipelineStatusReason());
+    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(
+        modifyPipelineForm.getPipelineStatusReason());
     assertThat(pipelineWithCopiedData.getMaxExternalDiameter()).isEqualTo(pipelineDetail.getMaxExternalDiameter());
 
   }
@@ -505,7 +516,8 @@ public class PadPipelineServiceTest {
     var pipelineDetail = new PipelineDetail();
     modifyPipelineForm.setPipelineStatus(PipelineStatus.IN_SERVICE);
     modifyPipelineForm.setPipelineStatusReason("reason");
-    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
+    var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail,
+        modifyPipelineForm);
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
     assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isNull();
   }
@@ -625,7 +637,7 @@ public class PadPipelineServiceTest {
     assertThat(validationResult.isSectionComplete()).isFalse();
     assertThat(validationResult.getErrorItems()).isEmpty();
     assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
-        "At least one pipeline must be added. Each pipeline must have at least one valid ident.");
+        "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).isEmpty();
 
@@ -649,7 +661,7 @@ public class PadPipelineServiceTest {
             tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline must have all sections completed")
         );
     assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
-        "At least one pipeline must be added. Each pipeline must have at least one valid ident.");
+        "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
@@ -681,7 +693,7 @@ public class PadPipelineServiceTest {
             tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline must have all sections completed")
         );
     assertThat(validationResult.getSectionIncompleteError()).isEqualTo(
-        "At least one pipeline must be added. Each pipeline must have at least one valid ident.");
+        "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
@@ -706,6 +718,63 @@ public class PadPipelineServiceTest {
       var dto = createPadPipelineSummaryDto(padPipe1);
       var result = padPipelineService.doesPipelineHaveTasks(dto);
       assertThat(result).isTrue();
+    });
+  }
+
+  @Test
+  public void getPipelineOverviewMap_correctGrouping() {
+    when(padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, List.of(padPipe1.getId())))
+        .thenReturn(List.of(padPipe1));
+    padPipe1.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    var result = padPipelineService.getPadPipelineMapForOverviews(detail, List.of(new PadPipelineOverview(padPipe1, 0L)));
+    assertThat(result).containsExactly(
+        entry(new PadPipelineId(padPipe1.getId()), padPipe1)
+    );
+  }
+
+  @Test
+  public void isIdentValidationRequired() {
+    PipelineStatus.streamInOrder().forEach(pipelineStatus -> {
+      padPipe1.setPipelineStatus(pipelineStatus);
+      switch (pipelineStatus) {
+        case NEVER_LAID:
+        case RETURNED_TO_SHORE:
+          assertThat(padPipelineService.isValidationRequired(padPipe1)).isFalse();
+          break;
+        default:
+          assertThat(padPipelineService.isValidationRequired(padPipe1)).isTrue();
+      }
+    });
+  }
+
+  @Test
+  public void isPadPipelineValid_valid() {
+    PipelineStatus.streamInOrder().forEach(pipelineStatus -> {
+      padPipe1.setPipelineStatus(pipelineStatus);
+      assertThat(padPipelineService.isPadPipelineValid(padPipe1)).isTrue();
+    });
+  }
+
+  @Test
+  public void isPadPipelineValid_invalid() {
+
+    doAnswer(invocation -> {
+      var bindingResult = (BindingResult) invocation.getArgument(1);
+      bindingResult.addError(new ObjectError("", ""));
+      return null;
+    }).when(pipelineHeaderFormValidator).validate(any(), any(), any());
+
+    PipelineStatus.streamInOrder().forEach(pipelineStatus -> {
+      padPipe1.setPipelineStatus(pipelineStatus);
+      var result = padPipelineService.isPadPipelineValid(padPipe1);
+      switch (pipelineStatus) {
+        case RETURNED_TO_SHORE:
+        case NEVER_LAID:
+          assertThat(result).isTrue();
+          break;
+        default:
+          assertThat(result).isFalse();
+      }
     });
   }
 

@@ -141,15 +141,17 @@ public class PipelineIdentsController {
                                         RedirectAttributes redirectAttributes) {
 
     return PipelineControllerRouteUtils.ifAllowedFromOverviewOrError(applicationContext, redirectAttributes, () -> {
-      var sectionValid = padIdentService.isSectionValid(applicationContext.getPadPipeline());
-      if (sectionValid) {
+      var identSummaryValidationResult = padIdentService.getSummaryScreenValidationResult(
+          applicationContext.getPadPipeline());
+      if (identSummaryValidationResult.isSectionComplete()) {
         return ReverseRouter.redirect(on(PipelinesController.class)
             .renderPipelinesOverview(applicationId, pwaApplicationType, null));
       } else {
-        return getIdentOverviewModelAndView(
+        var modelAndView = getIdentOverviewModelAndView(
             applicationContext.getApplicationDetail(),
             applicationContext.getPadPipeline()
-        ).addObject("errorMessage", "At least one ident must be added");
+        );
+        return modelAndView.addObject("identSummaryValidationResult", identSummaryValidationResult);
       }
     });
 

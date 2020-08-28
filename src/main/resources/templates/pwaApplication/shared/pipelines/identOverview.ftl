@@ -11,9 +11,8 @@
 
 <@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true  pageHeading="${pipelineOverview.getPipelineName()} idents">
 
-    <#if errorMessage?has_content>
-        <@fdsError.singleErrorSummary errorMessage=errorMessage />
-    </#if>
+    <@validationResult.singleErrorSummary summaryValidationResult=identSummaryValidationResult! />
+    <@validationResult.errorSummary summaryValidationResult=identSummaryValidationResult! />
 
     <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />
 
@@ -39,6 +38,12 @@
                             <@fdsAction.link linkText="Remove ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getRemoveUrl(identView.identId)) linkScreenReaderText="Remove ident ${identView.identNumber}" />
                         </#assign>
                         <@fdsTimeline.timelineTimeStamp timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>
+                            ${identView.identNumber}
+                            <#assign validationObjectId = validationResult.constructObjectId(identSummaryValidationResult!, identView.identNumber) />
+                            <#assign errorMessage = validationResult.errorMessageOrEmptyString(identSummaryValidationResult!, validationObjectId) />
+                            <#if errorMessage?has_content>
+                              <p id="ident-${identView.identNumber}" class="govuk-error-message">${errorMessage}</p>
+                            </#if>
                             <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                                 <@fdsDataItems.dataValuesNumber smallNumber=true key="${identView.identNumber}" value="Ident number"/>
                                 <@fdsDataItems.dataValues key="Length" value="${identView.length}m"/>

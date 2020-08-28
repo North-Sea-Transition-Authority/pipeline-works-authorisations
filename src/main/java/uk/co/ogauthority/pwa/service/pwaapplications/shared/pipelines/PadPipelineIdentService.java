@@ -1,14 +1,17 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -17,7 +20,9 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentRepository;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class PadPipelineIdentService {
@@ -25,14 +30,17 @@ public class PadPipelineIdentService {
   private final PadPipelineIdentRepository padPipelineIdentRepository;
   private final PadPipelineIdentDataService identDataService;
   private final PadPipelinePersisterService padPipelinePersisterService;
+  private final PipelineIdentFormValidator pipelineIdentFormValidator;
 
   @Autowired
   public PadPipelineIdentService(PadPipelineIdentRepository padPipelineIdentRepository,
                                  PadPipelineIdentDataService identDataService,
-                                 PadPipelinePersisterService padPipelinePersisterService) {
+                                 PadPipelinePersisterService padPipelinePersisterService,
+                                 PipelineIdentFormValidator pipelineIdentFormValidator) {
     this.padPipelineIdentRepository = padPipelineIdentRepository;
     this.identDataService = identDataService;
     this.padPipelinePersisterService = padPipelinePersisterService;
+    this.pipelineIdentFormValidator = pipelineIdentFormValidator;
   }
 
   public PadPipelineIdent getIdent(PadPipeline pipeline, Integer identId) {
@@ -48,6 +56,33 @@ public class PadPipelineIdentService {
     return new IdentView(identData);
   }
 
+  public List<PadPipelineIdent> getAllIdents(PadPipeline padPipeline) {
+    return padPipelineIdentRepository.getAllByPadPipeline(padPipeline);
+  }
+
+  public SummaryScreenValidationResult getSummaryScreenValidationResult(PadPipeline padPipeline) {
+    List<PadPipelineIdent> idents = getAllIdents(padPipeline)
+        .stream()
+        .sorted(Comparator.comparing(PadPipelineIdent::getIdentNo))
+        .collect(Collectors.toUnmodifiableList());
+
+    Map<String, String> invalidIdents = idents.stream()
+        .filter(padPipelineIdent -> !isIdentValid(padPipeline, padPipelineIdent))
+        .collect(StreamUtils.toLinkedHashMap(
+            padPipelineIdent -> String.valueOf(padPipelineIdent.getIdentNo()),
+            padPipelineIdent -> "Ident " + padPipelineIdent.getIdentNo()
+        ));
+
+    boolean allIdentsValid = invalidIdents.isEmpty() && !idents.isEmpty();
+
+    return new SummaryScreenValidationResult(
+        invalidIdents,
+        "ident",
+        "is incomplete",
+        allIdentsValid,
+        allIdentsValid ? null : "You must add at least one ident"
+    );
+  }
 
   private List<IdentView> createIdentViewsFromPipelineIdents(List<PadPipelineIdent> padPipelineIdents) {
     var identData = identDataService.getDataFromIdentList(padPipelineIdents);
@@ -200,7 +235,7 @@ public class PadPipelineIdentService {
   }
 
   public boolean isSectionValid(PadPipeline pipeline) {
-    return !padPipelineIdentRepository.countAllByPadPipeline(pipeline).equals(0L);
+    return getSummaryScreenValidationResult(pipeline).isSectionComplete();
   }
 
   public List<PadPipelineIdent> getAllIdentsByPadPipelineIds(List<PadPipelineId> padPipelineIds) {
@@ -215,6 +250,15 @@ public class PadPipelineIdentService {
 
   public void saveAll(Collection<PadPipelineIdent> padPipelineIdents) {
     padPipelineIdentRepository.saveAll(padPipelineIdents);
+  }
+
+  @VisibleForTesting
+  boolean isIdentValid(PadPipeline padPipeline, PadPipelineIdent ident) {
+    var form = new PipelineIdentForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    mapEntityToForm(ident, form);
+    pipelineIdentFormValidator.validate(form, bindingResult, null, padPipeline.getCoreType());
+    return !bindingResult.hasErrors();
   }
 
 }

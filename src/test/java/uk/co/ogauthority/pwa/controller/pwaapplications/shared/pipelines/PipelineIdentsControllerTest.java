@@ -21,6 +21,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -62,6 +63,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationConte
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineIdentFormValidator;
+import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -157,6 +159,9 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
     when(pipelineIdentService.getIdent(any(), any())).thenReturn(ident);
 
     when(pipelineIdentService.isSectionValid(any())).thenReturn(true);
+
+    when(pipelineIdentService.getSummaryScreenValidationResult(any()))
+        .thenReturn(new SummaryScreenValidationResult(Map.of(), "", "", true, ""));
 
   }
 
@@ -400,7 +405,6 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderIdentOverview_contactSmokeTest() {
 
-    PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     padPipeline.setPipelineInBundle(false);
@@ -418,7 +422,6 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   public void renderIdentOverview_appTypeSmokeTest() {
-    PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     padPipeline.setPipelineInBundle(false);
@@ -437,7 +440,6 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderIdentOverview_appStatusSmokeTest() {
 
-    PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     padPipeline.setPipelineInBundle(false);
@@ -681,18 +683,19 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void postIdentOverview_failValidation() {
 
-    PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
     padPipeline.setPipelineInBundle(false);
     var padPipelineOverview = new PadPipelineOverview(padPipeline);
     when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
     when(pipelineIdentService.isSectionValid(any())).thenReturn(false);
+    when(pipelineIdentService.getSummaryScreenValidationResult(any()))
+        .thenReturn(new SummaryScreenValidationResult(Map.of(), "", "", false, ""));
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
-                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, 99, null, null)));
+                .postIdentOverview(applicationDetail.getMasterPwaApplicationId(), type, padPipeline.getId(), null, null)));
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
