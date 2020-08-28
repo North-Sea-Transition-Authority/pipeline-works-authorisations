@@ -64,7 +64,7 @@
 
   <#if treatyAgreements?has_content>
     <table class="govuk-table">
-      <h3 class="govuk-heading-m">Treaty agreement users</h3>
+      <h3 class="govuk-heading-m">Treaty agreement user</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Country</th>

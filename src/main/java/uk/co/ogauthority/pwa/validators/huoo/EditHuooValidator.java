@@ -149,17 +149,6 @@ public class EditHuooValidator implements SmartValidator {
             "You can't remove the final holder on an application");
       }
     }
-
-    if (form.getHuooType() == HuooType.TREATY_AGREEMENT) {
-      var alreadyAddedTreaty = roles.stream()
-          .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
-          .filter(padOrganisationRole -> padOrganisationRole.getAgreement() != huooValidationView.getTreatyAgreement())
-          .anyMatch(padOrganisationRole -> padOrganisationRole.getAgreement().equals(form.getTreatyAgreement()));
-      if (alreadyAddedTreaty) {
-        errors.rejectValue("treatyAgreement", "treatyAgreement.duplicate",
-            "The treaty agreement is already added to the application");
-      }
-    }
   }
 
 
