@@ -13,10 +13,6 @@
     <@fdsError.singleErrorSummary errorMessage=errorMessage />
   </#if>
 
-  <#if errorMessage?has_content>
-    <@fdsError.singleErrorSummary errorMessage=errorMessage />
-  </#if>
-
     <#if showHolderGuidance>
       <@fdsInsetText.insetText>
         You can only have a single holder on a PWA.
