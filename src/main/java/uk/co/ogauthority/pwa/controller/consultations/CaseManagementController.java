@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -39,20 +38,24 @@ public class CaseManagementController {
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            PwaAppProcessingContext processingContext,
                                            AuthenticatedUserAccount authenticatedUserAccount) {
-    return getCaseManagementModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount);
+    return getCaseManagementModelAndView(processingContext, authenticatedUserAccount);
   }
 
 
-  private ModelAndView getCaseManagementModelAndView(PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount userAccount) {
+  private ModelAndView getCaseManagementModelAndView(PwaAppProcessingContext appProcessingContext, AuthenticatedUserAccount userAccount) {
+
+    var detail = appProcessingContext.getApplicationDetail();
+
     return new ModelAndView("consultation/caseManagement")
         .addObject("consultationUrl",
             ReverseRouter.route(on(ConsultationController.class).renderConsultation(
-                pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+                detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)))
         .addObject("assignCaseOfficerUrl",
             ReverseRouter.route(on(AssignCaseOfficerController.class).renderAssignCaseOfficer(
-                pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+                detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null, null)))
         .addObject("hasAssignCaseOfficerPermission", pwaAppProcessingPermissionService.getProcessingPermissions(userAccount).contains(
-            PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
+            PwaAppProcessingPermission.ASSIGN_CASE_OFFICER))
+        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView());
   }
 
 

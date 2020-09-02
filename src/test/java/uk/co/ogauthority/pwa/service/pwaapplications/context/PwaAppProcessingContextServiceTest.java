@@ -1,9 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.context;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +19,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextParams;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
@@ -23,6 +27,8 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaAppProcessingContextServiceTest {
@@ -33,11 +39,16 @@ public class PwaAppProcessingContextServiceTest {
   @Mock
   private PwaAppProcessingPermissionService appProcessingPermissionService;
 
+  @Mock
+  private ApplicationDetailSearcher applicationDetailSearcher;
+
   private PwaAppProcessingContextService contextService;
 
   private PwaApplicationDetail detail;
   private PwaApplication application;
   private AuthenticatedUserAccount user;
+
+  private Instant startInstant;
 
   @Before
   public void setUp() {
@@ -51,10 +62,24 @@ public class PwaAppProcessingContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService);
+    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher);
 
     when(detailService.getTipDetail(1)).thenReturn(detail);
     when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+    var searchItem = new ApplicationDetailSearchItem();
+    startInstant = Instant.now();
+    searchItem.setPadReference("PA/5/6");
+    searchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    searchItem.setCaseOfficerPersonId(1);
+    searchItem.setCaseOfficerName("Case Officer X");
+    searchItem.setSubmittedAsFastTrackFlag(true);
+    searchItem.setPadProposedStart(startInstant);
+    searchItem.setPadFields(List.of("CAPTAIN", "PENGUIN"));
+    searchItem.setPadHolderNameList(List.of("ROYAL DUTCH SHELL"));
+    searchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
+
+    when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
 
   }
 
@@ -141,6 +166,42 @@ public class PwaAppProcessingContextServiceTest {
         .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
     contextService.validateAndCreate(builder);
+  }
+
+  @Test
+  public void validateAndCreate_caseSummaryExists() {
+
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+    var processingContext = contextService.validateAndCreate(builder);
+
+    assertThat(processingContext.getCaseSummaryView()).isNotNull();
+
+    assertThat(processingContext.getCaseSummaryView().getPwaApplicationRef()).isEqualTo("PA/5/6");
+    assertThat(processingContext.getCaseSummaryView().getPwaApplicationType()).isEqualTo(PwaApplicationType.CAT_1_VARIATION.getDisplayName());
+    assertThat(processingContext.getCaseSummaryView().getHolderNames()).isEqualTo("ROYAL DUTCH SHELL");
+    assertThat(processingContext.getCaseSummaryView().getFieldNames()).isEqualTo("CAPTAIN, PENGUIN");
+    assertThat(processingContext.getCaseSummaryView().getCaseOfficerName()).isEqualTo("Case Officer X");
+    assertThat(processingContext.getCaseSummaryView().getProposedStartDateDisplay()).isEqualTo(DateUtils.formatDate(startInstant));
+    assertThat(processingContext.getCaseSummaryView().isFastTrackFlag()).isTrue();
+
+  }
+
+  @Test
+  public void validateAndCreate_caseSummaryNotFound() {
+
+    when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.empty());
+
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredAppStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW)
+        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+
+    var processingContext = contextService.validateAndCreate(builder);
+
+    assertThat(processingContext.getCaseSummaryView()).isNull();
+
   }
 
 }

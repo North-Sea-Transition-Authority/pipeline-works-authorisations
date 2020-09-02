@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.search;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,5 +66,8 @@ public class ApplicationDetailSearcher {
 
   }
 
+  public Optional<ApplicationDetailSearchItem> searchByApplicationDetailId(Integer pwaApplicationDetailId) {
+    return applicationDetailSearchItemRepository.findByPwaApplicationDetailIdEquals(pwaApplicationDetailId);
+  }
 
 }

@@ -25,6 +25,10 @@ public class DateUtils {
     return localDate.format(DATE_FORMATTER);
   }
 
+  public static String formatDate(Instant instant) {
+    return formatDate(LocalDate.ofInstant(instant, ZoneId.systemDefault()));
+  }
+
   public static String createDateEstimateString(int month, int year) {
     return Month.of(month).getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + year;
   }

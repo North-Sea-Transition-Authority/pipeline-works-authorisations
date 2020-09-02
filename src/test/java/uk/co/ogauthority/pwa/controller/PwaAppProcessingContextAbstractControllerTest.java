@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -21,16 +22,19 @@ import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
@@ -81,6 +85,9 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
   @SpyBean
   private ControllerHelperService controllerHelperService;
 
+  @MockBean
+  private ApplicationDetailSearcher applicationDetailSearcher;
+
   @Before
   public void abstractControllerTestSetup() {
     mockMvc = MockMvcBuilders
@@ -92,6 +99,19 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
     when(foxUrlService.getFoxLogoutUrl()).thenReturn("testLogoutUrl");
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
+
+    var searchItem = new ApplicationDetailSearchItem();
+    searchItem.setPadReference("PA/5/6");
+    searchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    searchItem.setCaseOfficerPersonId(1);
+    searchItem.setCaseOfficerName("Case Officer X");
+    searchItem.setSubmittedAsFastTrackFlag(true);
+    searchItem.setPadProposedStart(Instant.now());
+    searchItem.setPadFields(List.of("CAPTAIN", "PENGUIN"));
+    searchItem.setPadHolderNameList(List.of("ROYAL DUTCH SHELL"));
+    searchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
+
+    when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
 
   }
 

@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 
 @Service
@@ -15,12 +16,15 @@ public class PwaAppProcessingContextService {
 
   private final PwaApplicationDetailService detailService;
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
+  private final ApplicationDetailSearcher applicationDetailSearcher;
 
   @Autowired
   public PwaAppProcessingContextService(PwaApplicationDetailService detailService,
-                                        PwaAppProcessingPermissionService appProcessingPermissionService) {
+                                        PwaAppProcessingPermissionService appProcessingPermissionService,
+                                        ApplicationDetailSearcher applicationDetailSearcher) {
     this.detailService = detailService;
     this.appProcessingPermissionService = appProcessingPermissionService;
+    this.applicationDetailSearcher = applicationDetailSearcher;
   }
 
   /**
@@ -62,7 +66,11 @@ public class PwaAppProcessingContextService {
           String.format("User with WUA ID: %s has no app processing permissions", authenticatedUser.getWuaId()));
     }
 
-    return new PwaAppProcessingContext(detail, authenticatedUser, processingPermissions);
+    var caseSummaryView = applicationDetailSearcher.searchByApplicationDetailId(detail.getId())
+        .map(CaseSummaryView::from)
+        .orElse(null);
+
+    return new PwaAppProcessingContext(detail, authenticatedUser, processingPermissions, caseSummaryView);
 
   }
 
