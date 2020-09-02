@@ -1,0 +1,280 @@
+package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+
+public class PipelineHeaderView implements PipelineOverview {
+
+
+  private final Integer padPipelineId;
+
+  private final String pipelineName;
+  private final Integer pipelineId;
+  private final String fromLocation;
+  private final CoordinatePair fromCoordinates;
+  private final String toLocation;
+  private final CoordinatePair toCoordinates;
+  private final String pipelineNumber;
+  private final PipelineType pipelineType;
+  private final String componentParts;
+  private final String length;
+  private final String productsToBeConveyed;
+  private final Integer numberOfIdents;
+  private final String maxExternalDiameter;
+  private final Boolean pipelineInBundle;
+  private final String bundleName;
+  private final PipelineFlexibility pipelineFlexibility;
+  private final PipelineMaterial pipelineMaterial;
+  private final String otherPipelineMaterialUsed;
+  private final Boolean trenchedBuriedBackfilled;
+  private final String trenchingMethodsDescription;
+  private final PipelineStatus pipelineStatus;
+  private final String pipelineStatusReason;
+
+
+  public PipelineHeaderView() {
+    this.padPipelineId = null;
+    this.pipelineName = null;
+    this.pipelineId = null;
+    this.fromLocation = null;
+    this.fromCoordinates = null;
+    this.toLocation = null;
+    this.toCoordinates = null;
+    this.pipelineNumber = null;
+    this.pipelineType = null;
+    this.componentParts = null;
+    this.length = null;
+    this.productsToBeConveyed = null;
+    this.numberOfIdents = null;
+    this.maxExternalDiameter = null;
+    this.pipelineInBundle = null;
+    this.bundleName = null;
+    this.pipelineFlexibility = null;
+    this.pipelineMaterial = null;
+    this.otherPipelineMaterialUsed = null;
+    this.trenchedBuriedBackfilled = null;
+    this.trenchingMethodsDescription = null;
+    this.pipelineStatus = null;
+    this.pipelineStatusReason = null;
+  }
+
+  public PipelineHeaderView(PipelineOverview pipelineOverview) {
+    this.pipelineId = pipelineOverview.getPipelineId();
+    this.pipelineName = pipelineOverview.getPipelineName();
+    this.padPipelineId = pipelineOverview.getPadPipelineId();
+    this.fromLocation = pipelineOverview.getFromLocation();
+    this.fromCoordinates = pipelineOverview.getFromCoordinates();
+    this.toLocation = pipelineOverview.getToLocation();
+    this.toCoordinates = pipelineOverview.getToCoordinates();
+    this.pipelineNumber = pipelineOverview.getPipelineNumber();
+    this.pipelineType = pipelineOverview.getPipelineType();
+    this.componentParts = pipelineOverview.getComponentParts();
+    this.length = String.valueOf(pipelineOverview.getLength());
+    this.productsToBeConveyed = pipelineOverview.getProductsToBeConveyed();
+    this.numberOfIdents = (int) (long) pipelineOverview.getNumberOfIdents();
+    this.maxExternalDiameter = String.valueOf(pipelineOverview.getMaxExternalDiameter());
+    this.pipelineInBundle = pipelineOverview.getPipelineInBundle();
+    this.bundleName = pipelineOverview.getBundleName();
+    this.pipelineFlexibility = pipelineOverview.getPipelineFlexibility();
+    this.pipelineMaterial = pipelineOverview.getPipelineMaterial();
+    this.otherPipelineMaterialUsed = pipelineOverview.getOtherPipelineMaterialUsed();
+    this.trenchedBuriedBackfilled = pipelineOverview.getTrenchedBuriedBackfilled();
+    this.trenchingMethodsDescription = pipelineOverview.getTrenchingMethodsDescription();
+    this.pipelineStatus = pipelineOverview.getPipelineStatus();
+    this.pipelineStatusReason = pipelineOverview.getPipelineStatusReason();
+  }
+
+
+  public PipelineHeaderView(PipelineDetail pipelineDetail) {
+    this.padPipelineId = null;
+    this.pipelineName = null;
+    this.pipelineId = pipelineDetail.getPipelineId().asInt();
+    this.fromLocation = pipelineDetail.getFromLocation();
+    this.fromCoordinates = pipelineDetail.getFromCoordinates();
+    this.toLocation = pipelineDetail.getToLocation();
+    this.toCoordinates = pipelineDetail.getToCoordinates();
+    this.pipelineNumber = pipelineDetail.getPipelineNumber();
+    this.pipelineType = pipelineDetail.getPipelineType();
+    this.componentParts = pipelineDetail.getComponentPartsDesc();
+    this.length = String.valueOf(pipelineDetail.getLength());
+    this.productsToBeConveyed = pipelineDetail.getProductsToBeConveyed();
+    this.maxExternalDiameter = String.valueOf(pipelineDetail.getMaxExternalDiameter());
+    this.pipelineInBundle = pipelineDetail.getPipelineInBundle();
+    this.bundleName = pipelineDetail.getBundleName();
+    this.pipelineStatus = pipelineDetail.getPipelineStatus();
+    this.pipelineStatusReason = pipelineDetail.getPipelineStatusReason();
+    this.numberOfIdents = null;
+    this.pipelineFlexibility = null;
+    this.pipelineMaterial = null;
+    this.otherPipelineMaterialUsed = null;
+    this.trenchedBuriedBackfilled = null;
+    this.trenchingMethodsDescription = null;
+  }
+
+
+
+  @Override
+  public Integer getPadPipelineId() {
+    return padPipelineId;
+  }
+
+  @Override
+  public String getPipelineName() {
+    return pipelineName;
+  }
+
+  @Override
+  public Integer getPipelineId() {
+    return pipelineId;
+  }
+
+  @Override
+  public String getFromLocation() {
+    return fromLocation;
+  }
+
+  @Override
+  public CoordinatePair getFromCoordinates() {
+    return fromCoordinates;
+  }
+
+  @Override
+  public String getToLocation() {
+    return toLocation;
+  }
+
+  @Override
+  public CoordinatePair getToCoordinates() {
+    return toCoordinates;
+  }
+
+  @Override
+  public String getPipelineNumber() {
+    return pipelineNumber;
+  }
+
+  @Override
+  public PipelineType getPipelineType() {
+    return pipelineType;
+  }
+
+  @Override
+  public String getComponentParts() {
+    return componentParts;
+  }
+
+  @Override
+  public BigDecimal getLength() {
+    return new BigDecimal(length);
+  }
+
+  @Override
+  public String getProductsToBeConveyed() {
+    return productsToBeConveyed;
+  }
+
+  @Override
+  public Long getNumberOfIdents() {
+    return Long.valueOf(numberOfIdents);
+  }
+
+  @Override
+  public BigDecimal getMaxExternalDiameter() {
+    return new BigDecimal(maxExternalDiameter);
+  }
+
+  @Override
+  public Boolean getPipelineInBundle() {
+    return pipelineInBundle;
+  }
+
+  @Override
+  public String getBundleName() {
+    return bundleName;
+  }
+
+  @Override
+  public PipelineFlexibility getPipelineFlexibility() {
+    return this.pipelineFlexibility;
+  }
+
+  @Override
+  public PipelineMaterial getPipelineMaterial() {
+    return this.pipelineMaterial;
+  }
+
+  @Override
+  public String getOtherPipelineMaterialUsed() {
+    return otherPipelineMaterialUsed;
+  }
+
+  @Override
+  public Boolean getTrenchedBuriedBackfilled() {
+    return trenchedBuriedBackfilled;
+  }
+
+  @Override
+  public String getTrenchingMethodsDescription() {
+    return trenchingMethodsDescription;
+  }
+
+  @Override
+  public PipelineStatus getPipelineStatus() {
+    return pipelineStatus;
+  }
+
+  @Override
+  public String getPipelineStatusReason() {
+    return pipelineStatusReason;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PipelineHeaderView that = (PipelineHeaderView) o;
+    return Objects.equals(padPipelineId, that.padPipelineId)
+        && Objects.equals(pipelineName, that.pipelineName)
+        && Objects.equals(pipelineId, that.pipelineId)
+        && Objects.equals(fromLocation, that.fromLocation)
+        && Objects.equals(fromCoordinates, that.fromCoordinates)
+        && Objects.equals(toLocation, that.toLocation)
+        && Objects.equals(toCoordinates, that.toCoordinates)
+        && Objects.equals(pipelineNumber, that.pipelineNumber)
+        && pipelineType == that.pipelineType
+        && Objects.equals(componentParts, that.componentParts)
+        && Objects.equals(length, that.length)
+        && Objects.equals(productsToBeConveyed, that.productsToBeConveyed)
+        && Objects.equals(numberOfIdents, that.numberOfIdents)
+        && Objects.equals(maxExternalDiameter, that.maxExternalDiameter)
+        && Objects.equals(pipelineInBundle, that.pipelineInBundle)
+        && Objects.equals(bundleName, that.bundleName)
+        && pipelineFlexibility == that.pipelineFlexibility
+        && pipelineMaterial == that.pipelineMaterial
+        && Objects.equals(otherPipelineMaterialUsed, that.otherPipelineMaterialUsed)
+        && Objects.equals(trenchedBuriedBackfilled, that.trenchedBuriedBackfilled)
+        && Objects.equals(trenchingMethodsDescription, that.trenchingMethodsDescription)
+        && pipelineStatus == that.pipelineStatus
+        && Objects.equals(pipelineStatusReason, that.pipelineStatusReason);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(padPipelineId, pipelineName, pipelineId, fromLocation, fromCoordinates, toLocation,
+        toCoordinates,
+        pipelineNumber, pipelineType, componentParts, length, productsToBeConveyed, numberOfIdents, maxExternalDiameter,
+        pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial, otherPipelineMaterialUsed,
+        trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus, pipelineStatusReason);
+  }
+}

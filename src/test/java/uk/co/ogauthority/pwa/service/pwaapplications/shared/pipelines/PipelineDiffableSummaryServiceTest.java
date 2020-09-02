@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
@@ -41,6 +42,9 @@ public class PipelineDiffableSummaryServiceTest {
 
   @Mock
   private PipelineOverview padPipelineOverview;
+
+  @Mock
+  private PipelineHeaderView pipelineHeaderView;
 
   @Mock
   private PipelineDetailService pipelineDetailService;
@@ -100,7 +104,7 @@ public class PipelineDiffableSummaryServiceTest {
     var summary = summaryList.get(0);
 
     assertThat(summary.getPipelineId().asInt()).isEqualTo(PIPELINE_ID);
-    assertThat(summary.getPipelineName()).isEqualTo(PAD_PIPELINE_NAME);
+    assertThat(summary.getPipelineHeaderView().getPipelineName()).isEqualTo(PAD_PIPELINE_NAME);
     assertThat(summary.getIdentViews()).hasSize(0);
 
 

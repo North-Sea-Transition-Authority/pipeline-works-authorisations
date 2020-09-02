@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
@@ -57,6 +58,9 @@ public class PipelinesSummaryServiceTest {
   private PipelineOverview pipelineOverview;
 
   @Mock
+  private PipelineHeaderView pipelineHeaderView;
+
+  @Mock
   private IdentView identStart;
 
   @Mock
@@ -70,10 +74,9 @@ public class PipelinesSummaryServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
 
-    when(pipelineOverview.getPipelineName()).thenReturn(PIPELINE_NAME);
-    when(pipelineOverview.getPipelineId()).thenReturn(PIPELINE_ID);
+    when(pipelineHeaderView.getPipelineId()).thenReturn(PIPELINE_ID);
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(identStart, PIPELINE_POINT_1, PIPELINE_POINT_2, 1);
     IdentViewTestUtil.setupSingleCoreIdentViewMock(identMid, PIPELINE_POINT_2, PIPELINE_POINT_3, 2);
@@ -113,9 +116,10 @@ public class PipelinesSummaryServiceTest {
     var appSummary = pipelinesSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(3);
+    assertThat(appSummary.getTemplateModel()).hasSize(4);
     assertThat(appSummary.getTemplateModel()).contains(entry("unitMeasurements", UnitMeasurement.toMap()));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.PIPELINES.getDisplayName()));
+    assertThat(appSummary.getTemplateModel()).contains(entry("pipelinesSchematic", List.of()));
     assertThat(appSummary.getTemplateModel()).contains(entry("pipelines", List.of()));
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
@@ -129,15 +133,15 @@ public class PipelinesSummaryServiceTest {
   @Test
   public void getDiffedPipelineSummaryList_serviceInteractions_whenSingleAppPipelineAdded() {
 
-    var appPipelineSummary = PipelineDiffableSummary.from(pipelineOverview, List.of(identStart, identMid, identEnd));
+    var appPipelineSummary = PipelineDiffableSummary.from(pipelineHeaderView, List.of(identStart, identMid, identEnd));
     var diffedSummaryList = pipelinesSummaryService.getDiffedPipelineSummaryList(List.of(appPipelineSummary), List.of());
 
     assertThat(diffedSummaryList).hasSize(1);
     assertThat(diffedSummaryList.get(0)).containsOnlyKeys("pipelineHeader", "pipelineIdents");
 
     verify(diffService, times(1)).diff(
-        eq(appPipelineSummary),
-        eq(PipelineDiffableSummary.empty()),
+        eq(appPipelineSummary.getPipelineHeaderView()),
+        eq(new PipelineHeaderView()),
         eq(Set.of("identViews")));
 
     verify(diffService, times(1)).diffComplexLists(

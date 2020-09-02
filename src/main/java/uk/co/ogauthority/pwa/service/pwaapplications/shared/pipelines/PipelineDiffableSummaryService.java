@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipelineDto;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
@@ -40,7 +40,7 @@ public class PipelineDiffableSummaryService {
     var pipelineOverviews = padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail);
     return pipelineOverviews.stream()
         .map(pipelineOverview -> PipelineDiffableSummary.from(
-            pipelineOverview,
+            new PipelineHeaderView(pipelineOverview),
             padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview))
         )
         .collect(Collectors.toList());
@@ -57,8 +57,8 @@ public class PipelineDiffableSummaryService {
     return consentedPipelineDetails.stream()
         .map(pipelineDetail ->  {
           var identViews = pipelineDetailIdentService.getSortedPipelineIdentViewsForPipeline(pipelineDetail.getPipelineId());
-          var namedPipeline = NamedPipelineDto.fromPipelineDetail(pipelineDetail);
-          return PipelineDiffableSummary.from(namedPipeline, identViews);
+          PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
+          return PipelineDiffableSummary.from(pipelineHeaderView, identViews);
         })
         .collect(Collectors.toList());
   }

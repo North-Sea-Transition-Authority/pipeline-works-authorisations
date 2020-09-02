@@ -18,12 +18,16 @@ public class PwaAppProcessingContext {
   private final WebUserAccount user;
   private final Set<PwaAppProcessingPermission> appProcessingPermissions;
 
+  private final CaseSummaryView caseSummaryView;
+
   public PwaAppProcessingContext(PwaApplicationDetail applicationDetail,
                                WebUserAccount user,
-                               Set<PwaAppProcessingPermission> appProcessingPermissions) {
+                               Set<PwaAppProcessingPermission> appProcessingPermissions,
+                               CaseSummaryView caseSummaryView) {
     this.applicationDetail = applicationDetail;
     this.user = user;
     this.appProcessingPermissions = appProcessingPermissions;
+    this.caseSummaryView = caseSummaryView;
   }
 
   public PwaApplicationDetail getApplicationDetail() {
@@ -44,6 +48,10 @@ public class PwaAppProcessingContext {
 
   public PwaApplicationType getApplicationType() {
     return applicationDetail.getPwaApplicationType();
+  }
+
+  public CaseSummaryView getCaseSummaryView() {
+    return caseSummaryView;
   }
 
 }

@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -52,7 +51,7 @@ public class ConsultationController {
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                          PwaAppProcessingContext processingContext,
                                          AuthenticatedUserAccount authenticatedUserAccount) {
-    return getConsultationModelAndView(processingContext.getApplicationDetail());
+    return getConsultationModelAndView(processingContext);
   }
 
 
@@ -100,7 +99,10 @@ public class ConsultationController {
 
 
   //Model//Views
-  private ModelAndView getConsultationModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+  private ModelAndView getConsultationModelAndView(PwaAppProcessingContext pwaAppProcessingContext) {
+
+    var pwaApplicationDetail = pwaAppProcessingContext.getApplicationDetail();
+
     return new ModelAndView("consultation/consultation")
         .addObject("requestConsultationsUrl",
             ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(
@@ -109,7 +111,8 @@ public class ConsultationController {
         .addObject("consulteeGroupRequestsViews",
             consultationViewService.getConsultationRequestViews(pwaApplicationDetail.getPwaApplication()))
         .addObject("consultationsUrlFactory", new ConsultationsUrlFactory(
-            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()));
+            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()))
+        .addObject("caseSummaryView", pwaAppProcessingContext.getCaseSummaryView());
   }
 
 

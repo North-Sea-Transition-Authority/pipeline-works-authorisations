@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -133,7 +134,7 @@ public class AddHuooValidatorTest {
   }
 
   @Test
-  public void invalid_huooType_treaty_duplicate() {
+  public void invalid_huooType_treaty_addSecond() {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
@@ -141,7 +142,7 @@ public class AddHuooValidatorTest {
 
     var orgRole = new PadOrganisationRole();
     orgRole.setType(HuooType.TREATY_AGREEMENT);
-    orgRole.setAgreement(TreatyAgreement.BELGIUM);
+    orgRole.setAgreement(TreatyAgreement.NORWAY);
     orgRole.setRole(HuooRole.OWNER);
 
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(orgRole));
@@ -149,7 +150,7 @@ public class AddHuooValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
 
     assertThat(result).containsOnly(
-        entry("treatyAgreement", Set.of("treatyAgreement.duplicate"))
+        entry("treatyAgreement", Set.of("treatyAgreement" + FieldValidationErrorCodes.TOO_MANY.getCode()))
     );
 
   }

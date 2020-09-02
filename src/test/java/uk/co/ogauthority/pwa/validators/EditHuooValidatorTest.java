@@ -173,32 +173,6 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void invalid_huooType_treaty_duplicate() {
-
-    var form = new HuooForm();
-    form.setHuooType(HuooType.TREATY_AGREEMENT);
-    form.setTreatyAgreement(TreatyAgreement.BELGIUM);
-
-    var orgRole = new PadOrganisationRole();
-    orgRole.setType(HuooType.TREATY_AGREEMENT);
-    orgRole.setAgreement(TreatyAgreement.BELGIUM);
-
-    var validationView = getValidationView(treatyOrgRoles);
-
-    treatyOrgRoles = new ArrayList<>(treatyOrgRoles);
-    treatyOrgRoles.add(orgRole);
-
-    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(treatyOrgRoles);
-
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail, validationView);
-
-    assertThat(result).containsOnly(
-        entry("treatyAgreement", Set.of("treatyAgreement.duplicate"))
-    );
-
-  }
-
-  @Test
   public void invalid_huooType_portalOrg_lastHolder() {
 
     var form = buildForm();

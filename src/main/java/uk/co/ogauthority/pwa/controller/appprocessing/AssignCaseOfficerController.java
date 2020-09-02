@@ -17,7 +17,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -41,7 +40,7 @@ public class AssignCaseOfficerController {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final ControllerHelperService controllerHelperService;
 
-  
+
   @Autowired
   public AssignCaseOfficerController(
       AssignCaseOfficerService assignCaseOfficerService,
@@ -61,7 +60,7 @@ public class AssignCaseOfficerController {
                                              PwaAppProcessingContext processingContext,
                                              AuthenticatedUserAccount authenticatedUserAccount,
                                              @ModelAttribute("form") AssignCaseOfficerForm form) {
-    return getAssignCaseOfficerModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount);
+    return getAssignCaseOfficerModelAndView(processingContext);
   }
 
 
@@ -77,7 +76,7 @@ public class AssignCaseOfficerController {
     bindingResult = assignCaseOfficerService.validate(form, bindingResult, processingContext.getPwaApplication());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getAssignCaseOfficerModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount), () -> {
+        getAssignCaseOfficerModelAndView(processingContext), () -> {
           assignCaseOfficerService.assignCaseOfficer(
               form.getCaseOfficerPerson(),  processingContext.getApplicationDetail(), authenticatedUserAccount);
           return ReverseRouter.redirect(on(CaseManagementController.class).renderCaseManagement(
@@ -87,8 +86,10 @@ public class AssignCaseOfficerController {
   }
 
 
-  private ModelAndView getAssignCaseOfficerModelAndView(
-      PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount authenticatedUserAccount) {
+  private ModelAndView getAssignCaseOfficerModelAndView(PwaAppProcessingContext appProcessingContext) {
+
+    var pwaApplicationDetail = appProcessingContext.getApplicationDetail();
+
     return new ModelAndView("appprocessing/assignCaseOfficer")
         .addObject("errorList", List.of())
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
@@ -99,7 +100,9 @@ public class AssignCaseOfficerController {
                 .getAssignmentCandidates(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
                 .sorted(Comparator.comparing(Person::getFullName))
                 .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
-                    Person::getFullName)));
+                    Person::getFullName)))
+        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView());
+
   }
 
 

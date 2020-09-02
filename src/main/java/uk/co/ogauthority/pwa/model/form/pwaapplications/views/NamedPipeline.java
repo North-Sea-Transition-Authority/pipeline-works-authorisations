@@ -25,14 +25,15 @@ public interface NamedPipeline {
    */
   default String getPipelineName() {
     var pipelineName = getPipelineNumber() + " - ";
-    if (getPipelineType() != null) {
-      if (getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE) && getMaxExternalDiameter() != null) {
-        pipelineName += getMaxExternalDiameter() + " Millimetre ";
-      }
+    var pipelineType = getPipelineType() != null ? getPipelineType() : PipelineType.UNKNOWN;
+    var coreType = pipelineType.getCoreType();
+
+    if (coreType.equals(PipelineCoreType.SINGLE_CORE) && getMaxExternalDiameter() != null) {
+      pipelineName += getMaxExternalDiameter() + " Millimetre ";
     }
-    if (getPipelineType() != null) {
-      pipelineName += getPipelineType().getDisplayName();
-    }
+
+    pipelineName += pipelineType.getDisplayName();
+
     if (BooleanUtils.isTrue(getPipelineInBundle())) {
       pipelineName += " (" + getBundleName() + ")";
     }

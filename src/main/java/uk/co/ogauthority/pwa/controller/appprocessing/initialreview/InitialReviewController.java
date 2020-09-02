@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.initialreview.InitialReviewForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
@@ -60,7 +59,9 @@ public class InitialReviewController {
     this.controllerHelperService = controllerHelperService;
   }
 
-  private ModelAndView getInitialReviewModelAndView(PwaApplicationDetail detail) {
+  private ModelAndView getInitialReviewModelAndView(PwaAppProcessingContext appProcessingContext) {
+
+    var detail = appProcessingContext.getApplicationDetail();
 
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/initialReview/initialReview")
         .addObject("appRef", detail.getPwaApplicationRef())
@@ -72,7 +73,8 @@ public class InitialReviewController {
                 .getAssignmentCandidates(detail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
                 .sorted(Comparator.comparing(Person::getFullName))
                 .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
-                    Person::getFullName)));
+                    Person::getFullName)))
+        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView());
 
     breadcrumbService.fromWorkArea(modelAndView, detail.getPwaApplicationRef());
 
@@ -88,7 +90,7 @@ public class InitialReviewController {
                                           PwaAppProcessingContext processingContext,
                                           @ModelAttribute("form") InitialReviewForm form,
                                           AuthenticatedUserAccount user) {
-    return getInitialReviewModelAndView(processingContext.getApplicationDetail());
+    return getInitialReviewModelAndView(processingContext);
   }
 
   @PostMapping
@@ -104,7 +106,7 @@ public class InitialReviewController {
     initialReviewFormValidator.validate(form, bindingResult, processingContext.getPwaApplication());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getInitialReviewModelAndView(processingContext.getApplicationDetail()),
+        getInitialReviewModelAndView(processingContext),
         () -> {
 
           try {

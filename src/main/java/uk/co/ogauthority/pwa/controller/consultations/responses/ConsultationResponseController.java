@@ -15,12 +15,15 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -33,14 +36,17 @@ public class ConsultationResponseController {
 
   private final ConsultationResponseService consultationResponseService;
   private final ConsultationRequestService consultationRequestService;
+  private final ConsultationViewService consultationViewService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public ConsultationResponseController(ConsultationResponseService consultationResponseService,
                                         ConsultationRequestService consultationRequestService,
+                                        ConsultationViewService consultationViewService,
                                         ControllerHelperService controllerHelperService) {
     this.consultationResponseService = consultationResponseService;
     this.consultationRequestService = consultationRequestService;
+    this.consultationViewService = consultationViewService;
     this.controllerHelperService = controllerHelperService;
   }
 
@@ -56,7 +62,8 @@ public class ConsultationResponseController {
     var consultationRequest = consultationRequestService.getConsultationRequestById(consultationRequestId);
 
     if (consultationResponseService.isUserAssignedResponderForConsultation(authenticatedUserAccount, consultationRequest)) {
-      return getResponderModelAndView(authenticatedUserAccount, processingContext.getPwaApplication().getAppReference());
+      return getResponderModelAndView(authenticatedUserAccount,
+          processingContext.getPwaApplication().getAppReference(), processingContext.getPwaApplication(), consultationRequest);
     }
 
     throw new AccessDeniedException(
@@ -89,19 +96,24 @@ public class ConsultationResponseController {
     bindingResult = consultationResponseService.validate(form, bindingResult);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getResponderModelAndView(authenticatedUserAccount, processingContext.getPwaApplication().getAppReference()), () -> {
+        getResponderModelAndView(authenticatedUserAccount, processingContext.getPwaApplication().getAppReference(),
+            processingContext.getPwaApplication(), consultationRequest), () -> {
           consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, authenticatedUserAccount);
           return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null));
         });
 
   }
 
-  private ModelAndView getResponderModelAndView(AuthenticatedUserAccount authenticatedUserAccount, String appReference) {
+  private ModelAndView getResponderModelAndView(AuthenticatedUserAccount authenticatedUserAccount,
+                                                String appReference, PwaApplication pwaApplication,
+                                                ConsultationRequest consultationRequest) {
     return new ModelAndView("consultation/responses/responderForm")
         .addObject("cancelUrl",
                 ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, authenticatedUserAccount, null)))
         .addObject("responseOptions", ConsultationResponseOption.asList())
-        .addObject("appRef", appReference);
+        .addObject("appRef", appReference)
+        .addObject("previousResponses",
+            consultationViewService.getConsultationRequestViewsRespondedOnly(pwaApplication, consultationRequest));
   }
 
 }

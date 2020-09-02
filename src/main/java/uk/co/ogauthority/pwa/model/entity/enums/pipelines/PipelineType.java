@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
 
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
-public enum PipelineType {
+public enum PipelineType implements DiffableAsString {
 
   UNKNOWN("Unknown pipeline type", -1, PipelineCoreType.SINGLE_CORE),
 
@@ -55,4 +56,9 @@ public enum PipelineType {
         .filter(pipelineType -> pipelineType.getDisplayOrder() >= 0);
   }
 
+
+  @Override
+  public String getDiffableString() {
+    return this.getDisplayName();
+  }
 }

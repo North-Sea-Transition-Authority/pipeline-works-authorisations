@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
 
 import java.util.Arrays;
 import java.util.List;
+import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
-public enum PipelineMaterial {
+public enum PipelineMaterial implements DiffableAsString {
 
   CARBON_STEEL("Carbon steel"),
   DUPLEX("Duplex"),
@@ -23,4 +24,8 @@ public enum PipelineMaterial {
     return Arrays.asList(PipelineMaterial.values());
   }
 
+  @Override
+  public String getDiffableString() {
+    return getDisplayText();
+  }
 }

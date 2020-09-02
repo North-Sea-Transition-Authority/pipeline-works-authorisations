@@ -4,8 +4,11 @@
 <#-- @ftlvariable name="isOptionsVariation" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="isFastTrack" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="caseOfficerCandidates" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 
-<@defaultPage htmlTitle="Accept application ${appRef}" pageHeading="Accept application ${appRef}" breadcrumbs=true>
+<@defaultPage htmlTitle="Accept application ${appRef}" breadcrumbs=true fullWidthColumn=true>
+
+    <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
     <#if isFastTrack>
         <@fdsWarning.warning>

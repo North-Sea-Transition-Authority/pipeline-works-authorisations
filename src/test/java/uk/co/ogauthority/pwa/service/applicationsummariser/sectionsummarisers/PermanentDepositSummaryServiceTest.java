@@ -5,12 +5,9 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +20,6 @@ import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
-import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
@@ -41,18 +37,14 @@ public class PermanentDepositSummaryServiceTest {
   @Mock
   private PermanentDepositService permanentDepositService;
 
-  @Mock
-  private DiffService diffService;
-
   private PermanentDepositSummaryService permanentDepositSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     permanentDepositSummaryService = new PermanentDepositSummaryService(
         taskListService,
-        permanentDepositService,
-        diffService);
+        permanentDepositService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
 
@@ -86,15 +78,10 @@ public class PermanentDepositSummaryServiceTest {
     );
     when(permanentDepositService.getPermanentDepositViews(pwaApplicationDetail)).thenReturn(newDetailOverviewList);
 
-    List<Map<String, ?>> fakeDiffOutput = List.of();
-    when(diffService.diffComplexLists(any(), any(), any(), any())).thenReturn(fakeDiffOutput);
-
     var appSummary = permanentDepositSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
-    verify(diffService, times(1)).diffComplexLists(eq(newDetailOverviewList), any(), any(), any());
-
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).contains(entry("diffedDepositList", fakeDiffOutput));
+    assertThat(appSummary.getTemplateModel()).containsKey("depositList");
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.PERMANENT_DEPOSITS.getDisplayName()));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.PERMANENT_DEPOSITS.getDisplayName(), "#permanentDeposits")

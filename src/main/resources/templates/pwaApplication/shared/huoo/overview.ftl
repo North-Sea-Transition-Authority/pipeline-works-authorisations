@@ -13,10 +13,6 @@
     <@fdsError.singleErrorSummary errorMessage=errorMessage />
   </#if>
 
-  <#if errorMessage?has_content>
-    <@fdsError.singleErrorSummary errorMessage=errorMessage />
-  </#if>
-
     <#if showHolderGuidance>
       <@fdsInsetText.insetText>
         You can only have a single holder on a PWA.
@@ -64,7 +60,7 @@
 
   <#if treatyAgreements?has_content>
     <table class="govuk-table">
-      <h3 class="govuk-heading-m">Treaty agreement users</h3>
+      <h3 class="govuk-heading-m">Treaty agreement user</h3>
       <thead class="govuk-table__header">
       <tr class="govuk-table__row">
         <th class="govuk-table__cell" scope="col">Country</th>

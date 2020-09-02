@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 
 @Service
@@ -77,12 +78,12 @@ public class AddHuooValidator implements SmartValidator {
     }
 
     if (form.getHuooType() == HuooType.TREATY_AGREEMENT) {
-      var alreadyAddedTreaty = roles.stream()
+      var treatyCount = roles.stream()
           .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
-          .anyMatch(padOrganisationRole -> padOrganisationRole.getAgreement().equals(form.getTreatyAgreement()));
-      if (alreadyAddedTreaty) {
-        errors.rejectValue("treatyAgreement", "treatyAgreement.duplicate",
-            "The treaty agreement is already added to the application");
+          .count();
+      if (treatyCount > 0) {
+        errors.rejectValue("treatyAgreement", "treatyAgreement" + FieldValidationErrorCodes.TOO_MANY.getCode(),
+            "You may only have one treaty agreement on an application");
       }
     }
   }

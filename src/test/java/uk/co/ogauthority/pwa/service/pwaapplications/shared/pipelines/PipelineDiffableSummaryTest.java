@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineDiffableSummaryTest {
@@ -26,7 +26,7 @@ public class PipelineDiffableSummaryTest {
   private final String POINT_4 = IdentViewTestUtil.POINT_4;
 
   @Mock
-  private NamedPipeline namedPipeline;
+  private PipelineHeaderView pipelineHeaderView;
 
   @Mock
   private IdentView startIdent;
@@ -38,10 +38,10 @@ public class PipelineDiffableSummaryTest {
   private IdentView endIdent;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
 
-    when(namedPipeline.getPipelineName()).thenReturn(PIPELINE_NAME);
-    when(namedPipeline.getPipelineId()).thenReturn(PIPELINE_ID.asInt());
+    when(pipelineHeaderView.getPipelineName()).thenReturn(PIPELINE_NAME);
+    when(pipelineHeaderView.getPipelineId()).thenReturn(PIPELINE_ID.asInt());
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(startIdent, POINT_1, POINT_2, 1);
     IdentViewTestUtil.setupSingleCoreIdentViewMock(midIdent, POINT_2, POINT_3, 2);
@@ -51,17 +51,17 @@ public class PipelineDiffableSummaryTest {
   @Test
   public void from_mapsPipelineHeaderInfo_andContainsAllIdents() {
 
-    var result = PipelineDiffableSummary.from(namedPipeline, List.of(startIdent, midIdent, endIdent));
+    var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent));
 
     assertThat(result.getIdentViews()).hasSize(3);
-    assertThat(result.getPipelineName()).isEqualTo(PIPELINE_NAME);
+    assertThat(result.getPipelineHeaderView().getPipelineName()).isEqualTo(PIPELINE_NAME);
     assertThat(result.getPipelineId()).isEqualTo(PIPELINE_ID);
   }
 
   @Test
   public void from_processesIdentsInOrder() {
 
-    var result = PipelineDiffableSummary.from(namedPipeline, List.of(startIdent, midIdent, endIdent));
+    var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent));
 
     assertThat(result.getIdentViews()).hasSize(3);
 

@@ -285,6 +285,9 @@ AS
                                         , length
                                         , products_to_be_conveyed
                                         , trenched_buried_filled_flag
+                                        , max_external_diameter
+                                        , bundle_name
+                                        , pipeline_in_bundle
                                         )
     VALUES ( p_mig_pipeline_history.pd_id
            , l_master_pipeline_row.id
@@ -314,6 +317,16 @@ AS
                 WHEN p_mig_pipeline_history.trenched_y_n IS NULL THEN NULL
                 ELSE 2 -- check constraint prevents insert in this case
               END
+           , p_mig_pipeline_history.diameter
+           , CASE
+               WHEN INSTR(p_mig_pipeline_history.pipeline_number, '.') != 0
+                 THEN SUBSTR(p_mig_pipeline_history.pipeline_number, 0, INSTR(p_mig_pipeline_history.pipeline_number, '.')-1) || ' bundle'
+               ELSE NULL
+             END
+           , CASE
+               WHEN INSTR(p_mig_pipeline_history.pipeline_number, '.') != 0 THEN 1
+               ELSE 0
+             END
            )
     RETURNING id INTO l_detail_id;
 

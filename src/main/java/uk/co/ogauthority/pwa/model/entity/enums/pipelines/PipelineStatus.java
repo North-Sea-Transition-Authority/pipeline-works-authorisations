@@ -5,8 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
-public enum PipelineStatus {
+public enum PipelineStatus implements DiffableAsString {
 
   IN_SERVICE("In service", 10, false),
   RETURNED_TO_SHORE("Returned to shore", 20, false),
@@ -51,4 +52,8 @@ public enum PipelineStatus {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public String getDiffableString() {
+    return getDisplayText();
+  }
 }

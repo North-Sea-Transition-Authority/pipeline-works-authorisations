@@ -23,7 +23,6 @@ public class ApplicationUpdateRequestService {
     this.clock = clock;
   }
 
-
   @Transactional
   public void createApplicationUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
                                              Person requestingPerson,

@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestApplicationUpdateController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
@@ -44,18 +43,18 @@ public class CaseManagementController {
                                            @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                            PwaAppProcessingContext processingContext,
                                            AuthenticatedUserAccount authenticatedUserAccount) {
-    return getCaseManagementModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount);
+    return getCaseManagementModelAndView(processingContext, authenticatedUserAccount);
   }
 
 
-  private ModelAndView getCaseManagementModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                     AuthenticatedUserAccount userAccount) {
-    var appId = pwaApplicationDetail.getMasterPwaApplicationId();
-    var applicationType = pwaApplicationDetail.getPwaApplicationType();
+  private ModelAndView getCaseManagementModelAndView(PwaAppProcessingContext appProcessingContext, AuthenticatedUserAccount userAccount) {
+
+    var appId = appProcessingContext.getApplicationDetail().getMasterPwaApplicationId();
+    var applicationType =  appProcessingContext.getApplicationDetail().getPwaApplicationType();
 
     var canRequestApplicationUpdate = pwaAppProcessingPermissionService.getProcessingPermissions(userAccount)
         .contains(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE)
-        && !applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
+        && !applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(appProcessingContext.getApplicationDetail());
 
     return new ModelAndView("appprocessing/caseManagement")
         .addObject("requestUpdateUrl", ReverseRouter.route(on(RequestApplicationUpdateController.class)
@@ -68,7 +67,8 @@ public class CaseManagementController {
             pwaAppProcessingPermissionService.getProcessingPermissions(userAccount).contains(
                 PwaAppProcessingPermission.ASSIGN_CASE_OFFICER))
         .addObject("canRequestApplicationUpdate", canRequestApplicationUpdate
-            );
+        )
+        .addObject("caseSummaryView", appProcessingContext.getCaseSummaryView());
   }
 
 

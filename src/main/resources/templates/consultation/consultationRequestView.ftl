@@ -5,10 +5,10 @@
 <#-- @ftlvariable name="consultationsUrlFactory" type="uk.co.ogauthority.pwa.service.consultations.ConsultationsUrlFactory" -->
 
 
-<#macro consultationRequestView consultationRequestViewData>   
+<#macro consultationRequestView consultationRequestViewData>
 
-    <h2 class="govuk-heading-m"> ${consultationRequestViewData.consulteeGroupName} </h2>
-    <h3 class="govuk-heading-s"> Requested ${consultationRequestViewData.requestDateDisplay} </h3>
+    <h3 class="govuk-heading-m"> ${consultationRequestViewData.consulteeGroupName} </h3>
+    <h4 class="govuk-heading-s"> Requested ${consultationRequestViewData.requestDateDisplay} </h4>
 
     <@fdsCheckAnswers.checkAnswers summaryListClass="">
         <#nested/>
@@ -29,14 +29,14 @@
             <@fdsCheckAnswers.checkAnswersRow keyText="Response" actionText="" actionUrl="" screenReaderActionText="">
                 ${consultationRequestViewData.responseType.getDisplayText()}
             </@fdsCheckAnswers.checkAnswersRow>
-        </#if>        
+        </#if>
 
 
         <#if consultationRequestViewData.responseRejectionReason?has_content >
             <@fdsCheckAnswers.checkAnswersRow keyText="Rejection reason" actionText="" actionUrl="" screenReaderActionText="">
                 ${consultationRequestViewData.responseRejectionReason}
             </@fdsCheckAnswers.checkAnswersRow>
-        </#if>  
+        </#if>
 
 
         <#if consultationRequestViewData.responseByPerson?has_content >

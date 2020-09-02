@@ -10,8 +10,21 @@
 
     <@fdsForm.htmlForm>
 
-        <@fdsRadio.radioGroup path="form.partnerLettersRequired" labelText="Do you need to provide partner approval letters?" hiddenContent=true
-        hintText="Partners letters are required for all new PWAs and for all Category 1 PWAs. For Category 2 and Decom applications partners letters may be required where existing pipelines have the product conveyed changed or other material changes.">
+        <#assign detailsText>
+        <p>
+            Partner approval letters are required for Full PWA and Category 1 variations for all partners.
+        </p>
+        <p>
+            For Category 2 and Decom applications partner approval letters are required if a new partner has an interest in the project and they have not supplied a letter as part of the initial PWA or any associated Category 1 Variations.
+        </p>
+        <p>
+            You must use the partner approval letter template at [link]
+        </p>
+        </#assign>
+
+        <@fdsDetails.details detailsTitle="When do I need to provide partner approval letters?" detailsText=detailsText />
+
+        <@fdsRadio.radioGroup path="form.partnerLettersRequired" labelText="Do you need to provide partner approval letters?" hiddenContent=true hintText="A partner is any holder, user, operator or owner that is not part of your corporate group">
 
             <@fdsRadio.radioYes path="form.partnerLettersRequired">
                 <@fdsFileUpload.fileUpload id="partner-letters-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
