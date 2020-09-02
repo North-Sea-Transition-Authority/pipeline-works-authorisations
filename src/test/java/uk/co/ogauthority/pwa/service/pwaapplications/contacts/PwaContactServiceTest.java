@@ -426,4 +426,25 @@ public class PwaContactServiceTest {
     });
   }
 
+  @Test
+  public void getPeopleInRoleForPwaApplication_whenContactWithRoleExists() {
+    var fakeContact = new PwaContact();
+    fakeContact.setRoles(Set.of(PwaContactRole.PREPARER));
+    fakeContact.setPerson(person);
+    when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(fakeContact));
+
+    assertThat(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
+        .containsExactly(person);
+  }
+
+  @Test
+  public void getPeopleInRoleForPwaApplication_whenZeroContactsWithRoleExist() {
+    var fakeContact = new PwaContact();
+    fakeContact.setRoles(Set.of(PwaContactRole.ACCESS_MANAGER));
+    fakeContact.setPerson(person);
+    when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(fakeContact));
+
+    assertThat(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
+        .isEmpty();
+  }
 }

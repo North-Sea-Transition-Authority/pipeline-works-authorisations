@@ -78,7 +78,7 @@ public class RequestApplicationUpdateController {
               bindingResult,
               modelAndView,
               () -> {
-                applicationUpdateRequestService.createApplicationUpdateRequest(
+                applicationUpdateRequestService.submitApplicationUpdateRequest(
                     processingContext.getApplicationDetail(),
                     authenticatedUserAccount.getLinkedPerson(),
                     form.getRequestReason()

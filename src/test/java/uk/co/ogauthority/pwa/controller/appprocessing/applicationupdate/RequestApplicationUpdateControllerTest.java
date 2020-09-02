@@ -136,7 +136,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     assertThat(model).contains(entry("errorList", List.of()));
 
     verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
-    verify(applicationUpdateRequestService, times(0)).createApplicationUpdateRequest(any(), any(), any());
+    verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
   }
 
   @Test
@@ -199,7 +199,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andReturn();
 
     verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
-    verify(applicationUpdateRequestService, times(0)).createApplicationUpdateRequest(any(), any(), any());
+    verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
 
   }
 
@@ -222,7 +222,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andReturn();
 
     verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
-    verify(applicationUpdateRequestService, times(0)).createApplicationUpdateRequest(any(), any(), any());
+    verify(applicationUpdateRequestService, times(0)).submitApplicationUpdateRequest(any(), any(), any());
 
   }
 
@@ -244,7 +244,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andExpect(model().attributeHasNoErrors())
         .andReturn();
     verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
-    verify(applicationUpdateRequestService, times(1)).createApplicationUpdateRequest(pwaApplicationDetail, person,
+    verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(pwaApplicationDetail, person,
         REQUEST_REASON_VALID);
 
   }
