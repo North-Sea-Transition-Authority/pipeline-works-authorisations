@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.function.Function;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,9 +18,11 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -34,10 +37,13 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class RequestApplicationUpdateController {
 
   private final ControllerHelperService controllerHelperService;
+  private final ApplicationUpdateRequestService applicationUpdateRequestService;
 
   @Autowired
-  public RequestApplicationUpdateController(ControllerHelperService controllerHelperService) {
+  public RequestApplicationUpdateController(ControllerHelperService controllerHelperService,
+                                            ApplicationUpdateRequestService applicationUpdateRequestService) {
     this.controllerHelperService = controllerHelperService;
+    this.applicationUpdateRequestService = applicationUpdateRequestService;
   }
 
 
@@ -49,7 +55,10 @@ public class RequestApplicationUpdateController {
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           @ModelAttribute("form") ApplicationUpdateRequestForm form) {
 
-    return getModelAndView(processingContext.getApplicationDetail());
+    return whenZeroOpenUpdateRequests(
+        processingContext.getApplicationDetail(),
+        this::getModelAndView
+    );
   }
 
 
@@ -61,13 +70,24 @@ public class RequestApplicationUpdateController {
                                     AuthenticatedUserAccount authenticatedUserAccount,
                                     @Valid @ModelAttribute("form") ApplicationUpdateRequestForm form,
                                     BindingResult bindingResult) {
-
-    var modelAndView = getModelAndView(processingContext.getApplicationDetail());
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        modelAndView,
-        () -> ReverseRouter.redirect(on(CaseManagementController.class)
-            .renderCaseManagement(applicationId, pwaApplicationType, null, null))
+    return whenZeroOpenUpdateRequests(
+        processingContext.getApplicationDetail(),
+        pwaApplicationDetail -> {
+          var modelAndView = getModelAndView(processingContext.getApplicationDetail());
+          return controllerHelperService.checkErrorsAndRedirect(
+              bindingResult,
+              modelAndView,
+              () -> {
+                applicationUpdateRequestService.createApplicationUpdateRequest(
+                    processingContext.getApplicationDetail(),
+                    authenticatedUserAccount.getLinkedPerson(),
+                    form.getRequestReason()
+                );
+                return ReverseRouter.redirect(on(CaseManagementController.class)
+                    .renderCaseManagement(applicationId, pwaApplicationType, null, null));
+              }
+          );
+        }
     );
 
 
@@ -84,6 +104,15 @@ public class RequestApplicationUpdateController {
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("errorList", List.of())
         .addObject("cancelUrl", caseManagementUrl);
+  }
+
+  private ModelAndView whenZeroOpenUpdateRequests(PwaApplicationDetail pwaApplicationDetail,
+                                                  Function<PwaApplicationDetail, ModelAndView> doWhenZeroUpdateRequests) {
+    if (applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)) {
+      throw new AccessDeniedException(
+          String.format("Pad_id: %s has open update request", pwaApplicationDetail.getId()));
+    }
+    return doWhenZeroUpdateRequests.apply(pwaApplicationDetail);
   }
 
 

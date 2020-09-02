@@ -2,7 +2,7 @@
 <#-- @ftlvariable name="assignCaseOfficerUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="requestUpdateUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="hasAssignCaseOfficerPermission" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="hasRequestApplicationUpdatePermission" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="canRequestApplicationUpdate" type="java.lang.Boolean" -->
 
 <#include '../layout.ftl'>
 
@@ -16,7 +16,7 @@
     <span class="govuk-hint">Reassign an application that already has a case officer assigned</span>
   </#if>
 
-  <#if hasRequestApplicationUpdatePermission>
+  <#if canRequestApplicationUpdate>
     <@fdsAction.link linkText="Request application update" linkClass="govuk-link govuk-link--no-visited-state category-list__link" linkUrl=springUrl(requestUpdateUrl)/>
     <span class="govuk-hint">Request an update to the application from the submitter</span>
   </#if>

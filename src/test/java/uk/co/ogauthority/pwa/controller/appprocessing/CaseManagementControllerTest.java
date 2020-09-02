@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -27,6 +28,9 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
+
+  @MockBean
+  private ApplicationUpdateRequestService applicationUpdateRequestService;
 
   @Before
   public void setUp() {

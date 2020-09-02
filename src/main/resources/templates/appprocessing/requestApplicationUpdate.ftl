@@ -2,12 +2,12 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Request application update" pageHeading="${appRef} request update" topNavigation=true twoThirdsColumn=false backLink=true>
+<@defaultPage htmlTitle="Request application update" pageHeading="${appRef} request update" topNavigation=true twoThirdsColumn=true backLink=true>
   <@fdsError.errorSummary errorItems=errorList />
 
   <@fdsForm.htmlForm>
 
-    <@fdsTextarea.textarea path="form.requestReason" labelText="What is the reason an update is required?" characterCount=true maxCharacterLength="4000"/>
+    <@fdsTextarea.textarea path="form.requestReason" labelText="Why is an update is required?" characterCount=true maxCharacterLength="4000"/>
 
     <@fdsAction.submitButtons primaryButtonText="Request applicaton update" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
   </@fdsForm.htmlForm>
