@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
 
 import java.util.Arrays;
 import java.util.List;
+import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
-public enum PipelineFlexibility {
+public enum PipelineFlexibility implements DiffableAsString {
 
   FLEXIBLE("Flexible"),
   RIGID("Rigid");
@@ -22,4 +23,8 @@ public enum PipelineFlexibility {
     return Arrays.asList(PipelineFlexibility.values());
   }
 
+  @Override
+  public String getDiffableString() {
+    return getDisplayText();
+  }
 }

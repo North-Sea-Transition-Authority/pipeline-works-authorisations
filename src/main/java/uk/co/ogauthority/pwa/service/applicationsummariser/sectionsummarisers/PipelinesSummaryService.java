@@ -76,6 +76,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("pipelines", diffedPipelineSummaryList);
+    summaryModel.put("pipelinesSchematic", List.of());
     summaryModel.put("unitMeasurements", UnitMeasurement.toMap());
     return new ApplicationSectionSummary(
         templateName,
@@ -100,7 +101,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
     // Cant remove pipelines from an application once they are in the consented model, can change their status only, e.g not laid.
     // Use a Pair where the left is the current version of the pipeline, and the right is the consented version.
     List<ImmutablePair<PipelineDiffableSummary, PipelineDiffableSummary>> pipelineSummaryPairList = applicationPipelines.stream()
-        .sorted(Comparator.comparing(PipelineDiffableSummary::getPipelineName))
+        .sorted(Comparator.comparing(x -> x.getPipelineHeaderView().getPipelineName()))
         .map(applicationPipelineSummary -> new ImmutablePair<>(
                 applicationPipelineSummary,
                 consentedPipelinesMap.getOrDefault(applicationPipelineSummary.getPipelineId(), PipelineDiffableSummary.empty())
@@ -114,7 +115,8 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
       // we need to ignore the nested complex list of idents so we can do this diff separately
       // the diff service does not handle nested complex properties natively.
       pipelineDiffMap.put("pipelineHeader", diffService.diff(
-          pipelineSummaryPair.getLeft(), pipelineSummaryPair.getRight(), Set.of("identViews")
+          pipelineSummaryPair.getLeft().getPipelineHeaderView(), pipelineSummaryPair.getRight().getPipelineHeaderView(),
+          Set.of("identViews")
       ));
       pipelineDiffMap.put("pipelineIdents",
           diffService.diffComplexLists(
