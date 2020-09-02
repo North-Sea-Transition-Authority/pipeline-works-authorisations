@@ -76,7 +76,6 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("pipelines", diffedPipelineSummaryList);
-    summaryModel.put("pipelinesSchematic", List.of());
     summaryModel.put("unitMeasurements", UnitMeasurement.toMap());
     return new ApplicationSectionSummary(
         templateName,
