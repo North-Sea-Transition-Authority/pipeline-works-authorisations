@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Objects;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.AdmiraltyChartDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -28,4 +29,23 @@ public class AdmiraltyChartUrlFactory {
   }
 
 
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AdmiraltyChartUrlFactory that = (AdmiraltyChartUrlFactory) o;
+    return applicationType == that.applicationType
+        && Objects.equals(applicationId, that.applicationId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(applicationType, applicationId);
+  }
 }

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.TechnicalDrawingsSummaryService;
 
 /**
  * Defines basic details about application summary sections. Including:
@@ -27,7 +28,11 @@ public enum ApplicationSectionSummaryType {
   PIPELINES(
       30,
           "pwaApplication/applicationSummarySections/pipelineSummary.ftl",
-      PipelinesSummaryService.class);
+      PipelinesSummaryService.class),
+  TECHNICAL_DRAWINGS(
+      40,
+      "pwaApplication/applicationSummarySections/technicalDrawingsSummary.ftl",
+      TechnicalDrawingsSummaryService.class);
 
   private final int processingOrder;
   private final String templatePath;
