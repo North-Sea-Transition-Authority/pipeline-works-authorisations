@@ -36,6 +36,10 @@ public class PadTechnicalDrawingLinkService {
     return padTechnicalDrawingLinkRepository.getAllByTechnicalDrawing(drawing);
   }
 
+  public List<PadTechnicalDrawingLink> getLinksFromAppDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return padTechnicalDrawingLinkRepository.getAllByTechnicalDrawing_PwaApplicationDetail(pwaApplicationDetail);
+  }
+
   public List<PadPipelineKeyDto> getLinkedPipelineIds(PwaApplicationDetail detail) {
     return padTechnicalDrawingLinkRepository.getLinkedPipelineIdsByDetail(detail);
   }
@@ -71,4 +75,5 @@ public class PadTechnicalDrawingLinkService {
     );
     padTechnicalDrawingLinkRepository.deleteAll(links);
   }
+
 }

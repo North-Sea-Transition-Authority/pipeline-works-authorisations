@@ -10,7 +10,7 @@
 
     <#list pipelines as diffablePipeline>
         <h3 class="govuk-heading-m"><@diffChanges.renderDiff diffablePipeline.pipelineHeader.PipelineHeaderView_pipelineName /></h3>
-        <@pipelineHeaderDetails diffablePipeline.pipelineHeader diffablePipeline.pipelineIdents?size!0/>
+        <@pipelineHeaderDetails pipelineHeader=diffablePipeline.pipelineHeader pipelineIdentsSize=diffablePipeline.pipelineIdents?size!0 drawingSummaryView=(diffablePipeline.drawingSummaryView)! urlFactory=pipelineDrawingUrlFactory/>
         <#if diffablePipeline.pipelineIdents?has_content>
             <@fdsTimeline.timeline>
                 <@fdsTimeline.timelineSection sectionHeading="">
@@ -29,65 +29,89 @@
 </div>
 
 
-<#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize>
+<#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize drawingSummaryView urlFactory>
+
     <@fdsCheckAnswers.checkAnswers>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline name" actionUrl="" screenReaderActionText="" actionText="">
            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineName />
         </@fdsCheckAnswers.checkAnswersRow>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatus />
         </@fdsCheckAnswers.checkAnswersRow>
+
         <#if pipelineHeader.PipelineHeaderView_pipelineStatus.currentValue?lower_case == "out_of_use_on_seabed">
             <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
                  <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusReason />
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Number of idents" actionUrl="" screenReaderActionText="" actionText="">
              ${pipelineIdentsSize}
         </@fdsCheckAnswers.checkAnswersRow>
-        <@fdsCheckAnswers.checkAnswersRow keyText="Length" actionUrl="" screenReaderActionText="" actionText="">
-             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_length />m
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="Length (${unitMeasurements.METRE.suffixDisplay})" actionUrl="" screenReaderActionText="" actionText="">
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_length />
         </@fdsCheckAnswers.checkAnswersRow>
-        <@fdsCheckAnswers.checkAnswersRow keyText="From (WGS84)" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_fromLocation /> &nbsp;            
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_fromCoordinates! />
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="From location" actionUrl="" screenReaderActionText="" actionText="">
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_fromLocation />
         </@fdsCheckAnswers.checkAnswersRow>
-        <@fdsCheckAnswers.checkAnswersRow keyText="To (WGS84)" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_toLocation /> &nbsp;            
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_toCoordinates! />
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="From (WGS 84)" actionUrl="" screenReaderActionText="" actionText="">
+            <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_fromCoordinates multiLineTextBlockClass="govuk-summary-list"/>
         </@fdsCheckAnswers.checkAnswersRow>
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="To location" actionUrl="" screenReaderActionText="" actionText="">
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_toLocation />          
+        </@fdsCheckAnswers.checkAnswersRow>
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="To (WGS 84)" actionUrl="" screenReaderActionText="" actionText="">
+            <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_toCoordinates multiLineTextBlockClass="govuk-summary-list" />
+        </@fdsCheckAnswers.checkAnswersRow>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Component parts" actionUrl="" screenReaderActionText="" actionText="">
-             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_componentParts!"" />
+             <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_componentParts multiLineTextBlockClass="govuk-summary-list" />
         </@fdsCheckAnswers.checkAnswersRow>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Products to be conveyed" actionUrl="" screenReaderActionText="" actionText="">
-             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_productsToBeConveyed!"" />
+             <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_productsToBeConveyed multiLineTextBlockClass="govuk-summary-list" />
         </@fdsCheckAnswers.checkAnswersRow>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Will be trenched and/or buried and/or backfilled?" actionUrl="" screenReaderActionText="" actionText="">
             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_trenchedBuriedBackfilled />
         </@fdsCheckAnswers.checkAnswersRow>
+
         <#if pipelineHeader.PipelineHeaderView_trenchedBuriedBackfilled?has_content && pipelineHeader.PipelineHeaderView_trenchedBuriedBackfilled.currentValue?lower_case == "yes">
             <@fdsCheckAnswers.checkAnswersRow keyText="Method of trenching/burying/backfilling" actionUrl="" screenReaderActionText="" actionText="">
-                 <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_trenchingMethodsDescription!"" />
+                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_trenchingMethodsDescription multiLineTextBlockClass="govuk-summary-list" />
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Flexible or rigid?" actionUrl="" screenReaderActionText="" actionText="">
-            <#if pipelineHeader.PipelineHeaderView_pipelineFlexibility?has_content>
-                 <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineFlexibility />
-            </#if>
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineFlexibility />
         </@fdsCheckAnswers.checkAnswersRow>
+
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline material" actionUrl="" screenReaderActionText="" actionText="">
-            <#if pipelineHeader.PipelineHeaderView_pipelineMaterial?has_content>
-                 <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineMaterial />
-            </#if>
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineMaterial />
         </@fdsCheckAnswers.checkAnswersRow>
+
         <#if pipelineHeader.PipelineHeaderView_pipelineMaterial?has_content && pipelineHeader.PipelineHeaderView_pipelineMaterial.currentValue?lower_case == "other">
             <@fdsCheckAnswers.checkAnswersRow keyText="Other material used" actionUrl="" screenReaderActionText="" actionText="">
-                <#if pipelineHeader.PipelineHeaderView_otherPipelineMaterialUsed?has_content>
-                     <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_otherPipelineMaterialUsed />
-                </#if>
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_otherPipelineMaterialUsed multiLineTextBlockClass="govuk-summary-list"/>
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="" actionText="">
+            <#if drawingSummaryView?has_content>
+                <@fdsAction.link linkText=drawingSummaryView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(drawingSummaryView.fileId)) 
+                    linkClass="govuk-link" linkScreenReaderText="Download ${drawingSummaryView.fileName}" role=false start=false openInNewTab=true/>
+            <#else>
+                No drawing uploaded
+            </#if>
+        </@fdsCheckAnswers.checkAnswersRow>
+
 
     </@fdsCheckAnswers.checkAnswers>
 
