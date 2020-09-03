@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 
 /**
- * Construct summary of technical drawings for a given application.
+ * Construct summary of permanent deposit drawings for a given application.
  */
 @Service
 public class DepositDrawingsSummaryService implements ApplicationSectionSummariser {

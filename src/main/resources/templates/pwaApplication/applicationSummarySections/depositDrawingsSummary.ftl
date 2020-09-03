@@ -19,7 +19,7 @@
             <#list depositDrawingViews as depositDrawingView>
 
                 <@fdsCheckAnswers.checkAnswersRow keyText=depositDrawingView.reference actionUrl="" screenReaderActionText="" actionText="">                
-                    <ul>
+                    <ul class="govuk-list">
                         <#list (depositDrawingView.depositReferences)?sort as depositReference>
                             <li> ${depositReference} </li>
                         </#list>
