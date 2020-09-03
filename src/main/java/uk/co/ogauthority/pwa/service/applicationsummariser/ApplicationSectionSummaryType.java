@@ -19,25 +19,27 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Te
 public enum ApplicationSectionSummaryType {
 
   PROJECT_INFORMATION(
-      10,
+      30,
       "pwaApplication/applicationSummarySections/projectInformationSummary.ftl",
       ProjectInformationSummaryService.class),
-  PERMANENT_DEPOSIT(
-      20,
-      "pwaApplication/applicationSummarySections/permanentDepositsSummary.ftl",
-      PermanentDepositSummaryService.class),
   PIPELINES(
-      30,
-          "pwaApplication/applicationSummarySections/pipelineSummary.ftl",
+      40,
+      "pwaApplication/applicationSummarySections/pipelineSummary.ftl",
       PipelinesSummaryService.class),
   TECHNICAL_DRAWINGS(
-      40,
+      50,
       "pwaApplication/applicationSummarySections/technicalDrawingsSummary.ftl",
       TechnicalDrawingsSummaryService.class),
+  PERMANENT_DEPOSIT(
+      60,
+      "pwaApplication/applicationSummarySections/permanentDepositsSummary.ftl",
+      PermanentDepositSummaryService.class),
   PERMANENT_DEPOSIT_DRAWINGS(
-      50,
+      70,
       "pwaApplication/applicationSummarySections/depositDrawingsSummary.ftl",
       DepositDrawingsSummaryService.class);
+
+
 
   private final int processingOrder;
   private final String templatePath;

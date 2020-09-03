@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 
 /**
@@ -49,6 +50,8 @@ public class DepositDrawingsSummaryService implements ApplicationSectionSummaris
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("depositDrawingViews", depositDrawingsService.getDepositDrawingSummaryViews(pwaApplicationDetail));
+    summaryModel.put("depositDrawingUrlFactory",
+        new DepositDrawingUrlFactory(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()));
 
     return new ApplicationSectionSummary(
         templateName,

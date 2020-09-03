@@ -21,8 +21,12 @@
 
             <@fdsCheckAnswers.checkAnswers>      
 
-                <@fdsCheckAnswers.checkAnswersRow keyText="Deposit drawing" actionUrl="" screenReaderActionText="" actionText="">                
-                    ${depositDrawingView.fileName}
+                <@fdsCheckAnswers.checkAnswersRow keyText="Deposit drawing" actionUrl="" screenReaderActionText="" actionText="">           
+                    <#if depositDrawingView.fileId??>
+                        <@fdsAction.link linkText=depositDrawingView.fileName linkUrl=springUrl(depositDrawingUrlFactory.getPipelineDrawingDownloadUrl(depositDrawingView.fileId)) linkClass="govuk-link" linkScreenReaderText="Download ${depositDrawingView.fileName}" role=false start=false openInNewTab=true/>
+                    <#else>
+                        <span> No file uploaded </span>
+                    </#if>
                 </@fdsCheckAnswers.checkAnswersRow>
 
                 <@fdsCheckAnswers.checkAnswersRow keyText="File description" actionUrl="" screenReaderActionText="" actionText="">                
@@ -40,7 +44,7 @@
             </@fdsCheckAnswers.checkAnswers>
 
         </#list>
-        
+
 
     <#else>
         <@fdsInsetText.insetText>

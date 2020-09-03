@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -79,6 +80,7 @@ public class DepositDrawingsSummaryServiceTest {
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
     assertThat(appSummary.getTemplateModel()).contains(entry("depositDrawingViews", depositDrawingViews));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()));
+    assertThat(appSummary.getTemplateModel()).contains(entry("depositDrawingUrlFactory", new DepositDrawingUrlFactory(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId())));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName(), "#depositDrawingDetails")
     );
