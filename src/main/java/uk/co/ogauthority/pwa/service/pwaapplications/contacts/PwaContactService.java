@@ -46,6 +46,13 @@ public class PwaContactService implements ApplicationFormSectionService {
     return pwaContactRepository.findAllByPwaApplication(pwaApplication);
   }
 
+  public List<Person> getPeopleInRoleForPwaApplication(PwaApplication pwaApplication, PwaContactRole pwaContactRole) {
+    return getContactsForPwaApplication(pwaApplication).stream()
+        .filter(contact -> contact.getRoles().contains(pwaContactRole))
+        .map(PwaContact::getPerson)
+        .collect(Collectors.toUnmodifiableList());
+  }
+
   @Transactional
   public void addContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
     var contact = new PwaContact(pwaApplication, person, roles);

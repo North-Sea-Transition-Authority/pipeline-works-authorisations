@@ -1,0 +1,89 @@
+package uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates;
+
+import java.time.Clock;
+import java.time.Instant;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+
+@Entity
+@Table(name = "application_update_requests")
+public class ApplicationUpdateRequest {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
+
+  @ManyToOne
+  @JoinColumn(name = "pad_id")
+  private PwaApplicationDetail pwaApplicationDetail;
+
+  @Convert(converter = PersonIdConverter.class)
+  private PersonId requestedByPersonId;
+
+  private Instant requestedTimestamp;
+
+  private String requestReason;
+
+  public static ApplicationUpdateRequest createRequest(PwaApplicationDetail pwaApplicationDetail,
+                                         Person creatorPerson,
+                                         Clock clock,
+                                         String requestReason) {
+    var updateRequest = new ApplicationUpdateRequest();
+    updateRequest.setPwaApplicationDetail(pwaApplicationDetail);
+    updateRequest.setRequestedByPersonId(creatorPerson.getId());
+    updateRequest.setRequestReason(requestReason);
+    updateRequest.setRequestedTimestamp(clock.instant());
+    return updateRequest;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public PwaApplicationDetail getPwaApplicationDetail() {
+    return pwaApplicationDetail;
+  }
+
+  public void setPwaApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail) {
+    this.pwaApplicationDetail = pwaApplicationDetail;
+  }
+
+  public PersonId getRequestedByPersonId() {
+    return requestedByPersonId;
+  }
+
+  public void setRequestedByPersonId(PersonId requestedByPersonId) {
+    this.requestedByPersonId = requestedByPersonId;
+  }
+
+  public Instant getRequestedTimestamp() {
+    return requestedTimestamp;
+  }
+
+  public void setRequestedTimestamp(Instant requestedTimestamp) {
+    this.requestedTimestamp = requestedTimestamp;
+  }
+
+  public String getRequestReason() {
+    return requestReason;
+  }
+
+  public void setRequestReason(String requestReason) {
+    this.requestReason = requestReason;
+  }
+}
