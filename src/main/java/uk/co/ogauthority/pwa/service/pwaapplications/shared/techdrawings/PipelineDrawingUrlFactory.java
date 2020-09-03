@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Objects;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -35,5 +36,26 @@ public class PipelineDrawingUrlFactory {
   public String getPipelineDrawingEditUrl(Integer drawingId) {
     return ReverseRouter.route(on(PipelineDrawingController.class)
     .renderEditDrawing(applicationType, applicationId, drawingId, null, null));
+  }
+
+
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PipelineDrawingUrlFactory that = (PipelineDrawingUrlFactory) o;
+    return applicationType == that.applicationType
+        && Objects.equals(applicationId, that.applicationId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(applicationType, applicationId);
   }
 }

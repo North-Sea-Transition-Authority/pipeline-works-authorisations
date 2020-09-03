@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -328,4 +330,22 @@ public class PadTechnicalDrawingService {
     padFileService.cleanupFiles(detail, FILE_PURPOSE, padFileIdsOnDrawings);
 
   }
+
+  public Map<PipelineId, PipelineDrawingSummaryView> getPipelineDrawingViewsMap(PwaApplicationDetail pwaApplicationDetail) {
+
+    var drawingLinks =  padTechnicalDrawingLinkService.getLinksFromAppDetail(pwaApplicationDetail);
+    List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
+        FILE_PURPOSE,
+        ApplicationFileLinkStatus.FULL);
+
+    Map<PipelineId, PipelineDrawingSummaryView> pipelineIdDrawingViewMap = new HashMap<>();
+    drawingLinks.forEach(drawingLink -> {
+      var summaryView = buildSummaryView(drawingLink.getTechnicalDrawing(), drawingLinks, fileViews);
+      pipelineIdDrawingViewMap.put(drawingLink.getPipeline().getPipelineId(), summaryView);
+    });
+
+    return pipelineIdDrawingViewMap;
+  }
+
+
 }

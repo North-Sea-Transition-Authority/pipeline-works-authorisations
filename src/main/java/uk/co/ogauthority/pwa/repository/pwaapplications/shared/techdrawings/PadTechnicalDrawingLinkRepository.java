@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings;
 
 import java.util.List;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -18,5 +19,8 @@ public interface PadTechnicalDrawingLinkRepository extends CrudRepository<PadTec
 
   List<PadTechnicalDrawingLink> getAllByTechnicalDrawing_PwaApplicationDetailAndPipeline(PwaApplicationDetail detail,
                                                                                          PadPipeline pipeline);
+
+  @EntityGraph(attributePaths = {"technicalDrawing"})
+  List<PadTechnicalDrawingLink> getAllByTechnicalDrawing_PwaApplicationDetail(PwaApplicationDetail detail);
 
 }

@@ -12,7 +12,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineDiffableSummaryTest {
@@ -51,7 +53,7 @@ public class PipelineDiffableSummaryTest {
   @Test
   public void from_mapsPipelineHeaderInfo_andContainsAllIdents() {
 
-    var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent));
+    var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent), new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));
 
     assertThat(result.getIdentViews()).hasSize(3);
     assertThat(result.getPipelineHeaderView().getPipelineName()).isEqualTo(PIPELINE_NAME);
@@ -61,7 +63,7 @@ public class PipelineDiffableSummaryTest {
   @Test
   public void from_processesIdentsInOrder() {
 
-    var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent));
+    var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent), new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));
 
     assertThat(result.getIdentViews()).hasSize(3);
 

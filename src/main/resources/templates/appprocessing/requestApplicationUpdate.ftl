@@ -7,7 +7,7 @@
 
   <@fdsForm.htmlForm>
 
-    <@fdsTextarea.textarea path="form.requestReason" labelText="Why is an update is required?" characterCount=true maxCharacterLength="4000"/>
+    <@fdsTextarea.textarea path="form.requestReason" labelText="Why is an update required?" characterCount=true maxCharacterLength="4000"/>
 
     <@fdsAction.submitButtons primaryButtonText="Request applicaton update" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
   </@fdsForm.htmlForm>

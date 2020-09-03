@@ -18,20 +18,20 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentViewTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.UmbilicalCrossSectionUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -119,9 +119,10 @@ public class PipelinesSummaryServiceTest {
     var appSummary = pipelinesSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(3);
+    assertThat(appSummary.getTemplateModel()).hasSize(4);
     assertThat(appSummary.getTemplateModel()).contains(entry("unitMeasurements", UnitMeasurement.toMap()));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.PIPELINES.getDisplayName()));
+    assertThat(appSummary.getTemplateModel()).contains(entry("pipelineDrawingUrlFactory", new PipelineDrawingUrlFactory(pwaApplicationDetail)));
     assertThat(appSummary.getTemplateModel()).contains(entry("pipelines", List.of()));
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
@@ -134,12 +135,12 @@ public class PipelinesSummaryServiceTest {
 
   @Test
   public void getDiffedPipelineSummaryList_serviceInteractions_whenSingleAppPipelineAdded() {
-
-    var appPipelineSummary = PipelineDiffableSummary.from(pipelineHeaderView, List.of(identStart, identMid, identEnd));
+    var appPipelineSummary = PipelineDiffableSummary.from(pipelineHeaderView, List.of(identStart, identMid, identEnd),
+        new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));
     var diffedSummaryList = pipelinesSummaryService.getDiffedPipelineSummaryList(List.of(appPipelineSummary), List.of());
 
     assertThat(diffedSummaryList).hasSize(1);
-    assertThat(diffedSummaryList.get(0)).containsOnlyKeys("pipelineHeader", "pipelineIdents");
+    assertThat(diffedSummaryList.get(0)).containsOnlyKeys("pipelineHeader", "pipelineIdents", "drawingSummaryView");
 
     verify(diffService, times(1)).diff(
         eq(appPipelineSummary.getPipelineHeaderView()),

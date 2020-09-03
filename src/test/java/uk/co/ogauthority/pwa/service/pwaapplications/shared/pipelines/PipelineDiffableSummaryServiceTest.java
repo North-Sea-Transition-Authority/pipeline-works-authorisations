@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailIdentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -65,6 +66,9 @@ public class PipelineDiffableSummaryServiceTest {
   @Mock
   private IdentView identEnd;
 
+  @Mock
+  private PadTechnicalDrawingService padTechnicalDrawingService;
+
   @Before
   public void setup() {
 
@@ -81,7 +85,8 @@ public class PipelineDiffableSummaryServiceTest {
         padPipelineService,
         padPipelineIdentService,
         pipelineDetailIdentService,
-        pipelineDetailService);
+        pipelineDetailService,
+        padTechnicalDrawingService);
   }
 
 
