@@ -210,4 +210,9 @@ public class PwaContactService implements ApplicationFormSectionService {
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     return List.of(new TaskInfo("CONTACT", countContactsByPwaApplication(pwaApplicationDetail.getPwaApplication())));
   }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    // Do nothing. Contacts linked per application, not per detail.
+  }
 }

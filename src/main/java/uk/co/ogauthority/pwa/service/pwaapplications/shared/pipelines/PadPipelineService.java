@@ -559,4 +559,9 @@ public class PadPipelineService implements ApplicationFormSectionService {
         ));
   }
 
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+  }
+
 }

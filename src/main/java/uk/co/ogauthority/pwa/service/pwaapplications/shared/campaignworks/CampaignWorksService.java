@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -34,6 +36,8 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Service
 public class CampaignWorksService implements ApplicationFormSectionService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CampaignWorksService.class);
 
   private final PadProjectInformationService padProjectInformationService;
   private final PadPipelineService padPipelineService;
@@ -305,6 +309,11 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     padCampaignWorksPipeline.setPadPipeline(padPipeline);
     return padCampaignWorksPipeline;
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 
 }

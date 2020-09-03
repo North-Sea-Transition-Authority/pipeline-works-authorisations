@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -28,6 +30,7 @@ import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @Service
 public class PadLocationDetailsService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadLocationDetailsService.class);
 
   private final PadLocationDetailsRepository padLocationDetailsRepository;
   private final PadFacilityService padFacilityService;
@@ -214,5 +217,10 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
     save(locationDetails);
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }

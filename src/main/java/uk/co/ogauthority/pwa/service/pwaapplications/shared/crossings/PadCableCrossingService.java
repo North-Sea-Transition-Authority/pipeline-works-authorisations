@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -19,6 +21,7 @@ import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class PadCableCrossingService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadCableCrossingService.class);
 
   private final PadCableCrossingRepository padCableCrossingRepository;
   private final CableCrossingFileService cableCrossingFileService;
@@ -101,5 +104,10 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
     return List.of(
         new TaskInfo(crossingsText, (long) cableCount)
     );
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }

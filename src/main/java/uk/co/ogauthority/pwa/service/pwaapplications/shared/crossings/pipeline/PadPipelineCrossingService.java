@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -25,6 +27,7 @@ import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
 public class PadPipelineCrossingService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineCrossingService.class);
 
   private final PadPipelineCrossingRepository padPipelineCrossingRepository;
   private final PipelineCrossingFileService pipelineCrossingFileService;
@@ -129,5 +132,10 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
     return List.of(
         new TaskInfo(crossingPluralised, (long) pipelineCrossingCount)
     );
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }

@@ -66,4 +66,11 @@ public class TechnicalDrawingSectionServiceTest {
     verify(padTechnicalDrawingService, times(1)).validateSection(bindingResult, detail);
     verify(admiraltyChartFileService, times(1)).validate(any(), eq(bindingResult), eq(ValidationType.FULL), eq(detail));
   }
+
+  @Test
+  public void cleanupData_serviceInteractions() {
+    technicalDrawingSectionService.cleanupData(detail);
+    verify(padTechnicalDrawingService, times(1)).cleanupData(detail);
+
+  }
 }

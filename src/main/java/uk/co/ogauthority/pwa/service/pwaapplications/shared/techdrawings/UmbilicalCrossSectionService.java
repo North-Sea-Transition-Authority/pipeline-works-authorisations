@@ -10,12 +10,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.UmbilicalCrossSectionForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
-public class UmbilicalCrossSectionService implements ApplicationFormSectionService {
+public class UmbilicalCrossSectionService {
 
   private final SpringValidatorAdapter groupValidator;
 
@@ -25,12 +24,12 @@ public class UmbilicalCrossSectionService implements ApplicationFormSectionServi
     this.groupValidator = groupValidator;
   }
 
-  @Override
   public boolean isComplete(PwaApplicationDetail detail) {
+    // This intentionally always returns true.
+    // Guidance informs users when the document is required, but this is not validated.
     return true;
   }
 
-  @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     List<Object> hints = new ArrayList<>();

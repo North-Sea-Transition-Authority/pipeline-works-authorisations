@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -20,6 +22,7 @@ import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 
 @Service
 public class CrossingAgreementsService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CrossingAgreementsService.class);
 
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final BlockCrossingService blockCrossingService;
@@ -107,5 +110,10 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     throw new AssertionError("validate doesnt make sense.");
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }
