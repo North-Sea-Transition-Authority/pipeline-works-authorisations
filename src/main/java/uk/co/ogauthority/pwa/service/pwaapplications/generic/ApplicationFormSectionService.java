@@ -56,7 +56,7 @@ public interface ApplicationFormSectionService {
   }
 
   /**
-   * Each implementing class is responsbile for copying all data associated with the old detail to new detail.
+   * Each implementing class is responsible for copying all data associated with the old detail to new detail.
    */
   void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail);
 
