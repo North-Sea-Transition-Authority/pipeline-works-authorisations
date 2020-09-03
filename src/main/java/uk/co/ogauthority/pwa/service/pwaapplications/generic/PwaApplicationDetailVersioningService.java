@@ -25,15 +25,17 @@ public class PwaApplicationDetailVersioningService {
 
 
   @Transactional
-  public PwaApplicationDetail createNewApplicationVersion(PwaApplicationDetail detail, WebUserAccount webUserAccount) {
+  public PwaApplicationDetail createNewApplicationVersion(PwaApplicationDetail detail,
+                                                          WebUserAccount webUserAccount) {
     var newTipDetail = pwaApplicationDetailService.createNewTipDetail(detail, webUserAccount);
 
-    taskListService.getShownApplicationTasksForDetail(detail)
-        .forEach(applicationTask -> applicationTaskService.copyApplicationTaskDataToApplicationDetail(
+    taskListService.getShownApplicationTasksForDetail(detail).forEach(applicationTask ->
+        applicationTaskService.copyApplicationTaskDataToApplicationDetail(
             applicationTask,
             detail,
-            newTipDetail)
-        );
+            newTipDetail
+        )
+    );
 
     return newTipDetail;
 
