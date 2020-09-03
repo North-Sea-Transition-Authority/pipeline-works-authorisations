@@ -14,11 +14,22 @@
 
 <#macro depositDrawingDetails depositDrawingViews>
 
-    <#if depositDrawingViews?has_content>
-        <@fdsCheckAnswers.checkAnswers>
-            <#list depositDrawingViews as depositDrawingView>
+    <#if depositDrawingViews?has_content>    
 
-                <@fdsCheckAnswers.checkAnswersRow keyText=depositDrawingView.reference actionUrl="" screenReaderActionText="" actionText="">                
+        <#list depositDrawingViews as depositDrawingView>
+            <h3 class="govuk-heading-m">${depositDrawingView.reference}</h3>
+
+            <@fdsCheckAnswers.checkAnswers>      
+
+                <@fdsCheckAnswers.checkAnswersRow keyText="Deposit drawing" actionUrl="" screenReaderActionText="" actionText="">                
+                    ${depositDrawingView.fileName}
+                </@fdsCheckAnswers.checkAnswersRow>
+
+                <@fdsCheckAnswers.checkAnswersRow keyText="File description" actionUrl="" screenReaderActionText="" actionText="">                
+                    ${depositDrawingView.documentDescription}
+                </@fdsCheckAnswers.checkAnswersRow>
+
+                <@fdsCheckAnswers.checkAnswersRow keyText="Deposits on drawing" actionUrl="" screenReaderActionText="" actionText="">                
                     <ul class="govuk-list">
                         <#list (depositDrawingView.depositReferences)?sort as depositReference>
                             <li> ${depositReference} </li>
@@ -26,8 +37,10 @@
                     </ul>
                 </@fdsCheckAnswers.checkAnswersRow>
 
-            </#list>
-        </@fdsCheckAnswers.checkAnswers>
+            </@fdsCheckAnswers.checkAnswers>
+
+        </#list>
+        
 
     <#else>
         <@fdsInsetText.insetText>
