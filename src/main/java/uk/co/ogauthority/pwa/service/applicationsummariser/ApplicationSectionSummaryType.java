@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
@@ -32,7 +33,11 @@ public enum ApplicationSectionSummaryType {
   TECHNICAL_DRAWINGS(
       40,
       "pwaApplication/applicationSummarySections/technicalDrawingsSummary.ftl",
-      TechnicalDrawingsSummaryService.class);
+      TechnicalDrawingsSummaryService.class),
+  PERMANENT_DEPOSIT_DRAWINGS(
+      50,
+      "pwaApplication/applicationSummarySections/depositDrawingsSummary.ftl",
+      DepositDrawingsSummaryService.class);
 
   private final int processingOrder;
   private final String templatePath;
