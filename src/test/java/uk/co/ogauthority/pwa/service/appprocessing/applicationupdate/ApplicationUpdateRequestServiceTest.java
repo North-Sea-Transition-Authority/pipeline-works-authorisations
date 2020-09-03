@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
@@ -30,6 +31,7 @@ import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
@@ -61,6 +63,9 @@ public class ApplicationUpdateRequestServiceTest {
   @Mock
   private PwaContactService pwaContactService;
 
+  @Mock
+  private PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
+
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private ApplicationUpdateRequestService applicationUpdateRequestService;
@@ -75,6 +80,7 @@ public class ApplicationUpdateRequestServiceTest {
   private ArgumentCaptor<EmailProperties> emailPropertiesArgumentCaptor;
 
   private Person person;
+  private WebUserAccount user;
 
   private Person preparer1;
   private Person preparer2;
@@ -84,13 +90,19 @@ public class ApplicationUpdateRequestServiceTest {
   @Before
   public void setUp() throws Exception {
     person = new Person(PERSON_ID, "test", "person", "email", TELEPHONE);
+    user = new WebUserAccount(99, person);
     preparer1 = new Person(PREPARER_1_ID, PREPARER_FORENAME, PREPARER_1_SURNAME, PREPARER_1_EMAIL, TELEPHONE);
     preparer2 = new Person(PREPARER_2_ID, PREPARER_FORENAME, PREPARER_2_SURNAME, PREPARER_2_EMAIL, TELEPHONE);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    applicationUpdateRequestService = new ApplicationUpdateRequestService(applicationUpdateRequestRepository, clock,
-        notifyService, pwaContactService);
+    applicationUpdateRequestService = new ApplicationUpdateRequestService(
+        applicationUpdateRequestRepository,
+        clock,
+        notifyService,
+        pwaContactService,
+        pwaApplicationDetailVersioningService
+    );
   }
 
   @Test
@@ -157,9 +169,14 @@ public class ApplicationUpdateRequestServiceTest {
         PwaContactRole.PREPARER))
         .thenReturn(List.of(preparer1));
 
-    applicationUpdateRequestService.submitApplicationUpdateRequest(pwaApplicationDetail, person, REASON);
+    // dont bother creating new tip app detail. just use existing one.
+    when(pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, user))
+        .thenReturn(pwaApplicationDetail);
+
+    applicationUpdateRequestService.submitApplicationUpdateRequest(pwaApplicationDetail, user, REASON);
     verify(applicationUpdateRequestRepository, times(1)).save(any());
     verify(notifyService, times(1)).sendEmail(any(), eq(PREPARER_1_EMAIL));
+    verify(pwaApplicationDetailVersioningService, times(1)).createNewApplicationVersion(pwaApplicationDetail, user);
 
   }
 

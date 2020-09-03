@@ -206,4 +206,17 @@ public class ApplicationTaskServiceTest {
     }
   }
 
+  @Test
+  public void copyApplicationTaskDataToApplicationDetail_serviceInteractions() {
+
+    var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
+        PwaApplicationType.INITIAL
+        , pwaApplicationDetail.getMasterPwaApplicationId()
+        , pwaApplicationDetail.getId() + 1);
+
+    applicationTaskService.copyApplicationTaskDataToApplicationDetail(DEFAULT_APP_TASK, pwaApplicationDetail, newDetail);
+
+    verify(applicationFormSectionService, times(1)).copySectionInformation(pwaApplicationDetail, newDetail);
+
+  }
 }

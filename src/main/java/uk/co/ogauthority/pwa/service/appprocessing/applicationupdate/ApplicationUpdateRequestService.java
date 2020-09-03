@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateRequestEmailProps;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.Applica
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 
 @Service
 public class ApplicationUpdateRequestService {
@@ -26,26 +28,32 @@ public class ApplicationUpdateRequestService {
   private final Clock clock;
   private final NotifyService notifyService;
   private final PwaContactService pwaContactService;
+  private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
 
   @Autowired
   public ApplicationUpdateRequestService(ApplicationUpdateRequestRepository applicationUpdateRequestRepository,
                                          @Qualifier("utcClock") Clock clock,
                                          NotifyService notifyService,
-                                         PwaContactService pwaContactService) {
+                                         PwaContactService pwaContactService,
+                                         PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService) {
     this.applicationUpdateRequestRepository = applicationUpdateRequestRepository;
     this.clock = clock;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
+    this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
   }
 
 
   @Transactional
   public void submitApplicationUpdateRequest(PwaApplicationDetail pwaApplicationDetail,
-                                             Person requestingPerson,
+                                             WebUserAccount requestingUser,
                                              String requestReason) {
-    createApplicationUpdateRequest(pwaApplicationDetail, requestingPerson, requestReason);
-    sendApplicationUpdateRequestedEmail(pwaApplicationDetail, requestingPerson);
-
+    // The update request was made for a specific version, so the original is linked.
+    createApplicationUpdateRequest(pwaApplicationDetail, requestingUser.getLinkedPerson(), requestReason);
+    // then a new detail is created which is what the will be resubmitted with any changes.
+    var newTipDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, requestingUser);
+    // then we attempt to send an email to alert the application preparers that changes are required.
+    sendApplicationUpdateRequestedEmail(newTipDetail, requestingUser.getLinkedPerson());
   }
 
 
