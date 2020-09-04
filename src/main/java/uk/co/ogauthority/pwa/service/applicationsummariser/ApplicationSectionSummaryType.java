@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
@@ -18,24 +19,29 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Te
  */
 public enum ApplicationSectionSummaryType {
 
+
+  APPLICATION_USERS(
+      10,
+      "pwaApplication/applicationSummarySections/applicationContactsSummary.ftl",
+      ApplicationContactsSummaryService.class),
   PROJECT_INFORMATION(
       30,
       "pwaApplication/applicationSummarySections/projectInformationSummary.ftl",
       ProjectInformationSummaryService.class),
   PIPELINES(
-      40,
+      180,
       "pwaApplication/applicationSummarySections/pipelineSummary.ftl",
       PipelinesSummaryService.class),
   TECHNICAL_DRAWINGS(
-      50,
+      190,
       "pwaApplication/applicationSummarySections/technicalDrawingsSummary.ftl",
       TechnicalDrawingsSummaryService.class),
   PERMANENT_DEPOSIT(
-      60,
+      210,
       "pwaApplication/applicationSummarySections/permanentDepositsSummary.ftl",
       PermanentDepositSummaryService.class),
   PERMANENT_DEPOSIT_DRAWINGS(
-      70,
+      220,
       "pwaApplication/applicationSummarySections/depositDrawingsSummary.ftl",
       DepositDrawingsSummaryService.class);
 

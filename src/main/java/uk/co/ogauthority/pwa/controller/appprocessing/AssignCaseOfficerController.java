@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.consultations;
+package uk.co.ogauthority.pwa.controller.appprocessing;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -90,7 +90,7 @@ public class AssignCaseOfficerController {
 
     var pwaApplicationDetail = appProcessingContext.getApplicationDetail();
 
-    return new ModelAndView("consultation/assignCaseOfficer")
+    return new ModelAndView("appprocessing/assignCaseOfficer")
         .addObject("errorList", List.of())
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("cancelUrl", ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(

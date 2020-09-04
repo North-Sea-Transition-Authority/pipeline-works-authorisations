@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.consultations;
+package uk.co.ogauthority.pwa.controller.appprocessing;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,7 +43,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AssignCaseOfficerController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-
 public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTester;
@@ -163,7 +162,7 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("consultation/assignCaseOfficer"));
+        .andExpect(view().name("appprocessing/assignCaseOfficer"));
 
   }
 

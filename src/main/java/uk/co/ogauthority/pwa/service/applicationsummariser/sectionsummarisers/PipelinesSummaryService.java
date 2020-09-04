@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentDiffableView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 
 /**
  * Construct summary of pipelines for a given application.
@@ -59,9 +60,9 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-
     var applicationPipelineSummaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(
         pwaApplicationDetail);
+
 
     var consentedPipelineSummaryList = pipelineDiffableSummaryService.getConsentedPipelines(
         pwaApplicationDetail.getPwaApplication(),
@@ -76,6 +77,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("pipelines", diffedPipelineSummaryList);
+    summaryModel.put("pipelineDrawingUrlFactory", new PipelineDrawingUrlFactory(pwaApplicationDetail));
     summaryModel.put("unitMeasurements", UnitMeasurement.toMap());
     return new ApplicationSectionSummary(
         templateName,
@@ -126,6 +128,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
               IdentDiffableView::getIdentNumber
           )
       );
+      pipelineDiffMap.put("drawingSummaryView", pipelineSummaryPair.getLeft().getDrawingSummaryView());
 
     });
 

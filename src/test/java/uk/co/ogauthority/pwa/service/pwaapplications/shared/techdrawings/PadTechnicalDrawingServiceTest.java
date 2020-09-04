@@ -24,6 +24,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -616,6 +617,61 @@ public class PadTechnicalDrawingServiceTest {
         .thenReturn(List.of(link));
     padTechnicalDrawingService.removePadPipelineFromDrawings(padPipeline);
     verify(padTechnicalDrawingRepository, never()).deleteAll(any());
+  }
+
+
+
+  @Test
+  public void getPipelineDrawingViewsMap() {
+    //drawing link 1: padpipieline 1 & technical drawing 1
+    var padPipeline1 = new PadPipeline();
+    var pipeline1 = new Pipeline();
+    pipeline1.setId(1);
+    padPipeline1.setPipelineRef("ref 1");
+    padPipeline1.setPipeline(pipeline1);
+    var drawing1 = new PadTechnicalDrawing();
+    drawing1.setId(1);
+    var drawingLink1 = new PadTechnicalDrawingLink();
+    drawingLink1.setPipeline(padPipeline1);
+    drawingLink1.setTechnicalDrawing(drawing1);
+
+    //drawing link 2: padpipieline 2 & technical drawing 2
+    var padPipeline2 = new PadPipeline();
+    var pipeline2 = new Pipeline();
+    pipeline2.setId(2);
+    padPipeline2.setPipelineRef("ref 2");
+    padPipeline2.setPipeline(pipeline2);
+    var drawing2 = new PadTechnicalDrawing();
+    drawing2.setId(2);
+    var drawingLink2 = new PadTechnicalDrawingLink();
+    drawingLink2.setPipeline(padPipeline2);
+    drawingLink2.setTechnicalDrawing(drawing2);
+
+    //drawing link 3: padpipieline 3 & technical drawing 1
+    var padPipeline3 = new PadPipeline();
+    var pipeline3 = new Pipeline();
+    pipeline3.setId(3);
+    padPipeline3.setPipelineRef("ref 3");
+    padPipeline3.setPipeline(pipeline3);
+    var drawingLink3 = new PadTechnicalDrawingLink();
+    drawingLink3.setPipeline(padPipeline3);
+    drawingLink3.setTechnicalDrawing(drawing1);
+
+    when(padTechnicalDrawingLinkService.getLinksFromAppDetail(pwaApplicationDetail)).thenReturn(List.of(drawingLink1, drawingLink2, drawingLink3));
+
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#")));
+
+    var pipelineIdDrawingViewMap = padTechnicalDrawingService.getPipelineDrawingViewsMap(pwaApplicationDetail);
+
+    assertThat(pipelineIdDrawingViewMap).containsKey(new PipelineId(1));
+    assertThat(pipelineIdDrawingViewMap.get(new PipelineId(1)).getDrawingId()).isEqualTo(1);
+    assertThat(pipelineIdDrawingViewMap).containsKey(new PipelineId(2));
+    assertThat(pipelineIdDrawingViewMap.get(new PipelineId(2)).getDrawingId()).isEqualTo(2);
+    assertThat(pipelineIdDrawingViewMap).containsKey(new PipelineId(3));
+    assertThat(pipelineIdDrawingViewMap.get(new PipelineId(3)).getDrawingId()).isEqualTo(1);
+
+
   }
 
 }

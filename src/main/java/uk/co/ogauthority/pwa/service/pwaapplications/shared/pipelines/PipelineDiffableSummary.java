@@ -5,24 +5,30 @@ import java.util.List;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 
 /**
  * Designed to be consumed by the pipeline summary service and associated templates.
  */
+
 public final class PipelineDiffableSummary {
   private final PipelineId pipelineId;
   private final PipelineHeaderView pipelineHeaderView;
   private final List<IdentDiffableView> identViews;
+  private final PipelineDrawingSummaryView drawingSummaryView;
 
   private PipelineDiffableSummary(PipelineId pipelineId,
                                   PipelineHeaderView pipelineHeaderView,
-                                  List<IdentDiffableView> identViews) {
+                                  List<IdentDiffableView> identViews,
+                                  PipelineDrawingSummaryView drawingSummaryView) {
     this.pipelineId = pipelineId;
     this.pipelineHeaderView = pipelineHeaderView;
     this.identViews = identViews;
+    this.drawingSummaryView = drawingSummaryView;
   }
 
-  public static PipelineDiffableSummary from(PipelineHeaderView pipelineHeaderView, List<IdentView> identViews) {
+  public static PipelineDiffableSummary from(PipelineHeaderView pipelineHeaderView, List<IdentView> identViews,
+                                             PipelineDrawingSummaryView drawingSummaryViews) {
 
     var diffableIdents = new ArrayList<IdentDiffableView>();
 
@@ -42,13 +48,15 @@ public final class PipelineDiffableSummary {
     return new PipelineDiffableSummary(
         PipelineId.from(pipelineHeaderView),
         pipelineHeaderView,
-        diffableIdents
+        diffableIdents,
+        drawingSummaryViews
     );
 
   }
 
   public static PipelineDiffableSummary empty() {
-    return new PipelineDiffableSummary(null, new PipelineHeaderView(), List.of());
+    return new PipelineDiffableSummary(null, new PipelineHeaderView(), List.of(), null);
+
   }
 
 
@@ -64,6 +72,12 @@ public final class PipelineDiffableSummary {
     return identViews;
   }
 
+  public PipelineDrawingSummaryView getDrawingSummaryView() {
+    return drawingSummaryView;
+  }
+
+
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -75,11 +89,12 @@ public final class PipelineDiffableSummary {
     PipelineDiffableSummary that = (PipelineDiffableSummary) o;
     return Objects.equals(pipelineId, that.pipelineId)
         && Objects.equals(pipelineHeaderView, that.pipelineHeaderView)
-        && Objects.equals(identViews, that.identViews);
+        && Objects.equals(identViews, that.identViews)
+        && Objects.equals(drawingSummaryView, that.drawingSummaryView);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineId, pipelineHeaderView, identViews);
+    return Objects.hash(pipelineId, pipelineHeaderView, identViews, drawingSummaryView);
   }
 }
