@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -21,6 +23,7 @@ import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionValidat
 /* Service providing simplified API for Technical Information Fluid Composition app form */
 @Service
 public class PadFluidCompositionInfoService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadFluidCompositionInfoService.class);
 
   private final PadFluidCompositionInfoRepository padFluidCompositionInfoRepository;
   private final FluidCompositionValidator fluidCompositionValidator;
@@ -113,6 +116,11 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
 
     padFluidCompositionInfoRepository.saveAll(updatedFluidCompositionInfos);
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }
 

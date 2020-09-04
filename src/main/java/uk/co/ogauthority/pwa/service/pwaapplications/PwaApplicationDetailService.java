@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -138,12 +139,51 @@ public class PwaApplicationDetailService {
   }
 
   /**
+   * Create and return new tipo detail in Draft status.
+   * new tip detail duplicates all suitable application data into the new detail from the old one.
+   *
+   * @return Saved app detail.
+   */
+  @Transactional
+  public PwaApplicationDetail createNewTipDetail(PwaApplicationDetail currentTipDetail, WebUserAccount webUserAccount) {
+    if (!currentTipDetail.isTipFlag()) {
+      throw new ActionNotAllowedException(
+          "Cannot create new tip detail from non tip detail. pad_id:" + currentTipDetail.getId());
+    }
+    currentTipDetail.setTipFlag(false);
+    currentTipDetail = pwaApplicationDetailRepository.save(currentTipDetail);
+    var newTipDetail = new PwaApplicationDetail(
+        currentTipDetail.getPwaApplication(),
+        currentTipDetail.getVersionNo() + 1,
+        webUserAccount.getWuaId(),
+        clock.instant());
+    newTipDetail.setStatus(PwaApplicationStatus.DRAFT);
+    copyApplicationDetailData(currentTipDetail, newTipDetail);
+    return pwaApplicationDetailRepository.save(newTipDetail);
+  }
+
+  private void copyApplicationDetailData(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+
+    toDetail.setLinkedToField(fromDetail.getLinkedToField());
+    toDetail.setNotLinkedDescription(fromDetail.getNotLinkedDescription());
+    toDetail.setPipelinesCrossed(fromDetail.getPipelinesCrossed());
+    toDetail.setCablesCrossed(fromDetail.getCablesCrossed());
+    toDetail.setMedianLineCrossed(fromDetail.getMedianLineCrossed());
+    toDetail.setNumOfHolders(fromDetail.getNumOfHolders());
+    toDetail.setPipelinePhaseProperties(fromDetail.getPipelinePhaseProperties());
+    toDetail.setOtherPhaseDescription(fromDetail.getOtherPhaseDescription());
+    toDetail.setPartnerLettersRequired(fromDetail.getPartnerLettersRequired());
+    toDetail.setPartnerLettersConfirmed(fromDetail.getPartnerLettersConfirmed());
+  }
+
+  /**
    * Create and persist the first detail associated with an application.
    *
    * @return Saved app detail.
    */
   @Transactional
-  public PwaApplicationDetail createFirstDetail(PwaApplication application, WebUserAccount webUserAccount, Long activeHoldersCount) {
+  public PwaApplicationDetail createFirstDetail(PwaApplication application, WebUserAccount webUserAccount,
+                                                Long activeHoldersCount) {
     var pwaApplicationDetail = new PwaApplicationDetail(application, 1, webUserAccount.getWuaId(), clock.instant());
     pwaApplicationDetail.setNumOfHolders(Math.toIntExact(activeHoldersCount));
     return pwaApplicationDetailRepository.save(pwaApplicationDetail);
@@ -172,7 +212,8 @@ public class PwaApplicationDetailService {
   }
 
   @Transactional
-  public void setPhasesPresent(PwaApplicationDetail pwaApplicationDetail, Set<PropertyPhase> phasesPresent, String otherPhaseDescription) {
+  public void setPhasesPresent(PwaApplicationDetail pwaApplicationDetail, Set<PropertyPhase> phasesPresent,
+                               String otherPhaseDescription) {
     pwaApplicationDetail.setPipelinePhaseProperties(phasesPresent);
     pwaApplicationDetail.setOtherPhaseDescription(otherPhaseDescription);
     pwaApplicationDetailRepository.save(pwaApplicationDetail);
@@ -185,7 +226,6 @@ public class PwaApplicationDetailService {
         ? form.getPartnerLettersConfirmed() : null);
     pwaApplicationDetailRepository.save(applicationDetail);
   }
-
 
 
 }

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -22,6 +24,7 @@ import uk.co.ogauthority.pwa.validators.FastTrackValidator;
 
 @Service
 public class PadFastTrackService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadFastTrackService.class);
 
   private final PadFastTrackRepository padFastTrackRepository;
   private final PadProjectInformationService padProjectInformationService;
@@ -149,5 +152,10 @@ public class PadFastTrackService implements ApplicationFormSectionService {
     fastTrackValidator.validate(form, bindingResult);
     return bindingResult;
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -28,6 +30,7 @@ import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineOtherProperties
 /* Service providing simplified API for Pipelines Other Properties app form */
 @Service
 public class PadPipelineOtherPropertiesService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineOtherPropertiesService.class);
 
   private final PadPipelineOtherPropertiesRepository padPipelineOtherPropertiesRepository;
   private final PipelineOtherPropertiesValidator pipelineOtherPropertiesValidator;
@@ -156,6 +159,11 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
 
     padPipelineOtherPropertiesRepository.saveAll(updatedPropertiesList);
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }
 

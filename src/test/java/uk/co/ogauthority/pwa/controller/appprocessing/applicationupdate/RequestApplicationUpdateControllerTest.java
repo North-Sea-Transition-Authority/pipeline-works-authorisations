@@ -244,7 +244,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .andExpect(model().attributeHasNoErrors())
         .andReturn();
     verify(applicationUpdateRequestService, times(1)).applicationDetailHasOpenUpdateRequest(pwaApplicationDetail);
-    verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(pwaApplicationDetail, person,
+    verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(pwaApplicationDetail, user,
         REQUEST_REASON_VALID);
 
   }

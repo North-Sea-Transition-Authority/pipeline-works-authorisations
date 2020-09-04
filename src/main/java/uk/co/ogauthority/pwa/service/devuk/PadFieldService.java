@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -14,7 +16,6 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
-import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -25,6 +26,8 @@ import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @Service
 public class PadFieldService implements ApplicationFormSectionService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadFieldService.class);
 
   private final PadFieldRepository padFieldRepository;
   private final PwaApplicationDetailService pwaApplicationDetailService;
@@ -191,6 +194,11 @@ public class PadFieldService implements ApplicationFormSectionService {
                                 PwaApplicationDetail pwaApplicationDetail) {
     pwaFieldFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 
 }

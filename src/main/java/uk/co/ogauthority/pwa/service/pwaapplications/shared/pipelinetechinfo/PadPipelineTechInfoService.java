@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -19,6 +21,7 @@ import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineTechInfoValidat
 /* Service providing simplified API for Pipelines General Technical Information app form */
 @Service
 public class PadPipelineTechInfoService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPipelineTechInfoService.class);
 
   private final PadPipelineTechInfoRepository padPipelineTechInfoRepository;
   private final PipelineTechInfoMappingService pipelineTechInfoMappingService;
@@ -102,6 +105,11 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
 
     padPipelineTechInfoRepository.save(techInfo);
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }
 

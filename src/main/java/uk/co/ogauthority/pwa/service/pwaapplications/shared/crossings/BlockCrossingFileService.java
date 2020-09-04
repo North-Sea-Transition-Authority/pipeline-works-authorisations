@@ -2,19 +2,19 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
 public class BlockCrossingFileService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BlockCrossingFileService.class);
 
   private final PadCrossedBlockRepository padCrossedBlockRepository;
   private final SpringValidatorAdapter groupValidator;
@@ -70,5 +71,10 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
     }
     groupValidator.validate(form, bindingResult, hints.toArray());
     return bindingResult;
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }

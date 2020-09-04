@@ -7,6 +7,8 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -22,6 +24,7 @@ import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
 @Service
 public class PadEnvironmentalDecommissioningService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadEnvironmentalDecommissioningService.class);
 
   private final PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository;
   private final EnvironmentalDecommissioningValidator environmentalDecommissioningValidator;
@@ -148,5 +151,10 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
 
     save(envDecomData);
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }
