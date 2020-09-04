@@ -3,9 +3,12 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 public class WorkScheduleView {
   private static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
@@ -32,12 +35,12 @@ public class WorkScheduleView {
   }
 
   public WorkScheduleView(PadCampaignWorkSchedule padCampaignWorkSchedule,
-                          List<PadPipeline> linkedPipelines) {
+                          List<PipelineOverview> linkedPipelineOverviews) {
     this(padCampaignWorkSchedule.getId(),
         padCampaignWorkSchedule.getWorkFromDate(),
         padCampaignWorkSchedule.getWorkToDate(),
-        linkedPipelines.stream()
-            .map(CampaignWorkSchedulePipelineView::fromPadPipeline)
+        linkedPipelineOverviews.stream()
+            .map(CampaignWorkSchedulePipelineView::fromPipelineOverview)
             .collect(Collectors.toList()));
   }
 

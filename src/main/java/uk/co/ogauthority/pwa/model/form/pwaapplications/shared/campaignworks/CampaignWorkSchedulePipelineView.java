@@ -16,12 +16,13 @@ public class CampaignWorkSchedulePipelineView {
   private final String toLocation;
   private final String metreLength;
   private final String pipelineTypeDisplayName;
+  private final String pipelineName;
 
   private CampaignWorkSchedulePipelineView(String pipelineNumber,
                                            String fromLocation,
                                            String toLocation,
                                            BigDecimal pipelineLength,
-                                           PipelineType pipelineType) {
+                                           PipelineType pipelineType, String pipelineName) {
     this.pipelineNumber = pipelineNumber;
     this.toLocation = toLocation;
     this.fromLocation = fromLocation;
@@ -29,17 +30,9 @@ public class CampaignWorkSchedulePipelineView {
         .setScale(2, RoundingMode.HALF_UP)
         .toPlainString() + "m";
     this.pipelineTypeDisplayName = pipelineType.getDisplayName();
+    this.pipelineName = pipelineName;
   }
 
-  public static CampaignWorkSchedulePipelineView fromPadPipeline(PadPipeline padPipeline) {
-    return new CampaignWorkSchedulePipelineView(
-        padPipeline.getPipelineRef(),
-        padPipeline.getFromLocation(),
-        padPipeline.getToLocation(),
-        padPipeline.getLength(),
-        padPipeline.getPipelineType()
-    );
-  }
 
   public static CampaignWorkSchedulePipelineView fromPipelineOverview(PipelineOverview pipelineOverview) {
     return new CampaignWorkSchedulePipelineView(
@@ -47,8 +40,8 @@ public class CampaignWorkSchedulePipelineView {
         pipelineOverview.getFromLocation(),
         pipelineOverview.getToLocation(),
         pipelineOverview.getLength(),
-        pipelineOverview.getPipelineType()
-    );
+        pipelineOverview.getPipelineType(),
+        pipelineOverview.getPipelineName());
   }
 
   public String getPipelineNumber() {
@@ -69,6 +62,10 @@ public class CampaignWorkSchedulePipelineView {
 
   public String getPipelineTypeDisplayName() {
     return pipelineTypeDisplayName;
+  }
+
+  public String getPipelineName() {
+    return pipelineName;
   }
 }
 
