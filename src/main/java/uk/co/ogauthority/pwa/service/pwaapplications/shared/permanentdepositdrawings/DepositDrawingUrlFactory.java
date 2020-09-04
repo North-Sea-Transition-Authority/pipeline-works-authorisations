@@ -52,8 +52,8 @@ public class DepositDrawingUrlFactory {
       return false;
     }
     DepositDrawingUrlFactory that = (DepositDrawingUrlFactory) o;
-    return applicationType == that.applicationType &&
-        Objects.equals(applicationId, that.applicationId);
+    return applicationType == that.applicationType
+        && Objects.equals(applicationId, that.applicationId);
   }
 
   @Override
