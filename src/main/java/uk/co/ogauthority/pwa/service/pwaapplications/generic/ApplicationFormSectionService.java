@@ -55,4 +55,9 @@ public interface ApplicationFormSectionService {
     // default implementation implies no cleanup required
   }
 
+  /**
+   * Each implementing class is responsible for copying all data associated with the old detail to new detail.
+   */
+  void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail);
+
 }

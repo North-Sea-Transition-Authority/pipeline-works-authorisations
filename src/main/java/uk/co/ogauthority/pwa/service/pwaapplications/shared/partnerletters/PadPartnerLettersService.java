@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters;
 
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -20,6 +22,7 @@ import uk.co.ogauthority.pwa.validators.partnerletters.PartnerLettersValidator;
 /* Service providing simplified API for PartnerLettersService app form */
 @Service
 public class PadPartnerLettersService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadPartnerLettersService.class);
 
   private final PwaApplicationDetailService applicationDetailService;
   private final PartnerLettersValidator partnerLettersValidator;
@@ -88,5 +91,11 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
     }
     return bindingResult;
   }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+  }
+
 
 }

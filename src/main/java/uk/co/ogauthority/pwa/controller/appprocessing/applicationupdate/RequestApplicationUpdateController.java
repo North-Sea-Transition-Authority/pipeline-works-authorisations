@@ -80,7 +80,7 @@ public class RequestApplicationUpdateController {
               () -> {
                 applicationUpdateRequestService.submitApplicationUpdateRequest(
                     processingContext.getApplicationDetail(),
-                    authenticatedUserAccount.getLinkedPerson(),
+                    authenticatedUserAccount,
                     form.getRequestReason()
                 );
                 return ReverseRouter.redirect(on(CaseManagementController.class)

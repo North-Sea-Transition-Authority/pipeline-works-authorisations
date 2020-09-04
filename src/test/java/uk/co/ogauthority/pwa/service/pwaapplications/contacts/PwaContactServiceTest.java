@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -446,5 +447,11 @@ public class PwaContactServiceTest {
 
     assertThat(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
         .isEmpty();
+  }
+
+  @Test
+  public void copySectionInformation_doesNothing() {
+    pwaContactService.copySectionInformation(pwaApplicationDetail, pwaApplicationDetail);
+    verifyNoInteractions(pwaContactRepository);
   }
 }

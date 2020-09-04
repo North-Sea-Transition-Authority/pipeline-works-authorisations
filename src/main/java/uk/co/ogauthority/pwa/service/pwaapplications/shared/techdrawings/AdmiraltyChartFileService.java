@@ -14,13 +14,12 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
-public class AdmiraltyChartFileService implements ApplicationFormSectionService {
+public class AdmiraltyChartFileService {
 
   private final PadFileService padFileService;
   private final SpringValidatorAdapter groupValidator;
@@ -31,7 +30,6 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
     this.groupValidator = groupValidator;
   }
 
-  @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new AdmiraltyChartDocumentForm();
     padFileService.mapFilesToForm(form, detail, ApplicationFilePurpose.ADMIRALTY_CHART);
@@ -44,7 +42,6 @@ public class AdmiraltyChartFileService implements ApplicationFormSectionService 
     return appType.equals(PwaApplicationType.INITIAL) || appType.equals(PwaApplicationType.CAT_1_VARIATION);
   }
 
-  @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     List<Object> hints = new ArrayList<>();

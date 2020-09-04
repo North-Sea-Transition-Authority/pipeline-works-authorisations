@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,7 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsValidator;
 /* Service providing simplified API for Permanent Deposit app form */
 @Service
 public class PermanentDepositService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PermanentDepositService.class);
 
   private final PadPermanentDepositRepository permanentDepositInformationRepository;
   private final PermanentDepositEntityMappingService permanentDepositEntityMappingService;
@@ -322,6 +325,11 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
     permanentDepositInformationRepository.saveAll(updatedDepositsList);
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 
   private void cleanupGroutBags(PadPermanentDeposit deposit) {

@@ -7,9 +7,11 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 /**
  * Provides all information about a specific application task which appears in the core task list.
@@ -52,8 +54,20 @@ public class ApplicationTaskService {
   /**
    * Return a list of additional information about an applications task.
    */
-  List<TaskInfo> getTaskInfoList(GeneralPurposeApplicationTask applicationTask, PwaApplicationDetail pwaApplicationDetail) {
+  List<TaskInfo> getTaskInfoList(GeneralPurposeApplicationTask applicationTask,
+                                 PwaApplicationDetail pwaApplicationDetail) {
     return getTaskService(applicationTask).getTaskInfoList(pwaApplicationDetail);
+  }
+
+  /**
+   * For a given Task, duplicate all task data for "fromDetail" to the "toDetail".
+   */
+  @Transactional
+  public void copyApplicationTaskDataToApplicationDetail(ApplicationTask applicationTask,
+                                              PwaApplicationDetail fromDetail,
+                                              PwaApplicationDetail toDetail) {
+    getTaskService(applicationTask).copySectionInformation(fromDetail, toDetail);
+
   }
 
   /**

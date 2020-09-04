@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -34,7 +33,6 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings.PadT
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
@@ -42,7 +40,7 @@ import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
 
 @Service
-public class PadTechnicalDrawingService implements ApplicationFormSectionService {
+public class PadTechnicalDrawingService {
 
   private final PadTechnicalDrawingRepository padTechnicalDrawingRepository;
   private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
@@ -232,7 +230,6 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     saveDrawingAndLink(detail, form, drawing);
   }
 
-  @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return drawingsValid(detail);
   }
@@ -248,13 +245,6 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
         this::isDrawingLinkedToFile,
         drawing -> "This drawing does not have an uploaded file"
     );
-  }
-
-  @Override
-  @Deprecated
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
-                                PwaApplicationDetail pwaApplicationDetail) {
-    throw new ActionNotAllowedException("PadTechnicalDrawingService::validate should not be used");
   }
 
   public BindingResult validateDrawing(Object form, BindingResult bindingResult, ValidationType validationType,
@@ -331,7 +321,6 @@ public class PadTechnicalDrawingService implements ApplicationFormSectionService
     return bindingResult;
   }
 
-  @Override
   public void cleanupData(PwaApplicationDetail detail) {
 
     List<Integer> padFileIdsOnDrawings = getDrawings(detail).stream()

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -12,6 +14,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 
 @Service
 public class TechnicalDrawingSectionService implements ApplicationFormSectionService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(TechnicalDrawingSectionService.class);
 
   private final AdmiraltyChartFileService admiraltyChartFileService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
@@ -47,5 +51,15 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
     }
     padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
     return bindingResult;
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+  }
+
+  @Override
+  public void cleanupData(PwaApplicationDetail detail) {
+    padTechnicalDrawingService.cleanupData(detail);
   }
 }

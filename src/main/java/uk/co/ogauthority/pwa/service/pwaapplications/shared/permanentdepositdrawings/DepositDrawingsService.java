@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -42,6 +44,7 @@ import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
 /* Service providing simplified API for Permanent Deposit Drawings app form */
 @Service
 public class DepositDrawingsService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DepositDrawingsService.class);
 
   private final PadDepositDrawingRepository padDepositDrawingRepository;
   private final PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
@@ -302,6 +305,11 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
     padFileService.cleanupFiles(detail, FILE_PURPOSE, padFileIdsOnDrawings);
 
+  }
+
+  @Override
+  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 }
 

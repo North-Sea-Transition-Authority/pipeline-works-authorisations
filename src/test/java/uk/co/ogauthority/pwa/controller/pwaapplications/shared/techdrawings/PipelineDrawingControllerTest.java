@@ -43,12 +43,10 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
-import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.techdrawings.PipelineDrawingValidator;
@@ -171,7 +169,6 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   public void postAddDrawing_appTypeSmokeTest() {
 
     var form = new PipelineDrawingForm();
-    ControllerTestUtils.passValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -193,7 +190,6 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   public void postAddDrawing_appStatusSmokeTest() {
 
     var form = new PipelineDrawingForm();
-    ControllerTestUtils.passValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -215,7 +211,6 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   public void postAddDrawing_contactRoleSmokeTest() {
 
     var form = new PipelineDrawingForm();
-    ControllerTestUtils.passValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -237,7 +232,6 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   public void postAddDrawing_failValidation() {
 
     var form = new PipelineDrawingForm();
-    ControllerTestUtils.failValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
 
     when(padTechnicalDrawingService.validateDrawing(any(), any(), any(), any())).thenAnswer(invocationOnMock -> {
       var bindingResult = (BindingResult) invocationOnMock.getArgument(1);
@@ -267,7 +261,6 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   public void postAddDrawing_passValidation() throws Exception {
 
     var form = new PipelineDrawingForm();
-    ControllerTestUtils.passValidationWhenPost(padTechnicalDrawingService, form, ValidationType.FULL);
 
     when(pwaContactService.getContactRoles(any(), any())).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
