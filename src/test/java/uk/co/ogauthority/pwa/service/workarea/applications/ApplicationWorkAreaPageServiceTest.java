@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
+import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
@@ -57,6 +58,9 @@ public class ApplicationWorkAreaPageServiceTest {
   @Mock
   private PwaAppProcessingPermissionService appProcessingPermissionService;
 
+  @Mock
+  private CamundaWorkflowService camundaWorkflowService;
+
   private ApplicationWorkAreaPageService appWorkAreaPageService;
 
   private AuthenticatedUserAccount workAreaUser = new AuthenticatedUserAccount(
@@ -74,7 +78,8 @@ public class ApplicationWorkAreaPageServiceTest {
         appProcessingPermissionService,
         applicationDetailSearcher,
         pwaContactService,
-        pwaApplicationRedirectService);
+        pwaApplicationRedirectService,
+        camundaWorkflowService);
 
     when(appProcessingPermissionService.getProcessingPermissions(pwaManager)).thenReturn(Set.of(
         PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -58,7 +59,9 @@ public class PwaAppProcessingContextService {
   public PwaAppProcessingContext getProcessingContext(Integer applicationId,
                                                       AuthenticatedUserAccount authenticatedUser) {
 
-    var detail = detailService.getTipDetail(applicationId);
+    var detail = detailService.getLastSubmittedApplicationDetail(applicationId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Could not find last submitted version on applicationId:" + applicationId));
     var processingPermissions = appProcessingPermissionService.getProcessingPermissions(authenticatedUser);
 
     if (processingPermissions.isEmpty()) {

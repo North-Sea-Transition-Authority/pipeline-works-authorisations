@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea.applications;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.util.stream.Collectors.toSet;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
@@ -13,6 +15,7 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
@@ -20,10 +23,14 @@ import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
+import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 @Service
@@ -33,24 +40,28 @@ public class ApplicationWorkAreaPageService {
   private final ApplicationDetailSearcher applicationDetailSearcher;
   private final PwaContactService pwaContactService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
+  private final CamundaWorkflowService camundaWorkflowService;
 
   @Autowired
   public ApplicationWorkAreaPageService(PwaAppProcessingPermissionService appProcessingPermissionService,
                                         ApplicationDetailSearcher applicationDetailSearcher,
                                         PwaContactService pwaContactService,
-                                        PwaApplicationRedirectService pwaApplicationRedirectService) {
+                                        PwaApplicationRedirectService pwaApplicationRedirectService,
+                                        CamundaWorkflowService camundaWorkflowService) {
 
     this.appProcessingPermissionService = appProcessingPermissionService;
     this.applicationDetailSearcher = applicationDetailSearcher;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
+    this.camundaWorkflowService = camundaWorkflowService;
   }
 
   public PageView<PwaApplicationWorkAreaItem> getPageView(AuthenticatedUserAccount authenticatedUserAccount,
                                                           Set<Integer> applicationIds,
                                                           int page) {
 
-    var workAreaUri = ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, page));
+    var workAreaUri = ReverseRouter.route(
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.OPEN_APPLICATIONS, page));
 
     return PageView.fromPage(
         getApplicationSearchResults(authenticatedUserAccount, applicationIds, page),
@@ -66,8 +77,7 @@ public class ApplicationWorkAreaPageService {
 
     var processingPermissions = appProcessingPermissionService.getProcessingPermissions(userAccount);
 
-    // if the user doesn't have any processing permissions they're an industry user
-    if (processingPermissions.isEmpty()) {
+    if (processingPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)) {
       return getIndustrySearchResults(userAccount, pageRequest);
     }
 
@@ -87,14 +97,35 @@ public class ApplicationWorkAreaPageService {
 
   private Page<ApplicationDetailSearchItem> getIndustrySearchResults(WebUserAccount userAccount, int pageRequest) {
 
+    return applicationDetailSearcher.searchByStatusOrApplicationIds(
+        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.CREATED_DATE_DESC),
+        Set.of(),
+        getIndustryUserApplicationIds(userAccount)
+    );
+
+  }
+
+  private Set<Integer> getIndustryUserApplicationIds(WebUserAccount webUserAccount) {
     var applicationContactRoles = pwaContactService.getPwaContactRolesForWebUserAccount(
-        userAccount,
+        webUserAccount,
         EnumSet.of(PwaContactRole.PREPARER));
 
-    return applicationDetailSearcher.searchByPwaContacts(
-        WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ApplicationWorkAreaSort.CREATED_DATE_DESC),
-        applicationContactRoles
-    );
+    var targetBusinessKeys = applicationContactRoles.stream()
+        .map(PwaApplicationContactRoleDto::getPwaApplicationId)
+        .map(WorkflowBusinessKey::from)
+        .collect(toSet());
+
+    return camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
+        WorkflowType.PWA_APPLICATION,
+        targetBusinessKeys,
+        Set.of(
+            PwaApplicationWorkflowTask.PREPARE_APPLICATION,
+            PwaApplicationWorkflowTask.AWAIT_FEEDBACK,
+            PwaApplicationWorkflowTask.UPDATE_APPLICATION)
+
+    ).stream()
+        .map(workflowBusinessKey -> Integer.valueOf(workflowBusinessKey.getValue()))
+        .collect(toImmutableSet());
 
   }
 

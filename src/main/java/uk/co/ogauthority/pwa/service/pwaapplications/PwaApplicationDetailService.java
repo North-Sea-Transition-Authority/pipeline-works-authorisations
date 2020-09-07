@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import javax.transaction.Transactional;
@@ -229,6 +230,10 @@ public class PwaApplicationDetailService {
 
   public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
     return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
+  }
+
+  public Optional<PwaApplicationDetail> getLastSubmittedApplicationDetail(Integer pwaApplicationId) {
+    return pwaApplicationDetailRepository.findLastSubmittedApplicationDetail(pwaApplicationId);
   }
 
 }
