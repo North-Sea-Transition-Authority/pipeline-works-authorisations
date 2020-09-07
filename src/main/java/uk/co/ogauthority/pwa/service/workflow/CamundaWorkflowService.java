@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -16,6 +17,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowProperty;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
@@ -58,6 +60,22 @@ public class CamundaWorkflowService {
 
   }
 
+  public Set<WorkflowTaskInstance> getAllActiveWorkflowTasks(WorkflowSubject workflowSubject) {
+
+    var processInstanceDefinitionKey = workflowSubject.getWorkflowType().getProcessDefinitionKey();
+    var businessKey = String.valueOf(workflowSubject.getBusinessKey());
+
+    return taskService.createTaskQuery()
+        .processDefinitionKey(processInstanceDefinitionKey)
+        .processInstanceBusinessKey(businessKey)
+        .active()
+        .list()
+        .stream()
+        .map(task -> getWorkFlowInstance(processInstanceDefinitionKey, businessKey, task))
+        .collect(Collectors.toUnmodifiableSet());
+
+  }
+
   public void completeTask(WorkflowTaskInstance workflowTaskInstance) {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
@@ -71,8 +89,8 @@ public class CamundaWorkflowService {
 
     getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
         foundTask -> {
-            runtimeService.deleteProcessInstance(foundTask.getProcessInstanceId(), null);
-            taskService.deleteTask(foundTask.getId());
+          runtimeService.deleteProcessInstance(foundTask.getProcessInstanceId(), null);
+          taskService.deleteTask(foundTask.getId());
         }, () -> throwTaskNotFoundException(workflowTaskInstance)
     );
 
@@ -138,15 +156,21 @@ public class CamundaWorkflowService {
                                                        Task task,
                                                        Person person) {
 
-    var workflowType = WorkflowType.resolveFromProcessDefinitionKey(processDefinitionKey);
-
-    var workflowTaskInstance = new WorkflowTaskInstance(
-        new GenericWorkflowSubject(Integer.parseInt(processInstance.getBusinessKey()), workflowType),
-        UserWorkflowTaskUtils.getTaskByWorkflowAndTaskKey(workflowType, task.getTaskDefinitionKey())
-    );
+    var workflowTaskInstance = getWorkFlowInstance(processDefinitionKey, processInstance.getBusinessKey(), task);
 
     return new AssignedTaskInstance(workflowTaskInstance, person);
 
+  }
+
+  private WorkflowTaskInstance getWorkFlowInstance(String processDefinitionKey,
+                                                   String businessKey,
+                                                   Task task) {
+    var workflowType = WorkflowType.resolveFromProcessDefinitionKey(processDefinitionKey);
+
+    return new WorkflowTaskInstance(
+        new GenericWorkflowSubject(Integer.parseInt(businessKey), workflowType),
+        UserWorkflowTaskUtils.getTaskByWorkflowAndTaskKey(workflowType, task.getTaskDefinitionKey())
+    );
   }
 
   public Optional<PersonId> getAssignedPersonId(WorkflowTaskInstance workflowTaskInstance) {
@@ -154,7 +178,53 @@ public class CamundaWorkflowService {
     return getWorkflowTask(workflowTaskInstance)
         .filter(task -> task.getAssignee() != null)
         .map(task -> new PersonId(Integer.parseInt(task.getAssignee())));
-    
+
   }
+
+
+  @Transactional
+  public void triggerMessageEvent(WorkflowSubject workflowSubject,
+                                  String messageEventName) {
+
+    ProcessInstance processInstance = getProcessInstanceOrError(workflowSubject);
+    try {
+      runtimeService.createMessageCorrelation(messageEventName)
+          .processInstanceBusinessKey(processInstance.getBusinessKey())
+          .correlateWithResult();
+
+    } catch (Exception e) {
+      throw new WorkflowException(
+          String.format("Failed to correlate message [%s] for workflowSubject. \n %s ", messageEventName,
+              workflowSubject.getDebugString()),
+          e
+      );
+    }
+
+  }
+
+  private Optional<ProcessInstance> getProcessInstance(WorkflowSubject workflowSubject) {
+    return Optional.ofNullable(runtimeService.createProcessInstanceQuery()
+        .processDefinitionKey(workflowSubject.getWorkflowType().getProcessDefinitionKey())
+        .processInstanceBusinessKey(String.valueOf(workflowSubject.getBusinessKey()))
+        .singleResult());
+  }
+
+  private ProcessInstance getProcessInstanceOrError(WorkflowSubject workflowSubject) {
+    return getProcessInstance(workflowSubject)
+        .orElseThrow(
+            () -> new WorkflowException("could not find process instance for subject: " + workflowSubject.toString()));
+  }
+
+
+  @Transactional
+  public void setWorkflowProperty(WorkflowSubject workflowSubject, WorkflowProperty workflowProperty) {
+    var processInstance = getProcessInstance(workflowSubject)
+        .orElseThrow();
+    runtimeService.setVariable(processInstance.getId(), workflowProperty.getPropertyName(),
+        workflowProperty.getPropertyValue());
+
+
+  }
+
 
 }

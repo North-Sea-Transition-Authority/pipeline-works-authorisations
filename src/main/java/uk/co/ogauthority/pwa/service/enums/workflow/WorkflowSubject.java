@@ -10,4 +10,8 @@ public interface WorkflowSubject {
 
   WorkflowType getWorkflowType();
 
+  default String getDebugString() {
+    return "WorkflowSubject{workflowType=" + getWorkflowType() + ", businessKey=" + getBusinessKey() + "}";
+  }
+
 }
