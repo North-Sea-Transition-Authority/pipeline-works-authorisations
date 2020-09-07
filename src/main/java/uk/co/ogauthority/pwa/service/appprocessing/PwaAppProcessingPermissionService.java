@@ -69,6 +69,8 @@ public class PwaAppProcessingPermissionService {
               return true;
             case CASE_MANAGEMENT_INDUSTRY:
               return !orgTeams.isEmpty();
+            case ADD_CASE_NOTE:
+              return roles.contains(PwaRegulatorRole.PWA_MANAGER) || roles.contains(PwaRegulatorRole.CASE_OFFICER);
             default:
               return false;
 

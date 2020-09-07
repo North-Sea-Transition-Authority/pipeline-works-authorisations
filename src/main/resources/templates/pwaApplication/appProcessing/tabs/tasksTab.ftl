@@ -2,12 +2,6 @@
 
 <#macro tab taskListGroups industryFlag=false>
 
-  <#if industryFlag>
-    <h2 class="govuk-heading-l">Application status</h2>
-    <#else>
-      <h2 class="govuk-heading-l">Tasks</h2>
-  </#if>
-
   <@fdsTaskList.taskList>
 
       <#list taskListGroups as taskGroup>

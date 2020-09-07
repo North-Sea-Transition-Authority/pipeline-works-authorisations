@@ -17,7 +17,8 @@ public enum PwaAppProcessingPermission {
   ASSIGN_CASE_OFFICER,
   REQUEST_APPLICATION_UPDATE,
   CASE_MANAGEMENT,
-  CASE_MANAGEMENT_INDUSTRY;
+  CASE_MANAGEMENT_INDUSTRY,
+  ADD_CASE_NOTE;
 
   public static Stream<PwaAppProcessingPermission> stream() {
     return Stream.of(PwaAppProcessingPermission.values());

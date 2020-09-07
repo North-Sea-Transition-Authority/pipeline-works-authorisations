@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.appprocessing.AssignCaseOfficerController;
 import uk.co.ogauthority.pwa.controller.appprocessing.applicationupdate.RequestApplicationUpdateController;
+import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
 import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -180,7 +181,8 @@ public enum PwaAppProcessingTask {
 
     public String getRoute(PwaApplicationDetail detail) {
 
-      return "#";
+      return ReverseRouter.route(on(CaseNoteController.class)
+          .renderAddCaseNote(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null, null));
 
     }
 
