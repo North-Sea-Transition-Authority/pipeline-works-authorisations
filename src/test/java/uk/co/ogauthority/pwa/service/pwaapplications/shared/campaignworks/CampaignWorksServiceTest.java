@@ -35,6 +35,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.CampaignWorkScheduleValidationHint;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -199,6 +201,9 @@ public class CampaignWorksServiceTest {
     when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(schedule1Pipeline1, schedule2Pipeline1, schedule2Pipeline2));
 
+    List<PipelineOverview> pipelineOverviews = List.of(new PadPipelineOverview(pipe1), new PadPipelineOverview(pipe2));
+    when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail)).thenReturn(pipelineOverviews);
+
 
     var workScheduleViewList = campaignWorksService.getWorkScheduleViews(pwaApplicationDetail);
 
@@ -209,18 +214,27 @@ public class CampaignWorksServiceTest {
       assertThat(workScheduleView.getWorkStartDate()).isEqualTo(schedule1.getWorkFromDate());
       assertThat(workScheduleView.getWorkEndDate()).isEqualTo(schedule1.getWorkToDate());
       assertThat(workScheduleView.getSchedulePipelines())
-          .anySatisfy(campaignWorkSchedulePipelineView -> assertThat(
-              campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef()));
+          .anySatisfy(campaignWorkSchedulePipelineView -> {
+            assertThat(
+              campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef());
+            assertThat(campaignWorkSchedulePipelineView.getPipelineName()).isNotEmpty();
+          });
     });
 
     //schedule 2 view checks
     assertThat(workScheduleViewList).anySatisfy(workScheduleView -> {
       assertThat(workScheduleView.getWorkStartDate()).isEqualTo(schedule2.getWorkFromDate());
       assertThat(workScheduleView.getWorkEndDate()).isEqualTo(schedule2.getWorkToDate());
-      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(campaignWorkSchedulePipelineView -> assertThat(
-          campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef()));
-      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(campaignWorkSchedulePipelineView -> assertThat(
-          campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe2.getPipelineRef()));
+      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(campaignWorkSchedulePipelineView -> {
+        assertThat(
+          campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe1.getPipelineRef());
+        assertThat(campaignWorkSchedulePipelineView.getPipelineName()).isNotEmpty();
+      });
+      assertThat(workScheduleView.getSchedulePipelines()).anySatisfy(campaignWorkSchedulePipelineView -> {
+        assertThat(
+          campaignWorkSchedulePipelineView.getPipelineNumber()).isEqualTo(pipe2.getPipelineRef());
+        assertThat(campaignWorkSchedulePipelineView.getPipelineName()).isNotEmpty();
+      });
     });
 
   }
@@ -414,6 +428,7 @@ public class CampaignWorksServiceTest {
     var schedulePipeline = new PadCampaignWorksPipeline(workSchedule, pipe1);
     when(padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule(
         workSchedule)).thenReturn(List.of(schedulePipeline));
+    when(padPipelineService.getPipelineOverview(pipe1)).thenReturn(new PadPipelineOverview(pipe1));
 
     var workScheduleView = campaignWorksService.createWorkScheduleView(workSchedule);
 

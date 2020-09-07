@@ -72,7 +72,7 @@ public class ConsultationRequestController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getRequestConsultationModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount), () -> {
           consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
-          return ReverseRouter.redirect(on(ConsultationController.class).renderConsultation(
+          return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
               appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
         });
 
@@ -86,7 +86,7 @@ public class ConsultationRequestController {
         .addObject("consulteeGroups", consultationRequestService.getConsulteeGroups(authenticatedUserAccount).stream()
           .sorted(Comparator.comparing(ConsulteeGroupDetail::getName))
           .collect(Collectors.toList()))
-        .addObject("cancelUrl", ReverseRouter.route(on(ConsultationController.class).renderConsultation(
+        .addObject("cancelUrl", ReverseRouter.route(on(ConsultationController.class).renderConsultations(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)));
   }
 

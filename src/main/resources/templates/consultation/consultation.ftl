@@ -5,7 +5,7 @@
 <#include '../layout.ftl'>
 <#include 'consultationRequestView.ftl'>
 
-<@defaultPage htmlTitle="${appRef} consultations" topNavigation=true twoThirdsColumn=false>
+<@defaultPage htmlTitle="${appRef} consultations" topNavigation=true twoThirdsColumn=false breadcrumbs=true>
 
   <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 

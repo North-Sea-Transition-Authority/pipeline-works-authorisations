@@ -34,6 +34,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -306,6 +308,28 @@ public class AssignResponderServiceTest {
     boolean isMemberOfRequestGroup = assignResponderService.isUserMemberOfRequestGroup(user, consultationRequest);
 
     assertFalse(isMemberOfRequestGroup);
+  }
+
+  @Test
+  public void canShowInTaskList_hasPermission() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_RESPONDER), null);
+
+    boolean canShow = assignResponderService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_noPermission() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+
+    boolean canShow = assignResponderService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
   }
 
 

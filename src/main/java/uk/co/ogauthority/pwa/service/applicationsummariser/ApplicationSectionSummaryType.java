@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
@@ -36,6 +37,10 @@ public enum ApplicationSectionSummaryType {
       190,
       "pwaApplication/applicationSummarySections/technicalDrawingsSummary.ftl",
       TechnicalDrawingsSummaryService.class),
+  CAMPAIGN_WORK_SCHEDULE(
+      200,
+      "pwaApplication/applicationSummarySections/campaignWorksSummary.ftl",
+      CampaignWorkScheduleSummaryService.class),
   PERMANENT_DEPOSIT(
       210,
       "pwaApplication/applicationSummarySections/permanentDepositsSummary.ftl",
@@ -44,6 +49,8 @@ public enum ApplicationSectionSummaryType {
       220,
       "pwaApplication/applicationSummarySections/depositDrawingsSummary.ftl",
       DepositDrawingsSummaryService.class);
+
+
 
 
 

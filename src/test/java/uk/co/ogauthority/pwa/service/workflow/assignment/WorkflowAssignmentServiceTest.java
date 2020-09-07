@@ -184,9 +184,12 @@ public class WorkflowAssignmentServiceTest {
   @Test
   public void triggerWorkflowMessageAndAssertTaskExists_whenExpectedTaskExists() {
     var testMessageName = "TEST";
-
+    var testTaskKey = "TASK_KEY";
     var mockWorkFlowTask = mock(UserWorkflowTask.class);
+    when(mockWorkFlowTask.getTaskKey()).thenReturn(testTaskKey);
     var mockTaskInstance  = mock(WorkflowTaskInstance.class);
+    when(mockTaskInstance.getTaskKey()).thenReturn(testTaskKey);
+
     when(camundaWorkflowService.getAllActiveWorkflowTasks(pwaApplicationSubject)).thenReturn(Set.of(mockTaskInstance));
 
     var genericMessageEvent = GenericMessageEvent.from(pwaApplicationSubject, testMessageName);

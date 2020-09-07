@@ -116,6 +116,7 @@ public class PadPipelineOverview implements PipelineOverview {
 
   @VisibleForTesting
   public PadPipelineOverview(PadPipeline padPipeline) {
+    this.padPipelineId = padPipeline.getId();
     this.pipelineNumber = padPipeline.getPipelineRef();
     this.pipelineType = padPipeline.getPipelineType();
     this.maxExternalDiameter = padPipeline.getMaxExternalDiameter();

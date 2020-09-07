@@ -14,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -85,7 +86,7 @@ public class PwaAppProcessingPermissionServiceTest {
 
   }
 
-
+  @Test
   public void getProcessingPermissions_acceptWithdrawConsultationsPermission_success() {
 
     regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("CASE_OFFICER", "Case Officer", null, 10)));
@@ -177,5 +178,26 @@ public class PwaAppProcessingPermissionServiceTest {
     assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CONSULTATION_RESPONDER);
   }
 
+  @Test
+  public void getProcessingPermissions_hasCaseManagementIndustryPermission() {
+
+    when(teamService.getOrganisationTeamsPersonIsMemberOf(user.getLinkedPerson()))
+        .thenReturn(List.of(new PwaOrganisationTeam(1, "name", "desc", null)));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+  }
+
+  @Test
+  public void getProcessingPermissions_noCaseManagementIndustryPermission() {
+
+    when(teamService.getOrganisationTeamsPersonIsMemberOf(user.getLinkedPerson()))
+        .thenReturn(List.of());
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
+  }
 
 }

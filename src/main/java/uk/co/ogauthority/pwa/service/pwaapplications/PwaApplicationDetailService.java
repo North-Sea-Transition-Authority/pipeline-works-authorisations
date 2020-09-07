@@ -227,5 +227,8 @@ public class PwaApplicationDetailService {
     pwaApplicationDetailRepository.save(applicationDetail);
   }
 
+  public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
+    return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
+  }
 
 }

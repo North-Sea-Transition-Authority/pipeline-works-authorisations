@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -80,7 +81,7 @@ public class AssignCaseOfficerController {
           assignCaseOfficerService.assignCaseOfficer(
               form.getCaseOfficerPerson(),  processingContext.getApplicationDetail(), authenticatedUserAccount);
           return ReverseRouter.redirect(on(CaseManagementController.class).renderCaseManagement(
-              applicationId, pwaApplicationType, null, null));
+              applicationId, pwaApplicationType, AppProcessingTab.TASKS, null, null));
         });
 
   }
@@ -90,11 +91,18 @@ public class AssignCaseOfficerController {
 
     var pwaApplicationDetail = appProcessingContext.getApplicationDetail();
 
+    String cancelUrl = ReverseRouter.route(on(CaseManagementController.class)
+        .renderCaseManagement(
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            pwaApplicationDetail.getPwaApplicationType(),
+            AppProcessingTab.TASKS,
+            null,
+            null));
+
     return new ModelAndView("appprocessing/assignCaseOfficer")
         .addObject("errorList", List.of())
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
-        .addObject("cancelUrl", ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(
-            pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+        .addObject("cancelUrl", cancelUrl)
         .addObject("caseOfficerCandidates",
             workflowAssignmentService
                 .getAssignmentCandidates(pwaApplicationDetail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()

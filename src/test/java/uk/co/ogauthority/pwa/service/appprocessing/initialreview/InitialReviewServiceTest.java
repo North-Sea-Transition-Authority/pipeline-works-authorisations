@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,7 @@ import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -133,6 +135,17 @@ public class InitialReviewServiceTest {
     doThrow(new WorkflowAssignmentException("")).when(assignmentService).assign(any(), any(), any(), any());
 
     initialReviewService.acceptApplication(detail, 999, industryUser);
+
+  }
+
+  @Test
+  public void canShowInTaskList() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+
+    boolean canShow = initialReviewService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
 
   }
 

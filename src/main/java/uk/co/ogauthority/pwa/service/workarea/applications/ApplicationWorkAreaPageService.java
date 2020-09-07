@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
-import uk.co.ogauthority.pwa.controller.appprocessing.initialreview.InitialReviewController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -103,17 +103,12 @@ public class ApplicationWorkAreaPageService {
     var applicationId = applicationDetailSearchItem.getPwaApplicationId();
     var applicationType = applicationDetailSearchItem.getApplicationType();
 
-    switch (applicationDetailSearchItem.getPadStatus()) {
-
-      case DRAFT:
-        return pwaApplicationRedirectService.getTaskListRoute(applicationId, applicationType);
-      case INITIAL_SUBMISSION_REVIEW:
-        return ReverseRouter.route(on(InitialReviewController.class)
-            .renderInitialReview(applicationId, applicationType, null, null, null));
-      default:
-        return ReverseRouter.route(on(CaseManagementController.class).renderCaseManagement(applicationId, applicationType, null, null));
-
+    if (applicationDetailSearchItem.getPadStatus() == PwaApplicationStatus.DRAFT) {
+      return pwaApplicationRedirectService.getTaskListRoute(applicationId, applicationType);
     }
+
+    return ReverseRouter.route(on(CaseManagementController.class)
+        .renderCaseManagement(applicationId, applicationType, AppProcessingTab.TASKS, null, null));
 
   }
 

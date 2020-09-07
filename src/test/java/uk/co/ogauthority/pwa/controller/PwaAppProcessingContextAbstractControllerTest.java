@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
@@ -87,6 +88,9 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private ApplicationDetailSearcher applicationDetailSearcher;
+
+  @SpyBean
+  private AppProcessingBreadcrumbService appProcessingBreadcrumbService;
 
   @Before
   public void abstractControllerTestSetup() {

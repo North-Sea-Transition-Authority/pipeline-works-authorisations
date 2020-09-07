@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.applicationupdate;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Clock;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
@@ -24,7 +29,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetai
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
 @Service
-public class ApplicationUpdateRequestService {
+public class ApplicationUpdateRequestService implements AppProcessingService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationUpdateRequestService.class);
 
@@ -119,4 +124,15 @@ public class ApplicationUpdateRequestService {
   public boolean applicationDetailHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {
     return applicationUpdateRequestRepository.existsByPwaApplicationDetail(pwaApplicationDetail);
   }
+
+  @Override
+  public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
+    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE);
+  }
+
+  @Override
+  public Optional<TaskStatus> getTaskStatus(PwaAppProcessingContext processingContext) {
+    return Optional.empty();
+  }
+
 }

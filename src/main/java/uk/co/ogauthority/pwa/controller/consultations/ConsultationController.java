@@ -15,11 +15,13 @@ import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationsUrlFactory;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.FlashUtils;
@@ -33,27 +35,27 @@ public class ConsultationController {
 
   private final ConsultationRequestService consultationRequestService;
   private final ConsultationViewService consultationViewService;
+  private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
 
   @Autowired
   public ConsultationController(
       ConsultationRequestService consultationRequestService,
-      ConsultationViewService consultationViewService) {
+      ConsultationViewService consultationViewService,
+      AppProcessingBreadcrumbService appProcessingBreadcrumbService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationViewService = consultationViewService;
+    this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
   }
-
-
 
   //Endpoints
   @GetMapping
-  public ModelAndView renderConsultation(@PathVariable("applicationId") Integer applicationId,
-                                         @PathVariable("applicationType")
-                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                         PwaAppProcessingContext processingContext,
-                                         AuthenticatedUserAccount authenticatedUserAccount) {
+  public ModelAndView renderConsultations(@PathVariable("applicationId") Integer applicationId,
+                                          @PathVariable("applicationType")
+                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                          PwaAppProcessingContext processingContext,
+                                          AuthenticatedUserAccount authenticatedUserAccount) {
     return getConsultationModelAndView(processingContext);
   }
-
 
   @GetMapping("/withdraw/{consultationRequestId}")
   @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.WITHDRAW_CONSULTATION})
@@ -69,7 +71,7 @@ public class ConsultationController {
     if (!consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
       FlashUtils.error(
           redirectAttributes, "Error", "The selected consultation request can no longer be withdrawn");
-      return ReverseRouter.redirect(on(ConsultationController.class).renderConsultation(
+      return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
           applicationId, pwaApplicationType, null, null));
     }
     return getWithdrawConsultationModelAndView(consultationRequest, applicationId, pwaApplicationType);
@@ -91,7 +93,7 @@ public class ConsultationController {
     if (consultationRequestService.canWithDrawConsultationRequest(consultationRequest)) {
       consultationRequestService.withdrawConsultationRequest(consultationRequest, authenticatedUserAccount);
     }
-    return ReverseRouter.redirect(on(ConsultationController.class).renderConsultation(
+    return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
         applicationId, pwaApplicationType, null, null));
   }
 
@@ -103,7 +105,7 @@ public class ConsultationController {
 
     var pwaApplicationDetail = pwaAppProcessingContext.getApplicationDetail();
 
-    return new ModelAndView("consultation/consultation")
+    var modelAndView = new ModelAndView("consultation/consultation")
         .addObject("requestConsultationsUrl",
             ReverseRouter.route(on(ConsultationRequestController.class).renderRequestConsultation(
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
@@ -113,6 +115,12 @@ public class ConsultationController {
         .addObject("consultationsUrlFactory", new ConsultationsUrlFactory(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()))
         .addObject("caseSummaryView", pwaAppProcessingContext.getCaseSummaryView());
+
+    appProcessingBreadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        PwaAppProcessingTask.CONSULTATIONS.getTaskName());
+
+    return modelAndView;
+
   }
 
 
@@ -122,7 +130,7 @@ public class ConsultationController {
         .addObject("consultationRequestView",
             consultationViewService.getConsultationRequestView(consultationRequest))
         .addObject("cancelUrl", ReverseRouter.route(
-          on(ConsultationController.class).renderConsultation(applicationId, pwaApplicationType, null, null)));
+          on(ConsultationController.class).renderConsultations(applicationId, pwaApplicationType, null, null)));
   }
 
 

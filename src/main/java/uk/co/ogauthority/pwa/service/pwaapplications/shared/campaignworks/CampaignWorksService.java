@@ -4,8 +4,11 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.slf4j.Logger;
@@ -25,6 +28,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.Cam
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleFormValidator;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -177,7 +181,9 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
     return new WorkScheduleView(
         padCampaignWorkSchedule,
-        schedulePadPipelines
+        schedulePadPipelines.stream()
+            .map(padPipeline -> padPipelineService.getPipelineOverview(padPipeline))
+            .collect(Collectors.toList())
     );
   }
 
@@ -188,21 +194,33 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
     var allSchedules = padCampaignWorkScheduleRepository.findByPwaApplicationDetail(pwaApplicationDetail);
 
-    Map<PadCampaignWorkSchedule, List<PadPipeline>> scheduleToSchedulePipelineMap = allScheduledPipelines.stream()
+    Map<PadCampaignWorkSchedule, List<Integer>> scheduleToSchedulePipelineIdMap = allScheduledPipelines.stream()
         .collect(Collectors.groupingBy((PadCampaignWorksPipeline::getPadCampaignWorkSchedule),
-            Collectors.mapping(PadCampaignWorksPipeline::getPadPipeline, Collectors.toList())
+            Collectors.mapping(e -> e.getPadPipeline().getId(), Collectors.toList())
         ));
 
     // need to add in any schedule with no pipeline so that removing the last pipeline from a schedule at the application level
     // will still keep showing the schedule
     allSchedules.forEach(
-        padCampaignWorkSchedule -> scheduleToSchedulePipelineMap.putIfAbsent(padCampaignWorkSchedule, List.of()));
+        padCampaignWorkSchedule -> scheduleToSchedulePipelineIdMap.putIfAbsent(padCampaignWorkSchedule, List.of()));
+
+    Set<Integer> padPipelineIds = scheduleToSchedulePipelineIdMap.values().stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toSet());
+
+    var pipelineOverviewsIdMap = padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail).stream()
+        .filter(pipelineOverview -> padPipelineIds.contains(pipelineOverview.getPadPipelineId()))
+        .collect(Collectors.toMap(PipelineOverview::getPadPipelineId, Function.identity()));
+
 
     var listOfWorkScheduleViews = new ArrayList<WorkScheduleView>();
-    for (Map.Entry<PadCampaignWorkSchedule, List<PadPipeline>> entry : scheduleToSchedulePipelineMap.entrySet()) {
+    for (Map.Entry<PadCampaignWorkSchedule, List<Integer>> entry : scheduleToSchedulePipelineIdMap.entrySet()) {
       listOfWorkScheduleViews.add(new WorkScheduleView(
           entry.getKey(),
-          entry.getValue()
+          entry.getValue().stream()
+              .map(padPipelineId -> pipelineOverviewsIdMap.get(padPipelineId))
+              .sorted(Comparator.comparing(e -> e.getPipelineName()))
+              .collect(Collectors.toList())
       ));
     }
 

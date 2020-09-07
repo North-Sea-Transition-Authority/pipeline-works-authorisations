@@ -22,8 +22,10 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -38,12 +40,15 @@ public class RequestApplicationUpdateController {
 
   private final ControllerHelperService controllerHelperService;
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
 
   @Autowired
   public RequestApplicationUpdateController(ControllerHelperService controllerHelperService,
-                                            ApplicationUpdateRequestService applicationUpdateRequestService) {
+                                            ApplicationUpdateRequestService applicationUpdateRequestService,
+                                            AppProcessingBreadcrumbService appProcessingBreadcrumbService) {
     this.controllerHelperService = controllerHelperService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
   }
 
 
@@ -84,7 +89,7 @@ public class RequestApplicationUpdateController {
                     form.getRequestReason()
                 );
                 return ReverseRouter.redirect(on(CaseManagementController.class)
-                    .renderCaseManagement(applicationId, pwaApplicationType, null, null));
+                    .renderCaseManagement(applicationId, pwaApplicationType, AppProcessingTab.TASKS, null, null));
               }
           );
         }
@@ -94,16 +99,25 @@ public class RequestApplicationUpdateController {
   }
 
   private ModelAndView getModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+
     var caseManagementUrl = ReverseRouter.route(on(CaseManagementController.class)
         .renderCaseManagement(
             pwaApplicationDetail.getMasterPwaApplicationId(),
             pwaApplicationDetail.getPwaApplicationType(),
-            null, null
+            AppProcessingTab.TASKS,
+            null,
+            null
         ));
-    return new ModelAndView("appprocessing/requestApplicationUpdate")
+
+    var modelAndView = new ModelAndView("appprocessing/requestApplicationUpdate")
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("errorList", List.of())
         .addObject("cancelUrl", caseManagementUrl);
+
+    appProcessingBreadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView, "Request update");
+
+    return modelAndView;
+
   }
 
   private ModelAndView whenZeroOpenUpdateRequests(PwaApplicationDetail pwaApplicationDetail,
