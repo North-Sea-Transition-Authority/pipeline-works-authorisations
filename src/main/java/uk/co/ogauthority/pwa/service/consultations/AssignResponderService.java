@@ -14,6 +14,9 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ConsultationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -26,7 +29,7 @@ import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationH
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
 
 @Service
-public class AssignResponderService {
+public class AssignResponderService implements AppProcessingService {
 
   private final WorkflowAssignmentService workflowAssignmentService;
   private final AssignResponderValidator assignResponderValidator;
@@ -139,15 +142,15 @@ public class AssignResponderService {
     return false;
   }
 
-
-
   public BindingResult validate(AssignResponderForm form, BindingResult bindingResult, ConsultationRequest consultationRequest) {
     assignResponderValidator.validate(form, bindingResult,
         new AssignResponderValidationHints(this, consultationRequest));
     return bindingResult;
   }
 
-
-
+  @Override
+  public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
+    return processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.ASSIGN_RESPONDER);
+  }
 
 }

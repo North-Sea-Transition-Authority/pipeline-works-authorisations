@@ -15,9 +15,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)
@@ -30,12 +29,11 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
 
   @MockBean
-  private ApplicationUpdateRequestService applicationUpdateRequestService;
+  private AppProcessingTabService appProcessingTabService;
 
   @Before
   public void setUp() {
-    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+    endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService);
   }
 
 
@@ -45,7 +43,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CaseManagementController.class)
-                .renderCaseManagement(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .renderCaseManagement(applicationDetail.getMasterPwaApplicationId(), type, null,null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 

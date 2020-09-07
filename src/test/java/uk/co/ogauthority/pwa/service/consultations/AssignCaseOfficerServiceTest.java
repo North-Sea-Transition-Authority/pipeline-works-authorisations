@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +21,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -95,7 +97,27 @@ public class AssignCaseOfficerServiceTest {
 
   }
 
+  @Test
+  public void canShowInTaskList_hasPermission() {
 
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
+
+    boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_noPermission() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+
+    boolean canShow = assignCaseOfficerService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
 
 }
 

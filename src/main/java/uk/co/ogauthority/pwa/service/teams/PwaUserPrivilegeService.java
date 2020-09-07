@@ -39,6 +39,7 @@ public class PwaUserPrivilegeService {
       }
 
       privSet.add(PwaUserPrivilege.PWA_WORKAREA);
+      privSet.add(PwaUserPrivilege.PWA_CONSULTEE);
 
     }
 

@@ -62,7 +62,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
     viewAllConsultationsEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationController.class)
-                .renderConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .renderConsultations(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     viewAllConsultationsEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -74,7 +74,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
     viewAllConsultationsEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConsultationController.class)
-                .renderConsultation(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .renderConsultations(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     viewAllConsultationsEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 

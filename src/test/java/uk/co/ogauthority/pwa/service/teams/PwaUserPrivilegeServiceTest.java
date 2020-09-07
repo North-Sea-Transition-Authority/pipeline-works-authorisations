@@ -55,7 +55,7 @@ public class PwaUserPrivilegeServiceTest {
 
     var privSet = userPrivilegeService.getPwaUserPrivilegesForPerson(person);
 
-    assertThat(privSet).containsExactly(PwaUserPrivilege.PWA_WORKAREA);
+    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_CONSULTEE);
 
   }
 
@@ -68,7 +68,10 @@ public class PwaUserPrivilegeServiceTest {
 
     var privSet = userPrivilegeService.getPwaUserPrivilegesForPerson(person);
 
-    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN);
+    assertThat(privSet).containsExactlyInAnyOrder(
+        PwaUserPrivilege.PWA_WORKAREA,
+        PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN,
+        PwaUserPrivilege.PWA_CONSULTEE);
 
   }
 

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.initialreview;
 
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,6 +8,9 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.ActionAlreadyPerformedException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.CaseOfficerAssignedEmailProps;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -21,7 +25,7 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
  * Service to provide actions available to users at the 'Initial review' stage after submission.
  */
 @Service
-public class InitialReviewService {
+public class InitialReviewService implements AppProcessingService {
 
   private final PwaApplicationDetailService applicationDetailService;
   private final CamundaWorkflowService workflowService;
@@ -81,4 +85,14 @@ public class InitialReviewService {
 
   }
 
+  @Override
+  public boolean canShowInTaskList(PwaAppProcessingContext processingContext) {
+    return true;
+  }
+
+  @Override
+  public Optional<TaskStatus> getTaskStatus(PwaAppProcessingContext processingContext) {
+    return applicationDetailService.isInitialReviewApproved(processingContext.getApplicationDetail())
+        ? Optional.of(TaskStatus.COMPLETED) : Optional.of(TaskStatus.NOT_STARTED);
+  }
 }

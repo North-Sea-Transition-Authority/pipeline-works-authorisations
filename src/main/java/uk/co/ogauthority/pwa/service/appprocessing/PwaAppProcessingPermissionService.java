@@ -42,6 +42,8 @@ public class PwaAppProcessingPermissionService {
     consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())
         .forEach(member -> consulteeGroupRoles.addAll(member.getRoles()));
 
+    var orgTeams = teamService.getOrganisationTeamsPersonIsMemberOf(user.getLinkedPerson());
+
     return PwaAppProcessingPermission.stream()
         .filter(permission -> {
 
@@ -63,6 +65,10 @@ public class PwaAppProcessingPermissionService {
                   || consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RESPONDER);
             case CONSULTATION_RESPONDER:
               return consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RESPONDER);
+            case CASE_MANAGEMENT:
+              return true;
+            case CASE_MANAGEMENT_INDUSTRY:
+              return !orgTeams.isEmpty();
             default:
               return false;
 

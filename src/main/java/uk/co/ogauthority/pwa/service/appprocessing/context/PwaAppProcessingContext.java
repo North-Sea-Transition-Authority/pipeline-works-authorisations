@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
+import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -21,9 +22,9 @@ public class PwaAppProcessingContext {
   private final CaseSummaryView caseSummaryView;
 
   public PwaAppProcessingContext(PwaApplicationDetail applicationDetail,
-                               WebUserAccount user,
-                               Set<PwaAppProcessingPermission> appProcessingPermissions,
-                               CaseSummaryView caseSummaryView) {
+                                 WebUserAccount user,
+                                 Set<PwaAppProcessingPermission> appProcessingPermissions,
+                                 CaseSummaryView caseSummaryView) {
     this.applicationDetail = applicationDetail;
     this.user = user;
     this.appProcessingPermissions = appProcessingPermissions;
@@ -54,4 +55,23 @@ public class PwaAppProcessingContext {
     return caseSummaryView;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PwaAppProcessingContext that = (PwaAppProcessingContext) o;
+    return Objects.equals(applicationDetail, that.applicationDetail)
+        && Objects.equals(user, that.user)
+        && Objects.equals(appProcessingPermissions, that.appProcessingPermissions)
+        && Objects.equals(caseSummaryView, that.caseSummaryView);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(applicationDetail, user, appProcessingPermissions, caseSummaryView);
+  }
 }

@@ -12,6 +12,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +28,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
@@ -190,4 +193,27 @@ public class ApplicationUpdateRequestServiceTest {
     assertThat(emailProperties.getRecipientFullName()).isEqualTo(recipientFullName);
 
   }
+
+  @Test
+  public void canShowInTaskList_hasPermission() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE), null);
+
+    boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isTrue();
+
+  }
+
+  @Test
+  public void canShowInTaskList_noPermission() {
+
+    var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null);
+
+    boolean canShow = applicationUpdateRequestService.canShowInTaskList(processingContext);
+
+    assertThat(canShow).isFalse();
+
+  }
+
 }
