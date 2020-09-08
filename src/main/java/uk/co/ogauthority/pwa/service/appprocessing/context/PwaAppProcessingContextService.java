@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,8 @@ public class PwaAppProcessingContextService {
    * @param authenticatedUser trying to access the PWA application
    * @return application context object with app detail, users permissions etc populated
    */
-  public PwaAppProcessingContext getProcessingContext(Integer applicationId,
+  @VisibleForTesting
+  PwaAppProcessingContext getProcessingContext(Integer applicationId,
                                                       AuthenticatedUserAccount authenticatedUser) {
 
     var detail = detailService.getLastSubmittedApplicationDetail(applicationId)

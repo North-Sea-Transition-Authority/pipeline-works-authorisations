@@ -19,9 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.ApplicationDetailSearchItemRepository;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApplicationDetailSearcherTest {
@@ -45,33 +43,6 @@ public class ApplicationDetailSearcherTest {
     pageable = PageRequest.of(PAGE_REQUESTED, PAGE_SIZE);
   }
 
-  @Test
-  public void searchByPwaContacts_whenNoContactRoles() {
-    var resultPage = applicationDetailSearcher.searchByPwaContacts(pageable, Set.of());
-    assertThat(resultPage).isEqualTo(Page.empty(PageRequest.of(PAGE_REQUESTED, PAGE_SIZE)));
-
-  }
-
-  @Test
-  public void searchByPwaContacts_whenContactRolesProvided() {
-    var result = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.DRAFT);
-
-    var fakePageResult = ApplicationSearchTestUtil.setupFakeApplicationSearchResultPage(
-        List.of(result),
-        pageable
-
-    );
-    var contactRoles = Set.of(new PwaApplicationContactRoleDto(PERSON_ID, APP_ID, PwaContactRole.PREPARER));
-    when(applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPwaApplicationIdIn(any(), eq(Set.of(APP_ID))))
-        .thenReturn(fakePageResult);
-
-    var resultPage = applicationDetailSearcher.searchByPwaContacts(pageable, contactRoles);
-
-
-    verify(applicationDetailSearchItemRepository, times(1))
-        .findAllByTipFlagIsTrueAndPwaApplicationIdIn(pageable, Set.of(APP_ID));
-    assertThat(resultPage).isEqualTo(fakePageResult);
-  }
 
   @Test
   public void searchByStatus_whenApplicationSearchItemFound() {
@@ -83,7 +54,8 @@ public class ApplicationDetailSearcherTest {
     );
     var statusFilter = Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    when(applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusIn(any(), eq(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))))
+    when(applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusIn(any(),
+        eq(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))))
         .thenReturn(fakePageResult);
 
     var resultPage = applicationDetailSearcher.searchByStatus(pageable, statusFilter);
@@ -100,6 +72,38 @@ public class ApplicationDetailSearcherTest {
     var resultPage = applicationDetailSearcher.searchByStatus(pageable, Set.of());
 
     verifyNoInteractions(applicationDetailSearchItemRepository);
+
+    assertThat(resultPage).isEqualTo(Page.empty(pageable));
+  }
+
+  @Test
+  public void searchByStatusOrApplicationIds_serviceInteractions_whenFiltersHaveContent() {
+
+    var resultPage = applicationDetailSearcher.searchByStatusOrApplicationIds(
+        pageable,
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
+        Set.of(1, 2, 3)
+    );
+
+    verify(applicationDetailSearchItemRepository, times(1)).findAllByPadStatusInOrPwaApplicationIdIn(
+        pageable,
+        Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW),
+        Set.of(1, 2, 3)
+    );
+  }
+
+  @Test
+  public void searchByStatusOrApplicationIds_serviceInteractions_whenFiltersHaveNoContent() {
+
+    var resultPage = applicationDetailSearcher.searchByStatusOrApplicationIds(
+        pageable,
+        Set.of(),
+        Set.of()
+    );
+
+    verify(applicationDetailSearchItemRepository, times(0)).findAllByPadStatusInOrPwaApplicationIdIn(
+        any(), any(), any()
+    );
 
     assertThat(resultPage).isEqualTo(Page.empty(pageable));
   }

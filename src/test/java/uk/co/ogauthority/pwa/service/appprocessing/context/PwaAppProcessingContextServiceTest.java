@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.context;
+package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,8 +21,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextParams;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -202,6 +200,22 @@ public class PwaAppProcessingContextServiceTest {
     var processingContext = contextService.validateAndCreate(builder);
 
     assertThat(processingContext.getCaseSummaryView()).isNull();
+
+  }
+
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getProcessingContext_noLastSubmittedDetail(){
+    when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
+        .thenReturn(Optional.empty());
+    contextService.getProcessingContext(1, user);
+
+  }
+
+  @Test
+  public void getProcessingContext_happyPath(){
+
+    assertThat(contextService.getProcessingContext(1, user)).isNotNull();
 
   }
 

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.workflow;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -104,6 +105,10 @@ public class CamundaWorkflowService {
         .stream()
         .map(Task::getProcessInstanceId)
         .collect(Collectors.toUnmodifiableSet());
+
+    if (processInstanceIds.isEmpty()) {
+      return Collections.emptySet();
+    }
 
     return runtimeService.createProcessInstanceQuery()
         .active()

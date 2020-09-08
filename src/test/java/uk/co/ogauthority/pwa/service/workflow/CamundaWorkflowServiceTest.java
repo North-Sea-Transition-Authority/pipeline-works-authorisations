@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.workflow;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Set;
 import org.camunda.bpm.engine.TaskService;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import uk.co.ogauthority.pwa.exception.WorkflowException;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
@@ -248,6 +250,35 @@ public class CamundaWorkflowServiceTest {
 
     });
 
+  }
+
+  @Test
+  public void filterBusinessKeysByWorkflowTypeAndActiveTasksContains_filterTaskIsActive(){
+
+    camundaWorkflowService.startWorkflow(application);
+
+    var filteredBusinesskeys = camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
+        WorkflowType.PWA_APPLICATION,
+        Set.of(WorkflowBusinessKey.from(application.getBusinessKey())),
+        Set.of(PwaApplicationWorkflowTask.PREPARE_APPLICATION)
+    );
+
+    assertThat(filteredBusinesskeys).containsExactly(WorkflowBusinessKey.from(application.getBusinessKey()));
+
+  }
+
+  @Test
+  public void filterBusinessKeysByWorkflowTypeAndActiveTasksContains_filterTaskDoesNotExist(){
+
+    camundaWorkflowService.startWorkflow(application);
+
+    var filteredBusinesskeys = camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
+        WorkflowType.PWA_APPLICATION,
+        Set.of(WorkflowBusinessKey.from(application.getBusinessKey())),
+        Set.of(PwaApplicationWorkflowTask.AWAIT_FEEDBACK)
+    );
+
+    assertThat(filteredBusinesskeys).isEmpty();
   }
 
 }
