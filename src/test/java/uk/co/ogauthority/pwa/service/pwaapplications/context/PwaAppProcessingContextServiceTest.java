@@ -64,7 +64,8 @@ public class PwaAppProcessingContextServiceTest {
 
     contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher);
 
-    when(detailService.getTipDetail(1)).thenReturn(detail);
+    when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
+        .thenReturn(Optional.of(detail));
     when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
     var searchItem = new ApplicationDetailSearchItem();

@@ -2,13 +2,16 @@ package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +28,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
+import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -84,13 +88,27 @@ public class ApplicationWorkAreaPageServiceTest {
     when(appProcessingPermissionService.getProcessingPermissions(pwaManager)).thenReturn(Set.of(
         PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
+    when(appProcessingPermissionService.getProcessingPermissions(workAreaUser))
+        .thenReturn(Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
+
+    when(camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
+        eq(WorkflowType.PWA_APPLICATION),
+        any(),
+        any())
+    ).thenAnswer(invocation ->
+        // fake a filter where every param is returned
+        Optional.of(invocation.getArgument(1))
+            .map(o -> (Set<WorkflowBusinessKey>) o)
+            .orElse(new HashSet<WorkflowBusinessKey>())
+    );
+
   }
 
   @Test
   public void getPageView_zeroResults_userIsWorkAreaUser() {
 
     var fakePage = new PageImpl<ApplicationDetailSearchItem>(List.of(), getDefaultWorkAreaViewPageable(REQUESTED_PAGE), 0);
-    when(applicationDetailSearcher.searchByPwaContacts(any(), any())).thenReturn(fakePage);
+    when(applicationDetailSearcher.searchByStatusOrApplicationIds(any(), any(), any())).thenReturn(fakePage);
 
     var workareaPage = appWorkAreaPageService.getPageView(workAreaUser, Set.of(), REQUESTED_PAGE);
     assertThat(workareaPage.getTotalElements()).isEqualTo(0);
@@ -99,8 +117,9 @@ public class ApplicationWorkAreaPageServiceTest {
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
+    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
         getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
+        Set.of(),
         Set.of()
     );
 
@@ -154,8 +173,9 @@ public class ApplicationWorkAreaPageServiceTest {
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
+    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
         getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
+        Set.of(),
         Set.of()
     );
 
@@ -197,8 +217,9 @@ public class ApplicationWorkAreaPageServiceTest {
         EnumSet.of(PwaContactRole.PREPARER)
     );
 
-    verify(applicationDetailSearcher, times(1)).searchByPwaContacts(
+    verify(applicationDetailSearcher, times(1)).searchByStatusOrApplicationIds(
         getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
+        Set.of(),
         Set.of()
     );
 
@@ -223,7 +244,6 @@ public class ApplicationWorkAreaPageServiceTest {
         getDefaultWorkAreaViewPageable(page),
         results.size());
 
-    when(applicationDetailSearcher.searchByPwaContacts(any(), any())).thenReturn(fakePage);
     when(applicationDetailSearcher.searchByStatusOrApplicationIds(any(), any(), any())).thenReturn(fakePage);
 
     return fakePage;

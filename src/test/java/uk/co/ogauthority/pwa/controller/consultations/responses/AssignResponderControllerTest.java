@@ -13,6 +13,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,9 +68,9 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    pwaApplicationDetail.getPwaApplication().setId(1);
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
+    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+        .thenReturn(Optional.of(pwaApplicationDetail));
 
     consultationRequest = new ConsultationRequest();
     when(consultationRequestService.getConsultationRequestById(any())).thenReturn(consultationRequest);
