@@ -18,9 +18,9 @@ public interface ApplicationDetailSearchItemRepository extends CrudRepository<Ap
   Page<ApplicationDetailSearchItem> findAllByTipFlagIsTrueAndPadStatusIn(Pageable pageable,
                                                                          Collection<PwaApplicationStatus> statusFilter);
 
-  Page<ApplicationDetailSearchItem> findAllByTipFlagIsTrueAndPadStatusInOrPwaApplicationIdIn(Pageable pageable,
-                                                                                             Collection<PwaApplicationStatus> statusFilter,
-                                                                                             Collection<Integer> applicationIdFilter);
+  Page<ApplicationDetailSearchItem> findAllByPadStatusInOrPwaApplicationIdIn(Pageable pageable,
+                                                                             Collection<PwaApplicationStatus> statusFilter,
+                                                                             Collection<Integer> applicationIdFilter);
 
   Optional<ApplicationDetailSearchItem> findByPwaApplicationDetailIdEquals(Integer pwaApplicationDetailId);
 

@@ -58,7 +58,7 @@ public class ApplicationDetailSearcher {
       return Page.empty(pageable);
     }
 
-    return applicationDetailSearchItemRepository.findAllByTipFlagIsTrueAndPadStatusInOrPwaApplicationIdIn(
+    return applicationDetailSearchItemRepository.findAllByPadStatusInOrPwaApplicationIdIn(
         pageable,
         statusFilter,
         pwaApplicationIdFilter

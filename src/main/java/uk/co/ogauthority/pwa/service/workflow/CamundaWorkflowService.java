@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.workflow;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +19,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
 import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
+import uk.co.ogauthority.pwa.model.workflow.WorkflowBusinessKey;
+import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowProperty;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -73,7 +77,41 @@ public class CamundaWorkflowService {
         .stream()
         .map(task -> getWorkFlowInstance(processInstanceDefinitionKey, businessKey, task))
         .collect(Collectors.toUnmodifiableSet());
+  }
 
+
+  public Set<WorkflowBusinessKey> filterBusinessKeysByWorkflowTypeAndActiveTasksContains(WorkflowType workflowType,
+                                                                                         Set<WorkflowBusinessKey> workflowBusinessKeys,
+                                                                                         Set<UserWorkflowTask> userWorkflowTasks) {
+
+    var processInstanceDefinitionKey = workflowType.getProcessDefinitionKey();
+    var businessKeysArray = workflowBusinessKeys.stream()
+        .map(WorkflowBusinessKey::getValue)
+        .collect(toList())
+        .toArray(String[]::new);
+
+    var taskKeyArray = userWorkflowTasks.stream()
+        .map(UserWorkflowTask::getTaskKey)
+        .collect(toList())
+        .toArray(String[]::new);
+
+    var processInstanceIds = taskService.createTaskQuery()
+        .processDefinitionKey(processInstanceDefinitionKey)
+        .processInstanceBusinessKeyIn(businessKeysArray)
+        .taskDefinitionKeyIn(taskKeyArray)
+        .active()
+        .list()
+        .stream()
+        .map(Task::getProcessInstanceId)
+        .collect(Collectors.toUnmodifiableSet());
+
+    return runtimeService.createProcessInstanceQuery()
+        .active()
+        .processInstanceIds(processInstanceIds)
+        .list()
+        .stream()
+        .map(pi -> WorkflowBusinessKey.from(pi.getBusinessKey()))
+        .collect(Collectors.toSet());
   }
 
   public void completeTask(WorkflowTaskInstance workflowTaskInstance) {
@@ -189,7 +227,7 @@ public class CamundaWorkflowService {
     ProcessInstance processInstance = getProcessInstanceOrError(workflowSubject);
     try {
       runtimeService.createMessageCorrelation(messageEventName)
-          .processInstanceBusinessKey(processInstance.getBusinessKey())
+          .processInstanceId(processInstance.getProcessInstanceId())
           .correlateWithResult();
 
     } catch (Exception e) {
@@ -218,11 +256,9 @@ public class CamundaWorkflowService {
 
   @Transactional
   public void setWorkflowProperty(WorkflowSubject workflowSubject, WorkflowProperty workflowProperty) {
-    var processInstance = getProcessInstance(workflowSubject)
-        .orElseThrow();
+    var processInstance = getProcessInstanceOrError(workflowSubject);
     runtimeService.setVariable(processInstance.getId(), workflowProperty.getPropertyName(),
         workflowProperty.getPropertyValue());
-
 
   }
 

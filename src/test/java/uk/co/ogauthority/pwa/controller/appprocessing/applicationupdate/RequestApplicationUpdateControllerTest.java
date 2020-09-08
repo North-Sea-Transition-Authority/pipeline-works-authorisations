@@ -17,6 +17,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,8 +86,8 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     pwaApplicationDetail.getPwaApplication().setAppReference(APP_REF);
 
-    when(pwaApplicationDetailService.getTipDetail(1)).thenReturn(pwaApplicationDetail);
-    when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(1)).thenReturn(Optional.of(pwaApplicationDetail));
+    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).thenReturn(Optional.of(pwaApplicationDetail));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService,
         pwaAppProcessingPermissionService)

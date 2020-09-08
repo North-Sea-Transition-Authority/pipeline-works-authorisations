@@ -13,6 +13,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,10 +67,10 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    pwaApplicationDetail.getPwaApplication().setId(1);
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 30);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+        .thenReturn(Optional.of(pwaApplicationDetail));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)

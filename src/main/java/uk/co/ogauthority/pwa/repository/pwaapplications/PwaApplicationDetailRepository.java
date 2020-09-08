@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.pwaapplications;
 
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -16,5 +17,14 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
                                                                                  PwaApplicationStatus status);
 
   Optional<PwaApplicationDetail> findByPwaApplicationIdAndTipFlagIsTrue(Integer pwaApplicationId);
+
+  @Query(
+      "SELECT pad " +
+          "FROM PwaApplicationDetail pad " +
+          "JOIN PwaApplicationStatusCategoryLookup pascl ON pad.pwaApplication.id = pascl.pwaApplicationId " +
+          "AND pascl.lastSubmittedVersion = pad.versionNo " +
+          "WHERE pad.pwaApplication.id = :pwaApplicationId "
+  )
+  Optional<PwaApplicationDetail> findLastSubmittedApplicationDetail(Integer pwaApplicationId);
 
 }
