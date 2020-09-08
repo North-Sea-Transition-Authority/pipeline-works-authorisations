@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -257,6 +258,8 @@ public class PwaApplicationEndpointTestBuilder {
     detail.setStatus(defaultStatus);
     detail.getPwaApplication().setApplicationType(defaultType);
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
+        .thenReturn(Optional.of(detail));
 
     var defaultContactRoles = EnumSet.allOf(PwaContactRole.class);
 
