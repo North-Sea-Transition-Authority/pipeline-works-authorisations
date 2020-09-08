@@ -256,11 +256,9 @@ public class CamundaWorkflowService {
 
   @Transactional
   public void setWorkflowProperty(WorkflowSubject workflowSubject, WorkflowProperty workflowProperty) {
-    var processInstance = getProcessInstance(workflowSubject)
-        .orElseThrow();
+    var processInstance = getProcessInstanceOrError(workflowSubject);
     runtimeService.setVariable(processInstance.getId(), workflowProperty.getPropertyName(),
         workflowProperty.getPropertyValue());
-
 
   }
 
