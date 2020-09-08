@@ -32,9 +32,13 @@ import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingConte
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
@@ -69,6 +73,9 @@ public class ApplicationUpdateRequestServiceTest {
   @Mock
   private PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
 
+  @Mock
+  private WorkflowAssignmentService workflowAssignmentService;
+
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private ApplicationUpdateRequestService applicationUpdateRequestService;
@@ -81,6 +88,9 @@ public class ApplicationUpdateRequestServiceTest {
 
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropertiesArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<WorkflowMessageEvent> messageEventArgumentCaptor;
 
   private Person person;
   private WebUserAccount user;
@@ -104,7 +114,8 @@ public class ApplicationUpdateRequestServiceTest {
         clock,
         notifyService,
         pwaContactService,
-        pwaApplicationDetailVersioningService
+        pwaApplicationDetailVersioningService,
+        workflowAssignmentService
     );
   }
 
@@ -167,7 +178,7 @@ public class ApplicationUpdateRequestServiceTest {
 
 
   @Test
-  public void submitApplicationUpdateRequest_serviceInteractions(){
+  public void submitApplicationUpdateRequest_serviceInteractions() {
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplicationDetail.getPwaApplication(),
         PwaContactRole.PREPARER))
         .thenReturn(List.of(preparer1));
@@ -180,6 +191,14 @@ public class ApplicationUpdateRequestServiceTest {
     verify(applicationUpdateRequestRepository, times(1)).save(any());
     verify(notifyService, times(1)).sendEmail(any(), eq(PREPARER_1_EMAIL));
     verify(pwaApplicationDetailVersioningService, times(1)).createNewApplicationVersion(pwaApplicationDetail, user);
+    verify(workflowAssignmentService, times(1))
+        .triggerWorkflowMessageAndAssertTaskExists(
+            messageEventArgumentCaptor.capture(),
+            eq(PwaApplicationWorkflowTask.UPDATE_APPLICATION)
+        );
+
+    assertThat(messageEventArgumentCaptor.getValue().getEventName()).isEqualTo(PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName());
+    assertThat(messageEventArgumentCaptor.getValue().getWorkflowSubject()).isEqualTo(pwaApplicationDetail.getPwaApplication());
 
   }
 

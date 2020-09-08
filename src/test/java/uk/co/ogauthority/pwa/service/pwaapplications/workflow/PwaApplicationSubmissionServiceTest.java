@@ -17,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -135,9 +137,13 @@ public class PwaApplicationSubmissionServiceTest {
     verify(dataCleanupService, times(1)).cleanupData(pwaApplicationDetail);
 
     verify(pwaApplicationDetailService, times(1)).setSubmitted(pwaApplicationDetail, user);
-    verify(camundaWorkflowService, times(1)).completeTask(
+    var camundaServiceOrderVerifier = Mockito.inOrder(camundaWorkflowService);
+    camundaServiceOrderVerifier.verify(camundaWorkflowService, times(1))
+        .setWorkflowProperty(eq(pwaApplicationDetail.getPwaApplication()), eq(PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION));
+    camundaServiceOrderVerifier.verify(camundaWorkflowService, times(1)).completeTask(
         eq(new WorkflowTaskInstance(pwaApplicationDetail.getPwaApplication(),
             PwaApplicationWorkflowTask.PREPARE_APPLICATION)));
+    camundaServiceOrderVerifier.verifyNoMoreInteractions();
 
     verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq("manager1@pwa.co.uk"));
     assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(

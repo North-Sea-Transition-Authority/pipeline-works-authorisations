@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -64,6 +65,7 @@ public class PwaApplicationSubmissionService {
 
     pwaApplicationDataCleanupService.cleanupData(detail);
 
+    camundaWorkflowService.setWorkflowProperty(detail.getPwaApplication(), PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
     camundaWorkflowService.completeTask(
         new WorkflowTaskInstance(detail.getPwaApplication(), PwaApplicationWorkflowTask.PREPARE_APPLICATION));
 

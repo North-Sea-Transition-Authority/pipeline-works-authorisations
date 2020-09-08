@@ -230,4 +230,5 @@ public class PwaApplicationDetailService {
   public boolean isInitialReviewApproved(PwaApplicationDetail applicationDetail) {
     return applicationDetail.getInitialReviewApprovedByWuaId() != null && applicationDetail.getInitialReviewApprovedTimestamp() != null;
   }
+
 }

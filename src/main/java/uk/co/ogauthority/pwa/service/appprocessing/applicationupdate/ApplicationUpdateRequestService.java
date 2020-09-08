@@ -14,15 +14,19 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.ApplicationUpdateRequestEmailProps;
+import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
 @Service
 public class ApplicationUpdateRequestService implements AppProcessingService {
@@ -34,18 +38,21 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   private final NotifyService notifyService;
   private final PwaContactService pwaContactService;
   private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
+  private final WorkflowAssignmentService workflowAssignmentService;
 
   @Autowired
   public ApplicationUpdateRequestService(ApplicationUpdateRequestRepository applicationUpdateRequestRepository,
                                          @Qualifier("utcClock") Clock clock,
                                          NotifyService notifyService,
                                          PwaContactService pwaContactService,
-                                         PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService) {
+                                         PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService,
+                                         WorkflowAssignmentService workflowAssignmentService) {
     this.applicationUpdateRequestRepository = applicationUpdateRequestRepository;
     this.clock = clock;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
+    this.workflowAssignmentService = workflowAssignmentService;
   }
 
 
@@ -59,6 +66,14 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     var newTipDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(pwaApplicationDetail, requestingUser);
     // then we attempt to send an email to alert the application preparers that changes are required.
     sendApplicationUpdateRequestedEmail(newTipDetail, requestingUser.getLinkedPerson());
+    // update workflow
+    workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(
+        GenericMessageEvent.from(
+            newTipDetail.getPwaApplication(),
+            PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName()
+        ),
+        PwaApplicationWorkflowTask.UPDATE_APPLICATION
+    );
   }
 
 

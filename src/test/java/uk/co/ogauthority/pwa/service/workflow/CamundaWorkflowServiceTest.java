@@ -14,13 +14,19 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWorkflowTask;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationSubmitResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,13 +42,16 @@ public class CamundaWorkflowServiceTest {
   @Autowired
   private TaskService taskService;
 
+  private PwaApplicationDetail applicationDetail;
   private PwaApplication application;
   private ConsultationRequest consultationRequest;
 
+  private WebUserAccount webUserAccount = new WebUserAccount(1);
+
   @Before
   public void setUp() {
-    application = new PwaApplication();
-    application.setId(1);
+    applicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
+    application = applicationDetail.getPwaApplication();
     consultationRequest = new ConsultationRequest();
     consultationRequest.setId(1);
   }
@@ -51,6 +60,7 @@ public class CamundaWorkflowServiceTest {
   public void start() {
 
     camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
 
     assertThat(taskService
         .createTaskQuery()
@@ -66,6 +76,7 @@ public class CamundaWorkflowServiceTest {
   public void completeTask() {
 
     camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
 
     assertThat(taskService
@@ -116,6 +127,7 @@ public class CamundaWorkflowServiceTest {
     var person = new Person(111, null, null, null, null);
 
     camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
 
@@ -146,8 +158,10 @@ public class CamundaWorkflowServiceTest {
   public void getAssignedTasks() {
 
     var person = new Person(11, null, null, null, null);
+    webUserAccount = new WebUserAccount(1, person);
 
     camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
 
@@ -212,6 +226,27 @@ public class CamundaWorkflowServiceTest {
     var assignedPersonId = camundaWorkflowService.getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION));
 
     assertThat(assignedPersonId).isEmpty();
+
+  }
+
+  @Test(expected = WorkflowException.class)
+  public void triggerMessageEvent_noMatchingEvent(){
+    camundaWorkflowService.startWorkflow(consultationRequest);
+     camundaWorkflowService.triggerMessageEvent(consultationRequest, "SOME_EVENT");
+  }
+
+  @Test
+  public void triggerMessageEvent_matchingEvent(){
+    camundaWorkflowService.startWorkflow(application);
+    camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW));
+    camundaWorkflowService.triggerMessageEvent(application, PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName());
+
+    assertThat(camundaWorkflowService.getAllActiveWorkflowTasks(application)).anySatisfy(workflowTaskInstance -> {
+      assertThat(workflowTaskInstance.getTaskKey()).isEqualTo(PwaApplicationWorkflowTask.UPDATE_APPLICATION.getTaskKey());
+
+    });
 
   }
 
