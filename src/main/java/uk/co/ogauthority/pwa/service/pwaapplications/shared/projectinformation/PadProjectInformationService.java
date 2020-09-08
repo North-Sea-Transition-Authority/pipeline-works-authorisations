@@ -15,10 +15,12 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.ProjectInformationView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -77,6 +79,20 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                               ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
     padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
+  }
+
+
+  public ProjectInformationView getProjectInformationView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PROJECT_INFORMATION,
+        ApplicationFileLinkStatus.FULL);
+
+    return new ProjectInformationView(
+        getPadProjectInformationData(pwaApplicationDetail),
+        getIsAnyDepositQuestionRequired(pwaApplicationDetail),
+        getIsPermanentDepositQuestionRequired(pwaApplicationDetail),
+        isFdpQuestionRequired(pwaApplicationDetail),
+        !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null);
   }
 
 
