@@ -47,6 +47,7 @@ public class PwaApplicationDetailServiceTest {
 
   private static final int WUA_ID_1 = 1;
   private static final int WUA_ID_2 = 2;
+  private static int APP_ID = 1;
 
   @Mock
   private PwaApplicationDetailRepository applicationDetailRepository;
@@ -63,7 +64,7 @@ public class PwaApplicationDetailServiceTest {
 
   @Before
   public void setUp() {
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID);
     webUserAccount = new WebUserAccount(WUA_ID_1);
     user = new AuthenticatedUserAccount(webUserAccount, List.of());
 
@@ -74,7 +75,7 @@ public class PwaApplicationDetailServiceTest {
 
     clock = Clock.fixed(fixedInstant, ZoneId.systemDefault());
 
-    when(applicationDetailRepository.findByPwaApplicationIdAndStatusAndTipFlagIsTrue(1, PwaApplicationStatus.DRAFT))
+    when(applicationDetailRepository.findByPwaApplicationIdAndStatusAndTipFlagIsTrue(APP_ID, PwaApplicationStatus.DRAFT))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     when(applicationDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -85,7 +86,7 @@ public class PwaApplicationDetailServiceTest {
   @Test
   public void withDraftTipDetail() {
     AtomicBoolean functionApplied = new AtomicBoolean(false);
-    pwaApplicationDetailService.withDraftTipDetail(1, user, detail -> {
+    pwaApplicationDetailService.withDraftTipDetail(APP_ID, user, detail -> {
       assertThat(detail).isEqualTo(pwaApplicationDetail);
       functionApplied.set(true);
       return null;
@@ -95,7 +96,7 @@ public class PwaApplicationDetailServiceTest {
 
   @Test
   public void getTipDetailWithStatus() {
-    var detail = pwaApplicationDetailService.getTipDetailWithStatus(1, PwaApplicationStatus.DRAFT);
+    var detail = pwaApplicationDetailService.getTipDetailWithStatus(APP_ID, PwaApplicationStatus.DRAFT);
     assertThat(detail).isEqualTo(pwaApplicationDetail);
   }
 
@@ -303,6 +304,20 @@ public class PwaApplicationDetailServiceTest {
        .collect(Collectors.toSet());
     // If this has values, need to make sure some value is set, and that creating a new version of a detail deals with that attribute.
     assertThat(nullFields).isEmpty();
+  }
+
+  @Test
+  public void getLastSubmittedApplicationDetail_notFound(){
+
+    assertThat(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).isEmpty();
+    verify(applicationDetailRepository, times(1)).findLastSubmittedApplicationDetail(APP_ID);
+  }
+
+  @Test
+  public void getLastSubmittedApplicationDetail_found(){
+    when(applicationDetailRepository.findLastSubmittedApplicationDetail(APP_ID)).thenReturn(Optional.of(pwaApplicationDetail));
+    assertThat(pwaApplicationDetailService.getLastSubmittedApplicationDetail(APP_ID)).contains(pwaApplicationDetail);
+
   }
 
   private Object getFieldValue(Field field, Object object) {
