@@ -12,14 +12,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_files")
-public class PadFile {
+public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+  private Integer id;
 
   @ManyToOne
   @JoinColumn(referencedColumnName = "id", name = "pad_id")
@@ -48,7 +49,22 @@ public class PadFile {
     this.fileLinkStatus = fileLinkStatus;
   }
 
-  public int getId() {
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
+
+  public Integer getId() {
     return id;
   }
 

@@ -93,4 +93,24 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
         .setParameter("padFileIdsToExclude", padFileIdsToExclude)
         .getResultList();
   }
+
+  @Override
+  public List<PadFile> findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(PwaApplicationDetail detail,
+                                                                         ApplicationFilePurpose purpose,
+                                                                         ApplicationFileLinkStatus applicationFileLinkStatus) {
+    return entityManager.createQuery("" +
+        "SELECT pf " +
+        "FROM PadFile pf " +
+        "JOIN UploadedFile uf ON pf.fileId = uf.fileId " +
+        "WHERE uf.status = :fileStatus " +
+        "AND pf.pwaApplicationDetail = :pwaAppDetail " +
+        "AND pf.purpose = :purpose " +
+        "AND (pf.fileLinkStatus = :fileLinkStatus OR :fileLinkStatus = '" + ApplicationFileLinkStatus.ALL + "')" +
+        "", PadFile.class)
+        .setParameter("pwaAppDetail", detail)
+        .setParameter("purpose", purpose)
+        .setParameter("fileStatus", FileUploadStatus.CURRENT)
+        .setParameter("fileLinkStatus", applicationFileLinkStatus)
+        .getResultList();
+  }
 }

@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.ProjectInformationView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
@@ -45,6 +46,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final ProjectInformationValidator projectInformationValidator;
   private final SpringValidatorAdapter groupValidator;
   private final PadFileService padFileService;
+  private final EntityCopyingService entityCopyingService;
 
   private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PROJECT_INFORMATION;
 
@@ -54,12 +56,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
       SpringValidatorAdapter groupValidator,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      EntityCopyingService entityCopyingService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
     this.groupValidator = groupValidator;
     this.padFileService = padFileService;
+    this.entityCopyingService = entityCopyingService;
   }
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
@@ -209,8 +213,21 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padProjectInformationRepository.save(padProjectInformation);
   }
 
+  @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+
+    var newProjInfo = entityCopyingService.duplicateEntityAndSetParent(
+        () -> getPadProjectInformationData(fromDetail),
+        toDetail,
+        PadProjectInformation.class);
+
+    var duplicatedPadFiles = padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail,
+        toDetail,
+        FILE_PURPOSE,
+        ApplicationFileLinkStatus.FULL
+    );
+
   }
 }

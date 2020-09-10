@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +34,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -51,7 +51,7 @@ public class PadFileServiceTest {
   private FileUploadService fileUploadService;
 
   @Mock
-  private EntityManager entityManager;
+  private EntityCopyingService entityCopyingService;
 
   @Captor
   private ArgumentCaptor<PadFile> padFileCaptor;
@@ -78,7 +78,7 @@ public class PadFileServiceTest {
   @Before
   public void setUp() {
 
-    padFileService = new PadFileService(fileUploadService, padFileRepository);
+    padFileService = new PadFileService(fileUploadService, padFileRepository, entityCopyingService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     file = new PadFile();
@@ -302,6 +302,36 @@ public class PadFileServiceTest {
 
     verify(padFileRepository, times(1)).deleteAll(eq(List.of(file1, file2, file3)));
 
+  }
+
+  @Test
+  public void copyPadFilesToPwaApplicationDetail_serviceInteractions() {
+    var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 20, 21);
+
+    var padFiles = List.of(new PadFile());
+    when(padFileRepository.findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(
+        pwaApplicationDetail,
+        ApplicationFilePurpose.ADMIRALTY_CHART,
+        ApplicationFileLinkStatus.FULL)
+    ).thenReturn(padFiles);
+
+    padFileService.copyPadFilesToPwaApplicationDetail(
+        pwaApplicationDetail,
+        newDetail,
+        ApplicationFilePurpose.ADMIRALTY_CHART,
+        ApplicationFileLinkStatus.FULL);
+
+    verify(entityCopyingService, times(1)).duplicateEntitiesAndSetParent(
+        any(),
+        eq(newDetail),
+        eq(PadFile.class)
+    );
+
+    verify(padFileRepository, times(1)).findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(
+        newDetail ,
+        ApplicationFilePurpose.ADMIRALTY_CHART,
+        ApplicationFileLinkStatus.FULL
+    );
   }
 
 }
