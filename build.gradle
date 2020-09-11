@@ -22,6 +22,14 @@ group = 'uk.co.fivium'
 version = System.getenv("DRONE_BRANCH") ? System.getenv("DRONE_BRANCH").replaceAll("[/\\-]", "_") : "LOCAL-SNAPSHOT"
 sourceCompatibility = '11'
 
+sourceSets.main.java.srcDirs += "${buildDir}/generated"
+
+// annotation processor generated classes should be placed in /generated directory.
+compileJava {
+  options.annotationProcessorGeneratedSourcesDirectory = file("${buildDir}/generated")
+}
+
+
 repositories {
   mavenCentral()
   maven {
@@ -51,6 +59,10 @@ dependencies {
   compile 'org.springframework.session:spring-session-jdbc'
   compile 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
 
+  // automatically generates jpa meta-model for type safe criteria builder queries
+  annotationProcessor("javax.xml.bind:jaxb-api")
+  annotationProcessor("org.hibernate:hibernate-jpamodelgen")
+
   compile 'com.google.guava:guava:28.1-jre'
   compile 'org.apache.commons:commons-lang3:3.9'
   compile 'org.apache.commons:commons-collections4:4.4'
@@ -69,6 +81,9 @@ checkstyle {
   toolVersion '8.28'
   ignoreFailures = false
   maxWarnings = 0
+  // Sets suppressionFile property so checkstyle during build ignores generated files.
+  // The default path used by ide is not relative so will cause failures if that is used in isolation.
+  configProperties = [ "suppressionFile" : project(':').file('ide/checkstyle-suppression.xml')]
 }
 
 dependencyCheck {

@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescription
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 
 /**
  * Service to handle file management for/linking files to PWA applications.
@@ -34,12 +35,15 @@ public class PadFileService {
 
   private final FileUploadService fileUploadService;
   private final PadFileRepository padFileRepository;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadFileService(FileUploadService fileUploadService,
-                        PadFileRepository padFileRepository) {
+                        PadFileRepository padFileRepository,
+                        EntityCopyingService entityCopyingService) {
     this.fileUploadService = fileUploadService;
     this.padFileRepository = padFileRepository;
+    this.entityCopyingService = entityCopyingService;
   }
 
   /**
@@ -205,6 +209,36 @@ public class PadFileService {
 
   }
 
+
+  /**
+   * Copy files from with a specified purpose and link status from one application detail to another.
+   */
+  public List<PadFile> copyPadFilesToPwaApplicationDetail(PwaApplicationDetail fromDetail,
+                                                          PwaApplicationDetail toDetail,
+                                                          ApplicationFilePurpose purpose,
+                                                          ApplicationFileLinkStatus fileLinkStatus) {
+
+
+    entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padFileRepository.findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(
+            fromDetail,
+            purpose,
+            fileLinkStatus
+        ),
+        toDetail,
+        PadFile.class
+
+    );
+
+    return padFileRepository.findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(
+        toDetail,
+        purpose,
+        fileLinkStatus
+    );
+
+  }
+
+
   /**
    * Get a file for an application with a specified purpose and link status as an uploaded file view.
    */
@@ -274,14 +308,16 @@ public class PadFileService {
             fileId)));
   }
 
-  public List<PadFile> getAllByPwaApplicationDetailAndPurpose(PwaApplicationDetail detail, ApplicationFilePurpose purpose) {
+  public List<PadFile> getAllByPwaApplicationDetailAndPurpose(PwaApplicationDetail detail,
+                                                              ApplicationFilePurpose purpose) {
     return padFileRepository.findAllByPwaApplicationDetailAndPurpose(detail, purpose);
   }
 
   /**
    * Remove PadFiles that are linked to a detail and purpose and are not in a specified list.
-   * @param detail detail for app to cleanup files for
-   * @param purpose of files we're looking at
+   *
+   * @param detail            detail for app to cleanup files for
+   * @param purpose           of files we're looking at
    * @param excludePadFileIds list of ids for PadFiles we don't want to remove
    */
   @Transactional

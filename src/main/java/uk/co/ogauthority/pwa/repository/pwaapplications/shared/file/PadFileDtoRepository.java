@@ -24,4 +24,8 @@ public interface PadFileDtoRepository {
                                                            ApplicationFilePurpose purpose,
                                                            Iterable<Integer> padFileIdsToExclude);
 
+  List<PadFile> findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(PwaApplicationDetail detail,
+                                                                              ApplicationFilePurpose purpose,
+                                                                              ApplicationFileLinkStatus applicationFileLinkStatus);
+
 }

@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -24,6 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -31,10 +34,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.validators.ProjectInformationFormValidationHints;
 import uk.co.ogauthority.pwa.validators.ProjectInformationValidator;
@@ -57,6 +62,9 @@ public class PadProjectInformationServiceTest {
   @Mock
   private PadFileService padFileService;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
   private SpringValidatorAdapter groupValidator;
 
   private PadProjectInformationService service;
@@ -76,8 +84,8 @@ public class PadProjectInformationServiceTest {
         projectInformationEntityMappingService,
         validator,
         groupValidator,
-        padFileService
-    );
+        padFileService,
+        entityCopyingService);
 
     date = LocalDate.now();
 
@@ -350,6 +358,24 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setFdpConfirmationFlag(null);
     padProjectInformation.setFdpNotSelectedReason(null);
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+  }
+
+  @Test
+  public void copySectionInformation_serviceIteractions(){
+    var copyToDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1000, 1001);
+
+    service.copySectionInformation(pwaApplicationDetail, copyToDetail);
+
+    verify(entityCopyingService, times(1))
+        .duplicateEntityAndSetParent(any(), eq(copyToDetail), eq(PadProjectInformation.class));
+
+    verify(padFileService, times(1))
+        .copyPadFilesToPwaApplicationDetail(
+            eq(pwaApplicationDetail),
+            eq(copyToDetail),
+            eq(ApplicationFilePurpose.PROJECT_INFORMATION),
+            eq(ApplicationFileLinkStatus.FULL));
+
   }
 
 
