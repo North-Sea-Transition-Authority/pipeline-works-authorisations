@@ -211,7 +211,7 @@ public class PadFileService {
 
 
   /**
-   * Get files for an application with a specified purpose and link status.
+   * Copy files from with a specified purpose and link status from one application detail to another.
    */
   public List<PadFile> copyPadFilesToPwaApplicationDetail(PwaApplicationDetail fromDetail,
                                                           PwaApplicationDetail toDetail,

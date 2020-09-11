@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
  * <li>When the entity contains simple data with no "downward" entity links. Assumption made when creating class
  * is that bi-directional relationship are not modelled on entities, only in the "upwards" direction.</li></ul></p>
  *
- * <p>When not use this service:
- * -> When a significant number of fields need to be nchanged or ignored as part of the copying process,
- * a copy constructor with is likely the better way to go as it gives more control and avoids the need to detach entities
+ * <p>When not to use this service:
+ * -> When a significant number of fields need to be changed or ignored as part of the copying process,
+ * a copy constructor is likely the better way to go as it gives more control and avoids the need to detach entities
  * from the persistence context.</p>
  *
  * <p>Risks associated with this class:<ul>
