@@ -447,10 +447,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
       newPadPipeline.setToCoordinates(pipelineDetail.getToCoordinates());
     } catch (NullPointerException npe) {
       LOGGER.warn("PipelineDetail is missing valid coordinates", npe);
-    } finally {
-      padPipelineRepository.save(newPadPipeline);
-      return newPadPipeline;
     }
+
+    padPipelineRepository.save(newPadPipeline);
+    return newPadPipeline;
   }
 
   public boolean canImportConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
