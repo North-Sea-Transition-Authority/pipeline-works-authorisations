@@ -96,7 +96,6 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             PwaApplicationType.INITIAL,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
             PwaApplicationType.DEPOSIT_CONSENT)
         .setAllowedContactRoles(PwaContactRole.PREPARER)

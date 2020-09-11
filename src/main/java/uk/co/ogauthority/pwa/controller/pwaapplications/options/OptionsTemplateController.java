@@ -1,6 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
-
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+package uk.co.ogauthority.pwa.controller.pwaapplications.options;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -20,15 +18,12 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.rest.DevukRestController;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.options.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
-import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -38,117 +33,77 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
-import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
-import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/location")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/options-template")
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-@PwaApplicationTypeCheck(types = {
-    PwaApplicationType.INITIAL,
-    PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.DECOMMISSIONING,
-    PwaApplicationType.DEPOSIT_CONSENT
-})
-public class LocationDetailsController extends PwaApplicationDataFileUploadAndDownloadController {
+@PwaApplicationTypeCheck(types = { PwaApplicationType.OPTIONS_VARIATION })
+public class OptionsTemplateController extends PwaApplicationDataFileUploadAndDownloadController {
 
+  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.OPTIONS_TEMPLATE;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final DevukFacilityService devukFacilityService;
-  private final PadFacilityService padFacilityService;
-  private final PadLocationDetailsService padLocationDetailsService;
-  private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final ControllerHelperService controllerHelperService;
-
-  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.LOCATION_DETAILS;
+  private final OptionsTemplateService optionsTemplateService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
-  public LocationDetailsController(
-      ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadFacilityService padFacilityService,
-      DevukFacilityService devukFacilityService,
-      PadLocationDetailsService padLocationDetailsService,
-      PwaApplicationRedirectService pwaApplicationRedirectService,
-      PadFileService padFileService,
-      ControllerHelperService controllerHelperService) {
+  public OptionsTemplateController(PadFileService padFileService,
+                                   ApplicationBreadcrumbService applicationBreadcrumbService,
+                                   ControllerHelperService controllerHelperService,
+                                   OptionsTemplateService optionsTemplateService,
+                                   PwaApplicationRedirectService pwaApplicationRedirectService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.padFacilityService = padFacilityService;
-    this.devukFacilityService = devukFacilityService;
-    this.padLocationDetailsService = padLocationDetailsService;
-    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.controllerHelperService = controllerHelperService;
+    this.optionsTemplateService = optionsTemplateService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
-  private ModelAndView getLocationModelAndView(PwaApplicationDetail detail, LocationDetailsForm form) {
+  private ModelAndView getModelAndView(PwaApplicationContext applicationContext,
+                                       OptionsTemplateForm form) {
 
     var modelAndView = this.createModelAndView(
-        "pwaApplication/shared/locationDetails",
-        detail,
+        "pwaApplication/options/optionsTemplate",
+        applicationContext.getApplicationDetail(),
         FILE_PURPOSE,
         form
     );
 
-    var facilities = devukFacilityService.getFacilities("");
-    modelAndView.addObject("safetyZoneOptions", HseSafetyZone.stream()
-        .sorted()
-        .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText)))
-        .addObject("facilityOptions", facilities.stream()
-            .collect(
-                StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
-        .addObject("facilityRestUrl",
-            SearchSelectorService.route(on(DevukRestController.class).searchFacilities(null)));
+    applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Options template");
 
-    // Add preselection options in case validation fails
-    if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
-      modelAndView.addObject("preselectedFacilitiesIfYes",
-          padLocationDetailsService.reapplyFacilitySelections(form));
-    } else if (form.getWithinSafetyZone() == HseSafetyZone.PARTIALLY) {
-      modelAndView.addObject("preselectedFacilitiesIfPartially",
-          padLocationDetailsService.reapplyFacilitySelections(form));
-    }
-    applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView, "Location details");
     return modelAndView;
+
   }
 
   @GetMapping
-  public ModelAndView renderLocationDetails(@PathVariable("applicationType")
+  public ModelAndView renderOptionsTemplate(@PathVariable("applicationId") Integer applicationId,
+                                            @PathVariable("applicationType")
                                             @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                             PwaApplicationContext applicationContext,
-                                            @ModelAttribute("form") LocationDetailsForm form,
+                                            @ModelAttribute("form") OptionsTemplateForm form,
                                             AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
-    var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(
-        applicationContext.getApplicationDetail());
-    var facilities = padFacilityService.getFacilities(applicationContext.getApplicationDetail());
-    padLocationDetailsService.mapEntityToForm(locationDetail, form);
-
     padFileService.mapFilesToForm(form, detail, FILE_PURPOSE);
-    var modelAndView = getLocationModelAndView(applicationContext.getApplicationDetail(), form);
-    padFacilityService.mapFacilitiesToView(facilities, form, modelAndView);
-    return modelAndView;
+    return getModelAndView(applicationContext, form);
   }
 
   @PostMapping
-  public ModelAndView postLocationDetails(@PathVariable("applicationType")
+  public ModelAndView postOptionsTemplate(@PathVariable("applicationId") Integer applicationId,
+                                          @PathVariable("applicationType")
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           PwaApplicationContext applicationContext,
-                                          @ModelAttribute("form") LocationDetailsForm form,
+                                          @ModelAttribute("form") OptionsTemplateForm form,
                                           BindingResult bindingResult,
                                           AuthenticatedUserAccount user,
                                           ValidationType validationType) {
 
     var detail = applicationContext.getApplicationDetail();
-    bindingResult = padLocationDetailsService.validate(form, bindingResult, validationType, detail);
+    bindingResult = optionsTemplateService.validate(form, bindingResult, validationType, detail);
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getLocationModelAndView(detail, form), () -> {
-
-      var locationDetail = padLocationDetailsService.getLocationDetailsForDraft(detail);
-      padLocationDetailsService.saveEntityUsingForm(locationDetail, form);
-      padFacilityService.setFacilities(detail, form);
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getModelAndView(applicationContext, form), () -> {
 
       padFileService.updateFiles(
           form,

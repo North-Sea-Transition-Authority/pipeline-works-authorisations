@@ -47,7 +47,7 @@
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Contingency included</dt>
-      <dd class="govuk-summary-list__value">${deposit.contingencyAmount} </dd>
+      <dd class="govuk-summary-list__value">${deposit.contingencyAmount!} </dd>
     </div>
 
     <#local showGroutBagFields=("GROUT_BAGS"==deposit.materialTypeLookup.currentValue! || "GROUT_BAGS"==deposit.materialTypeLookup.previousValue!)/>

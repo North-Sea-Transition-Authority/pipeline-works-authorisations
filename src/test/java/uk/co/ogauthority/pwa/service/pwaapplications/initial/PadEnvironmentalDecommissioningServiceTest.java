@@ -23,10 +23,12 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -301,6 +303,37 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(envDecom.getEmtSubmissionTimestamp()).isNotNull();
 
     verify(padEnvironmentalDecommissioningRepository, times(1)).save(envDecom);
+
+  }
+
+  @Test
+  public void canShowInTaskList_allowed() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    detail.setPwaApplication(app);
+
+    PwaApplicationType.stream()
+        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION))
+        .forEach(applicationType -> {
+
+      app.setApplicationType(applicationType);
+
+      assertThat(padEnvironmentalDecommissioningService.canShowInTaskList(detail)).isTrue();
+
+    });
+
+  }
+
+  @Test
+  public void canShowInTaskList_notAllowed() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+    detail.setPwaApplication(app);
+
+    assertThat(padEnvironmentalDecommissioningService.canShowInTaskList(detail)).isFalse();
 
   }
 

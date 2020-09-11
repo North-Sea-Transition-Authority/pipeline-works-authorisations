@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -32,10 +33,12 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationReferencingService;
 
@@ -47,7 +50,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationRefe
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
-public class TaskListServiceIntegrationTestTest {
+public class TaskListServiceIntegrationTest {
 
   private TaskListService taskListService;
 
@@ -85,6 +88,12 @@ public class TaskListServiceIntegrationTestTest {
   @MockBean
   private MasterPwaViewService masterPwaViewService;
 
+  @MockBean
+  private OptionsTemplateService optionsTemplateService;
+
+  @MockBean
+  private SupplementaryDocumentsService supplementaryDocumentsService;
+
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -100,6 +109,10 @@ public class TaskListServiceIntegrationTestTest {
         applicationTaskService,
         masterPwaViewService
     );
+
+    when(optionsTemplateService.canShowInTaskList(any())).thenReturn(true);
+    when(supplementaryDocumentsService.canShowInTaskList(any())).thenReturn(true);
+
   }
 
   @Test
@@ -162,10 +175,8 @@ public class TaskListServiceIntegrationTestTest {
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
-                ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
-                ApplicationTask.LOCATION_DETAILS.getDisplayName(),
-                ApplicationTask.HUOO.getDisplayName(),
-                ApplicationTask.PARTNER_LETTERS.getDisplayName()
+                ApplicationTask.OPTIONS_TEMPLATE.getDisplayName(),
+                ApplicationTask.SUPPLEMENTARY_DOCUMENTS.getDisplayName()
             );
             break;
           case CAT_2_VARIATION:
@@ -218,7 +229,6 @@ public class TaskListServiceIntegrationTestTest {
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.OPTIONS_VARIATION,
         PwaApplicationType.DECOMMISSIONING);
   }
 
@@ -404,42 +414,97 @@ public class TaskListServiceIntegrationTestTest {
     when(campaignWorksService.canShowInTaskList(any())).thenReturn(tasksShow);
     when(padFastTrackService.canShowInTaskList(any())).thenReturn(tasksShow);
     when(depositDrawingsService.canShowInTaskList(any())).thenReturn(tasksShow);
+
   }
 
   @Test
   public void getTaskListGroups_whenAllTasksShown_confirmOrderingOfGroupsAndTasksMatchesEnumDefinition() {
     setupConditionalTaskServices(true);
 
-    var taskListGroups = taskListService.getTaskListGroups(pwaApplicationDetail);
+    PwaApplicationType.stream().forEach(applicationType -> {
 
-    // loop over all take groups and make sure the constructed groups are in the same order as group enum definition
-    for (int i = 0; i < taskListGroups.size(); i++) {
-      var expectedGroup = ApplicationTaskGroup.values()[i];
-      var actualTaskListGroup = taskListGroups.get(i);
-      try {
-        assertThat(expectedGroup.getDisplayName()).isEqualTo(actualTaskListGroup.getGroupName());
-      } catch (AssertionError e) {
-        throw new AssertionError("Group out of order! Group position:" + i + "\n" + e.getMessage(), e);
-      }
+      pwaApplicationDetail.getPwaApplication().setApplicationType(applicationType);
 
-      for (int j = 0; j < expectedGroup.getTasks().size(); j++) {
-        var expectedTask = expectedGroup.getTasks().get(j);
-        var actualTaskListEntry = actualTaskListGroup.getTaskListEntries().get(j);
+      var taskListGroups = taskListService.getTaskListGroups(pwaApplicationDetail);
+
+      // loop over all task groups and make sure the constructed groups are in the same order as group enum definition
+      for (int i = 0; i < taskListGroups.size(); i++) {
+
+        // get the actual group we are processing from the list and its display order
+        var actualTaskListGroup = taskListGroups.get(i);
+        var actualGroupDisplayOrder = actualTaskListGroup.getDisplayOrder();
+
+        // for the actual group's siblings in the list (next and previous, where applicable), get the intended display order of each
+        var previousGroup = i == 0 ? null : taskListGroups.get(i - 1);
+        var nextGroup = i == taskListGroups.size() - 1 ? null : taskListGroups.get(i + 1);
+
+        var previousGroupDisplayOrder = Optional.ofNullable(previousGroup)
+            .map(group -> ApplicationTaskGroup.resolveFromName(previousGroup.getGroupName()))
+            .map(ApplicationTaskGroup::getDisplayOrder)
+            .orElse(-1);
+
+        var nextGroupDisplayOrder = Optional.ofNullable(nextGroup)
+            .map(group -> ApplicationTaskGroup.resolveFromName(group.getGroupName()))
+            .map(ApplicationTaskGroup::getDisplayOrder)
+            .orElse(999);
+
         try {
-          assertThat(expectedTask.getDisplayName()).isEqualTo(actualTaskListEntry.getTaskName());
+
+          // ensure that the ordering is as intended, previous group should be before our actual group, and the next group should be after our actual group
+          boolean previousGroupOrderIsCorrect = previousGroupDisplayOrder < actualGroupDisplayOrder;
+          boolean nextGroupOrderIsCorrect = nextGroupDisplayOrder > actualGroupDisplayOrder;
+          assertThat(previousGroupOrderIsCorrect && nextGroupOrderIsCorrect);
+
         } catch (AssertionError e) {
-          throw new AssertionError(String.format("Group Task out of order! Group: %s Task position: %s \n %s",
-              expectedGroup,
-              j,
-              e.getMessage()),
-              e
-          );
+          throw new AssertionError(String.format("Group out of order! Group name [%s] at index [%s] for app type [%s] \n",
+              actualTaskListGroup.getGroupName(),
+              i,
+              e));
         }
+
+        var taskListEntries = actualTaskListGroup.getTaskListEntries();
+
+        for (int j = 0; j < taskListEntries.size(); j++) {
+
+          var actualTaskListEntry = taskListEntries.get(j);
+          var actualEntryDisplayOrder = actualTaskListEntry.getDisplayOrder();
+
+          // for the actual entry's siblings in the list (next and previous, where applicable), get the intended display order of each
+          var previousEntry = j == 0 ? null : taskListEntries.get(j - 1);
+          var nextEntry = j == taskListEntries.size() - 1 ? null : taskListEntries.get(j + 1);
+
+          var previousEntryDisplayOrder = Optional.ofNullable(previousEntry)
+              .map(entry -> ApplicationTask.resolveFromName(entry.getTaskName()))
+              .map(ApplicationTask::getDisplayOrder)
+              .orElse(-1);
+
+          var nextEntryDisplayOrder = Optional.ofNullable(nextEntry)
+              .map(entry -> ApplicationTask.resolveFromName(entry.getTaskName()))
+              .map(ApplicationTask::getDisplayOrder)
+              .orElse(999);
+
+          try {
+
+            // ensure that the ordering is as intended, previous entry should be before our actual entry, and the next entry should be after our actual entry
+            boolean previousEntryOrderIsCorrect = previousEntryDisplayOrder < actualEntryDisplayOrder;
+            boolean nextEntryOrderIsCorrect = nextEntryDisplayOrder > actualEntryDisplayOrder;
+            assertThat(previousEntryOrderIsCorrect && nextEntryOrderIsCorrect);
+
+          } catch (AssertionError e) {
+            throw new AssertionError(String.format("Group Task out of order! Group: %s Task position: %s for app type %s \n %s",
+                actualTaskListGroup.getGroupName(),
+                j,
+                applicationType.name(),
+                e.getMessage()),
+                e
+            );
+          }
+        }
+
       }
 
-    }
 
+    });
 
-    ;
   }
 }

@@ -32,7 +32,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION,
-    PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.DEPOSIT_CONSENT
 })

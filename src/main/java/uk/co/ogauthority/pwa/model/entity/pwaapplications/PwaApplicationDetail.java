@@ -80,6 +80,7 @@ public class PwaApplicationDetail {
 
   private Boolean partnerLettersConfirmed;
 
+  private Boolean supplementaryDocumentsFlag;
 
   public PwaApplicationDetail() {
   }
@@ -311,6 +312,14 @@ public class PwaApplicationDetail {
     this.partnerLettersConfirmed = partnerLettersConfirmed;
   }
 
+  public Boolean getSupplementaryDocumentsFlag() {
+    return supplementaryDocumentsFlag;
+  }
+
+  public void setSupplementaryDocumentsFlag(Boolean supplementaryDocumentsFlag) {
+    this.supplementaryDocumentsFlag = supplementaryDocumentsFlag;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -343,7 +352,8 @@ public class PwaApplicationDetail {
         && Objects.equals(pipelinePhaseProperties, that.pipelinePhaseProperties)
         && Objects.equals(otherPhaseDescription, that.otherPhaseDescription)
         && Objects.equals(partnerLettersRequired, that.partnerLettersRequired)
-        && Objects.equals(partnerLettersConfirmed, that.partnerLettersConfirmed);
+        && Objects.equals(partnerLettersConfirmed, that.partnerLettersConfirmed)
+        && Objects.equals(supplementaryDocumentsFlag, that.supplementaryDocumentsFlag);
   }
 
   @Override
@@ -352,6 +362,7 @@ public class PwaApplicationDetail {
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByWuaId, submittedTimestamp,
         initialReviewApprovedByWuaId, initialReviewApprovedTimestamp, isLinkedToField, notLinkedDescription,
         pipelinesCrossed, cablesCrossed, medianLineCrossed, submittedAsFastTrackFlag, numOfHolders,
-        pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired, partnerLettersConfirmed);
+        pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired, partnerLettersConfirmed,
+        supplementaryDocumentsFlag);
   }
 }

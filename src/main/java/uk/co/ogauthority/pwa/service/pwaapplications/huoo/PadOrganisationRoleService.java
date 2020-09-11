@@ -575,4 +575,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
 
+  @Override
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION);
+  }
 }

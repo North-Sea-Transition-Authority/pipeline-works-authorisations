@@ -168,12 +168,8 @@ public class ApplicationTaskServiceTest {
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,
-            ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
-            ApplicationTask.LOCATION_DETAILS,
-            ApplicationTask.HUOO,
-            ApplicationTask.PERMANENT_DEPOSITS,
-            ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS,
-            ApplicationTask.PARTNER_LETTERS
+            ApplicationTask.OPTIONS_TEMPLATE,
+            ApplicationTask.SUPPLEMENTARY_DOCUMENTS
         );
       case CAT_2_VARIATION:
         return EnumSet.of(

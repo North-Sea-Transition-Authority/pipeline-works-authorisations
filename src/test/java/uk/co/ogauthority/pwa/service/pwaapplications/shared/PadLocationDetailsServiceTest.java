@@ -25,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
@@ -292,6 +294,37 @@ public class PadLocationDetailsServiceTest {
       entry("1", "Test facility"),
       entry(SearchSelectable.FREE_TEXT_PREFIX + "yes", "yes")
     );
+  }
+
+  @Test
+  public void canShowInTaskList_allowed() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    detail.setPwaApplication(app);
+
+    PwaApplicationType.stream()
+        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION))
+        .forEach(applicationType -> {
+
+          app.setApplicationType(applicationType);
+
+          assertThat(padLocationDetailsService.canShowInTaskList(detail)).isTrue();
+
+        });
+
+  }
+
+  @Test
+  public void canShowInTaskList_notAllowed() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+    detail.setPwaApplication(app);
+
+    assertThat(padLocationDetailsService.canShowInTaskList(detail)).isFalse();
+
   }
 
   private LocationDetailsForm buildForm() {

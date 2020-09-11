@@ -38,6 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -803,6 +804,37 @@ public class PadOrganisationRoleServiceTest {
           assertThat(result).isFalse();
       }
     });
+  }
+
+  @Test
+  public void canShowInTaskList_allowed() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    detail.setPwaApplication(app);
+
+    PwaApplicationType.stream()
+        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION))
+        .forEach(applicationType -> {
+
+          app.setApplicationType(applicationType);
+
+          assertThat(padOrganisationRoleService.canShowInTaskList(detail)).isTrue();
+
+        });
+
+  }
+
+  @Test
+  public void canShowInTaskList_notAllowed() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+    detail.setPwaApplication(app);
+
+    assertThat(padOrganisationRoleService.canShowInTaskList(detail)).isFalse();
+
   }
 
 }
