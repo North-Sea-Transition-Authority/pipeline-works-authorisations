@@ -7,9 +7,11 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.SupplementaryDocumentsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.TechnicalDrawingsSummaryService;
 
 /**
@@ -25,34 +27,48 @@ public enum ApplicationSectionSummaryType {
       10,
       "pwaApplication/applicationSummarySections/applicationContactsSummary.ftl",
       ApplicationContactsSummaryService.class),
+
   PROJECT_INFORMATION(
       30,
       "pwaApplication/applicationSummarySections/projectInformationSummary.ftl",
       ProjectInformationSummaryService.class),
+
+  OPTIONS_TEMPLATE(
+      35,
+      "pwaApplication/applicationSummarySections/optionsTemplateSummary.ftl",
+      OptionsTemplateSummaryService.class
+  ),
+
+  SUPPLEMENTARY_DOCUMENTS(
+      45,
+      "pwaApplication/applicationSummarySections/supplementaryDocumentsSummary.ftl",
+      SupplementaryDocumentsSummaryService.class
+  ),
+
   PIPELINES(
       180,
       "pwaApplication/applicationSummarySections/pipelineSummary.ftl",
       PipelinesSummaryService.class),
+
   TECHNICAL_DRAWINGS(
       190,
       "pwaApplication/applicationSummarySections/technicalDrawingsSummary.ftl",
       TechnicalDrawingsSummaryService.class),
+
   CAMPAIGN_WORK_SCHEDULE(
       200,
       "pwaApplication/applicationSummarySections/campaignWorksSummary.ftl",
       CampaignWorkScheduleSummaryService.class),
+
   PERMANENT_DEPOSIT(
       210,
       "pwaApplication/applicationSummarySections/permanentDepositsSummary.ftl",
       PermanentDepositSummaryService.class),
+
   PERMANENT_DEPOSIT_DRAWINGS(
       220,
       "pwaApplication/applicationSummarySections/depositDrawingsSummary.ftl",
       DepositDrawingsSummaryService.class);
-
-
-
-
 
   private final int processingOrder;
   private final String templatePath;
