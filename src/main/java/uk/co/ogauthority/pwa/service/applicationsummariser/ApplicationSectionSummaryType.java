@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
@@ -43,6 +44,12 @@ public enum ApplicationSectionSummaryType {
       45,
       "pwaApplication/applicationSummarySections/supplementaryDocumentsSummary.ftl",
       SupplementaryDocumentsSummaryService.class
+  ),
+
+  GENERAL_TECH_DETAILS(
+      140,
+      "pwaApplication/applicationSummarySections/generalTechInfoSummary.ftl",
+      GeneralTechInfoSummaryService.class
   ),
 
   PIPELINES(

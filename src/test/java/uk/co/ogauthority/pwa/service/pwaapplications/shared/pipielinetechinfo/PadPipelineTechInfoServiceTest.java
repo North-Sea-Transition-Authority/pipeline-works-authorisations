@@ -99,6 +99,20 @@ public class PadPipelineTechInfoServiceTest {
     verify(padPipelineTechInfoRepository, times(1)).save(any(PadPipelineTechInfo.class));
   }
 
+  @Test
+  public void getGeneralTechInfoView() {
+    var entity = createValidEntity();
+    when(padPipelineTechInfoRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entity));
+    var view = padPipelineTechInfoService.getGeneralTechInfoView(pwaApplicationDetail);
+
+    assertThat(view.getEstimatedFieldLife()).isEqualTo(entity.getEstimatedFieldLife());
+    assertThat(view.getPipelineDesignedToStandards()).isEqualTo(entity.getPipelineDesignedToStandards());
+    assertThat(view.getPipelineStandardsDescription()).isEqualTo(entity.getPipelineStandardsDescription());
+    assertThat(view.getCorrosionDescription()).isEqualTo(entity.getCorrosionDescription());
+    assertThat(view.getPlannedPipelineTieInPoints()).isEqualTo(entity.getPlannedPipelineTieInPoints());
+    assertThat(view.getTieInPointsDescription()).isEqualTo(entity.getTieInPointsDescription());
+  }
+
 
   @Test
   public void isComplete_valid() {

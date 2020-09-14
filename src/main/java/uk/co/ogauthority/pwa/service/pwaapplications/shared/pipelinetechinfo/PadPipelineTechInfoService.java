@@ -10,6 +10,7 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.GeneralTechInfoView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -57,6 +58,16 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
   public void saveEntityUsingForm(PipelineTechInfoForm form, PadPipelineTechInfo entity) {
     pipelineTechInfoMappingService.mapFormToEntity(form, entity);
     padPipelineTechInfoRepository.save(entity);
+  }
+
+  public GeneralTechInfoView getGeneralTechInfoView(PwaApplicationDetail pwaApplicationDetail) {
+    var entity = getPipelineTechInfoEntity(pwaApplicationDetail);
+    return new GeneralTechInfoView(entity.getEstimatedFieldLife(),
+        entity.getPipelineDesignedToStandards(),
+        entity.getPipelineStandardsDescription(),
+        entity.getCorrosionDescription(),
+        entity.getPlannedPipelineTieInPoints(),
+        entity.getTieInPointsDescription());
   }
 
 
@@ -111,5 +122,6 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
     LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
+
 }
 
