@@ -238,7 +238,7 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.findLastSubmittedApplicationDetail(pwaApplicationId);
   }
 
-  public void setSupplementaryDocumentsFlag(PwaApplicationDetail detail, boolean filesToUpload) {
+  public void setSupplementaryDocumentsFlag(PwaApplicationDetail detail, Boolean filesToUpload) {
     detail.setSupplementaryDocumentsFlag(filesToUpload);
     pwaApplicationDetailRepository.save(detail);
   }

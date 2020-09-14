@@ -291,6 +291,22 @@ public class PwaApplicationDetailServiceTest {
 
   }
 
+  @Test
+  public void setSupplementaryDocumentsFlag_nullValue_doesntError() {
+
+    var detail = new PwaApplicationDetail();
+    assertThat(detail.getSupplementaryDocumentsFlag()).isNull();
+
+    pwaApplicationDetailService.setSupplementaryDocumentsFlag(detail, null);
+
+    verify(applicationDetailRepository, times(1)).save(detailCaptor.capture());
+
+    var savedDetail = detailCaptor.getValue();
+
+    assertThat(savedDetail.getSupplementaryDocumentsFlag()).isNull();
+
+  }
+
   private void setAllPwaAppDetailFields(PwaApplicationDetail detail, PwaApplicationStatus status, Integer wuaId) {
     // This should not be setting any value as null. That will defeat the purpose of this method.
     var baseTime = Instant.ofEpochSecond(
