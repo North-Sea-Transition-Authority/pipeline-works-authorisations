@@ -123,6 +123,33 @@ public class PadFluidCompositionInfoServiceTest {
     assertThat(form).isEqualTo(expectedForm);
   }
 
+  @Test
+  public void getFluidCompositionView() {
+
+    var higherAmountFluidComp = createValidEntity(Chemical.C2, FluidCompositionOption.HIGHER_AMOUNT);
+    higherAmountFluidComp.setMoleValue(BigDecimal.valueOf(0.1));
+
+    var entities = List.of(createValidEntity(Chemical.H2O, FluidCompositionOption.NONE),
+        createValidEntity(Chemical.C1, FluidCompositionOption.TRACE),
+        higherAmountFluidComp);
+    when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(entities);
+
+    var fluidCompositionView = padFluidCompositionInfoService.getFluidCompositionView(pwaApplicationDetail);
+
+    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.H2O).getFluidCompositionOption())
+        .isEqualTo(FluidCompositionOption.NONE);
+
+    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C1).getFluidCompositionOption())
+        .isEqualTo(FluidCompositionOption.TRACE);
+
+    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C2).getFluidCompositionOption())
+        .isEqualTo(FluidCompositionOption.HIGHER_AMOUNT);
+    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C2).getMoleValue())
+        .isEqualTo(BigDecimal.valueOf(0.1));
+
+    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.N2)).isNull();
+  }
+
 
 
   //Validation / Checking Tests

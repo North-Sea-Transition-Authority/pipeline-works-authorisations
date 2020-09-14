@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.FluidCompositionView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -72,6 +75,23 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
       }
     }
     padFluidCompositionInfoRepository.saveAll(entities);
+  }
+
+  public FluidCompositionView getFluidCompositionView(PwaApplicationDetail pwaApplicationDetail) {
+
+    Map<Chemical, FluidCompositionDataForm> chemicalDataMap = new LinkedHashMap<>();
+    var fluidCompositionView = new FluidCompositionView(chemicalDataMap);
+
+    for (PadFluidCompositionInfo entity: getPadFluidCompositionInfoEntities(pwaApplicationDetail)) {
+      var fluidCompositionDataForm = new FluidCompositionDataForm();
+      fluidCompositionDataForm.setFluidCompositionOption(entity.getFluidCompositionOption());
+      if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
+        fluidCompositionDataForm.setMoleValue(entity.getMoleValue());
+      }
+      chemicalDataMap.put(entity.getChemicalName(), fluidCompositionDataForm);
+    }
+
+    return fluidCompositionView;
   }
 
 
