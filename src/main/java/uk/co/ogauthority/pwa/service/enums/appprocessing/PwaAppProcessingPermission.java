@@ -18,7 +18,8 @@ public enum PwaAppProcessingPermission {
   REQUEST_APPLICATION_UPDATE,
   CASE_MANAGEMENT,
   CASE_MANAGEMENT_INDUSTRY,
-  ADD_CASE_NOTE;
+  ADD_CASE_NOTE,
+  EDIT_CONSENT_DOCUMENT;
 
   public static Stream<PwaAppProcessingPermission> stream() {
     return Stream.of(PwaAppProcessingPermission.values());
