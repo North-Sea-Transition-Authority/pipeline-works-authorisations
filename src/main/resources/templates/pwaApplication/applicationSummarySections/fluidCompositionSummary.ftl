@@ -22,10 +22,8 @@
         <#if fluidCompositionDataForm.fluidCompositionOption?has_content>        
           <#if fluidCompositionDataForm.fluidCompositionOption == "HIGHER_AMOUNT">
             ${fluidCompositionDataForm.moleValue}%
-          <#elseif fluidCompositionDataForm.fluidCompositionOption == "TRACE">
-             ${fluidCompositionDataForm.fluidCompositionOption.getDisplayText()?keep_before('(')}
           <#else>
-            ${fluidCompositionDataForm.fluidCompositionOption.getDisplayText()}
+            ${fluidCompositionDataForm.fluidCompositionOption.getDisplayTextSimple()}
           </#if>
         </#if>
 
