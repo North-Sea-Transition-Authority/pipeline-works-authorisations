@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Ap
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
@@ -44,6 +45,11 @@ public enum ApplicationSectionSummaryType {
       "pwaApplication/applicationSummarySections/supplementaryDocumentsSummary.ftl",
       SupplementaryDocumentsSummaryService.class
   ),
+
+  PIPELINE_OTHER_PROPERTIES(
+      160,
+      "pwaApplication/applicationSummarySections/otherPropertiesSummary.ftl",
+      OtherPropertiesSummaryService.class),
 
   PIPELINES(
       180,

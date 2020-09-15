@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,6 +20,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties.OtherPropertiesValueView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties.OtherPropertiesView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -108,6 +111,27 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   }
 
 
+  public OtherPropertiesView getOtherPropertiesView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var entities = getPipelineOtherPropertyEntities(pwaApplicationDetail);
+    Map<OtherPipelineProperty, OtherPropertiesValueView> propertyValueMap = new LinkedHashMap<>();
+
+    for (PadPipelineOtherProperties entity: entities) {
+      String minValue = null;
+      String maxValue = null;
+      if (entity.getAvailabilityOption() != null && entity.getAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
+        minValue = entity.getMinValue() == null ? null : String.valueOf(entity.getMinValue());
+        maxValue = entity.getMaxValue() == null ? null : String.valueOf(entity.getMaxValue());
+      }
+      var otherPropertiesValueView = new OtherPropertiesValueView(entity.getAvailabilityOption(), minValue, maxValue);
+      propertyValueMap.put(entity.getPropertyName(), otherPropertiesValueView);
+    }
+
+    return new OtherPropertiesView(
+        propertyValueMap, pwaApplicationDetail.getPipelinePhaseProperties(), pwaApplicationDetail.getOtherPhaseDescription());
+  }
+
+
 
 
   // Validation / Checking
@@ -165,5 +189,6 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
     LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
   }
+
 }
 
