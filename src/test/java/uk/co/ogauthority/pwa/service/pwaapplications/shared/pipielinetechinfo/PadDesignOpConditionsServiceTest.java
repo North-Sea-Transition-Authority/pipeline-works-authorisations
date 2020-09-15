@@ -16,10 +16,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.DesignOpConditionsView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PairValueView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsMappingService;
@@ -78,6 +79,23 @@ public class PadDesignOpConditionsServiceTest {
     padDesignOpConditionsService.saveEntityUsingForm(form, actualEntity);
     assertThat(actualEntity).isEqualTo(designOpConditionsEntityFormBuilder.createValidEntity());
     verify(padDesignOpConditionsRepository, times(1)).save(any(PadDesignOpConditions.class));
+  }
+
+  @Test
+  public void getDesignOpConditionsView() {
+    var entity = designOpConditionsEntityFormBuilder.createValidEntity();
+    when(padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entity));
+    var actualView = padDesignOpConditionsService.getDesignOpConditionsView(pwaApplicationDetail);
+
+    var expectedView = new DesignOpConditionsView(new PairValueView("1", "2"),
+        new PairValueView("3", "4"),
+        new PairValueView("5", "6"),
+        new PairValueView("7", "8"),
+        new PairValueView("9", "10"),
+        new PairValueView("11", "12"),
+        "13", "14");
+
+    assertThat(actualView).isEqualTo(expectedView);
   }
 
 
