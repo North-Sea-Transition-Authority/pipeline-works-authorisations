@@ -4,7 +4,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 
-/* Test conly container for easy access to all pipeline data for a simple padPipeline with one ident */
+/* Test only container for easy access to all pipeline data for a simple padPipeline with one ident */
 public class SimplePadPipelineContainer {
 
   private final PadPipeline padPipeline;
