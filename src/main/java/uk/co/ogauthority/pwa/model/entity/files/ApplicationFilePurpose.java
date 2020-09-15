@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.files;
 
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingDocumentsController;
@@ -9,6 +10,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianL
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.partnerletters.PartnerLettersController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.AdmiraltyChartDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
@@ -28,7 +30,11 @@ public enum ApplicationFilePurpose {
   DEPOSIT_DRAWINGS(PermanentDepositDrawingsController.class),
   PARTNER_LETTERS(PartnerLettersController.class),
   UMBILICAL_CROSS_SECTION(UmbilicalCrossSectionDocumentsController.class),
-  ADMIRALTY_CHART(AdmiraltyChartDocumentsController.class);
+  ADMIRALTY_CHART(AdmiraltyChartDocumentsController.class),
+
+  OPTIONS_TEMPLATE(OptionsTemplateController.class),
+
+  SUPPLEMENTARY_DOCUMENTS(SupplementaryDocumentsController.class);
 
   private final Class<? extends PwaApplicationDataFileUploadAndDownloadController> fileControllerClass;
 

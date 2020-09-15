@@ -175,6 +175,8 @@ public class PwaApplicationDetailService {
     toDetail.setOtherPhaseDescription(fromDetail.getOtherPhaseDescription());
     toDetail.setPartnerLettersRequired(fromDetail.getPartnerLettersRequired());
     toDetail.setPartnerLettersConfirmed(fromDetail.getPartnerLettersConfirmed());
+    toDetail.setSupplementaryDocumentsFlag(fromDetail.getSupplementaryDocumentsFlag());
+
   }
 
   /**
@@ -236,4 +238,8 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.findLastSubmittedApplicationDetail(pwaApplicationId);
   }
 
+  public void setSupplementaryDocumentsFlag(PwaApplicationDetail detail, Boolean filesToUpload) {
+    detail.setSupplementaryDocumentsFlag(filesToUpload);
+    pwaApplicationDetailRepository.save(detail);
+  }
 }

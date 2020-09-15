@@ -2,8 +2,10 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.OrderedTaskGroupTask;
 
 /**
@@ -27,6 +29,14 @@ public enum ApplicationTaskGroup {
           OrderedTaskGroupTask.from(ApplicationTask.HUOO, 50),
           OrderedTaskGroupTask.from(ApplicationTask.PARTNER_LETTERS, 60)
       )),
+  OPTIONS_INFORMATION(
+      "Options information",
+      25,
+      List.of(
+          OrderedTaskGroupTask.from(ApplicationTask.OPTIONS_TEMPLATE, 10),
+          OrderedTaskGroupTask.from(ApplicationTask.SUPPLEMENTARY_DOCUMENTS, 20)
+      )
+  ),
   LOCATION_DETAILS(
       "Location details",
       30,
@@ -92,6 +102,13 @@ public enum ApplicationTaskGroup {
   public static List<ApplicationTaskGroup> asList() {
     return Arrays.stream(ApplicationTaskGroup.values())
         .collect(Collectors.toList());
+  }
+
+  public static ApplicationTaskGroup resolveFromName(String displayName) {
+    return asList().stream()
+        .filter(group -> Objects.equals(group.getDisplayName(), displayName))
+        .findFirst()
+        .orElseThrow(() -> new ValueNotFoundException(String.format("Couldn't find task group with display name [%s]", displayName)));
   }
 
 }

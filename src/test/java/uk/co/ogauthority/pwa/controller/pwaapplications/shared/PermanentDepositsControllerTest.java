@@ -99,7 +99,6 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
             PwaApplicationType.DEPOSIT_CONSENT,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.DECOMMISSIONING)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
@@ -157,7 +156,8 @@ public class PermanentDepositsControllerTest extends PwaApplicationContextAbstra
     pipeline.setPipelineInBundle(false);
     when(padPipelineService.getApplicationPipelineOverviews(any())).thenReturn(List.of(new PadPipelineOverview(pipeline)));
 
-    var controller = new PermanentDepositController(applicationBreadcrumbService, pwaApplicationRedirectService, permanentDepositService, pwaApplicationFileService, padPipelineService, null);
+    var controller = new PermanentDepositController(applicationBreadcrumbService, pwaApplicationRedirectService, permanentDepositService,
+        padPipelineService, null);
     var modelAndView = controller.renderAddPermanentDeposits(PwaApplicationType.INITIAL, 1, new PwaApplicationContext(pwaApplicationDetail, user, null), null);
     var pipelinesMap = (LinkedHashMap<String, String>) modelAndView.getModel().get("pipelines");
     assertThat(pipelinesMap.get("null")).isEqualTo("my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName());

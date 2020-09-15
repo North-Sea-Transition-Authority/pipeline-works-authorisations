@@ -38,7 +38,7 @@
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Contingency included</dt>
-            <dd class="govuk-summary-list__value"> ${deposit.contingencyAmount}</dd>
+            <dd class="govuk-summary-list__value"> ${deposit.contingencyAmount!}</dd>
         </div>
         <#if deposit.materialTypeLookup == "GROUT_BAGS" && (deposit.groutBagsBioDegradable?? && deposit.groutBagsBioDegradable == false)>
             <div class="govuk-summary-list__row">

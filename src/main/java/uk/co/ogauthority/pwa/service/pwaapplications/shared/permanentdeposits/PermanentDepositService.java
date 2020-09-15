@@ -246,7 +246,9 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail);
+    return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION)
+        && permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail);
+
   }
 
   public boolean permanentDepositsAreToBeMadeOnApp(PwaApplicationDetail pwaApplicationDetail) {

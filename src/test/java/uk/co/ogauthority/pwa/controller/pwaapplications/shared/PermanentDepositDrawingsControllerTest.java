@@ -91,7 +91,6 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
             PwaApplicationType.DEPOSIT_CONSENT,
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
-            PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.DECOMMISSIONING)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);

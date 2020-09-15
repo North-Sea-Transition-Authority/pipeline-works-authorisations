@@ -74,7 +74,6 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
             PwaApplicationType.CAT_1_VARIATION,
             PwaApplicationType.CAT_2_VARIATION,
             PwaApplicationType.DECOMMISSIONING,
-            PwaApplicationType.OPTIONS_VARIATION,
             PwaApplicationType.HUOO_VARIATION,
             PwaApplicationType.DEPOSIT_CONSENT)
         .setAllowedContactRoles(PwaContactRole.PREPARER)

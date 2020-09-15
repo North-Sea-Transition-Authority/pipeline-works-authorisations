@@ -9,11 +9,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
@@ -55,11 +56,11 @@ public class AdmiraltyChartFileService {
     }
     groupValidator.validate(form, bindingResult, hints.toArray());
 
-    if (((AdmiraltyChartDocumentForm) form).getUploadedFileWithDescriptionForms().size() > 1) {
-      bindingResult.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
-          "You must provide a single admiralty chart");
-    }
+    FileUploadUtils.validateMaxFileLimit(
+        (UploadMultipleFilesWithDescriptionForm) form,
+        bindingResult,
+        1,
+        "You must provide a single admiralty chart");
 
     return bindingResult;
   }

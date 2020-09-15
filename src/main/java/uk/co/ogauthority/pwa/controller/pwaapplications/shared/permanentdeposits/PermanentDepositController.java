@@ -27,7 +27,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.PwaApplicationFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
@@ -47,7 +46,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DEPOSIT_CONSENT,
     PwaApplicationType.CAT_1_VARIATION,
     PwaApplicationType.CAT_2_VARIATION,
-    PwaApplicationType.OPTIONS_VARIATION,
     PwaApplicationType.DECOMMISSIONING
 })
 public class PermanentDepositController {
@@ -55,7 +53,6 @@ public class PermanentDepositController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PermanentDepositService permanentDepositService;
-  private final PwaApplicationFileService applicationFileService;
   private final PadPipelineService padPipelineService;
   private final ControllerHelperService controllerHelperService;
 
@@ -63,10 +60,8 @@ public class PermanentDepositController {
   public PermanentDepositController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                     PwaApplicationRedirectService pwaApplicationRedirectService,
                                     PermanentDepositService permanentDepositService,
-                                    PwaApplicationFileService applicationFileService,
                                     PadPipelineService padPipelineService,
                                     ControllerHelperService controllerHelperService) {
-    this.applicationFileService = applicationFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.permanentDepositService = permanentDepositService;

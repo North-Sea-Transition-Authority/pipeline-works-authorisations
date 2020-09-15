@@ -18,6 +18,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
@@ -152,7 +153,36 @@ public class PadPartnerLettersServiceTest {
     assertTrue(bindingResult.hasErrors());
   }
 
+  @Test
+  public void canShowInTaskList_allowed() {
 
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    detail.setPwaApplication(app);
+
+    PwaApplicationType.stream()
+        .filter(type -> !type.equals(PwaApplicationType.OPTIONS_VARIATION))
+        .forEach(applicationType -> {
+
+          app.setApplicationType(applicationType);
+
+          assertThat(padPartnerLettersService.canShowInTaskList(detail)).isTrue();
+
+        });
+
+  }
+
+  @Test
+  public void canShowInTaskList_notAllowed() {
+
+    var detail = new PwaApplicationDetail();
+    var app = new PwaApplication();
+    app.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
+    detail.setPwaApplication(app);
+
+    assertThat(padPartnerLettersService.canShowInTaskList(detail)).isFalse();
+
+  }
 
 
 

@@ -70,7 +70,6 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
       PwaApplicationType.CAT_1_VARIATION,
-      PwaApplicationType.OPTIONS_VARIATION,
       PwaApplicationType.DECOMMISSIONING,
       PwaApplicationType.DEPOSIT_CONSENT
   );

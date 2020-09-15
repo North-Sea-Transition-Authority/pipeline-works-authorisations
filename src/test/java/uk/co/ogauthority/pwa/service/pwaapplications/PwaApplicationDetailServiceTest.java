@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,8 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -40,6 +43,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepo
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
+import uk.co.ogauthority.pwa.testutils.EntityTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,6 +58,9 @@ public class PwaApplicationDetailServiceTest {
 
   @Mock
   private PadFastTrackService fastTrackService;
+
+  @Captor
+  private ArgumentCaptor<PwaApplicationDetail> detailCaptor;
 
   private PwaApplicationDetailService pwaApplicationDetailService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -248,27 +255,55 @@ public class PwaApplicationDetailServiceTest {
     assertThat(newDetail.getId()).isNotEqualTo(pwaApplicationDetail.getId());
     assertThat(newDetail.isFirstVersion()).isFalse();
     assertThat(newDetail.isTipFlag()).isTrue();
+    assertThat(newDetail.getCreatedTimestamp()).isAfter(pwaApplicationDetail.getCreatedTimestamp());
+    assertThat(newDetail.getStatusLastModifiedTimestamp()).isEqualTo(newDetail.getCreatedTimestamp());
+    assertThat(newDetail.getStatusLastModifiedByWuaId()).isNotEqualTo(pwaApplicationDetail.getStatusLastModifiedByWuaId());
+    assertThat(newDetail.getCreatedByWuaId()).isNotEqualTo(pwaApplicationDetail.getCreatedByWuaId());
     // sets new detail to DRAFT
     assertThat(newDetail.getStatus()).isEqualTo(PwaApplicationStatus.DRAFT);
 
-    assertThat(newDetail.getLinkedToField()).isEqualTo(pwaApplicationDetail.getLinkedToField());
-    assertThat(newDetail.getNotLinkedDescription()).isEqualTo(pwaApplicationDetail.getNotLinkedDescription());
-    assertThat(newDetail.getPipelinesCrossed()).isEqualTo(pwaApplicationDetail.getPipelinesCrossed());
-    assertThat(newDetail.getCablesCrossed()).isEqualTo(pwaApplicationDetail.getCablesCrossed());
-    assertThat(newDetail.getMedianLineCrossed()).isEqualTo(pwaApplicationDetail.getMedianLineCrossed());
-    assertThat(newDetail.getNumOfHolders()).isEqualTo(pwaApplicationDetail.getNumOfHolders());
-    assertThat(newDetail.getPipelinePhaseProperties()).isEqualTo(pwaApplicationDetail.getPipelinePhaseProperties());
-    assertThat(newDetail.getOtherPhaseDescription()).isEqualTo(pwaApplicationDetail.getOtherPhaseDescription());
-    assertThat(newDetail.getPartnerLettersRequired()).isEqualTo(pwaApplicationDetail.getPartnerLettersRequired());
-    assertThat(newDetail.getPartnerLettersConfirmed()).isEqualTo(pwaApplicationDetail.getPartnerLettersConfirmed());
-    assertThat(newDetail.getCreatedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(newDetail.getCreatedTimestamp()).isEqualTo(clock.instant());
-    assertThat(newDetail.getSubmittedByWuaId()).isNull();
-    assertThat(newDetail.getSubmittedTimestamp()).isNull();
-    assertThat(newDetail.getStatusLastModifiedByWuaId()).isEqualTo(user.getWuaId());
-    assertThat(newDetail.getStatusLastModifiedTimestamp()).isEqualTo(clock.instant());
-    assertThat(newDetail.getInitialReviewApprovedByWuaId()).isNull();
-    assertThat(newDetail.getInitialReviewApprovedTimestamp()).isNull();
+    var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp", "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
+
+    var nullFields = List.of("id", "submittedByWuaId", "submittedTimestamp", "initialReviewApprovedByWuaId", "initialReviewApprovedTimestamp", "submittedAsFastTrackFlag");
+
+    var ignoredForEqualsComparison = new ArrayList<String>();
+    ignoredForEqualsComparison.addAll(ignoredFields);
+    ignoredForEqualsComparison.addAll(nullFields);
+
+    EntityTestUtils.assertValuesEqual(pwaApplicationDetail, newDetail, ignoredForEqualsComparison);
+    EntityTestUtils.assertAllExpectedFieldsHaveValue(newDetail, nullFields);
+
+  }
+
+  @Test
+  public void setSupplementaryDocumentsFlag() {
+
+    var detail = new PwaApplicationDetail();
+    assertThat(detail.getSupplementaryDocumentsFlag()).isNull();
+
+    pwaApplicationDetailService.setSupplementaryDocumentsFlag(detail, true);
+
+    verify(applicationDetailRepository, times(1)).save(detailCaptor.capture());
+
+    var savedDetail = detailCaptor.getValue();
+
+    assertThat(savedDetail.getSupplementaryDocumentsFlag()).isTrue();
+
+  }
+
+  @Test
+  public void setSupplementaryDocumentsFlag_nullValue_doesntError() {
+
+    var detail = new PwaApplicationDetail();
+    assertThat(detail.getSupplementaryDocumentsFlag()).isNull();
+
+    pwaApplicationDetailService.setSupplementaryDocumentsFlag(detail, null);
+
+    verify(applicationDetailRepository, times(1)).save(detailCaptor.capture());
+
+    var savedDetail = detailCaptor.getValue();
+
+    assertThat(savedDetail.getSupplementaryDocumentsFlag()).isNull();
 
   }
 
@@ -296,14 +331,20 @@ public class PwaApplicationDetailServiceTest {
     detail.setStatusLastModifiedTimestamp(baseTime);
     detail.setInitialReviewApprovedByWuaId(wuaId);
     detail.setInitialReviewApprovedTimestamp(baseTime);
+    detail.setSupplementaryDocumentsFlag(true);
 
     // want to make sure that this method always gives every pwaApplicationDetail attribute a value.
     // This should ensure that tests are updated if attributes added later on.
     var nullFields = Arrays.stream(FieldUtils.getAllFields(PwaApplicationDetail.class))
        .filter(field -> Objects.isNull(getFieldValue(field, detail)))
+        .map(Field::getName)
        .collect(Collectors.toSet());
     // If this has values, need to make sure some value is set, and that creating a new version of a detail deals with that attribute.
-    assertThat(nullFields).isEmpty();
+    try {
+      assertThat(nullFields).isEmpty();
+    } catch (AssertionError e) {
+      throw new AssertionError(String.format("Expected all fields to be given a value, but [%s] is/are null", String.join(",", nullFields)));
+    }
   }
 
   @Test

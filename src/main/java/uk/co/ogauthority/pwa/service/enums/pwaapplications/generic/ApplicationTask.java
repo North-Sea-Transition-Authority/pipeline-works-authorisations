@@ -4,9 +4,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.initial.fields.PadPwaFieldsController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.FastTrackController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
@@ -23,7 +25,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.FluidCompositionInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoController;
+import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
+import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
@@ -31,6 +35,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.GeneralPurposeApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
@@ -46,6 +51,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.Pad
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
 /**
@@ -71,6 +77,20 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       ProjectInformationController.class,
       PadProjectInformationService.class,
       10),
+
+  OPTIONS_TEMPLATE(
+      "Options template",
+      OptionsTemplateController.class,
+      OptionsTemplateService.class,
+      15
+  ),
+
+  SUPPLEMENTARY_DOCUMENTS(
+      "Supplementary documents",
+      SupplementaryDocumentsController.class,
+      SupplementaryDocumentsService.class,
+      16
+  ),
 
   FAST_TRACK(
       "Fast-track",
@@ -246,6 +266,12 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       case FAST_TRACK:
         return ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(applicationType, applicationId, null, null, null));
+      case OPTIONS_TEMPLATE:
+        return ReverseRouter.route(on(OptionsTemplateController.class)
+            .renderOptionsTemplate(applicationId, applicationType, null, null, null));
+      case SUPPLEMENTARY_DOCUMENTS:
+        return ReverseRouter.route(on(SupplementaryDocumentsController.class)
+            .renderSupplementaryDocuments(applicationId, applicationType, null, null, null));
       case ENVIRONMENTAL_DECOMMISSIONING:
         return ReverseRouter.route(on(EnvironmentalDecomController.class)
             .renderEnvDecom(applicationType, null, null), uriVariables);
@@ -299,4 +325,12 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
   public static Stream<ApplicationTask> stream() {
     return Stream.of(ApplicationTask.values());
   }
+
+  public static ApplicationTask resolveFromName(String displayName) {
+    return ApplicationTask.stream()
+        .filter(task -> Objects.equals(task.getDisplayName(), displayName))
+        .findFirst()
+        .orElseThrow(() -> new ValueNotFoundException(String.format("Couldn't find task with display name [%s]", displayName)));
+  }
+
 }

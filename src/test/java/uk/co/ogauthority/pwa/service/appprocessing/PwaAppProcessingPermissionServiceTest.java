@@ -229,4 +229,25 @@ public class PwaAppProcessingPermissionServiceTest {
 
   }
 
+  @Test
+  public void getProcessingPermissions_hasEditConsentDocumentPermission_caseOfficer() {
+
+    regTeamMember = new PwaTeamMember(null, user.getLinkedPerson(), Set.of(new PwaRole("CASE_OFFICER", "Case officer", null, 10)));
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.of(regTeamMember));
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).contains(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
+
+  }
+
+  @Test
+  public void getProcessingPermissions_noEditConsentDocumentPermission() {
+
+    when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson())).thenReturn(Optional.empty());
+
+    var permissions = processingPermissionService.getProcessingPermissions(user);
+    assertThat(permissions).doesNotContain(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT);
+
+  }
+
 }
