@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates;
 
 import java.time.Clock;
 import java.time.Instant;
+import javax.persistence.Basic;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,6 +28,8 @@ public class ApplicationUpdateRequest {
   @JoinColumn(name = "pad_id")
   private PwaApplicationDetail pwaApplicationDetail;
 
+  @Basic // this annotation allows the Jpa metamodel to pick up the field, but leaves default behaviour intact.
+  // Suitable as PersonId just wraps a basic class.
   @Convert(converter = PersonIdConverter.class)
   private PersonId requestedByPersonId;
 

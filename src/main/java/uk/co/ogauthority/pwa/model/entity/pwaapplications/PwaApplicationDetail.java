@@ -17,12 +17,13 @@ import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.converters.PipelinePropertyPhaseConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Entity
 @Table(name = "pwa_application_details")
-public class PwaApplicationDetail {
+public class PwaApplicationDetail implements ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,6 +97,11 @@ public class PwaApplicationDetail {
     this.createdTimestamp = createdTimestamp;
     this.statusLastModifiedByWuaId = createdByWuaId;
     this.statusLastModifiedTimestamp = createdTimestamp;
+  }
+
+  @Override
+  public Object getIdAsParent() {
+    return this.getId();
   }
 
   public Integer getId() {

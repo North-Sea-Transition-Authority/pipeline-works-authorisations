@@ -72,6 +72,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
+  private final PadPipelineDataCopierService padPipelineDataCopierService;
 
   @Autowired
   public PadPipelineService(PadPipelineRepository padPipelineRepository,
@@ -80,7 +81,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
                             PadPipelineIdentService padPipelineIdentService,
                             PipelineIdentFormValidator pipelineIdentFormValidator,
                             PadPipelinePersisterService padPipelinePersisterService,
-                            PipelineHeaderFormValidator pipelineHeaderFormValidator) {
+                            PipelineHeaderFormValidator pipelineHeaderFormValidator,
+                            PadPipelineDataCopierService padPipelineDataCopierService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
@@ -88,6 +90,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     this.pipelineIdentFormValidator = pipelineIdentFormValidator;
     this.padPipelinePersisterService = padPipelinePersisterService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
+    this.padPipelineDataCopierService = padPipelineDataCopierService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -541,7 +544,6 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return new SummaryScreenValidationResult(invalidPipelines, "pipeline", "must have all sections completed",
         sectionComplete,
         sectionIncompleteError);
-
   }
 
   @VisibleForTesting
@@ -561,7 +563,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    padPipelineDataCopierService.copyAllPadPipelineData(fromDetail, toDetail, () -> getPipelines(fromDetail));
   }
 
 }
