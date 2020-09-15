@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
 
 /**
- * Construct summary of Campaign Work Schedule for a given application.
+ * Construct summary of General Technical Information for a given application.
  */
 @Service
 public class GeneralTechInfoSummaryService implements ApplicationSectionSummariser {

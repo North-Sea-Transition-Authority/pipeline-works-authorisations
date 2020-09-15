@@ -14,10 +14,14 @@
 
 <#macro generalTechInfoDetails generalTechInfoView>
 
+  <#local multiLineTextBlockClass = "govuk-summary-list" />
+
   <@fdsCheckAnswers.checkAnswers>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Estimated life of the field" actionUrl="" screenReaderActionText="" actionText="">
-        ${generalTechInfoView.estimatedFieldLife!}
+        <#if generalTechInfoView.estimatedFieldLife?has_content>
+            ${generalTechInfoView.estimatedFieldLife} years
+        </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Have the pipeline systems been designed in accordance with industry recognised codes and standards?" actionUrl="" screenReaderActionText="" actionText="">
@@ -28,12 +32,12 @@
 
     <#if generalTechInfoView.pipelineDesignedToStandards?has_content && generalTechInfoView.pipelineDesignedToStandards>
         <@fdsCheckAnswers.checkAnswersRow keyText="Design codes/standards for the pipelines system" actionUrl="" screenReaderActionText="" actionText="">
-            ${generalTechInfoView.pipelineStandardsDescription!}
+            <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${generalTechInfoView.pipelineStandardsDescription!} </@multiLineText.multiLineText>
         </@fdsCheckAnswers.checkAnswersRow>
     </#if>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Description of the corrosion management strategy" actionUrl="" screenReaderActionText="" actionText="">
-        ${generalTechInfoView.corrosionDescription!}
+        <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${generalTechInfoView.corrosionDescription!} </@multiLineText.multiLineText>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Will there be any future tie-in points for the planned pipelines and umbilicals?" actionUrl="" screenReaderActionText="" actionText="">
@@ -44,7 +48,7 @@
 
     <#if generalTechInfoView.plannedPipelineTieInPoints?has_content && generalTechInfoView.plannedPipelineTieInPoints>
         <@fdsCheckAnswers.checkAnswersRow keyText="Description of tie-in points" actionUrl="" screenReaderActionText="" actionText="">
-            ${generalTechInfoView.tieInPointsDescription!}
+            <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${generalTechInfoView.tieInPointsDescription!} </@multiLineText.multiLineText>
         </@fdsCheckAnswers.checkAnswersRow>
     </#if>
       
