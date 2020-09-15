@@ -11,7 +11,7 @@
 <@defaultPage htmlTitle="Work area" pageHeading="Work area" topNavigation=true fullWidthColumn=true>
 
 
-    <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button"/>
+    <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button" role=true/>
 
     <@fdsTabs.tabs tabsHeading="Work area tabs">
         <@fdsTabs.tabList>
