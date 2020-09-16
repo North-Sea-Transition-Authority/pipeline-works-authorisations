@@ -43,7 +43,7 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepo
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
-import uk.co.ogauthority.pwa.testutils.EntityTestUtils;
+import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -270,8 +270,8 @@ public class PwaApplicationDetailServiceTest {
     ignoredForEqualsComparison.addAll(ignoredFields);
     ignoredForEqualsComparison.addAll(nullFields);
 
-    EntityTestUtils.assertValuesEqual(pwaApplicationDetail, newDetail, ignoredForEqualsComparison);
-    EntityTestUtils.assertAllExpectedFieldsHaveValue(newDetail, nullFields);
+    ObjectTestUtils.assertValuesEqual(pwaApplicationDetail, newDetail, ignoredForEqualsComparison);
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newDetail, nullFields);
 
   }
 

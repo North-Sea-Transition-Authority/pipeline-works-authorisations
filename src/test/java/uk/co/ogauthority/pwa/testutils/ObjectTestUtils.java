@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
-public class EntityTestUtils {
+public class ObjectTestUtils {
 
-  private EntityTestUtils() {
+  private ObjectTestUtils() {
     throw new AssertionError();
   }
 
