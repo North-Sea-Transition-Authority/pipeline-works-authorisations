@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
@@ -37,14 +39,22 @@ public enum ApplicationSectionSummaryType {
   OPTIONS_TEMPLATE(
       35,
       "pwaApplication/applicationSummarySections/optionsTemplateSummary.ftl",
-      OptionsTemplateSummaryService.class
-  ),
+      OptionsTemplateSummaryService.class),
 
   SUPPLEMENTARY_DOCUMENTS(
       45,
       "pwaApplication/applicationSummarySections/supplementaryDocumentsSummary.ftl",
-      SupplementaryDocumentsSummaryService.class
-  ),
+      SupplementaryDocumentsSummaryService.class),
+
+  GENERAL_TECH_DETAILS(
+      140,
+      "pwaApplication/applicationSummarySections/generalTechInfoSummary.ftl",
+      GeneralTechInfoSummaryService.class),
+
+  FLUID_COMPOSITION(
+      150,
+      "pwaApplication/applicationSummarySections/fluidCompositionSummary.ftl",
+      FluidCompositionSummaryService.class),
 
   PIPELINE_OTHER_PROPERTIES(
       160,
@@ -75,6 +85,7 @@ public enum ApplicationSectionSummaryType {
       220,
       "pwaApplication/applicationSummarySections/depositDrawingsSummary.ftl",
       DepositDrawingsSummaryService.class);
+
 
   private final int processingOrder;
   private final String templatePath;
