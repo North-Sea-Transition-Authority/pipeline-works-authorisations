@@ -119,7 +119,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
     for (PadPipelineOtherProperties entity: entities) {
       String minValue = null;
       String maxValue = null;
-      if (entity.getAvailabilityOption() != null && entity.getAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
+      if (PropertyAvailabilityOption.AVAILABLE.equals(entity.getAvailabilityOption())) {
         minValue = entity.getMinValue() == null ? null : String.valueOf(entity.getMinValue());
         maxValue = entity.getMaxValue() == null ? null : String.valueOf(entity.getMaxValue());
       }
