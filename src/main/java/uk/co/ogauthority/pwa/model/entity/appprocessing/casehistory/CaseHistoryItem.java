@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.appprocessing.casehistory;
 
 import java.time.Instant;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.GeneratedValue;
@@ -33,6 +34,8 @@ public class CaseHistoryItem {
   @Transient
   private CaseHistoryItemType itemType;
 
+  @Basic // this annotation allows the Jpa metamodel to pick up the field, but leaves default behaviour intact.
+  // Suitable as PersonId just wraps a basic class.
   @Column(name = "person_id")
   @Convert(converter = PersonIdConverter.class)
   private PersonId personId;

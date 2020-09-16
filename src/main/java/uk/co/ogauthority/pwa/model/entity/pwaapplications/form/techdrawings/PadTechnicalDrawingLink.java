@@ -8,10 +8,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_technical_drawing_links")
-public class PadTechnicalDrawingLink {
+public class PadTechnicalDrawingLink implements ChildEntity<Integer, PadTechnicalDrawing> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +26,26 @@ public class PadTechnicalDrawingLink {
   @JoinColumn(name = "ptd_id")
   private PadTechnicalDrawing technicalDrawing;
 
+  public PadTechnicalDrawingLink() {
+  }
+
+  // ChildEntity Methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadTechnicalDrawing parentEntity) {
+    this.technicalDrawing = parentEntity;
+  }
+
+  @Override
+  public PadTechnicalDrawing getParent() {
+    return this.technicalDrawing;
+  }
+
+  // generated methods
   public Integer getId() {
     return id;
   }

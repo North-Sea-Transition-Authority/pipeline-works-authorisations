@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescription
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 
 /**
@@ -213,13 +215,13 @@ public class PadFileService {
   /**
    * Copy files from with a specified purpose and link status from one application detail to another.
    */
-  public List<PadFile> copyPadFilesToPwaApplicationDetail(PwaApplicationDetail fromDetail,
-                                                          PwaApplicationDetail toDetail,
-                                                          ApplicationFilePurpose purpose,
-                                                          ApplicationFileLinkStatus fileLinkStatus) {
+  public Set<CopiedEntityIdTuple<Integer, PadFile>> copyPadFilesToPwaApplicationDetail(PwaApplicationDetail fromDetail,
+                                                                                       PwaApplicationDetail toDetail,
+                                                                                       ApplicationFilePurpose purpose,
+                                                                                       ApplicationFileLinkStatus fileLinkStatus) {
 
 
-    entityCopyingService.duplicateEntitiesAndSetParent(
+    return entityCopyingService.duplicateEntitiesAndSetParent(
         () -> padFileRepository.findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(
             fromDetail,
             purpose,
@@ -227,13 +229,6 @@ public class PadFileService {
         ),
         toDetail,
         PadFile.class
-
-    );
-
-    return padFileRepository.findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(
-        toDetail,
-        purpose,
-        fileLinkStatus
     );
 
   }

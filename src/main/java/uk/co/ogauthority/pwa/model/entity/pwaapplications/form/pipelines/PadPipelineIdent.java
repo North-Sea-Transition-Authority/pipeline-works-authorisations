@@ -18,12 +18,14 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 @Entity
 @Table(name = "pad_pipeline_idents")
-public class PadPipelineIdent implements PipelineIdent {
+public class PadPipelineIdent implements PipelineIdent, ChildEntity<Integer, PadPipeline>, ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -127,7 +129,7 @@ public class PadPipelineIdent implements PipelineIdent {
 
   }
 
-  // Interface implementations
+  // PipelineIdentMethods
   @Override
   public Integer getPipelineIdentId() {
     return this.id;
@@ -168,8 +170,29 @@ public class PadPipelineIdent implements PipelineIdent {
     return this.padPipeline.getCoreType();
   }
 
-  // Getters
+  // ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
 
+  @Override
+  public void setParent(PadPipeline parentEntity) {
+    this.padPipeline = parentEntity;
+  }
+
+  // ParentEntity Methods
+  @Override
+  public Object getIdAsParent() {
+    return this.getId();
+  }
+
+  @Override
+  public PadPipeline getParent() {
+    return this.padPipeline;
+  }
+
+  // Getters
   public Integer getId() {
     return id;
   }

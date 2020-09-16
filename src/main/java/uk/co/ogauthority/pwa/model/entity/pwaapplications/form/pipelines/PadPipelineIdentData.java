@@ -11,10 +11,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdentData;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_pipeline_ident_data")
-public class PadPipelineIdentData implements PipelineIdentData {
+public class PadPipelineIdentData implements PipelineIdentData, ChildEntity<Integer, PadPipelineIdent> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,7 +67,24 @@ public class PadPipelineIdentData implements PipelineIdentData {
   }
 
 
-  // Interface implementations
+  // ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadPipelineIdent parentEntity) {
+    this.padPipelineIdent = parentEntity;
+  }
+
+  @Override
+  public PadPipelineIdent getParent() {
+    return this.padPipelineIdent;
+  }
+
+
+  // PipelineIdentData methods
 
   @Override
   public Integer getPipelineIdentDataId() {

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
@@ -56,7 +57,8 @@ public class PadPipelineIdentDataService {
   void saveEntityUsingForm(PadPipelineIdentData identData, PipelineIdentDataForm dataForm) {
 
     identData.setComponentPartsDesc(dataForm.getComponentPartsDescription());
-    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
+    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(
+        PipelineCoreType.SINGLE_CORE)) {
       identData.setExternalDiameter(dataForm.getExternalDiameter());
       identData.setInternalDiameter(dataForm.getInternalDiameter());
       identData.setWallThickness(dataForm.getWallThickness());
@@ -104,7 +106,8 @@ public class PadPipelineIdentDataService {
     var identData = getIdentData(ident);
 
     form.setComponentPartsDescription(identData.getComponentPartsDesc());
-    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(PipelineCoreType.SINGLE_CORE)) {
+    if (identData.getPadPipelineIdent().getPadPipeline().getPipelineType().getCoreType().equals(
+        PipelineCoreType.SINGLE_CORE)) {
       form.setExternalDiameter(identData.getExternalDiameter());
       form.setInternalDiameter(identData.getInternalDiameter());
       form.setWallThickness(identData.getWallThickness());
@@ -126,5 +129,11 @@ public class PadPipelineIdentDataService {
 
   public void saveAll(Collection<PadPipelineIdentData> identData) {
     repository.saveAll(identData);
+  }
+
+  public List<PadPipelineIdentData> getAllPipelineIdentDataForPwaApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail
+  ) {
+    return repository.getAllPadPipelineIdentDataByPwaApplicationDetail(pwaApplicationDetail);
   }
 }
