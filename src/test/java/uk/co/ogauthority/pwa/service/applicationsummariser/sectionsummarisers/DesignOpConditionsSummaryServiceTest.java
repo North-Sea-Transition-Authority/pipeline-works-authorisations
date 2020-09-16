@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.DesignOpConditionsView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -68,8 +69,7 @@ public class DesignOpConditionsSummaryServiceTest {
   @Test
   public void summariseSection_verifyServiceInteractions() {
 
-    var designOpConditionsView = new DesignOpConditionsView(
-        null, null, null, null, null, null, null, null);
+    var designOpConditionsView = new DesignOpConditionsView(new PadDesignOpConditions());
     when(padDesignOpConditionsService.getDesignOpConditionsView(pwaApplicationDetail)).thenReturn(designOpConditionsView);
 
     var appSummary = designOpConditionsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);

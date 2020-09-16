@@ -18,29 +18,27 @@
   <@fdsCheckAnswers.checkAnswers>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Temperature operating conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <@minMaxView minValue=designOpConditionsView.temperatureOpPairValue.valueOne! maxValue=designOpConditionsView.temperatureOpPairValue.valueTwo! unitMeasurement=unitMeasurements.DEGREES_CELSIUS/>
+       <@minMaxView designOpConditionsView.temperatureOpMinMaxView/>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Temperature design conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <@minMaxView minValue=designOpConditionsView.temperatureDesignPairValue.valueOne! maxValue=designOpConditionsView.temperatureDesignPairValue.valueTwo! unitMeasurement=unitMeasurements.DEGREES_CELSIUS/>
+       <@minMaxView designOpConditionsView.temperatureDesignMinMaxView/>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Pressure operating conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <@minMaxView minValue=designOpConditionsView.pressureOpPairValue.valueOne! maxValue=designOpConditionsView.pressureOpPairValue.valueTwo! 
-       unitMeasurement=unitMeasurements.BAR_G altMinLabel="internal" altMaxLabel="external"/>
+       <@minMaxView designOpConditionsView.pressureOpMinMaxView/>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Pressure design conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <@minMaxView minValue=designOpConditionsView.pressureDesignPairValue.valueOne! maxValue=designOpConditionsView.pressureDesignPairValue.valueTwo! 
-       unitMeasurement=unitMeasurements.BAR_G altMinLabel="internal" altMaxLabel="external"/>
+       <@minMaxView designOpConditionsView.pressureDesignMinMaxView/>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Flowrate operating conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <@minMaxView minValue=designOpConditionsView.flowrateOpPairValue.valueOne! maxValue=designOpConditionsView.flowrateOpPairValue.valueTwo! unitMeasurement=unitMeasurements.KSCM_D/>
+       <@minMaxView designOpConditionsView.flowrateOpMinMaxView/>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Flowrate design conditions" actionUrl="" screenReaderActionText="" actionText="">
-       <@minMaxView minValue=designOpConditionsView.flowrateDesignPairValue.valueOne! maxValue=designOpConditionsView.flowrateDesignPairValue.valueTwo! unitMeasurement=unitMeasurements.KSCM_D/>
+       <@minMaxView designOpConditionsView.flowrateDesignMinMaxView/>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="U-value operating conditions" actionUrl="" screenReaderActionText="" actionText="">
@@ -58,11 +56,11 @@
 
 
 
-<#macro minMaxView  minValue maxValue unitMeasurement altMinLabel="min" altMaxLabel="max">
-  <#if minValue?has_content> 
-    ${altMinLabel}: ${minValue} ${stringUtils.superscriptConverter(unitMeasurement.suffixDisplay)} </br> 
+<#macro minMaxView minMaxViewData>
+  <#if minMaxViewData.minValue?has_content> 
+    ${minMaxViewData.minPrompt}: ${minMaxViewData.minValue} ${stringUtils.superscriptConverter(minMaxViewData.unitMeasurement.suffixDisplay)} </br> 
   </#if>
-  <#if maxValue?has_content> 
-    ${altMaxLabel}: ${maxValue} ${stringUtils.superscriptConverter(unitMeasurement.suffixDisplay)} 
+  <#if minMaxViewData.maxValue?has_content> 
+    ${minMaxViewData.maxPrompt}: ${minMaxViewData.maxValue} ${stringUtils.superscriptConverter(minMaxViewData.unitMeasurement.suffixDisplay)} 
   </#if>
 </#macro>

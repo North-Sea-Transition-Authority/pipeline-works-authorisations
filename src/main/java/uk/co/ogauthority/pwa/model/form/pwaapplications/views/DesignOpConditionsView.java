@@ -1,59 +1,80 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
-import java.util.Objects;
+import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 
 public class DesignOpConditionsView {
 
-  private PairValueView temperatureOpPairValue;
-  private PairValueView temperatureDesignPairValue;
-  private PairValueView pressureOpPairValue;
-  private PairValueView pressureDesignPairValue;
-  private PairValueView flowrateOpPairValue;
-  private PairValueView flowrateDesignPairValue;
+  private MinMaxView temperatureOpMinMaxView;
+  private MinMaxView temperatureDesignMinMaxView;
+  private MinMaxView pressureOpMinMaxView;
+  private MinMaxView pressureDesignMinMaxView;
+  private MinMaxView flowrateOpMinMaxView;
+  private MinMaxView flowrateDesignMinMaxView;
   private String uvalueOp;
   private String uvalueDesign;
 
 
-  public DesignOpConditionsView(
-      PairValueView temperatureOpPairValue,
-      PairValueView temperatureDesignPairValue,
-      PairValueView pressureOpPairValue,
-      PairValueView pressureDesignPairValue,
-      PairValueView flowrateOpPairValue,
-      PairValueView flowrateDesignPairValue, String uvalueOp, String uvalueDesign) {
-    this.temperatureOpPairValue = temperatureOpPairValue;
-    this.temperatureDesignPairValue = temperatureDesignPairValue;
-    this.pressureOpPairValue = pressureOpPairValue;
-    this.pressureDesignPairValue = pressureDesignPairValue;
-    this.flowrateOpPairValue = flowrateOpPairValue;
-    this.flowrateDesignPairValue = flowrateDesignPairValue;
-    this.uvalueOp = uvalueOp;
-    this.uvalueDesign = uvalueDesign;
+
+  public DesignOpConditionsView(PadDesignOpConditions padDesignOpConditions) {
+    this.temperatureOpMinMaxView = MinMaxView.createMinMaxView(
+        getStringValue(padDesignOpConditions.getTemperatureOpMinValue()),
+        getStringValue(padDesignOpConditions.getTemperatureOpMaxValue()),
+        UnitMeasurement.DEGREES_CELSIUS);
+
+    this.temperatureDesignMinMaxView = MinMaxView.createMinMaxView(
+        getStringValue(padDesignOpConditions.getTemperatureDesignMinValue()),
+        getStringValue(padDesignOpConditions.getTemperatureDesignMaxValue()),
+        UnitMeasurement.DEGREES_CELSIUS);
+
+    this.pressureOpMinMaxView = MinMaxView.createInternalExternalView(
+        getStringValue(padDesignOpConditions.getPressureOpInternalValue()),
+        getStringValue(padDesignOpConditions.getPressureOpExternalValue()),
+        UnitMeasurement.BAR_G);
+
+    this.pressureDesignMinMaxView = MinMaxView.createInternalExternalView(
+        getStringValue(padDesignOpConditions.getPressureDesignInternalValue()),
+        getStringValue(padDesignOpConditions.getPressureDesignExternalValue()),
+        UnitMeasurement.BAR_G);
+
+    this.flowrateOpMinMaxView = MinMaxView.createMinMaxView(
+        getStringValue(padDesignOpConditions.getFlowrateOpMinValue()),
+        getStringValue(padDesignOpConditions.getFlowrateOpMaxValue()),
+        UnitMeasurement.KSCM_D);
+
+    this.flowrateDesignMinMaxView = MinMaxView.createMinMaxView(
+        getStringValue(padDesignOpConditions.getFlowrateDesignMinValue()),
+        getStringValue(padDesignOpConditions.getFlowrateDesignMaxValue()),
+        UnitMeasurement.KSCM_D);
+
+    this.uvalueOp = getStringValue(padDesignOpConditions.getUvalueOp());
+    this.uvalueDesign = getStringValue(padDesignOpConditions.getUvalueDesign());
   }
 
 
-  public PairValueView getTemperatureOpPairValue() {
-    return temperatureOpPairValue;
+  public MinMaxView getTemperatureOpMinMaxView() {
+    return temperatureOpMinMaxView;
   }
 
-  public PairValueView getTemperatureDesignPairValue() {
-    return temperatureDesignPairValue;
+  public MinMaxView getTemperatureDesignMinMaxView() {
+    return temperatureDesignMinMaxView;
   }
 
-  public PairValueView getPressureOpPairValue() {
-    return pressureOpPairValue;
+  public MinMaxView getPressureOpMinMaxView() {
+    return pressureOpMinMaxView;
   }
 
-  public PairValueView getPressureDesignPairValue() {
-    return pressureDesignPairValue;
+  public MinMaxView getPressureDesignMinMaxView() {
+    return pressureDesignMinMaxView;
   }
 
-  public PairValueView getFlowrateOpPairValue() {
-    return flowrateOpPairValue;
+  public MinMaxView getFlowrateOpMinMaxView() {
+    return flowrateOpMinMaxView;
   }
 
-  public PairValueView getFlowrateDesignPairValue() {
-    return flowrateDesignPairValue;
+  public MinMaxView getFlowrateDesignMinMaxView() {
+    return flowrateDesignMinMaxView;
   }
 
   public String getUvalueOp() {
@@ -64,30 +85,8 @@ public class DesignOpConditionsView {
     return uvalueDesign;
   }
 
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    DesignOpConditionsView that = (DesignOpConditionsView) o;
-    return Objects.equals(temperatureOpPairValue, that.temperatureOpPairValue)
-        && Objects.equals(temperatureDesignPairValue, that.temperatureDesignPairValue)
-        && Objects.equals(pressureOpPairValue, that.pressureOpPairValue)
-        && Objects.equals(pressureDesignPairValue, that.pressureDesignPairValue)
-        && Objects.equals(flowrateOpPairValue, that.flowrateOpPairValue)
-        && Objects.equals(flowrateDesignPairValue, that.flowrateDesignPairValue)
-        && Objects.equals(uvalueOp, that.uvalueOp)
-        && Objects.equals(uvalueDesign, that.uvalueDesign);
+  private String getStringValue(BigDecimal value) {
+    return value == null ? null : String.valueOf(value);
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(temperatureOpPairValue, temperatureDesignPairValue, pressureOpPairValue,
-        pressureDesignPairValue,
-        flowrateOpPairValue, flowrateDesignPairValue, uvalueOp, uvalueDesign);
-  }
 }

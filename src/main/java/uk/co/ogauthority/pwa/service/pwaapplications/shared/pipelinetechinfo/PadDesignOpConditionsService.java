@@ -53,7 +53,7 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   }
 
   public DesignOpConditionsView getDesignOpConditionsView(PwaApplicationDetail pwaApplicationDetail) {
-    return padDesignOpConditionsMappingService.createViewFromEntity(getDesignOpConditionsEntity(pwaApplicationDetail));
+    return new DesignOpConditionsView(getDesignOpConditionsEntity(pwaApplicationDetail));
   }
 
 

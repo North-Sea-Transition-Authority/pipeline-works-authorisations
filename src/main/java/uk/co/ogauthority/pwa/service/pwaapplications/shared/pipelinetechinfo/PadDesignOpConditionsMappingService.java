@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.DesignOpConditionsView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PairValueView;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 
 
@@ -52,21 +50,6 @@ public class PadDesignOpConditionsMappingService {
 
     entity.setUvalueOp(form.getUvalueOp() != null ? new BigDecimal(form.getUvalueOp()) : null);
     entity.setUvalueDesign(form.getUvalueDesign() != null ? new BigDecimal(form.getUvalueDesign()) : null);
-  }
-
-
-  public DesignOpConditionsView createViewFromEntity(PadDesignOpConditions entity) {
-
-    return new DesignOpConditionsView(
-        new PairValueView(getStringValue(entity.getTemperatureOpMinValue()), getStringValue(entity.getTemperatureOpMaxValue())),
-        new PairValueView(getStringValue(entity.getTemperatureDesignMinValue()), getStringValue(entity.getTemperatureDesignMaxValue())),
-        new PairValueView(getStringValue(entity.getPressureOpInternalValue()), getStringValue(entity.getPressureOpExternalValue())),
-        new PairValueView(getStringValue(entity.getPressureDesignInternalValue()), getStringValue(entity.getPressureDesignExternalValue())),
-        new PairValueView(getStringValue(entity.getFlowrateOpMinValue()), getStringValue(entity.getFlowrateOpMaxValue())),
-        new PairValueView(getStringValue(entity.getFlowrateDesignMinValue()), getStringValue(entity.getFlowrateDesignMaxValue())),
-        getStringValue(entity.getUvalueOp()),
-        getStringValue(entity.getUvalueDesign())
-    );
   }
 
 
