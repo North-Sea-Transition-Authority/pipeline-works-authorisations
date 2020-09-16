@@ -43,12 +43,12 @@ public class PadPipelineDataCopierService {
       PadPipelineIdentService padPipelineIdentService,
       PadPipelineIdentDataService padPipelineIdentDataService,
 
-      // In an ideal world, this would not rely on PadPipeline service at all. Structural fix would be do only deal with
+      // In an ideal world, this would not rely on PadPipeline service at all. Structural fix would be to only deal with
       // form mappings in controllers and only deal with entity objects business logic code.
       // Moving all mapping to controller is too large a refactor to do now.
       @Lazy PadTechnicalDrawingService padTechnicalDrawingService,
 
-      // Also in an ideal world, this would not rely on PadPipeline service at all. Structural fix would be do only deal with
+      // Also in an ideal world, this would not rely on PadPipeline service at all. Structural fix would be to only deal with
       // form mappings in controllers  and only deal with entity objects business logic code.
       // Removing the dependency from this service ends up with the link being in PadTechnicalDrawingService,
       // which does not resolve the circular dependency and no time for large refactor.

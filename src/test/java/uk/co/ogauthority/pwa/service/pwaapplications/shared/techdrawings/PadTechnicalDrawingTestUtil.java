@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
-import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
+import uk.co.ogauthority.pwa.testutils.EntityTestUtils;
 
 public class PadTechnicalDrawingTestUtil {
 
@@ -24,7 +24,7 @@ public class PadTechnicalDrawingTestUtil {
     //dont care what the reference is
     td.setReference(Arrays.toString(RandomUtils.nextBytes(10)));
 
-    ObjectTestUtils.assertAllFieldsNotNull(td, PadTechnicalDrawing.class, Set.of(PadTechnicalDrawing_.ID));
+    EntityTestUtils.assertAllFieldsNotNull(td, PadTechnicalDrawing.class, Set.of(PadTechnicalDrawing_.ID));
     return td;
   }
 
@@ -35,7 +35,7 @@ public class PadTechnicalDrawingTestUtil {
     link.setPipeline(padPipeline);
     link.setTechnicalDrawing(padTechnicalDrawing);
 
-    ObjectTestUtils.assertAllFieldsNotNull(link, PadTechnicalDrawingLink.class, Set.of(PadTechnicalDrawingLink_.ID));
+    EntityTestUtils.assertAllFieldsNotNull(link, PadTechnicalDrawingLink.class, Set.of(PadTechnicalDrawingLink_.ID));
     return link;
   }
 

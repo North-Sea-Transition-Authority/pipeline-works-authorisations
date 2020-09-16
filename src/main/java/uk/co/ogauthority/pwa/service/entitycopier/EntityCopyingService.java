@@ -71,7 +71,7 @@ public class EntityCopyingService {
    * @param <I>                    This is the class which represents the ID of T
    * @param <P>                    this is the class which is the PARENT of T
    * @param <T>                    this is the class of the entity to duplicate
-   * @return the a set of objects mapping the original entity id to the corresponding duplicated entity id.
+   * @return a set of objects mapping the original entity id to the corresponding duplicated entity id.
    */
   public <I, P extends ParentEntity, T extends ChildEntity<I, P>> Set<CopiedEntityIdTuple<I, T>> duplicateEntitiesAndSetParent(
       Supplier<Collection<T>> getEntitiesToCopy,
@@ -113,7 +113,7 @@ public class EntityCopyingService {
    * @param <I>                        This is the class which represents the ID of T
    * @param <P>                        this is the class which is the PARENT of T
    * @param <T>                        this is the class of the entity to duplicate
-   * @return the a set of objects mapping the original entity id to the corresponding duplicated entity id.
+   * @return a set of objects mapping the original entity id to the corresponding duplicated entity id.
    */
   public <I,
       P extends ParentEntity,

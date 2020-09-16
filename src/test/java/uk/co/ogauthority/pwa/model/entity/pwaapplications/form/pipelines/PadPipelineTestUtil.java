@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
-import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
+import uk.co.ogauthority.pwa.testutils.EntityTestUtils;
 
 public class PadPipelineTestUtil {
   // no instantiation
@@ -60,7 +60,7 @@ public class PadPipelineTestUtil {
     padPipeline.setTrenchingMethodsDescription("TRENCHING");
 
 
-    ObjectTestUtils.assertAllFieldsNotNull(padPipeline, PadPipeline.class, Set.of(PadPipeline_.ID));
+    EntityTestUtils.assertAllFieldsNotNull(padPipeline, PadPipeline.class, Set.of(PadPipeline_.ID));
 
     return padPipeline;
   }
@@ -78,7 +78,7 @@ public class PadPipelineTestUtil {
     ident.setFromLocation("FROM_LOCATION");
     ident.setToLocation("TO_LOCATION");
 
-    ObjectTestUtils.assertAllFieldsNotNull(ident, PadPipelineIdent.class, Set.of(PadPipelineIdent_.ID));
+    EntityTestUtils.assertAllFieldsNotNull(ident, PadPipelineIdent.class, Set.of(PadPipelineIdent_.ID));
     return ident;
 
   }
