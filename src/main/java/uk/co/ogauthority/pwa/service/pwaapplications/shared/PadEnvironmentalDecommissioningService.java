@@ -17,10 +17,12 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.EnvironmentalDecommissioningView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
 @Service
@@ -104,6 +106,24 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
     padEnvironmentalDecommissioning.setTransboundaryEffect(form.getTransboundaryEffect());
     save(padEnvironmentalDecommissioning);
   }
+
+
+  public EnvironmentalDecommissioningView getEnvironmentalDecommissioningView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var padEnvironmentalDecommissioning = getEnvDecomData(pwaApplicationDetail);
+
+    return new EnvironmentalDecommissioningView(
+        padEnvironmentalDecommissioning.getTransboundaryEffect(),
+        padEnvironmentalDecommissioning.getEmtHasSubmittedPermits(),
+        padEnvironmentalDecommissioning.getPermitsSubmitted(),
+        padEnvironmentalDecommissioning.getEmtHasOutstandingPermits(),
+        padEnvironmentalDecommissioning.getPermitsPendingSubmission(),
+        DateUtils.formatDate(padEnvironmentalDecommissioning.getEmtSubmissionTimestamp()),
+        padEnvironmentalDecommissioning.getEnvironmentalConditions(),
+        padEnvironmentalDecommissioning.getDecommissioningConditions()
+    );
+  }
+
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.EnvironmentalDecomSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
@@ -45,6 +46,11 @@ public enum ApplicationSectionSummaryType {
       45,
       "pwaApplication/applicationSummarySections/supplementaryDocumentsSummary.ftl",
       SupplementaryDocumentsSummaryService.class),
+
+  ENVIRONMENTAL_DECOMMISSIONING(
+      50,
+          "pwaApplication/applicationSummarySections/EnvironmentalDecomSummary.ftl",
+      EnvironmentalDecomSummaryService.class),
 
   GENERAL_TECH_DETAILS(
       140,
