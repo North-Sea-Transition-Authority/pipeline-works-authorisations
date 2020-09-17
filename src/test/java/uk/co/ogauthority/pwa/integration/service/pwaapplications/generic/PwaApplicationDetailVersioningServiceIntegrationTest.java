@@ -4,13 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
@@ -25,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -35,22 +31,17 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
@@ -94,7 +85,11 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private PortalOrganisationUnit portalOrganisationUnit1;
   private PortalOrganisationUnit portalOrganisationUnit2;
 
+  private PwaApplicationIntegrationTestHelper testHelper;
+
   public void setup() throws IllegalAccessException {
+
+    testHelper = new PwaApplicationIntegrationTestHelper(entityManager);
 
     var firstVersionPwaDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL
@@ -142,10 +137,18 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createProjInfoData(pwaApplicationDetail);
     var simplePadPipelineContainer = createAndPersistPipeline(pwaApplicationDetail);
     createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
-
     createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
+    createAndPersistPermanentDepositPipeline(pwaApplicationDetail, simplePadPipelineContainer);
+    return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
 
-    return getApplicationDetailContainer(pwaApplicationDetail);
+  private PadDepositPipeline createAndPersistPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                                                      SimplePadPipelineContainer simplePadPipelineContainer) {
+    var ppd = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
+    entityManager.persist(ppd);
+    var pdp = PadPermanentDepositTestUtil.createDepositPipeline(ppd, simplePadPipelineContainer.getPadPipeline());
+    entityManager.persist(pdp);
+    return pdp;
   }
 
   private PadFileTestContainer createAndPersistPadFileWithRandomFileId(PwaApplicationDetail pwaApplicationDetail,
@@ -204,88 +207,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   }
 
-  private PadProjectInformation getProjInfo(PwaApplicationDetail pwaApplicationDetail) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-    CriteriaQuery<PadProjectInformation> criteriaQuery = cb.createQuery(PadProjectInformation.class);
-    Root<PadProjectInformation> projInfo = criteriaQuery.from(PadProjectInformation.class);
-    return entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(projInfo.get(PadProjectInformation_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
-  }
-
-  private List<PadFile> getAllAppDetailPadFiles(PwaApplicationDetail pwaApplicationDetail) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<PadFile> criteriaQuery = cb.createQuery(PadFile.class);
-    Root<PadFile> padFile = criteriaQuery.from(PadFile.class);
-    return entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(padFile.get(PadFile_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getResultList();
-
-  }
-
-  private SimplePadPipelineContainer getPadPipeline(PwaApplicationDetail pwaApplicationDetail) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<PadPipelineIdentData> criteriaQuery = cb.createQuery(PadPipelineIdentData.class);
-    Root<PadPipelineIdentData> pipelineIdentDataRoot = criteriaQuery.from(PadPipelineIdentData.class);
-    Join<PadPipelineIdentData, PadPipelineIdent> identJoin = pipelineIdentDataRoot.join(
-        PadPipelineIdentData_.padPipelineIdent);
-    Join<PadPipelineIdent, PadPipeline> padPipelineJoin = identJoin.join(PadPipelineIdent_.padPipeline);
-    var result = entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(padPipelineJoin.get(PadPipeline_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
-
-    return new SimplePadPipelineContainer(result);
-
-  }
-
-  private PadTechnicalDrawingLink getPadTechnicalDrawingLink(PwaApplicationDetail pwaApplicationDetail) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<PadTechnicalDrawingLink> criteriaQuery = cb.createQuery(PadTechnicalDrawingLink.class);
-    Root<PadTechnicalDrawingLink> padTechnicalDrawingLinkRoot = criteriaQuery.from(PadTechnicalDrawingLink.class);
-    Join<PadTechnicalDrawingLink, PadTechnicalDrawing> technicalDrawingJoin = padTechnicalDrawingLinkRoot
-        .join(PadTechnicalDrawingLink_.technicalDrawing);
-
-    var result = entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(technicalDrawingJoin.get(PadTechnicalDrawing_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
-
-    return result;
-
-  }
-
-  private List<PadPipelineOrganisationRoleLink> getPadPipelineLinks(PwaApplicationDetail pwaApplicationDetail){
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<PadPipelineOrganisationRoleLink> criteriaQuery = cb.createQuery(PadPipelineOrganisationRoleLink.class);
-    Root<PadPipelineOrganisationRoleLink> padPipelineOrganisationRoleLinkRoot = criteriaQuery.from(PadPipelineOrganisationRoleLink.class);
-    Join<PadPipelineOrganisationRoleLink, PadOrganisationRole> organisationRoleJoin = padPipelineOrganisationRoleLinkRoot
-        .join(PadPipelineOrganisationRoleLink_.padOrgRole);
-
-    var result = entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(organisationRoleJoin.get(PadOrganisationRole_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getResultList();
-
-    return result;
-
-  }
-
-  private PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
-
-    var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
-    container.setPadProjectInformation(getProjInfo(pwaApplicationDetail));
-    container.setPadFiles(getAllAppDetailPadFiles(pwaApplicationDetail));
-    container.setSimplePadPipelineContainer(getPadPipeline(pwaApplicationDetail));
-    container.setPadTechnicalDrawingLink(getPadTechnicalDrawingLink(pwaApplicationDetail));
-    container.setPadTechnicalDrawing(getPadTechnicalDrawingLink(pwaApplicationDetail).getTechnicalDrawing());
-    container.setHuooRoles(getPadPipelineLinks(pwaApplicationDetail));
-    return container;
-
-  }
 
   @Transactional
   @Test
@@ -297,7 +219,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         webUserAccount
     );
 
-    var newVersionContainer = getApplicationDetailContainer(newVersionDetail);
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
     var commonIgnoredComparisonFields = new String[]{"pwaApplicationDetail", "id"};
 
@@ -339,7 +261,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         webUserAccount
     );
 
-    var newVersionContainer = getApplicationDetailContainer(newVersionDetail);
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
     // test each PadFile linked to first version matches that linked to new version
     Arrays.stream(ApplicationFilePurpose.values())
         .forEach(applicationFilePurpose -> {
@@ -362,7 +284,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         webUserAccount
     );
 
-    var newVersionContainer = getApplicationDetailContainer(newVersionDetail);
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
     assertThat(EqualsBuilder.reflectionEquals(
         firstVersionApplicationContainer.getSimplePadPipelineContainer().getPadPipeline(),
@@ -410,10 +332,11 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         webUserAccount
     );
 
-    var newVersionContainer = getApplicationDetailContainer(newVersionDetail);
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
     var padOrgRoleIgnoreFields = Set.of(PadOrganisationRole_.ID, PadOrganisationRole_.PWA_APPLICATION_DETAIL);
-    var padPipelineOrgRoleIgnoreFields = Set.of(PadPipelineOrganisationRoleLink_.ID, PadPipelineOrganisationRoleLink_.PAD_ORG_ROLE);
+    var padPipelineOrgRoleIgnoreFields = Set.of(PadPipelineOrganisationRoleLink_.ID,
+        PadPipelineOrganisationRoleLink_.PAD_ORG_ROLE);
 
     // HOLDER
     ObjectTestUtils.assertValuesEqual(
@@ -466,5 +389,31 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         newVersionContainer.getHuooRole(HuooRole.OWNER).getRight(),
         padPipelineOrgRoleIgnoreFields
     );
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_permanentDepositCopiedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+     ObjectTestUtils.assertValuesEqual(
+         firstVersionApplicationContainer.getPadDepositPipeline().getPadPermanentDeposit(),
+         newVersionContainer.getPadDepositPipeline().getPadPermanentDeposit(),
+         Set.of(PadPermanentDeposit_.ID, PadPermanentDeposit_.PWA_APPLICATION_DETAIL)
+     );
+
+     assertThat(firstVersionApplicationContainer.getPadDepositPipeline().getPadPipeline().getPipelineId())
+         .isEqualTo(newVersionContainer.getPadDepositPipeline().getPadPipeline().getPipelineId());
+
+    assertThat(newVersionContainer.getPadDepositPipeline().getPadPipeline())
+        .isEqualTo(newVersionContainer.getSimplePadPipelineContainer().getPadPipeline());
+
   }
 }
