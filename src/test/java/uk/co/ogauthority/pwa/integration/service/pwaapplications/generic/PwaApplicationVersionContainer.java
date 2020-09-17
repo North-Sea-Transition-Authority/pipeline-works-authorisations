@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -41,6 +42,8 @@ public class PwaApplicationVersionContainer {
   private PadDepositPipeline padDepositPipeline;
 
   private PadCampaignWorksPipeline padCampaignWorksPipeline;
+
+  private List<PadField> padFields;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -127,5 +130,13 @@ public class PwaApplicationVersionContainer {
   public void setPadCampaignWorksPipeline(
       PadCampaignWorksPipeline padCampaignWorksPipeline) {
     this.padCampaignWorksPipeline = padCampaignWorksPipeline;
+  }
+
+  public List<PadField> getPadFields() {
+    return padFields;
+  }
+
+  public void setPadFields(List<PadField> padFields) {
+    this.padFields = padFields;
   }
 }

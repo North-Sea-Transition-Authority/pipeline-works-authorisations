@@ -8,6 +8,8 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.PwaApplicationVersionContainer;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.SimplePadPipelineContainer;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -149,6 +151,17 @@ public class PwaApplicationIntegrationTestHelper {
     return result;
   }
 
+  public List<PadField> getPadFields(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadField> criteriaQuery = cb.createQuery(PadField.class);
+    Root<PadField> padFieldRoot = criteriaQuery.from(PadField.class);
+
+    return entityManager.createQuery(
+        criteriaQuery
+            .where(cb.equal(padFieldRoot.get(PadField_.pwaApplicationDetail), pwaApplicationDetail))
+    ).getResultList();
+  }
+
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
@@ -160,6 +173,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setHuooRoles(getPadPipelineLinks(pwaApplicationDetail));
     container.setPadDepositPipeline(getPermanentDepositPipeline(pwaApplicationDetail));
     container.setPadCampaignWorksPipeline(getPadCampaignWorksPipeline(pwaApplicationDetail));
+    container.setPadFields(getPadFields(pwaApplicationDetail));
     return container;
 
   }
