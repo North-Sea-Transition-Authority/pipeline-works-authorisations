@@ -31,16 +31,14 @@ public class PwaApplicationDetailVersioningService {
                                                           WebUserAccount webUserAccount) {
     var newTipDetail = pwaApplicationDetailService.createNewTipDetail(detail, webUserAccount);
 
-    taskListService.getShownApplicationTasksForDetail(detail)
-        .stream()
+    taskListService.getShownApplicationTasksForDetail(detail).stream()
         .sorted(Comparator.comparing(ApplicationTask::getVersioningProcessingOrder))
-        .forEachOrdered(applicationTask ->
-            applicationTaskService.copyApplicationTaskDataToApplicationDetail(
-                applicationTask,
-                detail,
-                newTipDetail
+        .forEachOrdered(applicationTask -> applicationTaskService.copyApplicationTaskDataToApplicationDetail(
+            applicationTask,
+            detail,
+            newTipDetail
             )
-        );
+    );
 
     return newTipDetail;
 
