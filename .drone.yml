@@ -1,7 +1,6 @@
 kind: pipeline
 type: docker
 name: default
-
 steps:
   - name: fetch-fds-submodule
     image: alpine/git
@@ -24,11 +23,16 @@ steps:
       - npm install
       - npx gulp buildAll
 
-  - name: build-java
+  - name: build-war
     image: openjdk:11-jdk-slim
     commands:
       - chmod +x gradlew
       - ./gradlew test checkstyleMain bootWar
+
+  - name: build-jar
+    image: openjdk:11-jdk-slim
+    commands:
+      - ./gradlew bootJar
 
   - name: code-analysis
     image: aosapps/drone-sonar-plugin
@@ -58,6 +62,23 @@ steps:
     when:
       status: success
       branch: [ develop, release/*, master ]
+
+  - name: publish-docker
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/fivium/pipeline-works-authorisation
+      tags:
+        - ${DRONE_BRANCH//\//-}
+        - ${DRONE_BUILD_NUMBER}
+    environment:
+      DOCKER_USERNAME:
+        from_secret: docker_username
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+    when:
+      status:
+        - success
 
   - name: vulnerability-scan-java
     image: openjdk:11-jdk-slim
