@@ -19,14 +19,15 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_pipeline_org_role_links")
-public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisitor {
+public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisitor, ChildEntity<Integer, PadOrganisationRole> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+  private Integer id;
 
   @ManyToOne()
   @JoinColumn(name = "pipeline_id")
@@ -56,7 +57,24 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.padOrgRole = padOrganisationRole;
   }
 
-  public int getId() {
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadOrganisationRole parentEntity) {
+    this.padOrgRole = parentEntity;
+  }
+
+  @Override
+  public PadOrganisationRole getParent() {
+    return this.padOrgRole;
+  }
+
+  public Integer getId() {
     return id;
   }
 

@@ -46,6 +46,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -64,6 +65,9 @@ public class PadOrganisationRoleServiceTest {
 
   @Mock
   private EntityManager entityManager;
+
+  @Mock
+  private EntityCopyingService entityCopyingService;
 
   private PadOrganisationRoleService padOrganisationRoleService;
 
@@ -101,7 +105,8 @@ public class PadOrganisationRoleServiceTest {
         padOrganisationRolesRepository,
         padPipelineOrganisationRoleLinkRepository,
         portalOrganisationsAccessor,
-        entityManager);
+        entityManager,
+        entityCopyingService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 

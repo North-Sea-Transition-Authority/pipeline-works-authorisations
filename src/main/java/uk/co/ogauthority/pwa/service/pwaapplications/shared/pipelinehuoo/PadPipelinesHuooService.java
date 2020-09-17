@@ -245,9 +245,13 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
     return PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(allPipelineRolesForApp);
   }
 
+  /**
+   * Pipeline link data copied as part of HUOO data copy.
+   * See {@link uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService#copySectionInformation}
+   */
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    // do nothing as pipeline org link copied elsewhere
   }
 
 }

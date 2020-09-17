@@ -38,4 +38,7 @@ public interface PadPipelineOrganisationRoleLinkRepository extends
   List<PadPipelineOrganisationRoleLink> getAllByPadOrgRole_PwaApplicationDetailAndPipeline(PwaApplicationDetail detail,
                                                                                            Pipeline pipeline);
 
+
+  List<PadPipelineOrganisationRoleLink> getAllByPadOrgRole_PwaApplicationDetail(PwaApplicationDetail detail);
+
 }
