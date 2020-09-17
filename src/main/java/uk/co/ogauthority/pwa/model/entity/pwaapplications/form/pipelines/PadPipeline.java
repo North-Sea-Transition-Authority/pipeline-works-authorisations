@@ -26,12 +26,14 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 @Entity
 @Table(name = "pad_pipelines")
-public class PadPipeline {
+public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -154,6 +156,29 @@ public class PadPipeline {
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
 
+  // ParentEntity Methods
+  @Override
+  public Object getIdAsParent() {
+    return this.getId();
+  }
+
+  // Child Entity Methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
+
+  // generated methods below
   public Integer getId() {
     return id;
   }

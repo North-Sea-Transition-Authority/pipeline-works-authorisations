@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.Property
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties.OtherPropertiesValueView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -114,6 +115,28 @@ public class PadPipelineOtherPropertiesServiceTest {
     verify(pwaApplicationDetailService, times(1)).setPhasesPresent(pwaApplicationDetail,
         entityBuilder.getPhaseDataForAppDetail(), entityBuilder.getOtherPhaseDescription());
     verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(actualEntities);
+  }
+
+  @Test
+  public void getOtherPropertiesView() {
+    var expectedEntityList = entityBuilder.createAllEntities(pwaApplicationDetail);
+    entityBuilder.setPhaseDataOnAppDetail(pwaApplicationDetail);
+    when(padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(expectedEntityList);
+
+    var otherPropertiesView = padPipelineOtherPropertiesService.getOtherPropertiesView(pwaApplicationDetail);
+
+    assertThat(otherPropertiesView.getPropertyValueMap().get(OtherPipelineProperty.WAX_CONTENT))
+        .isEqualTo(new OtherPropertiesValueView(PropertyAvailabilityOption.NOT_AVAILABLE, null, null));
+
+    assertThat(otherPropertiesView.getPropertyValueMap().get(OtherPipelineProperty.MERCURY))
+        .isEqualTo(new OtherPropertiesValueView(PropertyAvailabilityOption.AVAILABLE, "3", "5"));
+
+    assertThat(otherPropertiesView.getSelectedPropertyPhases())
+        .containsAll(entityBuilder.getPhaseDataForAppDetail());
+
+    assertThat(otherPropertiesView.getOtherPhaseDescription())
+        .isEqualTo(entityBuilder.getOtherPhaseDescription());
+
   }
 
 

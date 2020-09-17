@@ -8,7 +8,11 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Ap
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FastTrackSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
@@ -37,8 +41,7 @@ public enum ApplicationSectionSummaryType {
   OPTIONS_TEMPLATE(
       35,
       "pwaApplication/applicationSummarySections/optionsTemplateSummary.ftl",
-      OptionsTemplateSummaryService.class
-  ),
+      OptionsTemplateSummaryService.class),
 
   FAST_TRACK(
       40,
@@ -49,7 +52,27 @@ public enum ApplicationSectionSummaryType {
   SUPPLEMENTARY_DOCUMENTS(
       45,
       "pwaApplication/applicationSummarySections/supplementaryDocumentsSummary.ftl",
-      SupplementaryDocumentsSummaryService.class
+      SupplementaryDocumentsSummaryService.class),
+
+  GENERAL_TECH_DETAILS(
+      140,
+      "pwaApplication/applicationSummarySections/generalTechInfoSummary.ftl",
+      GeneralTechInfoSummaryService.class),
+
+  FLUID_COMPOSITION(
+      150,
+      "pwaApplication/applicationSummarySections/fluidCompositionSummary.ftl",
+      FluidCompositionSummaryService.class),
+
+  PIPELINE_OTHER_PROPERTIES(
+      160,
+      "pwaApplication/applicationSummarySections/otherPropertiesSummary.ftl",
+      OtherPropertiesSummaryService.class),
+
+  DESIGN_OP_CONDITIONS(
+      170,
+      "pwaApplication/applicationSummarySections/designOpConditionsSummary.ftl",
+      DesignOpConditionsSummaryService.class
   ),
 
   PIPELINES(
@@ -76,6 +99,7 @@ public enum ApplicationSectionSummaryType {
       220,
       "pwaApplication/applicationSummarySections/depositDrawingsSummary.ftl",
       DepositDrawingsSummaryService.class);
+
 
   private final int processingOrder;
   private final String templatePath;
