@@ -2,6 +2,8 @@
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 <#-- @ftlvariable name="environmentalDecommView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.EnvironmentalDecommissioningView" -->
+<#-- @ftlvariable name="environmentalConditions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition>" -->
+<#-- @ftlvariable name="decommissioningConditions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition>" -->
 
 
 <div class="pwa-application-summary-section">
@@ -50,50 +52,39 @@
 
     <#if environmentalDecommView.emtHasOutstandingPermits?has_content && environmentalDecommView.emtHasOutstandingPermits>
         <@fdsCheckAnswers.checkAnswersRow keyText="What is the latest date all relevant environmental permits will be submitted to BEIS?" actionUrl="" screenReaderActionText="" actionText="">
-            ${environmentalDecommView.emtSubmissionDate!}
+            ${environmentalDecommView.emtSubmissionDate!"Not provided"}
         </@fdsCheckAnswers.checkAnswersRow>
     </#if>
-      
+
   </@fdsCheckAnswers.checkAnswers>
 
 
 
   <h3 class="govuk-heading-m"> Acknowledgements </h3>
   <@fdsCheckAnswers.checkAnswers>
-    <@fdsCheckAnswers.checkAnswersRow keyText="The holder has funds available to discharge any liability for damage attributable to the release or escape of anything from the pipeline" actionUrl="" screenReaderActionText="" actionText="">
-        <#if environmentalDecommView.environmentalConditions?has_content>
-            ${environmentalDecommView.environmentalConditions?seq_contains("DISCHARGE_FUNDS_AVAILABLE")?then('Confirmed', 'Unconfirmed')}
-        </#if>
-    </@fdsCheckAnswers.checkAnswersRow>
-
-    <@fdsCheckAnswers.checkAnswersRow keyText="Liability insurance in respect of North Sea operations is arranged under the General Third Party Liability Risk Insurance and the complementary arrangements effected under the Offshore Pollution Liability Agreement (OPOL) of the holder" actionUrl="" screenReaderActionText="" actionText="">
-        <#if environmentalDecommView.environmentalConditions?has_content>
-            ${environmentalDecommView.environmentalConditions?seq_contains("OPOL_LIABILITY_STATEMENT")?then('Acknowledged', 'Rejected')}
-        </#if>        
-    </@fdsCheckAnswers.checkAnswersRow>      
+    <#list environmentalConditions as environmentalCondition>
+        <@fdsCheckAnswers.checkAnswersRow keyText=environmentalCondition.getSummaryText() actionUrl="" screenReaderActionText="" actionText="">
+            <#if environmentalDecommView.environmentalConditions?has_content>
+                ${environmentalDecommView.environmentalConditions?seq_contains(environmentalCondition)?then(environmentalCondition.getConditionText(), 'Not provided')}
+            <#else>
+                Not provided
+            </#if>
+        </@fdsCheckAnswers.checkAnswersRow>
+    </#list>
   </@fdsCheckAnswers.checkAnswers>
-
 
 
   <h3 class="govuk-heading-m"> Decommissioning </h3>
   <@fdsCheckAnswers.checkAnswers>
-    <@fdsCheckAnswers.checkAnswersRow keyText="I accept that options for the decommissioning of the pipeline(s) will be considered at the end of the field life and should adhere to government policies and regulations in force at the time" actionUrl="" screenReaderActionText="" actionText="">
-        <#if environmentalDecommView.decommissioningConditions?has_content>
-            ${environmentalDecommView.decommissioningConditions?seq_contains("EOL_REGULATION_STATEMENT")?then('Accepted', 'Rejected')}
-        </#if>        
-    </@fdsCheckAnswers.checkAnswersRow>      
-
-    <@fdsCheckAnswers.checkAnswersRow keyText="I accept that any mattresses or grout bags which have been installed to protect pipelines during their operational life should be removed for disposal onshore." actionUrl="" screenReaderActionText="" actionText="">
-        <#if environmentalDecommView.decommissioningConditions?has_content>
-            ${environmentalDecommView.decommissioningConditions?seq_contains("EOL_REMOVAL_STATEMENT")?then('Accepted', 'Rejected')}
-        </#if>        
-    </@fdsCheckAnswers.checkAnswersRow>     
-
-    <@fdsCheckAnswers.checkAnswersRow keyText="I accept that if the condition of the mattresses or grout bags is such that they cannot be removed safely or efficiently then any proposal to leave them in place must be supported by an appropriate comparative assessment of the options." actionUrl="" screenReaderActionText="" actionText="">
-        <#if environmentalDecommView.decommissioningConditions?has_content>
-            ${environmentalDecommView.decommissioningConditions?seq_contains("EOL_REMOVAL_PROPOSAL")?then('Accepted', 'Rejected')}
-        </#if>        
-    </@fdsCheckAnswers.checkAnswersRow>     
+    <#list decommissioningConditions as decommissioningCondition>
+        <@fdsCheckAnswers.checkAnswersRow keyText=decommissioningCondition.getSummaryText() actionUrl="" screenReaderActionText="" actionText="">
+            <#if environmentalDecommView.environmentalConditions?has_content>
+                ${environmentalDecommView.decommissioningConditions?seq_contains(decommissioningCondition)?then(decommissioningCondition.getConditionText(), 'Not provided')}
+            <#else>
+                Not provided
+            </#if>
+        </@fdsCheckAnswers.checkAnswersRow>
+    </#list>
   </@fdsCheckAnswers.checkAnswers>
 
 

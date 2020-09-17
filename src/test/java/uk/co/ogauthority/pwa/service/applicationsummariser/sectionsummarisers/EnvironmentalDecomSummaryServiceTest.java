@@ -74,9 +74,11 @@ public class EnvironmentalDecomSummaryServiceTest {
 
     var appSummary = environmentalDecomSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(2);
+    assertThat(appSummary.getTemplateModel()).hasSize(4);
     assertThat(appSummary.getTemplateModel()).contains(entry("environmentalDecommView", environmentalDecommView));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName()));
+    assertThat(appSummary.getTemplateModel()).containsKey("environmentalConditions");
+    assertThat(appSummary.getTemplateModel()).containsKey("decommissioningConditions");
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(), "#environmentalDecommDetails")

@@ -1,11 +1,15 @@
 package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
+import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
@@ -47,7 +51,14 @@ public class EnvironmentalDecomSummaryService implements ApplicationSectionSumma
     var sectionDisplayText = ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("environmentalDecommView", padEnvironmentalDecommissioningService.getEnvironmentalDecommissioningView(pwaApplicationDetail));
+    summaryModel.put("environmentalDecommView",
+        padEnvironmentalDecommissioningService.getEnvironmentalDecommissioningView(pwaApplicationDetail));
+    summaryModel.put("environmentalConditions", EnvironmentalCondition.stream()
+        .sorted(Comparator.comparing(EnvironmentalCondition::getDisplayOrder))
+        .collect(Collectors.toList()));
+    summaryModel.put("decommissioningConditions", DecommissioningCondition.stream()
+        .sorted(Comparator.comparing(DecommissioningCondition::getDisplayOrder))
+        .collect(Collectors.toList()));
 
     return new ApplicationSectionSummary(
         templateName,

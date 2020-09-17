@@ -111,6 +111,7 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
   public EnvironmentalDecommissioningView getEnvironmentalDecommissioningView(PwaApplicationDetail pwaApplicationDetail) {
 
     var padEnvironmentalDecommissioning = getEnvDecomData(pwaApplicationDetail);
+    var submissionTimestamp = padEnvironmentalDecommissioning.getEmtSubmissionTimestamp();
 
     return new EnvironmentalDecommissioningView(
         padEnvironmentalDecommissioning.getTransboundaryEffect(),
@@ -118,7 +119,7 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
         padEnvironmentalDecommissioning.getPermitsSubmitted(),
         padEnvironmentalDecommissioning.getEmtHasOutstandingPermits(),
         padEnvironmentalDecommissioning.getPermitsPendingSubmission(),
-        DateUtils.formatDate(padEnvironmentalDecommissioning.getEmtSubmissionTimestamp()),
+        submissionTimestamp != null ? DateUtils.formatDate(submissionTimestamp) : null,
         padEnvironmentalDecommissioning.getEnvironmentalConditions(),
         padEnvironmentalDecommissioning.getDecommissioningConditions()
     );
