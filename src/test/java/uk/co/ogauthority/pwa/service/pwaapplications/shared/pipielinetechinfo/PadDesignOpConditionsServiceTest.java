@@ -16,10 +16,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MinMaxView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsMappingService;
@@ -78,6 +79,22 @@ public class PadDesignOpConditionsServiceTest {
     padDesignOpConditionsService.saveEntityUsingForm(form, actualEntity);
     assertThat(actualEntity).isEqualTo(designOpConditionsEntityFormBuilder.createValidEntity());
     verify(padDesignOpConditionsRepository, times(1)).save(any(PadDesignOpConditions.class));
+  }
+
+  @Test
+  public void getDesignOpConditionsView() {
+    var entity = designOpConditionsEntityFormBuilder.createValidEntity();
+    when(padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entity));
+    var actualView = padDesignOpConditionsService.getDesignOpConditionsView(pwaApplicationDetail);
+
+    assertThat(actualView.getTemperatureOpMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("1", "2", UnitMeasurement.DEGREES_CELSIUS));
+    assertThat(actualView.getTemperatureDesignMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("3", "4", UnitMeasurement.DEGREES_CELSIUS));
+    assertThat(actualView.getPressureOpMinMaxView()).isEqualTo(MinMaxView.createInternalExternalView("5", "6", UnitMeasurement.BAR_G));
+    assertThat(actualView.getPressureDesignMinMaxView()).isEqualTo(MinMaxView.createInternalExternalView("7", "8", UnitMeasurement.BAR_G));
+    assertThat(actualView.getFlowrateOpMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("9", "10", UnitMeasurement.KSCM_D));
+    assertThat(actualView.getFlowrateDesignMinMaxView()).isEqualTo(MinMaxView.createMinMaxView("11", "12", UnitMeasurement.KSCM_D));
+    assertThat(actualView.getUvalueOp()).isEqualTo("13");
+    assertThat(actualView.getUvalueDesign()).isEqualTo("14");
   }
 
 
