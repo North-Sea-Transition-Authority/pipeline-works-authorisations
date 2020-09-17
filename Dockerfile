@@ -1,5 +1,5 @@
 FROM adoptopenjdk/openjdk11:alpine
-COPY ./build/libs/pipeline-works-authorisations-SNAPSHOT.jar app.jar
+COPY ./build/libs/pipeline-works-authorisations.jar app.jar
 
 RUN apk update && apk upgrade && apk add curl && rm -rf /var/cache/apk/*
 
