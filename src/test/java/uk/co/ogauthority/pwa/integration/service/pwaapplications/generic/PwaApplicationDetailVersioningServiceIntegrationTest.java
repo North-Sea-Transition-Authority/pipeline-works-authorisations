@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.PadCampaignWorksScheduleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
@@ -139,16 +140,16 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
     createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
     createAndPersistPermanentDepositPipeline(pwaApplicationDetail, simplePadPipelineContainer);
+    createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
   }
 
-  private PadDepositPipeline createAndPersistPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail,
-                                                                      SimplePadPipelineContainer simplePadPipelineContainer) {
+  private void createAndPersistPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                                        SimplePadPipelineContainer simplePadPipelineContainer) {
     var ppd = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
     entityManager.persist(ppd);
     var pdp = PadPermanentDepositTestUtil.createDepositPipeline(ppd, simplePadPipelineContainer.getPadPipeline());
     entityManager.persist(pdp);
-    return pdp;
   }
 
   private PadFileTestContainer createAndPersistPadFileWithRandomFileId(PwaApplicationDetail pwaApplicationDetail,
@@ -176,6 +177,18 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     projectInfo.setPwaApplicationDetail(pwaApplicationDetail);
     entityManager.persist(projectInfo);
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationFilePurpose.PROJECT_INFORMATION);
+  }
+
+  private void createCampaignWorksData(PwaApplicationDetail pwaApplicationDetail,
+                                       SimplePadPipelineContainer simplePadPipelineContainer) {
+    var schedule = PadCampaignWorksScheduleTestUtil.createPadCampaignWorkSchedule(pwaApplicationDetail);
+    entityManager.persist(schedule);
+
+    var schedulePipeline = PadCampaignWorksScheduleTestUtil.createPadCampaignWorksPipeline(
+        schedule,
+        simplePadPipelineContainer.getPadPipeline());
+    entityManager.persist(schedulePipeline);
+
   }
 
 
@@ -206,8 +219,6 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     entityManager.persist(ownerLink);
 
   }
-
-
 
   @Transactional
   @Test
@@ -414,6 +425,32 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     assertThat(newVersionContainer.getPadDepositPipeline().getPadPipeline())
         .isEqualTo(newVersionContainer.getSimplePadPipelineContainer().getPadPipeline());
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_campaignWorkScheduleCopiedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadCampaignWorksPipeline().getPadCampaignWorkSchedule(),
+        newVersionContainer.getPadCampaignWorksPipeline().getPadCampaignWorkSchedule(),
+        Set.of(PadCampaignWorkSchedule_.ID, PadCampaignWorkSchedule_.PWA_APPLICATION_DETAIL)
+    );
+
+    assertThat(firstVersionApplicationContainer.getPadCampaignWorksPipeline().getPadPipeline().getPipelineId())
+        .isEqualTo(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline().getPipelineId());
+
+    assertThat(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline())
+        .isEqualTo(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline());
 
   }
 }
