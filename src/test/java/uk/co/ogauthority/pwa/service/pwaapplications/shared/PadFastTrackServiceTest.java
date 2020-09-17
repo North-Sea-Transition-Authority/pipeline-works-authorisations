@@ -286,7 +286,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void getFastTrackView() {
+  public void getFastTrackView_dataExists() {
     var fastTrack = buildEntity();
     when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(fastTrack));
 
@@ -302,6 +302,17 @@ public class PadFastTrackServiceTest {
 
     assertThat(fastTrackView.getHasOtherReason()).isTrue();
     assertThat(fastTrackView.getOtherReason()).isEqualTo(fastTrack.getOtherReason());
+
+    assertThat(fastTrackView.isFastTrackDataExists()).isTrue();
+  }
+
+  @Test
+  public void getFastTrackView_noFastTrackData() {
+    var fastTrack = new PadFastTrack();
+    when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(fastTrack));
+
+    var fastTrackView = padFastTrackService.getFastTrackView(pwaApplicationDetail);
+    assertThat(fastTrackView.isFastTrackDataExists()).isFalse();
   }
 
   @Test

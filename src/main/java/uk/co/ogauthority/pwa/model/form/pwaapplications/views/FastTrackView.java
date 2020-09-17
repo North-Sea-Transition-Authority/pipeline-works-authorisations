@@ -28,8 +28,8 @@ public class FastTrackView {
     this.savingBarrelsReason = savingBarrelsReason;
     this.projectPlanningReason = projectPlanningReason;
     this.otherReason = otherReason;
-    this.fastTrackDataExists = BooleanUtils.isTrue(avoidEnvironmentalDisaster) || BooleanUtils.isFalse(savingBarrels)
-        || BooleanUtils.isFalse(projectPlanning) || BooleanUtils.isFalse(hasOtherReason);
+    this.fastTrackDataExists = BooleanUtils.isTrue(avoidEnvironmentalDisaster) || BooleanUtils.isTrue(savingBarrels)
+        || BooleanUtils.isTrue(projectPlanning) || BooleanUtils.isTrue(hasOtherReason);
   }
 
 
