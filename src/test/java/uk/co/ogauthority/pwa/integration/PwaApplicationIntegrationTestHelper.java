@@ -13,6 +13,10 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
@@ -130,6 +134,21 @@ public class PwaApplicationIntegrationTestHelper {
     return result;
   }
 
+  public PadCampaignWorksPipeline getPadCampaignWorksPipeline(PwaApplicationDetail pwaApplicationDetail) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadCampaignWorksPipeline> criteriaQuery = cb.createQuery(PadCampaignWorksPipeline.class);
+    Root<PadCampaignWorksPipeline> campaignWorksPipelineRoot = criteriaQuery.from(PadCampaignWorksPipeline.class);
+    Join<PadCampaignWorksPipeline, PadCampaignWorkSchedule> workScheduleJoin = campaignWorksPipelineRoot
+        .join(PadCampaignWorksPipeline_.padCampaignWorkSchedule);
+
+    var result = entityManager.createQuery(
+        criteriaQuery
+            .where(cb.equal(workScheduleJoin.get(PadCampaignWorkSchedule_.pwaApplicationDetail), pwaApplicationDetail))
+    ).getSingleResult();
+
+    return result;
+  }
+
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
@@ -140,6 +159,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadTechnicalDrawing(getPadTechnicalDrawingLink(pwaApplicationDetail).getTechnicalDrawing());
     container.setHuooRoles(getPadPipelineLinks(pwaApplicationDetail));
     container.setPadDepositPipeline(getPermanentDepositPipeline(pwaApplicationDetail));
+    container.setPadCampaignWorksPipeline(getPadCampaignWorksPipeline(pwaApplicationDetail));
     return container;
 
   }

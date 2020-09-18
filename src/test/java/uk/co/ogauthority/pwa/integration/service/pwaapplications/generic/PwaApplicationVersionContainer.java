@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
@@ -38,6 +39,8 @@ public class PwaApplicationVersionContainer {
   private SimplePadPipelineContainer simplePadPipelineContainer;
 
   private PadDepositPipeline padDepositPipeline;
+
+  private PadCampaignWorksPipeline padCampaignWorksPipeline;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -115,5 +118,14 @@ public class PwaApplicationVersionContainer {
   public void setPadDepositPipeline(
       PadDepositPipeline padDepositPipeline) {
     this.padDepositPipeline = padDepositPipeline;
+  }
+
+  public PadCampaignWorksPipeline getPadCampaignWorksPipeline() {
+    return padCampaignWorksPipeline;
+  }
+
+  public void setPadCampaignWorksPipeline(
+      PadCampaignWorksPipeline padCampaignWorksPipeline) {
+    this.padCampaignWorksPipeline = padCampaignWorksPipeline;
   }
 }

@@ -11,10 +11,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_campaign_works_pipelines")
-public class PadCampaignWorksPipeline {
+public class PadCampaignWorksPipeline implements ChildEntity<Integer, PadCampaignWorkSchedule> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +38,24 @@ public class PadCampaignWorksPipeline {
       PadPipeline padPipeline) {
     this.padCampaignWorkSchedule = padCampaignWorkSchedule;
     this.padPipeline = padPipeline;
+  }
+
+  //ChildEntity methods
+
+
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadCampaignWorkSchedule parentEntity) {
+    setPadCampaignWorkSchedule(parentEntity);
+  }
+
+  @Override
+  public PadCampaignWorkSchedule getParent() {
+    return getPadCampaignWorkSchedule();
   }
 
   public Integer getId() {
