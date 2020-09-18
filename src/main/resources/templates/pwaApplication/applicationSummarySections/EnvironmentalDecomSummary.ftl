@@ -48,9 +48,7 @@
         <@fdsCheckAnswers.checkAnswersRow keyText="Which permits have you not submitted to BEIS?" actionUrl="" screenReaderActionText="" actionText="">
             <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${environmentalDecommView.permitsPendingSubmission!} </@multiLineText.multiLineText>
         </@fdsCheckAnswers.checkAnswersRow>
-    </#if>
 
-    <#if environmentalDecommView.emtHasOutstandingPermits?has_content && environmentalDecommView.emtHasOutstandingPermits>
         <@fdsCheckAnswers.checkAnswersRow keyText="What is the latest date all relevant environmental permits will be submitted to BEIS?" actionUrl="" screenReaderActionText="" actionText="">
             ${environmentalDecommView.emtSubmissionDate!"Not provided"}
         </@fdsCheckAnswers.checkAnswersRow>
@@ -78,7 +76,7 @@
   <@fdsCheckAnswers.checkAnswers>
     <#list decommissioningConditions as decommissioningCondition>
         <@fdsCheckAnswers.checkAnswersRow keyText=decommissioningCondition.getSummaryText() actionUrl="" screenReaderActionText="" actionText="">
-            <#if environmentalDecommView.environmentalConditions?has_content>
+            <#if environmentalDecommView.decommissioningConditions?has_content>
                 ${environmentalDecommView.decommissioningConditions?seq_contains(decommissioningCondition)?then(decommissioningCondition.getConditionText(), 'Not provided')}
             <#else>
                 Not provided
