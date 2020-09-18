@@ -19,12 +19,14 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 @Entity
 @Table(name = "pad_permanent_deposits")
-public class PadPermanentDeposit {
+public class PadPermanentDeposit implements ChildEntity<Integer, PwaApplicationDetail>, ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -115,6 +117,28 @@ public class PadPermanentDeposit {
   @Enumerated(EnumType.STRING)
   private LongitudeDirection toLongitudeDirection;
 
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
+
+  //ParentEntity methods
+  @Override
+  public Object getIdAsParent() {
+    return this.id;
+  }
 
   public Integer getId() {
     return id;

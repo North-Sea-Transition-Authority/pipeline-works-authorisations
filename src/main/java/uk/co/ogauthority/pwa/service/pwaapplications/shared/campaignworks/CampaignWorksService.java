@@ -31,9 +31,11 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.Wor
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.appdetailreconciliation.PadPipelineReconcilerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
@@ -48,6 +50,8 @@ public class CampaignWorksService implements ApplicationFormSectionService {
   private final WorkScheduleFormValidator workScheduleFormValidator;
   private final PadCampaignWorkScheduleRepository padCampaignWorkScheduleRepository;
   private final PadCampaignWorksPipelineRepository padCampaignWorksPipelineRepository;
+  private final EntityCopyingService entityCopyingService;
+  private final PadPipelineReconcilerService padPipelineReconcilerService;
 
   @Autowired
   public CampaignWorksService(
@@ -55,12 +59,16 @@ public class CampaignWorksService implements ApplicationFormSectionService {
       PadPipelineService padPipelineService,
       WorkScheduleFormValidator workScheduleFormValidator,
       PadCampaignWorkScheduleRepository padCampaignWorkScheduleRepository,
-      PadCampaignWorksPipelineRepository padCampaignWorksPipelineRepository) {
+      PadCampaignWorksPipelineRepository padCampaignWorksPipelineRepository,
+      EntityCopyingService entityCopyingService,
+      PadPipelineReconcilerService padPipelineReconcilerService) {
     this.padProjectInformationService = padProjectInformationService;
     this.padPipelineService = padPipelineService;
     this.workScheduleFormValidator = workScheduleFormValidator;
     this.padCampaignWorkScheduleRepository = padCampaignWorkScheduleRepository;
     this.padCampaignWorksPipelineRepository = padCampaignWorksPipelineRepository;
+    this.entityCopyingService = entityCopyingService;
+    this.padPipelineReconcilerService = padPipelineReconcilerService;
   }
 
   @Override
@@ -331,7 +339,38 @@ public class CampaignWorksService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+
+    // 1. duplicate work schedules
+    var copiedPadCampaignWorkScheduleEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padCampaignWorkScheduleRepository.findByPwaApplicationDetail(fromDetail),
+        toDetail,
+        PadCampaignWorkSchedule.class
+    );
+
+    // 2. duplicate schedule pipelines
+    var copiedWorkSchedulePipelineEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
+        () -> padCampaignWorksPipelineRepository.findAllByPadCampaignWorkSchedule_pwaApplicationDetail(fromDetail),
+        copiedPadCampaignWorkScheduleEntityIds,
+        PadCampaignWorksPipeline.class
+    );
+
+    // 3. re-point duplicated schedule pipelines at "toDetail" padPipelines
+    var reconciledPadPipelines = padPipelineReconcilerService.reconcileApplicationDetailPadPipelines(
+        fromDetail,
+        toDetail);
+
+    var duplicatedWorkSchedulePipelines = padCampaignWorksPipelineRepository
+        .findAllByPadCampaignWorkSchedule_pwaApplicationDetail(toDetail);
+
+    duplicatedWorkSchedulePipelines.forEach(padCampaignWorksPipeline -> {
+      padCampaignWorksPipeline.setPadPipeline(
+          reconciledPadPipelines.findByPipelineIdOrError(
+              padCampaignWorksPipeline.getPadPipeline().getPipelineId()
+          ).getReconciledPadPipeline()
+      );
+    });
+
+    padCampaignWorksPipelineRepository.saveAll(duplicatedWorkSchedulePipelines);
   }
 
 }

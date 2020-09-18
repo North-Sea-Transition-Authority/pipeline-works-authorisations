@@ -1,17 +1,50 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
 
 import java.time.LocalDate;
+import java.util.Set;
 import org.junit.platform.commons.util.StringUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
+import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 public final class PadPermanentDepositTestUtil {
 
-  private PadPermanentDepositTestUtil(){}
+  private PadPermanentDepositTestUtil() {
+  }
+
+  public static PadPermanentDeposit createPadDepositWithAllFieldsPopulated(PwaApplicationDetail pwaApplicationDetail) {
+    var pd = createConcreteMattressPadDeposit(
+        null,
+        "REFERENCE",
+        pwaApplicationDetail,
+        1,
+        2,
+        3,
+        4.4,
+        "CONTINGENCY",
+        LocalDate.now().plusDays(1),
+        LocalDate.now().plusDays(2),
+        CoordinatePairTestUtil.getDefaultCoordinate(45, 0),
+        CoordinatePairTestUtil.getDefaultCoordinate(45, 0)
+        );
+
+    pd.setOtherMaterialType("OTHER MATERIAL");
+    pd.setBagsNotUsedDescription("BAGS NOT USED");
+    pd.setGroutBagsBioDegradable(true);
+    pd.setMaterialSize("MATERIAL SIZE");
+
+    ObjectTestUtils.assertAllFieldsNotNull(
+        pd,
+        PadPermanentDeposit.class,
+        Set.of(PadPermanentDeposit_.ID));
+    return pd;
+  }
 
   public static PadPermanentDeposit createRockPadDeposit(
-      int entityId,
+      Integer entityId,
       String reference,
       PwaApplicationDetail pwaApplicationDetail,
       String materialSize,
@@ -40,7 +73,7 @@ public final class PadPermanentDepositTestUtil {
   }
 
   public static PadPermanentDeposit createConcreteMattressPadDeposit(
-      int entityId,
+      Integer entityId,
       String reference,
       PwaApplicationDetail pwaApplicationDetail,
       int length, int width, int depth,
@@ -71,7 +104,7 @@ public final class PadPermanentDepositTestUtil {
   }
 
   public static PadPermanentDeposit createGroutBagPadDeposit(
-      int entityId,
+      Integer entityId,
       String reference,
       PwaApplicationDetail pwaApplicationDetail,
       String materialSize,
@@ -103,7 +136,7 @@ public final class PadPermanentDepositTestUtil {
   }
 
   public static PadPermanentDeposit createOtherPadDeposit(
-      int entityId,
+      Integer entityId,
       String reference,
       PwaApplicationDetail pwaApplicationDetail,
       String otherType,
@@ -131,6 +164,12 @@ public final class PadPermanentDepositTestUtil {
     pd.setFromMonth(fromDate.getMonthValue());
     pd.setFromYear(fromDate.getYear());
     return pd;
+  }
+
+  public static PadDepositPipeline createDepositPipeline(PadPermanentDeposit padPermanentDeposit,
+                                                         PadPipeline padPipeline) {
+    var pdp = new PadDepositPipeline(padPermanentDeposit, padPipeline);
+    return pdp;
   }
 
 

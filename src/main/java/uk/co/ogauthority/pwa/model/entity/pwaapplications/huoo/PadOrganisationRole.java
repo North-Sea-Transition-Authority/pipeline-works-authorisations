@@ -16,10 +16,12 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 
 @Entity
 @Table(name = "pad_organisation_roles")
-public class PadOrganisationRole {
+public class PadOrganisationRole implements ChildEntity<Integer, PwaApplicationDetail>, ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +49,28 @@ public class PadOrganisationRole {
   @VisibleForTesting
   public PadOrganisationRole(HuooRole role) {
     this.role = role;
+  }
+
+  // ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
+
+  //ParentEntity methods
+  @Override
+  public Object getIdAsParent() {
+    return this.id;
   }
 
   public Integer getId() {

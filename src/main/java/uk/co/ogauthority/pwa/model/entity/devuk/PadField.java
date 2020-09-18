@@ -8,9 +8,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity(name = "pad_fields")
-public class PadField {
+public class PadField implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,24 @@ public class PadField {
   @JoinColumn(name = "application_detail_id")
   private PwaApplicationDetail pwaApplicationDetail;
 
-  public PadField() {}
+  public PadField() {
+  }
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    setPwaApplicationDetail(parentEntity);
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return getPwaApplicationDetail();
+  }
 
   public Integer getId() {
     return id;

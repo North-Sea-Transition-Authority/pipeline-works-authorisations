@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -35,6 +36,7 @@ public class PadFieldService implements ApplicationFormSectionService {
   private final DevukFieldService devukFieldService;
   private final SearchSelectorService searchSelectorService;
   private final PwaFieldFormValidator pwaFieldFormValidator;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadFieldService(PadFieldRepository padFieldRepository,
@@ -42,13 +44,15 @@ public class PadFieldService implements ApplicationFormSectionService {
                          PadProjectInformationService projectInformationService,
                          DevukFieldService devukFieldService,
                          SearchSelectorService searchSelectorService,
-                         PwaFieldFormValidator pwaFieldFormValidator) {
+                         PwaFieldFormValidator pwaFieldFormValidator,
+                         EntityCopyingService entityCopyingService) {
     this.padFieldRepository = padFieldRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.projectInformationService = projectInformationService;
     this.devukFieldService = devukFieldService;
     this.searchSelectorService = searchSelectorService;
     this.pwaFieldFormValidator = pwaFieldFormValidator;
+    this.entityCopyingService = entityCopyingService;
   }
 
   public List<PadField> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -198,7 +202,11 @@ public class PadFieldService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padFieldRepository.getAllByPwaApplicationDetail(fromDetail),
+        toDetail,
+        PadField.class
+    );
   }
 
 }

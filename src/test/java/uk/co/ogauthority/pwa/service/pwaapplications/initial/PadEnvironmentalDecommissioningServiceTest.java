@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -139,6 +140,25 @@ public class PadEnvironmentalDecommissioningServiceTest {
     assertThat(entity.getEmtSubmissionTimestamp()).isNull();
     assertThat(entity.getEnvironmentalConditions()).isNull();
     assertThat(entity.getDecommissioningConditions()).isNull();
+  }
+
+  @Test
+  public void getEnvironmentalDecommissioningView() {
+    var existingData = buildEntity();
+    when(padEnvironmentalDecommissioningRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(existingData));
+
+    var environmentalDecommView = padEnvironmentalDecommissioningService.getEnvironmentalDecommissioningView(pwaApplicationDetail);
+
+    assertThat(environmentalDecommView.getTransboundaryEffect()).isEqualTo(existingData.getTransboundaryEffect());
+    assertThat(environmentalDecommView.getEmtHasSubmittedPermits()).isEqualTo(existingData.getEmtHasSubmittedPermits());
+    assertThat(environmentalDecommView.getPermitsSubmitted()).isEqualTo(existingData.getPermitsSubmitted());
+    assertThat(environmentalDecommView.getEmtHasOutstandingPermits()).isEqualTo(existingData.getEmtHasOutstandingPermits());
+    assertThat(environmentalDecommView.getPermitsPendingSubmission()).isEqualTo(existingData.getPermitsPendingSubmission());
+    assertThat(environmentalDecommView.getEmtSubmissionDate())
+        .isEqualTo(DateUtils.formatDate(existingData.getEmtSubmissionTimestamp()));
+    assertThat(environmentalDecommView.getEnvironmentalConditions()).isEqualTo(existingData.getEnvironmentalConditions());
+    assertThat(environmentalDecommView.getDecommissioningConditions()).isEqualTo(existingData.getDecommissioningConditions());
   }
 
   @Test

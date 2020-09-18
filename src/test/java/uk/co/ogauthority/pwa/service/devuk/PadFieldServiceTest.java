@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
@@ -54,6 +55,9 @@ public class PadFieldServiceTest {
 
   @Mock
   private PwaFieldFormValidator pwaFieldFormValidator;
+
+  @Mock
+  private EntityCopyingService entityCopyingService;
 
   @Captor
   private ArgumentCaptor<List<PadField>> padFieldsArgumentCaptor;
@@ -84,9 +88,15 @@ public class PadFieldServiceTest {
 
     when(padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(existingField));
 
-    padFieldService = new PadFieldService(padFieldRepository, pwaApplicationDetailService, padProjectInformationService,
+    padFieldService = new PadFieldService(
+        padFieldRepository,
+        pwaApplicationDetailService,
+        padProjectInformationService,
         devukFieldService,
-        searchSelectorService, pwaFieldFormValidator);
+        searchSelectorService,
+        pwaFieldFormValidator,
+        entityCopyingService
+    );
 
   }
 
