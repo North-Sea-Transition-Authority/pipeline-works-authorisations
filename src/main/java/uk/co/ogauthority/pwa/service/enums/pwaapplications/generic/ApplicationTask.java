@@ -63,70 +63,77 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       "Field information",
       PadPwaFieldsController.class,
       PadFieldService.class,
-      1),
+      1, 1
+  ),
 
   APPLICATION_USERS(
       "Application users",
       PwaContactController.class,
       PwaContactService.class,
-      5),
-
+      5, 5
+  ),
 
   PROJECT_INFORMATION(
       "Project information",
       ProjectInformationController.class,
       PadProjectInformationService.class,
-      10),
+      10, 10
+  ),
 
   OPTIONS_TEMPLATE(
       "Options template",
       OptionsTemplateController.class,
       OptionsTemplateService.class,
-      15
+      15, 15
   ),
 
   SUPPLEMENTARY_DOCUMENTS(
       "Supplementary documents",
       SupplementaryDocumentsController.class,
       SupplementaryDocumentsService.class,
-      16
+      16, 16
   ),
 
   FAST_TRACK(
       "Fast-track",
       FastTrackController.class,
       PadFastTrackService.class,
-      20),
+      20, 20
+  ),
 
   LOCATION_DETAILS(
       "Location details",
       LocationDetailsController.class,
       PadLocationDetailsService.class,
-      30),
+      30, 30
+  ),
 
   ENVIRONMENTAL_DECOMMISSIONING(
       "Environmental and decommissioning",
       EnvironmentalDecomController.class,
       PadEnvironmentalDecommissioningService.class,
-      40),
+      40, 40
+  ),
 
   HUOO(
       "Holders, users, operators, and owners",
       HuooController.class,
       PadOrganisationRoleService.class,
-      50),
+      50, 50
+  ),
 
   CROSSING_AGREEMENTS(
       "Blocks and crossing agreements",
       CrossingAgreementsController.class,
       CrossingAgreementsService.class,
-      60),
+      60, 60
+  ),
 
   PIPELINES(
       "Pipelines",
       PipelinesController.class,
       PadPipelineService.class,
-      70
+      70, 70
   ),
 
   PIPELINES_HUOO(
@@ -134,70 +141,70 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       "Pipeline HUOOs",
       PipelinesHuooController.class,
       PadPipelinesHuooService.class,
-      75
+      75, 75
   ),
 
   CAMPAIGN_WORKS(
       "Campaign works",
       CampaignWorksController.class,
       CampaignWorksService.class,
-      80
+      80, 80
   ),
 
   TECHNICAL_DRAWINGS(
       "Pipeline schematics and other diagrams",
       TechnicalDrawingsController.class,
       TechnicalDrawingSectionService.class,
-      90
+      90, 90
   ),
 
   PERMANENT_DEPOSITS(
       "Permanent deposits",
       PermanentDepositController.class,
       PermanentDepositService.class,
-      100
+      100, 100
   ),
 
   PERMANENT_DEPOSIT_DRAWINGS(
       "Permanent deposit drawings",
       PermanentDepositDrawingsController.class,
       DepositDrawingsService.class,
-      110
+      110, 110
   ),
 
   GENERAL_TECH_DETAILS(
       "General technical details",
       PipelineTechInfoController.class,
       PadPipelineTechInfoService.class,
-      120
+      120, 120
   ),
 
   FLUID_COMPOSITION(
       "Fluid composition",
       FluidCompositionInfoController.class,
       PadFluidCompositionInfoService.class,
-      130
+      130, 130
   ),
 
   PIPELINE_OTHER_PROPERTIES(
       "Other properties",
       PipelineOtherPropertiesController.class,
       PadPipelineOtherPropertiesService.class,
-      140
+      140, 140
   ),
 
   DESIGN_OP_CONDITIONS(
       "Design and operating conditions",
       DesignOpConditionsController.class,
       PadDesignOpConditionsService.class,
-      150
+      150, 150
   ),
 
   PARTNER_LETTERS(
       "Partner approval letters",
       PartnerLettersController.class,
       PadPartnerLettersService.class,
-      160
+      160, 160
   );
 
   private final String displayName;
@@ -205,21 +212,23 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
   private final Class<?> controllerClass;
   private final Class<? extends ApplicationFormSectionService> serviceClass;
   private final int displayOrder;
+  private final int versioningProcessingOrder;
 
   ApplicationTask(String displayName, String shortenedDisplayName, Class<?> controllerClass,
                   Class<? extends ApplicationFormSectionService> serviceClass,
-                  int displayOrder) {
+                  int displayOrder, int versioningProcessingOrder) {
     this.displayName = displayName;
     this.shortenedDisplayName = shortenedDisplayName;
     this.controllerClass = controllerClass;
     this.serviceClass = serviceClass;
     this.displayOrder = displayOrder;
+    this.versioningProcessingOrder = versioningProcessingOrder;
   }
 
   ApplicationTask(String displayName, Class<?> controllerClass,
                   Class<? extends ApplicationFormSectionService> serviceClass,
-                  int displayOrder) {
-    this(displayName, displayName, controllerClass, serviceClass, displayOrder);
+                  int displayOrder, int versioningProcessingOrder) {
+    this(displayName, displayName, controllerClass, serviceClass, displayOrder, versioningProcessingOrder);
   }
 
   @Override
@@ -245,6 +254,10 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
   @Override
   public int getDisplayOrder() {
     return displayOrder;
+  }
+
+  public int getVersioningProcessingOrder() {
+    return versioningProcessingOrder;
   }
 
   @Override
@@ -330,7 +343,8 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
     return ApplicationTask.stream()
         .filter(task -> Objects.equals(task.getDisplayName(), displayName))
         .findFirst()
-        .orElseThrow(() -> new ValueNotFoundException(String.format("Couldn't find task with display name [%s]", displayName)));
+        .orElseThrow(
+            () -> new ValueNotFoundException(String.format("Couldn't find task with display name [%s]", displayName)));
   }
 
 }

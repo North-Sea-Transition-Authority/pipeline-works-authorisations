@@ -19,4 +19,6 @@ public interface PadDepositPipelineRepository extends CrudRepository<PadDepositP
 
   List<PadDepositPipeline> getAllByPadPipeline_PwaApplicationDetail(PwaApplicationDetail detail);
 
+  List<PadDepositPipeline> getAllByPadPermanentDeposit_PwaApplicationDetail(PwaApplicationDetail detail);
+
 }

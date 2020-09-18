@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
@@ -35,6 +36,8 @@ public class PwaApplicationVersionContainer {
   private PadTechnicalDrawingLink padTechnicalDrawingLink;
 
   private SimplePadPipelineContainer simplePadPipelineContainer;
+
+  private PadDepositPipeline padDepositPipeline;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -103,5 +106,14 @@ public class PwaApplicationVersionContainer {
         huooRole,
         ImmutablePair.of(padPipelineOrganisationRoleLinkList.get(0).getPadOrgRole(), padPipelineOrganisationRoleLinkList.get(0))
     ));
+  }
+
+  public PadDepositPipeline getPadDepositPipeline() {
+    return padDepositPipeline;
+  }
+
+  public void setPadDepositPipeline(
+      PadDepositPipeline padDepositPipeline) {
+    this.padDepositPipeline = padDepositPipeline;
   }
 }

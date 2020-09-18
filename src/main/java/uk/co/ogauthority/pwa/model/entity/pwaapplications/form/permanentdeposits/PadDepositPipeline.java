@@ -9,10 +9,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_deposit_pipelines")
-public class PadDepositPipeline {
+public class PadDepositPipeline implements ChildEntity<Integer, PadPermanentDeposit> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +37,21 @@ public class PadDepositPipeline {
     this.padPipeline = padPipeline;
   }
 
+  //ChildEntity
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadPermanentDeposit parentEntity) {
+    setPadPermanentDeposit(parentEntity);
+  }
+
+  @Override
+  public PadPermanentDeposit getParent() {
+    return getPadPermanentDeposit();
+  }
 
   public Integer getId() {
     return id;
