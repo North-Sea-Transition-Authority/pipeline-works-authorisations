@@ -56,7 +56,7 @@ public class ReconciledApplicationDetailPadPipelines {
   public ReconciledPadPipelinePair findByPipelineIdOrError(PipelineId pipelineId) {
     if (!this.padPipelinePairsLookup.containsKey(pipelineId)) {
       throw new PwaEntityNotFoundException(
-          "Could not find reconciled pipeline pair for pipeline Id:" + pipelineId.asInt() +
+          "Could not find reconciled pipeline pair for pipeline Id: " + pipelineId.asInt() +
               "\n" + this.toString()
       );
     }
