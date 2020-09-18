@@ -9,3 +9,11 @@
   ${value?then('Confirmed', 'Unconfirmed')}
 </#macro>
 
+<#macro showNotProvidedWhenEmpty value>
+  <#if value?has_content>
+    ${value}
+  <#else>
+    Not provided
+  </#if>
+</#macro>
+

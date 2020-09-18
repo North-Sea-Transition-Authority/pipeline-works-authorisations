@@ -1,4 +1,6 @@
 <#include '../../pwaLayoutImports.ftl'>
+<#include 'appSummaryUtils.ftl'>
+
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 <#-- @ftlvariable name="environmentalDecommView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.EnvironmentalDecommissioningView" -->
@@ -22,13 +24,13 @@
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Does the development present a significant trans-boundary environmental effect?" actionUrl="" screenReaderActionText="" actionText="">
         <#if environmentalDecommView.transboundaryEffect?has_content>
-            ${environmentalDecommView.transboundaryEffect?then('Yes', 'No')}
+            <@showYesNoForBool environmentalDecommView.transboundaryEffect/>
         </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Have you submitted any relevant environmental permits to BEIS EMT?" actionUrl="" screenReaderActionText="" actionText="">
         <#if environmentalDecommView.emtHasSubmittedPermits?has_content>
-            ${environmentalDecommView.emtHasSubmittedPermits?then('Yes', 'No')}
+            <@showYesNoForBool environmentalDecommView.emtHasSubmittedPermits/>
         </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
@@ -40,7 +42,7 @@
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Do you have any environmental permits that have not yet been submitted to BEIS EMT?" actionUrl="" screenReaderActionText="" actionText="">
         <#if environmentalDecommView.emtHasOutstandingPermits?has_content>
-            ${environmentalDecommView.emtHasOutstandingPermits?then('Yes', 'No')}
+            <@showYesNoForBool environmentalDecommView.emtHasOutstandingPermits/>
         </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
@@ -50,7 +52,7 @@
         </@fdsCheckAnswers.checkAnswersRow>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="What is the latest date all relevant environmental permits will be submitted to BEIS?" actionUrl="" screenReaderActionText="" actionText="">
-            ${environmentalDecommView.emtSubmissionDate!"Not provided"}
+            <@showNotProvidedWhenEmpty environmentalDecommView.emtSubmissionDate!/>
         </@fdsCheckAnswers.checkAnswersRow>
     </#if>
 

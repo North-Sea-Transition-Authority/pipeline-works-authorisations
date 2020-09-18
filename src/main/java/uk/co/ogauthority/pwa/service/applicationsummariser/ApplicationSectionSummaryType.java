@@ -60,7 +60,7 @@ public enum ApplicationSectionSummaryType {
       50,
       "pwaApplication/applicationSummarySections/environmentalDecomSummary.ftl",
       EnvironmentalDecomSummaryService.class),
-  
+
   PARTNER_LETTERS(
       70,
           "pwaApplication/applicationSummarySections/partnerApprovalLettersSummary.ftl",
