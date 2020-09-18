@@ -1,4 +1,5 @@
 <#include '../../pwaLayoutImports.ftl'>
+<#include 'appSummaryUtils.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 <#-- @ftlvariable name="partnerLettersView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PartnerLettersView" -->
@@ -18,16 +19,16 @@
 
     <@fdsCheckAnswers.checkAnswersRow keyText="Do you need to provide partner approval letters?" actionUrl="" screenReaderActionText="" actionText="">
       <#if partnerLettersView.partnerLettersRequired?has_content>
-        ${partnerLettersView.partnerLettersRequired?then('Yes', 'No')}
+         <@showYesNoForBool partnerLettersView.partnerLettersRequired/>
       </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <#if partnerLettersView.partnerLettersRequired?has_content && partnerLettersView.partnerLettersRequired>
       <@fdsCheckAnswers.checkAnswersRow keyText="Confirmation of providing all required partner approval letters" actionUrl="" screenReaderActionText="" actionText="">
         <#if partnerLettersView.partnerLettersConfirmed?has_content>
-          ${partnerLettersView.partnerLettersConfirmed?then('Confirmed', 'Unconfirmed')}
+         <@showConfirmedForBool partnerLettersView.partnerLettersConfirmed/>
         <#else>
-          Unconfirmed
+          Not Provided
         </#if>
       </@fdsCheckAnswers.checkAnswersRow>
     </#if>
