@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Ap
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.EnvironmentalDecomSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
@@ -66,6 +67,12 @@ public enum ApplicationSectionSummaryType {
       160,
       "pwaApplication/applicationSummarySections/otherPropertiesSummary.ftl",
       OtherPropertiesSummaryService.class),
+
+  DESIGN_OP_CONDITIONS(
+      170,
+      "pwaApplication/applicationSummarySections/designOpConditionsSummary.ftl",
+      DesignOpConditionsSummaryService.class
+  ),
 
   PIPELINES(
       180,

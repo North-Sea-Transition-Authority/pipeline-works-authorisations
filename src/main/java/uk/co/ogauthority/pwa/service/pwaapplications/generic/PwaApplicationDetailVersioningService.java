@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
+import java.util.Comparator;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @Service
@@ -29,12 +31,13 @@ public class PwaApplicationDetailVersioningService {
                                                           WebUserAccount webUserAccount) {
     var newTipDetail = pwaApplicationDetailService.createNewTipDetail(detail, webUserAccount);
 
-    taskListService.getShownApplicationTasksForDetail(detail).forEach(applicationTask ->
-        applicationTaskService.copyApplicationTaskDataToApplicationDetail(
+    taskListService.getShownApplicationTasksForDetail(detail).stream()
+        .sorted(Comparator.comparing(ApplicationTask::getVersioningProcessingOrder))
+        .forEachOrdered(applicationTask -> applicationTaskService.copyApplicationTaskDataToApplicationDetail(
             applicationTask,
             detail,
             newTipDetail
-        )
+            )
     );
 
     return newTipDetail;

@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreemen
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -63,17 +64,20 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final EntityManager entityManager;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadOrganisationRoleService(
       PadOrganisationRolesRepository padOrganisationRolesRepository,
       PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
-      EntityManager entityManager) {
+      EntityManager entityManager,
+      EntityCopyingService entityCopyingService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.entityManager = entityManager;
+    this.entityCopyingService = entityCopyingService;
   }
 
   public List<PadOrganisationRole> getOrgRolesForDetail(PwaApplicationDetail pwaApplicationDetail) {
@@ -572,7 +576,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+
+    var padOrgRoleCopiedEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padOrganisationRolesRepository.getAllByPwaApplicationDetail(fromDetail),
+         toDetail,
+        PadOrganisationRole.class
+
+    );
+
+    var pipelineOrgRolesCopiedEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
+        () -> padPipelineOrganisationRoleLinkRepository.getAllByPadOrgRole_PwaApplicationDetail(fromDetail),
+        padOrgRoleCopiedEntityIds,
+        PadPipelineOrganisationRoleLink.class
+    );
+
+
   }
 
   @Override

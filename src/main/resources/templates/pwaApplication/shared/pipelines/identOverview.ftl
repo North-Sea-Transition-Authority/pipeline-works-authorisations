@@ -38,7 +38,6 @@
                             <@fdsAction.link linkText="Remove ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getRemoveUrl(identView.identId)) linkScreenReaderText="Remove ident ${identView.identNumber}" />
                         </#assign>
                         <@fdsTimeline.timelineTimeStamp timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>
-                            ${identView.identNumber}
                             <#assign validationObjectId = validationResult.constructObjectId(identSummaryValidationResult!, identView.identNumber) />
                             <#assign errorMessage = validationResult.errorMessageOrEmptyString(identSummaryValidationResult!, validationObjectId) />
                             <#if errorMessage?has_content>

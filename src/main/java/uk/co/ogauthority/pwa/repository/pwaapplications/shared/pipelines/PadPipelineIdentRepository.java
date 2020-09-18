@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 
@@ -22,5 +23,9 @@ public interface PadPipelineIdentRepository extends CrudRepository<PadPipelineId
 
   @EntityGraph(attributePaths = "padPipeline")
   List<PadPipelineIdent> getAllByPadPipeline_IdIn(List<Integer> padPipelineIds);
+
+
+  @EntityGraph(attributePaths = "padPipeline")
+  List<PadPipelineIdent> getAllByPadPipeline_PwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
 }

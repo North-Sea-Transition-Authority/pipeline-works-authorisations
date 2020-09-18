@@ -2,15 +2,10 @@ package uk.co.ogauthority.pwa.integration.service.pwaapplications.generic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.charset.Charset;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Random;
+import java.util.Arrays;
+import java.util.Set;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
@@ -24,20 +19,42 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
+import uk.co.ogauthority.pwa.service.devuk.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.PadCampaignWorksScheduleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
+import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -53,6 +70,10 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private final static int PERSON_ID = 1;
   private final static int WUA_ID = 2;
 
+  private final static int OU_ID_1 = 10;
+  private final static int OU_ID_2 = 20;
+
+  private final static int FIELD_ID = 100;
 
   @Autowired
   private EntityManager entityManager;
@@ -67,11 +88,28 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private Person person = new Person(PERSON_ID, "forename", "surname", "email", "telephone");
   private WebUserAccount webUserAccount = new WebUserAccount(WUA_ID, person);
 
-  public void setup() {
+  private PortalOrganisationUnit portalOrganisationUnit1;
+  private PortalOrganisationUnit portalOrganisationUnit2;
+
+  private DevukField devukField;
+
+  private PwaApplicationIntegrationTestHelper testHelper;
+
+  public void setup() throws IllegalAccessException {
+
+    testHelper = new PwaApplicationIntegrationTestHelper(entityManager);
 
     var firstVersionPwaDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL
     );
+
+    devukField = new DevukField(FIELD_ID, "some field", 500);
+    entityManager.persist(devukField);
+
+    portalOrganisationUnit1 = new PortalOrganisationUnit(OU_ID_1, "Org 1 name");
+    portalOrganisationUnit2 = new PortalOrganisationUnit(OU_ID_2, "Org 2 name");
+    entityManager.persist(portalOrganisationUnit1);
+    entityManager.persist(portalOrganisationUnit2);
 
     pwaApplication = firstVersionPwaDetail.getPwaApplication();
     masterPwa = pwaApplication.getMasterPwa();
@@ -81,41 +119,72 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     entityManager.persist(pwaApplication);
     firstVersionPwaDetail.setId(null);
     entityManager.persist(firstVersionPwaDetail);
+
     firstVersionApplicationContainer = createAndPersistDefaultApplicationDetail(firstVersionPwaDetail);
 
   }
 
-  // use this to dummy up and persist all possible form entities
-  private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) {
+  private SimplePadPipelineContainer createAndPersistPipeline(
+      PwaApplicationDetail pwaApplicationDetail) throws IllegalAccessException {
 
-    createProjInfoData(pwaApplicationDetail);
-
-    return getApplicationDetailContainer(pwaApplicationDetail);
+    var identData = PadPipelineTestUtil.createPadPipeline(pwaApplicationDetail, PipelineType.PRODUCTION_FLOWLINE);
+    var ident = identData.getPadPipelineIdent();
+    var padPipeline = ident.getPadPipeline();
+    var pipeline = padPipeline.getPipeline();
+    entityManager.persist(pipeline);
+    entityManager.persist(padPipeline);
+    entityManager.persist(ident);
+    entityManager.persist(identData);
+    return new SimplePadPipelineContainer(identData);
   }
 
-  private void createAndPersistPadFileWithRandomFileId(PwaApplicationDetail pwaApplicationDetail,
-                                                       ApplicationFilePurpose applicationFilePurpose){
-    byte[] array = new byte[7]; // length is bounded by 7
-    new Random().nextBytes(array);
-    String generalPurposeRandomString = new String(array, Charset.forName("UTF-8"));
-    var uploadedFile = new UploadedFile(
-        generalPurposeRandomString,
-        generalPurposeRandomString,
-        generalPurposeRandomString,
-        0L,
-        Instant.now(),
-        FileUploadStatus.CURRENT);
+  // use this to dummy up and persist all possible form entities
+  private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail) throws IllegalAccessException {
 
-    entityManager.persist(uploadedFile);
+    createProjInfoData(pwaApplicationDetail);
+    var simplePadPipelineContainer = createAndPersistPipeline(pwaApplicationDetail);
+    createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
+    createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
+    createAndPersistPermanentDepositPipeline(pwaApplicationDetail, simplePadPipelineContainer);
+    createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
+    createPadFieldLinks(pwaApplicationDetail);
+    return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
 
-    var padFile = new PadFile(
+  private void createPadFieldLinks(PwaApplicationDetail pwaApplicationDetail){
+    var pf1 = PadFieldTestUtil.createDevukPadField(pwaApplicationDetail, devukField);
+    entityManager.persist(pf1);
+    var pf2 = PadFieldTestUtil.createManualPadField(pwaApplicationDetail);
+    entityManager.persist(pf2);
+  }
+
+  private void createAndPersistPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                                        SimplePadPipelineContainer simplePadPipelineContainer) {
+    var ppd = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
+    entityManager.persist(ppd);
+    var pdp = PadPermanentDepositTestUtil.createDepositPipeline(ppd, simplePadPipelineContainer.getPadPipeline());
+    entityManager.persist(pdp);
+  }
+
+  private PadFileTestContainer createAndPersistPadFileWithRandomFileId(PwaApplicationDetail pwaApplicationDetail,
+                                                                       ApplicationFilePurpose applicationFilePurpose) {
+    var padFileTestContainer = PadFileTestUtil.createPadFileWithRandomFileIdAndData(
         pwaApplicationDetail,
-        generalPurposeRandomString,
-        applicationFilePurpose,
-        ApplicationFileLinkStatus.FULL);
-    padFile.setDescription(generalPurposeRandomString);
-    entityManager.persist(padFile);
+        applicationFilePurpose);
+    entityManager.persist(padFileTestContainer.getUploadedFile());
+    entityManager.persist(padFileTestContainer.getPadFile());
+    return padFileTestContainer;
+  }
+
+  private void createPadTechnicalDrawingAndLink(PwaApplicationDetail pwaApplicationDetail, PadPipeline padPipeline) {
+    var tdFileContainer = createAndPersistPadFileWithRandomFileId(pwaApplicationDetail,
+        ApplicationFilePurpose.PIPELINE_DRAWINGS);
+    var td = PadTechnicalDrawingTestUtil.createPadTechnicalDrawing(pwaApplicationDetail, tdFileContainer.getPadFile());
+    var link = PadTechnicalDrawingTestUtil.createPadTechnicalDrawingLink(td, padPipeline);
+    entityManager.persist(td);
+    entityManager.persist(link);
+
   }
 
   private void createProjInfoData(PwaApplicationDetail pwaApplicationDetail) {
@@ -125,63 +194,314 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationFilePurpose.PROJECT_INFORMATION);
   }
 
-  private PadProjectInformation getProjInfo(PwaApplicationDetail pwaApplicationDetail) {
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+  private void createCampaignWorksData(PwaApplicationDetail pwaApplicationDetail,
+                                       SimplePadPipelineContainer simplePadPipelineContainer) {
+    var schedule = PadCampaignWorksScheduleTestUtil.createPadCampaignWorkSchedule(pwaApplicationDetail);
+    entityManager.persist(schedule);
 
-    CriteriaQuery<PadProjectInformation> criteriaQuery = cb.createQuery(PadProjectInformation.class);
-    Root<PadProjectInformation> projInfo = criteriaQuery.from(PadProjectInformation.class);
-    return entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(projInfo.get(PadProjectInformation_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
-  }
-
-  private List<PadFile> getAllAppDetailPadFiles(PwaApplicationDetail pwaApplicationDetail){
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<PadFile> criteriaQuery = cb.createQuery(PadFile.class);
-    Root<PadFile> padFile = criteriaQuery.from(PadFile.class);
-    return entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(padFile.get(PadFile_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getResultList();
+    var schedulePipeline = PadCampaignWorksScheduleTestUtil.createPadCampaignWorksPipeline(
+        schedule,
+        simplePadPipelineContainer.getPadPipeline());
+    entityManager.persist(schedulePipeline);
 
   }
 
-  private PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail){
 
-    var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
-    container.setPadProjectInformation(getProjInfo(pwaApplicationDetail));
-    container.setPadFiles(getAllAppDetailPadFiles(pwaApplicationDetail));
-    return container;
+  private void createHuooData(PwaApplicationDetail pwaApplicationDetail, Pipeline pipeline) {
+
+    var holder = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, portalOrganisationUnit1);
+    holder.setPwaApplicationDetail(pwaApplicationDetail);
+    var user = PadOrganisationRoleTestUtil.createTreatyRole(HuooRole.USER, TreatyAgreement.NORWAY);
+    user.setPwaApplicationDetail(pwaApplicationDetail);
+    var operator = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, portalOrganisationUnit1);
+    operator.setPwaApplicationDetail(pwaApplicationDetail);
+    var owner = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, portalOrganisationUnit2);
+    owner.setPwaApplicationDetail(pwaApplicationDetail);
+
+    entityManager.persist(holder);
+    entityManager.persist(user);
+    entityManager.persist(operator);
+    entityManager.persist(owner);
+
+    var holderLink = new PadPipelineOrganisationRoleLink(holder, pipeline);
+    var userLink = new PadPipelineOrganisationRoleLink(user, pipeline);
+    var operatorLink = new PadPipelineOrganisationRoleLink(operator, pipeline);
+    var ownerLink = new PadPipelineOrganisationRoleLink(owner, pipeline);
+
+    entityManager.persist(holderLink);
+    entityManager.persist(userLink);
+    entityManager.persist(operatorLink);
+    entityManager.persist(ownerLink);
 
   }
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_allFormEntitiesGetCopiedExactly() {
+  public void createNewApplicationVersion_projectInformationMappedAsExpected() throws IllegalAccessException {
     setup();
 
-   var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
         webUserAccount
     );
 
-   var newVersionContainer = getApplicationDetailContainer(newVersionDetail);
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
-   var commonIgnoredComparisonFields = new String[] {"pwaApplicationDetail" , "id"};
-
-   assertThat(
-       EqualsBuilder.reflectionEquals(
-       firstVersionApplicationContainer.getPadProjectInformation(),
-       newVersionContainer.getPadProjectInformation(),
-       commonIgnoredComparisonFields
-       )).isTrue();
+    var commonIgnoredComparisonFields = new String[]{"pwaApplicationDetail", "id"};
 
     assertThat(
         EqualsBuilder.reflectionEquals(
-            firstVersionApplicationContainer.getPadFiles(),
-            newVersionContainer.getPadFiles(),
+            firstVersionApplicationContainer.getPadProjectInformation(),
+            newVersionContainer.getPadProjectInformation(),
             commonIgnoredComparisonFields
         )).isTrue();
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationFilePurpose.PROJECT_INFORMATION),
+        newVersionContainer.getPadFile(ApplicationFilePurpose.PROJECT_INFORMATION)
+    );
+  }
+
+  private void assertPadFileDetailsMatch(PadFile lhs, PadFile rhs) {
+    assertThat(lhs)
+        .extracting(
+            PadFile_.DESCRIPTION,
+            PadFile_.FILE_ID,
+            PadFile_.FILE_LINK_STATUS,
+            PadFile_.PURPOSE)
+        .containsExactly(
+            rhs.getDescription(),
+            rhs.getFileId(),
+            rhs.getFileLinkStatus(),
+            rhs.getPurpose());
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_allPadFilesMappedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+    // test each PadFile linked to first version matches that linked to new version
+    Arrays.stream(ApplicationFilePurpose.values())
+        .forEach(applicationFilePurpose -> {
+          if (firstVersionApplicationContainer.getPadFile(applicationFilePurpose) != null) {
+            var v1PadFile = firstVersionApplicationContainer.getPadFile(applicationFilePurpose);
+            var v2PadFile = newVersionContainer.getPadFile(applicationFilePurpose);
+            assertPadFileDetailsMatch(v1PadFile, v2PadFile);
+          }
+        });
+  }
+
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_allPipelineDataMappedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    assertThat(EqualsBuilder.reflectionEquals(
+        firstVersionApplicationContainer.getSimplePadPipelineContainer().getPadPipeline(),
+        newVersionContainer.getSimplePadPipelineContainer().getPadPipeline(),
+        PadPipeline_.ID, PadPipeline_.PWA_APPLICATION_DETAIL
+    )).isTrue();
+    assertThat(EqualsBuilder.reflectionEquals(
+        firstVersionApplicationContainer.getSimplePadPipelineContainer().getPadPipelineIdent(),
+        newVersionContainer.getSimplePadPipelineContainer().getPadPipelineIdent(),
+        PadPipelineIdent_.ID, PadPipelineIdent_.PAD_PIPELINE
+    )).isTrue();
+    assertThat(EqualsBuilder.reflectionEquals(
+        firstVersionApplicationContainer.getSimplePadPipelineContainer().getPadPipelineIdentData(),
+        newVersionContainer.getSimplePadPipelineContainer().getPadPipelineIdentData(),
+        PadPipelineIdentData_.ID, PadPipelineIdentData_.PAD_PIPELINE_IDENT
+    )).isTrue();
+
+    assertThat(
+        EqualsBuilder.reflectionEquals(
+            firstVersionApplicationContainer.getPadTechnicalDrawing(),
+            newVersionContainer.getPadTechnicalDrawing(),
+            //ignore
+            PadTechnicalDrawing_.PWA_APPLICATION_DETAIL,
+            PadTechnicalDrawing_.ID,
+            PadTechnicalDrawing_.FILE
+        )
+    ).isTrue();
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationFilePurpose.PIPELINE_DRAWINGS),
+        newVersionContainer.getPadFile(ApplicationFilePurpose.PIPELINE_DRAWINGS)
+    );
+
+    assertThat(firstVersionApplicationContainer.getPadTechnicalDrawingLink().getPipeline().getPipelineId())
+        .isEqualTo(newVersionContainer.getPadTechnicalDrawingLink().getPipeline().getPipelineId());
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_huooRoleLinksMappedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    var padOrgRoleIgnoreFields = Set.of(PadOrganisationRole_.ID, PadOrganisationRole_.PWA_APPLICATION_DETAIL);
+    var padPipelineOrgRoleIgnoreFields = Set.of(PadPipelineOrganisationRoleLink_.ID,
+        PadPipelineOrganisationRoleLink_.PAD_ORG_ROLE);
+
+    // HOLDER
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.HOLDER).getLeft(),
+        newVersionContainer.getHuooRole(HuooRole.HOLDER).getLeft(),
+        padOrgRoleIgnoreFields
+    );
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.HOLDER).getRight(),
+        newVersionContainer.getHuooRole(HuooRole.HOLDER).getRight(),
+        padPipelineOrgRoleIgnoreFields
+    );
+
+    // USER
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.USER).getLeft(),
+        newVersionContainer.getHuooRole(HuooRole.USER).getLeft(),
+        padOrgRoleIgnoreFields
+    );
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.USER).getRight(),
+        newVersionContainer.getHuooRole(HuooRole.USER).getRight(),
+        padPipelineOrgRoleIgnoreFields
+    );
+
+    // OPERATOR
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.OPERATOR).getLeft(),
+        newVersionContainer.getHuooRole(HuooRole.OPERATOR).getLeft(),
+        padOrgRoleIgnoreFields
+    );
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.OPERATOR).getRight(),
+        newVersionContainer.getHuooRole(HuooRole.OPERATOR).getRight(),
+        padPipelineOrgRoleIgnoreFields
+    );
+
+    // OWNER
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.OWNER).getLeft(),
+        newVersionContainer.getHuooRole(HuooRole.OWNER).getLeft(),
+        padOrgRoleIgnoreFields
+    );
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getHuooRole(HuooRole.OWNER).getRight(),
+        newVersionContainer.getHuooRole(HuooRole.OWNER).getRight(),
+        padPipelineOrgRoleIgnoreFields
+    );
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_permanentDepositCopiedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+     ObjectTestUtils.assertValuesEqual(
+         firstVersionApplicationContainer.getPadDepositPipeline().getPadPermanentDeposit(),
+         newVersionContainer.getPadDepositPipeline().getPadPermanentDeposit(),
+         Set.of(PadPermanentDeposit_.ID, PadPermanentDeposit_.PWA_APPLICATION_DETAIL)
+     );
+
+     assertThat(firstVersionApplicationContainer.getPadDepositPipeline().getPadPipeline().getPipelineId())
+         .isEqualTo(newVersionContainer.getPadDepositPipeline().getPadPipeline().getPipelineId());
+
+    assertThat(newVersionContainer.getPadDepositPipeline().getPadPipeline())
+        .isEqualTo(newVersionContainer.getSimplePadPipelineContainer().getPadPipeline());
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_campaignWorkScheduleCopiedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadCampaignWorksPipeline().getPadCampaignWorkSchedule(),
+        newVersionContainer.getPadCampaignWorksPipeline().getPadCampaignWorkSchedule(),
+        Set.of(PadCampaignWorkSchedule_.ID, PadCampaignWorkSchedule_.PWA_APPLICATION_DETAIL)
+    );
+
+    assertThat(firstVersionApplicationContainer.getPadCampaignWorksPipeline().getPadPipeline().getPipelineId())
+        .isEqualTo(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline().getPipelineId());
+
+    assertThat(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline())
+        .isEqualTo(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline());
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_padFieldsCopiedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    var v1ManualField = firstVersionApplicationContainer.getPadFields().stream()
+        .filter(f -> f.getFieldName() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
+
+    var v2ManualField = newVersionContainer.getPadFields().stream()
+        .filter(f -> f.getFieldName() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
+
+    var v1DevukField = firstVersionApplicationContainer.getPadFields().stream()
+        .filter(f -> f.getDevukField() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find devuk field"));
+
+    var v2DevukField = newVersionContainer.getPadFields().stream()
+        .filter(f -> f.getDevukField() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find devuk field"));
+
+    ObjectTestUtils.assertValuesEqual(v1ManualField, v2ManualField,
+        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+
+    ObjectTestUtils.assertValuesEqual(v1DevukField, v2DevukField,
+        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+
   }
 }

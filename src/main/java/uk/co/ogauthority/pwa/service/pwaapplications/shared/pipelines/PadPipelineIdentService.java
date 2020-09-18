@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -58,6 +59,10 @@ public class PadPipelineIdentService {
 
   public List<PadPipelineIdent> getAllIdents(PadPipeline padPipeline) {
     return padPipelineIdentRepository.getAllByPadPipeline(padPipeline);
+  }
+
+  public List<PadPipelineIdent> getAllByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineIdentRepository.getAllByPadPipeline_PwaApplicationDetail(pwaApplicationDetail);
   }
 
   public SummaryScreenValidationResult getSummaryScreenValidationResult(PadPipeline padPipeline) {

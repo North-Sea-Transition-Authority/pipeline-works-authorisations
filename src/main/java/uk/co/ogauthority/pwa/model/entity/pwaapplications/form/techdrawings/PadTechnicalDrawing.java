@@ -10,10 +10,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 
 @Entity
 @Table(name = "pad_technical_drawings")
-public class PadTechnicalDrawing {
+public class PadTechnicalDrawing implements ChildEntity<Integer, PwaApplicationDetail>, ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +50,30 @@ public class PadTechnicalDrawing {
     this.file = file;
     this.reference = reference;
   }
+
+  //ParentEntity Methods
+  @Override
+  public Object getIdAsParent() {
+    return this.id;
+  }
+
+  //ChildEntity Methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
+
+  // generated methods
 
   public PwaApplicationDetail getPwaApplicationDetail() {
     return pwaApplicationDetail;

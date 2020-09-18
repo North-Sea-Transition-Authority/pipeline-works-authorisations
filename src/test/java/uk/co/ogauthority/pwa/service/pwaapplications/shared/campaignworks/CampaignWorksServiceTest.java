@@ -39,9 +39,11 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOvervie
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorkScheduleRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.campaignworks.PadCampaignWorksPipelineRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.appdetailreconciliation.PadPipelineReconcilerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
@@ -67,6 +69,12 @@ public class CampaignWorksServiceTest {
   @Mock
   private PadCampaignWorksPipelineRepository padCampaignWorksPipelineRepository;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
+  @Mock
+  private PadPipelineReconcilerService padPipelineReconcilerService;
+
   private CampaignWorksService campaignWorksService;
 
   private List<PadPipeline> padPipelineList;
@@ -90,8 +98,9 @@ public class CampaignWorksServiceTest {
         padPipelineService,
         workScheduleFormValidator,
         padCampaignWorkScheduleRepository,
-        padCampaignWorksPipelineRepository
-    );
+        padCampaignWorksPipelineRepository,
+        entityCopyingService,
+        padPipelineReconcilerService);
 
     pipe1 = createPadPipeline(10, "PIPE1", pwaApplicationDetail);
     pipe2 = createPadPipeline(20, "PIPE2", pwaApplicationDetail);

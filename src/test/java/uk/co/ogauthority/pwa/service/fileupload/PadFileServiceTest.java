@@ -308,7 +308,7 @@ public class PadFileServiceTest {
   public void copyPadFilesToPwaApplicationDetail_serviceInteractions() {
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 20, 21);
 
-    padFileService.copyPadFilesToPwaApplicationDetail(
+    var copiedFiles = padFileService.copyPadFilesToPwaApplicationDetail(
         pwaApplicationDetail,
         newDetail,
         ApplicationFilePurpose.ADMIRALTY_CHART,
@@ -320,11 +320,7 @@ public class PadFileServiceTest {
         eq(PadFile.class)
     );
 
-    verify(padFileRepository, times(1)).findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(
-        newDetail ,
-        ApplicationFilePurpose.ADMIRALTY_CHART,
-        ApplicationFileLinkStatus.FULL
-    );
+
   }
 
 }

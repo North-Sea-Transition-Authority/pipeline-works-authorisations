@@ -78,6 +78,9 @@ public class PadPipelineServiceTest {
   private PadPipelinePersisterService padPipelinePersisterService;
 
   @Mock
+  private PadPipelineDataCopierService padPipelineDataCopierService;
+
+  @Mock
   private PipelineHeaderFormValidator pipelineHeaderFormValidator;
 
   private PadPipelineService padPipelineService;
@@ -120,11 +123,12 @@ public class PadPipelineServiceTest {
         new CoordinateFormValidator());
 
     padPipelineService = new PadPipelineService(padPipelineRepository, pipelineService, pipelineDetailService,
-        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService, pipelineHeaderFormValidator);
+        padPipelineIdentService, pipelineIdentFormValidator, padPipelinePersisterService, pipelineHeaderFormValidator,
+        padPipelineDataCopierService);
 
     mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository, pipelineService,
         pipelineDetailService, padPipelineIdentService, mockValidator, padPipelinePersisterService,
-        pipelineHeaderFormValidator);
+        pipelineHeaderFormValidator, padPipelineDataCopierService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -803,7 +807,17 @@ public class PadPipelineServiceTest {
         padPipeline.getTrenchedBuriedBackfilled(),
         padPipeline.getTrenchingMethodsDescription(),
         padPipeline.getPipelineStatus(),
-        padPipeline.getPipelineStatusReason());
+        padPipeline.getPipelineStatusReason()
+    );
   }
+
+  @Test
+  public void copySectionInformation_serviceInteractions(){
+    var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100, 100);
+    padPipelineService.copySectionInformation(detail, newDetail);
+    verify(padPipelineDataCopierService, times(1))
+        .copyAllPadPipelineData(eq(detail), eq(newDetail), any());
+  }
+
 
 }
