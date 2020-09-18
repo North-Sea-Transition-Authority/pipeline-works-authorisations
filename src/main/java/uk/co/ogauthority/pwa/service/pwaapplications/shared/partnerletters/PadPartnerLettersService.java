@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -9,9 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PartnerLettersView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
@@ -69,6 +74,18 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
       uploadedFiles.forEach(padFile -> padFileService.processFileDeletion(padFile, user));
 
     }
+  }
+
+  public PartnerLettersView getPartnerLettersView(PwaApplicationDetail pwaApplicationDetail) {
+
+    List<UploadedFileView> uploadedFileViews = new ArrayList<>();
+    if (BooleanUtils.isTrue(pwaApplicationDetail.getPartnerLettersRequired())) {
+      uploadedFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, FILE_PURPOSE,
+          ApplicationFileLinkStatus.FULL);
+    }
+
+    return new PartnerLettersView(
+        pwaApplicationDetail.getPartnerLettersRequired(), pwaApplicationDetail.getPartnerLettersConfirmed(), uploadedFileViews);
   }
 
 

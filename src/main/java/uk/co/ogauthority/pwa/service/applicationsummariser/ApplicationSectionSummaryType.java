@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Fl
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
@@ -46,6 +47,11 @@ public enum ApplicationSectionSummaryType {
       45,
       "pwaApplication/applicationSummarySections/supplementaryDocumentsSummary.ftl",
       SupplementaryDocumentsSummaryService.class),
+
+  PARTNER_LETTERS(
+      70,
+          "pwaApplication/applicationSummarySections/partnerApprovalLettersSummary.ftl",
+      PartnerApprovalLettersSummaryService.class),
 
   GENERAL_TECH_DETAILS(
       140,

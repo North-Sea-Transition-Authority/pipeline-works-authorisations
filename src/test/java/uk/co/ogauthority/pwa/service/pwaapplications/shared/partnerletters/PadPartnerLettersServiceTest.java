@@ -16,11 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -112,6 +114,41 @@ public class PadPartnerLettersServiceTest {
     form.setPartnerLettersRequired(false);
     padPartnerLettersService.saveEntityUsingForm(pwaApplicationDetail, form, new WebUserAccount());
     verify(padFileService, times(3)).processFileDeletion(any(), any());
+  }
+
+  @Test
+  public void getPartnerLettersView_lettersRequired() {
+    var appDetail = createValidEntity();
+    var uploadedFileViews = List.of(
+        new UploadedFileView(null,null,1L,null,null,null),
+        new UploadedFileView(null,null,1L,null,null,null));
+    when(padFileService.getUploadedFileViews(appDetail, ApplicationFilePurpose.PARTNER_LETTERS,
+        ApplicationFileLinkStatus.FULL)).thenReturn(uploadedFileViews);
+
+    var partnerLettersView = padPartnerLettersService.getPartnerLettersView(appDetail);
+
+    assertThat(partnerLettersView.getPartnerLettersRequired()).isTrue();
+    assertThat(partnerLettersView.getPartnerLettersConfirmed()).isTrue();
+    assertThat(partnerLettersView.getUploadedLetterFileViews()).isEqualTo(uploadedFileViews);
+  }
+
+  @Test
+  public void getPartnerLettersView_noData() {
+    var partnerLettersView = padPartnerLettersService.getPartnerLettersView(pwaApplicationDetail);
+
+    assertThat(partnerLettersView.getPartnerLettersRequired()).isNull();
+    assertThat(partnerLettersView.getPartnerLettersConfirmed()).isNull();
+    assertThat(partnerLettersView.getUploadedLetterFileViews()).isEmpty();
+  }
+
+  @Test
+  public void getPartnerLettersView_lettersNotRequired() {
+    pwaApplicationDetail.setPartnerLettersRequired(false);
+    var partnerLettersView = padPartnerLettersService.getPartnerLettersView(pwaApplicationDetail);
+
+    assertThat(partnerLettersView.getPartnerLettersRequired()).isFalse();
+    assertThat(partnerLettersView.getPartnerLettersConfirmed()).isNull();
+    assertThat(partnerLettersView.getUploadedLetterFileViews()).isEmpty();
   }
 
 
