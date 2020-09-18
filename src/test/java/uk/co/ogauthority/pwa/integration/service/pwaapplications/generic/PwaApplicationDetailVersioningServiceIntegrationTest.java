@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
@@ -51,6 +52,7 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.PadCampaignWorksScheduleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
@@ -149,7 +151,13 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createAndPersistPermanentDepositPipeline(pwaApplicationDetail, simplePadPipelineContainer);
     createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
     createPadFieldLinks(pwaApplicationDetail);
+    createPadEnvDecom(pwaApplicationDetail);
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createPadEnvDecom(PwaApplicationDetail pwaApplicationDetail){
+    var entity = PadEnvironmentalDecommissioningTestUtil.createPadEnvironmentalDecommissioning(pwaApplicationDetail);
+    entityManager.persist(entity);
   }
 
   private void createPadFieldLinks(PwaApplicationDetail pwaApplicationDetail){
@@ -502,6 +510,26 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     ObjectTestUtils.assertValuesEqual(v1DevukField, v2DevukField,
         Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_padEnvDecomCopiedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadEnvironmentalDecommissioning(),
+        newVersionContainer.getPadEnvironmentalDecommissioning(),
+        Set.of(PadEnvironmentalDecommissioning_.ID, PadEnvironmentalDecommissioning_.PWA_APPLICATION_DETAIL)
+    );
 
   }
 }

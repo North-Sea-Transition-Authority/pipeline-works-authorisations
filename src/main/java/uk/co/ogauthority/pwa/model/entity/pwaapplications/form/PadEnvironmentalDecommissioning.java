@@ -15,9 +15,10 @@ import uk.co.ogauthority.pwa.model.entity.converters.EnvironmentalConditionConve
 import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
 import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity(name = "pad_env_and_decom")
-public class PadEnvironmentalDecommissioning {
+public class PadEnvironmentalDecommissioning implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +41,22 @@ public class PadEnvironmentalDecommissioning {
 
   @Convert(converter = DecommissioningConditionConverter.class)
   private Set<DecommissioningCondition> decommissioningConditions;
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    setPwaApplicationDetail(parentEntity);
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return getPwaApplicationDetail();
+  }
 
   public Integer getId() {
     return id;

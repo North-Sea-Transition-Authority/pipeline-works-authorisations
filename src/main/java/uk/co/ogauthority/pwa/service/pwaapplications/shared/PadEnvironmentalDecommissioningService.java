@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -30,15 +31,18 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
   private final PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository;
   private final EnvironmentalDecommissioningValidator environmentalDecommissioningValidator;
   private final SpringValidatorAdapter groupValidator;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadEnvironmentalDecommissioningService(
       PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository,
       EnvironmentalDecommissioningValidator environmentalDecommissioningValidator,
-      SpringValidatorAdapter groupValidator) {
+      SpringValidatorAdapter groupValidator,
+      EntityCopyingService entityCopyingService) {
     this.padEnvironmentalDecommissioningRepository = padEnvironmentalDecommissioningRepository;
     this.environmentalDecommissioningValidator = environmentalDecommissioningValidator;
     this.groupValidator = groupValidator;
+    this.entityCopyingService = entityCopyingService;
   }
 
   public PadEnvironmentalDecommissioning getEnvDecomData(PwaApplicationDetail pwaApplicationDetail) {
@@ -156,7 +160,12 @@ public class PadEnvironmentalDecommissioningService implements ApplicationFormSe
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    entityCopyingService.duplicateEntityAndSetParent(
+        () -> getEnvDecomData(fromDetail),
+        toDetail,
+        PadEnvironmentalDecommissioning.class
+
+    );
   }
 
   @Override
