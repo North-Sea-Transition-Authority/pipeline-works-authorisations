@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.FastTrackView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -122,6 +123,21 @@ public class PadFastTrackService implements ApplicationFormSectionService {
       fastTrack.setOtherReason(null);
     }
     save(fastTrack);
+  }
+
+  public FastTrackView getFastTrackView(PwaApplicationDetail pwaApplicationDetail) {
+    var entity = getFastTrackForDraft(pwaApplicationDetail);
+
+    return new FastTrackView(
+        entity.getAvoidEnvironmentalDisaster(),
+        entity.getSavingBarrels(),
+        entity.getProjectPlanning(),
+        entity.getHasOtherReason(),
+        entity.getEnvironmentalDisasterReason(),
+        entity.getSavingBarrelsReason(),
+        entity.getProjectPlanningReason(),
+        entity.getOtherReason()
+    );
   }
 
   @Override

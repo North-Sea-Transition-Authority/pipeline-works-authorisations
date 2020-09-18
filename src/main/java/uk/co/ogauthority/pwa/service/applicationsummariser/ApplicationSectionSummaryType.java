@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Ap
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FastTrackSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
@@ -41,6 +42,12 @@ public enum ApplicationSectionSummaryType {
       35,
       "pwaApplication/applicationSummarySections/optionsTemplateSummary.ftl",
       OptionsTemplateSummaryService.class),
+
+  FAST_TRACK(
+      40,
+      "pwaApplication/applicationSummarySections/fastTrackSummary.ftl",
+      FastTrackSummaryService.class
+  ),
 
   SUPPLEMENTARY_DOCUMENTS(
       45,
