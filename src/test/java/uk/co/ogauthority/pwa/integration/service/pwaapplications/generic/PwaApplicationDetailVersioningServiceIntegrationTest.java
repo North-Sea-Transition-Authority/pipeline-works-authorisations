@@ -21,6 +21,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -43,6 +45,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
+import uk.co.ogauthority.pwa.service.devuk.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
@@ -70,6 +73,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private final static int OU_ID_1 = 10;
   private final static int OU_ID_2 = 20;
 
+  private final static int FIELD_ID = 100;
+
   @Autowired
   private EntityManager entityManager;
 
@@ -86,6 +91,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private PortalOrganisationUnit portalOrganisationUnit1;
   private PortalOrganisationUnit portalOrganisationUnit2;
 
+  private DevukField devukField;
+
   private PwaApplicationIntegrationTestHelper testHelper;
 
   public void setup() throws IllegalAccessException {
@@ -95,6 +102,9 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     var firstVersionPwaDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL
     );
+
+    devukField = new DevukField(FIELD_ID, "some field", 500);
+    entityManager.persist(devukField);
 
     portalOrganisationUnit1 = new PortalOrganisationUnit(OU_ID_1, "Org 1 name");
     portalOrganisationUnit2 = new PortalOrganisationUnit(OU_ID_2, "Org 2 name");
@@ -112,9 +122,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     firstVersionApplicationContainer = createAndPersistDefaultApplicationDetail(firstVersionPwaDetail);
 
-
   }
-
 
   private SimplePadPipelineContainer createAndPersistPipeline(
       PwaApplicationDetail pwaApplicationDetail) throws IllegalAccessException {
@@ -128,7 +136,6 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     entityManager.persist(ident);
     entityManager.persist(identData);
     return new SimplePadPipelineContainer(identData);
-
   }
 
   // use this to dummy up and persist all possible form entities
@@ -141,7 +148,15 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
     createAndPersistPermanentDepositPipeline(pwaApplicationDetail, simplePadPipelineContainer);
     createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
+    createPadFieldLinks(pwaApplicationDetail);
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createPadFieldLinks(PwaApplicationDetail pwaApplicationDetail){
+    var pf1 = PadFieldTestUtil.createDevukPadField(pwaApplicationDetail, devukField);
+    entityManager.persist(pf1);
+    var pf2 = PadFieldTestUtil.createManualPadField(pwaApplicationDetail);
+    entityManager.persist(pf2);
   }
 
   private void createAndPersistPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail,
@@ -451,6 +466,42 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     assertThat(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline())
         .isEqualTo(newVersionContainer.getPadCampaignWorksPipeline().getPadPipeline());
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_padFieldsCopiedAsExpected() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    var v1ManualField = firstVersionApplicationContainer.getPadFields().stream()
+        .filter(f -> f.getFieldName() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
+
+    var v2ManualField = newVersionContainer.getPadFields().stream()
+        .filter(f -> f.getFieldName() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
+
+    var v1DevukField = firstVersionApplicationContainer.getPadFields().stream()
+        .filter(f -> f.getDevukField() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find devuk field"));
+
+    var v2DevukField = newVersionContainer.getPadFields().stream()
+        .filter(f -> f.getDevukField() != null)
+        .findFirst().orElseThrow(() -> new RuntimeException("Expected to find devuk field"));
+
+    ObjectTestUtils.assertValuesEqual(v1ManualField, v2ManualField,
+        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+
+    ObjectTestUtils.assertValuesEqual(v1DevukField, v2DevukField,
+        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
 
   }
 }
