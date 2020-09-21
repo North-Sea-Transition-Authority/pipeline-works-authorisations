@@ -8,7 +8,7 @@ import javax.persistence.EntityManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -118,7 +118,7 @@ public class PadPipelineDataCopierService {
             padFileService.copyPadFilesToPwaApplicationDetail(
                 fromDetail,
                 toDetail,
-                ApplicationFilePurpose.PIPELINE_DRAWINGS,
+                ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
                 ApplicationFileLinkStatus.FULL
             )
         );

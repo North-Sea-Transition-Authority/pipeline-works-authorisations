@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.files;
 
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
+import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
@@ -16,9 +16,9 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.Pipe
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
 
 /**
- * Enumeration of the different areas of a PWA application that can have file links.
+ * Enumeration of the different areas of a PWA application detail that can have file links.
  */
-public enum ApplicationFilePurpose {
+public enum ApplicationDetailFilePurpose {
 
   LOCATION_DETAILS(LocationDetailsController.class),
   PROJECT_INFORMATION(ProjectInformationController.class),
@@ -36,14 +36,14 @@ public enum ApplicationFilePurpose {
 
   SUPPLEMENTARY_DOCUMENTS(SupplementaryDocumentsController.class);
 
-  private final Class<? extends PwaApplicationDataFileUploadAndDownloadController> fileControllerClass;
+  private final Class<? extends PwaApplicationDetailDataFileUploadAndDownloadController> fileControllerClass;
 
-  ApplicationFilePurpose(
-      Class<? extends PwaApplicationDataFileUploadAndDownloadController> fileControllerClass) {
+  ApplicationDetailFilePurpose(
+      Class<? extends PwaApplicationDetailDataFileUploadAndDownloadController> fileControllerClass) {
     this.fileControllerClass = fileControllerClass;
   }
 
-  public Class<? extends PwaApplicationDataFileUploadAndDownloadController> getFileControllerClass() {
+  public Class<? extends PwaApplicationDetailDataFileUploadAndDownloadController> getFileControllerClass() {
     return fileControllerClass;
   }
 

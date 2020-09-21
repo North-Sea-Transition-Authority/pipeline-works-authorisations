@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
@@ -115,7 +115,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
     verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
     verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -153,7 +153,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
     verify(padFileService, times(endpointTester.getContactRoles().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test

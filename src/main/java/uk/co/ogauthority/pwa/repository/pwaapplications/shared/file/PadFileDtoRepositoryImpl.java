@@ -4,7 +4,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -21,7 +21,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
 
   @Override
   public List<UploadedFileView> findAllAsFileViewByAppDetailAndPurposeAndFileLinkStatus(PwaApplicationDetail detail,
-                                                                                        ApplicationFilePurpose purpose,
+                                                                                        ApplicationDetailFilePurpose purpose,
                                                                                         ApplicationFileLinkStatus linkStatus) {
 
     return entityManager.createQuery("" +
@@ -51,7 +51,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
   @Override
   public UploadedFileView findAsFileViewByAppDetailAndFileIdAndPurposeAndFileLinkStatus(PwaApplicationDetail detail,
                                                                                         String fileId,
-                                                                                        ApplicationFilePurpose purpose,
+                                                                                        ApplicationDetailFilePurpose purpose,
                                                                                         ApplicationFileLinkStatus linkStatus) {
     return entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.form.files.UploadedFileView(" +
@@ -80,7 +80,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
 
   @Override
   public List<PadFile> findAllByAppDetailAndFilePurposeAndIdNotIn(PwaApplicationDetail detail,
-                                                                  ApplicationFilePurpose purpose,
+                                                                  ApplicationDetailFilePurpose purpose,
                                                                   Iterable<Integer> padFileIdsToExclude) {
     return entityManager.createQuery("" +
         "SELECT pf " +
@@ -96,7 +96,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
 
   @Override
   public List<PadFile> findAllCurrentFilesByAppDetailAndFilePurposeAndFileLinkStatus(PwaApplicationDetail detail,
-                                                                         ApplicationFilePurpose purpose,
+                                                                         ApplicationDetailFilePurpose purpose,
                                                                          ApplicationFileLinkStatus applicationFileLinkStatus) {
     return entityManager.createQuery("" +
         "SELECT pf " +

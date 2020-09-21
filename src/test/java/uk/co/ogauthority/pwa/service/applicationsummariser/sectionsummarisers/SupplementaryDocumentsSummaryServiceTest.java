@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
@@ -72,7 +72,7 @@ public class SupplementaryDocumentsSummaryServiceTest {
   @Test
   public void summariseSection_verifyServiceInteractions() {
 
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.SUPPLEMENTARY_DOCUMENTS, ApplicationFileLinkStatus.FULL)).thenReturn(
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS, ApplicationFileLinkStatus.FULL)).thenReturn(
         List.of(
             new UploadedFileView("id", "name", 99L, "desc", Instant.now(), "#"),
             new UploadedFileView("id2", "name2", 100L, "desc2", Instant.now().minusSeconds(60), "#")

@@ -28,7 +28,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -125,7 +125,7 @@ public class PadProjectInformationServiceTest {
     verify(padFileService, times(1)).updateFiles(
         form,
         this.padProjectInformation.getPwaApplicationDetail(),
-        ApplicationFilePurpose.PROJECT_INFORMATION,
+        ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         FileUpdateMode.DELETE_UNLINKED_FILES,
         user
     );
@@ -144,7 +144,7 @@ public class PadProjectInformationServiceTest {
     verify(padFileService, times(1)).mapFilesToForm(
         form,
         pwaApplicationDetail,
-        ApplicationFilePurpose.PROJECT_INFORMATION
+        ApplicationDetailFilePurpose.PROJECT_INFORMATION
     );
 
   }
@@ -422,7 +422,7 @@ public class PadProjectInformationServiceTest {
         .copyPadFilesToPwaApplicationDetail(
             eq(pwaApplicationDetail),
             eq(copyToDetail),
-            eq(ApplicationFilePurpose.PROJECT_INFORMATION),
+            eq(ApplicationDetailFilePurpose.PROJECT_INFORMATION),
             eq(ApplicationFileLinkStatus.FULL));
 
   }

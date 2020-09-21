@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.context;
 import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -20,6 +21,8 @@ public class PwaAppProcessingContext {
   private final Set<PwaAppProcessingPermission> appProcessingPermissions;
 
   private final CaseSummaryView caseSummaryView;
+
+  private AppFile appFile;
 
   public PwaAppProcessingContext(PwaApplicationDetail applicationDetail,
                                  WebUserAccount user,
@@ -55,6 +58,14 @@ public class PwaAppProcessingContext {
     return caseSummaryView;
   }
 
+  public AppFile getAppFile() {
+    return appFile;
+  }
+
+  public void setAppFile(AppFile appFile) {
+    this.appFile = appFile;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -67,11 +78,12 @@ public class PwaAppProcessingContext {
     return Objects.equals(applicationDetail, that.applicationDetail)
         && Objects.equals(user, that.user)
         && Objects.equals(appProcessingPermissions, that.appProcessingPermissions)
-        && Objects.equals(caseSummaryView, that.caseSummaryView);
+        && Objects.equals(caseSummaryView, that.caseSummaryView)
+        && Objects.equals(appFile, that.appFile);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationDetail, user, appProcessingPermissions, caseSummaryView);
+    return Objects.hash(applicationDetail, user, appProcessingPermissions, caseSummaryView, appFile);
   }
 }

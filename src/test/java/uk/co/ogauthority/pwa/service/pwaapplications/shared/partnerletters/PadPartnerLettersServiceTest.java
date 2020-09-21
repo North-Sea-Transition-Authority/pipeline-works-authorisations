@@ -17,7 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -108,7 +108,7 @@ public class PadPartnerLettersServiceTest {
 
   @Test
   public void saveEntityUsingForm_partnerLettersNotRequired() {
-    when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationFilePurpose.PARTNER_LETTERS))
+    when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.PARTNER_LETTERS))
         .thenReturn(List.of(new PadFile(), new PadFile(), new PadFile()));
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(false);
@@ -122,7 +122,7 @@ public class PadPartnerLettersServiceTest {
     var uploadedFileViews = List.of(
         new UploadedFileView(null,null,1L,null,null,null),
         new UploadedFileView(null,null,1L,null,null,null));
-    when(padFileService.getUploadedFileViews(appDetail, ApplicationFilePurpose.PARTNER_LETTERS,
+    when(padFileService.getUploadedFileViews(appDetail, ApplicationDetailFilePurpose.PARTNER_LETTERS,
         ApplicationFileLinkStatus.FULL)).thenReturn(uploadedFileViews);
 
     var partnerLettersView = padPartnerLettersService.getPartnerLettersView(appDetail);

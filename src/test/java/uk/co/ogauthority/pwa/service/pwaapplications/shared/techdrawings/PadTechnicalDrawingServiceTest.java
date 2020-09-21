@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -110,7 +110,7 @@ public class PadTechnicalDrawingServiceTest {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     form.setReference("ref");
 
-    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL);
     when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
     padTechnicalDrawingService.addDrawing(pwaApplicationDetail, form);
@@ -130,7 +130,7 @@ public class PadTechnicalDrawingServiceTest {
     var pipelineDrawing = new PadTechnicalDrawing();
     pipelineDrawing.setReference("ref");
     pipelineDrawing.setPwaApplicationDetail(pwaApplicationDetail);
-    pipelineDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    pipelineDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     pipelineDrawing.setId(1);
 
@@ -148,7 +148,7 @@ public class PadTechnicalDrawingServiceTest {
         .thenReturn(drawingList);
     when(padTechnicalDrawingLinkService.getLinksFromDrawingList(drawingList))
         .thenReturn(List.of(drawingLink));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
 
     var result = padTechnicalDrawingService.getPipelineDrawingSummaryViewList(pwaApplicationDetail);
@@ -165,7 +165,7 @@ public class PadTechnicalDrawingServiceTest {
     var pipelineDrawing = new PadTechnicalDrawing();
     pipelineDrawing.setReference("ref");
     pipelineDrawing.setPwaApplicationDetail(pwaApplicationDetail);
-    pipelineDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    pipelineDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     pipelineDrawing.setId(1);
 
@@ -189,7 +189,7 @@ public class PadTechnicalDrawingServiceTest {
         .thenReturn(drawingList);
     when(padTechnicalDrawingLinkService.getLinksFromDrawingList(drawingList))
         .thenReturn(List.of(drawingLink, drawingLink2));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
 
     var result = padTechnicalDrawingService.getPipelineDrawingSummaryViewList(pwaApplicationDetail);
@@ -235,7 +235,7 @@ public class PadTechnicalDrawingServiceTest {
   public void getPipelineDrawingSummaryViewFromDrawing_oneResult() {
 
     var drawing = new PadTechnicalDrawing();
-    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     drawing.setReference("ref");
     drawing.setId(1);
@@ -249,7 +249,7 @@ public class PadTechnicalDrawingServiceTest {
 
     var uploadedFileView = new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#");
 
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(uploadedFileView));
 
     var result = padTechnicalDrawingService.getPipelineDrawingSummaryViewFromDrawing(pwaApplicationDetail, drawing);
@@ -266,12 +266,12 @@ public class PadTechnicalDrawingServiceTest {
   public void getPipelineDrawingSummaryViewFromDrawing_noResults() {
 
     var drawing = new PadTechnicalDrawing();
-    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     drawing.setReference("ref");
     drawing.setId(1);
 
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of());
 
     padTechnicalDrawingService.getPipelineDrawingSummaryViewFromDrawing(pwaApplicationDetail, drawing);
@@ -282,7 +282,7 @@ public class PadTechnicalDrawingServiceTest {
   public void getPipelineDrawingSummaryViewList() {
 
     var drawing = new PadTechnicalDrawing();
-    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     drawing.setReference("ref");
     drawing.setId(1);
@@ -299,7 +299,7 @@ public class PadTechnicalDrawingServiceTest {
     var uploadedFileView = new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#");
 
     when(padTechnicalDrawingLinkService.getLinksFromDrawingList(List.of(drawing))).thenReturn(List.of(link));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(uploadedFileView));
 
     var result = padTechnicalDrawingService.getPipelineDrawingSummaryViewList(pwaApplicationDetail);
@@ -319,7 +319,7 @@ public class PadTechnicalDrawingServiceTest {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     form.setReference("ref");
 
-    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL);
 
     var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, padFile, "ref");
@@ -442,7 +442,7 @@ public class PadTechnicalDrawingServiceTest {
   @Test
   public void drawingsValid_valid() {
     var drawing = new PadTechnicalDrawing();
-    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
 
     when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing));
@@ -508,7 +508,7 @@ public class PadTechnicalDrawingServiceTest {
     padTechnicalDrawingService.cleanupData(pwaApplicationDetail);
 
     verify(padFileService, times(1)).cleanupFiles(eq(pwaApplicationDetail),
-        eq(ApplicationFilePurpose.PIPELINE_DRAWINGS), eq(List.of(1, 2)));
+        eq(ApplicationDetailFilePurpose.PIPELINE_DRAWINGS), eq(List.of(1, 2)));
 
   }
 
@@ -659,7 +659,7 @@ public class PadTechnicalDrawingServiceTest {
 
     when(padTechnicalDrawingLinkService.getLinksFromAppDetail(pwaApplicationDetail)).thenReturn(List.of(drawingLink1, drawingLink2, drawingLink3));
 
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL)).thenReturn(List.of(new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#")));
 
     var pipelineIdDrawingViewMap = padTechnicalDrawingService.getPipelineDrawingViewsMap(pwaApplicationDetail);

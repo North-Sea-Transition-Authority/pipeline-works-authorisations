@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -46,7 +46,7 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
                                 PwaApplicationDetail pwaApplicationDetail) {
     var admiraltyForm = new AdmiraltyChartDocumentForm();
     if (admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)) {
-      padFileService.mapFilesToForm(admiraltyForm, pwaApplicationDetail, ApplicationFilePurpose.ADMIRALTY_CHART);
+      padFileService.mapFilesToForm(admiraltyForm, pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
       admiraltyChartFileService.validate(admiraltyForm, bindingResult, validationType, pwaApplicationDetail);
     }
     padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);

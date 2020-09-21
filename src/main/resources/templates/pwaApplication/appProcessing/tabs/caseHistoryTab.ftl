@@ -29,6 +29,27 @@
                   </#list>
               </@fdsDataItems.dataItem>
 
+              <#if item.uploadedFileViews?has_content>
+
+                  <@fdsCheckAnswers.checkAnswers summaryListClass="">
+
+                    <#list item.uploadedFileViews as fileView>
+
+                      <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            <@fdsAction.link linkText=fileView.fileName linkUrl=springUrl(fileView.fileUrl) linkClass="govuk-link" linkScreenReaderText="Download ${fileView.fileName}" role=false start=false openInNewTab=true/>
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            <@multiLineText.multiLineText blockClass="govuk-summary-list">${fileView.fileDescription!}</@multiLineText.multiLineText>
+                        </dd>
+                      </div>
+
+                    </#list>
+
+                  </@fdsCheckAnswers.checkAnswers>
+
+              </#if>
+
           </@fdsTimeline.timelineTimeStamp>
 
         </#list>

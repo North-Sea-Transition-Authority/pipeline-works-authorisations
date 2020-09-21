@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNote;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
 import uk.co.ogauthority.pwa.service.appprocessing.casenotes.CaseNoteService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -56,9 +57,11 @@ public class CaseHistoryServiceTest {
     caseNote1 = new CaseNote(new PwaApplication(), person1.getId(), Instant.now(), "note1");
     caseNote2 = new CaseNote(new PwaApplication(), person2.getId(), Instant.now().minusSeconds(100), "note2");
 
+    var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#");
+
     when(caseNoteService.getCaseHistoryItemViews(any())).thenReturn(List.of(
-        CaseHistoryItemViewFactory.create(caseNote1),
-        CaseHistoryItemViewFactory.create(caseNote2)
+        CaseHistoryItemViewFactory.create(caseNote1, List.of(fileView)),
+        CaseHistoryItemViewFactory.create(caseNote2, List.of())
     ));
 
     when(personRepository.findAllByIdIn(any())).thenReturn(List.of(person1, person2));
@@ -77,10 +80,11 @@ public class CaseHistoryServiceTest {
             CaseHistoryItemView::getPersonId,
             CaseHistoryItemView::getPersonLabelText,
             CaseHistoryItemView::getPersonName,
-            CaseHistoryItemView::getDataItems)
+            CaseHistoryItemView::getDataItems,
+            CaseHistoryItemView::getUploadedFileViews)
         .containsExactly(
-            tuple(caseNote1.getDateTime(), DateUtils.formatDateTime(caseNote1.getDateTime()), "Case note", caseNote1.getPersonId(), "Created by", person1.getFullName(), Map.of("Note text", caseNote1.getNoteText())),
-            tuple(caseNote2.getDateTime(), DateUtils.formatDateTime(caseNote2.getDateTime()), "Case note", caseNote2.getPersonId(), "Created by", person2.getFullName(), Map.of("Note text", caseNote2.getNoteText()))
+            tuple(caseNote1.getDateTime(), DateUtils.formatDateTime(caseNote1.getDateTime()), "Case note", caseNote1.getPersonId(), "Created by", person1.getFullName(), Map.of("Note text", caseNote1.getNoteText()), List.of(fileView)),
+            tuple(caseNote2.getDateTime(), DateUtils.formatDateTime(caseNote2.getDateTime()), "Case note", caseNote2.getPersonId(), "Created by", person2.getFullName(), Map.of("Note text", caseNote2.getNoteText()), List.of())
         );
 
 

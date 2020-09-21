@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.model.view.appprocessing.casehistory;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class CaseHistoryItemView {
@@ -18,6 +20,8 @@ public class CaseHistoryItemView {
 
   private final Map<String, String> dataItems;
 
+  List<UploadedFileView> uploadedFileViews;
+
   public CaseHistoryItemView(String headerText,
                              Instant dateTime,
                              String personLabelText,
@@ -29,6 +33,16 @@ public class CaseHistoryItemView {
     this.personLabelText = personLabelText;
     this.personId = personId;
     this.dataItems = dataItems;
+  }
+
+  public CaseHistoryItemView(String headerText,
+                             Instant dateTime,
+                             String personLabelText,
+                             PersonId personId,
+                             Map<String, String> dataItems,
+                             List<UploadedFileView> uploadedFileViews) {
+    this(headerText, dateTime, personLabelText, personId, dataItems);
+    this.uploadedFileViews = uploadedFileViews;
   }
 
   public String getHeaderText() {
@@ -63,4 +77,7 @@ public class CaseHistoryItemView {
     return dataItems;
   }
 
+  public List<UploadedFileView> getUploadedFileViews() {
+    return uploadedFileViews;
+  }
 }

@@ -18,11 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
+import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.UmbilicalCrossSectionForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -46,7 +46,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION
 })
-public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
+public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
 
   private final UmbilicalCrossSectionService umbilicalCrossSectionService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -78,7 +78,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationData
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
         // only load fully linked (saved) files
-        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, ApplicationFilePurpose.UMBILICAL_CROSS_SECTION)
+        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION)
     );
 
     modelAndView.addObject("pageTitle", "Umbilical cross-section diagram")
@@ -100,7 +100,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationData
       PwaApplicationContext applicationContext) {
 
     padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(),
-        ApplicationFilePurpose.UMBILICAL_CROSS_SECTION);
+        ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION);
     return createFileUploadModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
@@ -122,7 +122,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationData
     var modelAndView = createFileUploadModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      padFileService.updateFiles(form, detail, ApplicationFilePurpose.UMBILICAL_CROSS_SECTION,
+      padFileService.updateFiles(form, detail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION,
           FileUpdateMode.DELETE_UNLINKED_FILES, applicationContext.getUser());
 
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
@@ -153,7 +153,7 @@ public class UmbilicalCrossSectionDocumentsController extends PwaApplicationData
 
     // not creating full link until Save is clicked.
     return padFileService.processInitialUpload(file, applicationContext.getApplicationDetail(),
-        ApplicationFilePurpose.UMBILICAL_CROSS_SECTION, applicationContext.getUser());
+        ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION, applicationContext.getUser());
   }
 
   @PostMapping("/files/delete/{fileId}")

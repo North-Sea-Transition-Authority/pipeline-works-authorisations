@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -91,6 +92,9 @@ public abstract class PwaAppProcessingContextAbstractControllerTest {
 
   @SpyBean
   private AppProcessingBreadcrumbService appProcessingBreadcrumbService;
+
+  @MockBean
+  private AppFileService appFileService;
 
   @Before
   public void abstractControllerTestSetup() {

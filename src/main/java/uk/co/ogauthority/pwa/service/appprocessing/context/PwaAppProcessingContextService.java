@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Objects;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
@@ -19,14 +21,17 @@ public class PwaAppProcessingContextService {
   private final PwaApplicationDetailService detailService;
   private final PwaAppProcessingPermissionService appProcessingPermissionService;
   private final ApplicationDetailSearcher applicationDetailSearcher;
+  private final AppFileService appFileService;
 
   @Autowired
   public PwaAppProcessingContextService(PwaApplicationDetailService detailService,
                                         PwaAppProcessingPermissionService appProcessingPermissionService,
-                                        ApplicationDetailSearcher applicationDetailSearcher) {
+                                        ApplicationDetailSearcher applicationDetailSearcher,
+                                        AppFileService appFileService) {
     this.detailService = detailService;
     this.appProcessingPermissionService = appProcessingPermissionService;
     this.applicationDetailSearcher = applicationDetailSearcher;
+    this.appFileService = appFileService;
   }
 
   /**
@@ -46,6 +51,10 @@ public class PwaAppProcessingContextService {
         context.getAppProcessingPermissions(),
         contextParams.getAuthenticatedUserAccount(),
         applicationId);
+
+    if (contextParams.getFileId() != null) {
+      getAndSetAppFile(context, contextParams.getFileId());
+    }
 
     return context;
 
@@ -109,6 +118,23 @@ public class PwaAppProcessingContextService {
             requiredPermissions
         )
     );
+  }
+
+  /**
+   * If a file is found for the requested ID (and it's on the same app as the context), then add to the context.
+   * Otherwise throw a relevant exception.
+   */
+  private void getAndSetAppFile(PwaAppProcessingContext context, String fileId) {
+
+    var appFile = appFileService.getAppFileByPwaApplicationAndFileId(context.getPwaApplication(), fileId);
+    if (!Objects.equals(appFile.getPwaApplication(), context.getPwaApplication())) {
+      throw new AccessDeniedException(
+          String.format("AppFile app (%s) didn't match the app processing context's app (%s)",
+              appFile.getPwaApplication().getId(),
+              context.getPwaApplication().getId()));
+    }
+    context.setAppFile(appFile);
+
   }
 
 }

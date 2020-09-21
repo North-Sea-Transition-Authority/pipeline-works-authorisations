@@ -7,7 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
@@ -52,11 +52,11 @@ public class TechnicalDrawingsSummaryService implements ApplicationSectionSummar
     var sectionDisplayText = "Other diagrams";
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("admiraltyChartFileViews",
-        padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.ADMIRALTY_CHART, ApplicationFileLinkStatus.FULL));
+    summaryModel.put("admiraltyChartFileViews", padFileService
+            .getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART, ApplicationFileLinkStatus.FULL));
     summaryModel.put("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(pwaApplicationDetail));
     summaryModel.put("umbilicalFileViews",
-        padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.UMBILICAL_CROSS_SECTION,
+        padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION,
             ApplicationFileLinkStatus.FULL));
     summaryModel.put("umbilicalUrlFactory", new UmbilicalCrossSectionUrlFactory(pwaApplicationDetail));
     return new ApplicationSectionSummary(

@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
@@ -99,7 +99,7 @@ public class PipelineCrossingController {
         .addObject("pipelineCrossings", padPipelineCrossingService.getPipelineCrossingViews(detail))
         .addObject("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(detail))
         .addObject("pipelineCrossingFiles",
-            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.PIPELINE_CROSSINGS,
+            padFileService.getUploadedFileViews(detail, ApplicationDetailFilePurpose.PIPELINE_CROSSINGS,
                 ApplicationFileLinkStatus.FULL))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(),

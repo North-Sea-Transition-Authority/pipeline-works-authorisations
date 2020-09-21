@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -174,7 +174,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     var permanentDeposit = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
     entityManager.persist(permanentDeposit);
 
-    var ppdFileContainer = createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS);
+    var ppdFileContainer = createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
     var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, ppdFileContainer.getPadFile());
     entityManager.persist(depositDrawing);
 
@@ -186,10 +186,10 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   }
 
   private PadFileTestContainer createAndPersistPadFileWithRandomFileId(PwaApplicationDetail pwaApplicationDetail,
-                                                                       ApplicationFilePurpose applicationFilePurpose) {
+                                                                       ApplicationDetailFilePurpose applicationDetailFilePurpose) {
     var padFileTestContainer = PadFileTestUtil.createPadFileWithRandomFileIdAndData(
         pwaApplicationDetail,
-        applicationFilePurpose);
+        applicationDetailFilePurpose);
     entityManager.persist(padFileTestContainer.getUploadedFile());
     entityManager.persist(padFileTestContainer.getPadFile());
     return padFileTestContainer;
@@ -197,7 +197,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   private void createPadTechnicalDrawingAndLink(PwaApplicationDetail pwaApplicationDetail, PadPipeline padPipeline) {
     var tdFileContainer = createAndPersistPadFileWithRandomFileId(pwaApplicationDetail,
-        ApplicationFilePurpose.PIPELINE_DRAWINGS);
+        ApplicationDetailFilePurpose.PIPELINE_DRAWINGS);
     var td = PadTechnicalDrawingTestUtil.createPadTechnicalDrawing(pwaApplicationDetail, tdFileContainer.getPadFile());
     var link = PadTechnicalDrawingTestUtil.createPadTechnicalDrawingLink(td, padPipeline);
     entityManager.persist(td);
@@ -209,7 +209,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     var projectInfo = ProjectInformationTestUtils.buildEntity(LocalDate.now());
     projectInfo.setPwaApplicationDetail(pwaApplicationDetail);
     entityManager.persist(projectInfo);
-    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationFilePurpose.PROJECT_INFORMATION);
+    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION);
   }
 
   private void createCampaignWorksData(PwaApplicationDetail pwaApplicationDetail,
@@ -275,8 +275,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         )).isTrue();
 
     assertPadFileDetailsMatch(
-        firstVersionApplicationContainer.getPadFile(ApplicationFilePurpose.PROJECT_INFORMATION),
-        newVersionContainer.getPadFile(ApplicationFilePurpose.PROJECT_INFORMATION)
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.PROJECT_INFORMATION),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.PROJECT_INFORMATION)
     );
   }
 
@@ -307,7 +307,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
     // test each PadFile linked to first version matches that linked to new version
-    Arrays.stream(ApplicationFilePurpose.values())
+    Arrays.stream(ApplicationDetailFilePurpose.values())
         .forEach(applicationFilePurpose -> {
           if (firstVersionApplicationContainer.getPadFile(applicationFilePurpose) != null) {
             var v1PadFile = firstVersionApplicationContainer.getPadFile(applicationFilePurpose);
@@ -358,8 +358,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     ).isTrue();
 
     assertPadFileDetailsMatch(
-        firstVersionApplicationContainer.getPadFile(ApplicationFilePurpose.PIPELINE_DRAWINGS),
-        newVersionContainer.getPadFile(ApplicationFilePurpose.PIPELINE_DRAWINGS)
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.PIPELINE_DRAWINGS),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.PIPELINE_DRAWINGS)
     );
 
     assertThat(firstVersionApplicationContainer.getPadTechnicalDrawingLink().getPipeline().getPipelineId())

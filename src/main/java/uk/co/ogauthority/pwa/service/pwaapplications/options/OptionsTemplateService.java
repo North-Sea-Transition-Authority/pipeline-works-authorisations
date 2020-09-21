@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.options.OptionsTemplateForm;
@@ -27,7 +27,7 @@ public class OptionsTemplateService implements ApplicationFormSectionService {
   private final PadFileService padFileService;
   private final SpringValidatorAdapter groupValidator;
 
-  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.OPTIONS_TEMPLATE;
+  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.OPTIONS_TEMPLATE;
 
   @Autowired
   public OptionsTemplateService(PadFileService padFileService,

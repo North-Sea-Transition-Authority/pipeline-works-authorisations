@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -76,7 +76,7 @@ public class TechnicalDrawingsController {
     var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/overview")
         .addObject("showAdmiraltyChart", admiraltyChartFileService.canUploadDocuments(detail))
         .addObject("admiraltyChartFileViews",
-            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.ADMIRALTY_CHART,
+            padFileService.getUploadedFileViews(detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART,
                 ApplicationFileLinkStatus.FULL))
         .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
@@ -86,7 +86,7 @@ public class TechnicalDrawingsController {
         .addObject("showUmbilicalCrossSection", umbilicalCrossSectionService.canUploadDocuments(detail))
         .addObject("umbilicalCrossSectionUrlFactory", new UmbilicalCrossSectionUrlFactory(detail))
         .addObject("umbilicalCrossSectionFileViews",
-            padFileService.getUploadedFileViews(detail, ApplicationFilePurpose.UMBILICAL_CROSS_SECTION,
+            padFileService.getUploadedFileViews(detail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION,
                 ApplicationFileLinkStatus.FULL));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
         "Pipeline schematics and other diagrams");

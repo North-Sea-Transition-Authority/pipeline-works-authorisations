@@ -19,11 +19,11 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
+import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -52,14 +52,14 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DEPOSIT_CONSENT
 })
-public class MedianLineDocumentsController extends PwaApplicationDataFileUploadAndDownloadController {
+public class MedianLineDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
 
   private final PwaApplicationFileService applicationFileService;
   private final MedianLineCrossingFileService medianLineCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
   private final ControllerHelperService controllerHelperService;
-  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.MEDIAN_LINE_CROSSING;
+  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING;
 
   @Autowired
   public MedianLineDocumentsController(

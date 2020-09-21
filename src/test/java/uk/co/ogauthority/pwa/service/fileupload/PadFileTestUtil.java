@@ -4,7 +4,7 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Random;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
@@ -18,7 +18,7 @@ public class PadFileTestUtil {
   }
 
   public static PadFileTestContainer createPadFileWithRandomFileIdAndData(PwaApplicationDetail pwaApplicationDetail,
-                                                                          ApplicationFilePurpose applicationFilePurpose) {
+                                                                          ApplicationDetailFilePurpose applicationDetailFilePurpose) {
     byte[] array = new byte[7]; // length is bounded by 7
     new Random().nextBytes(array);
     String generalPurposeRandomString = new String(array, Charset.forName("UTF-8"));
@@ -33,7 +33,7 @@ public class PadFileTestUtil {
     var padFile = new PadFile(
         pwaApplicationDetail,
         generalPurposeRandomString,
-        applicationFilePurpose,
+        applicationDetailFilePurpose,
         ApplicationFileLinkStatus.FULL);
     padFile.setDescription(generalPurposeRandomString);
 

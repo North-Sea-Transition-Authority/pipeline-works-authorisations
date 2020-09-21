@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
@@ -97,7 +97,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
-    var padFile = new PadFile(pwaApplicationDetail, "id1", ApplicationFilePurpose.PIPELINE_DRAWINGS,
+    var padFile = new PadFile(pwaApplicationDetail, "id1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL);
     padFile.setDescription("desc");
     var techDrawing = new PadTechnicalDrawing(1, pwaApplicationDetail, padFile, "ref");

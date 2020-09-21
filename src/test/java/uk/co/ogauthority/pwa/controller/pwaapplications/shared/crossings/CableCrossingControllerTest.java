@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -347,7 +347,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
     verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
 
   }
 
@@ -367,7 +367,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
     verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -386,7 +386,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
     verify(padFileService, times(endpointTester.getContactRoles().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test

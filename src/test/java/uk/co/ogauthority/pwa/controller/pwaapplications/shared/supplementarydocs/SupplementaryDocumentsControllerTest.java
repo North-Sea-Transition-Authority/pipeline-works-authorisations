@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -176,7 +176,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
     verify(padFileService, times(1)).updateFiles(
         any(),
         eq(pwaApplicationDetail),
-        eq(ApplicationFilePurpose.SUPPLEMENTARY_DOCUMENTS),
+        eq(ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS),
         eq(FileUpdateMode.DELETE_UNLINKED_FILES),
         any());
 

@@ -9,7 +9,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
@@ -30,7 +30,7 @@ public class PwaApplicationVersionContainer {
 
   private PadProjectInformation padProjectInformation;
 
-  private Map<ApplicationFilePurpose, PadFile> padFiles;
+  private Map<ApplicationDetailFilePurpose, PadFile> padFiles;
 
   // assume one
   private Map<HuooRole, ImmutablePair<PadOrganisationRole, PadPipelineOrganisationRoleLink>> huooRolesLookup;
@@ -69,8 +69,8 @@ public class PwaApplicationVersionContainer {
     this.padProjectInformation = padProjectInformation;
   }
 
-  public PadFile getPadFile(ApplicationFilePurpose applicationFilePurpose) {
-    return this.padFiles.get(applicationFilePurpose);
+  public PadFile getPadFile(ApplicationDetailFilePurpose applicationDetailFilePurpose) {
+    return this.padFiles.get(applicationDetailFilePurpose);
   }
 
   public void setPadFiles(Collection<PadFile> padFiles) {

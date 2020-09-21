@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
@@ -391,12 +391,12 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
     //5. duplicate all drawing files and point duplicated drawings at new versions
     var copiedDrawingPadFileEntityIds = padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail, toDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL
+        fromDetail, toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL
     );
 
     var toDetailDrawingPadFileLookup = padFileService.getAllByPwaApplicationDetailAndPurpose(
         toDetail,
-        ApplicationFilePurpose.DEPOSIT_DRAWINGS
+        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS
     ).stream()
         .collect(Collectors.toMap(PadFile::getId, padFile -> padFile));
 

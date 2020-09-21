@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.controller.appprocessing.casenotes;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -101,7 +103,7 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(caseNoteService, times(1)).createCaseNote(pwaApplicationDetail.getPwaApplication(), "some text", user.getLinkedPerson());
+    verify(caseNoteService, times(1)).createCaseNote(eq(pwaApplicationDetail.getPwaApplication()), any(), eq(user));
 
   }
 

@@ -64,7 +64,8 @@ public class PwaAppProcessingContextArgumentResolver implements HandlerMethodArg
 
     var contextParams = new PwaAppProcessingContextParams(applicationId, authenticatedUser)
         .requiredAppStatus(appStatus)
-        .requiredProcessingPermissions(requiredRoles);
+        .requiredProcessingPermissions(requiredRoles)
+        .withFileId(ArgumentResolverUtils.resolveStringFromRequestOrNull(nativeWebRequest, "fileId"));
 
     return pwaAppProcessingContextService.validateAndCreate(contextParams);
 

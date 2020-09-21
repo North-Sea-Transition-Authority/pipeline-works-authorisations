@@ -12,7 +12,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
@@ -34,7 +34,7 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
   private final PartnerLettersValidator partnerLettersValidator;
   private final PadFileService padFileService;
 
-  private static final ApplicationFilePurpose FILE_PURPOSE = ApplicationFilePurpose.PARTNER_LETTERS;
+  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PARTNER_LETTERS;
 
   @Autowired
   public PadPartnerLettersService(PwaApplicationDetailService applicationDetailService,

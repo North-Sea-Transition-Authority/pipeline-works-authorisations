@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
@@ -152,7 +152,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
     verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -165,7 +165,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
     verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test
@@ -178,7 +178,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
     verify(padFileService, times(endpointTester.getContactRoles().size())).getUploadedFileViews(any(),
-        eq(ApplicationFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
+        eq(ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING), eq(ApplicationFileLinkStatus.FULL));
   }
 
   @Test

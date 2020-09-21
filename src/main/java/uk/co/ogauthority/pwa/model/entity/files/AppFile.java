@@ -11,20 +11,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 @Entity
-@Table(name = "pad_files")
-public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
+@Table(name = "app_files")
+public class AppFile {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @ManyToOne
-  @JoinColumn(referencedColumnName = "id", name = "pad_id")
-  private PwaApplicationDetail pwaApplicationDetail;
+  @JoinColumn(referencedColumnName = "id", name = "pa_id")
+  private PwaApplication pwaApplication;
 
   // not entity mapped to avoid selecting file data when not needed
   private String fileId;
@@ -32,36 +31,21 @@ public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
   private String description;
 
   @Enumerated(EnumType.STRING)
-  private ApplicationDetailFilePurpose purpose;
+  private AppFilePurpose purpose;
 
   @Enumerated(EnumType.STRING)
   private ApplicationFileLinkStatus fileLinkStatus;
 
-  public PadFile() {
+  public AppFile() {
   }
 
-  public PadFile(PwaApplicationDetail pwaApplicationDetail, String fileId,
-                 ApplicationDetailFilePurpose purpose,
+  public AppFile(PwaApplication pwaApplication, String fileId,
+                 AppFilePurpose purpose,
                  ApplicationFileLinkStatus fileLinkStatus) {
-    this.pwaApplicationDetail = pwaApplicationDetail;
+    this.pwaApplication = pwaApplication;
     this.fileId = fileId;
     this.purpose = purpose;
     this.fileLinkStatus = fileLinkStatus;
-  }
-
-  @Override
-  public void clearId() {
-    this.id = null;
-  }
-
-  @Override
-  public void setParent(PwaApplicationDetail parentEntity) {
-    this.pwaApplicationDetail = parentEntity;
-  }
-
-  @Override
-  public PwaApplicationDetail getParent() {
-    return this.pwaApplicationDetail;
   }
 
   public Integer getId() {
@@ -72,13 +56,12 @@ public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
     this.id = id;
   }
 
-  public PwaApplicationDetail getPwaApplicationDetail() {
-    return pwaApplicationDetail;
+  public PwaApplication getPwaApplication() {
+    return pwaApplication;
   }
 
-  public void setPwaApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) {
-    this.pwaApplicationDetail = pwaApplicationDetail;
+  public void setPwaApplication(PwaApplication pwaApplication) {
+    this.pwaApplication = pwaApplication;
   }
 
   public String getFileId() {
@@ -97,11 +80,11 @@ public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
     this.description = description;
   }
 
-  public ApplicationDetailFilePurpose getPurpose() {
+  public AppFilePurpose getPurpose() {
     return purpose;
   }
 
-  public void setPurpose(ApplicationDetailFilePurpose purpose) {
+  public void setPurpose(AppFilePurpose purpose) {
     this.purpose = purpose;
   }
 
@@ -113,8 +96,6 @@ public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
     this.fileLinkStatus = fileLinkStatus;
   }
 
-
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -123,17 +104,17 @@ public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PadFile padFile = (PadFile) o;
-    return id == padFile.id
-        && Objects.equals(pwaApplicationDetail, padFile.pwaApplicationDetail)
-        && Objects.equals(fileId, padFile.fileId)
-        && Objects.equals(description, padFile.description)
-        && purpose == padFile.purpose
-        && fileLinkStatus == padFile.fileLinkStatus;
+    AppFile appFile = (AppFile) o;
+    return Objects.equals(id, appFile.id)
+        && Objects.equals(pwaApplication, appFile.pwaApplication)
+        && Objects.equals(fileId, appFile.fileId)
+        && Objects.equals(description, appFile.description)
+        && purpose == appFile.purpose
+        && fileLinkStatus == appFile.fileLinkStatus;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplicationDetail, fileId, description, purpose, fileLinkStatus);
+    return Objects.hash(id, pwaApplication, fileId, description, purpose, fileLinkStatus);
   }
 }

@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -39,6 +41,9 @@ public class PwaAppProcessingContextServiceTest {
 
   @Mock
   private ApplicationDetailSearcher applicationDetailSearcher;
+
+  @Mock
+  private AppFileService appFileService;
 
   private PwaAppProcessingContextService contextService;
 
@@ -60,7 +65,7 @@ public class PwaAppProcessingContextServiceTest {
     detail = new PwaApplicationDetail(application, 1, 1, Instant.now());
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
-    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher);
+    contextService = new PwaAppProcessingContextService(detailService, appProcessingPermissionService, applicationDetailSearcher, appFileService);
 
     when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(detail));
@@ -79,6 +84,10 @@ public class PwaAppProcessingContextServiceTest {
     searchItem.setPwaHolderNameList(List.of("ROYAL DUTCH SHELL"));
 
     when(applicationDetailSearcher.searchByApplicationDetailId(any())).thenReturn(Optional.of(searchItem));
+
+    var appFile = new AppFile();
+    appFile.setPwaApplication(detail.getPwaApplication());
+    when(appFileService.getAppFileByPwaApplicationAndFileId(detail.getPwaApplication(), "valid-file")).thenReturn(appFile);
 
   }
 
@@ -203,7 +212,6 @@ public class PwaAppProcessingContextServiceTest {
 
   }
 
-
   @Test(expected = PwaEntityNotFoundException.class)
   public void getProcessingContext_noLastSubmittedDetail(){
     when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
@@ -216,6 +224,45 @@ public class PwaAppProcessingContextServiceTest {
   public void getProcessingContext_happyPath(){
 
     assertThat(contextService.getProcessingContext(1, user)).isNotNull();
+
+  }
+
+  @Test
+  public void validateAndCreate_withFileId_valid() {
+
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .withFileId("valid-file");
+
+    var context = contextService.validateAndCreate(builder);
+
+    assertThat(context.getAppFile()).isNotNull();
+
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void validateAndCreate_withFileId_fileNotFound() {
+
+    when(appFileService.getAppFileByPwaApplicationAndFileId(detail.getPwaApplication(), "bad-file")).thenThrow(PwaEntityNotFoundException.class);
+
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .withFileId("bad-file");
+
+    contextService.validateAndCreate(builder);
+
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void validateAndCreate_withFileId_appDetailMismatch() {
+
+    var otherAppFile = new AppFile();
+    otherAppFile.setPwaApplication(new PwaApplication());
+
+    when(appFileService.getAppFileByPwaApplicationAndFileId(detail.getPwaApplication(), "other-file")).thenReturn(otherAppFile);
+
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .withFileId("other-file");
+
+    contextService.validateAndCreate(builder);
 
   }
 

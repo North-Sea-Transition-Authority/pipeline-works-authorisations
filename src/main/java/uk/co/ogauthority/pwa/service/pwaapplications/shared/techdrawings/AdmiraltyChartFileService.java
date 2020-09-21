@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.AdmiraltyChartDocumentForm;
@@ -33,7 +33,7 @@ public class AdmiraltyChartFileService {
 
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new AdmiraltyChartDocumentForm();
-    padFileService.mapFilesToForm(form, detail, ApplicationFilePurpose.ADMIRALTY_CHART);
+    padFileService.mapFilesToForm(form, detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }

@@ -17,6 +17,8 @@ public class PwaAppProcessingContextParams {
   private PwaApplicationStatus status;
   private Set<PwaAppProcessingPermission> appProcessingPermissions;
 
+  private String fileId;
+
   public PwaAppProcessingContextParams(int applicationId, AuthenticatedUserAccount authenticatedUserAccount) {
     this.applicationId = applicationId;
     this.authenticatedUserAccount = authenticatedUserAccount;
@@ -30,6 +32,11 @@ public class PwaAppProcessingContextParams {
 
   public PwaAppProcessingContextParams requiredProcessingPermissions(Set<PwaAppProcessingPermission> appProcessingPermissions) {
     this.appProcessingPermissions = appProcessingPermissions;
+    return this;
+  }
+
+  public PwaAppProcessingContextParams withFileId(String fileId) {
+    this.fileId = fileId;
     return this;
   }
 
@@ -47,6 +54,10 @@ public class PwaAppProcessingContextParams {
 
   public Set<PwaAppProcessingPermission> getAppProcessingPermissions() {
     return appProcessingPermissions;
+  }
+
+  public String getFileId() {
+    return fileId;
   }
 
 }

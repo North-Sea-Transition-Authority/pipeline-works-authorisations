@@ -7,7 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
@@ -43,7 +43,7 @@ public class OptionsTemplateSummaryService implements ApplicationSectionSummaris
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail, String templateName) {
 
     var templateFileViews = padFileService
-        .getUploadedFileViews(pwaApplicationDetail, ApplicationFilePurpose.OPTIONS_TEMPLATE, ApplicationFileLinkStatus.FULL);
+        .getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.OPTIONS_TEMPLATE, ApplicationFileLinkStatus.FULL);
 
     var fileView = !templateFileViews.isEmpty() ? templateFileViews.get(0) : null;
 
