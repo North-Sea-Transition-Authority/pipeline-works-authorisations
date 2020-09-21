@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
@@ -44,6 +45,8 @@ public class PwaApplicationVersionContainer {
   private PadCampaignWorksPipeline padCampaignWorksPipeline;
 
   private List<PadField> padFields;
+
+  private PadEnvironmentalDecommissioning padEnvironmentalDecommissioning;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -138,5 +141,14 @@ public class PwaApplicationVersionContainer {
 
   public void setPadFields(List<PadField> padFields) {
     this.padFields = padFields;
+  }
+
+  public PadEnvironmentalDecommissioning getPadEnvironmentalDecommissioning() {
+    return padEnvironmentalDecommissioning;
+  }
+
+  public void setPadEnvironmentalDecommissioning(
+      PadEnvironmentalDecommissioning padEnvironmentalDecommissioning) {
+    this.padEnvironmentalDecommissioning = padEnvironmentalDecommissioning;
   }
 }

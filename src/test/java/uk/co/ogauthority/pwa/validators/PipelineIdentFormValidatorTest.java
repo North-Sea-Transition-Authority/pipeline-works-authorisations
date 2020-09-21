@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,6 +61,78 @@ public class PipelineIdentFormValidatorTest {
         entry("dataForm.wallThickness", Set.of("wallThickness.required")),
         entry("dataForm.insulationCoatingType", Set.of("insulationCoatingType.required"))
     );
+  }
+
+  @Test
+  public void fromLocation_tooLong() {
+
+    var form = buildForm();
+    form.setFromLocation(StringUtils.repeat("a", 201));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).containsOnly(entry("fromLocation", Set.of("fromLocation.maxLengthExceeded")));
+
+  }
+
+  @Test
+  public void fromLocation_charBoundary() {
+
+    var form = buildForm();
+    form.setFromLocation(StringUtils.repeat("a", 200));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).isEmpty();
+
+  }
+
+  @Test
+  public void fromLocation_unwantedChars() {
+
+    var form = buildForm();
+    form.setFromLocation("bad##");
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).containsOnly(entry("fromLocation", Set.of("fromLocation.invalid")));
+
+  }
+
+  @Test
+  public void toLocation_tooLong() {
+
+    var form = buildForm();
+    form.setToLocation(StringUtils.repeat("a", 201));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).containsOnly(entry("toLocation", Set.of("toLocation.maxLengthExceeded")));
+
+  }
+
+  @Test
+  public void toLocation_charBoundary() {
+
+    var form = buildForm();
+    form.setToLocation(StringUtils.repeat("a", 200));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).isEmpty();
+
+  }
+
+  @Test
+  public void toLocation_unwantedChars() {
+
+    var form = buildForm();
+    form.setToLocation("bad##");
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE);
+
+    assertThat(result).containsOnly(entry("toLocation", Set.of("toLocation.invalid")));
+
   }
 
   private PipelineIdentForm buildForm() {

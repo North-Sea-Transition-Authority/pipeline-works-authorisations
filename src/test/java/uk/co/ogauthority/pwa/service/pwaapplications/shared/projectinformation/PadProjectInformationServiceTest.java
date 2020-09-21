@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -89,7 +90,7 @@ public class PadProjectInformationServiceTest {
 
     date = LocalDate.now();
 
-    var pwaApplication = new PwaApplication(null, PwaApplicationType.HUOO_VARIATION, null);
+    var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     pwaApplicationDetail = new PwaApplicationDetail(pwaApplication, null, null, null);
     padProjectInformation = ProjectInformationTestUtils.buildEntity(date);
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
@@ -149,7 +150,8 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void validate_partial_fail() {
+  public void validate_partial_whenHuooVariationType_andInvalidData() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
 
     var tooBig = StringUtils.repeat("a", 4001);
     var form = new ProjectInformationForm();
@@ -173,7 +175,8 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void validate_partial_pass() {
+  public void validate_partial_whenHuooVariation_andValidData() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
 
     var ok = StringUtils.repeat("a", 4000);
     var form = new ProjectInformationForm();
@@ -193,8 +196,8 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void validate_full_fail() {
-
+  public void validate_full_whenHuooVariationType_andInvalidData() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
     var tooBig = StringUtils.repeat("a", 4001);
     var form = new ProjectInformationForm();
     form.setProjectOverview(tooBig);
@@ -221,7 +224,8 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void validate_full_pass() {
+  public void validate_full_whenHuooVariationType_andValidData() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
 
     var ok = StringUtils.repeat("a", 4000);
     var form = new ProjectInformationForm();
@@ -286,7 +290,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void cleanupData_hiddenData() {
+  public void cleanupData_whenInitialVariation_andAllConditionalFieldsHidden() {
 
     padProjectInformation.setLicenceTransferPlanned(false);
     padProjectInformation.setLicenceTransferTimestamp(Instant.now());
@@ -316,7 +320,52 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void cleanupData_noHiddenData() {
+  public void cleanupData_whenHuooVariation_conditionalQuestionsNeverShown() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
+
+    padProjectInformation = new PadProjectInformation();
+    // cleanup data shown on all apps and safely assumed to have value
+    padProjectInformation.setLicenceTransferPlanned(false);
+    // set values on never shown value to prove nothing changed
+    padProjectInformation.setFutureAppSubmissionMonth(1);
+    padProjectInformation.setFutureAppSubmissionYear(2);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+
+    service.cleanupData(pwaApplicationDetail);
+
+    var padProjectInfoCaptor = ArgumentCaptor.forClass(PadProjectInformation.class);
+    verify(padProjectInformationRepository, times(1)).save(padProjectInfoCaptor.capture());
+
+    assertThat(padProjectInfoCaptor.getValue().getFutureAppSubmissionMonth()).isEqualTo(1);
+    assertThat(padProjectInfoCaptor.getValue().getFutureAppSubmissionYear()).isEqualTo(2);
+
+  }
+
+  @Test
+  public void cleanupData_whenDepositConsentVariation_conditionalQuestionsNeverShown() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
+
+    padProjectInformation = new PadProjectInformation();
+    // cleanup data shown on all apps and safely assumed to have value
+    padProjectInformation.setLicenceTransferPlanned(false);
+    // set answers on visible questions
+    padProjectInformation.setTemporaryDepositsMade(false);
+    padProjectInformation.setTemporaryDepDescription("Some content");
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+
+    service.cleanupData(pwaApplicationDetail);
+
+    var padProjectInfoCaptor = ArgumentCaptor.forClass(PadProjectInformation.class);
+    verify(padProjectInformationRepository, times(1)).save(padProjectInfoCaptor.capture());
+
+    assertThat(padProjectInfoCaptor.getValue().getTemporaryDepDescription()).isNull();
+
+  }
+
+  @Test
+  public void cleanupData_whenInitialApplication_andAllConditionalQuestionsShownAndPopulated() {
 
     padProjectInformation.setLicenceTransferPlanned(true);
     padProjectInformation.setLicenceTransferTimestamp(Instant.now());
