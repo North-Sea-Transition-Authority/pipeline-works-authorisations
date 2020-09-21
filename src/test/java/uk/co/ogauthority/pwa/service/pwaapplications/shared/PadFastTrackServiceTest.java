@@ -286,6 +286,36 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
+  public void getFastTrackView_dataExists() {
+    var fastTrack = buildEntity();
+    when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(fastTrack));
+
+    var fastTrackView = padFastTrackService.getFastTrackView(pwaApplicationDetail);
+    assertThat(fastTrackView.getAvoidEnvironmentalDisaster()).isTrue();
+    assertThat(fastTrackView.getEnvironmentalDisasterReason()).isEqualTo(fastTrack.getEnvironmentalDisasterReason());
+
+    assertThat(fastTrackView.getSavingBarrels()).isTrue();
+    assertThat(fastTrackView.getSavingBarrelsReason()).isEqualTo(fastTrack.getSavingBarrelsReason());
+
+    assertThat(fastTrackView.getProjectPlanning()).isTrue();
+    assertThat(fastTrackView.getProjectPlanningReason()).isEqualTo(fastTrack.getProjectPlanningReason());
+
+    assertThat(fastTrackView.getHasOtherReason()).isTrue();
+    assertThat(fastTrackView.getOtherReason()).isEqualTo(fastTrack.getOtherReason());
+
+    assertThat(fastTrackView.isFastTrackDataExists()).isTrue();
+  }
+
+  @Test
+  public void getFastTrackView_noFastTrackData() {
+    var fastTrack = new PadFastTrack();
+    when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(fastTrack));
+
+    var fastTrackView = padFastTrackService.getFastTrackView(pwaApplicationDetail);
+    assertThat(fastTrackView.isFastTrackDataExists()).isFalse();
+  }
+
+  @Test
   public void validate_partial_fail() {
 
     var form = new FastTrackForm();

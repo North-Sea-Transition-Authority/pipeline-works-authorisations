@@ -1,33 +1,37 @@
 package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
+import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 
 /**
- * Construct summary of Fluid Composition information for a given application.
+ * Construct summary of Environmental and Decommissioning information for a given application.
  */
 @Service
-public class FluidCompositionSummaryService implements ApplicationSectionSummariser {
+public class EnvironmentalDecomSummaryService implements ApplicationSectionSummariser {
 
-  private final PadFluidCompositionInfoService padFluidCompositionInfoService;
+  private final PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
   private final TaskListService taskListService;
 
   @Autowired
-  public FluidCompositionSummaryService(
-      PadFluidCompositionInfoService padFluidCompositionInfoService,
+  public EnvironmentalDecomSummaryService(
+      PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService,
       TaskListService taskListService) {
-    this.padFluidCompositionInfoService = padFluidCompositionInfoService;
+    this.padEnvironmentalDecommissioningService = padEnvironmentalDecommissioningService;
     this.taskListService = taskListService;
   }
 
@@ -35,7 +39,7 @@ public class FluidCompositionSummaryService implements ApplicationSectionSummari
   public boolean canSummarise(PwaApplicationDetail pwaApplicationDetail) {
 
     var taskFilter = Set.of(
-        ApplicationTask.FLUID_COMPOSITION);
+        ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING);
 
     return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
   }
@@ -44,16 +48,23 @@ public class FluidCompositionSummaryService implements ApplicationSectionSummari
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    var sectionDisplayText = ApplicationTask.FLUID_COMPOSITION.getDisplayName();
+    var sectionDisplayText = ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("fluidCompositionView", padFluidCompositionInfoService.getFluidCompositionView(pwaApplicationDetail));
+    summaryModel.put("environmentalDecommView",
+        padEnvironmentalDecommissioningService.getEnvironmentalDecommissioningView(pwaApplicationDetail));
+    summaryModel.put("environmentalConditions", EnvironmentalCondition.stream()
+        .sorted(Comparator.comparing(EnvironmentalCondition::getDisplayOrder))
+        .collect(Collectors.toList()));
+    summaryModel.put("decommissioningConditions", DecommissioningCondition.stream()
+        .sorted(Comparator.comparing(DecommissioningCondition::getDisplayOrder))
+        .collect(Collectors.toList()));
 
     return new ApplicationSectionSummary(
         templateName,
         List.of(SidebarSectionLink.createAnchorLink(
             sectionDisplayText,
-            "#fluidCompositionDetails"
+            "#environmentalDecommDetails"
         )),
         summaryModel
     );

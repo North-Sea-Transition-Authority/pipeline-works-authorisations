@@ -240,7 +240,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     for (var deposit : permanentDepositService.getPermanentDeposits(detail)) {
-      if (padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit).isEmpty()) {
+      if (padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit).isEmpty()) {
         return false;
       }
     }

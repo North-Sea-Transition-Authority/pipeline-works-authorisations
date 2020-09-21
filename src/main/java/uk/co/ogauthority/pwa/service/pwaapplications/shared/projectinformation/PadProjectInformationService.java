@@ -189,15 +189,21 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       projectInformation.setCommercialAgreementTimestamp(null);
     }
 
-    // null out permanent deposit month and year if not "part of later application"
-    if (!projectInformation.getPermanentDepositsMade()) {
-      projectInformation.setFutureAppSubmissionMonth(null);
-      projectInformation.setFutureAppSubmissionYear(null);
-    }
+    var anyDepositQuestionShown = getIsAnyDepositQuestionRequired(detail);
+    var permDepositsQuestionShown = getIsPermanentDepositQuestionRequired(detail);
 
-    // null out temporary deposit description if temporary deposits not made
-    if (!projectInformation.getTemporaryDepositsMade()) {
-      projectInformation.setTemporaryDepDescription(null);
+    if (anyDepositQuestionShown) {
+
+      // null out permanent deposit month and year if not "part of later application"
+      if (permDepositsQuestionShown && !projectInformation.getPermanentDepositsMade()) {
+        projectInformation.setFutureAppSubmissionMonth(null);
+        projectInformation.setFutureAppSubmissionYear(null);
+      }
+
+      // null out temporary deposit description if temporary deposits not made
+      if (!projectInformation.getTemporaryDepositsMade()) {
+        projectInformation.setTemporaryDepDescription(null);
+      }
     }
 
     padProjectInformationRepository.save(projectInformation);

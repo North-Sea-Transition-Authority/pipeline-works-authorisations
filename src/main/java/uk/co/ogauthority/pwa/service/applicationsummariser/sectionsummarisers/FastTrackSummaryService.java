@@ -12,22 +12,22 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 
 /**
- * Construct summary of Fluid Composition information for a given application.
+ * Construct summary of Fast Track information for a given application.
  */
 @Service
-public class FluidCompositionSummaryService implements ApplicationSectionSummariser {
+public class FastTrackSummaryService implements ApplicationSectionSummariser {
 
-  private final PadFluidCompositionInfoService padFluidCompositionInfoService;
+  private final PadFastTrackService padFastTrackService;
   private final TaskListService taskListService;
 
   @Autowired
-  public FluidCompositionSummaryService(
-      PadFluidCompositionInfoService padFluidCompositionInfoService,
+  public FastTrackSummaryService(
+      PadFastTrackService padFastTrackService,
       TaskListService taskListService) {
-    this.padFluidCompositionInfoService = padFluidCompositionInfoService;
+    this.padFastTrackService = padFastTrackService;
     this.taskListService = taskListService;
   }
 
@@ -35,7 +35,7 @@ public class FluidCompositionSummaryService implements ApplicationSectionSummari
   public boolean canSummarise(PwaApplicationDetail pwaApplicationDetail) {
 
     var taskFilter = Set.of(
-        ApplicationTask.FLUID_COMPOSITION);
+        ApplicationTask.FAST_TRACK);
 
     return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
   }
@@ -44,16 +44,16 @@ public class FluidCompositionSummaryService implements ApplicationSectionSummari
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    var sectionDisplayText = ApplicationTask.FLUID_COMPOSITION.getDisplayName();
+    var sectionDisplayText = ApplicationTask.FAST_TRACK.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("fluidCompositionView", padFluidCompositionInfoService.getFluidCompositionView(pwaApplicationDetail));
+    summaryModel.put("fastTrackView", padFastTrackService.getFastTrackView(pwaApplicationDetail));
 
     return new ApplicationSectionSummary(
         templateName,
         List.of(SidebarSectionLink.createAnchorLink(
             sectionDisplayText,
-            "#fluidCompositionDetails"
+            "#fastTrackDetails"
         )),
         summaryModel
     );
