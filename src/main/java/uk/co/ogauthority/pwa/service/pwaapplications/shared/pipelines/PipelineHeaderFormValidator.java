@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
+import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @Service
 public class PipelineHeaderFormValidator implements SmartValidator {
@@ -40,14 +41,12 @@ public class PipelineHeaderFormValidator implements SmartValidator {
 
     var form = (PipelineHeaderForm) target;
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fromLocation", "fromLocation.required",
-        "Enter the pipeline's start point");
+    PipelineValidationUtils.validateFromToLocation(form.getFromLocation(), errors, "fromLocation", "Pipeline start structure");
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getFromCoordinateForm(), errors,
         "fromCoordinateForm", ValueRequirement.MANDATORY, "Start point");
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "toLocation", "toLocation.required",
-        "Enter the pipeline's finish point");
+    PipelineValidationUtils.validateFromToLocation(form.getToLocation(), errors, "toLocation", "Pipeline finish structure");
 
     ValidationUtils.invokeValidator(coordinateFormValidator, form.getToCoordinateForm(), errors,
         "toCoordinateForm", ValueRequirement.MANDATORY, "Finish point");
