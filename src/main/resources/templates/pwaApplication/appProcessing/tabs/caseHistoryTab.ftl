@@ -10,7 +10,13 @@
 
         <#list caseHistoryItems as item>
 
-          <@fdsTimeline.timelineTimeStamp timeStampHeading=item.headerText nodeNumber=" " timeStampClass="fds-timeline__time-stamp" >
+          <#if item?counter == caseHistoryItems?size>
+            <#local stampClass="fds-timeline__time-stamp--no-border" />
+            <#else>
+              <#local stampClass = "fds-timeline__time-stamp" />
+          </#if>
+
+          <@fdsTimeline.timelineTimeStamp timeStampHeading=item.headerText nodeNumber=" " timeStampClass=stampClass >
 
               <@fdsDataItems.dataItem dataItemListClasses="fds-data-items-list--tight">
                   <@fdsDataItems.dataValues key="Date and time" value=item.dateTimeDisplay />
