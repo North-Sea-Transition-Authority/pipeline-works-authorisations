@@ -76,6 +76,7 @@ public class ObjectTestUtils {
     // check that all fields apart from those we know will be different (or expect to be null) are equal between the two objects
     Arrays.stream(FieldUtils.getAllFields(object1.getClass()))
         .filter(field -> !ignoredForEqualsComparison.contains(field.getName()))
+        .filter(field -> !field.isSynthetic())
         .forEach(field -> {
 
           var oldValue = getFieldValue(field, object1);

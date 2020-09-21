@@ -1,10 +1,17 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Set;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.platform.commons.util.StringUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
@@ -13,6 +20,32 @@ import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 public final class PadPermanentDepositTestUtil {
 
   private PadPermanentDepositTestUtil() {
+  }
+
+  public static PadDepositDrawing createPadDepositDrawing(PwaApplicationDetail pwaApplicationDetail, PadFile padFile) {
+    var drawing = new PadDepositDrawing();
+    drawing.setPwaApplicationDetail(pwaApplicationDetail);
+    drawing.setFile(padFile);
+    // dont care about reference specifics
+    drawing.setReference(Arrays.toString(RandomUtils.nextBytes(10)));
+    ObjectTestUtils.assertAllFieldsNotNull(
+        drawing,
+        PadDepositDrawing.class,
+        Set.of(PadDepositDrawing_.ID)
+    );
+    return drawing;
+  }
+
+  public static PadDepositDrawingLink createPadDepositDrawingLink(PadPermanentDeposit padPermanentDeposit, PadDepositDrawing padDepositDrawing) {
+    var link = new PadDepositDrawingLink();
+    link.setPadDepositDrawing(padDepositDrawing);
+    link.setPadPermanentDeposit(padPermanentDeposit);
+    ObjectTestUtils.assertAllFieldsNotNull(
+        link,
+        PadDepositDrawingLink.class,
+        Set.of(PadDepositDrawingLink_.ID)
+    );
+    return link;
   }
 
   public static PadPermanentDeposit createPadDepositWithAllFieldsPopulated(PwaApplicationDetail pwaApplicationDetail) {

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +35,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 import uk.co.ogauthority.pwa.validators.PermanentDepositsDrawingValidator;
@@ -307,9 +306,28 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
 
   }
 
+  /**
+   * See {@link uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService#copySectionInformation}.
+   */
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    // assumed to done in core per deposit service
+  }
+
+  public List<PadDepositDrawing> getAllDepositDrawingsForDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return padDepositDrawingRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+  }
+
+  void saveDepositDrawings(List<PadDepositDrawing> padDepositDrawings) {
+    padDepositDrawingRepository.saveAll(padDepositDrawings);
+  }
+
+  public List<PadDepositDrawingLink> getAllDepositDrawingLinksByDetailPermanentDeposits(PwaApplicationDetail pwaApplicationDetail) {
+    return padDepositDrawingLinkRepository.findByPadPermanentDeposit_PwaApplicationDetail(pwaApplicationDetail);
+  }
+
+  void saveDepositDrawingLinks(List<PadDepositDrawingLink> padDepositDrawingLinks) {
+    padDepositDrawingLinkRepository.saveAll(padDepositDrawingLinks);
   }
 }
 

@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
@@ -41,6 +42,8 @@ public class PwaApplicationVersionContainer {
   private SimplePadPipelineContainer simplePadPipelineContainer;
 
   private PadDepositPipeline padDepositPipeline;
+
+  private PadDepositDrawingLink padDepositDrawingLink;
 
   private PadCampaignWorksPipeline padCampaignWorksPipeline;
 
@@ -150,5 +153,14 @@ public class PwaApplicationVersionContainer {
   public void setPadEnvironmentalDecommissioning(
       PadEnvironmentalDecommissioning padEnvironmentalDecommissioning) {
     this.padEnvironmentalDecommissioning = padEnvironmentalDecommissioning;
+  }
+
+  public PadDepositDrawingLink getPadDepositDrawingLink() {
+    return padDepositDrawingLink;
+  }
+
+  public void setPadDepositDrawingLink(
+      PadDepositDrawingLink padDepositDrawingLink) {
+    this.padDepositDrawingLink = padDepositDrawingLink;
   }
 }

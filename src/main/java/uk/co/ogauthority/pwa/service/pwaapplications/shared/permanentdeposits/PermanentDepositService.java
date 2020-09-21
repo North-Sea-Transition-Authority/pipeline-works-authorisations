@@ -21,7 +21,12 @@ import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationFilePurpose;
+import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -32,11 +37,12 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadDepositPipelin
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPermanentDepositRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadProjectInformationRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.appdetailreconciliation.PadPipelineReconcilerService;
 import uk.co.ogauthority.pwa.util.CleanupUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
@@ -59,6 +65,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final DepositDrawingsService depositDrawingsService;
   private final EntityCopyingService entityCopyingService;
   private final PadPipelineReconcilerService padPipelineReconcilerService;
+  private final PadFileService padFileService;
 
   @Autowired
   public PermanentDepositService(
@@ -71,7 +78,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PadDepositPipelineRepository padDepositPipelineRepository,
       PadProjectInformationRepository padProjectInformationRepository,
       EntityCopyingService entityCopyingService,
-      PadPipelineReconcilerService padPipelineReconcilerService) {
+      PadPipelineReconcilerService padPipelineReconcilerService,
+      PadFileService padFileService) {
     this.permanentDepositRepository = permanentDepositRepository;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
@@ -82,6 +90,7 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.entityCopyingService = entityCopyingService;
     this.padPipelineReconcilerService = padPipelineReconcilerService;
+    this.padFileService = padFileService;
   }
 
 
@@ -341,7 +350,6 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
 
-
     // 1. copy deposits
     var copiedPermanentDepositEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
         () -> permanentDepositRepository.getAllByPwaApplicationDetail(fromDetail),
@@ -373,6 +381,64 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     });
 
     padDepositPipelineRepository.saveAll(toDetailPermanentDepositPipelines);
+
+    // 4. duplicate all deposits drawing
+    var copiedDepositDrawingEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> depositDrawingsService.getAllDepositDrawingsForDetail(fromDetail),
+        toDetail,
+        PadDepositDrawing.class
+    );
+
+    //5. duplicate all drawing files and point duplicated drawings at new versions
+    var copiedDrawingPadFileEntityIds = padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail, toDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL
+    );
+
+    var toDetailDrawingPadFileLookup = padFileService.getAllByPwaApplicationDetailAndPurpose(
+        toDetail,
+        ApplicationFilePurpose.DEPOSIT_DRAWINGS
+    ).stream()
+        .collect(Collectors.toMap(PadFile::getId, padFile -> padFile));
+
+    var duplicatedPadFileMap = copiedDrawingPadFileEntityIds.stream()
+        .collect(Collectors.toMap(
+            CopiedEntityIdTuple::getOriginalEntityId,
+            padFileCopiedEntityIdTuple -> toDetailDrawingPadFileLookup.get(padFileCopiedEntityIdTuple.getDuplicateEntityId()))
+        );
+
+    // use map of original pad file id to duplicated pad file id to set correct padFile link on deposit drawing.
+    var toDetailDepositDrawings = depositDrawingsService.getAllDepositDrawingsForDetail(toDetail);
+    toDetailDepositDrawings.forEach(padDepositDrawing -> {
+      padDepositDrawing.setFile(duplicatedPadFileMap.get(padDepositDrawing.getFile().getId()));
+    });
+    depositDrawingsService.saveDepositDrawings(toDetailDepositDrawings);
+
+    //6. duplicate all drawing links and repoint at duplicated perm deposits
+    var copiedDrawingLinkEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
+        () -> depositDrawingsService.getAllDepositDrawingLinksByDetailPermanentDeposits(fromDetail),
+        copiedPermanentDepositEntityIds,
+        PadDepositDrawingLink.class
+    );
+
+    // id of duplicated drawing to duplicated drawing entity
+    var toDetailDepositDrawingLookup = toDetailDepositDrawings.stream()
+        .collect(Collectors.toMap(PadDepositDrawing::getId, depositDrawing -> depositDrawing));
+
+    var originalDrawingIdToDuplicatedDrawingIdLookup = copiedDepositDrawingEntityIds.stream()
+        .collect(Collectors.toMap(
+            CopiedEntityIdTuple::getOriginalEntityId,
+            CopiedEntityIdTuple::getDuplicateEntityId));
+
+    var toDetailDrawingLinks = depositDrawingsService.getAllDepositDrawingLinksByDetailPermanentDeposits(toDetail);
+
+    toDetailDrawingLinks.forEach(padDepositDrawingLink -> {
+      var duplicatedDepositDrawing = toDetailDepositDrawingLookup.get(
+          originalDrawingIdToDuplicatedDrawingIdLookup.get(padDepositDrawingLink.getPadDepositDrawing().getId())
+      );
+      padDepositDrawingLink.setPadDepositDrawing(duplicatedDepositDrawing);
+    });
+
+    depositDrawingsService.saveDepositDrawingLinks(toDetailDrawingLinks);
 
   }
 

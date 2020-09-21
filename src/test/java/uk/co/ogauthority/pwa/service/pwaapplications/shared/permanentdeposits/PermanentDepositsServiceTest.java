@@ -46,8 +46,8 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipe
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.appdetailreconciliation.PadPipelineReconcilerService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -88,6 +88,9 @@ public class PermanentDepositsServiceTest {
   @Mock
   private PadPipelineReconcilerService padPipelineReconcilerService;
 
+  @Mock
+  private PadFileService padFileService;
+
   private SpringValidatorAdapter groupValidator;
 
 
@@ -113,7 +116,8 @@ public class PermanentDepositsServiceTest {
         padDepositPipelineRepository,
         padProjectInformationRepository,
         entityCopyingService,
-        padPipelineReconcilerService);
+        padPipelineReconcilerService,
+        padFileService);
 
     date = LocalDate.now();
 

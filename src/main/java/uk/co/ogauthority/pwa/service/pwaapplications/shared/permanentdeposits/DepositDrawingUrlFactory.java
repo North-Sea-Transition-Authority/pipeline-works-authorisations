@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdepositdrawings;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits;
 
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
