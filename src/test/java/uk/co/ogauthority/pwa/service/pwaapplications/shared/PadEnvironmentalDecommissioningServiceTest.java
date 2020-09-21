@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.initial;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,9 +28,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
@@ -44,6 +44,9 @@ public class PadEnvironmentalDecommissioningServiceTest {
   @Mock
   private EnvironmentalDecommissioningValidator validator;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
   private SpringValidatorAdapter groupValidator;
 
   private PadEnvironmentalDecommissioningService padEnvironmentalDecommissioningService;
@@ -54,7 +57,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   public void setUp() {
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
     padEnvironmentalDecommissioningService = new PadEnvironmentalDecommissioningService(
-        padEnvironmentalDecommissioningRepository, validator, groupValidator);
+        padEnvironmentalDecommissioningRepository, validator, groupValidator, entityCopyingService);
     instant = Instant.now();
   }
 

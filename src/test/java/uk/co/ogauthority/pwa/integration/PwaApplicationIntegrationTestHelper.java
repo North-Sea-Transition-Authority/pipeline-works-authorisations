@@ -13,6 +13,8 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
@@ -162,6 +164,17 @@ public class PwaApplicationIntegrationTestHelper {
     ).getResultList();
   }
 
+  public PadEnvironmentalDecommissioning getPadEnvironmentalDecommissioning(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadEnvironmentalDecommissioning> criteriaQuery = cb.createQuery(PadEnvironmentalDecommissioning.class);
+    Root<PadEnvironmentalDecommissioning> padFieldRoot = criteriaQuery.from(PadEnvironmentalDecommissioning.class);
+
+    return entityManager.createQuery(
+        criteriaQuery
+            .where(cb.equal(padFieldRoot.get(PadEnvironmentalDecommissioning_.pwaApplicationDetail), pwaApplicationDetail))
+    ).getSingleResult();
+  }
+
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
@@ -174,6 +187,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadDepositPipeline(getPermanentDepositPipeline(pwaApplicationDetail));
     container.setPadCampaignWorksPipeline(getPadCampaignWorksPipeline(pwaApplicationDetail));
     container.setPadFields(getPadFields(pwaApplicationDetail));
+    container.setPadEnvironmentalDecommissioning(getPadEnvironmentalDecommissioning(pwaApplicationDetail));
     return container;
 
   }

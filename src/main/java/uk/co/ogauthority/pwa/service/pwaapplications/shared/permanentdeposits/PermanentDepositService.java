@@ -372,6 +372,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       );
     });
 
+    padDepositPipelineRepository.saveAll(toDetailPermanentDepositPipelines);
+
   }
 
   private void cleanupGroutBags(PadPermanentDeposit deposit) {
