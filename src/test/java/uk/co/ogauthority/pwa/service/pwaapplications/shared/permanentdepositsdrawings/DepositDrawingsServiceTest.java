@@ -303,7 +303,7 @@ public class DepositDrawingsServiceTest {
     var depositLink = new PadDepositDrawingLink();
     depositLink.setPadPermanentDeposit(deposit1);
     when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(List.of(deposit1, deposit2));
-    when(padDepositDrawingLinkRepository.findByPadPermanentDeposit(deposit1)).thenReturn(Optional.empty());
+    when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit1)).thenReturn(List.of());
 
     assertFalse(depositDrawingsService.isComplete(pwaApplicationDetail));
   }
