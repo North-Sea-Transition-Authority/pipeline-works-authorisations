@@ -57,7 +57,7 @@ public enum ApplicationSectionSummaryType {
 
   ENVIRONMENTAL_DECOMMISSIONING(
       50,
-          "pwaApplication/applicationSummarySections/environmentalDecomSummary.ftl",
+          "pwaApplication/applicationSummarySections/environmentalAndDecommissioningSummary.ftl",
       EnvironmentalDecomSummaryService.class),
 
   GENERAL_TECH_DETAILS(
