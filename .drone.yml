@@ -23,16 +23,11 @@ steps:
       - npm install
       - npx gulp buildAll
 
-  - name: build-war
+  - name: build-backend
     image: openjdk:11-jdk-slim
     commands:
       - chmod +x gradlew
-      - ./gradlew test checkstyleMain bootWar
-
-  - name: build-jar
-    image: openjdk:11-jdk-slim
-    commands:
-      - ./gradlew bootJar
+      - ./gradlew test checkstyleMain bootWar bootJar
 
   - name: code-analysis
     image: aosapps/drone-sonar-plugin

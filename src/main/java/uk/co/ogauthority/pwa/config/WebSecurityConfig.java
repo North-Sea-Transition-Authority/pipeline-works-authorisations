@@ -50,6 +50,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/session-info", "/maps-test", "/notify/callback", "/test-controller/type-mismatch-test")
           .permitAll()
 
+        .antMatchers("/actuator/*")
+          .permitAll()
+
         .anyRequest()
           .authenticated();
 
