@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
@@ -148,7 +149,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     var simplePadPipelineContainer = createAndPersistPipeline(pwaApplicationDetail);
     createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
     createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
-    createAndPersistPermanentDepositPipeline(pwaApplicationDetail, simplePadPipelineContainer);
+    createAndPersistPermanentDepositData(pwaApplicationDetail, simplePadPipelineContainer);
     createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
@@ -167,12 +168,21 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     entityManager.persist(pf2);
   }
 
-  private void createAndPersistPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail,
-                                                        SimplePadPipelineContainer simplePadPipelineContainer) {
-    var ppd = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
-    entityManager.persist(ppd);
-    var pdp = PadPermanentDepositTestUtil.createDepositPipeline(ppd, simplePadPipelineContainer.getPadPipeline());
-    entityManager.persist(pdp);
+  private void createAndPersistPermanentDepositData(PwaApplicationDetail pwaApplicationDetail,
+                                                    SimplePadPipelineContainer simplePadPipelineContainer) {
+
+    var permanentDeposit = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
+    entityManager.persist(permanentDeposit);
+
+    var ppdFileContainer = createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationFilePurpose.DEPOSIT_DRAWINGS);
+    var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, ppdFileContainer.getPadFile());
+    entityManager.persist(depositDrawing);
+
+    var depositDrawingLink = PadPermanentDepositTestUtil.createPadDepositDrawingLink(permanentDeposit, depositDrawing);
+    entityManager.persist(depositDrawingLink);
+
+    var depositPipeline = PadPermanentDepositTestUtil.createDepositPipeline(permanentDeposit, simplePadPipelineContainer.getPadPipeline());
+    entityManager.persist(depositPipeline);
   }
 
   private PadFileTestContainer createAndPersistPadFileWithRandomFileId(PwaApplicationDetail pwaApplicationDetail,
@@ -437,17 +447,39 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
-     ObjectTestUtils.assertValuesEqual(
-         firstVersionApplicationContainer.getPadDepositPipeline().getPadPermanentDeposit(),
-         newVersionContainer.getPadDepositPipeline().getPadPermanentDeposit(),
-         Set.of(PadPermanentDeposit_.ID, PadPermanentDeposit_.PWA_APPLICATION_DETAIL)
-     );
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadDepositPipeline().getPadPermanentDeposit(),
+        newVersionContainer.getPadDepositPipeline().getPadPermanentDeposit(),
+        Set.of(PadPermanentDeposit_.ID, PadPermanentDeposit_.PWA_APPLICATION_DETAIL)
+    );
 
-     assertThat(firstVersionApplicationContainer.getPadDepositPipeline().getPadPipeline().getPipelineId())
-         .isEqualTo(newVersionContainer.getPadDepositPipeline().getPadPipeline().getPipelineId());
+    assertThat(firstVersionApplicationContainer.getPadDepositPipeline().getPadPipeline().getPipelineId())
+        .isEqualTo(newVersionContainer.getPadDepositPipeline().getPadPipeline().getPipelineId());
 
     assertThat(newVersionContainer.getPadDepositPipeline().getPadPipeline())
         .isEqualTo(newVersionContainer.getSimplePadPipelineContainer().getPadPipeline());
+
+    // make sure drawing link to perm deposits match
+    assertThat(newVersionContainer.getPadDepositDrawingLink().getPadPermanentDeposit())
+        .isEqualTo(newVersionContainer.getPadDepositPipeline().getPadPermanentDeposit());
+
+    // make sure different padFile
+    assertThat(firstVersionApplicationContainer.getPadDepositDrawingLink()
+        .getPadDepositDrawing().getFile().getId())
+        .isNotEqualTo(newVersionContainer.getPadDepositDrawingLink()
+            .getPadDepositDrawing().getFile().getId());
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadDepositDrawingLink().getPadDepositDrawing(),
+        newVersionContainer.getPadDepositDrawingLink().getPadDepositDrawing(),
+        Set.of(PadDepositDrawing_.ID, PadDepositDrawing_.PWA_APPLICATION_DETAIL, PadDepositDrawing_.FILE)
+    );
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadDepositDrawingLink().getPadPermanentDeposit(),
+        newVersionContainer.getPadDepositDrawingLink().getPadPermanentDeposit(),
+        Set.of(PadPermanentDeposit_.ID, PadPermanentDeposit_.PWA_APPLICATION_DETAIL)
+    );
 
   }
 

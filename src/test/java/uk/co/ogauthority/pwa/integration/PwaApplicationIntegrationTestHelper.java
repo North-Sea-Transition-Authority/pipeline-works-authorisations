@@ -21,6 +21,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.Pad
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
@@ -167,12 +169,25 @@ public class PwaApplicationIntegrationTestHelper {
   public PadEnvironmentalDecommissioning getPadEnvironmentalDecommissioning(PwaApplicationDetail pwaApplicationDetail){
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadEnvironmentalDecommissioning> criteriaQuery = cb.createQuery(PadEnvironmentalDecommissioning.class);
-    Root<PadEnvironmentalDecommissioning> padFieldRoot = criteriaQuery.from(PadEnvironmentalDecommissioning.class);
+    Root<PadEnvironmentalDecommissioning> decommissioningRoot = criteriaQuery.from(PadEnvironmentalDecommissioning.class);
 
     return entityManager.createQuery(
         criteriaQuery
-            .where(cb.equal(padFieldRoot.get(PadEnvironmentalDecommissioning_.pwaApplicationDetail), pwaApplicationDetail))
+            .where(cb.equal(decommissioningRoot.get(PadEnvironmentalDecommissioning_.pwaApplicationDetail), pwaApplicationDetail))
     ).getSingleResult();
+  }
+
+  public List<PadDepositDrawingLink> getPadDepositDrawingLinks(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadDepositDrawingLink> criteriaQuery = cb.createQuery(PadDepositDrawingLink.class);
+    Root<PadDepositDrawingLink> depositDrawingLinkRoot = criteriaQuery.from(PadDepositDrawingLink.class);
+    Join<PadDepositDrawingLink, PadPermanentDeposit> permanentDepositJoin = depositDrawingLinkRoot.join(
+        PadDepositDrawingLink_.PAD_DEPOSIT_DRAWING);
+
+    return entityManager.createQuery(
+        criteriaQuery
+            .where(cb.equal(permanentDepositJoin.get(PadPermanentDeposit_.pwaApplicationDetail), pwaApplicationDetail))
+    ).getResultList();
   }
 
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
@@ -188,6 +203,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadCampaignWorksPipeline(getPadCampaignWorksPipeline(pwaApplicationDetail));
     container.setPadFields(getPadFields(pwaApplicationDetail));
     container.setPadEnvironmentalDecommissioning(getPadEnvironmentalDecommissioning(pwaApplicationDetail));
+    container.setPadDepositDrawingLink(getPadDepositDrawingLinks(pwaApplicationDetail).get(0));
     return container;
 
   }

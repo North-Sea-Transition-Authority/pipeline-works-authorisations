@@ -20,4 +20,6 @@ public interface PadDepositDrawingRepository extends CrudRepository<PadDepositDr
       PwaApplicationDetail pwaApplicationDetail, String reference);
 
   Optional<PadDepositDrawing> findByPwaApplicationDetailAndFile(PwaApplicationDetail pwaApplicationDetail, PadFile file);
+
+  List<PadDepositDrawing> findByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 }

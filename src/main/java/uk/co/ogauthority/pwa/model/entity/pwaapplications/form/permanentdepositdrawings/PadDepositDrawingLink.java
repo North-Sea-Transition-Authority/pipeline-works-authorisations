@@ -9,10 +9,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity
 @Table(name = "pad_deposit_drawing_links")
-public class PadDepositDrawingLink {
+public class PadDepositDrawingLink implements ChildEntity<Integer, PadPermanentDeposit> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +35,21 @@ public class PadDepositDrawingLink {
   public PadDepositDrawingLink(@NotNull PadPermanentDeposit padPermanentDeposit, @NotNull PadDepositDrawing padDepositDrawing) {
     this.padPermanentDeposit = padPermanentDeposit;
     this.padDepositDrawing = padDepositDrawing;
+  }
+
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadPermanentDeposit parentEntity) {
+    this.padPermanentDeposit = parentEntity;
+  }
+
+  @Override
+  public PadPermanentDeposit getParent() {
+    return this.getPadPermanentDeposit();
   }
 
   public Integer getId() {
