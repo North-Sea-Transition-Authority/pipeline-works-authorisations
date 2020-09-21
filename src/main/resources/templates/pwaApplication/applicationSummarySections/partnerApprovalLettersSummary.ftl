@@ -28,7 +28,7 @@
         <#if partnerLettersView.partnerLettersConfirmed?has_content>
          <@showConfirmedForBool partnerLettersView.partnerLettersConfirmed/>
         <#else>
-          Not Provided
+          Not provided
         </#if>
       </@fdsCheckAnswers.checkAnswersRow>
     </#if>
