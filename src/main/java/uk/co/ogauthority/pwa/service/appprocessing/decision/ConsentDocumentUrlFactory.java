@@ -26,7 +26,7 @@ public class ConsentDocumentUrlFactory {
 
   public String getReloadDocumentUrl() {
     return ReverseRouter.route(on(AppConsentDocController.class)
-        .renderReloadDocument(application.getId(), application.getApplicationType(), null, null));
+        .renderReloadDocument(application.getId(), application.getApplicationType(), null, null, null));
   }
 
 }

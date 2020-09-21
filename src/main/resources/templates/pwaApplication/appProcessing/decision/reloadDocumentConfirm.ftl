@@ -10,11 +10,11 @@
   </h1>
 
   <@fdsWarning.warning>
-    This will clear all changes made to the document and recreate it from scratch.
+    This will clear all changes made to the document and recreate it.
   </@fdsWarning.warning>
 
   <@fdsForm.htmlForm>
-    <@fdsAction.submitButtons primaryButtonText="Reload document" linkSecondaryAction=true secondaryLinkText="Don't reload" linkSecondaryActionUrl=springUrl(consentDocumentUrlFactory.renderEditorUrl)/>
+    <@fdsAction.submitButtons primaryButtonText="Reload document" primaryButtonClass="govuk-button govuk-button--warning" linkSecondaryAction=true secondaryLinkText="Don't reload" linkSecondaryActionUrl=springUrl(consentDocumentUrlFactory.renderEditorUrl)/>
   </@fdsForm.htmlForm>
 
 </@defaultPage>

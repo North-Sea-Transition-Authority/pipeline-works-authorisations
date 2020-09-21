@@ -1,0 +1,91 @@
+package uk.co.ogauthority.pwa.model.entity.documents.instances;
+
+import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+import uk.co.ogauthority.pwa.model.entity.documents.SectionClause;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
+
+@Entity
+@Table(name = "di_section_clauses")
+public class DocumentInstanceSectionClause implements SectionClause {
+
+  // custom sequence generator used to allow caching of batches of sequence values when inserting section clauses to aid performance.
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "di_section_clause_id_generator")
+  @GenericGenerator(
+      name = "di_section_clause_id_generator",
+      strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+      parameters = {
+          @Parameter(name = "sequence_name", value = "di_section_clauses_id_seq"),
+          @Parameter(name = "optimizer", value = "pooled"),
+          @Parameter(name = "initial_value", value = "1"),
+          @Parameter(name = "increment_size", value = "100")
+      }
+  )
+  private Integer id;
+
+  @ManyToOne
+  @JoinColumn(name =  "di_id")
+  private DocumentInstance documentInstance;
+
+  @OneToOne
+  @JoinColumn(name = "dt_sc_id")
+  private DocumentTemplateSectionClause documentTemplateSectionClause;
+
+  public DocumentInstanceSectionClause() {
+  }
+
+  @Override
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public DocumentInstance getDocumentInstance() {
+    return documentInstance;
+  }
+
+  public void setDocumentInstance(DocumentInstance documentInstance) {
+    this.documentInstance = documentInstance;
+  }
+
+  public DocumentTemplateSectionClause getDocumentTemplateSectionClause() {
+    return documentTemplateSectionClause;
+  }
+
+  public void setDocumentTemplateSectionClause(
+      DocumentTemplateSectionClause documentTemplateSectionClause) {
+    this.documentTemplateSectionClause = documentTemplateSectionClause;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DocumentInstanceSectionClause that = (DocumentInstanceSectionClause) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(documentInstance, that.documentInstance)
+        && Objects.equals(documentTemplateSectionClause, that.documentTemplateSectionClause);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, documentInstance, documentTemplateSectionClause);
+  }
+}
