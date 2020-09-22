@@ -112,7 +112,12 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail,
+        toDetail,
+        ApplicationDetailFilePurpose.PARTNER_LETTERS,
+        ApplicationFileLinkStatus.FULL
+    );
   }
 
   @Override
