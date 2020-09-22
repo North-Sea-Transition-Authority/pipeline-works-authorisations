@@ -49,8 +49,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningTestUtil;
@@ -84,6 +86,9 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Autowired
   private PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
 
+  @Autowired
+  private ApplicationTaskService applicationTaskService;
+
   private MasterPwa masterPwa;
   private PwaApplication pwaApplication;
   private PwaApplicationVersionContainer firstVersionApplicationContainer;
@@ -98,12 +103,12 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   private PwaApplicationIntegrationTestHelper testHelper;
 
-  public void setup() throws IllegalAccessException {
+  public void setup(PwaApplicationType pwaApplicationType) throws IllegalAccessException {
 
     testHelper = new PwaApplicationIntegrationTestHelper(entityManager);
 
     var firstVersionPwaDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL
+        pwaApplicationType
     );
 
     devukField = new DevukField(FIELD_ID, "some field", 500);
@@ -145,17 +150,34 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(
       PwaApplicationDetail pwaApplicationDetail) throws IllegalAccessException {
 
+    if (pwaApplicationDetail.getPwaApplicationType() == PwaApplicationType.OPTIONS_VARIATION) {
+      createSupplementaryDocument(pwaApplicationDetail);
+      createOptionsTemplateDocument(pwaApplicationDetail);
+    }
+
+    if (applicationTaskService.canShowTask(ApplicationTask.PIPELINES, pwaApplicationDetail)) {
+      var simplePadPipelineContainer = createAndPersistPipeline(pwaApplicationDetail);
+      createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
+      createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
+      createAndPersistPermanentDepositData(pwaApplicationDetail, simplePadPipelineContainer);
+      createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
+    }
+
     createProjInfoData(pwaApplicationDetail);
-    var simplePadPipelineContainer = createAndPersistPipeline(pwaApplicationDetail);
-    createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
-    createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
-    createAndPersistPermanentDepositData(pwaApplicationDetail, simplePadPipelineContainer);
-    createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
     createOtherPipelineDiagramLinks(pwaApplicationDetail);
     createPartnerLetterDocument(pwaApplicationDetail);
+
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createSupplementaryDocument(PwaApplicationDetail pwaApplicationDetail){
+    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS);
+  }
+
+  private void createOptionsTemplateDocument(PwaApplicationDetail pwaApplicationDetail){
+    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.OPTIONS_TEMPLATE);
   }
 
   private void createPadEnvDecom(PwaApplicationDetail pwaApplicationDetail){
@@ -270,7 +292,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_projectInformationMappedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -312,7 +334,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_allPadFilesMappedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -335,7 +357,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_allPipelineDataMappedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -383,7 +405,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_huooRoleLinksMappedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -452,7 +474,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_permanentDepositCopiedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -500,7 +522,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_campaignWorkScheduleCopiedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -526,7 +548,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_padFieldsCopiedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -562,7 +584,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_padEnvDecomCopiedAsExpected() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -582,7 +604,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_otherPipelineDiagrams() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -606,7 +628,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   @Transactional
   @Test
   public void createNewApplicationVersion_partnerLetters() throws IllegalAccessException {
-    setup();
+    setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
         firstVersionApplicationContainer.getPwaApplicationDetail(),
@@ -618,6 +640,30 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     assertPadFileDetailsMatch(
         firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.PARTNER_LETTERS),
         newVersionContainer.getPadFile(ApplicationDetailFilePurpose.PARTNER_LETTERS)
+    );
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_optionVariationDocuments() throws IllegalAccessException {
+    setup(PwaApplicationType.OPTIONS_VARIATION);
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.OPTIONS_TEMPLATE),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.OPTIONS_TEMPLATE)
+    );
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS)
     );
 
   }
