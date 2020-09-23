@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.LocationDetailsView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
@@ -114,6 +115,43 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setRouteSurveyUndertaken(locationDetailsForm.getRouteSurveyUndertaken());
     padLocationDetails.setWithinLimitsOfDeviation(locationDetailsForm.getWithinLimitsOfDeviation());
     save(padLocationDetails);
+  }
+
+  public LocationDetailsView getLocationDetailsView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var locationDetails = getLocationDetailsForDraft(pwaApplicationDetail);
+    var surveyConcludedTimestamp = locationDetails.getSurveyConcludedTimestamp();
+    List<String> facilityNames =
+        !locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO) ? getFacilityNames(pwaApplicationDetail) : List.of();
+
+    return new LocationDetailsView(
+        locationDetails.getApproximateProjectLocationFromShore(),
+        locationDetails.getWithinSafetyZone(),
+        locationDetails.getWithinSafetyZone().equals(HseSafetyZone.YES) ? facilityNames : List.of(),
+        locationDetails.getWithinSafetyZone().equals(HseSafetyZone.PARTIALLY) ? facilityNames : List.of(),
+        locationDetails.getFacilitiesOffshore(),
+        locationDetails.getTransportsMaterialsToShore(),
+        locationDetails.getTransportationMethod(),
+        locationDetails.getPipelineRouteDetails(),
+        locationDetails.getRouteSurveyUndertaken(),
+        locationDetails.getWithinLimitsOfDeviation(),
+        surveyConcludedTimestamp != null ? DateUtils.formatDate(surveyConcludedTimestamp) : null,
+        locationDetails.getPipelineAshoreLocation()
+    );
+  }
+
+  private List<String> getFacilityNames(PwaApplicationDetail pwaApplicationDetail) {
+    var facilities = padFacilityService.getFacilities(pwaApplicationDetail);
+
+    return facilities.stream()
+        .map(padFacility -> {
+          if (padFacility.isLinkedToDevukFacility()) {
+            return String.valueOf(padFacility.getFacility().getFacilityName());
+          } else {
+            return padFacility.getFacilityNameManualEntry();
+          }
+        })
+        .collect(Collectors.toList());
   }
 
   public Map<String, String> reapplyFacilitySelections(LocationDetailsForm form) {
