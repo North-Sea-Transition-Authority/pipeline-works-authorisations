@@ -9,23 +9,9 @@ import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.options.OptionsTemplateForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.techdetails.UmbilicalCrossSectionForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 public class FileUploadUtilsTest {
-
-  @Test
-  public void getDropzoneErrorMessage_noErrors() {
-    var bindingResult = new BeanPropertyBindingResult(new UmbilicalCrossSectionForm(), "form");
-    assertThat(FileUploadUtils.getDropzoneErrorMessage(bindingResult)).isEmpty();
-  }
-
-  @Test
-  public void getDropzoneErrorMessage_containsErrorsOnField() {
-    var bindingResult = new BeanPropertyBindingResult(new UmbilicalCrossSectionForm(), "form");
-    bindingResult.rejectValue("uploadedFileWithDescriptionForms", "uploadedFileWithDescriptionForms.err", "Test error");
-    assertThat(FileUploadUtils.getDropzoneErrorMessage(bindingResult)).get().isEqualTo("Test error");
-  }
 
   @Test
   public void validateMaxFileLimit_aboveLimit_error() {

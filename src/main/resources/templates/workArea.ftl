@@ -13,15 +13,15 @@
 
     <@fdsAction.link linkText="Start PWA application" linkUrl=springUrl(startPwaApplicationUrl) linkClass="govuk-button" role=true/>
 
-    <@fdsTabs.tabs tabsHeading="Work area tabs">
-        <@fdsTabs.tabList>
+    <@fdsBackendTabs.tabs tabsHeading="Work area tabs">
+        <@fdsBackendTabs.tabList>
             <#list availableTabs as tab>
-              <@fdsTabs.tab tabLabel=tab.label tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value />
+              <@fdsBackendTabs.tab tabLabel=tab.label tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value />
             </#list>
-        </@fdsTabs.tabList>
+        </@fdsBackendTabs.tabList>
         <#list availableTabs as tab>
 
-            <@fdsTabs.tabContent tabLabel=tab.label tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value>
+            <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentWorkAreaTab.value tabValue=tab.value>
 
                 <#if tab == "OPEN_APPLICATIONS">
                     <@applicationsTab.tab workAreaPageView=workAreaResult.getApplicationsTabPages()! />
@@ -31,10 +31,10 @@
                     <@consultationsTab.tab workAreaPageView=workAreaResult.getConsultationsTabPages()! />
                 </#if>
 
-            </@fdsTabs.tabContent>
+            </@fdsBackendTabs.tabContent>
 
         </#list>
 
-    </@fdsTabs.tabs>
+    </@fdsBackendTabs.tabs>
 
 </@defaultPage>
