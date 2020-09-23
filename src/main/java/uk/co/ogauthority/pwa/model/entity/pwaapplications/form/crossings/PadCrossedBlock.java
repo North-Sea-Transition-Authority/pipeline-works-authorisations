@@ -15,9 +15,11 @@ import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
+import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 
 @Entity(name = "pad_blocks")
-public class PadCrossedBlock {
+public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetail>, ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +51,28 @@ public class PadCrossedBlock {
   @Column(name = "created_timestamp")
   private Instant createdInstant;
 
+  //ParentEntity methods
+  @Override
+  public Object getIdAsParent() {
+    return this.id;
+  }
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
+
   public Integer getId() {
     return id;
   }
@@ -61,8 +85,7 @@ public class PadCrossedBlock {
     return pwaApplicationDetail;
   }
 
-  public void setPwaApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) {
+  public void setPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
 

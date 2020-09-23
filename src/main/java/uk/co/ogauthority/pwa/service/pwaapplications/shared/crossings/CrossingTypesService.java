@@ -35,6 +35,6 @@ public class CrossingTypesService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    // not required to do anything
   }
 }

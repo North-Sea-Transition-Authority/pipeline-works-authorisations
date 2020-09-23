@@ -26,11 +26,13 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
+import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -38,6 +40,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
@@ -62,6 +67,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTes
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.PadCampaignWorksScheduleTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
@@ -85,6 +91,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   private final static int FIELD_ID = 100;
   private final static int FACILITY_ID = 111;
+  private final static int PEARS_LICENCE_ID = 122;
 
   @Autowired
   private EntityManager entityManager;
@@ -109,6 +116,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   private DevukFacility devukFacility;
 
+  private PearsLicence pearsLicence;
+
   private PwaApplicationIntegrationTestHelper testHelper;
 
   public void setup(PwaApplicationType pwaApplicationType) throws IllegalAccessException {
@@ -124,6 +133,15 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     devukFacility = new DevukFacility(FACILITY_ID, "some facility");
     entityManager.persist(devukFacility);
+
+    pearsLicence = new PearsLicence(
+        PEARS_LICENCE_ID,
+        "licence type",
+        10,
+        "licence name",
+        LicenceStatus.EXTANT);
+
+    entityManager.persist(pearsLicence);
 
     portalOrganisationUnit1 = new PortalOrganisationUnit(OU_ID_1, "Org 1 name");
     portalOrganisationUnit2 = new PortalOrganisationUnit(OU_ID_2, "Org 2 name");
@@ -182,14 +200,40 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createPartnerLetterDocument(pwaApplicationDetail);
 
     if (applicationTaskService.canShowTask(ApplicationTask.LOCATION_DETAILS, pwaApplicationDetail)) {
-     createPadLocationDetailsData(pwaApplicationDetail);
+      createPadLocationDetailsData(pwaApplicationDetail);
     }
 
+    if (applicationTaskService.canShowTask(ApplicationTask.CROSSING_AGREEMENTS, pwaApplicationDetail)) {
+      createPadCrossedBlockData(pwaApplicationDetail);
+    }
 
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
   }
 
-  private void createPadLocationDetailsData(PwaApplicationDetail pwaApplicationDetail){
+  private void createPadCrossedBlockData(PwaApplicationDetail pwaApplicationDetail) {
+    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS);
+
+    var crossedBlock1 = PadCrossedBlockTestUtil.createUnlicensedPadCrossedBlock(
+        pwaApplicationDetail,
+        CrossedBlockOwner.PORTAL_ORGANISATION);
+    var crossedBlock1Owner = PadCrossedBlockTestUtil.createPortalOrgPadCrossedBlockOwner(
+        crossedBlock1,
+        portalOrganisationUnit1);
+
+    entityManager.persist(crossedBlock1);
+    entityManager.persist(crossedBlock1Owner);
+
+    var crossedBlock2 = PadCrossedBlockTestUtil.createLicensedPadCrossedBlock(
+        pwaApplicationDetail,
+        CrossedBlockOwner.PORTAL_ORGANISATION,
+        pearsLicence);
+    var crossedBlock2Owner = PadCrossedBlockTestUtil.createManualPadCrossedBlockOwner(crossedBlock2);
+
+    entityManager.persist(crossedBlock2);
+    entityManager.persist(crossedBlock2Owner);
+  }
+
+  private void createPadLocationDetailsData(PwaApplicationDetail pwaApplicationDetail) {
 
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS);
     var manualPadFacility = PadFacilityTestUtil.createManualFacility(pwaApplicationDetail);
@@ -200,20 +244,20 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     entityManager.persist(padLocationDetails);
   }
 
-  private void createSupplementaryDocument(PwaApplicationDetail pwaApplicationDetail){
+  private void createSupplementaryDocument(PwaApplicationDetail pwaApplicationDetail) {
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS);
   }
 
-  private void createOptionsTemplateDocument(PwaApplicationDetail pwaApplicationDetail){
+  private void createOptionsTemplateDocument(PwaApplicationDetail pwaApplicationDetail) {
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.OPTIONS_TEMPLATE);
   }
 
-  private void createPadEnvDecom(PwaApplicationDetail pwaApplicationDetail){
+  private void createPadEnvDecom(PwaApplicationDetail pwaApplicationDetail) {
     var entity = PadEnvironmentalDecommissioningTestUtil.createPadEnvironmentalDecommissioning(pwaApplicationDetail);
     entityManager.persist(entity);
   }
 
-  private void createPadFieldLinks(PwaApplicationDetail pwaApplicationDetail){
+  private void createPadFieldLinks(PwaApplicationDetail pwaApplicationDetail) {
     var pf1 = PadFieldTestUtil.createDevukPadField(pwaApplicationDetail, devukField);
     entityManager.persist(pf1);
     var pf2 = PadFieldTestUtil.createManualPadField(pwaApplicationDetail);
@@ -226,14 +270,20 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     var permanentDeposit = PadPermanentDepositTestUtil.createPadDepositWithAllFieldsPopulated(pwaApplicationDetail);
     entityManager.persist(permanentDeposit);
 
-    var ppdFileContainer = createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
-    var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, ppdFileContainer.getPadFile());
+    var ppdFileContainer = createAndPersistPadFileWithRandomFileId(
+        pwaApplicationDetail,
+        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
+    var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(
+        pwaApplicationDetail,
+        ppdFileContainer.getPadFile());
     entityManager.persist(depositDrawing);
 
     var depositDrawingLink = PadPermanentDepositTestUtil.createPadDepositDrawingLink(permanentDeposit, depositDrawing);
     entityManager.persist(depositDrawingLink);
 
-    var depositPipeline = PadPermanentDepositTestUtil.createDepositPipeline(permanentDeposit, simplePadPipelineContainer.getPadPipeline());
+    var depositPipeline = PadPermanentDepositTestUtil.createDepositPipeline(
+        permanentDeposit,
+        simplePadPipelineContainer.getPadPipeline());
     entityManager.persist(depositPipeline);
   }
 
@@ -716,20 +766,20 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var manualFacilityV1 = firstVersionApplicationContainer.getPadFacilities()
         .stream()
-    .filter(o-> o.getFacilityNameManualEntry() != null)
+        .filter(o -> o.getFacilityNameManualEntry() != null)
         .findFirst().orElse(null);
     var manualFacilityV2 = newVersionContainer.getPadFacilities()
         .stream()
-        .filter(o-> o.getFacilityNameManualEntry() != null)
+        .filter(o -> o.getFacilityNameManualEntry() != null)
         .findFirst().orElse(null);
 
     var devukFacilityV1 = firstVersionApplicationContainer.getPadFacilities()
         .stream()
-        .filter(o-> o.getFacility() != null)
+        .filter(o -> o.getFacility() != null)
         .findFirst().orElse(null);
     var devukFacilityV2 = newVersionContainer.getPadFacilities()
         .stream()
-        .filter(o-> o.getFacility() != null)
+        .filter(o -> o.getFacility() != null)
         .findFirst().orElse(null);
 
     ObjectTestUtils.assertValuesEqual(
@@ -748,7 +798,63 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.LOCATION_DETAILS),
         newVersionContainer.getPadFile(ApplicationDetailFilePurpose.LOCATION_DETAILS)
     );
+  }
 
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_locationDetails_licenceBlockCrossings() throws IllegalAccessException {
+    setup(PwaApplicationType.INITIAL);
 
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.BLOCK_CROSSINGS),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.BLOCK_CROSSINGS)
+    );
+
+    var unlicensedCrossedBlockOwnerV1 = firstVersionApplicationContainer.getPadCrossedBlockOwners()
+        .stream()
+        .filter(crossedBlockOwner -> crossedBlockOwner.getPadCrossedBlock().getLicence() == null)
+        .findFirst().orElse(null);
+    var unlicensedCrossedBlockOwnerV2 = newVersionContainer.getPadCrossedBlockOwners()
+        .stream()
+        .filter(crossedBlockOwner -> crossedBlockOwner.getPadCrossedBlock().getLicence() == null)
+        .findFirst().orElse(null);
+
+    var licensedCrossedBlockOwnerV1 = firstVersionApplicationContainer.getPadCrossedBlockOwners()
+        .stream()
+        .filter(crossedBlockOwner -> crossedBlockOwner.getPadCrossedBlock().getLicence() != null)
+        .findFirst().orElse(null);
+    var licensedCrossedBlockOwnerV2 = newVersionContainer.getPadCrossedBlockOwners()
+        .stream()
+        .filter(crossedBlockOwner -> crossedBlockOwner.getPadCrossedBlock().getLicence() != null)
+        .findFirst().orElse(null);
+
+    // test unlicensed crossed block
+    ObjectTestUtils.assertValuesEqual(
+        unlicensedCrossedBlockOwnerV1,
+        unlicensedCrossedBlockOwnerV2,
+        Set.of(PadCrossedBlockOwner_.ID, PadCrossedBlockOwner_.PAD_CROSSED_BLOCK));
+
+    ObjectTestUtils.assertValuesEqual(
+        unlicensedCrossedBlockOwnerV1.getPadCrossedBlock(),
+        unlicensedCrossedBlockOwnerV2.getPadCrossedBlock(),
+        Set.of(PadCrossedBlock_.ID, PadCrossedBlock_.PWA_APPLICATION_DETAIL));
+
+    // test licensed crossed block
+    ObjectTestUtils.assertValuesEqual(
+        licensedCrossedBlockOwnerV1,
+        licensedCrossedBlockOwnerV2,
+        Set.of(PadCrossedBlockOwner_.ID, PadCrossedBlockOwner_.PAD_CROSSED_BLOCK));
+
+    ObjectTestUtils.assertValuesEqual(
+        licensedCrossedBlockOwnerV1.getPadCrossedBlock(),
+        licensedCrossedBlockOwnerV2.getPadCrossedBlock(),
+        Set.of(PadCrossedBlock_.ID, PadCrossedBlock_.PWA_APPLICATION_DETAIL));
   }
 }

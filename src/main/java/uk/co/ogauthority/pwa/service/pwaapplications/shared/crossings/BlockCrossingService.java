@@ -20,6 +20,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
@@ -28,7 +30,9 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBloc
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.service.licence.PickablePearsBlock;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -46,6 +50,8 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final BlockCrossingFileService blockCrossingFileService;
   private final Clock clock;
+  private final EntityCopyingService entityCopyingService;
+  private final PadFileService padFileService;
 
   @Autowired
   public BlockCrossingService(PadCrossedBlockRepository padCrossedBlockRepository,
@@ -53,7 +59,9 @@ public class BlockCrossingService implements ApplicationFormSectionService {
                               PearsBlockService pearsBlockService,
                               PortalOrganisationsAccessor portalOrganisationsAccessor,
                               BlockCrossingFileService blockCrossingFileService,
-                              @Qualifier("utcClock") Clock clock) {
+                              @Qualifier("utcClock") Clock clock,
+                              EntityCopyingService entityCopyingService,
+                              PadFileService padFileService) {
 
     this.padCrossedBlockRepository = padCrossedBlockRepository;
     this.padCrossedBlockOwnerRepository = padCrossedBlockOwnerRepository;
@@ -61,6 +69,8 @@ public class BlockCrossingService implements ApplicationFormSectionService {
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.blockCrossingFileService = blockCrossingFileService;
     this.clock = clock;
+    this.entityCopyingService = entityCopyingService;
+    this.padFileService = padFileService;
   }
 
   public PadCrossedBlock getCrossedBlockByIdAndApplicationDetail(int crossedBlockId,
@@ -251,8 +261,25 @@ public class BlockCrossingService implements ApplicationFormSectionService {
     throw new ActionNotAllowedException("This service shouldn't be validated against yet");
   }
 
+  @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    var copiedCrossedBlockEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padCrossedBlockRepository.getAllByPwaApplicationDetail(fromDetail),
+        toDetail,
+        PadCrossedBlock.class
+    );
+
+    var copiedCrossedBlockOwnersEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
+        () -> padCrossedBlockOwnerRepository.findByPadCrossedBlock_PwaApplicationDetail(fromDetail),
+        copiedCrossedBlockEntityIds,
+        PadCrossedBlockOwner.class
+    );
+
+    var copiedCrossedBlockFiles = padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail,
+        toDetail,
+        ApplicationDetailFilePurpose.BLOCK_CROSSINGS,
+        ApplicationFileLinkStatus.FULL);
   }
 }
