@@ -154,6 +154,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
     createOtherPipelineDiagramLinks(pwaApplicationDetail);
+    createPartnerLetterDocument(pwaApplicationDetail);
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
   }
 
@@ -230,6 +231,11 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
     var admiraltyChartFileContainer = createAndPersistPadFileWithRandomFileId(
         pwaApplicationDetail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION);
+  }
+
+  private void createPartnerLetterDocument(PwaApplicationDetail pwaApplicationDetail) {
+    var copiedPartnerLetterEntityIds = createAndPersistPadFileWithRandomFileId(
+        pwaApplicationDetail, ApplicationDetailFilePurpose.PARTNER_LETTERS);
   }
 
 
@@ -593,6 +599,25 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     assertPadFileDetailsMatch(
         firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.ADMIRALTY_CHART),
         newVersionContainer.getPadFile(ApplicationDetailFilePurpose.ADMIRALTY_CHART)
+    );
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_partnerLetters() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.PARTNER_LETTERS),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.PARTNER_LETTERS)
     );
 
   }
