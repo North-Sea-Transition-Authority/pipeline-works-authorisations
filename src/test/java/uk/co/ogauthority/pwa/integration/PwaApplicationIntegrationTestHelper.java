@@ -1,7 +1,10 @@
 package uk.co.ogauthority.pwa.integration;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -75,36 +78,37 @@ public class PwaApplicationIntegrationTestHelper {
 
   }
 
-  public SimplePadPipelineContainer getPadPipeline(PwaApplicationDetail pwaApplicationDetail) {
+  public Optional<SimplePadPipelineContainer> getPadPipeline(PwaApplicationDetail pwaApplicationDetail) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadPipelineIdentData> criteriaQuery = cb.createQuery(PadPipelineIdentData.class);
     Root<PadPipelineIdentData> pipelineIdentDataRoot = criteriaQuery.from(PadPipelineIdentData.class);
     Join<PadPipelineIdentData, PadPipelineIdent> identJoin = pipelineIdentDataRoot.join(
         PadPipelineIdentData_.padPipelineIdent);
     Join<PadPipelineIdent, PadPipeline> padPipelineJoin = identJoin.join(PadPipelineIdent_.padPipeline);
-    var result = entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(padPipelineJoin.get(PadPipeline_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
 
-    return new SimplePadPipelineContainer(result);
-
+    return getResultOrEmptyOptional(
+        SimplePadPipelineContainer.class,
+        () -> new SimplePadPipelineContainer(
+            entityManager.createQuery(
+                criteriaQuery
+                    .where(cb.equal(padPipelineJoin.get(PadPipeline_.pwaApplicationDetail), pwaApplicationDetail))
+            ).getSingleResult())
+    );
   }
 
-  public PadTechnicalDrawingLink getPadTechnicalDrawingLink(PwaApplicationDetail pwaApplicationDetail) {
+  public Optional<PadTechnicalDrawingLink> getPadTechnicalDrawingLink(PwaApplicationDetail pwaApplicationDetail) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadTechnicalDrawingLink> criteriaQuery = cb.createQuery(PadTechnicalDrawingLink.class);
     Root<PadTechnicalDrawingLink> padTechnicalDrawingLinkRoot = criteriaQuery.from(PadTechnicalDrawingLink.class);
     Join<PadTechnicalDrawingLink, PadTechnicalDrawing> technicalDrawingJoin = padTechnicalDrawingLinkRoot
         .join(PadTechnicalDrawingLink_.technicalDrawing);
 
-    var result = entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(technicalDrawingJoin.get(PadTechnicalDrawing_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
-
-    return result;
-
+    return getResultOrEmptyOptional(
+        PadTechnicalDrawingLink.class,
+        () -> entityManager.createQuery(criteriaQuery.where(
+            cb.equal(technicalDrawingJoin.get(PadTechnicalDrawing_.pwaApplicationDetail), pwaApplicationDetail)
+        )).getSingleResult()
+    );
   }
 
   public List<PadPipelineOrganisationRoleLink> getPadPipelineLinks(PwaApplicationDetail pwaApplicationDetail) {
@@ -125,34 +129,46 @@ public class PwaApplicationIntegrationTestHelper {
 
   }
 
-  public PadDepositPipeline getPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail) {
+  private <T> Optional<T> getResultOrEmptyOptional(Class<T> clazz, Supplier<T> supplier){
+    try{
+      return Optional.of(supplier.get());
+    } catch(NoResultException e){
+      return Optional.empty();
+    }
+
+
+  }
+
+  public Optional<PadDepositPipeline> getPermanentDepositPipeline(PwaApplicationDetail pwaApplicationDetail) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadDepositPipeline> criteriaQuery = cb.createQuery(PadDepositPipeline.class);
     Root<PadDepositPipeline> depositPipelineRoot = criteriaQuery.from(PadDepositPipeline.class);
     Join<PadDepositPipeline, PadPermanentDeposit> permanentDepositJoin = depositPipelineRoot
         .join(PadDepositPipeline_.padPermanentDeposit);
 
-    var result = entityManager.createQuery(
+    return getResultOrEmptyOptional(
+        PadDepositPipeline.class, () -> entityManager.createQuery(
         criteriaQuery
             .where(cb.equal(permanentDepositJoin.get(PadPermanentDeposit_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
+    ).getSingleResult());
 
-    return result;
   }
 
-  public PadCampaignWorksPipeline getPadCampaignWorksPipeline(PwaApplicationDetail pwaApplicationDetail) {
+  public Optional<PadCampaignWorksPipeline> getPadCampaignWorksPipeline(PwaApplicationDetail pwaApplicationDetail) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadCampaignWorksPipeline> criteriaQuery = cb.createQuery(PadCampaignWorksPipeline.class);
     Root<PadCampaignWorksPipeline> campaignWorksPipelineRoot = criteriaQuery.from(PadCampaignWorksPipeline.class);
     Join<PadCampaignWorksPipeline, PadCampaignWorkSchedule> workScheduleJoin = campaignWorksPipelineRoot
         .join(PadCampaignWorksPipeline_.padCampaignWorkSchedule);
 
-    var result = entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(workScheduleJoin.get(PadCampaignWorkSchedule_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
-
-    return result;
+    return getResultOrEmptyOptional(
+        PadCampaignWorksPipeline.class,
+        () -> entityManager.createQuery(
+            criteriaQuery
+                .where(
+                    cb.equal(workScheduleJoin.get(PadCampaignWorkSchedule_.pwaApplicationDetail), pwaApplicationDetail))
+        ).getSingleResult()
+    );
   }
 
   public List<PadField> getPadFields(PwaApplicationDetail pwaApplicationDetail){
@@ -166,15 +182,19 @@ public class PwaApplicationIntegrationTestHelper {
     ).getResultList();
   }
 
-  public PadEnvironmentalDecommissioning getPadEnvironmentalDecommissioning(PwaApplicationDetail pwaApplicationDetail){
+  public Optional<PadEnvironmentalDecommissioning> getPadEnvironmentalDecommissioning(PwaApplicationDetail pwaApplicationDetail){
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadEnvironmentalDecommissioning> criteriaQuery = cb.createQuery(PadEnvironmentalDecommissioning.class);
     Root<PadEnvironmentalDecommissioning> decommissioningRoot = criteriaQuery.from(PadEnvironmentalDecommissioning.class);
 
-    return entityManager.createQuery(
-        criteriaQuery
-            .where(cb.equal(decommissioningRoot.get(PadEnvironmentalDecommissioning_.pwaApplicationDetail), pwaApplicationDetail))
-    ).getSingleResult();
+    return getResultOrEmptyOptional(
+        PadEnvironmentalDecommissioning.class,
+        () -> entityManager.createQuery(
+            criteriaQuery
+                .where(cb.equal(decommissioningRoot.get(PadEnvironmentalDecommissioning_.pwaApplicationDetail),
+                    pwaApplicationDetail))
+        ).getSingleResult()
+    );
   }
 
   public List<PadDepositDrawingLink> getPadDepositDrawingLinks(PwaApplicationDetail pwaApplicationDetail){
@@ -195,15 +215,28 @@ public class PwaApplicationIntegrationTestHelper {
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
     container.setPadProjectInformation(getProjInfo(pwaApplicationDetail));
     container.setPadFiles(getAllAppDetailPadFiles(pwaApplicationDetail));
-    container.setSimplePadPipelineContainer(getPadPipeline(pwaApplicationDetail));
-    container.setPadTechnicalDrawingLink(getPadTechnicalDrawingLink(pwaApplicationDetail));
-    container.setPadTechnicalDrawing(getPadTechnicalDrawingLink(pwaApplicationDetail).getTechnicalDrawing());
+
+
+    container.setSimplePadPipelineContainer(getPadPipeline(pwaApplicationDetail).orElse(null));
+    container.setPadDepositDrawingLink(
+        getPadDepositDrawingLinks(pwaApplicationDetail)
+            .stream()
+            .findFirst()
+            .orElse(null)
+    );
+    container.setPadDepositPipeline(getPermanentDepositPipeline(pwaApplicationDetail).orElse(null));
+    container.setPadCampaignWorksPipeline(getPadCampaignWorksPipeline(pwaApplicationDetail).orElse(null));
+    container.setPadTechnicalDrawingLink(getPadTechnicalDrawingLink(pwaApplicationDetail).orElse(null));
+    container.setPadTechnicalDrawing(
+        getPadTechnicalDrawingLink(pwaApplicationDetail)
+            .map(PadTechnicalDrawingLink::getTechnicalDrawing)
+            .orElse(null)
+    );
+
     container.setHuooRoles(getPadPipelineLinks(pwaApplicationDetail));
-    container.setPadDepositPipeline(getPermanentDepositPipeline(pwaApplicationDetail));
-    container.setPadCampaignWorksPipeline(getPadCampaignWorksPipeline(pwaApplicationDetail));
     container.setPadFields(getPadFields(pwaApplicationDetail));
-    container.setPadEnvironmentalDecommissioning(getPadEnvironmentalDecommissioning(pwaApplicationDetail));
-    container.setPadDepositDrawingLink(getPadDepositDrawingLinks(pwaApplicationDetail).get(0));
+    container.setPadEnvironmentalDecommissioning(getPadEnvironmentalDecommissioning(pwaApplicationDetail).orElse(null));
+
     return container;
 
   }
