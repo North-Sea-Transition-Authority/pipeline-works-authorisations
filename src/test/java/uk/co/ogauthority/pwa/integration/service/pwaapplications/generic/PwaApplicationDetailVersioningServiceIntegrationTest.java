@@ -153,6 +153,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
+    createOtherPipelineDiagramLinks(pwaApplicationDetail);
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
   }
 
@@ -222,6 +223,13 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         simplePadPipelineContainer.getPadPipeline());
     entityManager.persist(schedulePipeline);
 
+  }
+
+  private void createOtherPipelineDiagramLinks(PwaApplicationDetail pwaApplicationDetail) {
+    var umbilicalFileContainer = createAndPersistPadFileWithRandomFileId(
+        pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
+    var admiraltyChartFileContainer = createAndPersistPadFileWithRandomFileId(
+        pwaApplicationDetail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION);
   }
 
 
@@ -561,6 +569,30 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         firstVersionApplicationContainer.getPadEnvironmentalDecommissioning(),
         newVersionContainer.getPadEnvironmentalDecommissioning(),
         Set.of(PadEnvironmentalDecommissioning_.ID, PadEnvironmentalDecommissioning_.PWA_APPLICATION_DETAIL)
+    );
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_otherPipelineDiagrams() throws IllegalAccessException {
+    setup();
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION)
+    );
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.ADMIRALTY_CHART),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.ADMIRALTY_CHART)
     );
 
   }
