@@ -21,7 +21,9 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -34,6 +36,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
@@ -47,6 +50,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
+import uk.co.ogauthority.pwa.service.devuk.PadFacilityTestUtil;
 import uk.co.ogauthority.pwa.service.devuk.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
@@ -56,6 +60,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskServ
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.PadCampaignWorksScheduleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
@@ -79,6 +84,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private final static int OU_ID_2 = 20;
 
   private final static int FIELD_ID = 100;
+  private final static int FACILITY_ID = 111;
 
   @Autowired
   private EntityManager entityManager;
@@ -101,6 +107,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   private DevukField devukField;
 
+  private DevukFacility devukFacility;
+
   private PwaApplicationIntegrationTestHelper testHelper;
 
   public void setup(PwaApplicationType pwaApplicationType) throws IllegalAccessException {
@@ -113,6 +121,9 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     devukField = new DevukField(FIELD_ID, "some field", 500);
     entityManager.persist(devukField);
+
+    devukFacility = new DevukFacility(FACILITY_ID, "some facility");
+    entityManager.persist(devukFacility);
 
     portalOrganisationUnit1 = new PortalOrganisationUnit(OU_ID_1, "Org 1 name");
     portalOrganisationUnit2 = new PortalOrganisationUnit(OU_ID_2, "Org 2 name");
@@ -161,15 +172,32 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
       createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
       createAndPersistPermanentDepositData(pwaApplicationDetail, simplePadPipelineContainer);
       createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
+      createOtherPipelineDiagramLinks(pwaApplicationDetail);
     }
 
     createProjInfoData(pwaApplicationDetail);
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
-    createOtherPipelineDiagramLinks(pwaApplicationDetail);
+
     createPartnerLetterDocument(pwaApplicationDetail);
 
+    if (applicationTaskService.canShowTask(ApplicationTask.LOCATION_DETAILS, pwaApplicationDetail)) {
+     createPadLocationDetailsData(pwaApplicationDetail);
+    }
+
+
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createPadLocationDetailsData(PwaApplicationDetail pwaApplicationDetail){
+
+    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS);
+    var manualPadFacility = PadFacilityTestUtil.createManualFacility(pwaApplicationDetail);
+    var devukPadFacility = PadFacilityTestUtil.createDevukLinkedFacility(pwaApplicationDetail, devukFacility);
+    var padLocationDetails = PadLocationDetailTestUtil.createPadLocationDetails(pwaApplicationDetail);
+    entityManager.persist(manualPadFacility);
+    entityManager.persist(devukPadFacility);
+    entityManager.persist(padLocationDetails);
   }
 
   private void createSupplementaryDocument(PwaApplicationDetail pwaApplicationDetail){
@@ -665,6 +693,62 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS),
         newVersionContainer.getPadFile(ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS)
     );
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_locationDetailsCopedAsExpected() throws IllegalAccessException {
+    setup(PwaApplicationType.INITIAL);
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadLocationDetails(),
+        newVersionContainer.getPadLocationDetails(),
+        Set.of(PadLocationDetails_.ID, PadLocationDetails_.PWA_APPLICATION_DETAIL)
+    );
+
+    var manualFacilityV1 = firstVersionApplicationContainer.getPadFacilities()
+        .stream()
+    .filter(o-> o.getFacilityNameManualEntry() != null)
+        .findFirst().orElse(null);
+    var manualFacilityV2 = newVersionContainer.getPadFacilities()
+        .stream()
+        .filter(o-> o.getFacilityNameManualEntry() != null)
+        .findFirst().orElse(null);
+
+    var devukFacilityV1 = firstVersionApplicationContainer.getPadFacilities()
+        .stream()
+        .filter(o-> o.getFacility() != null)
+        .findFirst().orElse(null);
+    var devukFacilityV2 = newVersionContainer.getPadFacilities()
+        .stream()
+        .filter(o-> o.getFacility() != null)
+        .findFirst().orElse(null);
+
+    ObjectTestUtils.assertValuesEqual(
+        manualFacilityV1,
+        manualFacilityV2,
+        Set.of(PadFacility_.ID, PadFacility_.PWA_APPLICATION_DETAIL)
+    );
+
+    ObjectTestUtils.assertValuesEqual(
+        devukFacilityV1,
+        devukFacilityV2,
+        Set.of(PadFacility_.ID, PadFacility_.PWA_APPLICATION_DETAIL)
+    );
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.LOCATION_DETAILS),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.LOCATION_DETAILS)
+    );
+
 
   }
 }
