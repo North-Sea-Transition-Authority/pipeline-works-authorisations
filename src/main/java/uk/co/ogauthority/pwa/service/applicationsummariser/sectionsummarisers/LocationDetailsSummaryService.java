@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.LocationDetailsUrlFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 
 /**
@@ -48,6 +49,7 @@ public class LocationDetailsSummaryService implements ApplicationSectionSummaris
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("locationDetailsView", padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail));
+    summaryModel.put("locationDetailsUrlFactory", new LocationDetailsUrlFactory(pwaApplicationDetail));
 
     return new ApplicationSectionSummary(
         templateName,

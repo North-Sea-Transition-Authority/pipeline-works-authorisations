@@ -4,6 +4,7 @@
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 <#-- @ftlvariable name="locationDetailsView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.LocationDetailsView" -->
+<#-- @ftlvariable name="locationDetailsUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.location.LocationDetailsUrlFactory" -->
 
 
 <div class="pwa-application-summary-section">
@@ -98,9 +99,18 @@
         </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
-   
 
   </@fdsCheckAnswers.checkAnswers>
+
+
+  <#if locationDetailsView.uploadedLetterFileViews?has_content>
+    <h3 class="govuk-heading-m"> Pipeline route documents </h3>
+    <@fileUpload.uploadedFileList downloadUrl=springUrl(locationDetailsUrlFactory.getDocumentDownloadUrl()) existingFiles=locationDetailsView.uploadedLetterFileViews />
+  <#else>
+    <@fdsInsetText.insetText>
+      No pipeline route documents have been added to this application.
+    </@fdsInsetText.insetText>
+  </#if>
 
 
 

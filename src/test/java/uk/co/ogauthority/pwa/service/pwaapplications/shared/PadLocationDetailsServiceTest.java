@@ -24,18 +24,24 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,6 +62,9 @@ public class PadLocationDetailsServiceTest {
   @Mock
   private LocationDetailsValidator validator;
 
+  @Mock
+  private PadFileService padFileService;
+
   private SpringValidatorAdapter groupValidator;
 
   private PadLocationDetailsService padLocationDetailsService;
@@ -68,7 +77,7 @@ public class PadLocationDetailsServiceTest {
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
     padLocationDetailsService = new PadLocationDetailsService(padLocationDetailsRepository, facilityService,
         devukFacilityService, validator,
-        groupValidator, searchSelectorService);
+        groupValidator, searchSelectorService, padFileService);
     pwaApplicationDetail = new PwaApplicationDetail();
     padLocationDetails = buildEntity();
   }
@@ -185,6 +194,47 @@ public class PadLocationDetailsServiceTest {
     var entity = new PadLocationDetails();
     padLocationDetailsService.saveEntityUsingForm(entity, form);
     assertThat(entity.getPipelineAshoreLocation()).isEqualTo(null);
+  }
+
+  @Test
+  public void getLocationDetailsView_withFacilitiesAndFiles() {
+    padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var padFacility = new PadFacility();
+    padFacility.setFacility(new DevukFacility(1, "Test facility"));
+    when(facilityService.getFacilities(pwaApplicationDetail)).thenReturn(List.of(padFacility));
+
+    var uploadedFileView = new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#");
+    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS,
+        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(uploadedFileView));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(HseSafetyZone.YES);
+    assertThat(locationDetailsView.getFacilitiesIfYes()).contains("Test facility");
+    assertThat(locationDetailsView.getFacilitiesIfPartially()).isEmpty();
+    assertThat(locationDetailsView.getApproximateProjectLocationFromShore()).isEqualTo("approx");
+    assertThat(locationDetailsView.getFacilitiesOffshore()).isTrue();
+    assertThat(locationDetailsView.getTransportsMaterialsToShore()).isTrue();
+    assertThat(locationDetailsView.getTransportationMethod()).isEqualTo("method");
+    assertThat(locationDetailsView.getPipelineRouteDetails()).isEqualTo("Route details");
+    assertThat(locationDetailsView.getRouteSurveyUndertaken()).isTrue();
+    assertThat(locationDetailsView.getWithinLimitsOfDeviation()).isTrue();
+    assertThat(locationDetailsView.getSurveyConcludedDate()).isEqualTo(DateUtils.formatDate(SURVEY_CONCLUDED_DATE));
+    assertThat(locationDetailsView.getUploadedLetterFileViews()).isEqualTo(List.of(uploadedFileView));
+  }
+
+  @Test
+  public void getLocationDetailsView_noFacilities() {
+    when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padLocationDetails));
+
+    var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
+    assertThat(locationDetailsView.getWithinSafetyZone()).isEqualTo(HseSafetyZone.NO);
+    assertThat(locationDetailsView.getFacilitiesIfYes()).isEmpty();
+    assertThat(locationDetailsView.getFacilitiesIfPartially()).isEmpty();
   }
 
   @Test

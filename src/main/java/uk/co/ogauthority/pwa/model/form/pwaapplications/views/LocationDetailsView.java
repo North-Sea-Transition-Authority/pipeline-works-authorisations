@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 public class LocationDetailsView {
 
@@ -22,6 +23,8 @@ public class LocationDetailsView {
   
   private final String pipelineAshoreLocation;
 
+  private final List<UploadedFileView> uploadedLetterFileViews;
+
 
   public LocationDetailsView(String approximateProjectLocationFromShore,
                              HseSafetyZone withinSafetyZone,
@@ -30,7 +33,8 @@ public class LocationDetailsView {
                              Boolean transportsMaterialsToShore, String transportationMethod,
                              String pipelineRouteDetails, Boolean routeSurveyUndertaken,
                              Boolean withinLimitsOfDeviation, String surveyConcludedDate,
-                             String pipelineAshoreLocation) {
+                             String pipelineAshoreLocation,
+                             List<UploadedFileView> uploadedLetterFileViews) {
     this.approximateProjectLocationFromShore = approximateProjectLocationFromShore;
     this.withinSafetyZone = withinSafetyZone;
     this.facilitiesIfYes = facilitiesIfYes;
@@ -43,7 +47,11 @@ public class LocationDetailsView {
     this.withinLimitsOfDeviation = withinLimitsOfDeviation;
     this.surveyConcludedDate = surveyConcludedDate;
     this.pipelineAshoreLocation = pipelineAshoreLocation;
+    this.uploadedLetterFileViews = uploadedLetterFileViews;
   }
+
+
+
 
 
   public String getApproximateProjectLocationFromShore() {
@@ -92,5 +100,9 @@ public class LocationDetailsView {
 
   public String getPipelineAshoreLocation() {
     return pipelineAshoreLocation;
+  }
+
+  public List<UploadedFileView> getUploadedLetterFileViews() {
+    return uploadedLetterFileViews;
   }
 }

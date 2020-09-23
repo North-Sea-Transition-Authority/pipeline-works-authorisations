@@ -13,9 +13,12 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.LocationDetailsView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
@@ -23,6 +26,7 @@ import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -40,6 +44,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   private final LocationDetailsValidator validator;
   private final SpringValidatorAdapter groupValidator;
   private final SearchSelectorService searchSelectorService;
+  private final PadFileService padFileService;
 
   @Autowired
   public PadLocationDetailsService(PadLocationDetailsRepository padLocationDetailsRepository,
@@ -47,13 +52,15 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                    DevukFacilityService devukFacilityService,
                                    LocationDetailsValidator validator,
                                    SpringValidatorAdapter groupValidator,
-                                   SearchSelectorService searchSelectorService) {
+                                   SearchSelectorService searchSelectorService,
+                                   PadFileService padFileService) {
     this.padLocationDetailsRepository = padLocationDetailsRepository;
     this.padFacilityService = padFacilityService;
     this.devukFacilityService = devukFacilityService;
     this.validator = validator;
     this.groupValidator = groupValidator;
     this.searchSelectorService = searchSelectorService;
+    this.padFileService = padFileService;
   }
 
   public PadLocationDetails getLocationDetailsForDraft(PwaApplicationDetail detail) {
@@ -121,14 +128,18 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
     var locationDetails = getLocationDetailsForDraft(pwaApplicationDetail);
     var surveyConcludedTimestamp = locationDetails.getSurveyConcludedTimestamp();
+
     List<String> facilityNames =
-        !locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO) ? getFacilityNames(pwaApplicationDetail) : List.of();
+        !(HseSafetyZone.NO).equals(locationDetails.getWithinSafetyZone()) ? getFacilityNames(pwaApplicationDetail) : List.of();
+
+    List<UploadedFileView> uploadedFileViews = padFileService.getUploadedFileViews(
+        pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS, ApplicationFileLinkStatus.FULL);
 
     return new LocationDetailsView(
         locationDetails.getApproximateProjectLocationFromShore(),
         locationDetails.getWithinSafetyZone(),
-        locationDetails.getWithinSafetyZone().equals(HseSafetyZone.YES) ? facilityNames : List.of(),
-        locationDetails.getWithinSafetyZone().equals(HseSafetyZone.PARTIALLY) ? facilityNames : List.of(),
+        HseSafetyZone.YES.equals(locationDetails.getWithinSafetyZone()) ? facilityNames : List.of(),
+        HseSafetyZone.PARTIALLY.equals(locationDetails.getWithinSafetyZone()) ? facilityNames : List.of(),
         locationDetails.getFacilitiesOffshore(),
         locationDetails.getTransportsMaterialsToShore(),
         locationDetails.getTransportationMethod(),
@@ -136,8 +147,8 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         locationDetails.getRouteSurveyUndertaken(),
         locationDetails.getWithinLimitsOfDeviation(),
         surveyConcludedTimestamp != null ? DateUtils.formatDate(surveyConcludedTimestamp) : null,
-        locationDetails.getPipelineAshoreLocation()
-    );
+        locationDetails.getPipelineAshoreLocation(),
+        uploadedFileViews);
   }
 
   private List<String> getFacilityNames(PwaApplicationDetail pwaApplicationDetail) {
