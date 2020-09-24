@@ -7,12 +7,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
@@ -46,6 +48,10 @@ public class PwaApplicationVersionContainer {
   private PadDepositDrawingLink padDepositDrawingLink;
 
   private PadCampaignWorksPipeline padCampaignWorksPipeline;
+
+  private PadLocationDetails padLocationDetails;
+
+  private List<PadFacility> padFacilities;
 
   private List<PadField> padFields;
 
@@ -162,5 +168,22 @@ public class PwaApplicationVersionContainer {
   public void setPadDepositDrawingLink(
       PadDepositDrawingLink padDepositDrawingLink) {
     this.padDepositDrawingLink = padDepositDrawingLink;
+  }
+
+  public PadLocationDetails getPadLocationDetails() {
+    return padLocationDetails;
+  }
+
+  public void setPadLocationDetails(
+      PadLocationDetails padLocationDetails) {
+    this.padLocationDetails = padLocationDetails;
+  }
+
+  public List<PadFacility> getPadFacilities() {
+    return padFacilities;
+  }
+
+  public void setPadFacilities(List<PadFacility> padFacilities) {
+    this.padFacilities = padFacilities;
   }
 }
