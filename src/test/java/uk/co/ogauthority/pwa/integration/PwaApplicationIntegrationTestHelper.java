@@ -34,6 +34,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCros
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
@@ -83,6 +87,18 @@ public class PwaApplicationIntegrationTestHelper {
     Root<PadFile> padFile = criteriaQuery.from(PadFile.class);
     return entityManager.createQuery(
         criteriaQuery.where(cb.equal(padFile.get(PadFile_.pwaApplicationDetail), pwaApplicationDetail))
+    ).getResultList();
+
+  }
+
+  public List<PadPipelineCrossingOwner> getPadPipelineCrossingOwners(PwaApplicationDetail pwaApplicationDetail) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadPipelineCrossingOwner> criteriaQuery = cb.createQuery(PadPipelineCrossingOwner.class);
+    Root<PadPipelineCrossingOwner> crossingOwnerRoot = criteriaQuery.from(PadPipelineCrossingOwner.class);
+    Join<PadPipelineCrossingOwner, PadPipelineCrossing> pipelineCrossingJoin = crossingOwnerRoot.join(
+        PadPipelineCrossingOwner_.padPipelineCrossing);
+    return entityManager.createQuery(
+        criteriaQuery.where(cb.equal(pipelineCrossingJoin.get(PadPipelineCrossing_.pwaApplicationDetail), pwaApplicationDetail))
     ).getResultList();
 
   }
@@ -307,6 +323,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadLocationDetails(getPadLocationDetails(pwaApplicationDetail).orElse(null));
     container.setPadCrossedBlockOwners(getPadCrossedBlockOwners(pwaApplicationDetail));
     container.setPadCableCrossing(getPadCableCrossing(pwaApplicationDetail).orElse(null));
+    container.setPadPipelineCrossingOwners(getPadPipelineCrossingOwners(pwaApplicationDetail));
 
     return container;
 

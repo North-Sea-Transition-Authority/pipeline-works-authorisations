@@ -8,9 +8,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity(name = "pad_pipeline_crossing_owners")
-public class PadPipelineCrossingOwner {
+public class PadPipelineCrossingOwner implements ChildEntity<Integer, PadPipelineCrossing> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +27,22 @@ public class PadPipelineCrossingOwner {
 
   @Column(name = "org_manual_entry")
   private String manualOrganisationEntry;
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadPipelineCrossing parentEntity) {
+    this.padPipelineCrossing = parentEntity;
+  }
+
+  @Override
+  public PadPipelineCrossing getParent() {
+    return this.padPipelineCrossing;
+  }
 
   public Integer getId() {
     return id;

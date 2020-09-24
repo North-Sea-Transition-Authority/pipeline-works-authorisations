@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInforma
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
@@ -58,6 +59,8 @@ public class PwaApplicationVersionContainer {
   private List<PadField> padFields;
 
   private List<PadCrossedBlockOwner> padCrossedBlockOwners;
+
+  private List<PadPipelineCrossingOwner> padPipelineCrossingOwners;
 
   private PadEnvironmentalDecommissioning padEnvironmentalDecommissioning;
 
@@ -117,7 +120,7 @@ public class PwaApplicationVersionContainer {
     this.padTechnicalDrawingLink = padTechnicalDrawingLink;
   }
 
-  public Pair<PadOrganisationRole, PadPipelineOrganisationRoleLink> getHuooRole(HuooRole huooRole){
+  public Pair<PadOrganisationRole, PadPipelineOrganisationRoleLink> getHuooRole(HuooRole huooRole) {
     return this.huooRolesLookup.get(huooRole);
   }
 
@@ -125,10 +128,13 @@ public class PwaApplicationVersionContainer {
     Map<HuooRole, List<PadPipelineOrganisationRoleLink>> t = pipelineOrgRoleLinks.stream()
         .collect(Collectors.groupingBy(o -> o.getPadOrgRole().getRole()));
 
-   this.huooRolesLookup = new HashMap<>();
-    t.forEach((huooRole, padPipelineOrganisationRoleLinkList)-> this.huooRolesLookup.put(
+    this.huooRolesLookup = new HashMap<>();
+    t.forEach((huooRole, padPipelineOrganisationRoleLinkList) -> this.huooRolesLookup.put(
         huooRole,
-        ImmutablePair.of(padPipelineOrganisationRoleLinkList.get(0).getPadOrgRole(), padPipelineOrganisationRoleLinkList.get(0))
+        ImmutablePair.of(
+            padPipelineOrganisationRoleLinkList.get(0).getPadOrgRole(),
+            padPipelineOrganisationRoleLinkList.get(0)
+        )
     ));
   }
 
@@ -209,5 +215,14 @@ public class PwaApplicationVersionContainer {
   public void setPadCableCrossing(
       PadCableCrossing padCableCrossing) {
     this.padCableCrossing = padCableCrossing;
+  }
+
+  public List<PadPipelineCrossingOwner> getPadPipelineCrossingOwners() {
+    return padPipelineCrossingOwners;
+  }
+
+  public void setPadPipelineCrossingOwners(
+      List<PadPipelineCrossingOwner> padPipelineCrossingOwners) {
+    this.padPipelineCrossingOwners = padPipelineCrossingOwners;
   }
 }
