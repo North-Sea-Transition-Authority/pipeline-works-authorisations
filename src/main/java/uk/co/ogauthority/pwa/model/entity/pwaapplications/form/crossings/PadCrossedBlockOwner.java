@@ -7,9 +7,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity(name = "pad_block_crossing_owners")
-public class PadCrossedBlockOwner {
+public class PadCrossedBlockOwner implements ChildEntity<Integer, PadCrossedBlock> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +31,22 @@ public class PadCrossedBlockOwner {
     this.padCrossedBlock = padCrossedBlock;
     this.ownerOuId = ownerOuId;
     this.ownerName = ownerName;
+  }
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PadCrossedBlock parentEntity) {
+    this.padCrossedBlock = parentEntity;
+  }
+
+  @Override
+  public PadCrossedBlock getParent() {
+    return this.padCrossedBlock;
   }
 
   public Integer getId() {

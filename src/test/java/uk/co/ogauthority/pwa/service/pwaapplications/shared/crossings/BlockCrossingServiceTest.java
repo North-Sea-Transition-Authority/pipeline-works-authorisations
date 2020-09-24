@@ -35,7 +35,9 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBloc
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -66,6 +68,12 @@ public class BlockCrossingServiceTest {
   @Mock
   private BlockCrossingFileService blockCrossingFileService;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
+  @Mock
+  private PadFileService padFileService;
+
   private Clock clock = Clock.systemDefaultZone();
 
   private BlockCrossingService blockCrossingService;
@@ -90,8 +98,10 @@ public class BlockCrossingServiceTest {
         padCrossedBlockOwnerRepository,
         pearsBlockService,
         portalOrganisationsAccessor,
-        blockCrossingFileService, clock
-    );
+        blockCrossingFileService,
+        clock,
+        entityCopyingService,
+        padFileService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     APP_ID = pwaApplicationDetail.getMasterPwaApplicationId();

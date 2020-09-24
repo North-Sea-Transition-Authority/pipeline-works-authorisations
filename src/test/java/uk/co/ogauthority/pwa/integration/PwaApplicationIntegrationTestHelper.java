@@ -28,6 +28,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.Pad
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
@@ -206,8 +210,7 @@ public class PwaApplicationIntegrationTestHelper {
     );
   }
 
-  public Optional<PadLocationDetails> getPadLocationDetails(
-      PwaApplicationDetail pwaApplicationDetail) {
+  public Optional<PadLocationDetails> getPadLocationDetails(PwaApplicationDetail pwaApplicationDetail) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadLocationDetails> criteriaQuery = cb.createQuery(PadLocationDetails.class);
     Root<PadLocationDetails> locationDetailsRoot = criteriaQuery.from(PadLocationDetails.class);
@@ -246,6 +249,20 @@ public class PwaApplicationIntegrationTestHelper {
     ).getResultList();
   }
 
+  public List<PadCrossedBlockOwner> getPadCrossedBlockOwners(PwaApplicationDetail pwaApplicationDetail) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadCrossedBlockOwner> criteriaQuery = cb.createQuery(PadCrossedBlockOwner.class);
+    Root<PadCrossedBlockOwner> crossedBlockOwnerRoot = criteriaQuery.from(PadCrossedBlockOwner.class);
+    Join<PadCrossedBlockOwner, PadCrossedBlock> crossedBlockJoin = crossedBlockOwnerRoot.join(PadCrossedBlockOwner_.padCrossedBlock);
+
+    return entityManager.createQuery(
+        criteriaQuery.where(
+            cb.equal(crossedBlockJoin.get(PadCrossedBlock_.pwaApplicationDetail), pwaApplicationDetail)
+        )
+    ).getResultList();
+
+  }
+
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
@@ -273,6 +290,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadEnvironmentalDecommissioning(getPadEnvironmentalDecommissioning(pwaApplicationDetail).orElse(null));
     container.setPadFacilities(getPadFacilities(pwaApplicationDetail));
     container.setPadLocationDetails(getPadLocationDetails(pwaApplicationDetail).orElse(null));
+    container.setPadCrossedBlockOwners(getPadCrossedBlockOwners(pwaApplicationDetail));
 
     return container;
 

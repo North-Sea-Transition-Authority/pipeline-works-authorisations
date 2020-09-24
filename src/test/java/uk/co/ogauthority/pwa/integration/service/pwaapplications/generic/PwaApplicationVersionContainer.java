@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalD
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
@@ -54,6 +55,8 @@ public class PwaApplicationVersionContainer {
   private List<PadFacility> padFacilities;
 
   private List<PadField> padFields;
+
+  private List<PadCrossedBlockOwner> padCrossedBlockOwners;
 
   private PadEnvironmentalDecommissioning padEnvironmentalDecommissioning;
 
@@ -185,5 +188,14 @@ public class PwaApplicationVersionContainer {
 
   public void setPadFacilities(List<PadFacility> padFacilities) {
     this.padFacilities = padFacilities;
+  }
+
+  public List<PadCrossedBlockOwner> getPadCrossedBlockOwners() {
+    return padCrossedBlockOwners;
+  }
+
+  public void setPadCrossedBlockOwners(
+      List<PadCrossedBlockOwner> padCrossedBlockOwners) {
+    this.padCrossedBlockOwners = padCrossedBlockOwners;
   }
 }
