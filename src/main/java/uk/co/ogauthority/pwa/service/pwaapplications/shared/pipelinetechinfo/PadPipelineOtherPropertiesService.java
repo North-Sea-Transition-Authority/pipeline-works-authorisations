@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties.OtherPropertiesValueView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties.OtherPropertiesView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -38,15 +39,18 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   private final PadPipelineOtherPropertiesRepository padPipelineOtherPropertiesRepository;
   private final PipelineOtherPropertiesValidator pipelineOtherPropertiesValidator;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadPipelineOtherPropertiesService(
       PadPipelineOtherPropertiesRepository padPipelineOtherPropertiesRepository,
       PipelineOtherPropertiesValidator pipelineOtherPropertiesValidator,
-      PwaApplicationDetailService pwaApplicationDetailService) {
+      PwaApplicationDetailService pwaApplicationDetailService,
+      EntityCopyingService entityCopyingService) {
     this.padPipelineOtherPropertiesRepository = padPipelineOtherPropertiesRepository;
     this.pipelineOtherPropertiesValidator = pipelineOtherPropertiesValidator;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.entityCopyingService = entityCopyingService;
   }
 
   // Entity/Form Mapping/Retrieval
@@ -187,7 +191,12 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    // "phasesPresent" stored on app detail, so dont need to copy specifically here.
+    entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(fromDetail),
+        toDetail,
+        PadPipelineOtherProperties.class
+    );
   }
 
 }

@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositd
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
@@ -75,6 +77,8 @@ public class PwaApplicationVersionContainer {
   private PadPipelineTechInfo padPipelineTechInfo;
 
   private Map<Chemical, PadFluidCompositionInfo> fluidCompositionInfoMap;
+
+  private Map<OtherPipelineProperty, PadPipelineOtherProperties> padPipelineOtherProperties;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -263,7 +267,21 @@ public class PwaApplicationVersionContainer {
         );
   }
 
-  public PadFluidCompositionInfo getPadFluidCompositionForChemical(Chemical chemical){
+  public PadFluidCompositionInfo getPadFluidCompositionForChemical(Chemical chemical) {
     return this.fluidCompositionInfoMap.get(chemical);
   }
+
+  public void setPadPipelineOtherProperties(List<PadPipelineOtherProperties> padPipelineOtherProperties) {
+    this.padPipelineOtherProperties = padPipelineOtherProperties.stream()
+        .collect(Collectors.toMap(
+            PadPipelineOtherProperties::getPropertyName,
+            pipelineOtherProperties -> pipelineOtherProperties
+            )
+        );
+  }
+
+  public PadPipelineOtherProperties getPadPipelineOtherProperty(OtherPipelineProperty otherPipelineProperty){
+    return this.padPipelineOtherProperties.get(otherPipelineProperty);
+  }
+
 }

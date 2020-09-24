@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties.OtherPropertiesValueView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -46,19 +47,27 @@ public class PadPipelineOtherPropertiesServiceTest {
   @Mock
   private PadPipelineOtherPropertiesRepository padPipelineOtherPropertiesRepository;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
   private PipelineOtherPropertiesValidator validator;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  private OtherPropertiesEntityBuilder entityBuilder = new OtherPropertiesEntityBuilder();
   private OtherPropertiesFormBuilder formBuilder = new OtherPropertiesFormBuilder();
 
 
   @Before
   public void setUp() {
     validator = new PipelineOtherPropertiesValidator(new PipelineOtherPropertiesDataValidator(new MinMaxInputValidator()));
-    padPipelineOtherPropertiesService = new PadPipelineOtherPropertiesService(padPipelineOtherPropertiesRepository,
-        validator, pwaApplicationDetailService);
+
+    padPipelineOtherPropertiesService = new PadPipelineOtherPropertiesService(
+        padPipelineOtherPropertiesRepository,
+        validator,
+        pwaApplicationDetailService,
+        entityCopyingService
+    );
+
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
@@ -66,7 +75,7 @@ public class PadPipelineOtherPropertiesServiceTest {
   // Entity/Form  Retrieval/Mapping Tests
   @Test
   public void getPipelineOtherPropertiesEntity_existingEntitiesReturned() {
-    var expectedEntityList = entityBuilder.createAllEntities(pwaApplicationDetail);
+    var expectedEntityList = PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail);
     when(padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(expectedEntityList);
     var actualEntityList = padPipelineOtherPropertiesService.getPipelineOtherPropertyEntities(pwaApplicationDetail);
     assertThat(actualEntityList).isEqualTo(expectedEntityList);
@@ -87,40 +96,40 @@ public class PadPipelineOtherPropertiesServiceTest {
   @Test
   public void mapEntityToForm() {
     var actualForm = new PipelineOtherPropertiesForm();
-    entityBuilder.setPhaseDataOnAppDetail(pwaApplicationDetail);
+    PadPipelineOtherPropertiesTestUtil.setPhaseDataOnAppDetail(pwaApplicationDetail);
 
-    padPipelineOtherPropertiesService.mapEntitiesToForm(actualForm, entityBuilder.createAllEntities(pwaApplicationDetail), pwaApplicationDetail);
+    padPipelineOtherPropertiesService.mapEntitiesToForm(actualForm, PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail), pwaApplicationDetail);
     assertThat(actualForm).isEqualTo(formBuilder.createFullForm());
   }
 
   @Test
   public void mapEntityToForm_otherPhaseNotSelected() {
     var actualForm = new PipelineOtherPropertiesForm();
-    entityBuilder.setPhaseDataOnAppDetail_otherPhaseExcluded(pwaApplicationDetail);
+    PadPipelineOtherPropertiesTestUtil.setPhaseDataOnAppDetail_otherPhaseExcluded(pwaApplicationDetail);
 
     var expectedForm = formBuilder.createFullForm();
     expectedForm.getPhasesSelection().remove(PropertyPhase.OTHER);
     expectedForm.setOtherPhaseDescription(null);
 
-    padPipelineOtherPropertiesService.mapEntitiesToForm(actualForm, entityBuilder.createAllEntities(pwaApplicationDetail), pwaApplicationDetail);
+    padPipelineOtherPropertiesService.mapEntitiesToForm(actualForm, PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail), pwaApplicationDetail);
     assertThat(actualForm).isEqualTo(expectedForm);
   }
 
   @Test
   public void saveEntitiesUsingForm() {
-    var actualEntities = entityBuilder.createBlankEntities(pwaApplicationDetail);
+    var actualEntities = PadPipelineOtherPropertiesTestUtil.createBlankEntities(pwaApplicationDetail);
     padPipelineOtherPropertiesService.saveEntitiesUsingForm(formBuilder.createFullForm(), actualEntities, pwaApplicationDetail);
 
-    assertThat(actualEntities).isEqualTo(entityBuilder.createAllEntities(pwaApplicationDetail));
+    assertThat(actualEntities).isEqualTo(PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail));
     verify(pwaApplicationDetailService, times(1)).setPhasesPresent(pwaApplicationDetail,
-        entityBuilder.getPhaseDataForAppDetail(), entityBuilder.getOtherPhaseDescription());
+        PadPipelineOtherPropertiesTestUtil.getPhaseDataForAppDetail(), PadPipelineOtherPropertiesTestUtil.getOtherPhaseDescription());
     verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(actualEntities);
   }
 
   @Test
   public void getOtherPropertiesView() {
-    var expectedEntityList = entityBuilder.createAllEntities(pwaApplicationDetail);
-    entityBuilder.setPhaseDataOnAppDetail(pwaApplicationDetail);
+    var expectedEntityList = PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail);
+    PadPipelineOtherPropertiesTestUtil.setPhaseDataOnAppDetail(pwaApplicationDetail);
     when(padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(expectedEntityList);
 
     var otherPropertiesView = padPipelineOtherPropertiesService.getOtherPropertiesView(pwaApplicationDetail);
@@ -132,10 +141,10 @@ public class PadPipelineOtherPropertiesServiceTest {
         .isEqualTo(new OtherPropertiesValueView(PropertyAvailabilityOption.AVAILABLE, "3", "5"));
 
     assertThat(otherPropertiesView.getSelectedPropertyPhases())
-        .containsAll(entityBuilder.getPhaseDataForAppDetail());
+        .containsAll(PadPipelineOtherPropertiesTestUtil.getPhaseDataForAppDetail());
 
     assertThat(otherPropertiesView.getOtherPhaseDescription())
-        .isEqualTo(entityBuilder.getOtherPhaseDescription());
+        .isEqualTo(PadPipelineOtherPropertiesTestUtil.getOtherPhaseDescription());
 
   }
 
@@ -160,9 +169,9 @@ public class PadPipelineOtherPropertiesServiceTest {
 
   @Test
   public void isComplete_valid() {
-    entityBuilder.setPhaseDataOnAppDetail(pwaApplicationDetail);
+    PadPipelineOtherPropertiesTestUtil.setPhaseDataOnAppDetail(pwaApplicationDetail);
     when(padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
-        entityBuilder.createAllEntities(pwaApplicationDetail));
+        PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail));
     var isValid = padPipelineOtherPropertiesService.isComplete(pwaApplicationDetail);
     assertTrue(isValid);
   }

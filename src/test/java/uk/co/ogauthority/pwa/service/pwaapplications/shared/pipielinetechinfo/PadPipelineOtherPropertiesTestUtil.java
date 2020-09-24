@@ -1,25 +1,77 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.RandomUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
+import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 /*
   An entity builder class for PadPipelineOtherProperties that matches the data created by OtherPropertiesFormBuilder used to aid testing.
  */
-public class OtherPropertiesEntityBuilder {
+public class PadPipelineOtherPropertiesTestUtil {
+  public static final String OTHER_PHASE_DESCRIPTION = "my description";
 
-  private final String otherPhaseDescription = "my description";
+  private PadPipelineOtherPropertiesTestUtil() {
+    //no instantiation
+  }
+
+  public static PadPipelineOtherProperties createNotAvailableProperty(PwaApplicationDetail pwaApplicationDetail,
+                                                                      OtherPipelineProperty otherPipelineProperty) {
+
+    var otherProperties = createFullEntity(
+        null,
+        pwaApplicationDetail,
+        PropertyAvailabilityOption.NOT_AVAILABLE,
+        otherPipelineProperty,
+        null,
+        null
+    );
+
+    ObjectTestUtils.assertAllFieldsNotNull(
+        otherProperties,
+        PadPipelineOtherProperties.class,
+        Set.of(
+            PadPipelineOtherProperties_.ID,
+            PadPipelineOtherProperties_.MIN_VALUE,
+            PadPipelineOtherProperties_.MAX_VALUE
+        ));
+
+    return otherProperties;
+
+  }
+
+  public static PadPipelineOtherProperties createAvailableProperty(PwaApplicationDetail pwaApplicationDetail,
+                                                                   OtherPipelineProperty otherPipelineProperty) {
+
+    var otherProperties = createFullEntity(
+        null,
+        pwaApplicationDetail,
+        PropertyAvailabilityOption.AVAILABLE,
+        otherPipelineProperty,
+        BigDecimal.valueOf(RandomUtils.nextDouble(0, 50)).setScale(2, RoundingMode.HALF_UP),
+        BigDecimal.valueOf(RandomUtils.nextDouble(51, 100)).setScale(2, RoundingMode.HALF_UP)
+    );
+
+    ObjectTestUtils.assertAllFieldsNotNull(
+        otherProperties,
+        PadPipelineOtherProperties.class,
+        Set.of(PadPipelineOtherProperties_.ID));
+
+    return otherProperties;
+  }
 
 
-  public List<PadPipelineOtherProperties> createAllEntities(PwaApplicationDetail detail) {
+  public static List<PadPipelineOtherProperties> createAllEntities(PwaApplicationDetail detail) {
     var entities = new ArrayList<PadPipelineOtherProperties>();
 
     entities.add(createFullEntity(1, detail, PropertyAvailabilityOption.NOT_AVAILABLE, OtherPipelineProperty.WAX_CONTENT,
@@ -47,10 +99,12 @@ public class OtherPropertiesEntityBuilder {
   }
 
 
-
-  public PadPipelineOtherProperties createFullEntity(int id, PwaApplicationDetail pwaApplicationDetail,
-                                                     PropertyAvailabilityOption availabilityOption,  OtherPipelineProperty propertyName,
-                                                     BigDecimal minValue, BigDecimal maxValue) {
+  public static PadPipelineOtherProperties createFullEntity(Integer id,
+                                                            PwaApplicationDetail pwaApplicationDetail,
+                                                            PropertyAvailabilityOption availabilityOption,
+                                                            OtherPipelineProperty propertyName,
+                                                            BigDecimal minValue,
+                                                            BigDecimal maxValue) {
     var entity = new PadPipelineOtherProperties();
     entity.setId(id);
     entity.setPwaApplicationDetail(pwaApplicationDetail);
@@ -61,10 +115,10 @@ public class OtherPropertiesEntityBuilder {
     return entity;
   }
 
-  public List<PadPipelineOtherProperties> createBlankEntities(PwaApplicationDetail pwaApplicationDetail) {
+  public static List<PadPipelineOtherProperties> createBlankEntities(PwaApplicationDetail pwaApplicationDetail) {
     List<PadPipelineOtherProperties> pipelineOtherPropertiesList = new ArrayList<>();
     int id = 1;
-    for (OtherPipelineProperty property: OtherPipelineProperty.asList()) {
+    for (OtherPipelineProperty property : OtherPipelineProperty.asList()) {
       var padPipelineOtherProperty = new PadPipelineOtherProperties(pwaApplicationDetail, property);
       padPipelineOtherProperty.setId(id++);
       pipelineOtherPropertiesList.add(padPipelineOtherProperty);
@@ -72,24 +126,24 @@ public class OtherPropertiesEntityBuilder {
     return pipelineOtherPropertiesList;
   }
 
-  public Set<PropertyPhase> getPhaseDataForAppDetail() {
+  public static Set<PropertyPhase> getPhaseDataForAppDetail() {
     return PropertyPhase.stream().collect(Collectors.toSet());
   }
 
-  public void setPhaseDataOnAppDetail(PwaApplicationDetail pwaApplicationDetail) {
+  public static void setPhaseDataOnAppDetail(PwaApplicationDetail pwaApplicationDetail) {
     pwaApplicationDetail.setPipelinePhaseProperties(getPhaseDataForAppDetail());
     pwaApplicationDetail.setOtherPhaseDescription(getOtherPhaseDescription());
   }
 
-  public void setPhaseDataOnAppDetail_otherPhaseExcluded(PwaApplicationDetail pwaApplicationDetail) {
+  public static void setPhaseDataOnAppDetail_otherPhaseExcluded(PwaApplicationDetail pwaApplicationDetail) {
     var phases = getPhaseDataForAppDetail();
     phases.remove(PropertyPhase.OTHER);
     pwaApplicationDetail.setPipelinePhaseProperties(phases);
     pwaApplicationDetail.setOtherPhaseDescription(getOtherPhaseDescription());
   }
 
-  public String getOtherPhaseDescription() {
-    return otherPhaseDescription;
+  public static String getOtherPhaseDescription() {
+    return OTHER_PHASE_DESCRIPTION;
   }
 
 
