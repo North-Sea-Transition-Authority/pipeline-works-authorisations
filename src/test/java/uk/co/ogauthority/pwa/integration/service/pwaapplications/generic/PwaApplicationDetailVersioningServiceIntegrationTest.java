@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalD
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
@@ -67,6 +68,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTes
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.PadCampaignWorksScheduleTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
@@ -204,10 +206,23 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     }
 
     if (applicationTaskService.canShowTask(ApplicationTask.CROSSING_AGREEMENTS, pwaApplicationDetail)) {
+      pwaApplicationDetail.setCablesCrossed(true);
+      pwaApplicationDetail.setMedianLineCrossed(true);
+      pwaApplicationDetail.setPipelinesCrossed(true);
+      entityManager.persist(pwaApplicationDetail);
+
       createPadCrossedBlockData(pwaApplicationDetail);
+      createPadCableCrossingData(pwaApplicationDetail);
     }
 
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createPadCableCrossingData(PwaApplicationDetail pwaApplicationDetail) {
+    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.CABLE_CROSSINGS);
+    var padCableCrossing = PadCableCrossingTestUtil.createPadCableCrossing(pwaApplicationDetail);
+    entityManager.persist(padCableCrossing);
+
   }
 
   private void createPadCrossedBlockData(PwaApplicationDetail pwaApplicationDetail) {
@@ -430,7 +445,6 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
           }
         });
   }
-
 
   @Transactional
   @Test
@@ -856,5 +870,29 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         licensedCrossedBlockOwnerV1.getPadCrossedBlock(),
         licensedCrossedBlockOwnerV2.getPadCrossedBlock(),
         Set.of(PadCrossedBlock_.ID, PadCrossedBlock_.PWA_APPLICATION_DETAIL));
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_locationDetails_cableCrossings() throws IllegalAccessException {
+    setup(PwaApplicationType.INITIAL);
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    assertPadFileDetailsMatch(
+        firstVersionApplicationContainer.getPadFile(ApplicationDetailFilePurpose.CABLE_CROSSINGS),
+        newVersionContainer.getPadFile(ApplicationDetailFilePurpose.CABLE_CROSSINGS)
+    );
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadCableCrossing(),
+        newVersionContainer.getPadCableCrossing(),
+        Set.of(PadCableCrossing_.ID, PadCableCrossing_.PWA_APPLICATION_DETAIL));
+
   }
 }

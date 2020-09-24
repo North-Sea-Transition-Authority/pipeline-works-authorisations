@@ -109,6 +109,7 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
     return BooleanUtils.isTrue(pwaApplicationDetail.getMedianLineCrossed());
   }
 
+  @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
     LOGGER.warn("TODO PWA-816: " + this.getClass().getName());

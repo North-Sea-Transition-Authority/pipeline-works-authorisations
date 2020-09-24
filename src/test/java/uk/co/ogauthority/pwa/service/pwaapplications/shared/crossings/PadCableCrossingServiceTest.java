@@ -19,6 +19,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadCableCrossingRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadCableCrossingServiceTest {
@@ -29,13 +31,24 @@ public class PadCableCrossingServiceTest {
   @Mock
   private CableCrossingFileService cableCrossingFileService;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
+  @Mock
+  private PadFileService padFileService;
+
   private PadCableCrossingService padCableCrossingService;
   private PwaApplicationDetail pwaApplicationDetail;
   private PadCableCrossing padCableCrossing;
 
   @Before
   public void setUp() {
-    padCableCrossingService = new PadCableCrossingService(padCableCrossingRepository, cableCrossingFileService);
+    padCableCrossingService = new PadCableCrossingService(
+        padCableCrossingRepository,
+        cableCrossingFileService,
+        entityCopyingService,
+        padFileService
+    );
     pwaApplicationDetail = new PwaApplicationDetail();
     padCableCrossing = new PadCableCrossing();
     padCableCrossing.setCableName("cableName");

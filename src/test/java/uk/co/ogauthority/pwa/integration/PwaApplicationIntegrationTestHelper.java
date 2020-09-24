@@ -28,6 +28,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.Pad
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner_;
@@ -83,6 +85,19 @@ public class PwaApplicationIntegrationTestHelper {
         criteriaQuery.where(cb.equal(padFile.get(PadFile_.pwaApplicationDetail), pwaApplicationDetail))
     ).getResultList();
 
+  }
+
+  public Optional<PadCableCrossing> getPadCableCrossing(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadCableCrossing> criteriaQuery = cb.createQuery(PadCableCrossing.class);
+    Root<PadCableCrossing> cableCrossingRoot = criteriaQuery.from(PadCableCrossing.class);
+
+    return getResultOrEmptyOptional(
+        PadCableCrossing.class,
+        entityManager.createQuery(criteriaQuery.where(
+            cb.equal(cableCrossingRoot.get(PadCableCrossing_.pwaApplicationDetail), pwaApplicationDetail)
+        ))
+    );
   }
 
   public Optional<SimplePadPipelineContainer> getPadPipeline(PwaApplicationDetail pwaApplicationDetail) {
@@ -291,6 +306,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadFacilities(getPadFacilities(pwaApplicationDetail));
     container.setPadLocationDetails(getPadLocationDetails(pwaApplicationDetail).orElse(null));
     container.setPadCrossedBlockOwners(getPadCrossedBlockOwners(pwaApplicationDetail));
+    container.setPadCableCrossing(getPadCableCrossing(pwaApplicationDetail).orElse(null));
 
     return container;
 
