@@ -54,6 +54,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
@@ -328,6 +330,19 @@ public class PwaApplicationIntegrationTestHelper {
     );
   }
 
+  public List<PadFluidCompositionInfo> getPadFluidCompositionInfo(PwaApplicationDetail pwaApplicationDetail) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadFluidCompositionInfo> criteriaQuery = cb.createQuery(PadFluidCompositionInfo.class);
+    Root<PadFluidCompositionInfo> fluidCompositionInfoRoot = criteriaQuery.from(PadFluidCompositionInfo.class);
+
+    return entityManager.createQuery(
+        criteriaQuery.where(
+            cb.equal(fluidCompositionInfoRoot.get(PadFluidCompositionInfo_.pwaApplicationDetail), pwaApplicationDetail)
+        )
+    ).getResultList();
+
+  }
+
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
@@ -360,6 +375,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadPipelineCrossingOwners(getPadPipelineCrossingOwners(pwaApplicationDetail));
     container.setPadMedianLineAgreement(getPadMedianLineAgreement(pwaApplicationDetail).orElse(null));
     container.setPadPipelineTechInfo(getPadPipelineTechInfo(pwaApplicationDetail).orElse(null));
+    container.setPadFluidCompositionInfo(getPadFluidCompositionInfo(pwaApplicationDetail));
 
     return container;
 
