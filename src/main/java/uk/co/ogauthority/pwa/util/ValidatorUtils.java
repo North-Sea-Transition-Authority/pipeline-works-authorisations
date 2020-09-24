@@ -94,17 +94,17 @@ public class ValidatorUtils {
         LocalDate.of(year, month, 1);
       } catch (DateTimeException e) {
         errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-                "Enter a valid month 1-12");
+            "Enter a valid month 1-12");
         errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-                "Enter a valid year");
+            "Enter a valid year");
         return false;
       }
       return true;
     } else {
       errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-              "Enter a valid month 1-12");
+          "Enter a valid month 1-12");
       errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-              "Enter a valid year");
+          "Enter a valid year");
       return false;
     }
   }
@@ -151,10 +151,10 @@ public class ValidatorUtils {
       var date = LocalDate.of(year, month, 1);
       if (date.isBefore(LocalDate.now())) {
         errors.rejectValue(fieldPrefix + "Month",
-                String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode(), "Month must not be in the past"),
-                "Month must not be in the past.");
+            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode(), "Month must not be in the past"),
+            "Month must not be in the past.");
         errors.rejectValue(fieldPrefix + "Year",
-                String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "Year must not be in the past");
+            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "Year must not be in the past");
         return false;
       }
       return true;
@@ -163,11 +163,11 @@ public class ValidatorUtils {
   }
 
   public static boolean validateDateIsPastOrPresent(String fieldPrefix,
-                                                       String displayPrefix,
-                                                       Integer day,
-                                                       Integer month,
-                                                       Integer year,
-                                                       Errors errors) {
+                                                    String displayPrefix,
+                                                    Integer day,
+                                                    Integer month,
+                                                    Integer year,
+                                                    Errors errors) {
     if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
       var date = LocalDate.of(year, month, day);
       if (date.isAfter(LocalDate.now())) {
@@ -209,13 +209,13 @@ public class ValidatorUtils {
 
 
   public static boolean validateDateIsWithinRangeOfTarget(String fieldPrefix,
-                                                              String displayPrefix,
-                                                              Integer month,
-                                                              Integer year,
-                                                              Integer targetMonth,
-                                                              Integer targetYear,
-                                                              Integer monthRange,
-                                                              Errors errors) {
+                                                          String displayPrefix,
+                                                          Integer month,
+                                                          Integer year,
+                                                          Integer targetMonth,
+                                                          Integer targetYear,
+                                                          Integer monthRange,
+                                                          Errors errors) {
     if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
       var date = LocalDate.of(year, month, 1);
       var targetDate = LocalDate.of(targetYear, targetMonth, 1);
