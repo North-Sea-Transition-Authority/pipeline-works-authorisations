@@ -117,5 +117,14 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
     blockCrossingService.copySectionInformation(fromDetail, toDetail);
+    if (BooleanUtils.isTrue(fromDetail.getCablesCrossed())) {
+      padCableCrossingService.copySectionInformation(fromDetail, toDetail);
+    }
+    if (BooleanUtils.isTrue(fromDetail.getPipelinesCrossed())) {
+      padPipelineCrossingService.copySectionInformation(fromDetail, toDetail);
+    }
+    if (BooleanUtils.isTrue(fromDetail.getMedianLineCrossed())) {
+      padMedianLineAgreementService.copySectionInformation(fromDetail, toDetail);
+    }
   }
 }
