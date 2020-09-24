@@ -188,14 +188,15 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   }
 
   // use this to dummy up and persist all possible form entities
-  private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) throws IllegalAccessException {
+  private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(PwaApplicationDetail pwaApplicationDetail)
+      throws IllegalAccessException {
 
     if (pwaApplicationDetail.getPwaApplicationType() == PwaApplicationType.OPTIONS_VARIATION) {
       createSupplementaryDocument(pwaApplicationDetail);
       createOptionsTemplateDocument(pwaApplicationDetail);
     }
 
+    createPipelineData(pwaApplicationDetail);
     createProjInfoData(pwaApplicationDetail);
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
@@ -524,6 +525,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         newVersionContainer.getSimplePadPipelineContainer().getPadPipeline(),
         PadPipeline_.ID, PadPipeline_.PWA_APPLICATION_DETAIL
     )).isTrue();
+
     assertThat(EqualsBuilder.reflectionEquals(
         firstVersionApplicationContainer.getSimplePadPipelineContainer().getPadPipelineIdent(),
         newVersionContainer.getSimplePadPipelineContainer().getPadPipelineIdent(),
