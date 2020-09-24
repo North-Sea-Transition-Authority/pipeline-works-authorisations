@@ -8,11 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
@@ -28,17 +32,20 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
   private final MedianLineAgreementValidator medianLineAgreementValidator;
   private final MedianLineCrossingFileService medianLineCrossingFileService;
   private final PadFileService padFileService;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadMedianLineAgreementService(
       PadMedianLineAgreementRepository padMedianLineAgreementRepository,
       MedianLineAgreementValidator medianLineAgreementValidator,
       MedianLineCrossingFileService medianLineCrossingFileService,
-      PadFileService padFileService) {
+      PadFileService padFileService,
+      EntityCopyingService entityCopyingService) {
     this.padMedianLineAgreementRepository = padMedianLineAgreementRepository;
     this.medianLineAgreementValidator = medianLineAgreementValidator;
     this.medianLineCrossingFileService = medianLineCrossingFileService;
     this.padFileService = padFileService;
+    this.entityCopyingService = entityCopyingService;
   }
 
   public PadMedianLineAgreement getMedianLineAgreement(PwaApplicationDetail pwaApplicationDetail) {
@@ -112,6 +119,18 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
   @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail,
+        toDetail,
+        ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING,
+        ApplicationFileLinkStatus.FULL
+    );
+
+    entityCopyingService.duplicateEntityAndSetParent(
+        () -> padMedianLineAgreementRepository.findByPwaApplicationDetail(fromDetail)
+            .orElseThrow(() -> new PwaEntityNotFoundException("Expected to find Median line agreement. pad_id:" + fromDetail.getId())),
+        toDetail,
+        PadMedianLineAgreement.class
+    );
   }
 }

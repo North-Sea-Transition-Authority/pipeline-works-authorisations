@@ -10,9 +10,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity(name = "pad_median_line_agreements")
-public class PadMedianLineAgreement {
+public class PadMedianLineAgreement implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +25,22 @@ public class PadMedianLineAgreement {
 
   @Enumerated(EnumType.STRING)
   private MedianLineStatus agreementStatus;
+
+  //ChildEntity methods
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
+  }
 
   private String negotiatorName;
   private String negotiatorEmail;

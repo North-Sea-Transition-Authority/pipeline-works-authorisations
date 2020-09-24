@@ -22,6 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalD
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
@@ -294,6 +296,21 @@ public class PwaApplicationIntegrationTestHelper {
 
   }
 
+  private Optional<PadMedianLineAgreement> getPadMedianLineAgreement(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadMedianLineAgreement> criteriaQuery = cb.createQuery(PadMedianLineAgreement.class);
+    Root<PadMedianLineAgreement> medianLineAgreementRoot = criteriaQuery.from(PadMedianLineAgreement.class);
+
+    return getResultOrEmptyOptional(
+        PadMedianLineAgreement.class,
+        entityManager.createQuery(
+            criteriaQuery.where(
+                cb.equal(medianLineAgreementRoot.get(PadMedianLineAgreement_.pwaApplicationDetail), pwaApplicationDetail)
+            )
+        )
+    );
+  }
+
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
@@ -324,6 +341,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadCrossedBlockOwners(getPadCrossedBlockOwners(pwaApplicationDetail));
     container.setPadCableCrossing(getPadCableCrossing(pwaApplicationDetail).orElse(null));
     container.setPadPipelineCrossingOwners(getPadPipelineCrossingOwners(pwaApplicationDetail));
+    container.setPadMedianLineAgreement(getPadMedianLineAgreement(pwaApplicationDetail).orElse(null));
 
     return container;
 
