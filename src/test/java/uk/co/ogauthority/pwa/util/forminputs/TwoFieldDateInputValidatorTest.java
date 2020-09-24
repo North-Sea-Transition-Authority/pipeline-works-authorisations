@@ -11,9 +11,11 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.AfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.BeforeDateHint;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.DateWithinRangeHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
@@ -256,6 +258,83 @@ public class TwoFieldDateInputValidatorTest {
     var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
 
     assertThat(fieldErrors).isEmpty();
+  }
+
+
+
+  @Test
+  public void validate_dateWithinRange_withinRange() {
+
+    var fromDate = LocalDate.now();
+    var toDate = fromDate.plusMonths(12);
+    twoFieldDateInput = new TwoFieldDateInput(fromDate.plusMonths(10));
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    Object[] hints = {
+        new FormInputLabel("toDate"),
+        new DateWithinRangeHint(fromDate, toDate,"")
+    };
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(errors);
+
+    assertThat(fieldErrors).isEmpty();
+  }
+
+  @Test
+  public void validate_dateWithinRange_pastMaxRange() {
+
+    var maxMonthRange = 12;
+    var fromDate = LocalDate.now();
+    var toDate = fromDate.plusMonths(maxMonthRange);
+    twoFieldDateInput = new TwoFieldDateInput(fromDate.plusMonths(13));
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    Object[] hints = {
+        new FormInputLabel("toDate"),
+        new DateWithinRangeHint(fromDate, toDate,maxMonthRange + " months of the deposit start date")
+    };
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(errors);
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrors).containsExactly(
+        entry("month", Set.of("month" + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode())),
+        entry("year", Set.of("year" + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode()))
+    );
+
+    assertThat(fieldErrorMessages).containsExactly(
+        entry("month", Set.of("")),
+        entry("year", Set.of("toDate must be within the range of 12 months of the deposit start date")));
+  }
+
+  @Test
+  public void validate_dateWithinRange_beforeFromDate() {
+
+    var maxMonthRange = 12;
+    var fromDate = LocalDate.now();
+    var toDate = fromDate.plusMonths(maxMonthRange);
+    twoFieldDateInput = new TwoFieldDateInput(fromDate.minusMonths(1));
+
+    var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
+    Object[] hints = {
+        new FormInputLabel("toDate"),
+        new DateWithinRangeHint(fromDate, toDate,maxMonthRange + " months of the deposit start date")
+    };
+    ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(errors);
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrors).containsExactly(
+        entry("month", Set.of("month" + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode())),
+        entry("year", Set.of("year" + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode()))
+    );
+
+    assertThat(fieldErrorMessages).containsExactly(
+        entry("month", Set.of("")),
+        entry("year", Set.of("toDate must be within the range of 12 months of the deposit start date")));
   }
 
 }

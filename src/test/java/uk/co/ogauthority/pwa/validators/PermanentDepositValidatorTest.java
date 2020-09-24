@@ -91,8 +91,9 @@ public class PermanentDepositValidatorTest {
     var form = getPermanentDepositsFormWithMaterialType();
     form.getFromDate().setMonth(2);
     form.getFromDate().setYear(2020);
+    form.setToDate(new TwoFieldDateInput(2020, 8));
     Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("toDate.month", Set.of("month.invalid")));
+    assertThat(errorsMap).contains(entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
   }
 
   @Test
@@ -108,7 +109,6 @@ public class PermanentDepositValidatorTest {
 
 
 
-
   @Test
   public void validate_toDate_Past() {
     var form = getPermanentDepositsFormWithMaterialType();
@@ -118,7 +118,7 @@ public class PermanentDepositValidatorTest {
     form.getToDate().setYear(2020);
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains((entry("toDate.month", Set.of("toDate.month.outOfTargetRange", "month.afterDate"))));
+    assertThat(errorsMap).contains((entry("toDate.month", Set.of("month.outOfTargetRange", "month.afterDate"))));
   }
 
   @Test
@@ -130,7 +130,7 @@ public class PermanentDepositValidatorTest {
     form.getToDate().setYear(3021);
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("toDate.month", Set.of("toDate.month.outOfTargetRange")));
+    assertThat(errorsMap).contains(entry("toDate.month", Set.of("month.outOfTargetRange")));
   }
 
   @Test
@@ -145,6 +145,19 @@ public class PermanentDepositValidatorTest {
     assertThat(errorsMap).doesNotContain(entry("toDate.month", Set.of("toDate.month.outOfTargetRange")),
         entry("toDate.year", Set.of("toYear.outOfTargetRange")));
   }
+
+  @Test
+  public void validate_dates_nonePresent() {
+    var form = getPermanentDepositsFormWithMaterialType();
+    form.setFromDate(new TwoFieldDateInput());
+
+    Map<String, Set<String>> errorsMap = getErrorMap(form);
+    assertThat(errorsMap).contains(
+        entry("toDate.month", Set.of("month" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+
+
 
   @Test
   public void validate_materialType_notSelected() {
