@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
 
+import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.GeneralTechInfoView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
@@ -28,17 +30,20 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
   private final PipelineTechInfoMappingService pipelineTechInfoMappingService;
   private final SpringValidatorAdapter groupValidator;
   private final PipelineTechInfoValidator pipelineTechInfoValidator;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadPipelineTechInfoService(
       PadPipelineTechInfoRepository padPipelineTechInfoRepository,
       PipelineTechInfoMappingService pipelineTechInfoMappingService,
       SpringValidatorAdapter groupValidator,
-      PipelineTechInfoValidator pipelineTechInfoValidator) {
+      PipelineTechInfoValidator pipelineTechInfoValidator,
+      EntityCopyingService entityCopyingService) {
     this.padPipelineTechInfoRepository = padPipelineTechInfoRepository;
     this.pipelineTechInfoMappingService = pipelineTechInfoMappingService;
     this.groupValidator = groupValidator;
     this.pipelineTechInfoValidator = pipelineTechInfoValidator;
+    this.entityCopyingService = entityCopyingService;
   }
 
 
@@ -118,9 +123,13 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
 
   }
 
+  @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    entityCopyingService.duplicateEntityAndSetParent(
+        () -> getPipelineTechInfoEntity(fromDetail),
+        toDetail,
+        PadPipelineTechInfo.class);
   }
 
 }

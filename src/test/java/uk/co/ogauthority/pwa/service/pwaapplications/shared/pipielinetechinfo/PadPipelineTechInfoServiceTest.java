@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
@@ -48,6 +49,9 @@ public class PadPipelineTechInfoServiceTest {
   @Mock
   private PipelineTechInfoValidator validator;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
   private SpringValidatorAdapter springValidatorAdapter;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -56,8 +60,12 @@ public class PadPipelineTechInfoServiceTest {
   @Before
   public void setUp() {
     springValidatorAdapter = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-    padPipelineTechInfoService = new PadPipelineTechInfoService(padPipelineTechInfoRepository,
-        pipelineTechInfoMappingService, springValidatorAdapter, validator);
+    padPipelineTechInfoService = new PadPipelineTechInfoService(
+        padPipelineTechInfoRepository,
+        pipelineTechInfoMappingService,
+        springValidatorAdapter,
+        validator,
+        entityCopyingService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
