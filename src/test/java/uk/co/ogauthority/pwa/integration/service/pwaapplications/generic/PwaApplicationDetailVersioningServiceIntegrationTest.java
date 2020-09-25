@@ -29,6 +29,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -59,6 +61,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
@@ -79,6 +82,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianL
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadFluidCompositionInfoTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineOtherPropertiesTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineTechInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
@@ -205,9 +209,28 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createAllCrossingData(pwaApplicationDetail);
     createGeneralTechDetailsData(pwaApplicationDetail);
     createFluidCompositionData(pwaApplicationDetail);
+    createOtherPropertiesData(pwaApplicationDetail);
 
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
 }
+
+  private void createOtherPropertiesData(PwaApplicationDetail pwaApplicationDetail){
+    if (applicationTaskService.canShowTask(ApplicationTask.PIPELINE_OTHER_PROPERTIES, pwaApplicationDetail)) {
+      OtherPipelineProperty.asList().forEach(otherPipelineProperty -> {
+        if(otherPipelineProperty.ordinal() % 3 == 0){
+          entityManager.persist(
+              PadPipelineOtherPropertiesTestUtil.createNotAvailableProperty(pwaApplicationDetail, otherPipelineProperty)
+          );
+        } else {
+          entityManager.persist(
+              PadPipelineOtherPropertiesTestUtil.createAvailableProperty(pwaApplicationDetail, otherPipelineProperty)
+          );
+        }
+
+
+      });
+    }
+  }
 
   private void createFluidCompositionData(PwaApplicationDetail pwaApplicationDetail){
     // create fluids for all chemicals across the range of fluid amounts
@@ -1074,6 +1097,39 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
           firstVersionApplicationContainer.getPadFluidCompositionForChemical(chemical),
           newVersionContainer.getPadFluidCompositionForChemical(chemical),
           Set.of(PadFluidCompositionInfo_.ID, PadPipelineTechInfo_.PWA_APPLICATION_DETAIL))
+    );
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_techDetails_otherProperties() throws IllegalAccessException {
+    setup(PwaApplicationType.INITIAL);
+
+    firstVersionApplicationContainer.getPwaApplicationDetail().setOtherPhaseDescription("Other Phase Description");
+    firstVersionApplicationContainer.getPwaApplicationDetail().setPipelinePhaseProperties(
+        Set.of(PropertyPhase.OIL,  PropertyPhase.GAS)
+    );
+
+    entityManager.persist(firstVersionApplicationContainer.getPwaApplicationDetail());
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    assertThat(firstVersionApplicationContainer.getPwaApplicationDetail().getOtherPhaseDescription())
+        .isEqualTo(newVersionContainer.getPwaApplicationDetail().getOtherPhaseDescription());
+
+    assertThat(firstVersionApplicationContainer.getPwaApplicationDetail().getPipelinePhaseProperties())
+        .isEqualTo(newVersionContainer.getPwaApplicationDetail().getPipelinePhaseProperties());
+
+    OtherPipelineProperty.asList().forEach(otherPipelineProperty ->
+        ObjectTestUtils.assertValuesEqual(
+            firstVersionApplicationContainer.getPadPipelineOtherProperty(otherPipelineProperty),
+            newVersionContainer.getPadPipelineOtherProperty(otherPipelineProperty),
+            Set.of(PadPipelineOtherProperties_.ID, PadPipelineOtherProperties_.PWA_APPLICATION_DETAIL))
     );
   }
 }
