@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
@@ -71,6 +73,8 @@ public class PwaApplicationVersionContainer {
   private PadMedianLineAgreement padMedianLineAgreement;
 
   private PadPipelineTechInfo padPipelineTechInfo;
+
+  private Map<Chemical, PadFluidCompositionInfo> fluidCompositionInfoMap;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -248,5 +252,18 @@ public class PwaApplicationVersionContainer {
   public void setPadPipelineTechInfo(
       PadPipelineTechInfo padPipelineTechInfo) {
     this.padPipelineTechInfo = padPipelineTechInfo;
+  }
+
+  public void setPadFluidCompositionInfo(List<PadFluidCompositionInfo> padFluidCompositionInfo) {
+    this.fluidCompositionInfoMap = padFluidCompositionInfo.stream()
+        .collect(
+            Collectors.toMap(PadFluidCompositionInfo::getChemicalName,
+                fluidCompositionInfo -> fluidCompositionInfo
+            )
+        );
+  }
+
+  public PadFluidCompositionInfo getPadFluidCompositionForChemical(Chemical chemical){
+    return this.fluidCompositionInfoMap.get(chemical);
   }
 }

@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
@@ -57,6 +58,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
@@ -76,6 +78,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCr
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadFluidCompositionInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineTechInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
@@ -185,33 +188,43 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   }
 
   // use this to dummy up and persist all possible form entities
-  private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail) throws IllegalAccessException {
+  private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(PwaApplicationDetail pwaApplicationDetail)
+      throws IllegalAccessException {
 
     if (pwaApplicationDetail.getPwaApplicationType() == PwaApplicationType.OPTIONS_VARIATION) {
       createSupplementaryDocument(pwaApplicationDetail);
       createOptionsTemplateDocument(pwaApplicationDetail);
     }
 
-    if (applicationTaskService.canShowTask(ApplicationTask.PIPELINES, pwaApplicationDetail)) {
-      var simplePadPipelineContainer = createAndPersistPipeline(pwaApplicationDetail);
-      createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
-      createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
-      createAndPersistPermanentDepositData(pwaApplicationDetail, simplePadPipelineContainer);
-      createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
-      createOtherPipelineDiagramLinks(pwaApplicationDetail);
-    }
-
+    createPipelineData(pwaApplicationDetail);
     createProjInfoData(pwaApplicationDetail);
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
-
     createPartnerLetterDocument(pwaApplicationDetail);
+    createPadLocationDetailsData(pwaApplicationDetail);
+    createAllCrossingData(pwaApplicationDetail);
+    createGeneralTechDetailsData(pwaApplicationDetail);
+    createFluidCompositionData(pwaApplicationDetail);
 
-    if (applicationTaskService.canShowTask(ApplicationTask.LOCATION_DETAILS, pwaApplicationDetail)) {
-      createPadLocationDetailsData(pwaApplicationDetail);
+    return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+}
+
+  private void createFluidCompositionData(PwaApplicationDetail pwaApplicationDetail){
+    // create fluids for all chemicals across the range of fluid amounts
+    if (applicationTaskService.canShowTask(ApplicationTask.FLUID_COMPOSITION, pwaApplicationDetail)) {
+      Chemical.asList().forEach(chemical -> {
+        if(chemical.ordinal() % 3 == 0){
+          entityManager.persist(PadFluidCompositionInfoTestUtil.createSignificantFluid(pwaApplicationDetail, chemical));
+        } else if(chemical.ordinal() % 3 == 1){
+          entityManager.persist(PadFluidCompositionInfoTestUtil.createTraceFluid(pwaApplicationDetail, chemical));
+        } else {
+          entityManager.persist(PadFluidCompositionInfoTestUtil.createNotPresentFluid(pwaApplicationDetail, chemical));
+        }
+      });
     }
+  }
 
+  private void createAllCrossingData(PwaApplicationDetail pwaApplicationDetail) {
     if (applicationTaskService.canShowTask(ApplicationTask.CROSSING_AGREEMENTS, pwaApplicationDetail)) {
       pwaApplicationDetail.setCablesCrossed(true);
       pwaApplicationDetail.setMedianLineCrossed(true);
@@ -223,27 +236,34 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
       createPadPipelineCrossingData(pwaApplicationDetail);
       createPadMedianLineData(pwaApplicationDetail);
     }
+  }
 
-    if (applicationTaskService.canShowTask(ApplicationTask.GENERAL_TECH_DETAILS, pwaApplicationDetail)) {
-      createGeneralTechDetailsData(pwaApplicationDetail);
+  private void createPipelineData(PwaApplicationDetail pwaApplicationDetail) throws IllegalAccessException {
+    if (applicationTaskService.canShowTask(ApplicationTask.PIPELINES, pwaApplicationDetail)) {
+      var simplePadPipelineContainer = createAndPersistPipeline(pwaApplicationDetail);
+      createPadTechnicalDrawingAndLink(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline());
+      createHuooData(pwaApplicationDetail, simplePadPipelineContainer.getPadPipeline().getPipeline());
+      createAndPersistPermanentDepositData(pwaApplicationDetail, simplePadPipelineContainer);
+      createCampaignWorksData(pwaApplicationDetail, simplePadPipelineContainer);
+      createOtherPipelineDiagramLinks(pwaApplicationDetail);
     }
-
-    return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
   }
 
-  private void createGeneralTechDetailsData(PwaApplicationDetail pwaApplicationDetail){
-    var td  = PadPipelineTechInfoTestUtil.createPadPipelineTechInfo(pwaApplicationDetail);
-    entityManager.persist(td);
+  private void createGeneralTechDetailsData(PwaApplicationDetail pwaApplicationDetail) {
+    if (applicationTaskService.canShowTask(ApplicationTask.GENERAL_TECH_DETAILS, pwaApplicationDetail)) {
+      var td = PadPipelineTechInfoTestUtil.createPadPipelineTechInfo(pwaApplicationDetail);
+      entityManager.persist(td);
+    }
   }
 
-  private void createPadMedianLineData(PwaApplicationDetail pwaApplicationDetail){
+  private void createPadMedianLineData(PwaApplicationDetail pwaApplicationDetail) {
     var medianLineAgreement = PadMedianLineAgreementTestUtil.createPadMedianLineAgreement(pwaApplicationDetail);
     entityManager.persist(medianLineAgreement);
 
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING);
   }
 
-  private void createPadPipelineCrossingData(PwaApplicationDetail pwaApplicationDetail){
+  private void createPadPipelineCrossingData(PwaApplicationDetail pwaApplicationDetail) {
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_CROSSINGS);
 
     var pipelineCrossing = PadPipelineCrossingTestUtil.createPadPipelineCrossing(pwaApplicationDetail);
@@ -290,14 +310,15 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   }
 
   private void createPadLocationDetailsData(PwaApplicationDetail pwaApplicationDetail) {
-
-    createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS);
-    var manualPadFacility = PadFacilityTestUtil.createManualFacility(pwaApplicationDetail);
-    var devukPadFacility = PadFacilityTestUtil.createDevukLinkedFacility(pwaApplicationDetail, devukFacility);
-    var padLocationDetails = PadLocationDetailTestUtil.createPadLocationDetails(pwaApplicationDetail);
-    entityManager.persist(manualPadFacility);
-    entityManager.persist(devukPadFacility);
-    entityManager.persist(padLocationDetails);
+    if (applicationTaskService.canShowTask(ApplicationTask.LOCATION_DETAILS, pwaApplicationDetail)) {
+      createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS);
+      var manualPadFacility = PadFacilityTestUtil.createManualFacility(pwaApplicationDetail);
+      var devukPadFacility = PadFacilityTestUtil.createDevukLinkedFacility(pwaApplicationDetail, devukFacility);
+      var padLocationDetails = PadLocationDetailTestUtil.createPadLocationDetails(pwaApplicationDetail);
+      entityManager.persist(manualPadFacility);
+      entityManager.persist(devukPadFacility);
+      entityManager.persist(padLocationDetails);
+    }
   }
 
   private void createSupplementaryDocument(PwaApplicationDetail pwaApplicationDetail) {
@@ -504,6 +525,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         newVersionContainer.getSimplePadPipelineContainer().getPadPipeline(),
         PadPipeline_.ID, PadPipeline_.PWA_APPLICATION_DETAIL
     )).isTrue();
+
     assertThat(EqualsBuilder.reflectionEquals(
         firstVersionApplicationContainer.getSimplePadPipelineContainer().getPadPipelineIdent(),
         newVersionContainer.getSimplePadPipelineContainer().getPadPipelineIdent(),
@@ -1033,5 +1055,25 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         firstVersionApplicationContainer.getPadPipelineTechInfo(),
         newVersionContainer.getPadPipelineTechInfo(),
         Set.of(PadPipelineTechInfo_.ID, PadPipelineTechInfo_.PWA_APPLICATION_DETAIL));
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_techDetails_fluidComposition() throws IllegalAccessException {
+    setup(PwaApplicationType.INITIAL);
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    Chemical.asList().forEach(chemical ->
+      ObjectTestUtils.assertValuesEqual(
+          firstVersionApplicationContainer.getPadFluidCompositionForChemical(chemical),
+          newVersionContainer.getPadFluidCompositionForChemical(chemical),
+          Set.of(PadFluidCompositionInfo_.ID, PadPipelineTechInfo_.PWA_APPLICATION_DETAIL))
+    );
   }
 }

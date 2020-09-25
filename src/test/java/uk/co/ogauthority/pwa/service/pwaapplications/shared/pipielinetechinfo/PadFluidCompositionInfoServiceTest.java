@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
@@ -42,16 +43,21 @@ public class PadFluidCompositionInfoServiceTest {
   @Mock
   private PadFluidCompositionInfoRepository padFluidCompositionInfoRepository;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
 
   private FluidCompositionValidator validator;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-
   @Before
   public void setUp() {
     validator = new FluidCompositionValidator(new FluidCompositionDataValidator());
-    padFluidCompositionInfoService = new PadFluidCompositionInfoService(padFluidCompositionInfoRepository, validator);
+    padFluidCompositionInfoService = new PadFluidCompositionInfoService(
+        padFluidCompositionInfoRepository,
+        validator,
+        entityCopyingService
+    );
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
