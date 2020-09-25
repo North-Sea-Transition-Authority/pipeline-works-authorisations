@@ -20,6 +20,8 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
@@ -375,6 +377,22 @@ public class PwaApplicationIntegrationTestHelper {
 
   }
 
+  public Optional<PadFastTrack> getPadFastTrack(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadFastTrack> criteriaQuery = cb.createQuery(PadFastTrack.class);
+    Root<PadFastTrack> padFastTrackRoot = criteriaQuery.from(PadFastTrack.class);
+
+    return getResultOrEmptyOptional(
+        PadFastTrack.class,
+        entityManager.createQuery(
+            criteriaQuery.where(
+                cb.equal(padFastTrackRoot.get(PadFastTrack_.pwaApplicationDetail), pwaApplicationDetail)
+            )
+        )
+    );
+  }
+
+
   public PwaApplicationVersionContainer getApplicationDetailContainer(PwaApplicationDetail pwaApplicationDetail) {
 
     var container = new PwaApplicationVersionContainer(pwaApplicationDetail);
@@ -410,6 +428,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadFluidCompositionInfo(getPadFluidCompositionInfo(pwaApplicationDetail));
     container.setPadPipelineOtherProperties(getPadPipelineOtherProperties(pwaApplicationDetail));
     container.setPadDesignOpConditions(getPadDesignOpConditions(pwaApplicationDetail).orElse(null));
+    container.setPadFastTrack(getPadFastTrack(pwaApplicationDetail).orElse(null));
 
     return container;
 

@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
@@ -76,6 +77,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskServ
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadLocationDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.PadCampaignWorksScheduleTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingTestUtil;
@@ -138,8 +140,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   private PwaApplicationIntegrationTestHelper testHelper;
 
-  public void setup(PwaApplicationType pwaApplicationType) throws IllegalAccessException {
-
+  public void setup(PwaApplicationType pwaApplicationType, boolean isFastTrack) throws IllegalAccessException {
     testHelper = new PwaApplicationIntegrationTestHelper(entityManager);
 
     var firstVersionPwaDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
@@ -175,8 +176,11 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     firstVersionPwaDetail.setId(null);
     entityManager.persist(firstVersionPwaDetail);
 
-    firstVersionApplicationContainer = createAndPersistDefaultApplicationDetail(firstVersionPwaDetail);
+    firstVersionApplicationContainer = createAndPersistDefaultApplicationDetail(firstVersionPwaDetail, isFastTrack);
+  }
 
+  public void setup(PwaApplicationType pwaApplicationType) throws IllegalAccessException {
+    setup(pwaApplicationType, false);
   }
 
   private SimplePadPipelineContainer createAndPersistPipeline(
@@ -195,7 +199,8 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   // use this to dummy up and persist all possible form entities
   private PwaApplicationVersionContainer createAndPersistDefaultApplicationDetail(
-      PwaApplicationDetail pwaApplicationDetail)
+      PwaApplicationDetail pwaApplicationDetail,
+      boolean isFastTrack)
       throws IllegalAccessException {
 
     if (pwaApplicationDetail.getPwaApplicationType() == PwaApplicationType.OPTIONS_VARIATION) {
@@ -204,7 +209,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     }
 
     createPipelineData(pwaApplicationDetail);
-    createProjInfoData(pwaApplicationDetail);
+    createProjInfoData(pwaApplicationDetail, isFastTrack);
     createPadFieldLinks(pwaApplicationDetail);
     createPadEnvDecom(pwaApplicationDetail);
     createPartnerLetterDocument(pwaApplicationDetail);
@@ -214,8 +219,17 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     createFluidCompositionData(pwaApplicationDetail);
     createOtherPropertiesData(pwaApplicationDetail);
     createDesignOpeConditionsData(pwaApplicationDetail);
+    createFastTrackData(pwaApplicationDetail);
+
 
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createFastTrackData(PwaApplicationDetail pwaApplicationDetail){
+    if (applicationTaskService.canShowTask(ApplicationTask.DESIGN_OP_CONDITIONS, pwaApplicationDetail)) {
+      var fastTrack = PadFastTrackTestUtil.createPadFastTrack(pwaApplicationDetail);
+      entityManager.persist(fastTrack);
+    }
   }
 
   private void createDesignOpeConditionsData(PwaApplicationDetail pwaApplicationDetail) {
@@ -419,8 +433,11 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   }
 
-  private void createProjInfoData(PwaApplicationDetail pwaApplicationDetail) {
-    var projectInfo = ProjectInformationTestUtils.buildEntity(LocalDate.now());
+  private void createProjInfoData(PwaApplicationDetail pwaApplicationDetail, boolean forceFastTrackStartDate) {
+
+    var projectInfo = ProjectInformationTestUtils.buildEntity(
+        forceFastTrackStartDate ? LocalDate.now() : LocalDate.now().plusMonths(12L)
+    );
     projectInfo.setPwaApplicationDetail(pwaApplicationDetail);
     entityManager.persist(projectInfo);
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION);
@@ -1163,6 +1180,28 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         firstVersionApplicationContainer.getPadDesignOpConditions(),
         newVersionContainer.getPadDesignOpConditions(),
         Set.of(PadDesignOpConditions_.ID, PadDesignOpConditions_.PWA_APPLICATION_DETAIL)
+    );
+
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_fastTrack() throws IllegalAccessException {
+    setup(PwaApplicationType.INITIAL, true);
+
+    entityManager.persist(firstVersionApplicationContainer.getPwaApplicationDetail());
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadFastTrack(),
+        newVersionContainer.getPadFastTrack(),
+        Set.of(PadFastTrack_.ID, PadFastTrack_.PWA_APPLICATION_DETAIL)
     );
 
   }
