@@ -226,7 +226,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   }
 
   private void createFastTrackData(PwaApplicationDetail pwaApplicationDetail){
-    if (applicationTaskService.canShowTask(ApplicationTask.DESIGN_OP_CONDITIONS, pwaApplicationDetail)) {
+    if (applicationTaskService.canShowTask(ApplicationTask.FAST_TRACK, pwaApplicationDetail)) {
       var fastTrack = PadFastTrackTestUtil.createPadFastTrack(pwaApplicationDetail);
       entityManager.persist(fastTrack);
     }
