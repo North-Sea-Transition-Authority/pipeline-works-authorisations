@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
@@ -65,6 +66,8 @@ public class PwaApplicationVersionContainer {
   private PadEnvironmentalDecommissioning padEnvironmentalDecommissioning;
 
   private PadCableCrossing padCableCrossing;
+
+  private PadMedianLineAgreement padMedianLineAgreement;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -224,5 +227,14 @@ public class PwaApplicationVersionContainer {
   public void setPadPipelineCrossingOwners(
       List<PadPipelineCrossingOwner> padPipelineCrossingOwners) {
     this.padPipelineCrossingOwners = padPipelineCrossingOwners;
+  }
+
+  public PadMedianLineAgreement getPadMedianLineAgreement() {
+    return padMedianLineAgreement;
+  }
+
+  public void setPadMedianLineAgreement(
+      PadMedianLineAgreement padMedianLineAgreement) {
+    this.padMedianLineAgreement = padMedianLineAgreement;
   }
 }
