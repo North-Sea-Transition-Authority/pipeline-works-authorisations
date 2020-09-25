@@ -162,6 +162,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
             return padFacility.getFacilityNameManualEntry();
           }
         })
+        .sorted()
         .collect(Collectors.toList());
   }
 
