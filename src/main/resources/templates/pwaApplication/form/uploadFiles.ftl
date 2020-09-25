@@ -9,7 +9,6 @@
 <#-- @ftlvariable name="fileuploadMaxUploadSize" type="String" -->
 <#-- @ftlvariable name="fileuploadAllowedExtensions" type="java.util.List<String>" -->
 <#-- @ftlvariable name="singleFileUpload" type="Boolean" -->
-<#-- @ftlvariable name="dropzoneErrorText" type="String" -->
 <#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 
 
@@ -19,7 +18,7 @@
     <#assign dropzoneText = singleFileUpload?string("Drag and drop your document here", "Drag and drop your documents here")/>
 
     <@fdsForm.htmlForm>
-        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText=dropzoneText dropzoneErrorText=dropzoneErrorText!"" multiFile=(singleFileUpload == false)/>
+        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText=dropzoneText multiFile=(singleFileUpload == false)/>
         <@fdsAction.submitButtons primaryButtonText="Save and complete" linkSecondaryAction=true secondaryLinkText=backButtonText linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 

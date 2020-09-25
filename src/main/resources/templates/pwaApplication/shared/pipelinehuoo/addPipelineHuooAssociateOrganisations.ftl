@@ -31,8 +31,6 @@
                 path="form.treatyAgreements"
                 checkboxes=availableTreatyOptions
                 fieldsetHeadingText="Select treaties"
-                fieldsetHeadingSize="h2"
-                fieldsetHeadingClass="govuk-fieldset__legend--s"
                 smallCheckboxes=true/>
         </#if>
 

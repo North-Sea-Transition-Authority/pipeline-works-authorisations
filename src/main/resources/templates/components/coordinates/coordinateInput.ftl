@@ -12,11 +12,7 @@ labelText=""
 hintText="From 45 - 64 for degrees, 0 - 59 for minutes, and 0 - 59.99 for seconds"
 optionalLabel="fromInterceptor"
 nestingPath=""
-fieldsetHeadingSize="h2"
-fieldsetHeadingClass="govuk-fieldset__legend--m"
-formGroupClass=""
-caption=""
-captionClass="govuk-caption-m">
+formGroupClass="">
     <@locationInput.locationInput
     degreesLocationPath=degreesLocationPath
     minutesLocationPath=minutesLocationPath
@@ -29,11 +25,7 @@ captionClass="govuk-caption-m">
     hintText=hintText
     optionalLabel=optionalLabel
     nestingPath=nestingPath
-    fieldsetHeadingSize=fieldsetHeadingSize
-    fieldsetHeadingClass=fieldsetHeadingClass
-    formGroupClass=formGroupClass
-    caption=caption
-    captionClass=captionClass/>
+    formGroupClass=formGroupClass/>
 </#macro>
 
 <#macro longitudeInput
@@ -48,11 +40,7 @@ labelText=""
 hintText="From 0 - 30 for degrees, 0 - 59 for minutes, and 0 - 59.99 for seconds"
 optionalLabel="fromInterceptor"
 nestingPath=""
-fieldsetHeadingSize="h2"
-fieldsetHeadingClass="govuk-fieldset__legend--m"
-formGroupClass=""
-caption=""
-captionClass="govuk-caption-m">
+formGroupClass="">
     <@locationInput.locationInput
     degreesLocationPath=degreesLocationPath
     minutesLocationPath=minutesLocationPath
@@ -65,9 +53,5 @@ captionClass="govuk-caption-m">
     hintText=hintText
     optionalLabel=optionalLabel
     nestingPath=nestingPath
-    fieldsetHeadingSize=fieldsetHeadingSize
-    fieldsetHeadingClass=fieldsetHeadingClass
-    formGroupClass=formGroupClass
-    caption=caption
-    captionClass=captionClass/>
+    formGroupClass=formGroupClass/>
 </#macro>

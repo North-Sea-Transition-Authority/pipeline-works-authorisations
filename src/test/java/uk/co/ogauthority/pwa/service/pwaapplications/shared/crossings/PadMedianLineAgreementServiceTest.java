@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
@@ -41,6 +42,9 @@ public class PadMedianLineAgreementServiceTest {
   @Mock
   private PadFileService padFileService;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -50,7 +54,10 @@ public class PadMedianLineAgreementServiceTest {
     padMedianLineAgreementService = new PadMedianLineAgreementService(
         padMedianLineAgreementRepository,
         medianLineAgreementValidator,
-        medianLineCrossingFileService, padFileService);
+        medianLineCrossingFileService,
+        padFileService,
+        entityCopyingService
+    );
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 

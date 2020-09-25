@@ -15,11 +15,11 @@ labelText=""
 hintText=""
 optionalLabel="fromInterceptor"
 nestingPath=""
-fieldsetHeadingSize="h2"
-fieldsetHeadingClass="govuk-fieldset__legend--m"
+fieldsetHeadingSize="h3"
+fieldsetHeadingClass="govuk-fieldset__legend--s"
 formGroupClass=""
 caption=""
-captionClass="govuk-caption-m">
+captionClass="govuk-caption-s">
     <@spring.bind degreesLocationPath/>
     <#local hasErrorDegrees=(spring.status.errorMessages?size > 0)>
     <#assign degreesError>

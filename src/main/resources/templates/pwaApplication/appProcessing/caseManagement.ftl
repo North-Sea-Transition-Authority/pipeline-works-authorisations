@@ -15,15 +15,15 @@
 
   <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
-  <@fdsTabs.tabList>
+  <@fdsBackendTabs.tabList>
       <#list availableTabs as tab>
-          <@fdsTabs.tab tabLabel=tab.getLabel(industryFlag) tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value />
+          <@fdsBackendTabs.tab tabLabel=tab.getLabel(industryFlag) tabUrl=tabUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value />
       </#list>
-  </@fdsTabs.tabList>
+  </@fdsBackendTabs.tabList>
 
   <#list availableTabs as tab>
 
-      <@fdsTabs.tabContent tabLabel=tab.getLabel(industryFlag) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
+      <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
           <#if tab == "TASKS">
               <@tasksTab.tab taskListGroups=taskListGroups industryFlag=industryFlag />
@@ -37,7 +37,7 @@
               <@firsTab.tab />
           </#if>
 
-      </@fdsTabs.tabContent>
+      </@fdsBackendTabs.tabContent>
 
   </#list>
 

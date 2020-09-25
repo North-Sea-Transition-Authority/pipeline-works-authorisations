@@ -13,6 +13,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.views.LocationDetailsVie
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
@@ -44,6 +46,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   private final LocationDetailsValidator validator;
   private final SpringValidatorAdapter groupValidator;
   private final SearchSelectorService searchSelectorService;
+  private final EntityCopyingService entityCopyingService;
   private final PadFileService padFileService;
 
   @Autowired
@@ -53,6 +56,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                    LocationDetailsValidator validator,
                                    SpringValidatorAdapter groupValidator,
                                    SearchSelectorService searchSelectorService,
+                                   EntityCopyingService entityCopyingService,
                                    PadFileService padFileService) {
     this.padLocationDetailsRepository = padLocationDetailsRepository;
     this.padFacilityService = padFacilityService;
@@ -60,6 +64,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     this.validator = validator;
     this.groupValidator = groupValidator;
     this.searchSelectorService = searchSelectorService;
+    this.entityCopyingService = entityCopyingService;
     this.padFileService = padFileService;
   }
 
@@ -272,7 +277,25 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    var duplicatePadLocationDetailsEntity = entityCopyingService.duplicateEntityAndSetParent(
+        () -> getLocationDetailsForDraft(fromDetail),
+        toDetail,
+        PadLocationDetails.class
+    );
+
+    var duplicatedPadFacilityEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padFacilityService.getFacilities(fromDetail),
+        toDetail,
+        PadFacility.class
+    );
+
+    padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail,
+        toDetail,
+        ApplicationDetailFilePurpose.LOCATION_DETAILS,
+        ApplicationFileLinkStatus.FULL
+    );
+
   }
 
   @Override

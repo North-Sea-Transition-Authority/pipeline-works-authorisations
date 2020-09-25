@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
@@ -63,6 +64,9 @@ public class PadLocationDetailsServiceTest {
   private LocationDetailsValidator validator;
 
   @Mock
+  private EntityCopyingService entityCopyingService;
+
+  @Mock
   private PadFileService padFileService;
 
   private SpringValidatorAdapter groupValidator;
@@ -75,9 +79,17 @@ public class PadLocationDetailsServiceTest {
   @Before
   public void setUp() {
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-    padLocationDetailsService = new PadLocationDetailsService(padLocationDetailsRepository, facilityService,
-        devukFacilityService, validator,
-        groupValidator, searchSelectorService, padFileService);
+
+    padLocationDetailsService = new PadLocationDetailsService(
+        padLocationDetailsRepository,
+        facilityService,
+        devukFacilityService,
+        validator,
+        groupValidator,
+        searchSelectorService,
+        entityCopyingService,
+        padFileService);
+
     pwaApplicationDetail = new PwaApplicationDetail();
     padLocationDetails = buildEntity();
   }

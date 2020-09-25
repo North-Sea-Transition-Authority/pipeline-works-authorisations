@@ -15,7 +15,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
 
 @Service
 public class ControllerHelperService {
@@ -54,9 +53,6 @@ public class ControllerHelperService {
    * @param bindingResult The result of the submitted form containing the list of validation errors
    */
   private void addFieldValidationErrors(ModelAndView modelAndView, BindingResult bindingResult) {
-
-    FileUploadUtils.getDropzoneErrorMessage(bindingResult)
-        .ifPresent(s -> modelAndView.addObject("dropzoneErrorText", s));
 
     List<ErrorItem> errorList = new ArrayList<>();
     IntStream.range(0, bindingResult.getFieldErrors().size()).forEach(index -> {

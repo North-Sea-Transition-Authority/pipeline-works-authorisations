@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.FluidCompositionView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionValidator;
@@ -30,13 +31,16 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
 
   private final PadFluidCompositionInfoRepository padFluidCompositionInfoRepository;
   private final FluidCompositionValidator fluidCompositionValidator;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadFluidCompositionInfoService(
       PadFluidCompositionInfoRepository padFluidCompositionInfoRepository,
-      FluidCompositionValidator fluidCompositionValidator) {
+      FluidCompositionValidator fluidCompositionValidator,
+      EntityCopyingService entityCopyingService) {
     this.padFluidCompositionInfoRepository = padFluidCompositionInfoRepository;
     this.fluidCompositionValidator = fluidCompositionValidator;
+    this.entityCopyingService = entityCopyingService;
   }
 
 
@@ -46,7 +50,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
         padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
 
     if (padFluidCompositionInfoList.isEmpty()) {
-      for (Chemical chemical: Chemical.asList()) {
+      for (Chemical chemical : Chemical.asList()) {
         var padFluidCompositionInfo = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
         padFluidCompositionInfoList.add(padFluidCompositionInfo);
       }
@@ -55,10 +59,11 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
   }
 
   public void mapEntitiesToForm(FluidCompositionForm form, List<PadFluidCompositionInfo> entities) {
-    for (PadFluidCompositionInfo entity: entities) {
+    for (PadFluidCompositionInfo entity : entities) {
       var fluidCompositionDataForm = new FluidCompositionDataForm();
       fluidCompositionDataForm.setFluidCompositionOption(entity.getFluidCompositionOption());
-      if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
+      if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(
+          FluidCompositionOption.HIGHER_AMOUNT)) {
         fluidCompositionDataForm.setMoleValue(entity.getMoleValue());
       }
       form.addChemicalData(entity.getChemicalName(), fluidCompositionDataForm);
@@ -82,10 +87,11 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
     Map<Chemical, FluidCompositionDataForm> chemicalDataMap = new LinkedHashMap<>();
     var fluidCompositionView = new FluidCompositionView(chemicalDataMap);
 
-    for (PadFluidCompositionInfo entity: getPadFluidCompositionInfoEntities(pwaApplicationDetail)) {
+    for (PadFluidCompositionInfo entity : getPadFluidCompositionInfoEntities(pwaApplicationDetail)) {
       var fluidCompositionDataForm = new FluidCompositionDataForm();
       fluidCompositionDataForm.setFluidCompositionOption(entity.getFluidCompositionOption());
-      if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
+      if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(
+          FluidCompositionOption.HIGHER_AMOUNT)) {
         fluidCompositionDataForm.setMoleValue(entity.getMoleValue());
       }
       chemicalDataMap.put(entity.getChemicalName(), fluidCompositionDataForm);
@@ -93,8 +99,6 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
 
     return fluidCompositionView;
   }
-
-
 
 
   // Validation / Checking
@@ -140,7 +144,11 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(fromDetail),
+        toDetail,
+        PadFluidCompositionInfo.class
+    );
   }
 }
 

@@ -65,6 +65,11 @@ public class TwoFieldDateInputValidator implements SmartValidator {
         .map(hint -> ((AfterDateHint) hint))
         .findFirst();
 
+    Optional<DateWithinRangeHint> dateWithinRangeHint = Arrays.stream(objects)
+        .filter(hint -> hint.getClass().equals(DateWithinRangeHint.class))
+        .map(hint -> ((DateWithinRangeHint) hint))
+        .findFirst();
+
     if (twoFieldDateInput.createDate().isEmpty()) {
       errors.rejectValue(MONTH, MONTH_INVALID_CODE, "");
       errors.rejectValue(
@@ -77,9 +82,11 @@ public class TwoFieldDateInputValidator implements SmartValidator {
       beforeDateHint.ifPresent(hint -> validateBeforeDate(errors, twoFieldDateInput, inputLabel, hint));
       onOrAfterDateHint.ifPresent(hint -> validateOnOrAfterDate(errors, twoFieldDateInput, inputLabel, hint));
       onOrBeforeDateHint.ifPresent(hint -> validateOnOrBeforeDate(errors, twoFieldDateInput, inputLabel, hint));
+      dateWithinRangeHint.ifPresent(hint -> validateDateWithinRange(errors, twoFieldDateInput, inputLabel, hint));
     }
 
   }
+
 
   // There must be a cleaner way than this to avoid adding new methods per hint type.
   // Maybe put the check on the date hints them selves and loop over any that exist?
@@ -142,5 +149,21 @@ public class TwoFieldDateInputValidator implements SmartValidator {
       errors.rejectValue(YEAR, YEAR_BEFORE_DATE_CODE, inputLabel.getLabel() + " must be before " + beforeDateLabel);
     }
   }
+
+
+  private boolean validateDateWithinRange(Errors errors,
+                                           TwoFieldDateInput twoFieldDateInput,
+                                           FormInputLabel inputLabel,
+                                           DateWithinRangeHint withinRangeHint) {
+    if (twoFieldDateInput.isBefore(withinRangeHint.getFromDate()) || twoFieldDateInput.isAfter(withinRangeHint.getToDate())) {
+      errors.rejectValue(MONTH, MONTH + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode(), "");
+      errors.rejectValue(YEAR, YEAR + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode(),
+          inputLabel.getLabel() + " must be within the range of " + withinRangeHint.getRangeDescription());
+      return false;
+    }
+    return true;
+
+  }
+
 
 }
