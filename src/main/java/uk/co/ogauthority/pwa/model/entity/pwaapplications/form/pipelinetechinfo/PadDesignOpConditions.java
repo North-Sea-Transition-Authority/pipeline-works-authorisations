@@ -11,11 +11,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 
 @Entity
 @Table(name = "pad_design_op_conditions")
-public class PadDesignOpConditions {
+public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,6 +65,22 @@ public class PadDesignOpConditions {
   }
 
   public PadDesignOpConditions() { // default constructor required by hibernate
+  }
+
+  //ChildEntity
+  @Override
+  public void clearId() {
+    this.id = null;
+  }
+
+  @Override
+  public void setParent(PwaApplicationDetail parentEntity) {
+    this.pwaApplicationDetail = parentEntity;
+  }
+
+  @Override
+  public PwaApplicationDetail getParent() {
+    return this.pwaApplicationDetail;
   }
 
   public Integer getId() {
