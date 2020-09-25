@@ -11,9 +11,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 
-@Entity(name = "pwa_details")
+@Entity
+@Table(name = "pwa_details")
 public class MasterPwaDetail {
 
   @Id
@@ -29,6 +31,10 @@ public class MasterPwaDetail {
   private MasterPwaDetailStatus masterPwaDetailStatus;
 
   private String reference;
+
+  private Boolean isLinkedToFields;
+
+  private String pwaLinkedToDescription;
 
   @Column(name = "start_timestamp")
   private Instant startInstant;
@@ -95,6 +101,22 @@ public class MasterPwaDetail {
     return this.masterPwa.getId();
   }
 
+  public Boolean getLinkedToFields() {
+    return isLinkedToFields;
+  }
+
+  public void setLinkedToFields(Boolean linkedToFields) {
+    isLinkedToFields = linkedToFields;
+  }
+
+  public String getPwaLinkedToDescription() {
+    return pwaLinkedToDescription;
+  }
+
+  public void setPwaLinkedToDescription(String pwaLinkedToDescription) {
+    this.pwaLinkedToDescription = pwaLinkedToDescription;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -104,16 +126,26 @@ public class MasterPwaDetail {
       return false;
     }
     MasterPwaDetail that = (MasterPwaDetail) o;
-    return id.equals(that.id)
-        && masterPwa.equals(that.masterPwa)
+    return Objects.equals(id, that.id)
+        && Objects.equals(masterPwa, that.masterPwa)
         && masterPwaDetailStatus == that.masterPwaDetailStatus
-        && reference.equals(that.reference)
-        && startInstant.equals(that.startInstant)
+        && Objects.equals(reference, that.reference)
+        && Objects.equals(isLinkedToFields, that.isLinkedToFields)
+        && Objects.equals(pwaLinkedToDescription, that.pwaLinkedToDescription)
+        && Objects.equals(startInstant, that.startInstant)
         && Objects.equals(endInstant, that.endInstant);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, masterPwa, masterPwaDetailStatus, reference, startInstant, endInstant);
+    return Objects.hash(
+        id,
+        masterPwa,
+        masterPwaDetailStatus,
+        reference,
+        isLinkedToFields,
+        pwaLinkedToDescription,
+        startInstant,
+        endInstant);
   }
 }
