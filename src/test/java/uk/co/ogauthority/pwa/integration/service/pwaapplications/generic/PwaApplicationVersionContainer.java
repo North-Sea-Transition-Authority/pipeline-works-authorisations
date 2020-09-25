@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
@@ -68,6 +69,8 @@ public class PwaApplicationVersionContainer {
   private PadCableCrossing padCableCrossing;
 
   private PadMedianLineAgreement padMedianLineAgreement;
+
+  private PadPipelineTechInfo padPipelineTechInfo;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -236,5 +239,14 @@ public class PwaApplicationVersionContainer {
   public void setPadMedianLineAgreement(
       PadMedianLineAgreement padMedianLineAgreement) {
     this.padMedianLineAgreement = padMedianLineAgreement;
+  }
+
+  public PadPipelineTechInfo getPadPipelineTechInfo() {
+    return padPipelineTechInfo;
+  }
+
+  public void setPadPipelineTechInfo(
+      PadPipelineTechInfo padPipelineTechInfo) {
+    this.padPipelineTechInfo = padPipelineTechInfo;
   }
 }

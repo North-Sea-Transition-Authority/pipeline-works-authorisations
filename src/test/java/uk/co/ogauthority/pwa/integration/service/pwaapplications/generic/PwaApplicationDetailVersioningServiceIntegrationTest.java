@@ -57,6 +57,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityTestUtil;
@@ -75,6 +76,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCr
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineTechInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
@@ -222,7 +224,16 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
       createPadMedianLineData(pwaApplicationDetail);
     }
 
+    if (applicationTaskService.canShowTask(ApplicationTask.GENERAL_TECH_DETAILS, pwaApplicationDetail)) {
+      createGeneralTechDetailsData(pwaApplicationDetail);
+    }
+
     return testHelper.getApplicationDetailContainer(pwaApplicationDetail);
+  }
+
+  private void createGeneralTechDetailsData(PwaApplicationDetail pwaApplicationDetail){
+    var td  = PadPipelineTechInfoTestUtil.createPadPipelineTechInfo(pwaApplicationDetail);
+    entityManager.persist(td);
   }
 
   private void createPadMedianLineData(PwaApplicationDetail pwaApplicationDetail){
@@ -1004,5 +1015,23 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         firstVersionApplicationContainer.getPadMedianLineAgreement(),
         newVersionContainer.getPadMedianLineAgreement(),
         Set.of(PadMedianLineAgreement_.ID, PadMedianLineAgreement_.PWA_APPLICATION_DETAIL));
+  }
+
+  @Transactional
+  @Test
+  public void createNewApplicationVersion_techDetails_generalTechDetails() throws IllegalAccessException {
+    setup(PwaApplicationType.INITIAL);
+
+    var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
+        firstVersionApplicationContainer.getPwaApplicationDetail(),
+        webUserAccount
+    );
+
+    var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
+
+    ObjectTestUtils.assertValuesEqual(
+        firstVersionApplicationContainer.getPadPipelineTechInfo(),
+        newVersionContainer.getPadPipelineTechInfo(),
+        Set.of(PadPipelineTechInfo_.ID, PadPipelineTechInfo_.PWA_APPLICATION_DETAIL));
   }
 }
