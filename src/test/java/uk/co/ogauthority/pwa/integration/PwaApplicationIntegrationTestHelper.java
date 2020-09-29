@@ -54,6 +54,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
@@ -317,7 +319,7 @@ public class PwaApplicationIntegrationTestHelper {
     );
   }
 
-  private Optional<PadPipelineTechInfo> getPadPipelineTechInfo(PwaApplicationDetail pwaApplicationDetail){
+  public Optional<PadPipelineTechInfo> getPadPipelineTechInfo(PwaApplicationDetail pwaApplicationDetail){
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<PadPipelineTechInfo> criteriaQuery = cb.createQuery(PadPipelineTechInfo.class);
     Root<PadPipelineTechInfo> techInfoRoot = criteriaQuery.from(PadPipelineTechInfo.class);
@@ -327,6 +329,21 @@ public class PwaApplicationIntegrationTestHelper {
         entityManager.createQuery(
             criteriaQuery.where(
                 cb.equal(techInfoRoot.get(PadPipelineTechInfo_.pwaApplicationDetail), pwaApplicationDetail)
+            )
+        )
+    );
+  }
+
+  public Optional<PadDesignOpConditions> getPadDesignOpConditions(PwaApplicationDetail pwaApplicationDetail){
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<PadDesignOpConditions> criteriaQuery = cb.createQuery(PadDesignOpConditions.class);
+    Root<PadDesignOpConditions> designOpConditionsRoot = criteriaQuery.from(PadDesignOpConditions.class);
+
+    return getResultOrEmptyOptional(
+        PadDesignOpConditions.class,
+        entityManager.createQuery(
+            criteriaQuery.where(
+                cb.equal(designOpConditionsRoot.get(PadDesignOpConditions_.pwaApplicationDetail), pwaApplicationDetail)
             )
         )
     );
@@ -392,6 +409,7 @@ public class PwaApplicationIntegrationTestHelper {
     container.setPadPipelineTechInfo(getPadPipelineTechInfo(pwaApplicationDetail).orElse(null));
     container.setPadFluidCompositionInfo(getPadFluidCompositionInfo(pwaApplicationDetail));
     container.setPadPipelineOtherProperties(getPadPipelineOtherProperties(pwaApplicationDetail));
+    container.setPadDesignOpConditions(getPadDesignOpConditions(pwaApplicationDetail).orElse(null));
 
     return container;
 
