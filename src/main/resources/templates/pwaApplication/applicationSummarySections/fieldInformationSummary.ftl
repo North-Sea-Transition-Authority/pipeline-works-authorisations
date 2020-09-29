@@ -24,7 +24,7 @@
           screenReaderActionText=""
           actionText=""
           rowClass=hidePwaLinkedToDescOnLoad?then(diffHideGroup, "")>
-          <@diffChanges.renderDiff fieldLinkQuestions.PwaFieldLinksView_pwaLinkedToDescription />
+          <@diffChanges.renderDiff diffedField=fieldLinkQuestions.PwaFieldLinksView_pwaLinkedToDescription multiLineTextBlockClass="govuk-summary-list"/>
         </@hideableCheckAnswersRow>
       </#if>
 
