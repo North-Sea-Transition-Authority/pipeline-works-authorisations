@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -82,6 +83,8 @@ public class PwaApplicationVersionContainer {
   private Map<OtherPipelineProperty, PadPipelineOtherProperties> padPipelineOtherProperties;
 
   private PadDesignOpConditions padDesignOpConditions;
+
+  private PadFastTrack padFastTrack;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -293,5 +296,13 @@ public class PwaApplicationVersionContainer {
 
   public void setPadDesignOpConditions(PadDesignOpConditions padDesignOpConditions) {
     this.padDesignOpConditions = padDesignOpConditions;
+  }
+
+  public PadFastTrack getPadFastTrack() {
+    return padFastTrack;
+  }
+
+  public void setPadFastTrack(PadFastTrack padFastTrack) {
+    this.padFastTrack = padFastTrack;
   }
 }

@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgre
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
@@ -51,6 +52,9 @@ public class PadFastTrackServiceTest {
   @Mock
   private FastTrackValidator validator;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
   private SpringValidatorAdapter groupValidator;
 
   private PadFastTrackService padFastTrackService;
@@ -62,8 +66,15 @@ public class PadFastTrackServiceTest {
 
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
 
-    padFastTrackService = new PadFastTrackService(padFastTrackRepository, padProjectInformationService,
-        padMedianLineAgreementService, validator, groupValidator);
+    padFastTrackService = new PadFastTrackService(
+        padFastTrackRepository,
+        padProjectInformationService,
+        padMedianLineAgreementService,
+        validator,
+        groupValidator,
+        entityCopyingService
+    );
+
     pwaApplicationDetail = new PwaApplicationDetail();
 
     projectInformation = new PadProjectInformation();

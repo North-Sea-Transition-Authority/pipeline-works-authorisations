@@ -11,12 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.FastTrackView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
@@ -32,6 +34,7 @@ public class PadFastTrackService implements ApplicationFormSectionService {
   private final PadMedianLineAgreementService padMedianLineAgreementService;
   private final FastTrackValidator fastTrackValidator;
   private final SpringValidatorAdapter groupValidator;
+  private final EntityCopyingService entityCopyingService;
 
   @Autowired
   public PadFastTrackService(
@@ -39,12 +42,14 @@ public class PadFastTrackService implements ApplicationFormSectionService {
       PadProjectInformationService padProjectInformationService,
       PadMedianLineAgreementService padMedianLineAgreementService,
       FastTrackValidator fastTrackValidator,
-      SpringValidatorAdapter groupValidator) {
+      SpringValidatorAdapter groupValidator,
+      EntityCopyingService entityCopyingService) {
     this.padFastTrackRepository = padFastTrackRepository;
     this.padProjectInformationService = padProjectInformationService;
     this.padMedianLineAgreementService = padMedianLineAgreementService;
     this.fastTrackValidator = fastTrackValidator;
     this.groupValidator = groupValidator;
+    this.entityCopyingService = entityCopyingService;
   }
 
   @Transactional
@@ -172,6 +177,11 @@ public class PadFastTrackService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    entityCopyingService.duplicateEntityAndSetParent(
+        () -> padFastTrackRepository.findByPwaApplicationDetail(fromDetail)
+        .orElseThrow(() -> new PwaEntityNotFoundException("Expected to find fast track but didnt. pad_id:" + fromDetail.getId())),
+        toDetail,
+        PadFastTrack.class
+    );
   }
 }
