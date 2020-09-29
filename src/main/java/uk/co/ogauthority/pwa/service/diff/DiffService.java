@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.exception.DifferenceProcessingException;
 import uk.co.ogauthority.pwa.model.diff.DiffType;
 import uk.co.ogauthority.pwa.model.diff.DiffedField;
 
@@ -200,7 +201,7 @@ public class DiffService {
     try {
       return FieldUtils.readField(field, object, true);
     } catch (IllegalAccessException e) {
-      throw new RuntimeException(
+      throw new DifferenceProcessingException(
           String.format("Failed to access field '%s' on class '%s'", field.getName(), object.getClass()));
     }
   }
@@ -228,7 +229,7 @@ public class DiffService {
     DiffComparisonTypes diffComparisonType = DiffComparisonTypes.findDiffComparisonType(valueField.getType());
 
     if (diffComparisonType.equals(DiffComparisonTypes.NOT_SUPPORTED)) {
-      throw new RuntimeException(
+      throw new DifferenceProcessingException(
           "Unsupported Object given to diff service. AttributeName: " + attributeName +
               ". Object class: " + currentValue.getClass().getSimpleName());
     }

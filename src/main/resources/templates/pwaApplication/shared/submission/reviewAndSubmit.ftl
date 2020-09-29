@@ -35,7 +35,7 @@
     </@defaultPagePaneSubNav>
 
     <@defaultPagePaneContent pageHeading=pageHeading>
-        <@diffChanges.toggler/>
+        <@diffChanges.toggler togglerLabel="Show differences from consented data"/>
         ${combinedSummaryHtml?no_esc}
 
         <@fdsForm.htmlForm>

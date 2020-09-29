@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.De
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.EnvironmentalDecomSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FastTrackSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FieldInformationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
@@ -34,6 +35,11 @@ public enum ApplicationSectionSummaryType {
       10,
       "pwaApplication/applicationSummarySections/applicationContactsSummary.ftl",
       ApplicationContactsSummaryService.class),
+
+  FIELD_INFORMATION(
+      20,
+      "pwaApplication/applicationSummarySections/fieldInformationSummary.ftl",
+      FieldInformationSummaryService.class),
 
   PROJECT_INFORMATION(
       30,
