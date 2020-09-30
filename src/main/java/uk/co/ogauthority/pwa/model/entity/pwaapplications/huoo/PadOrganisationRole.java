@@ -97,9 +97,19 @@ public class PadOrganisationRole implements ChildEntity<Integer, PwaApplicationD
 
   }
 
+  public static PadOrganisationRole forUnassignedSplitPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                                       HuooRole huooRole) {
+    var padOrganisationRole = new PadOrganisationRole();
+    padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);
+    padOrganisationRole.setType(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+    padOrganisationRole.setRole(huooRole);
+    return padOrganisationRole;
+
+  }
+
   public static PadOrganisationRole fromTreatyAgreement(PwaApplicationDetail pwaApplicationDetail,
-                                                         TreatyAgreement treatyAgreement,
-                                                         HuooRole huooRole) {
+                                                        TreatyAgreement treatyAgreement,
+                                                        HuooRole huooRole) {
     var padOrganisationRole = new PadOrganisationRole();
     padOrganisationRole.setAgreement(treatyAgreement);
     padOrganisationRole.setPwaApplicationDetail(pwaApplicationDetail);

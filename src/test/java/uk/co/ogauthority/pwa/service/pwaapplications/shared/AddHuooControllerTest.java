@@ -1,16 +1,20 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
+import static java.util.Map.entry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +36,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -155,6 +160,29 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
 
     endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
 
+  }
+
+  @Test
+  public void renderAddHuoo_modelContentsAsExpected() throws Exception {
+
+    when(pwaContactService.getContactRoles(any(), any()))
+        .thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    var orgRole = new PadOrganisationRole();
+    when(padOrganisationRoleService.getOrganisationRole(pwaApplicationDetail, 1)).thenReturn(orgRole);
+
+    var modelAndView = mockMvc.perform(
+        get(ReverseRouter.route(on(AddHuooController.class)
+            .renderAddHuoo(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+    ).andExpect(status().isOk())
+        .andReturn().getModelAndView();
+
+    assertThat((Map<String, String>) modelAndView.getModel().get("huooTypes")).containsExactly(
+        entry(HuooType.PORTAL_ORG.name(), HuooType.PORTAL_ORG.getDisplayText()),
+        entry(HuooType.TREATY_AGREEMENT.name(), HuooType.TREATY_AGREEMENT.getDisplayText())
+    );
   }
 
   @Test

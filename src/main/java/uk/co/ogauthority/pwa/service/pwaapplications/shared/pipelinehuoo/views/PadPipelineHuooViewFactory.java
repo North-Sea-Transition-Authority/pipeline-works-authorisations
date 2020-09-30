@@ -32,6 +32,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
  */
 public class PadPipelineHuooViewFactory {
 
+  private static final String DEFAULT_SPLIT_PIPELINE_DISPLAY_TEXT = "Unassigned";
+
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PadPipelineService padPipelineService;
   private final PadOrganisationRoleService padOrganisationRoleService;
@@ -69,13 +71,29 @@ public class PadPipelineHuooViewFactory {
             this::createCompositeOrganisationUnitName));
 
     return allOrgsWithRole.stream()
-        .collect(Collectors.toMap(o -> o, o -> {
-          if (orgUnitNameLookup.containsKey(o.getOrganisationUnitId())) {
-            return orgUnitNameLookup.get(o.getOrganisationUnitId());
-          }
-          return o.getTreatyAgreement().getAgreementText();
-        }));
+        .collect(
+            Collectors.toMap(
+                organisationRoleOwnerDto -> organisationRoleOwnerDto,
+                organisationRoleOwnerDto -> getOrganisationRoleOwnerDisplayName(orgUnitNameLookup, organisationRoleOwnerDto)
+            )
+        );
+  }
 
+  private String getOrganisationRoleOwnerDisplayName(Map<OrganisationUnitId, String> orgUnitNameLookup,
+                                                     OrganisationRoleOwnerDto organisationRoleOwnerDto) {
+    switch (organisationRoleOwnerDto.getHuooType()) {
+      case PORTAL_ORG:
+        if (!orgUnitNameLookup.containsKey(organisationRoleOwnerDto.getOrganisationUnitId())) {
+          throw new RuntimeException("Expected to find org unit with id:" + organisationRoleOwnerDto.getOrganisationUnitId().asInt());
+        }
+        return orgUnitNameLookup.get(organisationRoleOwnerDto.getOrganisationUnitId());
+
+      case TREATY_AGREEMENT:
+        return organisationRoleOwnerDto.getTreatyAgreement().getAgreementText();
+
+      default:
+        return DEFAULT_SPLIT_PIPELINE_DISPLAY_TEXT;
+    }
   }
 
   public PipelineAndOrgRoleGroupViewsByRole createPipelineAndOrgGroupViewsByRole(
