@@ -1,25 +1,38 @@
-<#include '../../../layout.ftl'>
+<#include '../../../layoutPane.ftl'>
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="docInstanceExists" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory" -->
+<#-- @ftlvariable name="docView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView" -->
 
-<@defaultPage htmlTitle="${caseSummaryView.pwaApplicationRef} - Consent document" breadcrumbs=true fullWidthColumn=true>
+<#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Consent document" />
 
-  <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
+<@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 
-  <h2 class="govuk-heading-l">Consent document</h2>
+    <@defaultPagePaneSubNav>
+        <@fdsSubNavigation.subNavigation>
+            <@pwaClauseList.sidebarSections documentView=docView />
+        </@fdsSubNavigation.subNavigation>
+    </@defaultPagePaneSubNav>
 
-  <#if !docInstanceExists>
+    <@defaultPagePaneContent breadcrumbs=true>
 
-    <@fdsForm.htmlForm actionUrl=springUrl(consentDocumentUrlFactory.loadDocumentUrl)>
-        <@fdsAction.button buttonText="Load document" />
-    </@fdsForm.htmlForm>
+      <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
-    <#else>
+      <#if !docInstanceExists>
 
-      <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--blue" />
+          <@fdsForm.htmlForm actionUrl=springUrl(consentDocumentUrlFactory.loadDocumentUrl)>
+              <@fdsAction.button buttonText="Load document" />
+          </@fdsForm.htmlForm>
 
-  </#if>
+      <#else>
 
-</@defaultPage>
+          <@fdsAction.link linkText="Reload document" linkUrl=springUrl(consentDocumentUrlFactory.reloadDocumentUrl) linkClass="govuk-button govuk-button--blue" />
+
+      </#if>
+
+      <@pwaClauseList.list documentView=docView />
+
+    </@defaultPagePaneContent>
+
+</@defaultPagePane>

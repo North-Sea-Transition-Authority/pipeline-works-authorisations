@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.model.documents.TemplateSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 

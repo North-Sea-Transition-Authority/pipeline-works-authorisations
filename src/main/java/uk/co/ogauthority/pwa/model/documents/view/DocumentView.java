@@ -1,19 +1,21 @@
-package uk.co.ogauthority.pwa.model.documents;
+package uk.co.ogauthority.pwa.model.documents.view;
 
 import java.util.ArrayList;
 import java.util.List;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
 
-public class DocumentTemplateDto {
+public class DocumentView {
 
   private DocumentTemplate documentTemplate;
 
-  private List<SectionDto> sections;
+  private String docType;
 
-  public DocumentTemplateDto() {
+  private List<SectionView> sections;
+
+  public DocumentView() {
   }
 
-  public DocumentTemplateDto(DocumentTemplate documentTemplate) {
+  public DocumentView(DocumentTemplate documentTemplate) {
     this.documentTemplate = documentTemplate;
     this.sections = new ArrayList<>();
   }
@@ -26,11 +28,12 @@ public class DocumentTemplateDto {
     this.documentTemplate = documentTemplate;
   }
 
-  public List<SectionDto> getSections() {
+  public List<SectionView> getSections() {
     return sections;
   }
 
-  public void setSections(List<SectionDto> sections) {
+  public void setSections(List<SectionView> sections) {
     this.sections = sections;
   }
+
 }

@@ -4,6 +4,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
@@ -60,6 +61,13 @@ public class DocumentService {
   public boolean documentInstanceExists(PwaApplication pwaApplication,
                                         DocumentTemplateMnem templateMnem) {
     return documentInstanceService.getDocumentInstance(pwaApplication, templateMnem).isPresent();
+  }
+
+  public DocumentView getDocumentViewForInstance(PwaApplication pwaApplication,
+                                                 DocumentTemplateMnem templateMnem) {
+
+    return documentInstanceService.getDocumentView(pwaApplication, templateMnem);
+
   }
 
 }

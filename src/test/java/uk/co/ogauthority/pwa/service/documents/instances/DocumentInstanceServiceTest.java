@@ -1,15 +1,18 @@
 package uk.co.ogauthority.pwa.service.documents.instances;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -22,19 +25,26 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.documents.SectionDto;
-import uk.co.ogauthority.pwa.model.documents.TemplateSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
+import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseRepository;
+import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseVersionDtoRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseVersionRepository;
 import uk.co.ogauthority.pwa.service.documents.SectionClauseCreator;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
+import uk.co.ogauthority.pwa.testutils.DocumentInstanceTestUtils;
+import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,6 +61,9 @@ public class DocumentInstanceServiceTest {
 
   @Mock
   private Clock clock;
+
+  @Mock
+  private DocumentInstanceSectionClauseVersionDtoRepository documentInstanceSectionClauseVersionDtoRepository;
 
   @Captor
   private ArgumentCaptor<DocumentInstance> docInstanceCaptor;
@@ -89,7 +102,8 @@ public class DocumentInstanceServiceTest {
         instanceSectionClauseRepository,
         instanceSectionClauseVersionRepository,
         new SectionClauseCreator(clock),
-        clock
+        clock,
+        documentInstanceSectionClauseVersionDtoRepository
     );
 
   }
@@ -215,6 +229,109 @@ public class DocumentInstanceServiceTest {
 
     verify(documentInstanceRepository, times(1))
         .findByPwaApplicationAndDocumentTemplate_Mnem(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+
+  }
+
+  @Test
+  public void getDocumentView() {
+
+    var list = DocumentInstanceTestUtils.getInstanceSectionClauseVersionDtoList(1, clock, person, 2, 3, 3);
+    when(documentInstanceSectionClauseVersionDtoRepository.findAllByDiId(any())).thenReturn(list);
+
+    var docInstance = new DocumentInstance();
+    docInstance.setPwaApplication(applicationDetail.getPwaApplication());
+    docInstance.setDocumentTemplate(documentTemplate);
+    when(documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(any(), any())).thenReturn(Optional.of(docInstance));
+
+    var docView = documentInstanceService.getDocumentView(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+
+    list.forEach(version -> {
+
+      // check that each clause returned from the query is present in the docview in the expected place (right level etc)
+      var docViewClause = findClause(docView, version);
+      assertThat(docViewClause).isNotNull();
+
+      // check that the doc view version of the clause has all of the right data and that data is equal to the query clause
+      var nullFieldsList = new ArrayList<String>();
+      if (version.getParentDiscId() == null) {
+        nullFieldsList.add("parentClauseId");
+      }
+      ObjectTestUtils.assertAllExpectedFieldsHaveValue(docViewClause, nullFieldsList);
+
+      assertThat(docViewClause.getId()).isEqualTo(version.getDiscvId());
+      assertThat(docViewClause.getClauseId()).isEqualTo(version.getDiscId());
+      assertThat(docViewClause.getLevelNumber()).isEqualTo(version.getLevelNumber());
+      assertThat(docViewClause.getLevelOrder()).isEqualTo(version.getLevelOrder());
+      assertThat(docViewClause.getName()).isEqualTo(version.getName());
+      assertThat(docViewClause.getText()).isEqualTo(version.getText());
+      assertThat(docViewClause.getParentClauseId()).isEqualTo(version.getParentDiscId());
+
+      // check that there is a sidebar link for the clause (as long as it is not level 3)
+      var sidebarLinkOptional = findSidebarLink(docView, version);
+
+      if (docViewClause.getLevelNumber() == 3) {
+        assertThat(sidebarLinkOptional.isEmpty());
+      } else {
+        assertThat(sidebarLinkOptional).isPresent();
+
+        var sidebarLink = sidebarLinkOptional.get();
+
+        assertThat(sidebarLink).isNotNull();
+
+        assertThat(sidebarLink.getDisplayText()).isEqualTo(docViewClause.getName());
+        assertThat(sidebarLink.getIsAnchorLink()).isTrue();
+        assertThat(sidebarLink.getLink()).isEqualTo("#clauseId-" + docViewClause.getClauseId());
+
+      }
+
+    });
+
+    assertThat(docView.getSections().size()).isEqualTo(2);
+
+  }
+
+  private SectionClauseVersionView findClause(DocumentView documentView, DocumentInstanceSectionClauseVersionDto versionDto) {
+
+    return documentView.getSections().stream()
+        .filter(section -> section.getName().equals(versionDto.getSectionName()))
+        .map(section -> {
+
+          switch (versionDto.getLevelNumber()) {
+            case 1:
+              return section.getClauses().stream()
+                  .filter(clause -> Objects.equals(clause.getId(), versionDto.getDiscvId()))
+                  .findFirst()
+                  .orElseThrow();
+            case 2:
+              return section.getClauses().stream()
+                  .flatMap(clause -> clause.getChildClauses().stream())
+                  .filter(childClause -> Objects.equals(childClause.getId(), versionDto.getDiscvId()))
+                  .findFirst()
+                  .orElseThrow();
+            case 3:
+              return section.getClauses().stream()
+                  .flatMap(clause -> clause.getChildClauses().stream())
+                  .flatMap(childClause -> childClause.getChildClauses().stream())
+                  .filter(childChildClause -> Objects.equals(childChildClause.getId(), versionDto.getDiscvId()))
+                  .findFirst()
+                  .orElseThrow();
+          }
+
+          return null;
+
+        })
+        .findFirst()
+        .orElseThrow();
+
+  }
+
+  private Optional<SidebarSectionLink> findSidebarLink(DocumentView documentView, DocumentInstanceSectionClauseVersionDto versionDto) {
+
+    return documentView.getSections().stream()
+        .filter(section -> section.getName().equals(versionDto.getSectionName()))
+        .flatMap(section -> section.getSidebarSectionLinks().stream())
+        .filter(link -> link.getLink().contains(versionDto.getDiscvId().toString()))
+        .findFirst();
 
   }
 
