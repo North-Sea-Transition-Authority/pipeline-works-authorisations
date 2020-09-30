@@ -9,11 +9,13 @@
 
 <@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
 
-    <@defaultPagePaneSubNav>
-        <@fdsSubNavigation.subNavigation>
-            <@pwaClauseList.sidebarSections documentView=docView />
-        </@fdsSubNavigation.subNavigation>
-    </@defaultPagePaneSubNav>
+    <#if docView?has_content>
+      <@defaultPagePaneSubNav>
+          <@fdsSubNavigation.subNavigation>
+              <@pwaClauseList.sidebarSections documentView=docView />
+          </@fdsSubNavigation.subNavigation>
+      </@defaultPagePaneSubNav>
+    </#if>
 
     <@defaultPagePaneContent breadcrumbs=true>
 
@@ -31,7 +33,9 @@
 
       </#if>
 
-      <@pwaClauseList.list documentView=docView />
+      <#if docView?has_content>
+        <@pwaClauseList.list documentView=docView />
+      </#if>
 
     </@defaultPagePaneContent>
 
