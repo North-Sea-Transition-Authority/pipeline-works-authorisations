@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
 
 /**
- * Construct summary of application contacts for a given application.
+ * Construct summary of field links for a given application and associated PWA.
  */
 @Service
 public class FieldInformationSummaryService implements ApplicationSectionSummariser {
