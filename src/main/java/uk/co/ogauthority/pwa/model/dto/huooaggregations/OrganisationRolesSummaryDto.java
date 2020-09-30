@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -97,6 +98,29 @@ public class OrganisationRolesSummaryDto {
         .findFirst();
   }
 
+  public Set<OrganisationRolePipelineGroupDto> getHolderNonPortalOrgRoleGroups() {
+    return  Collections.unmodifiableSet(
+        this.getNonPortalOrgRoleGroupsByHuooType.getOrDefault(HuooRole.HOLDER, Set.of())
+    );
+  }
+
+  public Set<OrganisationRolePipelineGroupDto> getUserNonPortalOrgRoleGroups() {
+    return  Collections.unmodifiableSet(
+        this.getNonPortalOrgRoleGroupsByHuooType.getOrDefault(HuooRole.USER, Set.of())
+    );
+  }
+
+  public Set<OrganisationRolePipelineGroupDto> getOperatorNonPortalOrgRoleGroups() {
+    return  Collections.unmodifiableSet(
+        this.getNonPortalOrgRoleGroupsByHuooType.getOrDefault(HuooRole.OPERATOR, Set.of())
+    );
+  }
+
+  public Set<OrganisationRolePipelineGroupDto> getOwnerNonPortalOrgRoleGroups() {
+    return  Collections.unmodifiableSet(
+        this.getNonPortalOrgRoleGroupsByHuooType.getOrDefault(HuooRole.OWNER, Set.of())
+    );
+  }
 
   @Override
   public String toString() {
@@ -104,5 +128,24 @@ public class OrganisationRolesSummaryDto {
         "orgRolesGroupsByHuooType=" + orgRolesGroupsByHuooType +
         ", allOrganisationUnitsWithRole=" + allOrganisationUnitsWithRole +
         '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OrganisationRolesSummaryDto that = (OrganisationRolesSummaryDto) o;
+    return Objects.equals(getNonPortalOrgRoleGroupsByHuooType, that.getNonPortalOrgRoleGroupsByHuooType) &&
+        Objects.equals(orgRolesGroupsByHuooType, that.orgRolesGroupsByHuooType) &&
+        Objects.equals(allOrganisationUnitsWithRole, that.allOrganisationUnitsWithRole);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getNonPortalOrgRoleGroupsByHuooType, orgRolesGroupsByHuooType, allOrganisationUnitsWithRole);
   }
 }

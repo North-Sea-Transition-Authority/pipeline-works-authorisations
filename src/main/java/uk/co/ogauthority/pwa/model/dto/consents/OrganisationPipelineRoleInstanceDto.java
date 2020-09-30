@@ -47,6 +47,33 @@ public final class OrganisationPipelineRoleInstanceDto {
     }
   }
 
+  public OrganisationPipelineRoleInstanceDto(Integer organisationUnitId,
+                                             TreatyAgreement treatyAgreement,
+                                             HuooRole huooRole,
+                                             HuooType huooType,
+                                             Integer pipelineId,
+                                             String fromLocation,
+                                             IdentLocationInclusionMode fromLocationMode,
+                                             String toLocation,
+                                             IdentLocationInclusionMode toLocationMode
+  ) {
+    this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(
+        organisationUnitId,
+        null,
+        treatyAgreement,
+        huooRole,
+        huooType
+    );
+
+    if (ObjectUtils.allNotNull(fromLocation, fromLocationMode, toLocation, toLocationMode)) {
+      this.pipelineIdentifier = PipelineSegment.from(pipelineId, fromLocation, fromLocationMode, toLocation, toLocationMode);
+    } else if (pipelineId != null){
+      this.pipelineIdentifier = new PipelineId(pipelineId);
+    } else {
+      this.pipelineIdentifier = null;
+    }
+  }
+
   public OrganisationUnitId getOrganisationUnitId() {
     return this.organisationRoleInstanceDto.getOrganisationUnitId();
   }

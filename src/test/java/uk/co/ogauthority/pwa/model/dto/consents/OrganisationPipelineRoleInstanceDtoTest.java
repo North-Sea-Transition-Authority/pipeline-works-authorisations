@@ -111,4 +111,98 @@ public class OrganisationPipelineRoleInstanceDtoTest {
     EqualsVerifier.forClass(OrganisationPipelineRoleInstanceDto.class)
         .verify();
   }
+
+  @Test
+  public void organisationPipelineRoleDto_noManualName_constructorMapsArgsAsExpected_whenWholePipelines() {
+
+    for (HuooRole role : HuooRole.values()) {
+      for (HuooType type : HuooType.values()) {
+        var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
+            OU_ID,
+            null,
+            role,
+            type,
+            PIPELINE_ID,
+            null,
+            null,
+            null,
+            null);
+
+        assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
+        assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).isEqualTo(new PipelineId(PIPELINE_ID));
+        assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).isOfAnyClassIn(PipelineId.class);
+      }
+    }
+  }
+
+  @Test
+  public void organisationPipelineRoleDto_noManualName_constructorMapsArgsAsExpected_whenPipelineSegments() {
+
+    for (HuooRole role : HuooRole.values()) {
+      for (HuooType type : HuooType.values()) {
+        var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
+            OU_ID,
+            null,
+            role,
+            type,
+            PIPELINE_ID,
+            "Start",
+            IdentLocationInclusionMode.INCLUSIVE,
+            "End",
+            IdentLocationInclusionMode.EXCLUSIVE);
+
+        assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
+        assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).satisfies(pipelineIdentifier -> {
+          var pipelineSegment = (PipelineSegment) pipelineIdentifier;
+          assertThat(pipelineSegment.getFromPoint()).isEqualTo(PipelineIdentPoint.inclusivePoint("Start"));
+          assertThat(pipelineSegment.getToPoint()).isEqualTo(PipelineIdentPoint.exclusivePoint("End"));
+          assertThat(pipelineSegment.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
+        });
+        assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));
+      }
+    }
+
+  }
+
+  @Test
+  public void organisationPipelineRoleDto_noManualName_noSplitData() {
+
+    for (HuooRole role : HuooRole.values()) {
+      for (HuooType type : HuooType.values()) {
+        var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
+            OU_ID,
+            null,
+            role,
+            type,
+            PIPELINE_ID,
+            null, null, null, null);
+
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).isEqualTo(new PipelineId(PIPELINE_ID));
+      }
+    }
+  }
+
+  @Test
+  public void organisationPipelineRoleDto_noManualName_noPipelineId() {
+
+    for (HuooRole role : HuooRole.values()) {
+      for (HuooType type : HuooType.values()) {
+        var organisationPipelineRoleDto = new OrganisationPipelineRoleInstanceDto(
+            OU_ID,
+            null,
+            role,
+            type,
+            null,
+            null, null, null, null);
+
+        assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).isNull();
+      }
+    }
+  }
+
+
+
 }

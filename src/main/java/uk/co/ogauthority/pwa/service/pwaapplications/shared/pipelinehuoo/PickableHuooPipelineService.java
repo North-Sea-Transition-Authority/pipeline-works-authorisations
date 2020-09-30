@@ -3,19 +3,29 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
@@ -137,6 +147,46 @@ public class PickableHuooPipelineService {
 
   }
 
+
+  public List<PipelineNumbersAndSplits> getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
+      PwaApplicationDetail pwaApplicationDetail,
+      HuooRole huooRole, Set<PipelineIdentifier> pipelineIdentifiers) {
+
+    Map<PipelineIdentifier, PickableHuooPipelineOption> pickablePipelinesLookup = getWholePipelinePickableOptionsForApp(
+        pwaApplicationDetail
+    );
+
+    Set<PipelineIdentifier> splitPipelinesForRole = padOrganisationRoleService.getPipelineSplitsForRole(
+        pwaApplicationDetail,
+        huooRole
+    );
+
+    // replace entries for whole pipelines where a pipeline has been split
+    Set<PipelineId> splitPipelines = new HashSet<>();
+    splitPipelinesForRole.forEach(splitPipelineIdentifier -> {
+      var splitPipelineOption = PickableHuooPipelineOption.duplicateOptionForPipelineIdentifier(
+          splitPipelineIdentifier,
+          pickablePipelinesLookup.get(splitPipelineIdentifier.getPipelineId())
+      );
+      splitPipelines.add(splitPipelineIdentifier.getPipelineId());
+      pickablePipelinesLookup.put(splitPipelineIdentifier, splitPipelineOption);
+    });
+
+    // remove records for whole pipelines where splits are now within the map
+    splitPipelines.forEach(pickablePipelinesLookup::remove);
+    List<PipelineNumbersAndSplits> pipelineNumbersAndSplits = new ArrayList<>();
+    pipelineIdentifiers.stream().sorted();
+    pipelineIdentifiers.forEach((identifier) -> {
+        if (identifier != null) {
+          pipelineNumbersAndSplits.add(PipelineNumbersAndSplits.from(identifier, pickablePipelinesLookup.get(identifier.getPipelineId())));
+        }
+    });
+
+
+
+    return pipelineNumbersAndSplits;
+  }
+
   /**
    * Forms and links might provide strings which represent pickable pipelines. Form the string arguments provided
    * by the clients, we need to make sure that we only deal with arguments that can be successfully reconciled
@@ -179,5 +229,88 @@ public class PickableHuooPipelineService {
         .collect(toSet());
 
   }
+
+
+  private OrganisationRolePipelineGroupView getOrgRolePipelineGroupView(PwaApplicationDetail pwaApplicationDetail, OrganisationRolePipelineGroupDto orgRolePipelineGroup) {
+
+    String companyName = null;
+    String regNumber = null;
+    String address = null;
+
+    if (orgRolePipelineGroup.getHuooType().equals(HuooType.PORTAL_ORG)) {
+      var orgPipeline = orgRolePipelineGroup.getOrganisationRoleInstanceDto();
+      var orgUnitDetailDtos = padOrganisationRoleService.getOrganisationUnitDetailDtosByOrganisationUnitId(
+          List.of(orgPipeline.getOrganisationUnitId()));
+      OrganisationUnitDetailDto orgUnitDetailDto = !orgUnitDetailDtos.isEmpty() ? orgUnitDetailDtos.get(0) : null;
+
+      if (!orgUnitDetailDtos.isEmpty()) {
+        companyName = orgUnitDetailDto != null ? orgUnitDetailDto.getCompanyName() : orgPipeline.getManualOrganisationName().orElse(null);
+        regNumber = orgUnitDetailDto != null ? orgUnitDetailDto.getRegisteredNumber() : null;
+        address = orgUnitDetailDto != null ? orgUnitDetailDto.getCompanyAddress() : null;
+      }
+    }
+
+    var orgRolePipelineGroups = new OrganisationRolePipelineGroupView(
+        orgRolePipelineGroup.getHuooType(),
+        companyName,
+        orgRolePipelineGroup.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto().getTreatyAgreement(),
+        orgRolePipelineGroup.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto(),
+        regNumber,
+        address,
+        getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
+            pwaApplicationDetail, orgRolePipelineGroup.getHuooRole(), orgRolePipelineGroup.getPipelineIdentifiers())
+    );
+    return orgRolePipelineGroups;
+  }
+
+  public AllOrgRolePipelineGroupsView getAllOrganisationRolePipelineGroupView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var orgRolesSummaryDto = padOrganisationRoleService.getOrganisationRoleSummary(pwaApplicationDetail);
+    List<OrganisationRolePipelineGroupView> holderOrgRolePipelineGroups = new ArrayList<>();
+    List<OrganisationRolePipelineGroupView> userOrgRolePipelineGroups = new ArrayList<>();
+    List<OrganisationRolePipelineGroupView> operatorOrgRolePipelineGroups = new ArrayList<>();
+    List<OrganisationRolePipelineGroupView> ownerOrgRolePipelineGroups = new ArrayList<>();
+
+    Comparator<OrganisationRolePipelineGroupView> viewComparator =
+        Comparator.comparing(OrganisationRolePipelineGroupView::getCompanyName,  Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparing(OrganisationRolePipelineGroupView::getCompanyName);
+
+    Set<OrganisationRolePipelineGroupDto> holderOrgUnitGroups = new HashSet<>();
+    holderOrgUnitGroups.addAll(orgRolesSummaryDto.getHolderOrganisationUnitGroups());
+    holderOrgUnitGroups.addAll(orgRolesSummaryDto.getHolderNonPortalOrgRoleGroups());
+    holderOrgUnitGroups.forEach(orgRolePipelineGroup ->
+        holderOrgRolePipelineGroups.add(getOrgRolePipelineGroupView(pwaApplicationDetail, orgRolePipelineGroup)));
+    Collections.sort(holderOrgRolePipelineGroups, viewComparator);
+
+    Set<OrganisationRolePipelineGroupDto> userOrgUnitGroups = new HashSet<>();
+    userOrgUnitGroups.addAll(orgRolesSummaryDto.getUserOrganisationUnitGroups());
+    userOrgUnitGroups.addAll(orgRolesSummaryDto.getUserNonPortalOrgRoleGroups());
+    userOrgUnitGroups.forEach(orgRolePipelineGroup ->
+        userOrgRolePipelineGroups.add(getOrgRolePipelineGroupView(pwaApplicationDetail, orgRolePipelineGroup)));
+    Collections.sort(userOrgRolePipelineGroups, viewComparator);
+
+    Set<OrganisationRolePipelineGroupDto> operatorOrgUnitGroups = new HashSet<>();
+    operatorOrgUnitGroups.addAll(orgRolesSummaryDto.getOperatorOrganisationUnitGroups());
+    operatorOrgUnitGroups.addAll(orgRolesSummaryDto.getOperatorNonPortalOrgRoleGroups());
+    operatorOrgUnitGroups.forEach(orgRolePipelineGroup ->
+        operatorOrgRolePipelineGroups.add(getOrgRolePipelineGroupView(pwaApplicationDetail, orgRolePipelineGroup)));
+    Collections.sort(operatorOrgRolePipelineGroups, viewComparator);
+
+    Set<OrganisationRolePipelineGroupDto> ownerOrgUnitGroups = new HashSet<>();
+    ownerOrgUnitGroups.addAll(orgRolesSummaryDto.getOwnerOrganisationUnitGroups());
+    ownerOrgUnitGroups.addAll(orgRolesSummaryDto.getOwnerNonPortalOrgRoleGroups());
+    ownerOrgUnitGroups.forEach(orgRolePipelineGroup ->
+        ownerOrgRolePipelineGroups.add(getOrgRolePipelineGroupView(pwaApplicationDetail, orgRolePipelineGroup)));
+    Collections.sort(ownerOrgRolePipelineGroups, viewComparator);
+
+    return new AllOrgRolePipelineGroupsView(
+        holderOrgRolePipelineGroups,
+        userOrgRolePipelineGroups,
+        operatorOrgRolePipelineGroups,
+        ownerOrgRolePipelineGroups
+    );
+  }
+
+
 
 }

@@ -26,6 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
@@ -711,6 +712,23 @@ public class PadOrganisationRoleServiceTest {
             OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(HuooRole.USER, 1)
         );
 
+  }
+
+  @Test
+  public void getOrganisationRoleSummary() {
+    var orgPipelineRoleInstanceDto = new OrganisationPipelineRoleInstanceDto(
+        1,
+        null,
+        HuooRole.HOLDER,
+        HuooType.PORTAL_ORG,
+        1,
+        null, null, null, null);
+
+    when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
+        .thenReturn(List.of(orgPipelineRoleInstanceDto));
+
+    var expected = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(List.of(orgPipelineRoleInstanceDto));
+    assertThat(padOrganisationRoleService.getOrganisationRoleSummary(detail)).isEqualTo(expected);
   }
 
   @Test

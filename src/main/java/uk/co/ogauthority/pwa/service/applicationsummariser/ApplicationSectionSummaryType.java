@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.En
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FastTrackSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
@@ -60,6 +61,11 @@ public enum ApplicationSectionSummaryType {
       50,
           "pwaApplication/applicationSummarySections/environmentalAndDecommissioningSummary.ftl",
       EnvironmentalDecomSummaryService.class),
+
+  HUOO(
+      60,
+      "pwaApplication/applicationSummarySections/huooSummary.ftl",
+      HuooSummaryService.class),
 
   PARTNER_LETTERS(
       70,

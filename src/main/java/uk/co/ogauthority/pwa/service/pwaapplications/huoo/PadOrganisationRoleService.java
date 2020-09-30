@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -165,6 +166,16 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .sorted()
         .collect(toList());
 
+  }
+
+  public OrganisationRolesSummaryDto getOrganisationRoleSummary(PwaApplicationDetail detail) {
+    var allOrganisationPipelineRoles = padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(
+        detail);
+    return OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(allOrganisationPipelineRoles);
+  }
+
+  public List<OrganisationUnitDetailDto> getOrganisationUnitDetailDtosByOrganisationUnitId(Collection<OrganisationUnitId> organisationUnitIds) {
+    return portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(organisationUnitIds);
   }
 
   private String getEditHuooUrl(PwaApplicationDetail detail, PortalOrganisationUnit organisationUnit) {
