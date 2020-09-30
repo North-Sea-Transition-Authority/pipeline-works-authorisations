@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
@@ -26,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
@@ -79,6 +81,10 @@ public class PwaApplicationVersionContainer {
   private Map<Chemical, PadFluidCompositionInfo> fluidCompositionInfoMap;
 
   private Map<OtherPipelineProperty, PadPipelineOtherProperties> padPipelineOtherProperties;
+
+  private PadDesignOpConditions padDesignOpConditions;
+
+  private PadFastTrack padFastTrack;
 
   public PwaApplicationVersionContainer(
       PwaApplicationDetail pwaApplicationDetail) {
@@ -280,8 +286,23 @@ public class PwaApplicationVersionContainer {
         );
   }
 
-  public PadPipelineOtherProperties getPadPipelineOtherProperty(OtherPipelineProperty otherPipelineProperty){
+  public PadPipelineOtherProperties getPadPipelineOtherProperty(OtherPipelineProperty otherPipelineProperty) {
     return this.padPipelineOtherProperties.get(otherPipelineProperty);
   }
 
+  public PadDesignOpConditions getPadDesignOpConditions() {
+    return padDesignOpConditions;
+  }
+
+  public void setPadDesignOpConditions(PadDesignOpConditions padDesignOpConditions) {
+    this.padDesignOpConditions = padDesignOpConditions;
+  }
+
+  public PadFastTrack getPadFastTrack() {
+    return padFastTrack;
+  }
+
+  public void setPadFastTrack(PadFastTrack padFastTrack) {
+    this.padFastTrack = padFastTrack;
+  }
 }
