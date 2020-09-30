@@ -67,7 +67,7 @@ public final class OrganisationPipelineRoleInstanceDto {
 
     if (ObjectUtils.allNotNull(fromLocation, fromLocationMode, toLocation, toLocationMode)) {
       this.pipelineIdentifier = PipelineSegment.from(pipelineId, fromLocation, fromLocationMode, toLocation, toLocationMode);
-    } else if (pipelineId != null){
+    } else if (pipelineId != null) {
       this.pipelineIdentifier = new PipelineId(pipelineId);
     } else {
       this.pipelineIdentifier = null;

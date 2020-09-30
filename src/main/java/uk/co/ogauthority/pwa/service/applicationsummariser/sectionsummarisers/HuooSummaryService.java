@@ -54,7 +54,8 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("totalPipelinesOnApp", padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail));
-    summaryModel.put("huooRolePipelineGroupsView", pickableHuooPipelineService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
+    summaryModel.put("huooRolePipelineGroupsView",
+        pickableHuooPipelineService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
 
     return new ApplicationSectionSummary(
         templateName,

@@ -174,7 +174,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(allOrganisationPipelineRoles);
   }
 
-  public List<OrganisationUnitDetailDto> getOrganisationUnitDetailDtosByOrganisationUnitId(Collection<OrganisationUnitId> organisationUnitIds) {
+  public List<OrganisationUnitDetailDto> getOrganisationUnitDetailDtosByOrganisationUnitId(
+      Collection<OrganisationUnitId> organisationUnitIds) {
     return portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(organisationUnitIds);
   }
 

@@ -177,9 +177,9 @@ public class PickableHuooPipelineService {
     List<PipelineNumbersAndSplits> pipelineNumbersAndSplits = new ArrayList<>();
     pipelineIdentifiers.stream().sorted();
     pipelineIdentifiers.forEach((identifier) -> {
-        if (identifier != null) {
-          pipelineNumbersAndSplits.add(PipelineNumbersAndSplits.from(identifier, pickablePipelinesLookup.get(identifier.getPipelineId())));
-        }
+      if (identifier != null) {
+        pipelineNumbersAndSplits.add(PipelineNumbersAndSplits.from(identifier, pickablePipelinesLookup.get(identifier.getPipelineId())));
+      }
     });
 
 
@@ -231,7 +231,8 @@ public class PickableHuooPipelineService {
   }
 
 
-  private OrganisationRolePipelineGroupView getOrgRolePipelineGroupView(PwaApplicationDetail pwaApplicationDetail, OrganisationRolePipelineGroupDto orgRolePipelineGroup) {
+  private OrganisationRolePipelineGroupView getOrgRolePipelineGroupView(
+      PwaApplicationDetail pwaApplicationDetail, OrganisationRolePipelineGroupDto orgRolePipelineGroup) {
 
     String companyName = null;
     String regNumber = null;
@@ -266,15 +267,13 @@ public class PickableHuooPipelineService {
   public AllOrgRolePipelineGroupsView getAllOrganisationRolePipelineGroupView(PwaApplicationDetail pwaApplicationDetail) {
 
     var orgRolesSummaryDto = padOrganisationRoleService.getOrganisationRoleSummary(pwaApplicationDetail);
-    List<OrganisationRolePipelineGroupView> holderOrgRolePipelineGroups = new ArrayList<>();
-    List<OrganisationRolePipelineGroupView> userOrgRolePipelineGroups = new ArrayList<>();
-    List<OrganisationRolePipelineGroupView> operatorOrgRolePipelineGroups = new ArrayList<>();
-    List<OrganisationRolePipelineGroupView> ownerOrgRolePipelineGroups = new ArrayList<>();
 
     Comparator<OrganisationRolePipelineGroupView> viewComparator =
         Comparator.comparing(OrganisationRolePipelineGroupView::getCompanyName,  Comparator.nullsLast(Comparator.naturalOrder()))
             .thenComparing(OrganisationRolePipelineGroupView::getCompanyName);
 
+
+    List<OrganisationRolePipelineGroupView> holderOrgRolePipelineGroups = new ArrayList<>();
     Set<OrganisationRolePipelineGroupDto> holderOrgUnitGroups = new HashSet<>();
     holderOrgUnitGroups.addAll(orgRolesSummaryDto.getHolderOrganisationUnitGroups());
     holderOrgUnitGroups.addAll(orgRolesSummaryDto.getHolderNonPortalOrgRoleGroups());
@@ -282,6 +281,7 @@ public class PickableHuooPipelineService {
         holderOrgRolePipelineGroups.add(getOrgRolePipelineGroupView(pwaApplicationDetail, orgRolePipelineGroup)));
     Collections.sort(holderOrgRolePipelineGroups, viewComparator);
 
+    List<OrganisationRolePipelineGroupView> userOrgRolePipelineGroups = new ArrayList<>();
     Set<OrganisationRolePipelineGroupDto> userOrgUnitGroups = new HashSet<>();
     userOrgUnitGroups.addAll(orgRolesSummaryDto.getUserOrganisationUnitGroups());
     userOrgUnitGroups.addAll(orgRolesSummaryDto.getUserNonPortalOrgRoleGroups());
@@ -289,6 +289,7 @@ public class PickableHuooPipelineService {
         userOrgRolePipelineGroups.add(getOrgRolePipelineGroupView(pwaApplicationDetail, orgRolePipelineGroup)));
     Collections.sort(userOrgRolePipelineGroups, viewComparator);
 
+    List<OrganisationRolePipelineGroupView> operatorOrgRolePipelineGroups = new ArrayList<>();
     Set<OrganisationRolePipelineGroupDto> operatorOrgUnitGroups = new HashSet<>();
     operatorOrgUnitGroups.addAll(orgRolesSummaryDto.getOperatorOrganisationUnitGroups());
     operatorOrgUnitGroups.addAll(orgRolesSummaryDto.getOperatorNonPortalOrgRoleGroups());
@@ -296,6 +297,7 @@ public class PickableHuooPipelineService {
         operatorOrgRolePipelineGroups.add(getOrgRolePipelineGroupView(pwaApplicationDetail, orgRolePipelineGroup)));
     Collections.sort(operatorOrgRolePipelineGroups, viewComparator);
 
+    List<OrganisationRolePipelineGroupView> ownerOrgRolePipelineGroups = new ArrayList<>();
     Set<OrganisationRolePipelineGroupDto> ownerOrgUnitGroups = new HashSet<>();
     ownerOrgUnitGroups.addAll(orgRolesSummaryDto.getOwnerOrganisationUnitGroups());
     ownerOrgUnitGroups.addAll(orgRolesSummaryDto.getOwnerNonPortalOrgRoleGroups());

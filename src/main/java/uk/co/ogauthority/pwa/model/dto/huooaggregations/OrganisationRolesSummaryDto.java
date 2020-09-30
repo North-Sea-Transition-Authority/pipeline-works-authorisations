@@ -139,9 +139,9 @@ public class OrganisationRolesSummaryDto {
       return false;
     }
     OrganisationRolesSummaryDto that = (OrganisationRolesSummaryDto) o;
-    return Objects.equals(getNonPortalOrgRoleGroupsByHuooType, that.getNonPortalOrgRoleGroupsByHuooType) &&
-        Objects.equals(orgRolesGroupsByHuooType, that.orgRolesGroupsByHuooType) &&
-        Objects.equals(allOrganisationUnitsWithRole, that.allOrganisationUnitsWithRole);
+    return Objects.equals(getNonPortalOrgRoleGroupsByHuooType, that.getNonPortalOrgRoleGroupsByHuooType)
+        && Objects.equals(orgRolesGroupsByHuooType, that.orgRolesGroupsByHuooType)
+        && Objects.equals(allOrganisationUnitsWithRole, that.allOrganisationUnitsWithRole);
   }
 
   @Override

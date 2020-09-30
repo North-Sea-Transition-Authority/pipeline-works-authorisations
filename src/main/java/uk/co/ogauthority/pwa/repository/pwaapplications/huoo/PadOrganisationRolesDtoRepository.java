@@ -10,6 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 public interface PadOrganisationRolesDtoRepository {
   List<OrganisationRoleInstanceDto> findOrganisationRoleDtoByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
-  List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+  List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPwaApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail);
 
 }
