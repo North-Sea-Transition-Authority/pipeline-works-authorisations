@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Fa
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LocationDetailsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
@@ -71,6 +72,11 @@ public enum ApplicationSectionSummaryType {
       70,
           "pwaApplication/applicationSummarySections/partnerApprovalLettersSummary.ftl",
       PartnerApprovalLettersSummaryService.class),
+
+  LOCATION_DETAILS(
+      80,
+      "pwaApplication/applicationSummarySections/locationDetailsSummary.ftl",
+      LocationDetailsSummaryService.class),
 
   GENERAL_TECH_DETAILS(
       140,

@@ -15,10 +15,12 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.DateWithinRangeHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
@@ -65,14 +67,7 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     validateDateIsFutureDate(errors, "Start date", "fromDate", form.getFromDate());
     validateDateIsFutureDate(errors, "End date", "toDate", form.getToDate());
-    if (form.getFromDate().getMonth() != null && form.getFromDate().getYear() != null
-        && form.getToDate().getMonth() != null && form.getToDate().getYear() != null) {
-      ValidatorUtils.validateDateIsWithinRangeOfTarget(
-          "toDate.month", "deposit to month / year",
-          Integer.parseInt(form.getToDate().getMonth()), Integer.parseInt(form.getToDate().getYear()),
-            Integer.parseInt(form.getFromDate().getMonth()), Integer.parseInt(form.getFromDate().getYear()), 12, errors);
-    }
-
+    validateDateIsWithinRange(errors, "toDate", form.getFromDate(), form.getToDate());
 
     if (form.getMaterialType() == null) {
       errors.rejectValue("materialType", "materialType.required",
@@ -149,6 +144,31 @@ public class PermanentDepositsValidator implements SmartValidator {
         targetPath,
         formField,
         toDateHints.toArray());
+  }
+
+  private void validateDateIsWithinRange(
+      Errors errors, String targetPath, TwoFieldDateInput fromTwoFieldDate, TwoFieldDateInput toTwoFieldDate) {
+
+    var fromDateOpt = fromTwoFieldDate.createDate();
+    var toDateOpt = toTwoFieldDate.createDate();
+    var maxMonthRange = 12;
+
+    if (fromDateOpt.isPresent() && toDateOpt.isPresent()) {
+      List<Object> dateHints = new ArrayList<>();
+      dateHints.add(new FormInputLabel("Deposit end date"));
+      dateHints.add(new DateWithinRangeHint(fromDateOpt.get(),
+          fromDateOpt.get().plusMonths(maxMonthRange), maxMonthRange + " months of the deposit start date"));
+
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          twoFieldDateInputValidator,
+          targetPath,
+          toTwoFieldDate,
+          dateHints.toArray());
+
+    } else {
+      errors.rejectValue("toDate.month", "month" + FieldValidationErrorCodes.INVALID.getCode(), "");
+    }
   }
 
 

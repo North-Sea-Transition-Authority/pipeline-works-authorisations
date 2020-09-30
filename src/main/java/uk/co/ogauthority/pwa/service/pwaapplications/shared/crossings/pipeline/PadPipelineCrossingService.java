@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -13,12 +14,17 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
@@ -34,6 +40,8 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   private final PadPipelineCrossingOwnerService padPipelineCrossingOwnerService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final SearchSelectorService searchSelectorService;
+  private final EntityCopyingService entityCopyingService;
+  private final PadFileService padFileService;
 
   @Autowired
   public PadPipelineCrossingService(
@@ -41,12 +49,16 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
       PipelineCrossingFileService pipelineCrossingFileService,
       PadPipelineCrossingOwnerService padPipelineCrossingOwnerService,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
-      SearchSelectorService searchSelectorService) {
+      SearchSelectorService searchSelectorService,
+      EntityCopyingService entityCopyingService,
+      PadFileService padFileService) {
     this.padPipelineCrossingRepository = padPipelineCrossingRepository;
     this.pipelineCrossingFileService = pipelineCrossingFileService;
     this.padPipelineCrossingOwnerService = padPipelineCrossingOwnerService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.searchSelectorService = searchSelectorService;
+    this.entityCopyingService = entityCopyingService;
+    this.padFileService = padFileService;
   }
 
   public PadPipelineCrossing getPipelineCrossing(PwaApplicationDetail detail, Integer id) {
@@ -134,8 +146,27 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
     );
   }
 
+  @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+
+    padFileService.copyPadFilesToPwaApplicationDetail(
+        fromDetail,
+        toDetail,
+        ApplicationDetailFilePurpose.PIPELINE_CROSSINGS,
+        ApplicationFileLinkStatus.FULL
+    );
+
+    var copiedPadPipelineCrossingEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
+        () -> padPipelineCrossingRepository.getAllByPwaApplicationDetail(fromDetail),
+        toDetail,
+        PadPipelineCrossing.class
+    );
+
+    var copiedPadPipelineCrossingOwnerEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
+        () -> padPipelineCrossingOwnerService.getAllPipelineCrossingOwners(fromDetail),
+        copiedPadPipelineCrossingEntityIds,
+        PadPipelineCrossingOwner.class
+    );
   }
 }

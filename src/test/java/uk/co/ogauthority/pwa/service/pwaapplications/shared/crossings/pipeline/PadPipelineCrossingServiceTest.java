@@ -26,7 +26,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -45,6 +47,12 @@ public class PadPipelineCrossingServiceTest {
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
+  @Mock
+  private EntityCopyingService entityCopyingService;
+
+  @Mock
+  private PadFileService padFileService;
+
   @Spy
   private SearchSelectorService searchSelectorService;
 
@@ -55,9 +63,16 @@ public class PadPipelineCrossingServiceTest {
 
   @Before
   public void setUp() {
-    padPipelineCrossingService = new PadPipelineCrossingService(padPipelineCrossingRepository,
-        pipelineCrossingFileService, padPipelineCrossingOwnerService, portalOrganisationsAccessor,
-        searchSelectorService);
+    padPipelineCrossingService = new PadPipelineCrossingService(
+        padPipelineCrossingRepository,
+        pipelineCrossingFileService,
+        padPipelineCrossingOwnerService,
+        portalOrganisationsAccessor,
+        searchSelectorService,
+        entityCopyingService,
+        padFileService
+    );
+
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     padPipelineCrossing = new PadPipelineCrossing();
   }

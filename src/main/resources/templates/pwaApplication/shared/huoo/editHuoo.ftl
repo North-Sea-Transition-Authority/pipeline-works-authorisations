@@ -11,9 +11,9 @@
     <@fdsForm.htmlForm>
         <#if huooType == "PORTAL_ORG">
             <@fdsSearchSelector.searchSelectorEnhanced path="form.organisationUnitId" options=portalOrgs labelText="Select the legal entity" nestingPath="form.huooType"/>
-            <@fdsCheckbox.checkboxes path="form.huooRoles" checkboxes=huooRoles fieldsetHeadingText="Which roles will the legal entity have?" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m" nestingPath="form.huooType"/>
+            <@fdsCheckbox.checkboxes path="form.huooRoles" checkboxes=huooRoles fieldsetHeadingText="Which roles will the legal entity have?" nestingPath="form.huooType"/>
         <#elseif huooType == "TREATY_AGREEMENT">
-            <@fdsRadio.radio path="form.treatyAgreement" labelText="Which country is the treaty agreement with?" radioItems=treatyAgreements nestingPath="form.huooType" fieldsetHeadingSize="h2" fieldsetHeadingClass="govuk-fieldset__legend--m"/>
+            <@fdsRadio.radio path="form.treatyAgreement" labelText="Which country is the treaty agreement with?" radioItems=treatyAgreements nestingPath="form.huooType"/>
         </#if>
 
         <@fdsDetails.details detailsText="If you are unable to find the legal entity or treaty agreement you are looking for, please contact the OGA." detailsTitle="I can't find a legal entity"/>

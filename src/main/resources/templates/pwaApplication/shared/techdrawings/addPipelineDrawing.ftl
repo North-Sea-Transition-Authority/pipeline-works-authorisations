@@ -9,7 +9,6 @@
 <#-- @ftlvariable name="downloadUrl" type="String" -->
 <#-- @ftlvariable name="actionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
-<#-- @ftlvariable name="dropzoneErrorText" type="String"-->
 
 <@defaultPage htmlTitle="${actionType.actionText} a pipeline schematic" pageHeading="${actionType.actionText} a pipeline schematic" breadcrumbs=true fullWidthColumn=true>
 
@@ -20,7 +19,7 @@
     <@fdsForm.htmlForm>
 
         <@fdsTextInput.textInput path="form.reference" labelText="Schematic reference" inputClass="govuk-!-width-two-thirds"/>
-        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false dropzoneErrorText=dropzoneErrorText!/>
+        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false/>
 
       <hr class="govuk-section-break govuk-section-break--m"/>
 

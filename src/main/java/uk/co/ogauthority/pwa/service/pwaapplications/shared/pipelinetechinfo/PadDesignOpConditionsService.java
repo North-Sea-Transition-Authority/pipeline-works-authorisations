@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.DesignOpConditionsView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PadDesignOpConditionsValidator;
@@ -23,16 +25,19 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   private final PadDesignOpConditionsMappingService padDesignOpConditionsMappingService;
   private final PadDesignOpConditionsRepository padDesignOpConditionsRepository;
   private final PadDesignOpConditionsValidator validator;
+  private final EntityCopyingService entityCopyingService;
 
 
   @Autowired
   public PadDesignOpConditionsService(
       PadDesignOpConditionsMappingService padDesignOpConditionsMappingService,
       PadDesignOpConditionsRepository padDesignOpConditionsRepository,
-      PadDesignOpConditionsValidator validator) {
+      PadDesignOpConditionsValidator validator,
+      EntityCopyingService entityCopyingService) {
     this.padDesignOpConditionsMappingService = padDesignOpConditionsMappingService;
     this.padDesignOpConditionsRepository = padDesignOpConditionsRepository;
     this.validator = validator;
+    this.entityCopyingService = entityCopyingService;
   }
 
 
@@ -86,9 +91,15 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+
+    entityCopyingService.duplicateEntityAndSetParent(
+        () -> padDesignOpConditionsRepository.findByPwaApplicationDetail(fromDetail)
+        .orElseThrow(() ->
+            new PwaEntityNotFoundException("Expected to find Design op conditions but did not. pad_id: " + fromDetail.getId())),
+        toDetail,
+        PadDesignOpConditions.class
+    );
+
   }
-
-
 }
 

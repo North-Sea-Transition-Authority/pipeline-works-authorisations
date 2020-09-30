@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MinMaxView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsRepository;
+import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsMappingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
@@ -40,8 +41,9 @@ public class PadDesignOpConditionsServiceTest {
   private PadDesignOpConditionsRepository padDesignOpConditionsRepository;
 
   private PadDesignOpConditionsValidator validator;
-
-  private DesignOpConditionsEntityFormBuilder designOpConditionsEntityFormBuilder;
+  
+  @Mock
+  private EntityCopyingService entityCopyingService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -51,9 +53,13 @@ public class PadDesignOpConditionsServiceTest {
     validator = new PadDesignOpConditionsValidator(new MinMaxInputValidator());
     padDesignOpConditionsMappingService = new PadDesignOpConditionsMappingService();
     padDesignOpConditionsService = new PadDesignOpConditionsService(
-        padDesignOpConditionsMappingService, padDesignOpConditionsRepository, validator);
+        padDesignOpConditionsMappingService,
+        padDesignOpConditionsRepository,
+        validator,
+        entityCopyingService
+    );
     pwaApplicationDetail = new PwaApplicationDetail();
-    designOpConditionsEntityFormBuilder = new DesignOpConditionsEntityFormBuilder();
+
   }
 
   // Entity/Form  Retrieval/Mapping tests
@@ -67,23 +73,23 @@ public class PadDesignOpConditionsServiceTest {
   @Test
   public void mapEntityToForm_full() {
     var actualForm = new DesignOpConditionsForm();
-    var entity = designOpConditionsEntityFormBuilder.createValidEntity();
+    var entity = PadDesignOpConditionsTestUtil.createValidEntity();
     padDesignOpConditionsService.mapEntityToForm(actualForm, entity);
-    assertThat(actualForm).isEqualTo(designOpConditionsEntityFormBuilder.createValidForm());
+    assertThat(actualForm).isEqualTo(PadDesignOpConditionsTestUtil.createValidForm());
   }
 
   @Test
   public void mapFormToEntity_full() {
     var actualEntity = new PadDesignOpConditions();
-    var form = designOpConditionsEntityFormBuilder.createValidForm();
+    var form = PadDesignOpConditionsTestUtil.createValidForm();
     padDesignOpConditionsService.saveEntityUsingForm(form, actualEntity);
-    assertThat(actualEntity).isEqualTo(designOpConditionsEntityFormBuilder.createValidEntity());
+    assertThat(actualEntity).isEqualTo(PadDesignOpConditionsTestUtil.createValidEntity());
     verify(padDesignOpConditionsRepository, times(1)).save(any(PadDesignOpConditions.class));
   }
 
   @Test
   public void getDesignOpConditionsView() {
-    var entity = designOpConditionsEntityFormBuilder.createValidEntity();
+    var entity = PadDesignOpConditionsTestUtil.createValidEntity();
     when(padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entity));
     var actualView = padDesignOpConditionsService.getDesignOpConditionsView(pwaApplicationDetail);
 
@@ -102,7 +108,7 @@ public class PadDesignOpConditionsServiceTest {
   @Test
   public void isComplete_valid() {
     when(padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(
-        designOpConditionsEntityFormBuilder.createValidEntity()));
+        PadDesignOpConditionsTestUtil.createValidEntity()));
     var isValid = padDesignOpConditionsService.isComplete(pwaApplicationDetail);
     assertTrue(isValid);
   }
@@ -117,13 +123,13 @@ public class PadDesignOpConditionsServiceTest {
   @Test
   public void validate_fullValidation_valid() {
     var bindingResult = new BeanPropertyBindingResult(null, "empty");
-    padDesignOpConditionsService.validate(designOpConditionsEntityFormBuilder.createValidForm(), bindingResult, ValidationType.FULL, pwaApplicationDetail);
+    padDesignOpConditionsService.validate(PadDesignOpConditionsTestUtil.createValidForm(), bindingResult, ValidationType.FULL, pwaApplicationDetail);
     assertFalse(bindingResult.hasErrors());
   }
 
   @Test
   public void validate_invalid() {
-    var form = designOpConditionsEntityFormBuilder.createBlankForm();
+    var form = PadDesignOpConditionsTestUtil.createBlankForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     padDesignOpConditionsService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     Assertions.assertTrue(bindingResult.hasErrors());

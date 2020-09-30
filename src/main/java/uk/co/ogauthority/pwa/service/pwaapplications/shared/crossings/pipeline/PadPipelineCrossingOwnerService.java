@@ -7,6 +7,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
@@ -84,6 +85,10 @@ public class PadPipelineCrossingOwnerService {
   public void removeAllForCrossing(PadPipelineCrossing padPipelineCrossing) {
     var existingOwners = padPipelineCrossingOwnerRepository.findAllByPadPipelineCrossing(padPipelineCrossing);
     padPipelineCrossingOwnerRepository.deleteAll(existingOwners);
+  }
+
+  public List<PadPipelineCrossingOwner> getAllPipelineCrossingOwners(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineCrossingOwnerRepository.findAllByPadPipelineCrossing_PwaApplicationDetail(pwaApplicationDetail);
   }
 
 }

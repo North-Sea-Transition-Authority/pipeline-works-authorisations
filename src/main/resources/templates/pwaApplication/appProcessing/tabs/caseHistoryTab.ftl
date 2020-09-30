@@ -4,7 +4,7 @@
 
 <#macro tab caseHistoryItems>
 
-  <@fdsTimeline.timeline>
+  <@fdsTimeline.timeline timelineClass="fds-timeline--left-padding">
 
       <@fdsTimeline.timelineSection sectionHeading="">
 

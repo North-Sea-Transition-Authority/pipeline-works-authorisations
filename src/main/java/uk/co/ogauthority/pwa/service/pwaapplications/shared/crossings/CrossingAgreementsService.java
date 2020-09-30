@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +113,18 @@ public class CrossingAgreementsService implements ApplicationFormSectionService 
     throw new AssertionError("validate doesnt make sense.");
   }
 
+  @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    LOGGER.warn("TODO PWA-816: " + this.getClass().getName());
+    blockCrossingService.copySectionInformation(fromDetail, toDetail);
+    if (BooleanUtils.isTrue(fromDetail.getCablesCrossed())) {
+      padCableCrossingService.copySectionInformation(fromDetail, toDetail);
+    }
+    if (BooleanUtils.isTrue(fromDetail.getPipelinesCrossed())) {
+      padPipelineCrossingService.copySectionInformation(fromDetail, toDetail);
+    }
+    if (BooleanUtils.isTrue(fromDetail.getMedianLineCrossed())) {
+      padMedianLineAgreementService.copySectionInformation(fromDetail, toDetail);
+    }
   }
 }
