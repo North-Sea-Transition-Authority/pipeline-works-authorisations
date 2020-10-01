@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +16,11 @@ import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
+import uk.co.ogauthority.pwa.model.view.StringWithTag;
+import uk.co.ogauthority.pwa.model.view.Tag;
+import uk.co.ogauthority.pwa.model.view.fieldinformation.PwaFieldLinksView;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
+import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -63,7 +67,7 @@ public class PadFieldService implements ApplicationFormSectionService {
    * Add fields to an application detail.
    *
    * @param pwaApplicationDetail The current application detail.
-   * @param fields A list of DevukFields to link to.
+   * @param fields               A list of DevukFields to link to.
    */
   private void addFields(PwaApplicationDetail pwaApplicationDetail, List<DevukField> fields) {
 
@@ -84,7 +88,7 @@ public class PadFieldService implements ApplicationFormSectionService {
    * Add manually entered field names to an application detail.
    *
    * @param pwaApplicationDetail The current application detail.
-   * @param fieldNames A list of field names to save as PadFields.
+   * @param fieldNames           A list of field names to save as PadFields.
    */
   private void addManuallyEnteredFields(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames) {
 
@@ -207,6 +211,23 @@ public class PadFieldService implements ApplicationFormSectionService {
         toDetail,
         PadField.class
     );
+  }
+
+  public PwaFieldLinksView getApplicationFieldLinksView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var linkedFieldNames = padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
+        .stream()
+        .map(pf -> pf.getDevukField() != null
+            ? new StringWithTag(pf.getDevukField().getFieldName())
+            : new StringWithTag(pf.getFieldName(), Tag.NOT_FROM_PORTAL))
+        .collect(Collectors.toList());
+
+    return new PwaFieldLinksView(
+        pwaApplicationDetail.getLinkedToField(),
+        pwaApplicationDetail.getNotLinkedDescription(),
+        linkedFieldNames
+    );
+
   }
 
 }

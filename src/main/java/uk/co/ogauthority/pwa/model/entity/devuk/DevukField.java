@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import org.hibernate.annotations.Immutable;
+import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
 
 @Entity(name = "devuk_fields")
 @Immutable
@@ -25,6 +26,9 @@ public class DevukField {
     this.status = status;
   }
 
+  public DevukFieldId getDevukFieldId() {
+    return new DevukFieldId(this.fieldId);
+  }
 
   public Integer getFieldId() {
     return fieldId;

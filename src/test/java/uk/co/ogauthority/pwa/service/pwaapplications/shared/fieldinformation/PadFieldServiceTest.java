@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +27,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.search.SearchSelectable;
 import uk.co.ogauthority.pwa.model.search.SearchSelectionView;
+import uk.co.ogauthority.pwa.model.view.StringWithTag;
+import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
+import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.repository.devuk.PadFieldRepository;
+import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -37,6 +41,8 @@ import uk.co.ogauthority.pwa.validators.PwaFieldFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadFieldServiceTest {
+  private final int DEVUK_FIELD_ID = 1;
+  private final String DEVUK_FIELD_NAME = "FIELD_NAME";
 
   @Mock
   private PadFieldRepository padFieldRepository;
@@ -66,7 +72,6 @@ public class PadFieldServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
   private PadField existingField;
-  private final int DEVUK_FIELD_ID = 1;
   private DevukField devukField;
   private String manuallyEnteredFieldName = "my entered field";
 
@@ -75,8 +80,7 @@ public class PadFieldServiceTest {
 
     pwaApplicationDetail = new PwaApplicationDetail();
 
-    devukField = new DevukField();
-    devukField.setFieldId(DEVUK_FIELD_ID);
+    devukField = new DevukField(DEVUK_FIELD_ID, DEVUK_FIELD_NAME, 100);
 
     existingField = new PadField();
     existingField.setPwaApplicationDetail(pwaApplicationDetail);
@@ -292,6 +296,7 @@ public class PadFieldServiceTest {
     verify(pwaFieldFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL) );
 
   }
+
   @Test
   public void isComplete_serviceInteraction_whenValidateAddsNoErrors() {
 
@@ -300,5 +305,53 @@ public class PadFieldServiceTest {
     verify(pwaFieldFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL) );
 
   }
+
+  @Test
+  public void getApplicationFieldLinksView_whenNoLinkData() {
+    pwaApplicationDetail.setLinkedToField(null);
+    pwaApplicationDetail.setNotLinkedDescription(null);
+    var fieldLinkView = padFieldService.getApplicationFieldLinksView(pwaApplicationDetail);
+
+    assertThat(fieldLinkView.getLinkedToFields()).isNull();
+    assertThat(fieldLinkView.getPwaLinkedToDescription()).isNull();
+    assertThat(fieldLinkView.getLinkedFieldNames()).isEmpty();
+
+  }
+
+  @Test
+  public void getApplicationFieldLinksView_whenIsNotLinkedToField() {
+    pwaApplicationDetail.setLinkedToField(false);
+    pwaApplicationDetail.setNotLinkedDescription("NOT_LINKED");
+    var fieldLinkView = padFieldService.getApplicationFieldLinksView(pwaApplicationDetail);
+
+    assertThat(fieldLinkView.getLinkedToFields()).isFalse();
+    assertThat(fieldLinkView.getPwaLinkedToDescription()).isEqualTo(pwaApplicationDetail.getNotLinkedDescription());
+    assertThat(fieldLinkView.getLinkedFieldNames()).isEmpty();
+
+  }
+
+  @Test
+  public void getApplicationFieldLinksView_whenIsLinkedToField() {
+    var padManualFieldLink = new PadField();
+    padManualFieldLink.setFieldName("FIELD_NAME");
+
+    when(padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(List.of(padManualFieldLink, existingField));
+
+    pwaApplicationDetail.setLinkedToField(true);
+
+    var fieldLinkView = padFieldService.getApplicationFieldLinksView(pwaApplicationDetail);
+
+    assertThat(fieldLinkView.getLinkedToFields()).isTrue();
+    assertThat(fieldLinkView.getPwaLinkedToDescription()).isNull();
+    assertThat(fieldLinkView.getLinkedFieldNames()).containsExactly(
+        new StringWithTagItem(new StringWithTag(padManualFieldLink.getFieldName(), Tag.NOT_FROM_PORTAL)),
+        new StringWithTagItem(new StringWithTag(devukField.getFieldName()))
+    );
+
+  }
+
+
+
 
 }
