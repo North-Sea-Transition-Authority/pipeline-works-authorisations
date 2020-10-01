@@ -343,7 +343,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     Set<PipelineIdentifier> pickedPipelines = Set.of(pipeline1.getPipelineId(), pipeline2.getPipelineId());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
     when(pickableHuooPipelineService.getPickedPipelinesFromStrings(any(), any(), any())).thenReturn(pickedPipelines);
-    when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
+    when(padPipelinesHuooService.getAssignablePadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
 
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
@@ -385,7 +385,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     Set<PipelineIdentifier> pickedPipelines = Set.of(pipeline1.getPipelineId(), pipeline2.getPipelineId());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
     when(pickableHuooPipelineService.getPickedPipelinesFromStrings(any(), any(), any())).thenReturn(pickedPipelines);
-    when(padPipelinesHuooService.getPadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
+    when(padPipelinesHuooService.getAssignablePadOrganisationRolesFrom(any(), any(), any(), any())).thenReturn(foundPadOrgRoles);
 
     // Step 1: Mock loading and selecting of Pipelines
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
