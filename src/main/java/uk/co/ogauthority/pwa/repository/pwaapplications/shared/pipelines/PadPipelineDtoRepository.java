@@ -24,6 +24,8 @@ public interface PadPipelineDtoRepository {
 
   Set<PipelineId> getMasterPipelineIdsOnApplication(PwaApplicationDetail pwaApplicationDetail);
 
+  Long countMasterPipelinesOnApplication(PwaApplicationDetail pwaApplicationDetail);
+
   Integer getMaxTemporaryNumberByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
 }

@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -33,7 +33,7 @@ public class HuooSummaryServiceTest {
   @Mock
   private PadPipelineService padPipelineService;
   @Mock
-  private PickableHuooPipelineService pickableHuooPipelineService;
+  private PadOrganisationRoleService padOrganisationRoleService;
 
   private HuooSummaryService huooSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -41,7 +41,7 @@ public class HuooSummaryServiceTest {
   @Before
   public void setUp() {
 
-    huooSummaryService = new HuooSummaryService(taskListService, padPipelineService, pickableHuooPipelineService);
+    huooSummaryService = new HuooSummaryService(taskListService, padPipelineService, padOrganisationRoleService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -68,9 +68,9 @@ public class HuooSummaryServiceTest {
   @Test
   public void summariseSection_verifyServiceInteractions() {
 
-    when(padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail)).thenReturn(1L);
+    when(padPipelineService.getTotalMasterPipelinesOnApplication(pwaApplicationDetail)).thenReturn(1L);
     var view = new AllOrgRolePipelineGroupsView(null, null, null, null);
-    when(pickableHuooPipelineService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail)).thenReturn(view);
+    when(padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail)).thenReturn(view);
 
     var appSummary = huooSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);

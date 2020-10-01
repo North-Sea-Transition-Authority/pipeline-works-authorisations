@@ -9,7 +9,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,9 +33,12 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
@@ -48,7 +53,10 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
+import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -63,6 +71,9 @@ public class PadOrganisationRoleServiceTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
+
+  @Mock
+  private PadPipelineService padPipelineService;
 
   @Mock
   private EntityManager entityManager;
@@ -106,7 +117,7 @@ public class PadOrganisationRoleServiceTest {
         padOrganisationRolesRepository,
         padPipelineOrganisationRoleLinkRepository,
         portalOrganisationsAccessor,
-        entityManager,
+        padPipelineService, entityManager,
         entityCopyingService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -857,6 +868,217 @@ public class PadOrganisationRoleServiceTest {
     detail.setPwaApplication(app);
 
     assertThat(padOrganisationRoleService.canShowInTaskList(detail)).isFalse();
+
+  }
+
+
+
+
+  @Test
+  public void getAllPipelineNumbersAndSplitsForApplicationDetailAndRole_withSplits() {
+
+    Set<PipelineIdentifier> pipelineIdentifiers = Set.of(new PipelineId(1));
+    Map<PipelineIdentifier, PadPipelineSummaryDto> pipelineIdAndSummaryMap = new HashMap<>();
+    var padPipeline = new PadPipeline();
+    padPipeline.setId(1);
+    Pipeline pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    pipelineIdAndSummaryMap.put(new PipelineId(1), generateFrom(padPipeline));
+    when(padPipelineService.getWholePadPipelineSummaryDtoForApp(detail)).thenReturn(pipelineIdAndSummaryMap);
+
+
+    var padPipelineOrganisationRoleLink = new PadPipelineOrganisationRoleLink();
+    padPipelineOrganisationRoleLink.setPipeline(pipeline);
+    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
+        detail, HuooRole.HOLDER)).thenReturn(List.of(padPipelineOrganisationRoleLink));
+
+    var pipelineNumbersAndSplits = padOrganisationRoleService.getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
+        detail, HuooRole.HOLDER, pipelineIdentifiers);
+
+    assertThat(pipelineNumbersAndSplits).hasSize(1);
+    assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
+        .isEqualTo(1);
+  }
+
+  @Test
+  public void getAllPipelineNumbersAndSplitsForApplicationDetailAndRole_noSplits() {
+
+    Set<PipelineIdentifier> pipelineIdentifiers = Set.of(new PipelineId(1));
+    Map<PipelineIdentifier, PadPipelineSummaryDto> pipelineIdAndSummaryMap = new HashMap<>();
+    var padPipeline = new PadPipeline();
+    padPipeline.setId(1);
+    Pipeline pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    pipelineIdAndSummaryMap.put(new PipelineId(1), generateFrom(padPipeline));
+    when(padPipelineService.getWholePadPipelineSummaryDtoForApp(detail)).thenReturn(pipelineIdAndSummaryMap);
+
+    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
+        detail, HuooRole.HOLDER)).thenReturn(List.of());
+
+    var pipelineNumbersAndSplits = padOrganisationRoleService.getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
+        detail, HuooRole.HOLDER, pipelineIdentifiers);
+
+    assertThat(pipelineNumbersAndSplits).hasSize(1);
+    assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
+        .isEqualTo(1);
+  }
+
+
+  @Test
+  public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
+
+    //Organisation Roles Summary DTO
+    var orgPipelineRoleInstanceDto1 = new OrganisationPipelineRoleInstanceDto(
+        1,
+        null,
+        HuooRole.HOLDER,
+        HuooType.PORTAL_ORG,
+        1,
+        null, null, null, null);
+
+    var orgPipelineRoleInstanceDto2 = new OrganisationPipelineRoleInstanceDto(
+        null,
+        TreatyAgreement.BELGIUM,
+        HuooRole.USER,
+        HuooType.TREATY_AGREEMENT,
+        1,
+        null, null, null, null);
+
+    var orgPipelineRoleInstanceDto3 = new OrganisationPipelineRoleInstanceDto(
+        3,
+        null,
+        HuooRole.OPERATOR,
+        HuooType.PORTAL_ORG,
+        1,
+        null, null, null, null);
+
+    var orgPipelineRoleInstanceDto4 = new OrganisationPipelineRoleInstanceDto(
+        4,
+        null,
+        HuooRole.OWNER,
+        HuooType.PORTAL_ORG,
+        1,
+        null, null, null, null);
+
+    when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
+        .thenReturn(List.of(orgPipelineRoleInstanceDto1, orgPipelineRoleInstanceDto2, orgPipelineRoleInstanceDto3, orgPipelineRoleInstanceDto4));
+
+    //Portal org units
+    var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
+        new PortalOrganisationUnit(1, "company"), "address", "123");
+    var organisationUnitDetailDto1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
+
+    var portalOrgUnitDetail3 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
+        new PortalOrganisationUnit(3, "company3"), "address3", "1234");
+    var organisationUnitDetailDto3 = OrganisationUnitDetailDto.from(portalOrgUnitDetail3);
+
+    var portalOrgUnitDetail4 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
+        new PortalOrganisationUnit(4, "company4"), "address4", "12345");
+    var organisationUnitDetailDto4 = OrganisationUnitDetailDto.from(portalOrgUnitDetail4);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(
+        Set.of(new OrganisationUnitId(1), new OrganisationUnitId(3), new OrganisationUnitId(4))))
+        .thenReturn(List.of(organisationUnitDetailDto1, organisationUnitDetailDto3, organisationUnitDetailDto4));
+
+    //Pipeline numbers and splits
+    Map<PipelineIdentifier, PadPipelineSummaryDto> pipelineIdAndSummaryMap = new HashMap<>();
+    var padPipeline = new PadPipeline();
+    padPipeline.setId(1);
+    Pipeline pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    pipelineIdAndSummaryMap.put(new PipelineId(1), generateFrom(padPipeline));
+    when(padPipelineService.getWholePadPipelineSummaryDtoForApp(detail)).thenReturn(pipelineIdAndSummaryMap);
+
+
+    //asserts
+    var actualView = padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(detail);
+
+    var holderPortalOrgRolePipelineGroup = actualView.getHolderOrgRolePipelineGroups().get(0);
+    assertThat(holderPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(holderPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company");
+    assertThat(holderPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
+    assertThat(holderPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("123");
+    assertThat(holderPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address");
+    assertThat(holderPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(holderPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+    var userTreatyOrgRolePipelineGroup = actualView.getUserOrgRolePipelineGroups().get(0);
+    assertThat(userTreatyOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.TREATY_AGREEMENT);
+    assertThat(userTreatyOrgRolePipelineGroup.getCompanyName()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getTreatyAgreement()).isEqualTo(TreatyAgreement.BELGIUM);
+    assertThat(userTreatyOrgRolePipelineGroup.getRegisteredNumber()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getCompanyAddress()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+    var operatorPortalOrgRolePipelineGroup = actualView.getOperatorOrgRolePipelineGroups().get(0);
+    assertThat(operatorPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(operatorPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company3");
+    assertThat(operatorPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
+    assertThat(operatorPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("1234");
+    assertThat(operatorPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address3");
+    assertThat(operatorPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(operatorPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+    var ownerPortalOrgRolePipelineGroup = actualView.getOwnerOrgRolePipelineGroups().get(0);
+    assertThat(ownerPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(ownerPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company4");
+    assertThat(ownerPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
+    assertThat(ownerPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("12345");
+    assertThat(ownerPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address4");
+    assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+  }
+
+
+
+
+
+  private PadPipelineSummaryDto generateFrom(PadPipeline padPipeline) {
+
+    return new PadPipelineSummaryDto(
+        padPipeline.getId(),
+        padPipeline.getPipeline().getId(),
+        padPipeline.getPipelineType(),
+        padPipeline.toString(),
+        BigDecimal.TEN,
+        "OIL",
+        "PRODUCTS",
+        1L,
+        "STRUCT_A",
+        45,
+        45,
+        BigDecimal.valueOf(45),
+        LatitudeDirection.NORTH,
+        1,
+        1,
+        BigDecimal.ONE,
+        LongitudeDirection.EAST,
+        "STRUCT_B",
+        46,
+        46,
+        BigDecimal.valueOf(46),
+        LatitudeDirection.NORTH,
+        2,
+        2,
+        BigDecimal.valueOf(2),
+        LongitudeDirection.EAST,
+        padPipeline.getMaxExternalDiameter(),
+        padPipeline.getPipelineInBundle(),
+        padPipeline.getBundleName(),
+        padPipeline.getPipelineFlexibility(),
+        padPipeline.getPipelineMaterial(),
+        padPipeline.getOtherPipelineMaterialUsed(),
+        padPipeline.getTrenchedBuriedBackfilled(),
+        padPipeline.getTrenchingMethodsDescription(),
+        padPipeline.getPipelineStatus(),
+        padPipeline.getPipelineStatusReason());
+
 
   }
 

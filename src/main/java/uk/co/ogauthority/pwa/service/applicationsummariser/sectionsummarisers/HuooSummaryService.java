@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 /**
@@ -23,16 +23,16 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
 
   private final TaskListService taskListService;
   private final PadPipelineService padPipelineService;
-  private final PickableHuooPipelineService pickableHuooPipelineService;
+  private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
   public HuooSummaryService(
       TaskListService taskListService,
       PadPipelineService padPipelineService,
-      PickableHuooPipelineService pickableHuooPipelineService) {
+      PadOrganisationRoleService padOrganisationRoleService) {
     this.taskListService = taskListService;
     this.padPipelineService = padPipelineService;
-    this.pickableHuooPipelineService = pickableHuooPipelineService;
+    this.padOrganisationRoleService = padOrganisationRoleService;
   }
 
   @Override
@@ -53,9 +53,9 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
     var sectionDisplayText = ApplicationTask.HUOO.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("totalPipelinesOnApp", padPipelineService.getTotalPipelinesContainedInApplication(pwaApplicationDetail));
+    summaryModel.put("totalPipelinesOnApp", padPipelineService.getTotalMasterPipelinesOnApplication(pwaApplicationDetail));
     summaryModel.put("huooRolePipelineGroupsView",
-        pickableHuooPipelineService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
+        padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
 
     return new ApplicationSectionSummary(
         templateName,

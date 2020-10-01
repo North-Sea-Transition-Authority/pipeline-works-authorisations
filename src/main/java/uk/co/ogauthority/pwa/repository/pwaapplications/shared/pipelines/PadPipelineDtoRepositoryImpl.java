@@ -171,6 +171,17 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   }
 
   @Override
+  public Long countMasterPipelinesOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+    return entityManager.createQuery("" +
+        "SELECT count(*) " +
+        "FROM PadPipeline pp " +
+        "JOIN Pipeline p ON pp.pipeline.id = p.id " +
+        "WHERE pp.pwaApplicationDetail = :detail", Long.class)
+        .setParameter("detail", pwaApplicationDetail)
+        .getSingleResult();
+  }
+
+  @Override
   public Integer getMaxTemporaryNumberByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
     return entityManager.createQuery("" +
         "SELECT NVL(MAX(pp.temporaryNumber), 0) " +

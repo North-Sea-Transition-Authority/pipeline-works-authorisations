@@ -194,20 +194,6 @@ public class PickableHuooPipelineServiceTest {
     });
   }
 
-
-  @Test
-  public void getAllPipelineNumbersAndSplitsForApplicationDetailAndRole() {
-
-    Set<PipelineIdentifier> pipelineIdentifiers = Set.of(applicationNewPipeline.getPipelineId());
-    var pipelineNumbersAndSplits = pickableHuooPipelineService.getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
-        pwaApplicationDetail, HuooRole.HOLDER, pipelineIdentifiers);
-
-    assertThat(pipelineNumbersAndSplits).hasSize(1);
-
-    assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
-        .isEqualTo(applicationNewPipeline.getPipelineId().asInt());
-  }
-
   @Test
   public void getPickedPipelinesFromStrings_allStringIdsReconciled_whenNoPipelinesSplit() {
     var pipelines = pickableHuooPipelineService.getPickedPipelinesFromStrings(
@@ -311,111 +297,6 @@ public class PickableHuooPipelineServiceTest {
 
   }
 
-  @Test
-  public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
 
-    //Organisation Roles Summary DTO
-    var orgPipelineRoleInstanceDto1 = new OrganisationPipelineRoleInstanceDto(
-        1,
-        null,
-        HuooRole.HOLDER,
-        HuooType.PORTAL_ORG,
-        1,
-        null, null, null, null);
-
-    var orgPipelineRoleInstanceDto2 = new OrganisationPipelineRoleInstanceDto(
-        2,
-        TreatyAgreement.BELGIUM,
-        HuooRole.USER,
-        HuooType.TREATY_AGREEMENT,
-        1,
-        null, null, null, null);
-
-    var orgPipelineRoleInstanceDto3 = new OrganisationPipelineRoleInstanceDto(
-        3,
-        null,
-        HuooRole.OPERATOR,
-        HuooType.PORTAL_ORG,
-        1,
-        null, null, null, null);
-
-    var orgPipelineRoleInstanceDto4 = new OrganisationPipelineRoleInstanceDto(
-        4,
-        null,
-        HuooRole.OWNER,
-        HuooType.PORTAL_ORG,
-        1,
-        null, null, null, null);
-
-    var orgRolesSummaryDto = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        List.of(orgPipelineRoleInstanceDto1, orgPipelineRoleInstanceDto2, orgPipelineRoleInstanceDto3, orgPipelineRoleInstanceDto4));
-    when(padOrganisationRoleService.getOrganisationRoleSummary(pwaApplicationDetail)).thenReturn(orgRolesSummaryDto);
-
-    //Portal org units
-    var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(1, "company"), "address", "123");
-    var organisationUnitDetailDto1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
-
-    var portalOrgUnitDetail3 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(3, "company3"), "address3", "1234");
-    var organisationUnitDetailDto3 = OrganisationUnitDetailDto.from(portalOrgUnitDetail3);
-
-    var portalOrgUnitDetail4 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
-        new PortalOrganisationUnit(4, "company4"), "address4", "12345");
-    var organisationUnitDetailDto4 = OrganisationUnitDetailDto.from(portalOrgUnitDetail4);
-
-    when(padOrganisationRoleService.getOrganisationUnitDetailDtosByOrganisationUnitId(
-        List.of(new OrganisationUnitId(1))))
-        .thenReturn(List.of(organisationUnitDetailDto1));
-
-    when(padOrganisationRoleService.getOrganisationUnitDetailDtosByOrganisationUnitId(
-        List.of(new OrganisationUnitId(3))))
-        .thenReturn(List.of(organisationUnitDetailDto3));
-
-    when(padOrganisationRoleService.getOrganisationUnitDetailDtosByOrganisationUnitId(
-        List.of(new OrganisationUnitId(4))))
-        .thenReturn(List.of(organisationUnitDetailDto4));
-
-    //asserts
-    var actualView = pickableHuooPipelineService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail);
-
-    var holderPortalOrgRolePipelineGroup = actualView.getHolderOrgRolePipelineGroups().get(0);
-    assertThat(holderPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
-    assertThat(holderPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company");
-    assertThat(holderPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
-    assertThat(holderPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("123");
-    assertThat(holderPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address");
-    assertThat(holderPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
-    assertThat(holderPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
-
-    var userTreatyOrgRolePipelineGroup = actualView.getUserOrgRolePipelineGroups().get(0);
-    assertThat(userTreatyOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.TREATY_AGREEMENT);
-    assertThat(userTreatyOrgRolePipelineGroup.getCompanyName()).isNull();
-    assertThat(userTreatyOrgRolePipelineGroup.getTreatyAgreement()).isEqualTo(TreatyAgreement.BELGIUM);
-    assertThat(userTreatyOrgRolePipelineGroup.getRegisteredNumber()).isNull();
-    assertThat(userTreatyOrgRolePipelineGroup.getCompanyAddress()).isNull();
-    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
-    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
-
-    var operatorPortalOrgRolePipelineGroup = actualView.getOperatorOrgRolePipelineGroups().get(0);
-    assertThat(operatorPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
-    assertThat(operatorPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company3");
-    assertThat(operatorPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
-    assertThat(operatorPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("1234");
-    assertThat(operatorPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address3");
-    assertThat(operatorPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
-    assertThat(operatorPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
-    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
-
-    var ownerPortalOrgRolePipelineGroup = actualView.getOwnerOrgRolePipelineGroups().get(0);
-    assertThat(ownerPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
-    assertThat(ownerPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company4");
-    assertThat(ownerPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
-    assertThat(ownerPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("12345");
-    assertThat(ownerPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address4");
-    assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
-    assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
-
-  }
 
 }

@@ -21,7 +21,11 @@
     <#list orgRolePipelineGroups as orgRolePipelineGroup>
         
         <#if orgRolePipelineGroup.huooType == "PORTAL_ORG">
-            <h4 class="govuk-heading-s">  ${orgRolePipelineGroup.companyName!}  </h4>
+            <#if orgRolePipelineGroup.isManuallyEnteredName>
+                <h4 class="govuk-heading-s">  ${orgRolePipelineGroup.manuallyEnteredName!}  </h4>
+            <#else>
+                <h4 class="govuk-heading-s">  ${orgRolePipelineGroup.getCompanyName()!}  </h4>
+            </#if>
         <#else>
             <h4 class="govuk-heading-s">  ${orgRolePipelineGroup.treatyAgreement.getCountry()} </h4>
         </#if>
@@ -30,11 +34,11 @@
 
             <#if orgRolePipelineGroup.huooType == "PORTAL_ORG">
                 <@fdsCheckAnswers.checkAnswersRow keyText="Company number" actionUrl="" screenReaderActionText="" actionText="">
-                    ${orgRolePipelineGroup.registeredNumber!}
+                    ${orgRolePipelineGroup.getRegisteredNumber()!}
                 </@fdsCheckAnswers.checkAnswersRow>
 
                 <@fdsCheckAnswers.checkAnswersRow keyText="Legal entity address" actionUrl="" screenReaderActionText="" actionText="">
-                    ${orgRolePipelineGroup.companyAddress!}
+                    ${orgRolePipelineGroup.getCompanyAddress()!}
                 </@fdsCheckAnswers.checkAnswersRow>
             <#else>
                 <@fdsCheckAnswers.checkAnswersRow keyText="Treaty agreement text" actionUrl="" screenReaderActionText="" actionText="">

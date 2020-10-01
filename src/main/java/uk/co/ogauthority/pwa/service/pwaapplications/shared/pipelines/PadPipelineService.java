@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
+import static java.util.stream.Collectors.toMap;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -8,11 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.collections4.IterableUtils;
@@ -34,6 +37,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
@@ -55,6 +59,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -361,6 +366,32 @@ public class PadPipelineService implements ApplicationFormSectionService {
     throw new AssertionError("Doesn't make sense to implement this.");
   }
 
+  public Map<PipelineIdentifier, PadPipelineSummaryDto> getWholePadPipelineSummaryDtoForApp(
+      PwaApplicationDetail pwaApplicationDetail) {
+
+    Map<PipelineIdentifier, PadPipelineSummaryDto> applicationPipelineIdentifiers =
+        getAllPadPipelineSummaryDtosForApplicationDetail(pwaApplicationDetail)
+        .stream()
+        .collect(toMap(PadPipelineSummaryDto::getPipelineId, Function.identity()));
+
+    Map<PipelineIdentifier, PadPipelineSummaryDto> consentedPipelineIdentifiers = pipelineDetailService
+        .getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication())
+        .stream()
+        .collect(toMap(PipelineDetail::getPipelineId, PadPipelineSummaryDto::from));
+
+    Map<PipelineIdentifier, PadPipelineSummaryDto> pickablePipelinesLookup = new HashMap<>();
+
+    consentedPipelineIdentifiers.forEach((key, value) -> {
+      if (!applicationPipelineIdentifiers.containsKey(key)) {
+        pickablePipelinesLookup.put(key, value);
+      }
+    });
+
+    pickablePipelinesLookup.putAll(applicationPipelineIdentifiers);
+
+    return pickablePipelinesLookup;
+  }
+
   public Map<String, String> getPipelineReferenceMap(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
@@ -372,6 +403,10 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
   public long getTotalPipelinesContainedInApplication(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
+  }
+
+  public Long getTotalMasterPipelinesOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineRepository.countMasterPipelinesOnApplication(pwaApplicationDetail);
   }
 
   public List<PadPipelineSummaryDto> getAllPadPipelineSummaryDtosForApplicationDetail(
