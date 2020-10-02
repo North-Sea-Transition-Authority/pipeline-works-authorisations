@@ -1,21 +1,20 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="totalPipelinesOnApp" type="java.lang.Long" -->
 <#-- @ftlvariable name="huooRolePipelineGroupsView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView>" -->
 
 
 <div class="pwa-application-summary-section">
     <h2 class="govuk-heading-l" id="huooDetails">${sectionDisplayText}</h2>
 
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.holderOrgRolePipelineGroups  role="Holders"  totalPipelinesOnApp=totalPipelinesOnApp/>
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.userOrgRolePipelineGroups  role="Users"  totalPipelinesOnApp=totalPipelinesOnApp/>
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.operatorOrgRolePipelineGroups  role="Operators"  totalPipelinesOnApp=totalPipelinesOnApp/>
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.ownerOrgRolePipelineGroups  role="Owners"  totalPipelinesOnApp=totalPipelinesOnApp/>
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.holderOrgRolePipelineGroups  role="Holders" />
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.userOrgRolePipelineGroups  role="Users" />
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.operatorOrgRolePipelineGroups  role="Operators" />
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.ownerOrgRolePipelineGroups  role="Owners" />
 </div>
 
 
-<#macro huooDetails orgRolePipelineGroups role totalPipelinesOnApp>
+<#macro huooDetails orgRolePipelineGroups role>
 
     <h3 class="govuk-heading-m"> ${role} </h3>
     <#list orgRolePipelineGroups as orgRolePipelineGroup>
@@ -47,19 +46,15 @@
             </#if>
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Pipelines" actionUrl="" screenReaderActionText="" actionText="">
-                <#if orgRolePipelineGroup.pipelineNumbersAndSplits?size == totalPipelinesOnApp>
-                    All pipelines
-                <#else>
-                    <#list orgRolePipelineGroup.pipelineNumbersAndSplits as pipeline>
-                        <#assign splitInfo = "" />
-                        <#if pipeline.splitInfo?has_content> 
-                            <#assign splitInfo = '[' + pipeline.splitInfo + ']' />
-                        </#if>
-                        <ul class="govuk-list">
-                            <li> ${pipeline.pipelineNumber!} ${splitInfo} </li>
-                        </ul>
-                    </#list>
-                </#if>
+                <#list orgRolePipelineGroup.pipelineNumbersAndSplits as pipeline>
+                    <#assign splitInfo = "" />
+                    <#if pipeline.splitInfo?has_content> 
+                        <#assign splitInfo = '[' + pipeline.splitInfo + ']' />
+                    </#if>
+                    <ul class="govuk-list">
+                        <li> ${pipeline.pipelineNumber!} ${splitInfo} </li>
+                    </ul>
+                </#list>
             </@fdsCheckAnswers.checkAnswersRow>
 
             

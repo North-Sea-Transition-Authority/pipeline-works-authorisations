@@ -405,9 +405,7 @@ public class PadPipelineService implements ApplicationFormSectionService {
     return padPipelineRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
-  public Long getTotalMasterPipelinesOnApplication(PwaApplicationDetail pwaApplicationDetail) {
-    return padPipelineRepository.countMasterPipelinesOnApplication(pwaApplicationDetail);
-  }
+  //TODO: PWA-889 - Add functionality to show All Pipelines on HUOO summary where appropriate
 
   public List<PadPipelineSummaryDto> getAllPadPipelineSummaryDtosForApplicationDetail(
       PwaApplicationDetail pwaApplicationDetail) {

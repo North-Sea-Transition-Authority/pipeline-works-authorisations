@@ -697,8 +697,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     var orgRolesSummaryDto = getOrganisationRoleSummary(pwaApplicationDetail);
 
     Comparator<OrganisationRolePipelineGroupView> viewComparator =
-        Comparator.comparing(OrganisationRolePipelineGroupView::getCompanyName,  Comparator.nullsLast(Comparator.naturalOrder()))
-            .thenComparing(OrganisationRolePipelineGroupView::getCompanyName);
+        Comparator.comparing(OrganisationRolePipelineGroupView::getCompanyName,  Comparator.nullsLast(Comparator.naturalOrder()));
 
     Map<OrganisationUnitId, OrganisationUnitDetailDto> orgUnitDetailsAndIdsMap = getOrgUnitDetailsAndIdsMap(orgRolesSummaryDto);
 

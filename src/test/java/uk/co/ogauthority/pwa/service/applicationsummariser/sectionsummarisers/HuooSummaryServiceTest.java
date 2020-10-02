@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTa
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,8 +30,6 @@ public class HuooSummaryServiceTest {
   private TaskListService taskListService;
 
   @Mock
-  private PadPipelineService padPipelineService;
-  @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
 
   private HuooSummaryService huooSummaryService;
@@ -41,7 +38,7 @@ public class HuooSummaryServiceTest {
   @Before
   public void setUp() {
 
-    huooSummaryService = new HuooSummaryService(taskListService, padPipelineService, padOrganisationRoleService);
+    huooSummaryService = new HuooSummaryService(taskListService, padOrganisationRoleService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -68,14 +65,12 @@ public class HuooSummaryServiceTest {
   @Test
   public void summariseSection_verifyServiceInteractions() {
 
-    when(padPipelineService.getTotalMasterPipelinesOnApplication(pwaApplicationDetail)).thenReturn(1L);
     var view = new AllOrgRolePipelineGroupsView(null, null, null, null);
     when(padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail)).thenReturn(view);
 
     var appSummary = huooSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(3);
-    assertThat(appSummary.getTemplateModel()).contains(entry("totalPipelinesOnApp", 1L));
+    assertThat(appSummary.getTemplateModel()).hasSize(2);
     assertThat(appSummary.getTemplateModel()).contains(entry("huooRolePipelineGroupsView", view));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.HUOO.getDisplayName()));
 

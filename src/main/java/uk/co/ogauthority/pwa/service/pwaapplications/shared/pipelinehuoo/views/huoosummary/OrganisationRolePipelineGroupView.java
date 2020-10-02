@@ -10,7 +10,7 @@ public class OrganisationRolePipelineGroupView {
 
   private final HuooType huooType;
   private final OrganisationUnitDetailDto orgUnitDetailDto;
-  private final boolean isManuallyEnteredName;
+  private final Boolean isManuallyEnteredName;
   private final String manuallyEnteredName;
   private final TreatyAgreement treatyAgreement;
   private final OrganisationRoleOwnerDto organisationRoleOwner;
@@ -18,7 +18,7 @@ public class OrganisationRolePipelineGroupView {
 
 
   public OrganisationRolePipelineGroupView(HuooType huooType,
-                                           OrganisationUnitDetailDto orgUnitDetailDto, boolean isManuallyEnteredName,
+                                           OrganisationUnitDetailDto orgUnitDetailDto, Boolean isManuallyEnteredName,
                                            String manuallyEnteredName, TreatyAgreement treatyAgreement,
                                            OrganisationRoleOwnerDto organisationRoleOwner,
                                            List<PipelineNumbersAndSplits> pipelineNumbersAndSplits) {
@@ -39,7 +39,7 @@ public class OrganisationRolePipelineGroupView {
     return orgUnitDetailDto;
   }
 
-  public boolean isManuallyEnteredName() {
+  public Boolean getIsManuallyEnteredName() {
     return isManuallyEnteredName;
   }
 

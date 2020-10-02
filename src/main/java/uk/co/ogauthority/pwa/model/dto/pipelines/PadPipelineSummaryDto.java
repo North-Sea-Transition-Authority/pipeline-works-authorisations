@@ -155,6 +155,7 @@ public class PadPipelineSummaryDto {
         pipelineDetail.getToLongitudeMinutes(),
         pipelineDetail.getToLongitudeSeconds(),
         pipelineDetail.getToLongitudeDirection(),
+        //TODO PWA-838 - Add new application pipeline data capture to consented model
         null, null, null,null, null,
         null,null, null, null, null
     );
