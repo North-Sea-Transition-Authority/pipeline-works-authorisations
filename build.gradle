@@ -22,6 +22,12 @@ group = 'uk.co.fivium'
 version = System.getenv("DRONE_BRANCH") ? System.getenv("DRONE_BRANCH").replaceAll("[/\\-]", "_") : "LOCAL-SNAPSHOT"
 sourceCompatibility = '11'
 
+tasks {
+  bootJar {
+    archiveFileName.set("${rootProject.name}.jar")
+  }
+}
+
 sourceSets.main.java.srcDirs += "${buildDir}/generated"
 
 // annotation processor generated classes should be placed in /generated directory.
