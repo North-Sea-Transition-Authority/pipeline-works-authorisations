@@ -233,7 +233,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void getDocumentView() {
+  public void getDocumentView_multipleSections_withMaxNestingLevels() {
 
     var list = DocumentInstanceTestUtils.getInstanceSectionClauseVersionDtoList(1, clock, person, 2, 3, 3);
     when(documentInstanceSectionClauseVersionDtoRepository.findAllByDiId(any())).thenReturn(list);
