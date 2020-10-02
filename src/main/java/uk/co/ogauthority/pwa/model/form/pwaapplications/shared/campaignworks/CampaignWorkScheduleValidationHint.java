@@ -15,7 +15,7 @@ public final class CampaignWorkScheduleValidationHint {
   private static final long OPTIONS_VARIATION_MAX_MONTH = 6L;
   private static final long DEFAULT_MAX_MONTH = 12L;
   private static final String PROJECT_INFO_PROP_START_DATE_LABEL = ApplicationTask.PROJECT_INFORMATION.getDisplayName() +
-      " proposed start date";
+      " proposed start of works date";
 
   private final LocalDate earliestDate;
   private final OnOrAfterDateHint earliestWorkStartDateHint;

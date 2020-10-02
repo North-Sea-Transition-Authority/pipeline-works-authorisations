@@ -20,7 +20,7 @@
         ${projectInfoView.projectName!}
     </@fdsCheckAnswers.checkAnswersRow>
 
-    <@fdsCheckAnswers.checkAnswersRow keyText="Proposed start date" actionUrl="" screenReaderActionText="" actionText="">
+    <@fdsCheckAnswers.checkAnswersRow keyText="Proposed start of works date" actionUrl="" screenReaderActionText="" actionText="">
         ${projectInfoView.proposedStartDate!}
     </@fdsCheckAnswers.checkAnswersRow>
 

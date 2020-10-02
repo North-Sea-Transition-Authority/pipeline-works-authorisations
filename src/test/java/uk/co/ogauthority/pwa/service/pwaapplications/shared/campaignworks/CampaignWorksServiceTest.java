@@ -343,7 +343,7 @@ public class CampaignWorksServiceTest {
       assertThat(hint.getEarliestDate()).isEqualTo(LocalDate.now());
       // check embedded earliest date hint
       assertThat(hint.getEarliestWorkStartDateHint().getDateLabel()).contains(
-          "Project information proposed start date");
+          "Project information proposed start of works date");
       assertThat(hint.getEarliestWorkStartDateHint().getDate()).isEqualTo(
           LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()));
       // check embedded latest date hint
