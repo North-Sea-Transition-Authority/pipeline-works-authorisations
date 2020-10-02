@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.entity.documents.SectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
+import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 
 @Service
 public class SectionClauseCreator {
@@ -23,17 +25,32 @@ public class SectionClauseCreator {
 
     var newVersion = new DocumentInstanceSectionClauseVersion();
 
-    newVersion.setName(clauseVersion.getName());
-    newVersion.setText(clauseVersion.getText());
-    newVersion.setLevelOrder(clauseVersion.getLevelOrder());
-    newVersion.setStatus(clauseVersion.getStatus());
-    newVersion.setTipFlag(true);
-    newVersion.setVersionNo(1);
-
-    newVersion.setCreatedTimestamp(clock.instant());
-    newVersion.setCreatedByPersonId(creatingPerson.getId());
+    setCommonData(
+        newVersion,
+        clauseVersion.getName(),
+        clauseVersion.getText(),
+        clauseVersion.getLevelOrder(),
+        clauseVersion.getStatus(),
+        creatingPerson);
 
     return newVersion;
 
   }
+
+  public void setCommonData(SectionClauseVersion version,
+                            String name,
+                            String text,
+                            Integer levelOrder,
+                            SectionClauseVersionStatus status,
+                            Person creatingPerson) {
+    version.setName(name);
+    version.setText(text);
+    version.setLevelOrder(levelOrder);
+    version.setStatus(status);
+    version.setTipFlag(true);
+    version.setVersionNo(1);
+    version.setCreatedTimestamp(clock.instant());
+    version.setCreatedByPersonId(creatingPerson.getId());
+  }
+
 }

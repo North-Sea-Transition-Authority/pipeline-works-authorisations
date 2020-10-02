@@ -1,8 +1,13 @@
 .clause-list {
 
   &__action {
+
     font-weight: normal;
-    margin-left: govuk-spacing(2);
+
+    &--heading {
+      margin-left: govuk-spacing(2);
+    }
+
   }
 
   .govuk-list {

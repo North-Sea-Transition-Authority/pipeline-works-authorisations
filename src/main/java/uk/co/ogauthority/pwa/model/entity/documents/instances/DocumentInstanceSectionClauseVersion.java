@@ -64,6 +64,10 @@ public class DocumentInstanceSectionClauseVersion extends SectionClauseVersion {
     return documentInstanceSectionClause;
   }
 
+  public DocumentInstanceSectionClause getDocumentInstanceSectionClause() {
+    return documentInstanceSectionClause;
+  }
+
   public void setDocumentInstanceSectionClause(DocumentInstanceSectionClause documentInstanceSectionClause) {
     this.documentInstanceSectionClause = documentInstanceSectionClause;
   }
@@ -71,6 +75,10 @@ public class DocumentInstanceSectionClauseVersion extends SectionClauseVersion {
   @Override
   public Optional<SectionClause> getParentClause() {
     return Optional.ofNullable(parentDocumentInstanceSectionClause);
+  }
+
+  public DocumentInstanceSectionClause getParentDocumentInstanceSectionClause() {
+    return parentDocumentInstanceSectionClause;
   }
 
   public void setParentDocumentInstanceSectionClause(DocumentInstanceSectionClause parentDocumentInstanceSectionClause) {

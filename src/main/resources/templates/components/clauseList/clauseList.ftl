@@ -29,7 +29,7 @@
 
 </#macro>
 
-<#macro list documentView listClass="number" childListClass="lower-alpha">
+<#macro list documentView clauseActionsUrlFactory listClass="number" childListClass="lower-alpha">
 
   <div class="clause-list">
 
@@ -41,7 +41,8 @@
 
         <#list section.clauses as clauseView>
 
-          <@clause clauseView=clauseView listClass=childListClass/>
+          <#local isLastInList = clauseView?counter == section.clauses?size />
+          <@clause clauseView=clauseView clauseActionsUrlFactory=clauseActionsUrlFactory listClass=childListClass isLastInList=isLastInList/>
 
         </#list>
 
@@ -51,21 +52,31 @@
 
 </#macro>
 
-<#macro clause clauseView listClass
+<#macro clause clauseView clauseActionsUrlFactory listClass isLastInList
   headingSize="h3"
   headingClass="m"
   childHeadingSize="h4"
   childHeadingClass="s"
   childListClass="lower-roman">
 
-  <li id="clauseId-${clauseView.id?c}">
+  <li id="clauseId-${clauseView.clauseId?c}">
 
     <${headingSize} class="govuk-heading-${headingClass}">
         ${clauseView.name}
-        <@fdsAction.link linkText="Edit clause" linkUrl="#" linkClass="govuk-link clause-list__action govuk-!-font-size-19" />
+        <@fdsAction.link
+        linkText="Add clause above"
+        linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
+        linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19" />
     </${headingSize}>
 
     <p class="govuk-body">${clauseView.text}</p>
+
+    <#if isLastInList>
+        <@fdsAction.link
+        linkText="Add clause"
+        linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
+        linkClass="govuk-link clause-list__action" />
+    </#if>
 
     <#if clauseView.childClauses?has_content>
 
@@ -73,11 +84,27 @@
 
           <#list clauseView.childClauses as child>
 
-            <@clause clauseView=child headingSize=childHeadingSize headingClass=childHeadingClass listClass=childListClass childHeadingSize="h5"/>
+            <#local isLast = child?counter == clauseView.childClauses?size />
+
+            <@clause
+              clauseView=child
+              clauseActionsUrlFactory=clauseActionsUrlFactory
+              headingSize=childHeadingSize
+              headingClass=childHeadingClass
+              listClass=childListClass
+              childHeadingSize="h5"
+              isLastInList=isLast />
 
           </#list>
 
       </ol>
+
+      <#elseif clauseView.levelNumber == 1 || clauseView.levelNumber == 2>
+
+        <@fdsAction.link
+        linkText="Add sub-clause"
+        linkUrl=springUrl(clauseActionsUrlFactory.getAddSubClauseRoute(clauseView.clauseId))
+        linkClass="govuk-link clause-list__action" />
 
     </#if>
 

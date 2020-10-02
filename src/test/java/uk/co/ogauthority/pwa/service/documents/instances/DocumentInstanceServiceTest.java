@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
@@ -128,7 +129,7 @@ public class DocumentInstanceServiceTest {
 
     // map the created clauses to the id of the template clause they were created from
     Map<Integer, DocumentInstanceSectionClause> templateClauseIdToInstanceClauseMap = clausesCaptor.getValue().stream()
-        .collect(Collectors.toMap(c -> c.getDocumentTemplateSectionClause().getId(), Function.identity()));
+        .collect(Collectors.toMap(this::getTemplateClauseIdOrThrow, Function.identity()));
 
     verify(instanceSectionClauseVersionRepository, times(1)).saveAll(clauseVersionsCaptor.capture());
 
@@ -184,6 +185,14 @@ public class DocumentInstanceServiceTest {
 
     }
 
+  }
+
+  private Integer getTemplateClauseIdOrThrow(DocumentInstanceSectionClause instanceSectionClause) {
+    return instanceSectionClause.getDocumentTemplateSectionClause()
+        .map(DocumentTemplateSectionClause::getId)
+        .orElseThrow(() -> new IllegalStateException(String.format(
+            "Instance clause with id [%s] doesn't have an associated template clause",
+            instanceSectionClause.getId())));
   }
 
   @Test

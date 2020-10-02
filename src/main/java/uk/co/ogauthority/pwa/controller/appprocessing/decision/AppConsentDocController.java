@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory;
+import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -58,6 +59,7 @@ public class AppConsentDocController {
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("docInstanceExists", docInstanceExists)
         .addObject("consentDocumentUrlFactory", new ConsentDocumentUrlFactory(processingContext.getPwaApplication()))
+        .addObject("clauseActionsUrlFactory", new ClauseActionsUrlFactory(processingContext.getPwaApplication(), docView))
         .addObject("docView", docView);
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consent document");
