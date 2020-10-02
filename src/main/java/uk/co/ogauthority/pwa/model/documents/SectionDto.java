@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.documents;
 
 import java.util.List;
+import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
 
 public class SectionDto {
 
