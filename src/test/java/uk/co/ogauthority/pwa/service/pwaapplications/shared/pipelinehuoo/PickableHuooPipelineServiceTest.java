@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,17 +17,14 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -35,16 +32,12 @@ public class PickableHuooPipelineServiceTest {
 
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
 
-  private final int CONSENTED_PIPELINE_ID = 1;
-  private final int APPLICATION_ONLY_PIPELINE_ID = 2;
+  private final PipelineId CONSENTED_PIPELINE_ID = new PipelineId(1);
+  private final PipelineId APPLICATION_NEW_PIPELINE_ID = new PipelineId(2);
 
   private PipelineType CONSENTED_PIPELINE_TYPE = PipelineType.PRODUCTION_FLOWLINE;
   private PipelineType APPLICATION_NEW_PIPELINE_TYPE = PipelineType.GAS_LIFT_JUMPER;
-  // used to check pickable option has the correct details.
-  private PipelineType IMPORTED_CONSENTED_PIPELINE_TYPE = PipelineType.CONTROL_JUMPER;
 
-  @Mock
-  private PipelineDetailService pipelineDetailService;
 
   @Mock
   private PadPipelineService padPipelineService;
@@ -52,55 +45,44 @@ public class PickableHuooPipelineServiceTest {
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
 
+  @Mock
+  private PipelineOverview consentedPipelineOverview;
+
+  @Mock
+  private PipelineOverview applicationOnlyPipelineOverview;
+
   private PickableHuooPipelineService pickableHuooPipelineService;
 
   private PwaApplicationDetail pwaApplicationDetail;
-  private MasterPwa masterPwa;
 
-  private Pipeline consentedPipeline;
-  private PipelineDetail consentedPipelineDetail;
   private String consentedPipelinePickableId;
 
-
-  private Pipeline applicationNewPipeline;
-  private PadPipeline applicationNewPadPipeline;
   private String applicationNewPipelinePickableId;
 
-  private PadPipeline importedConsentedPadPipeline;
   private String importedConsentedPipelinePickableId;
 
   private void setupConsentedPipeline() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
-    masterPwa = pwaApplicationDetail.getPwaApplication().getMasterPwa();
+    consentedPipelinePickableId = PickableHuooPipelineType.createPickableStringFrom(CONSENTED_PIPELINE_ID);
 
-    consentedPipeline = new Pipeline();
-    consentedPipeline.setId(CONSENTED_PIPELINE_ID);
-    consentedPipeline.setMasterPwa(masterPwa);
-    consentedPipelineDetail = new PipelineDetail(consentedPipeline);
-    consentedPipelineDetail.setPipelineType(CONSENTED_PIPELINE_TYPE);
-    consentedPipelinePickableId = PickableHuooPipelineType.createPickableStringFrom(consentedPipeline.getPipelineId());
+    when(consentedPipelineOverview.getPipelineId()).thenReturn(CONSENTED_PIPELINE_ID.asInt());
+    when(consentedPipelineOverview.getPipelineType()).thenReturn(CONSENTED_PIPELINE_TYPE);
+
   }
 
   private void setupApplicationPipelines() {
-    applicationNewPipeline = new Pipeline(pwaApplicationDetail.getPwaApplication());
-    applicationNewPipeline.setId(APPLICATION_ONLY_PIPELINE_ID);
-    applicationNewPadPipeline = new PadPipeline(pwaApplicationDetail);
-    applicationNewPadPipeline.setPipeline(applicationNewPipeline);
-    applicationNewPadPipeline.setId(200);
-    applicationNewPadPipeline.setPipelineType(APPLICATION_NEW_PIPELINE_TYPE);
+
     applicationNewPipelinePickableId = PickableHuooPipelineType.createPickableStringFrom(
-        applicationNewPipeline.getPipelineId());
+       APPLICATION_NEW_PIPELINE_ID);
 
-    // same pipeline as consented pipeline but within the application
-    importedConsentedPadPipeline = new PadPipeline(pwaApplicationDetail);
-    importedConsentedPadPipeline.setPipeline(consentedPipeline);
-    importedConsentedPadPipeline.setId(300);
-    importedConsentedPadPipeline.setPipelineType(IMPORTED_CONSENTED_PIPELINE_TYPE);
+    when(applicationOnlyPipelineOverview.getPipelineId()).thenReturn(APPLICATION_NEW_PIPELINE_ID.asInt());
+    when(applicationOnlyPipelineOverview.getPipelineType()).thenReturn(APPLICATION_NEW_PIPELINE_TYPE);
+
     importedConsentedPipelinePickableId = PickableHuooPipelineType.createPickableStringFrom(
-        // same as consented as the same pipeline is represented
-        consentedPipeline.getPipelineId());
-  }
+        // same as consented as the same pipeline ID is represented
+       CONSENTED_PIPELINE_ID);
 
+  }
 
   @Before
   public void setup() {
@@ -109,53 +91,28 @@ public class PickableHuooPipelineServiceTest {
     setupApplicationPipelines();
 
     pickableHuooPipelineService = new PickableHuooPipelineService(
-        pipelineDetailService,
         padPipelineService,
-        padOrganisationRoleService);
+        padOrganisationRoleService
+    );
 
-    // Default behaviour is that the application contains a new pipeline and updates a consented pipeline, so
-    // the pickable options should reflect details set in application not the consented model.
-    when(padPipelineService.getAllPadPipelineSummaryDtosForApplicationDetail(pwaApplicationDetail))
-        .thenReturn(
-            List.of(generateFrom(applicationNewPadPipeline), generateFrom(importedConsentedPadPipeline))
-        );
+    var allPipelineMap = new HashMap<PipelineId, PipelineOverview>();
+    allPipelineMap.put(CONSENTED_PIPELINE_ID, consentedPipelineOverview);
+    allPipelineMap.put(APPLICATION_NEW_PIPELINE_ID, applicationOnlyPipelineOverview);
+    when(padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail))
+        .thenReturn(allPipelineMap);
 
-    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication()))
-        .thenReturn(
-            List.of(consentedPipelineDetail)
-        );
-  }
-
-
-  @Test
-  public void getAllPickablePipelinesForApplicationAndRole_returnsApplicationVersionOfImportedPipeline() {
-
-    var pickablePipelineOptions = pickableHuooPipelineService.getAllPickablePipelinesForApplicationAndRole(
-        pwaApplicationDetail, HuooRole.HOLDER);
-
-    assertThat(pickablePipelineOptions).hasSize(2);
-
-    assertThat(pickablePipelineOptions).anySatisfy(pickablePipelineOption -> {
-      assertThat(pickablePipelineOption.getPickableString()).isEqualTo(importedConsentedPipelinePickableId);
-      assertThat(pickablePipelineOption.getPipelineTypeDisplay()).isEqualTo(IMPORTED_CONSENTED_PIPELINE_TYPE.getDisplayName());
-    });
-
-    assertThat(pickablePipelineOptions).anySatisfy(pickablePipelineOption -> {
-      assertThat(pickablePipelineOption.getPickableString()).isEqualTo(applicationNewPipelinePickableId);
-      assertThat(pickablePipelineOption.getPipelineTypeDisplay()).isEqualTo(APPLICATION_NEW_PIPELINE_TYPE.getDisplayName());
-    });
   }
 
   @Test
   public void getAllPickablePipelinesForApplicationAndRole_removesWholePipelineWhenSplitsExist() {
 
     var appPipelineSplit1 = PipelineSegment.from(
-        applicationNewPipeline.getPipelineId(),
+        APPLICATION_NEW_PIPELINE_ID,
         PipelineIdentPoint.inclusivePoint("START"),
         PipelineIdentPoint.exclusivePoint("MID")
     );
     var appPipelineSplit2 = PipelineSegment.from(
-        applicationNewPipeline.getPipelineId(),
+        APPLICATION_NEW_PIPELINE_ID,
         PipelineIdentPoint.exclusivePoint("MID"),
         PipelineIdentPoint.inclusivePoint("END")
     );
@@ -196,8 +153,8 @@ public class PickableHuooPipelineServiceTest {
         ));
 
     assertThat(pipelines).containsExactlyInAnyOrder(
-        consentedPipeline.getPipelineId(),
-        applicationNewPipeline.getPipelineId()
+       CONSENTED_PIPELINE_ID,
+        APPLICATION_NEW_PIPELINE_ID
     );
 
   }
@@ -221,9 +178,9 @@ public class PickableHuooPipelineServiceTest {
   public void reconcilePickablePipelineIdentifiers_correctlyAssociatesPickableIdToPipelineId_whenNoPipelineSplits() {
 
     var newPipelineOption = PickablePipelineOptionTestUtil
-        .createOption(applicationNewPadPipeline.getPipelineId(), "new");
+        .createOption(APPLICATION_NEW_PIPELINE_ID, "new");
     var importedPipelineOption = PickablePipelineOptionTestUtil
-        .createOption(importedConsentedPadPipeline.getPipelineId(), "imported");
+        .createOption(CONSENTED_PIPELINE_ID, "imported");
 
     var reconciledPipelines = pickableHuooPipelineService.reconcilePickablePipelineIds(
         pwaApplicationDetail,
@@ -237,10 +194,10 @@ public class PickableHuooPipelineServiceTest {
     assertThat(reconciledPipelines).containsExactlyInAnyOrder(
         new ReconciledHuooPickablePipeline(
             PickableHuooPipelineId.from(consentedPipelinePickableId),
-            PipelineId.from(consentedPipeline)),
+            CONSENTED_PIPELINE_ID),
         new ReconciledHuooPickablePipeline(
             PickableHuooPipelineId.from(applicationNewPipelinePickableId),
-            PipelineId.from(applicationNewPipeline))
+            APPLICATION_NEW_PIPELINE_ID)
     );
 
   }

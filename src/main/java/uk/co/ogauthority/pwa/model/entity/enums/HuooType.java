@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.enums;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum HuooType {
@@ -29,6 +31,10 @@ public enum HuooType {
 
   public boolean isSelectable() {
     return selectable;
+  }
+
+  public static Set<HuooType> getSelectable() {
+    return streamSelectable().collect(Collectors.toSet());
   }
 
   public static Stream<HuooType> streamSelectable() {

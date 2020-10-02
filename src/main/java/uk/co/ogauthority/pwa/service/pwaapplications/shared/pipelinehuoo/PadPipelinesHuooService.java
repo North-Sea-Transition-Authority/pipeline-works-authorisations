@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
@@ -17,21 +18,26 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PickHuooPipelinesForm;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationType;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValidator;
 
@@ -44,21 +50,64 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
+  private final PadPipelineService padPipelineService;
 
   @Autowired
-  public PadPipelinesHuooService(
-      PickableHuooPipelineService pickableHuooPipelineService,
-      PortalOrganisationsAccessor portalOrganisationsAccessor,
-      PadOrganisationRoleService padOrganisationRoleService,
-      PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator,
-      PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository) {
+  public PadPipelinesHuooService(PickableHuooPipelineService pickableHuooPipelineService,
+                                 PortalOrganisationsAccessor portalOrganisationsAccessor,
+                                 PadOrganisationRoleService padOrganisationRoleService,
+                                 PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator,
+                                 PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
+                                 PadPipelineService padPipelineService) {
     this.pickableHuooPipelineService = pickableHuooPipelineService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.pickHuooPipelinesFormValidator = pickHuooPipelinesFormValidator;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
+    this.padPipelineService = padPipelineService;
   }
 
+  public Optional<PipelineOverview> getSplitablePipelineOverviewForApplication(
+      PwaApplicationDetail pwaApplicationDetail,
+      PipelineId pipelineId) {
+    return getSplitablePipelinesForAppAndMasterPwa(pwaApplicationDetail)
+        .stream()
+        .filter(pipelineOverview -> pipelineId.equals(PipelineId.from(pipelineOverview)))
+        .findFirst();
+  }
+
+  public List<PipelineOverview> getSplitablePipelinesForAppAndMasterPwa(PwaApplicationDetail pwaApplicationDetail) {
+    return padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+        .values()
+        .stream()
+        .filter(pipelineOverview -> pipelineOverview.getNumberOfIdents() >= 1)
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public PipelineOverview getSplitablePipelineForAppAndMasterPwaOrError(PwaApplicationDetail pwaApplicationDetail,
+                                                                        PipelineId pipelineId) {
+    return getSplitablePipelineOverviewForApplication(pwaApplicationDetail, pipelineId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Splitable pipeline not found. pipeline id: " + pipelineId.asInt())
+        );
+  }
+
+  @Transactional
+  public void removeSplitsForPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineId pipelineId, HuooRole huooRole) {
+
+    var splitPipelineRoles = padPipelineOrganisationRoleLinkRepository
+        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
+            pwaApplicationDetail, huooRole, Set.of(pipelineId.asInt())
+        );
+
+    var temporarySplitRoleOptional = splitPipelineRoles.stream()
+        .map(PadPipelineOrganisationRoleLink::getPadOrgRole)
+        .filter(padOrganisationRole -> HuooType.UNASSIGNED_PIPELINE_SPLIT.equals(padOrganisationRole.getType()))
+        .findFirst();
+
+    padOrganisationRoleService.removalPipelineOrgRoleLinks(splitPipelineRoles);
+    temporarySplitRoleOptional.ifPresent(padOrganisationRoleService::removeOrgRole);
+  }
 
   public void validateAddPipelineHuooForm(PwaApplicationDetail pwaApplicationDetail,
                                           PickHuooPipelinesForm form,
@@ -89,13 +138,11 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
     return bindingResult;
   }
 
-
   /* Convenience method passing args to the actual pad org roles service */
   public List<PadOrganisationRole> getAssignablePadOrganisationRolesFrom(PwaApplicationDetail pwaApplicationDetail,
                                                                          HuooRole huooRole,
                                                                          Set<OrganisationUnitId> organisationUnitIds,
                                                                          Set<TreatyAgreement> treatyAgreements) {
-
     return padOrganisationRoleService.getOrgRolesForDetailByRole(
         pwaApplicationDetail,
         huooRole
@@ -153,7 +200,6 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         )
         .collect(toList());
   }
-
 
   /**
    * Given pipeline ids return successfully reconciled pickable pipelines for the application detail.

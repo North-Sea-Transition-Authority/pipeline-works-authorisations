@@ -13,11 +13,9 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 /**
  * Class designed to be constructed from jpa query to summarise a single PadPipeline.
- * TODO rename to something more generic once simultaneous work around pipelines is stopped
  **/
-public class PadPipelineSummaryDto {
+public class PipelineDetailSummaryDto {
 
-  private final Integer padPipelineId;
   private final Integer pipelineId;
   private final String fromLocation;
   private final CoordinatePair fromCoordinates;
@@ -41,42 +39,41 @@ public class PadPipelineSummaryDto {
   private final String pipelineStatusReason;
 
   // TODO PWA-838: remove this constructor and replace any callers the the non-deprecated one
-  //  ( check in dto repository implementations for construction in JPQL)
+  //  ( look in dto repository's)
   @Deprecated
-  public PadPipelineSummaryDto(Integer padPipelineId,
-                               Integer pipelineId,
-                               PipelineType pipelineType,
-                               String pipelineNumber,
-                               BigDecimal length,
-                               String componentParts,
-                               String productsToBeConveyed,
-                               Long numberOfIdents,
-                               // From info.
-                               String fromLocation,
-                               Integer fromLatitudeDegrees,
-                               Integer fromLatitudeMinutes,
-                               BigDecimal fromLatitudeSeconds,
-                               LatitudeDirection fromLatitudeDirection,
-                               Integer fromLongitudeDegrees,
-                               Integer fromLongitudeMinutes,
-                               BigDecimal fromLongitudeSeconds,
-                               LongitudeDirection fromLongitudeDirection,
-                               // To info.
-                               String toLocation,
-                               Integer toLatitudeDegrees,
-                               Integer toLatitudeMinutes,
-                               BigDecimal toLatitudeSeconds,
-                               LatitudeDirection toLatitudeDirection,
-                               Integer toLongitudeDegrees,
-                               Integer toLongitudeMinutes,
-                               BigDecimal toLongitudeSeconds,
-                               LongitudeDirection toLongitudeDirection,
-                               BigDecimal maxExternalDiameter,
-                               Boolean pipelineInBundle,
-                               String bundleName,
-                               PipelineStatus pipelineStatus,
-                               String pipelineStatusReason) {
-    this(padPipelineId,
+  public PipelineDetailSummaryDto(Integer pipelineId,
+                                  PipelineType pipelineType,
+                                  String pipelineNumber,
+                                  BigDecimal length,
+                                  String componentParts,
+                                  String productsToBeConveyed,
+                                  Long numberOfIdents,
+                                  // From info.
+                                  String fromLocation,
+                                  Integer fromLatitudeDegrees,
+                                  Integer fromLatitudeMinutes,
+                                  BigDecimal fromLatitudeSeconds,
+                                  LatitudeDirection fromLatitudeDirection,
+                                  Integer fromLongitudeDegrees,
+                                  Integer fromLongitudeMinutes,
+                                  BigDecimal fromLongitudeSeconds,
+                                  LongitudeDirection fromLongitudeDirection,
+                                  // To info.
+                                  String toLocation,
+                                  Integer toLatitudeDegrees,
+                                  Integer toLatitudeMinutes,
+                                  BigDecimal toLatitudeSeconds,
+                                  LatitudeDirection toLatitudeDirection,
+                                  Integer toLongitudeDegrees,
+                                  Integer toLongitudeMinutes,
+                                  BigDecimal toLongitudeSeconds,
+                                  LongitudeDirection toLongitudeDirection,
+                                  BigDecimal maxExternalDiameter,
+                                  Boolean pipelineInBundle,
+                                  String bundleName,
+                                  PipelineStatus pipelineStatus,
+                                  String pipelineStatusReason) {
+    this(
         pipelineId,
         pipelineType,
         pipelineNumber,
@@ -115,45 +112,42 @@ public class PadPipelineSummaryDto {
 
   }
 
-  public PadPipelineSummaryDto(Integer padPipelineId,
-                               Integer pipelineId,
-                               PipelineType pipelineType,
-                               String pipelineNumber,
-                               BigDecimal length,
-                               String componentParts,
-                               String productsToBeConveyed,
-                               Long numberOfIdents,
-                               // From info.
-                               String fromLocation,
-                               Integer fromLatitudeDegrees,
-                               Integer fromLatitudeMinutes,
-                               BigDecimal fromLatitudeSeconds,
-                               LatitudeDirection fromLatitudeDirection,
-                               Integer fromLongitudeDegrees,
-                               Integer fromLongitudeMinutes,
-                               BigDecimal fromLongitudeSeconds,
-                               LongitudeDirection fromLongitudeDirection,
-                               // To info.
-                               String toLocation,
-                               Integer toLatitudeDegrees,
-                               Integer toLatitudeMinutes,
-                               BigDecimal toLatitudeSeconds,
-                               LatitudeDirection toLatitudeDirection,
-                               Integer toLongitudeDegrees,
-                               Integer toLongitudeMinutes,
-                               BigDecimal toLongitudeSeconds,
-                               LongitudeDirection toLongitudeDirection,
-                               BigDecimal maxExternalDiameter,
-                               Boolean pipelineInBundle,
-                               String bundleName,
-                               PipelineFlexibility pipelineFlexibility,
-                               PipelineMaterial pipelineMaterial,
-                               String otherPipelineMaterialUsed,
-                               Boolean trenchedBuriedBackfilled,
-                               String trenchingMethodsDescription,
-                               PipelineStatus pipelineStatus,
-                               String pipelineStatusReason) {
-    this.padPipelineId = padPipelineId;
+  public PipelineDetailSummaryDto(Integer pipelineId,
+                                  PipelineType pipelineType,
+                                  String pipelineNumber,
+                                  BigDecimal length,
+                                  String componentParts,
+                                  String productsToBeConveyed,
+                                  Long numberOfIdents,
+                                  // From info.
+                                  String fromLocation,
+                                  Integer fromLatitudeDegrees,
+                                  Integer fromLatitudeMinutes,
+                                  BigDecimal fromLatitudeSeconds,
+                                  LatitudeDirection fromLatitudeDirection,
+                                  Integer fromLongitudeDegrees,
+                                  Integer fromLongitudeMinutes,
+                                  BigDecimal fromLongitudeSeconds,
+                                  LongitudeDirection fromLongitudeDirection,
+                                  // To info.
+                                  String toLocation,
+                                  Integer toLatitudeDegrees,
+                                  Integer toLatitudeMinutes,
+                                  BigDecimal toLatitudeSeconds,
+                                  LatitudeDirection toLatitudeDirection,
+                                  Integer toLongitudeDegrees,
+                                  Integer toLongitudeMinutes,
+                                  BigDecimal toLongitudeSeconds,
+                                  LongitudeDirection toLongitudeDirection,
+                                  BigDecimal maxExternalDiameter,
+                                  Boolean pipelineInBundle,
+                                  String bundleName,
+                                  PipelineFlexibility pipelineFlexibility,
+                                  PipelineMaterial pipelineMaterial,
+                                  String otherPipelineMaterialUsed,
+                                  Boolean trenchedBuriedBackfilled,
+                                  String trenchingMethodsDescription,
+                                  PipelineStatus pipelineStatus, String pipelineStatusReason) {
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
     this.toLocation = toLocation;
@@ -204,9 +198,6 @@ public class PadPipelineSummaryDto {
     this.trenchingMethodsDescription = trenchingMethodsDescription;
   }
 
-  public int getPadPipelineId() {
-    return padPipelineId;
-  }
 
   public String getFromLocation() {
     return fromLocation;

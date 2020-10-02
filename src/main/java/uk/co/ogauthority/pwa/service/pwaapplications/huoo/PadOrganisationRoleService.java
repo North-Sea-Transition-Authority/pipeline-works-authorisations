@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
@@ -581,7 +582,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         () -> padOrganisationRolesRepository.getAllByPwaApplicationDetail(fromDetail),
          toDetail,
         PadOrganisationRole.class
-
     );
 
     var pipelineOrgRolesCopiedEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
@@ -596,5 +596,24 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION);
+  }
+
+  @Transactional
+  public void removalPipelineOrgRoleLinks(
+      Collection<PadPipelineOrganisationRoleLink> padPipelineOrganisationRoleLinks) {
+    padPipelineOrganisationRoleLinkRepository.deleteAll(padPipelineOrganisationRoleLinks);
+  }
+
+  @Transactional
+  public void removeOrgRole(PadOrganisationRole padOrganisationRole) {
+    padOrganisationRolesRepository.delete(padOrganisationRole);
+  }
+
+  public List<PadPipelineOrganisationRoleLink> getPipelineOrgRoleLinks(PwaApplicationDetail pwaApplicationDetail,
+                                                                       HuooRole huooRole,
+                                                                       PipelineId pipelineId) {
+    return padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
+        pwaApplicationDetail, huooRole, Set.of(pipelineId.asInt())
+    );
   }
 }
