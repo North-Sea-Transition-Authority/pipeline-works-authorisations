@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.documents.instances;
 
 import java.time.Instant;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -47,12 +48,14 @@ public class DocumentInstanceSectionClauseVersionDto {
 
   private Instant createdTimestamp;
 
+  @Basic
   @Convert(converter = PersonIdConverter.class)
   @Column(name = "created_by_person_id")
   private PersonId createdByPersonId;
 
   private Instant endedTimestamp;
 
+  @Basic
   @Convert(converter = PersonIdConverter.class)
   @Column(name = "ended_by_person_id")
   private PersonId endedByPersonId;

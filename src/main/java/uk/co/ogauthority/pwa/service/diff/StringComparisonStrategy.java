@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.diff;
 
 import org.apache.commons.lang3.StringUtils;
+import uk.co.ogauthority.pwa.exception.DifferenceProcessingException;
 import uk.co.ogauthority.pwa.model.diff.DiffType;
 import uk.co.ogauthority.pwa.model.diff.DiffedField;
 
@@ -31,7 +32,7 @@ public class StringComparisonStrategy extends DiffComparisonStrategy<String> {
       return current ? "Yes" : "No";
     }
 
-    throw new IllegalArgumentException(String.format("Cannot represent value of type '%s' as String", value.getClass()));
+    throw new DifferenceProcessingException(String.format("Cannot represent value of type '%s' as String", value.getClass()));
   }
 
   @Override

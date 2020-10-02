@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.exception.DifferenceProcessingException;
 import uk.co.ogauthority.pwa.model.diff.DiffType;
 import uk.co.ogauthority.pwa.model.diff.DiffedField;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
@@ -176,14 +177,14 @@ public class DiffServiceTest {
   }
 
 
-  @Test(expected = RuntimeException.class)
-  public void diff_whenObjectWithUnsupportedFieldType_thenThrowRuntimeException() {
+  @Test(expected = DifferenceProcessingException.class)
+  public void diff_whenObjectWithUnsupportedFieldType_thenThrowsException() {
     UndiffableObject undiffableObject = new UndiffableObject(Instant.now());
     diffService.diff(undiffableObject, undiffableObject);
   }
 
-  @Test(expected = RuntimeException.class)
-  public void diff_whenObjectHasUnsupportedLists_thenThrowRuntimeException() {
+  @Test(expected = DifferenceProcessingException.class)
+  public void diff_whenObjectHasUnsupportedLists_thenThrowsException() {
     DiffTestWithUnsupportedListField undiffableObject = new DiffTestWithUnsupportedListField();
     Map<String, Object> diffResult = diffService.diff(undiffableObject, undiffableObject);
   }

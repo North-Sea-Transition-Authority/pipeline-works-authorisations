@@ -91,16 +91,18 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
 
   /* Convenience method passing args to the actual pad org roles service */
-  public List<PadOrganisationRole> getPadOrganisationRolesFrom(PwaApplicationDetail pwaApplicationDetail,
-                                                               HuooRole huooRole,
-                                                               Set<OrganisationUnitId> organisationUnitIds,
-                                                               Set<TreatyAgreement> treatyAgreements) {
+  public List<PadOrganisationRole> getAssignablePadOrganisationRolesFrom(PwaApplicationDetail pwaApplicationDetail,
+                                                                         HuooRole huooRole,
+                                                                         Set<OrganisationUnitId> organisationUnitIds,
+                                                                         Set<TreatyAgreement> treatyAgreements) {
 
     return padOrganisationRoleService.getOrgRolesForDetailByRole(
         pwaApplicationDetail,
         huooRole
     )
         .stream()
+        // exclude huooType where we usually dont want any role to be be assigned
+        .filter(padOrganisationRole -> !HuooType.UNASSIGNED_PIPELINE_SPLIT.equals(padOrganisationRole.getType()))
         // only return roles where the role is one of the chosen treaties or organisation units.
         .filter(padOrganisationRole -> {
           if (padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT)) {
@@ -125,7 +127,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         huooRole
     );
 
-    var organisationRoles = getPadOrganisationRolesFrom(
+    var organisationRoles = getAssignablePadOrganisationRolesFrom(
         pwaApplicationDetail,
         huooRole,
         organisationsToLink,

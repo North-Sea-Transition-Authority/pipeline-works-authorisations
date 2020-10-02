@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.model.view;
 
-public class StringWithTag {
+import java.util.Objects;
 
-  private String value;
+public final class StringWithTag {
 
-  private Tag tag;
+  private final String value;
+
+  private final Tag tag;
 
   public StringWithTag() {
     this("", Tag.NONE);
@@ -23,15 +25,25 @@ public class StringWithTag {
     return value;
   }
 
-  public void setValue(String value) {
-    this.value = value;
-  }
-
   public Tag getTag() {
     return tag;
   }
 
-  public void setTag(Tag tag) {
-    this.tag = tag;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    StringWithTag that = (StringWithTag) o;
+    return Objects.equals(value, that.value)
+        && tag == that.tag;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(value, tag);
   }
 }

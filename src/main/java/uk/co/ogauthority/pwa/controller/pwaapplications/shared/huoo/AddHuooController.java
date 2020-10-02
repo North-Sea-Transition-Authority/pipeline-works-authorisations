@@ -91,7 +91,7 @@ public class AddHuooController {
         .addObject("treatyAgreements", TreatyAgreement.stream()
             .sorted(Comparator.comparing(TreatyAgreement::getCountry))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, TreatyAgreement::getCountry)))
-        .addObject("huooTypes", HuooType.stream()
+        .addObject("huooTypes", HuooType.streamSelectable()
             .sorted(Comparator.comparing(HuooType::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, HuooType::getDisplayText)))
         .addObject("portalOrgs", portalOrganisationsAccessor.getAllOrganisationUnits()
