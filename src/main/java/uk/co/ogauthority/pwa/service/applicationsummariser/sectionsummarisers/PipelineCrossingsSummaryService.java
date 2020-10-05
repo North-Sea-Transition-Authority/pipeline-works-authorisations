@@ -1,14 +1,17 @@
 package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
@@ -16,24 +19,24 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgr
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingUrlFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PipelineCrossingUrlFactory;
 
 /**
- * Construct summary of Licence Block Information for a given application.
+ * Construct summary of Pipeline Crossings Information for a given application.
  */
 @Service
-public class LicenceBlockSummaryService implements ApplicationSectionSummariser {
+public class PipelineCrossingsSummaryService implements ApplicationSectionSummariser {
 
-  private final BlockCrossingService blockCrossingService;
+  private final PadPipelineCrossingService padPipelineCrossingService;
   private final PadFileService padFileService;
   private final TaskListService taskListService;
 
   @Autowired
-  public LicenceBlockSummaryService(
-      BlockCrossingService blockCrossingService,
+  public PipelineCrossingsSummaryService(
+      PadPipelineCrossingService padPipelineCrossingService,
       PadFileService padFileService, TaskListService taskListService) {
-    this.blockCrossingService = blockCrossingService;
+    this.padPipelineCrossingService = padPipelineCrossingService;
     this.padFileService = padFileService;
     this.taskListService = taskListService;
   }
@@ -51,20 +54,23 @@ public class LicenceBlockSummaryService implements ApplicationSectionSummariser 
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    var sectionDisplayText = CrossingAgreementTask.LICENCE_AND_BLOCKS.getDisplayText();
+    var sectionDisplayText = CrossingAgreementTask.PIPELINE_CROSSINGS.getDisplayText();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("blockCrossingViews", blockCrossingService.getCrossedBlockViews(pwaApplicationDetail));
-    summaryModel.put("blockCrossingFileViews",
-        padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS,
-            ApplicationFileLinkStatus.FULL));
-    summaryModel.put("blockCrossingUrlFactory", new BlockCrossingUrlFactory(pwaApplicationDetail));
+    summaryModel.put("pipelineCrossingViews", padPipelineCrossingService.getPipelineCrossingViews(pwaApplicationDetail));
+    summaryModel.put("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(pwaApplicationDetail));
+    summaryModel.put("pipelineCrossingFiles",
+            padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_CROSSINGS,
+                ApplicationFileLinkStatus.FULL)
+                .stream()
+              .sorted(Comparator.comparing(UploadedFileView::getFileName))
+              .collect(Collectors.toList()));
 
     return new ApplicationSectionSummary(
         templateName,
         List.of(SidebarSectionLink.createAnchorLink(
             sectionDisplayText,
-            "#licenceBlockDetails"
+            "#pipelineCrossingDetails"
         )),
         summaryModel
     );

@@ -1,0 +1,28 @@
+.clause-list {
+
+  &__action {
+    font-weight: normal;
+    margin-left: govuk-spacing(2);
+  }
+
+  .govuk-list {
+
+    > li {
+      font-weight: bold;
+    }
+
+    &--lower-alpha {
+      list-style-type: lower-alpha;
+    }
+
+    &--lower-roman {
+      list-style-type: lower-roman;
+    }
+
+  }
+
+  .govuk-list--bullet {
+    padding-left: 0;
+  }
+
+}

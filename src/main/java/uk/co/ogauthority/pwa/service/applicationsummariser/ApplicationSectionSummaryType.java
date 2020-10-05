@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Op
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelineCrossingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.SupplementaryDocumentsSummaryService;
@@ -79,10 +80,15 @@ public enum ApplicationSectionSummaryType {
       "pwaApplication/applicationSummarySections/locationDetailsSummary.ftl",
       LocationDetailsSummaryService.class),
 
-  CROSSING_AGREEMENTS(
+  LICENCE_AND_BLOCKS(
       90,
       "pwaApplication/applicationSummarySections/licenceBlockSummary.ftl",
       LicenceBlockSummaryService.class),
+
+  PIPELINE_CROSSINGS(
+      110,
+      "pwaApplication/applicationSummarySections/pipelineCrossingsSummary.ftl",
+      PipelineCrossingsSummaryService.class),
 
   GENERAL_TECH_DETAILS(
       140,

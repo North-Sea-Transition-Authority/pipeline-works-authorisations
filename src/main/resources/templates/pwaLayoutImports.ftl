@@ -17,6 +17,7 @@
 <#import 'components/diff/diffChanges.ftl' as diffChanges/>
 <#import 'components/utils/multiLineText.ftl' as multiLineText>
 <#import 'components/caseSummary/caseSummary.ftl' as pwaCaseSummary>
+<#import 'components/clauseList/clauseList.ftl' as pwaClauseList>
 
 <#function springUrl url>
     <#local springUrl>
