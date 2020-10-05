@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.validators.pipelinetechinfo;
 
+import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -11,11 +12,10 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 @Service
 public class FluidCompositionValidator implements SmartValidator {
 
-  private FluidCompositionDataValidator fluidCompositionDataValidator;
+  private final FluidCompositionDataValidator fluidCompositionDataValidator;
 
   @Autowired
-  public FluidCompositionValidator(
-      FluidCompositionDataValidator fluidCompositionDataValidator) {
+  public FluidCompositionValidator(FluidCompositionDataValidator fluidCompositionDataValidator) {
     this.fluidCompositionDataValidator = fluidCompositionDataValidator;
   }
 
@@ -24,15 +24,23 @@ public class FluidCompositionValidator implements SmartValidator {
     return FluidCompositionForm.class.equals(clazz);
   }
 
-
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
+
     var fluidCompositionForm = (FluidCompositionForm) target;
+
     var chemicalDataFormMap = fluidCompositionForm.getChemicalDataFormMap();
-    for (var chemicalEntry: chemicalDataFormMap.entrySet()) {
-      ValidatorUtils.invokeNestedValidator(errors, fluidCompositionDataValidator,
-          "chemicalDataFormMap[" + chemicalEntry.getKey() + "]", chemicalEntry.getValue(), chemicalEntry.getKey());
-    }
+
+    // sort form map by chemical display order to ensure the validation errors are ordered correctly
+    chemicalDataFormMap.entrySet().stream()
+        .sorted(Comparator.comparing(e -> e.getKey().getDisplayOrder()))
+        .forEach(e -> {
+
+          ValidatorUtils.invokeNestedValidator(errors, fluidCompositionDataValidator,
+              "chemicalDataFormMap[" + e.getKey() + "]", e.getValue(), e.getKey());
+
+        });
+
   }
 
 

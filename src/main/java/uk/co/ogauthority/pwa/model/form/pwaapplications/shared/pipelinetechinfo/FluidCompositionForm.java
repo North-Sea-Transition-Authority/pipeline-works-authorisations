@@ -10,20 +10,17 @@ public class FluidCompositionForm {
 
   private Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new HashMap<>();
 
-
   public Map<Chemical, FluidCompositionDataForm> getChemicalDataFormMap() {
     return chemicalDataFormMap;
   }
 
-  public void setChemicalDataFormMap(
-      Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap) {
+  public void setChemicalDataFormMap(Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap) {
     this.chemicalDataFormMap = chemicalDataFormMap;
   }
 
   public void addChemicalData(Chemical chemical, FluidCompositionDataForm fluidCompositionDataForm) {
     chemicalDataFormMap.put(chemical, fluidCompositionDataForm);
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -41,4 +38,5 @@ public class FluidCompositionForm {
   public int hashCode() {
     return Objects.hash(chemicalDataFormMap);
   }
+
 }
