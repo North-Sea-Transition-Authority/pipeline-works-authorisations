@@ -10,7 +10,7 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
-import uk.co.ogauthority.pwa.model.documents.DocumentTemplateDto;
+import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;

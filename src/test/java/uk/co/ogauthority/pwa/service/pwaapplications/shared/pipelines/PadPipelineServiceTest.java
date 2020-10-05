@@ -326,6 +326,42 @@ public class PadPipelineServiceTest {
   }
 
   @Test
+  public void getWholePadPipelineSummaryDtoForApp(){
+    var padPipeline = new PadPipeline();
+    padPipeline.setId(1);
+    Pipeline pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    var summaryDto = generateFrom(padPipeline);
+    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail))
+        .thenReturn(List.of(summaryDto));
+
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication())).thenReturn(List.of());
+
+   var wholePadPipelineSummaryDto = padPipelineService.getWholePadPipelineSummaryDtoForApp(detail);
+   assertThat(wholePadPipelineSummaryDto).contains(entry(new PipelineId(1), summaryDto));
+  }
+
+  @Test
+  public void getWholePadPipelineSummaryDtoForApp_withConsentedPipelineIdentifiers(){
+    var padPipeline = new PadPipeline();
+    padPipeline.setId(1);
+    Pipeline pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    var summaryDto = generateFrom(padPipeline);
+    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail))
+        .thenReturn(List.of(summaryDto));
+
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setPipeline(pipeline);
+    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication())).thenReturn(List.of(pipelineDetail));
+
+    var wholePadPipelineSummaryDto = padPipelineService.getWholePadPipelineSummaryDtoForApp(detail);
+    assertThat(wholePadPipelineSummaryDto).contains(entry(new PipelineId(1), summaryDto));
+  }
+
+  @Test
   public void getPipelines() {
     var pipelinesMocked = new ArrayList<PadPipeline>();
     var PadPipeline = new PadPipeline();
@@ -918,5 +954,46 @@ public class PadPipelineServiceTest {
 
   }
 
+  private PadPipelineSummaryDto generateFrom(PadPipeline padPipeline) {
+
+    return new PadPipelineSummaryDto(
+        padPipeline.getId(),
+        padPipeline.getPipeline().getId(),
+        padPipeline.getPipelineType(),
+        padPipeline.toString(),
+        BigDecimal.TEN,
+        "OIL",
+        "PRODUCTS",
+        1L,
+        "STRUCT_A",
+        45,
+        45,
+        BigDecimal.valueOf(45),
+        LatitudeDirection.NORTH,
+        1,
+        1,
+        BigDecimal.ONE,
+        LongitudeDirection.EAST,
+        "STRUCT_B",
+        46,
+        46,
+        BigDecimal.valueOf(46),
+        LatitudeDirection.NORTH,
+        2,
+        2,
+        BigDecimal.valueOf(2),
+        LongitudeDirection.EAST,
+        padPipeline.getMaxExternalDiameter(),
+        padPipeline.getPipelineInBundle(),
+        padPipeline.getBundleName(),
+        padPipeline.getPipelineFlexibility(),
+        padPipeline.getPipelineMaterial(),
+        padPipeline.getOtherPipelineMaterialUsed(),
+        padPipeline.getTrenchedBuriedBackfilled(),
+        padPipeline.getTrenchingMethodsDescription(),
+        padPipeline.getPipelineStatus(),
+        padPipeline.getPipelineStatusReason());
+
+  }
 
 }

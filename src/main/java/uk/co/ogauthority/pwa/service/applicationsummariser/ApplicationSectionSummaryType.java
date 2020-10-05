@@ -13,11 +13,14 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Fa
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FieldInformationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LicenceBlockSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LocationDetailsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PermanentDepositSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelineCrossingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ProjectInformationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.SupplementaryDocumentsSummaryService;
@@ -68,6 +71,11 @@ public enum ApplicationSectionSummaryType {
           "pwaApplication/applicationSummarySections/environmentalAndDecommissioningSummary.ftl",
       EnvironmentalDecomSummaryService.class),
 
+  HUOO(
+      60,
+      "pwaApplication/applicationSummarySections/huooSummary.ftl",
+      HuooSummaryService.class),
+
   PARTNER_LETTERS(
       70,
           "pwaApplication/applicationSummarySections/partnerApprovalLettersSummary.ftl",
@@ -77,6 +85,16 @@ public enum ApplicationSectionSummaryType {
       80,
       "pwaApplication/applicationSummarySections/locationDetailsSummary.ftl",
       LocationDetailsSummaryService.class),
+
+  LICENCE_AND_BLOCKS(
+      90,
+      "pwaApplication/applicationSummarySections/licenceBlockSummary.ftl",
+      LicenceBlockSummaryService.class),
+
+  PIPELINE_CROSSINGS(
+      110,
+      "pwaApplication/applicationSummarySections/pipelineCrossingsSummary.ftl",
+      PipelineCrossingsSummaryService.class),
 
   GENERAL_TECH_DETAILS(
       140,

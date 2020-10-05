@@ -51,10 +51,14 @@ public class AppConsentDocController {
     boolean docInstanceExists = documentService
         .documentInstanceExists(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 
+    var docView = documentService
+        .getDocumentViewForInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/decision/consentDocumentEditor")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("docInstanceExists", docInstanceExists)
-        .addObject("consentDocumentUrlFactory", new ConsentDocumentUrlFactory(processingContext.getPwaApplication()));
+        .addObject("consentDocumentUrlFactory", new ConsentDocumentUrlFactory(processingContext.getPwaApplication()))
+        .addObject("docView", docView);
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consent document");
 

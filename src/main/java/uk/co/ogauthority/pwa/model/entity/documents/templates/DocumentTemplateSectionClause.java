@@ -46,6 +46,11 @@ public class DocumentTemplateSectionClause implements SectionClause {
   }
 
   @Override
+  public DocumentTemplateSection getSection() {
+    return getDocumentTemplateSection();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
