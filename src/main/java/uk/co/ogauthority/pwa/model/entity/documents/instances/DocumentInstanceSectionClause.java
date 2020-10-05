@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import uk.co.ogauthority.pwa.model.entity.documents.SectionClause;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 
 @Entity
@@ -68,6 +69,11 @@ public class DocumentInstanceSectionClause implements SectionClause {
   public void setDocumentTemplateSectionClause(
       DocumentTemplateSectionClause documentTemplateSectionClause) {
     this.documentTemplateSectionClause = documentTemplateSectionClause;
+  }
+
+  @Override
+  public DocumentTemplateSection getSection() {
+    return documentTemplateSectionClause.getSection();
   }
 
   @Override

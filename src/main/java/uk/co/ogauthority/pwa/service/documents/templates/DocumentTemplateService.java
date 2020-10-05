@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.documents.DocumentTemplateException;
-import uk.co.ogauthority.pwa.model.documents.DocumentTemplateDto;
+import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;

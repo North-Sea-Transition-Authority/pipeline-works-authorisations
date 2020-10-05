@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.documents.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.documents.SectionDto;
-import uk.co.ogauthority.pwa.model.documents.TemplateSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
+import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
 

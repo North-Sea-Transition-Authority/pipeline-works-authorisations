@@ -1,0 +1,62 @@
+version: "3.8"
+networks:
+  app_net:
+    external: true
+    name: app_net
+
+services:
+  clamav:
+    image: quay.io/fivium/clamav:69
+    deploy:
+      restart_policy:
+        condition: any
+      update_config:
+        delay: 2s
+      resources:
+        limits:
+          memory: 1536M
+        reservations:
+          memory: 1536M
+    networks:
+      - app_net
+    labels:
+      - io.portainer.accesscontrol.public
+  pwa:
+    image: quay.io/fivium/pipeline-works-authorisations:develop
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8081/engedudev1/pwa/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 30s
+      retries: 2
+    deploy:
+      restart_policy:
+        condition: any
+      mode: global
+      update_config:
+        parallelism: 1
+      resources:
+        limits:
+          memory: 1536M
+        reservations:
+          memory: 1536M
+      labels:
+        - io.portainer.accesscontrol.public
+    networks:
+      - app_net
+    ports:
+      - "8001:8081"
+    environment:
+      PWA_CONTEXT: "/engedudev1/pwa"
+      PWA_DB_URL: "edu-dev-db5.decc.local:1521:edudev1"
+      PWA_DB_SCHEMA: "PWA"
+      PWA_DB_PASS: "dev1"
+      PWA_FOX_LOGIN_URL: "http://edu-app3.decc.local/engedudev1/fox/oga/OGA_LOGIN/login?REFERRED_BY=PWA"
+      PWA_FOX_LOGOUT_URL: "http://edu-app3.decc.local/engedudev1/fox/oga/OGA_LOGIN/logout"
+      PWA_ENABLE_STATSD: "false"
+      PWA_CLAMAV_HOST: "clamav"
+      PWA_CLAMAV_PORT: 3310
+      PWA_CLAMAV_TIMEOUT: 60000
+      PWA_GOVUK_NOTIFY_API_KEY: 1234
+      PWA_GOVUK_NOTIFY_CALLBACK_TOKEN: "test-token!1"
+      PWA_TEST_EMAIL_RECIPIENT: ""
+      JAVA_OPTS: -Xmx1024M

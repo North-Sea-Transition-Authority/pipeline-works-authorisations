@@ -23,7 +23,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.fields.PwaFieldForm;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
-import uk.co.ogauthority.pwa.service.devuk.PadFieldService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -31,6 +30,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
 import uk.co.ogauthority.pwa.service.search.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
