@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Fa
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FieldInformationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LicenceBlockSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LocationDetailsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
@@ -78,6 +79,11 @@ public enum ApplicationSectionSummaryType {
       80,
       "pwaApplication/applicationSummarySections/locationDetailsSummary.ftl",
       LocationDetailsSummaryService.class),
+
+  LICENCE_AND_BLOCKS(
+      90,
+      "pwaApplication/applicationSummarySections/licenceBlockSummary.ftl",
+      LicenceBlockSummaryService.class),
 
   PIPELINE_CROSSINGS(
       110,
