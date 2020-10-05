@@ -47,6 +47,30 @@ public final class OrganisationPipelineRoleInstanceDto {
     }
   }
 
+  public OrganisationPipelineRoleInstanceDto(Integer organisationUnitId,
+                                             TreatyAgreement treatyAgreement,
+                                             HuooRole huooRole,
+                                             HuooType huooType,
+                                             Integer pipelineId,
+                                             String fromLocation,
+                                             IdentLocationInclusionMode fromLocationMode,
+                                             String toLocation,
+                                             IdentLocationInclusionMode toLocationMode
+  ) {
+    this(organisationUnitId,
+        null, // manual org name always null
+        treatyAgreement,
+        huooRole,
+        huooType,
+        pipelineId,
+        fromLocation,
+        fromLocationMode,
+        toLocation,
+        toLocationMode
+
+    );
+  }
+
   public OrganisationUnitId getOrganisationUnitId() {
     return this.organisationRoleInstanceDto.getOrganisationUnitId();
   }
