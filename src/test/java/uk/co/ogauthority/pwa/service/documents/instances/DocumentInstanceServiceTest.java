@@ -282,7 +282,7 @@ public class DocumentInstanceServiceTest {
     docInstance.setDocumentTemplate(documentTemplate);
     when(documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(any(), any())).thenReturn(Optional.of(docInstance));
 
-    var docView = documentInstanceService.getDocumentView(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = documentInstanceService.getDocumentView(docInstance);
 
     list.forEach(version -> {
 

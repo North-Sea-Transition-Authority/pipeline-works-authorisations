@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
@@ -181,14 +180,7 @@ public class DocumentInstanceService {
     return documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(application, templateMnem);
   }
 
-  public DocumentView getDocumentView(PwaApplication application,
-                                      DocumentTemplateMnem templateMnem) {
-
-    var instance = documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(application, templateMnem)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("Couldn't find doc instance for app with id [%s] and template mnem [%s]",
-                application.getId(),
-                templateMnem.name())));
+  public DocumentView getDocumentView(DocumentInstance instance) {
 
     var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId(instance.getId());
 
