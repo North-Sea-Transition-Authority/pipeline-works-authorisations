@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CableCrossingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
@@ -86,6 +87,11 @@ public enum ApplicationSectionSummaryType {
       "pwaApplication/applicationSummarySections/locationDetailsSummary.ftl",
       LocationDetailsSummaryService.class),
 
+  CABLE_CROSSINGS(
+      120,
+      "pwaApplication/applicationSummarySections/cableCrossingsSummary.ftl",
+      CableCrossingsSummaryService.class),
+
   LICENCE_AND_BLOCKS(
       90,
       "pwaApplication/applicationSummarySections/licenceBlockSummary.ftl",
@@ -95,7 +101,7 @@ public enum ApplicationSectionSummaryType {
       110,
       "pwaApplication/applicationSummarySections/pipelineCrossingsSummary.ftl",
       PipelineCrossingsSummaryService.class),
-
+  
   GENERAL_TECH_DETAILS(
       140,
       "pwaApplication/applicationSummarySections/generalTechInfoSummary.ftl",
