@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CableCrossingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CrossingTypesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.EnvironmentalDecomSummaryService;
@@ -87,21 +88,26 @@ public enum ApplicationSectionSummaryType {
       "pwaApplication/applicationSummarySections/locationDetailsSummary.ftl",
       LocationDetailsSummaryService.class),
 
-  CABLE_CROSSINGS(
-      120,
-      "pwaApplication/applicationSummarySections/cableCrossingsSummary.ftl",
-      CableCrossingsSummaryService.class),
-
   LICENCE_AND_BLOCKS(
       90,
       "pwaApplication/applicationSummarySections/licenceBlockSummary.ftl",
       LicenceBlockSummaryService.class),
 
+  CROSSING_TYPES(
+      100,
+      "pwaApplication/applicationSummarySections/crossingTypesSummary.ftl",
+      CrossingTypesSummaryService.class),
+
   PIPELINE_CROSSINGS(
       110,
       "pwaApplication/applicationSummarySections/pipelineCrossingsSummary.ftl",
       PipelineCrossingsSummaryService.class),
-  
+
+  CABLE_CROSSINGS(
+      120,
+      "pwaApplication/applicationSummarySections/cableCrossingsSummary.ftl",
+      CableCrossingsSummaryService.class),
+
   GENERAL_TECH_DETAILS(
       140,
       "pwaApplication/applicationSummarySections/generalTechInfoSummary.ftl",
