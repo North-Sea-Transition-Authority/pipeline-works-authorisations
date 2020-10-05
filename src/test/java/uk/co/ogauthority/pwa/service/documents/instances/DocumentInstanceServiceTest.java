@@ -280,7 +280,6 @@ public class DocumentInstanceServiceTest {
     var docInstance = new DocumentInstance();
     docInstance.setPwaApplication(applicationDetail.getPwaApplication());
     docInstance.setDocumentTemplate(documentTemplate);
-    when(documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(any(), any())).thenReturn(Optional.of(docInstance));
 
     var docView = documentInstanceService.getDocumentView(docInstance);
 

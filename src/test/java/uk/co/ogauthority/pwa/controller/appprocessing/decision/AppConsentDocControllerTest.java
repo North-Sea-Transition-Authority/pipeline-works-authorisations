@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
@@ -135,7 +136,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void renderReloadDocument_permissionSmokeTest() {
 
-    when(documentService.documentInstanceExists(any(), any())).thenReturn(true);
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -149,7 +150,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void renderReloadDocument_statusSmokeTest() {
 
-    when(documentService.documentInstanceExists(any(), any())).thenReturn(true);
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -163,7 +164,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void renderReloadDocument_noDocument() throws Exception {
 
-    when(documentService.documentInstanceExists(any(), any())).thenReturn(false);
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
 
     when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
@@ -183,7 +184,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void postReloadDocument_permissionSmokeTest() {
 
-    when(documentService.documentInstanceExists(any(), any())).thenReturn(true);
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -197,7 +198,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void postReloadDocument_statusSmokeTest() {
 
-    when(documentService.documentInstanceExists(any(), any())).thenReturn(true);
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -211,7 +212,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void postReloadDocument_success() throws Exception {
 
-    when(documentService.documentInstanceExists(any(), any())).thenReturn(true);
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
     when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
@@ -233,7 +234,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void postReloadDocument_noDocument() throws Exception {
 
-    when(documentService.documentInstanceExists(any(), any())).thenReturn(false);
+    when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
 
     when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
