@@ -44,7 +44,6 @@ import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickSplitPipelineFormValida
 })
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-//@SessionAttributes("splitPipelineHuooJourneyData")
 public class SplitPipelineHuooJourneyController {
 
   private static final String SELECT_PIPELINE_PAGE_HEADING_FORMAT = "Define pipeline split for %s";

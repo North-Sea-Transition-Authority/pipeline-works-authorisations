@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 /**
- * Class designed to be constructed from jpa query to summarise a single PadPipeline.
+ * Class designed to be constructed from jpa query to summarise a single PipelineDetail.
  **/
 public class PipelineDetailSummaryDto {
 
