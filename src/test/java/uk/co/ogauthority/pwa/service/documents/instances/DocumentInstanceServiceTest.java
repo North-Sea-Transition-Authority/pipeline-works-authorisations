@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.documents.instances;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,9 +34,12 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
+import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseRepository;
@@ -75,7 +79,11 @@ public class DocumentInstanceServiceTest {
   @Captor
   private ArgumentCaptor<List<DocumentInstanceSectionClauseVersion>> clauseVersionsCaptor;
 
-  private SectionClauseCreator sectionClauseCreator;
+  @Captor
+  private ArgumentCaptor<DocumentInstanceSectionClauseVersion> singleClauseVersionCaptor;
+
+  @Captor
+  private ArgumentCaptor<DocumentInstanceSectionClause> singleClauseCaptor;
 
   private DocumentInstanceService documentInstanceService;
 
@@ -84,6 +92,12 @@ public class DocumentInstanceServiceTest {
   private Person person;
 
   private Instant fixedInstant;
+
+  private DocumentInstanceSectionClause parent;
+  private DocumentTemplateSection section;
+  private DocumentTemplateSectionClause templateClause;
+  private DocumentInstanceSectionClause clauseRecord;
+  private DocumentInstanceSectionClauseVersion clauseVersion;
 
   @Before
   public void setUp() {
@@ -106,6 +120,22 @@ public class DocumentInstanceServiceTest {
         clock,
         documentInstanceSectionClauseVersionDtoRepository
     );
+
+    parent = new DocumentInstanceSectionClause();
+
+    section = new DocumentTemplateSection();
+    section.setName("test section");
+
+    templateClause = new DocumentTemplateSectionClause();
+    templateClause.setDocumentTemplateSection(section);
+
+    clauseRecord = new DocumentInstanceSectionClause();
+    clauseRecord.setDocumentInstance(new DocumentInstance());
+
+    clauseVersion = new DocumentInstanceSectionClauseVersion();
+    clauseVersion.setLevelOrder(3);
+    clauseVersion.setParentDocumentInstanceSectionClause(parent);
+    clauseVersion.setDocumentInstanceSectionClause(clauseRecord);
 
   }
 
@@ -296,6 +326,267 @@ public class DocumentInstanceServiceTest {
     });
 
     assertThat(docView.getSections().size()).isEqualTo(2);
+
+  }
+
+  @Test
+  public void addClauseAfter_clauseBeingAddedAfterIsLinkedToTemplateClause() {
+
+    clauseRecord.setDocumentTemplateSectionClause(templateClause);
+
+    documentInstanceService.addClauseAfter(clauseVersion, buildClauseForm(), person);
+
+    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
+    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
+
+    var newClause = singleClauseCaptor.getValue();
+    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
+    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
+    assertThat(newClause.getDocumentTemplateSection()).contains(section);
+
+    var newClauseVersion = singleClauseVersionCaptor.getValue();
+
+    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
+    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
+    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
+    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(parent);
+    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
+    assertThat(newClauseVersion.getTipFlag()).isTrue();
+    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
+    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+
+    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(clauseVersion.getLevelOrder() + 1);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
+
+  }
+
+  @Test
+  public void addClauseAfter_clauseBeingAddedAfterNotLinkedToTemplateClause() {
+
+    clauseRecord.setDocumentTemplateSection(section);
+
+    documentInstanceService.addClauseAfter(clauseVersion, buildClauseForm(), person);
+
+    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
+    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
+
+    var newClause = singleClauseCaptor.getValue();
+    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
+    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
+    assertThat(newClause.getDocumentTemplateSection()).contains(section);
+
+    var newClauseVersion = singleClauseVersionCaptor.getValue();
+
+    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
+    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
+    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
+    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(parent);
+    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
+    assertThat(newClauseVersion.getTipFlag()).isTrue();
+    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
+    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+
+    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(clauseVersion.getLevelOrder() + 1);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
+
+  }
+
+  private ClauseForm buildClauseForm() {
+    var form = new ClauseForm();
+    form.setName("name");
+    form.setText("text");
+    return form;
+  }
+
+  @Test
+  public void addClauseBefore_clauseBeingAddedBeforeIsLinkedToTemplateClause() {
+
+    var notIncrementedVersion = new DocumentInstanceSectionClauseVersion();
+    notIncrementedVersion.setLevelOrder(1);
+
+    var additionalClauseVersion = new DocumentInstanceSectionClauseVersion();
+    additionalClauseVersion.setLevelOrder(clauseVersion.getLevelOrder() + 1);
+
+    when(instanceSectionClauseVersionRepository
+        .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(any(), eq(parent)))
+        .thenReturn(List.of(clauseVersion, additionalClauseVersion, notIncrementedVersion));
+
+    clauseRecord.setDocumentTemplateSectionClause(templateClause);
+
+    documentInstanceService.addClauseBefore(clauseVersion, buildClauseForm(), person);
+
+    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
+    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
+
+    var newClause = singleClauseCaptor.getValue();
+    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
+    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
+    assertThat(newClause.getDocumentTemplateSection()).contains(section);
+
+    var newClauseVersion = singleClauseVersionCaptor.getValue();
+
+    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
+    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
+    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
+    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(parent);
+    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
+    assertThat(newClauseVersion.getTipFlag()).isTrue();
+    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
+    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+
+    // new clause is in position of clause we were adding before
+    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(3);
+
+    verify(instanceSectionClauseVersionRepository, times(1)).saveAll(clauseVersionsCaptor.capture());
+
+    // clauses after our clause were incremented
+    clauseVersionsCaptor.getValue().stream()
+        .filter(v -> !Objects.equals(v, newClauseVersion))
+        .forEach(v -> {
+
+          assertThat(v).isNotEqualTo(notIncrementedVersion);
+
+          if (Objects.equals(v, clauseVersion)) {
+            assertThat(v.getLevelOrder()).isEqualTo(4);
+          } else {
+            assertThat(v.getLevelOrder()).isEqualTo(5);
+          }
+
+    });
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
+
+  }
+
+  @Test
+  public void addClauseBefore_clauseBeingAddedBeforeIsNotLinkedToTemplateClause() {
+
+    var notIncrementedVersion = new DocumentInstanceSectionClauseVersion();
+    notIncrementedVersion.setLevelOrder(1);
+
+    var additionalClauseVersion = new DocumentInstanceSectionClauseVersion();
+    additionalClauseVersion.setLevelOrder(clauseVersion.getLevelOrder() + 1);
+
+    when(instanceSectionClauseVersionRepository
+        .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(any(), eq(parent)))
+        .thenReturn(List.of(clauseVersion, additionalClauseVersion, notIncrementedVersion));
+
+    clauseRecord.setDocumentTemplateSection(section);
+
+    documentInstanceService.addClauseBefore(clauseVersion, buildClauseForm(), person);
+
+    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
+    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
+
+    var newClause = singleClauseCaptor.getValue();
+    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
+    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
+    assertThat(newClause.getDocumentTemplateSection()).contains(section);
+
+    var newClauseVersion = singleClauseVersionCaptor.getValue();
+
+    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
+    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
+    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
+    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(parent);
+    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
+    assertThat(newClauseVersion.getTipFlag()).isTrue();
+    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
+    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+
+    // new clause is in position of clause we were adding before
+    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(3);
+
+    verify(instanceSectionClauseVersionRepository, times(1)).saveAll(clauseVersionsCaptor.capture());
+
+    // clauses after our clause were incremented, clauses before weren't
+    clauseVersionsCaptor.getValue().stream()
+        .filter(v -> !Objects.equals(v, newClauseVersion))
+        .forEach(v -> {
+
+          assertThat(v).isNotEqualTo(notIncrementedVersion);
+
+          if (Objects.equals(v, clauseVersion)) {
+            assertThat(v.getLevelOrder()).isEqualTo(4);
+          } else {
+            assertThat(v.getLevelOrder()).isEqualTo(5);
+          }
+
+        });
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
+
+  }
+
+  @Test
+  public void addSubClauseFor_clauseIsNotLinkedToTemplateClause() {
+
+    clauseRecord.setDocumentTemplateSection(section);
+
+    documentInstanceService.addSubClause(clauseVersion, buildClauseForm(), person);
+
+    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
+    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
+
+    var newClause = singleClauseCaptor.getValue();
+    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
+    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
+    assertThat(newClause.getDocumentTemplateSection()).contains(section);
+
+    var newClauseVersion = singleClauseVersionCaptor.getValue();
+
+    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
+    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
+    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
+    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(1);
+    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
+    assertThat(newClauseVersion.getTipFlag()).isTrue();
+    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
+    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+
+    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(clauseRecord);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
+
+  }
+
+  @Test
+  public void addSubClauseFor_clauseIsLinkedToTemplateClause() {
+
+    clauseRecord.setDocumentTemplateSectionClause(templateClause);
+
+    documentInstanceService.addSubClause(clauseVersion, buildClauseForm(), person);
+
+    verify(instanceSectionClauseRepository, times(1)).save(singleClauseCaptor.capture());
+    verify(instanceSectionClauseVersionRepository, times(1)).save(singleClauseVersionCaptor.capture());
+
+    var newClause = singleClauseCaptor.getValue();
+    assertThat(newClause.getDocumentInstance()).isEqualTo(clauseRecord.getDocumentInstance());
+    assertThat(newClause.getDocumentTemplateSectionClause()).isEmpty();
+    assertThat(newClause.getDocumentTemplateSection()).contains(section);
+
+    var newClauseVersion = singleClauseVersionCaptor.getValue();
+
+    assertThat(newClauseVersion.getName()).isEqualTo(buildClauseForm().getName());
+    assertThat(newClauseVersion.getText()).isEqualTo(buildClauseForm().getText());
+    assertThat(newClauseVersion.getDocumentInstanceSectionClause()).isEqualTo(newClause);
+    assertThat(newClauseVersion.getLevelOrder()).isEqualTo(1);
+    assertThat(newClauseVersion.getVersionNo()).isEqualTo(1);
+    assertThat(newClauseVersion.getTipFlag()).isTrue();
+    assertThat(newClauseVersion.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(newClauseVersion.getCreatedByPersonId()).isEqualTo(person.getId());
+    assertThat(newClauseVersion.getCreatedTimestamp()).isEqualTo(clock.instant());
+
+    assertThat(newClauseVersion.getParentDocumentInstanceSectionClause()).isEqualTo(clauseRecord);
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(newClauseVersion, List.of("id", "endedByPersonId", "endedTimestamp"));
 
   }
 

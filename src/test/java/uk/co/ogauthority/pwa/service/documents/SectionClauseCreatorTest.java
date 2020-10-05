@@ -12,7 +12,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
+import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
+import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
@@ -54,6 +57,24 @@ public class SectionClauseCreatorTest {
     assertThat(newVersion.getCreatedByPersonId()).isEqualTo(dtoVersion.getCreatedByPersonId());
 
     ObjectTestUtils.assertAllExpectedFieldsHaveValue(newVersion,
+        List.of("id", "documentInstanceSectionClause", "parentDocumentInstanceSectionClause", "endedTimestamp", "endedByPersonId"));
+
+  }
+
+  @Test
+  public void setCommonData_allData() {
+
+    var emptyInstanceClause = new DocumentInstanceSectionClauseVersion();
+
+    sectionClauseCreator.setCommonData(emptyInstanceClause, "name", "text", 2, SectionClauseVersionStatus.ACTIVE, new Person(1, null, null, null, null));
+
+    assertThat(emptyInstanceClause.getName()).isEqualTo("name");
+    assertThat(emptyInstanceClause.getText()).isEqualTo("text");
+    assertThat(emptyInstanceClause.getLevelOrder()).isEqualTo(2);
+    assertThat(emptyInstanceClause.getStatus()).isEqualTo(SectionClauseVersionStatus.ACTIVE);
+    assertThat(emptyInstanceClause.getCreatedByPersonId()).isEqualTo(new PersonId(1));
+
+    ObjectTestUtils.assertAllExpectedFieldsHaveValue(emptyInstanceClause,
         List.of("id", "documentInstanceSectionClause", "parentDocumentInstanceSectionClause", "endedTimestamp", "endedByPersonId"));
 
   }
