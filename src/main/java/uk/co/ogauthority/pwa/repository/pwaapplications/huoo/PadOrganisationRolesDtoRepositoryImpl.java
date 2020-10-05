@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.huoo;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
@@ -34,4 +35,30 @@ public class PadOrganisationRolesDtoRepositoryImpl implements PadOrganisationRol
 
     return query.getResultList();
   }
+
+  @Override
+  public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPwaApplicationDetail(
+      PwaApplicationDetail pwaApplicationDetail) {
+    var query = entityManager.createQuery("" +
+            "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
+            "  por.organisationUnit.ouId, " +
+            "  por.agreement, " +
+            "  por.role, " +
+            "  por.type, " +
+            "  pporl.pipeline.id, " +
+            "  pporl.fromLocation, " +
+            "  pporl.fromLocationIdentInclusionMode, " +
+            "  pporl.toLocation, " +
+            "  pporl.toLocationIdentInclusionMode " +
+            ") " +
+            "FROM PadPipelineOrganisationRoleLink pporl " +
+            //performing a RIGHT join here in order to get the orgs regardless of whether there is a pipeline link
+            "RIGHT JOIN PadOrganisationRole por ON pporl.padOrgRole = por " +
+            "WHERE por.pwaApplicationDetail  = :pwaApplicationDetail ",
+        OrganisationPipelineRoleInstanceDto.class)
+        .setParameter("pwaApplicationDetail", pwaApplicationDetail);
+    return query.getResultList();
+  }
+
+
 }
