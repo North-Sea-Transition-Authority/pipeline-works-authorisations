@@ -66,7 +66,8 @@
         <@fdsAction.link
         linkText="Add clause above"
         linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseBeforeRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19" />
+        linkClass="govuk-link clause-list__action clause-list__action--heading govuk-!-font-size-19"
+        linkScreenReaderText=clauseView.name />
     </${headingSize}>
 
     <p class="govuk-body">${clauseView.text}</p>
@@ -75,7 +76,8 @@
         <@fdsAction.link
         linkText="Add clause"
         linkUrl=springUrl(clauseActionsUrlFactory.getAddClauseAfterRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action" />
+        linkClass="govuk-link clause-list__action"
+        linkScreenReaderText="after ${clauseView.name}" />
     </#if>
 
     <#if clauseView.childClauses?has_content>
@@ -104,7 +106,8 @@
         <@fdsAction.link
         linkText="Add sub-clause"
         linkUrl=springUrl(clauseActionsUrlFactory.getAddSubClauseRoute(clauseView.clauseId))
-        linkClass="govuk-link clause-list__action" />
+        linkClass="govuk-link clause-list__action"
+        linkScreenReaderText="for ${clauseView.name}"/>
 
     </#if>
 
