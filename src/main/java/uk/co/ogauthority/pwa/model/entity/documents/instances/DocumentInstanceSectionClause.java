@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.documents.instances;
 
 import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -42,6 +43,10 @@ public class DocumentInstanceSectionClause implements SectionClause {
   @JoinColumn(name = "dt_sc_id")
   private DocumentTemplateSectionClause documentTemplateSectionClause;
 
+  @OneToOne
+  @JoinColumn(name = "dt_s_id")
+  private DocumentTemplateSection documentTemplateSection;
+
   public DocumentInstanceSectionClause() {
   }
 
@@ -62,8 +67,8 @@ public class DocumentInstanceSectionClause implements SectionClause {
     this.documentInstance = documentInstance;
   }
 
-  public DocumentTemplateSectionClause getDocumentTemplateSectionClause() {
-    return documentTemplateSectionClause;
+  public Optional<DocumentTemplateSectionClause> getDocumentTemplateSectionClause() {
+    return Optional.ofNullable(documentTemplateSectionClause);
   }
 
   public void setDocumentTemplateSectionClause(
@@ -71,9 +76,32 @@ public class DocumentInstanceSectionClause implements SectionClause {
     this.documentTemplateSectionClause = documentTemplateSectionClause;
   }
 
+  public Optional<DocumentTemplateSection> getDocumentTemplateSection() {
+    return Optional.ofNullable(documentTemplateSection);
+  }
+
+  public void setDocumentTemplateSection(
+      DocumentTemplateSection documentTemplateSection) {
+    this.documentTemplateSection = documentTemplateSection;
+  }
+
   @Override
   public DocumentTemplateSection getSection() {
-    return documentTemplateSectionClause.getSection();
+
+    Optional<DocumentTemplateSectionClause> docTemplateClauseOpt = getDocumentTemplateSectionClause();
+
+    if (docTemplateClauseOpt.isPresent()) {
+      return docTemplateClauseOpt.get().getDocumentTemplateSection();
+    }
+
+    Optional<DocumentTemplateSection> sectionOpt = getDocumentTemplateSection();
+
+    if (sectionOpt.isPresent()) {
+      return sectionOpt.get();
+    }
+
+    throw new IllegalStateException(String.format("Doc instance section clause with id [%s] has no section", id));
+
   }
 
   @Override

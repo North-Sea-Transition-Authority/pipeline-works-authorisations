@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="docInstanceExists" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="consentDocumentUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory" -->
+<#-- @ftlvariable name="clauseActionsUrlFactory" type="uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory" -->
 <#-- @ftlvariable name="docView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Consent document" />
@@ -34,7 +35,7 @@
       </#if>
 
       <#if docView?has_content>
-        <@pwaClauseList.list documentView=docView />
+        <@pwaClauseList.list documentView=docView clauseActionsUrlFactory=clauseActionsUrlFactory/>
       </#if>
 
     </@defaultPagePaneContent>
