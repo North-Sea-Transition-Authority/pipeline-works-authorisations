@@ -5,6 +5,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -125,6 +126,39 @@ public class PadPipelineSummaryDto {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
     this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
     this.trenchingMethodsDescription = trenchingMethodsDescription;
+  }
+
+  public static PadPipelineSummaryDto from(PipelineDetail pipelineDetail) {
+    return new PadPipelineSummaryDto(
+        null, null,
+        pipelineDetail.getPipelineType(),
+        pipelineDetail.getPipelineNumber(),
+        pipelineDetail.getLength(),
+        null, null, null,
+        // From info.
+        pipelineDetail.getFromLocation(),
+        pipelineDetail.getFromLatitudeDegrees(),
+        pipelineDetail.getFromLatitudeMinutes(),
+        pipelineDetail.getFromLatitudeSeconds(),
+        pipelineDetail.getFromLatitudeDirection(),
+        pipelineDetail.getFromLongitudeDegrees(),
+        pipelineDetail.getFromLongitudeMinutes(),
+        pipelineDetail.getFromLongitudeSeconds(),
+        pipelineDetail.getFromLongitudeDirection(),
+        // To info.
+        pipelineDetail.getToLocation(),
+        pipelineDetail.getToLatitudeDegrees(),
+        pipelineDetail.getToLatitudeMinutes(),
+        pipelineDetail.getToLatitudeSeconds(),
+        pipelineDetail.getToLatitudeDirection(),
+        pipelineDetail.getToLongitudeDegrees(),
+        pipelineDetail.getToLongitudeMinutes(),
+        pipelineDetail.getToLongitudeSeconds(),
+        pipelineDetail.getToLongitudeDirection(),
+        //TODO PWA-838 - Add new application pipeline data capture to consented model
+        null, null, null,null, null,
+        null,null, null, null, null
+    );
   }
 
   public int getPadPipelineId() {

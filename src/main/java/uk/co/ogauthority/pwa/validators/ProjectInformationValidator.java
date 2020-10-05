@@ -41,7 +41,7 @@ public class ProjectInformationValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (ProjectInformationForm) o;
     ValidatorUtils.validateDateIsPresentOrFuture(
-        "proposedStart", "proposed start",
+        "proposedStart", "proposed start of works",
         form.getProposedStartDay(), form.getProposedStartMonth(), form.getProposedStartYear(), errors);
     ValidatorUtils.validateDateIsPresentOrFuture(
         "mobilisation", "mobilisation",

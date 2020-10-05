@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.documents;
+package uk.co.ogauthority.pwa.model.documents.templates;
 
 import java.time.Instant;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
