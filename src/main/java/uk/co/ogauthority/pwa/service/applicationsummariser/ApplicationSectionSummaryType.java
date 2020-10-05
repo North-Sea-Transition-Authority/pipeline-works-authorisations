@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CrossingTypesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.EnvironmentalDecomSummaryService;
@@ -77,6 +78,11 @@ public enum ApplicationSectionSummaryType {
       80,
       "pwaApplication/applicationSummarySections/locationDetailsSummary.ftl",
       LocationDetailsSummaryService.class),
+
+  CROSSING_TYPES(
+      100,
+      "pwaApplication/applicationSummarySections/crossingTypesSummary.ftl",
+      CrossingTypesSummaryService.class),
 
   GENERAL_TECH_DETAILS(
       140,

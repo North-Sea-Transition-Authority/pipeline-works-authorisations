@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.CrossingTypesView;
 
 @Service
 public class CrossingTypesService implements ApplicationFormSectionService {
@@ -18,6 +19,14 @@ public class CrossingTypesService implements ApplicationFormSectionService {
     form.setMedianLineCrossed(detail.getMedianLineCrossed());
     form.setPipelinesCrossed(detail.getPipelinesCrossed());
     form.setCablesCrossed(detail.getCablesCrossed());
+  }
+
+  public CrossingTypesView getCrossingTypesView(PwaApplicationDetail detail) {
+    return new CrossingTypesView(
+      detail.getPipelinesCrossed(),
+      detail.getCablesCrossed(),
+      detail.getMedianLineCrossed()
+    );
   }
 
   @Override
