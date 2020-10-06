@@ -207,7 +207,7 @@ public class WorkScheduleFormValidatorTest {
     assertThat(messages.get("workStart.month")).contains("");
 
     assertThat(messages.get("workStart.year"))
-        .contains("Work start date must be the same as or after Project information proposed start date " +
+        .contains("Work start date must be the same as or after Project information proposed start of works date " +
             "(" + earliest.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER)+")");
 
   }

@@ -312,9 +312,9 @@ public class ValidatorUtils {
           String.format("%s seconds should be between 0 and 59.99", messagePrefix));
     }
 
-    if (seconds.getValue().remainder(BigDecimal.ONE).precision() > 2) {
+    if (NumberUtils.getNumberOfDp(seconds.getValue()) != 2) {
       errors.rejectValue(seconds.getKey(), seconds.getKey() + INVALID.getCode(),
-          String.format("%s seconds should not have more than 2dp", messagePrefix));
+          String.format("%s seconds should have exactly 2dp", messagePrefix));
     }
 
   }

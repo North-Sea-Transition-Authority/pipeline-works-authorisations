@@ -62,6 +62,10 @@ public class PipelineHeaderFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length.required",
         "Enter the pipeline's length");
 
+    if (form.getLength() != null) {
+      PipelineValidationUtils.validateLength(form.getLength(), errors, "length", "Pipeline length");
+    }
+
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "productsToBeConveyed", "productsToBeConveyed.required",
         "Enter the products to be conveyed");
 

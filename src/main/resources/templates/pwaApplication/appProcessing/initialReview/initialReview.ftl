@@ -12,7 +12,7 @@
 
     <#if isFastTrack>
         <@fdsWarning.warning>
-          This application is being fast-tracked, consider the proposed start date before accepting.
+          This application is being fast-tracked, consider the proposed start of works date before accepting.
         </@fdsWarning.warning>
     </#if>
 

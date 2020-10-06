@@ -18,6 +18,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
@@ -122,6 +124,16 @@ public class PipelineDetail {
   private String productsToBeConveyed;
   private Boolean trenchedBuriedFilledFlag;
   private String trenchingMethodsDesc;
+
+  @Enumerated(EnumType.STRING)
+  private PipelineFlexibility pipelineFlexibility;
+
+  @Enumerated(EnumType.STRING)
+  private PipelineMaterial pipelineMaterial;
+
+  private String otherPipelineMaterialUsed;
+
+  private Integer pipelineDesignLife;
 
   @Transient
   private CoordinatePair fromCoordinates;
@@ -417,6 +429,39 @@ public class PipelineDetail {
     this.pipelineStatusReason = pipelineServiceStatusReason;
   }
 
+  public PipelineFlexibility getPipelineFlexibility() {
+    return pipelineFlexibility;
+  }
+
+  public void setPipelineFlexibility(
+      PipelineFlexibility pipelineFlexibility) {
+    this.pipelineFlexibility = pipelineFlexibility;
+  }
+
+  public PipelineMaterial getPipelineMaterial() {
+    return pipelineMaterial;
+  }
+
+  public void setPipelineMaterial(PipelineMaterial pipelineMaterial) {
+    this.pipelineMaterial = pipelineMaterial;
+  }
+
+  public String getOtherPipelineMaterialUsed() {
+    return otherPipelineMaterialUsed;
+  }
+
+  public void setOtherPipelineMaterialUsed(String otherPipelineMaterialUsed) {
+    this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
+  }
+
+  public Integer getPipelineDesignLife() {
+    return pipelineDesignLife;
+  }
+
+  public void setPipelineDesignLife(Integer pipelineDesignLife) {
+    this.pipelineDesignLife = pipelineDesignLife;
+  }
+
   @PostLoad
   public void postLoad() {
     // this method needs to be able to handle nulls given we could be dealing with migrated data
@@ -459,8 +504,6 @@ public class PipelineDetail {
           )
       );
     }
-
-
 
   }
 

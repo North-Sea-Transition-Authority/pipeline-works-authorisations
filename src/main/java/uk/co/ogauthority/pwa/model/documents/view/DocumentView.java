@@ -2,30 +2,37 @@ package uk.co.ogauthority.pwa.model.documents.view;
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 
 public class DocumentView {
 
-  private DocumentTemplate documentTemplate;
+  private PwaDocumentType documentType;
 
-  private String docType;
+  private DocumentTemplateMnem documentTemplateMnem;
 
   private List<SectionView> sections;
 
-  public DocumentView() {
-  }
-
-  public DocumentView(DocumentTemplate documentTemplate) {
-    this.documentTemplate = documentTemplate;
+  public DocumentView(PwaDocumentType documentType, DocumentTemplateMnem documentTemplateMnem) {
+    this.documentTemplateMnem = documentTemplateMnem;
+    this.documentType = documentType;
     this.sections = new ArrayList<>();
   }
 
-  public DocumentTemplate getDocumentTemplate() {
-    return documentTemplate;
+  public PwaDocumentType getDocumentType() {
+    return documentType;
   }
 
-  public void setDocumentTemplate(DocumentTemplate documentTemplate) {
-    this.documentTemplate = documentTemplate;
+  public void setDocumentType(PwaDocumentType documentType) {
+    this.documentType = documentType;
+  }
+
+  public DocumentTemplateMnem getDocumentTemplateMnem() {
+    return documentTemplateMnem;
+  }
+
+  public void setDocumentTemplateMnem(DocumentTemplateMnem documentTemplateMnem) {
+    this.documentTemplateMnem = documentTemplateMnem;
   }
 
   public List<SectionView> getSections() {

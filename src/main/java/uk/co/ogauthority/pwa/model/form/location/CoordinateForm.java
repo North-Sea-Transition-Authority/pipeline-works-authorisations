@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 /**
  * Form class to capture lat/long coordinates.
@@ -45,7 +46,7 @@ public class CoordinateForm {
   }
 
   public void setLatitudeSeconds(BigDecimal latitudeSeconds) {
-    this.latitudeSeconds = latitudeSeconds;
+    this.latitudeSeconds = CoordinateUtils.restoreScale(latitudeSeconds);
   }
 
   public LatitudeDirection getLatitudeDirection() {
@@ -77,7 +78,7 @@ public class CoordinateForm {
   }
 
   public void setLongitudeSeconds(BigDecimal longitudeSeconds) {
-    this.longitudeSeconds = longitudeSeconds;
+    this.longitudeSeconds = CoordinateUtils.restoreScale(longitudeSeconds);
   }
 
   public LongitudeDirection getLongitudeDirection() {
@@ -87,7 +88,6 @@ public class CoordinateForm {
   public void setLongitudeDirection(LongitudeDirection longitudeDirection) {
     this.longitudeDirection = longitudeDirection;
   }
-
 
   @Override
   public boolean equals(Object o) {

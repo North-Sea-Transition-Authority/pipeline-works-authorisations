@@ -3,21 +3,18 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
-import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 
 /**
  * Get or resolve pipelineIdentifiers using the PickableHuooPipelineOption to translate from form or url arguments to
@@ -26,16 +23,13 @@ import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 @Service
 public class PickableHuooPipelineService {
 
-  private final PipelineDetailService pipelineDetailService;
   private final PadPipelineService padPipelineService;
   private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
   public PickableHuooPipelineService(
-      PipelineDetailService pipelineDetailService,
       PadPipelineService padPipelineService,
       PadOrganisationRoleService padOrganisationRoleService) {
-    this.pipelineDetailService = pipelineDetailService;
     this.padPipelineService = padPipelineService;
     this.padOrganisationRoleService = padOrganisationRoleService;
   }
@@ -62,42 +56,24 @@ public class PickableHuooPipelineService {
   }
 
   /**
-   * <p>Pickable pipeline are from aboth the application and PWA as a whole. If an application updates a consented PWA
+   * <p>Pickable pipeline are from both the application and PWA as a whole. If an application updates a consented PWA
    * pipeline, we want the pickable option to show the application details and not the consented details.</p>
    *
    * <p>The returned map will have not have any pipeline splits represented as they only exist in the
    * context of an applications HUOO roles.</p>
    */
-  private Map<PipelineIdentifier, PickableHuooPipelineOption> getWholePipelinePickableOptionsForApp(
+  private Map<PipelineId, PickableHuooPipelineOption> getWholePipelinePickableOptionsForAppAndMasterPwa(
       PwaApplicationDetail pwaApplicationDetail) {
-    // 1. get pickable pipeline options from pipelines represented within the application
-    // 2. get pickable pipeline options from consented model
-    // 3. add consented pipelines to return map where the same pipeline does not exist in application
-    // 4. add all application pipelines to return map
-    // return complete set.
-
-    Map<PipelineIdentifier, PickableHuooPipelineOption> applicationPipelineIdentifiers = padPipelineService
-        .getAllPadPipelineSummaryDtosForApplicationDetail(pwaApplicationDetail)
+    return padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail)
+        .entrySet()
         .stream()
-        .collect(toMap(PadPipelineSummaryDto::getPipelineId, PickableHuooPipelineOption::from));
-
-    Map<PipelineIdentifier, PickableHuooPipelineOption> consentedPipelineIdentifiers = pipelineDetailService
-        .getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication())
-        .stream()
-        .collect(toMap(PipelineDetail::getPipelineId, PickableHuooPipelineOption::from));
-
-    Map<PipelineIdentifier, PickableHuooPipelineOption> pickablePipelinesLookup = new HashMap<>();
-
-    consentedPipelineIdentifiers.forEach((key, value) -> {
-      if (!applicationPipelineIdentifiers.containsKey(key)) {
-        pickablePipelinesLookup.put(key, value);
-      }
-    });
-
-    pickablePipelinesLookup.putAll(applicationPipelineIdentifiers);
-
-    return pickablePipelinesLookup;
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            pipelineIdPipelineOverviewEntry -> PickableHuooPipelineOption.from(
+                pipelineIdPipelineOverviewEntry.getValue())
+        ));
   }
+
 
   /**
    * <p>Pickable pipelines for the application as a whole are those added by the app, imported for update by the app,
@@ -110,9 +86,12 @@ public class PickableHuooPipelineService {
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole) {
 
-    Map<PipelineIdentifier, PickableHuooPipelineOption> pickablePipelinesLookup = getWholePipelinePickableOptionsForApp(
+    Map<PipelineIdentifier, PickableHuooPipelineOption> pickablePipelinesLookup = getWholePipelinePickableOptionsForAppAndMasterPwa(
         pwaApplicationDetail
-    );
+    ).values()
+        .stream()
+        // need to make sure we use interface as map key not just PipelineId implementation.
+        .collect(Collectors.toMap(PickableHuooPipelineOption::asPipelineIdentifier, o -> o));
 
     Set<PipelineIdentifier> splitPipelinesForRole = padOrganisationRoleService.getPipelineSplitsForRole(
         pwaApplicationDetail,

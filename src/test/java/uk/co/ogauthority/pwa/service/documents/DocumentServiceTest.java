@@ -72,7 +72,7 @@ public class DocumentServiceTest {
 
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
-    assertThat(documentService.documentInstanceExists(new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)).isTrue();
+    assertThat(documentService.getDocumentInstance(new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)).isPresent();
 
   }
 
@@ -81,7 +81,7 @@ public class DocumentServiceTest {
 
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
 
-    assertThat(documentService.documentInstanceExists(new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)).isFalse();
+    assertThat(documentService.getDocumentInstance(new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)).isEmpty();
 
   }
 

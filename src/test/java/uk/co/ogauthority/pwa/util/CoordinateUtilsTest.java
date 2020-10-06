@@ -48,7 +48,7 @@ public class CoordinateUtilsTest {
   public void mapCoordinatePairToForm() {
 
     var coordinatePair = new CoordinatePair(
-        new LatitudeCoordinate(48, 49, BigDecimal.valueOf(50), LatitudeDirection.NORTH),
+        new LatitudeCoordinate(48, 49, new BigDecimal("50.00"), LatitudeDirection.NORTH),
         new LongitudeCoordinate(5, 4, BigDecimal.valueOf(6.66), LongitudeDirection.EAST)
     );
 

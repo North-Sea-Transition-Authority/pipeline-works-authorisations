@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.decision.ConsentDocumentUrlFactory;
+import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlFactory;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -48,16 +49,18 @@ public class AppConsentDocController {
                                              PwaAppProcessingContext processingContext,
                                              AuthenticatedUserAccount authenticatedUserAccount) {
 
-    boolean docInstanceExists = documentService
-        .documentInstanceExists(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docInstanceOpt = documentService
+        .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
 
-    var docView = documentService
-        .getDocumentViewForInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = docInstanceOpt
+        .map(documentService::getDocumentViewForInstance)
+        .orElse(null);
 
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/decision/consentDocumentEditor")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("docInstanceExists", docInstanceExists)
+        .addObject("docInstanceExists", docInstanceOpt.isPresent())
         .addObject("consentDocumentUrlFactory", new ConsentDocumentUrlFactory(processingContext.getPwaApplication()))
+        .addObject("clauseActionsUrlFactory", new ClauseActionsUrlFactory(processingContext.getPwaApplication(), docView))
         .addObject("docView", docView);
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consent document");
@@ -94,7 +97,7 @@ public class AppConsentDocController {
                                            AuthenticatedUserAccount authenticatedUserAccount,
                                            RedirectAttributes redirectAttributes) {
 
-    if (!documentService.documentInstanceExists(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)) {
+    if (documentService.getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT).isEmpty()) {
       return flashErrorAndReturn(processingContext, redirectAttributes);
     }
 
@@ -112,7 +115,7 @@ public class AppConsentDocController {
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          RedirectAttributes redirectAttributes) {
 
-    if (!documentService.documentInstanceExists(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)) {
+    if (documentService.getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT).isEmpty()) {
       return flashErrorAndReturn(processingContext, redirectAttributes);
     }
 

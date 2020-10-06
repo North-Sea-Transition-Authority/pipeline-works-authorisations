@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
+import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
@@ -16,6 +17,18 @@ public class AppProcessingBreadcrumbService {
 
   public void fromCaseManagement(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
     addAttrs(modelAndView, caseManagement(pwaApplication), thisPage);
+  }
+
+  public void fromConsentDocument(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+
+    var crumbs = caseManagement(pwaApplication);
+
+    crumbs.put(ReverseRouter.route(on(AppConsentDocController.class)
+        .renderConsentDocEditor(pwaApplication.getId(), pwaApplication.getApplicationType(), null, null)),
+        "Consent document");
+
+    addAttrs(modelAndView, crumbs, thisPage);
+
   }
 
   private Map<String, String> caseManagement(PwaApplication application) {

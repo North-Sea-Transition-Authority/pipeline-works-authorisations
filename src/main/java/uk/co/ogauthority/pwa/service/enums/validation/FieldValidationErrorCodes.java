@@ -12,7 +12,8 @@ public enum FieldValidationErrorCodes {
   OUT_OF_TARGET_RANGE(".outOfTargetRange"),
   NOT_UNIQUE(".notUnique"),
   EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT(".exceedsMaximumFileUploadCount"),
-  TOO_MANY(".tooMany");
+  TOO_MANY(".tooMany"),
+  MAX_DP_EXCEEDED(".maxDpExceeded");
 
   private final String code;
 

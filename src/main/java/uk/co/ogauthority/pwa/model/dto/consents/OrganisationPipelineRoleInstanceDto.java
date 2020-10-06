@@ -26,7 +26,7 @@ public final class OrganisationPipelineRoleInstanceDto {
                                              TreatyAgreement treatyAgreement,
                                              HuooRole huooRole,
                                              HuooType huooType,
-                                             int pipelineId,
+                                             Integer pipelineId,
                                              String fromLocation,
                                              IdentLocationInclusionMode fromLocationMode,
                                              String toLocation,
@@ -42,9 +42,35 @@ public final class OrganisationPipelineRoleInstanceDto {
 
     if (ObjectUtils.allNotNull(fromLocation, fromLocationMode, toLocation, toLocationMode)) {
       this.pipelineIdentifier = PipelineSegment.from(pipelineId, fromLocation, fromLocationMode, toLocation, toLocationMode);
-    } else {
+    } else if (pipelineId != null) {
       this.pipelineIdentifier = new PipelineId(pipelineId);
+    } else {
+      pipelineIdentifier = null;
     }
+  }
+
+  public OrganisationPipelineRoleInstanceDto(Integer organisationUnitId,
+                                             TreatyAgreement treatyAgreement,
+                                             HuooRole huooRole,
+                                             HuooType huooType,
+                                             Integer pipelineId,
+                                             String fromLocation,
+                                             IdentLocationInclusionMode fromLocationMode,
+                                             String toLocation,
+                                             IdentLocationInclusionMode toLocationMode
+  ) {
+    this(organisationUnitId,
+        null, // manual org name always null
+        treatyAgreement,
+        huooRole,
+        huooType,
+        pipelineId,
+        fromLocation,
+        fromLocationMode,
+        toLocation,
+        toLocationMode
+
+    );
   }
 
   public OrganisationUnitId getOrganisationUnitId() {

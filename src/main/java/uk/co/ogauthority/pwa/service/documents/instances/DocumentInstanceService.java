@@ -8,12 +8,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
@@ -23,8 +25,12 @@ import uk.co.ogauthority.pwa.model.documents.view.SectionView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSectionClauseVersion;
+import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
+import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
+import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceRepository;
 import uk.co.ogauthority.pwa.repository.documents.instances.DocumentInstanceSectionClauseRepository;
@@ -174,22 +180,14 @@ public class DocumentInstanceService {
     return documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(application, templateMnem);
   }
 
-  public DocumentView getDocumentView(PwaApplication application,
-                                      DocumentTemplateMnem templateMnem) {
-
-    var instance = documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(application, templateMnem)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
-            String.format("Couldn't find doc instance for app with id [%s] and template mnem [%s]",
-                application.getId(),
-                templateMnem.name())));
+  public DocumentView getDocumentView(DocumentInstance instance) {
 
     var clauseVersionDtos = sectionClauseVersionDtoRepository.findAllByDiId(instance.getId());
 
     var sectionToClauseVersionMap = clauseVersionDtos.stream()
         .collect(Collectors.groupingBy(DocumentInstanceSectionClauseVersionDto::getSectionName));
 
-    var docView = new DocumentView();
-    docView.setDocumentTemplate(instance.getDocumentTemplate());
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, instance.getDocumentTemplate().getMnem());
 
     var sections = sectionToClauseVersionMap.entrySet().stream()
         .map(entry -> createSectionView(entry.getKey(), entry.getValue()))
@@ -248,13 +246,13 @@ public class DocumentInstanceService {
 
     sectionView.getClauses().forEach(clause -> {
 
-      var link = SidebarSectionLink.createAnchorLink(clause.getName(), "#clauseId-" + clause.getId());
+      var link = SidebarSectionLink.createAnchorLink(clause.getName(), "#clauseId-" + clause.getClauseId());
 
       sidebarLinks.add(link);
 
       clause.getChildClauses().forEach(child -> {
 
-        var l = SidebarSectionLink.createAnchorLink(child.getName(), "#clauseId-" + child.getId());
+        var l = SidebarSectionLink.createAnchorLink(child.getName(), "#clauseId-" + child.getClauseId());
 
         sidebarLinks.add(l);
 
@@ -263,6 +261,118 @@ public class DocumentInstanceService {
     });
 
     sectionView.setSidebarSectionLinks(sidebarLinks);
+
+  }
+
+  public DocumentInstanceSectionClauseVersion getInstanceClauseVersionByClauseIdOrThrow(Integer clauseId) {
+    return instanceSectionClauseVersionRepository
+        .findByDocumentInstanceSectionClause_IdAndTipFlagIsTrue(clauseId)
+        .orElseThrow(() -> new DocumentInstanceException(String.format("Couldn't find instance clause with ID: [%s]", clauseId)));
+  }
+
+  /**
+   * Add a new instance clause to a doc instance.
+   * @param documentInstance clause is being added to
+   * @param section clause is being added to
+   * @param newParent clause that should be set as the parent on the new clause
+   * @param form containing clause info to set
+   * @param creatingPerson person creating clause
+   * @param levelOrder to set for the new clause
+   * @return the newly created version
+   */
+  private DocumentInstanceSectionClauseVersion addClause(DocumentInstance documentInstance,
+                                                         DocumentTemplateSection section,
+                                                         @Nullable DocumentInstanceSectionClause newParent,
+                                                         Integer levelOrder,
+                                                         ClauseForm form,
+                                                         Person creatingPerson) {
+
+    var newClause = new DocumentInstanceSectionClause();
+    var newClauseVersion = new DocumentInstanceSectionClauseVersion();
+
+    newClause.setDocumentInstance(documentInstance);
+    newClause.setDocumentTemplateSection(section);
+
+    newClauseVersion.setParentDocumentInstanceSectionClause(newParent);
+
+    newClauseVersion.setDocumentInstanceSectionClause(newClause);
+
+    sectionClauseCreator.setCommonData(
+        newClauseVersion,
+        form.getName(),
+        form.getText(),
+        levelOrder,
+        SectionClauseVersionStatus.ACTIVE,
+        creatingPerson);
+
+    instanceSectionClauseRepository.save(newClause);
+    instanceSectionClauseVersionRepository.save(newClauseVersion);
+
+    return newClauseVersion;
+
+  }
+
+  /**
+   * Add a new clause on the same level as but one position after the passed-in clause.
+   */
+  @Transactional
+  public void addClauseAfter(DocumentInstanceSectionClauseVersion versionToAddAfter, ClauseForm form, Person creatingPerson) {
+    addClause(
+        versionToAddAfter.getDocumentInstanceSectionClause().getDocumentInstance(),
+        versionToAddAfter.getDocumentInstanceSectionClause().getSection(),
+        versionToAddAfter.getParentDocumentInstanceSectionClause(),
+        versionToAddAfter.getLevelOrder() + 1,
+        form,
+        creatingPerson);
+  }
+
+  /**
+   * Add a new clause on the same level as but one position before the passed-in clause.
+   * The passed-in clause and any clauses following that (on the same level) are re-ordered.
+   */
+  @Transactional
+  public void addClauseBefore(DocumentInstanceSectionClauseVersion versionToAddBefore, ClauseForm form, Person creatingPerson) {
+
+    // add a new clause one position higher than the one we are adding before
+    var newClauseVersion = addClause(
+        versionToAddBefore.getDocumentInstanceSectionClause().getDocumentInstance(),
+        versionToAddBefore.getDocumentInstanceSectionClause().getSection(),
+        versionToAddBefore.getParentDocumentInstanceSectionClause(),
+        versionToAddBefore.getLevelOrder() - 1,
+        form,
+        creatingPerson);
+
+    var docInstance = newClauseVersion.getDocumentInstanceSectionClause().getDocumentInstance();
+    var parent = newClauseVersion.getParentDocumentInstanceSectionClause();
+
+    // increment the position of everything ahead of our new clause within its level, which will leave a gap
+    var updatedClauseVersions = instanceSectionClauseVersionRepository
+        .findByDocumentInstanceSectionClause_DocumentInstanceAndParentDocumentInstanceSectionClause(docInstance, parent).stream()
+        .filter(clauseVersion -> clauseVersion.getLevelOrder() > newClauseVersion.getLevelOrder())
+        .peek(clauseVersion -> clauseVersion.setLevelOrder(clauseVersion.getLevelOrder() + 1))
+        .collect(Collectors.toList());
+
+    // fill the gap left by the reordering by bumping the order on our new clause
+    newClauseVersion.setLevelOrder(newClauseVersion.getLevelOrder() + 1);
+    updatedClauseVersions.add(newClauseVersion);
+
+    instanceSectionClauseVersionRepository.saveAll(updatedClauseVersions);
+
+  }
+
+  /**
+   * Add a child clause for the passed-in clause.
+   */
+  @Transactional
+  public void addSubClause(DocumentInstanceSectionClauseVersion versionToAddSubFor, ClauseForm form, Person creatingPerson) {
+
+    addClause(
+        versionToAddSubFor.getDocumentInstanceSectionClause().getDocumentInstance(),
+        versionToAddSubFor.getDocumentInstanceSectionClause().getSection(),
+        versionToAddSubFor.getDocumentInstanceSectionClause(),
+        1,
+        form,
+        creatingPerson);
 
   }
 

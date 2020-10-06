@@ -5,7 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.ApplicationContactsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CableCrossingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CampaignWorkScheduleSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.CrossingTypesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.DesignOpConditionsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.EnvironmentalDecomSummaryService;
@@ -13,6 +15,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Fa
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FieldInformationSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.GeneralTechInfoSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LicenceBlockSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LocationDetailsSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.MedianLineAgreementSummaryService;
@@ -71,6 +74,11 @@ public enum ApplicationSectionSummaryType {
           "pwaApplication/applicationSummarySections/environmentalAndDecommissioningSummary.ftl",
       EnvironmentalDecomSummaryService.class),
 
+  HUOO(
+      60,
+      "pwaApplication/applicationSummarySections/huooSummary.ftl",
+      HuooSummaryService.class),
+
   PARTNER_LETTERS(
       70,
           "pwaApplication/applicationSummarySections/partnerApprovalLettersSummary.ftl",
@@ -86,10 +94,20 @@ public enum ApplicationSectionSummaryType {
       "pwaApplication/applicationSummarySections/licenceBlockSummary.ftl",
       LicenceBlockSummaryService.class),
 
+  CROSSING_TYPES(
+      100,
+      "pwaApplication/applicationSummarySections/crossingTypesSummary.ftl",
+      CrossingTypesSummaryService.class),
+
   PIPELINE_CROSSINGS(
       110,
       "pwaApplication/applicationSummarySections/pipelineCrossingsSummary.ftl",
       PipelineCrossingsSummaryService.class),
+
+  CABLE_CROSSINGS(
+      120,
+      "pwaApplication/applicationSummarySections/cableCrossingsSummary.ftl",
+      CableCrossingsSummaryService.class),
 
   MEDIAN_LINE_CROSSING(
       130,

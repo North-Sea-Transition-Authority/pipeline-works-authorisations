@@ -41,9 +41,31 @@ public class PipelineHuooUrlFactory {
     return getAddPipelineRoleUrl(HuooRole.OWNER);
   }
 
+
   private String getAddPipelineRoleUrl(HuooRole huooRole) {
     return ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .renderPipelinesForHuooAssignment(applicationType, applicationId, huooRole, null, null));
+  }
+
+  public String getSplitHolderPipelineUrl() {
+    return getSplitPipelineRoleUrl(HuooRole.HOLDER);
+  }
+
+  public String getSplitUserPipelineUrl() {
+    return getSplitPipelineRoleUrl(HuooRole.USER);
+  }
+
+  public String getSplitOperatorPipelineUrl() {
+    return getSplitPipelineRoleUrl(HuooRole.OPERATOR);
+  }
+
+  public String getSplitOwnerPipelineUrl() {
+    return getSplitPipelineRoleUrl(HuooRole.OWNER);
+  }
+
+  private String getSplitPipelineRoleUrl(HuooRole huooRole) {
+    return ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
+        .renderSelectPipelineToSplit(applicationType, applicationId, huooRole, null, null));
   }
 
 

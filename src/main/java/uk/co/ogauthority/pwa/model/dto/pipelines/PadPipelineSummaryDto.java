@@ -5,6 +5,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -13,6 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 /**
  * Class designed to be constructed from jpa query to summarise a single PadPipeline.
+ * TODO rename to something more generic once simultaneous work around pipelines is stopped
  **/
 public class PadPipelineSummaryDto {
 
@@ -75,7 +77,8 @@ public class PadPipelineSummaryDto {
                                String otherPipelineMaterialUsed,
                                Boolean trenchedBuriedBackfilled,
                                String trenchingMethodsDescription,
-                               PipelineStatus pipelineStatus, String pipelineStatusReason) {
+                               PipelineStatus pipelineStatus,
+                               String pipelineStatusReason) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;
@@ -125,6 +128,47 @@ public class PadPipelineSummaryDto {
     this.otherPipelineMaterialUsed = otherPipelineMaterialUsed;
     this.trenchedBuriedBackfilled = trenchedBuriedBackfilled;
     this.trenchingMethodsDescription = trenchingMethodsDescription;
+  }
+
+  public static PadPipelineSummaryDto from(PipelineDetail pipelineDetail) {
+    return new PadPipelineSummaryDto(
+        null, null,
+        pipelineDetail.getPipelineType(),
+        pipelineDetail.getPipelineNumber(),
+        pipelineDetail.getLength(),
+        null, null, null,
+        // From info.
+        pipelineDetail.getFromLocation(),
+        pipelineDetail.getFromLatitudeDegrees(),
+        pipelineDetail.getFromLatitudeMinutes(),
+        pipelineDetail.getFromLatitudeSeconds(),
+        pipelineDetail.getFromLatitudeDirection(),
+        pipelineDetail.getFromLongitudeDegrees(),
+        pipelineDetail.getFromLongitudeMinutes(),
+        pipelineDetail.getFromLongitudeSeconds(),
+        pipelineDetail.getFromLongitudeDirection(),
+        // To info.
+        pipelineDetail.getToLocation(),
+        pipelineDetail.getToLatitudeDegrees(),
+        pipelineDetail.getToLatitudeMinutes(),
+        pipelineDetail.getToLatitudeSeconds(),
+        pipelineDetail.getToLatitudeDirection(),
+        pipelineDetail.getToLongitudeDegrees(),
+        pipelineDetail.getToLongitudeMinutes(),
+        pipelineDetail.getToLongitudeSeconds(),
+        pipelineDetail.getToLongitudeDirection(),
+        // other form data
+        pipelineDetail.getMaxExternalDiameter(),
+        pipelineDetail.getPipelineInBundle(),
+        pipelineDetail.getBundleName(),
+        pipelineDetail.getPipelineFlexibility(),
+        pipelineDetail.getPipelineMaterial(),
+        pipelineDetail.getOtherPipelineMaterialUsed(),
+        pipelineDetail.getTrenchedBuriedFilledFlag(),
+        pipelineDetail.getTrenchingMethodsDesc(),
+        pipelineDetail.getPipelineStatus(),
+        pipelineDetail.getPipelineStatusReason()
+    );
   }
 
   public int getPadPipelineId() {

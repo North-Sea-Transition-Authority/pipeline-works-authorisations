@@ -148,6 +148,32 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
+  public void failed_length_notPositive() {
+
+    var form = buildForm();
+
+    form.setLength(BigDecimal.valueOf(-1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+
+    assertThat(result).containsOnly(entry("length", Set.of("length.invalid")));
+
+  }
+
+  @Test
+  public void failed_length_over2Dp() {
+
+    var form = buildForm();
+
+    form.setLength(BigDecimal.valueOf(1.323));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null);
+
+    assertThat(result).containsOnly(entry("length", Set.of("length.maxDpExceeded")));
+
+  }
+
+  @Test
   public void failed_trenchingMethodsRequired() {
 
     var form = buildForm();
@@ -225,7 +251,7 @@ public class PipelineHeaderFormValidatorTest {
     CoordinateUtils.mapCoordinatePairToForm(
         new CoordinatePair(
             new LatitudeCoordinate(55, 55, BigDecimal.valueOf(55.55), LatitudeDirection.NORTH),
-            new LongitudeCoordinate(12, 12, BigDecimal.valueOf(12), LongitudeDirection.EAST)
+            new LongitudeCoordinate(12, 12, new BigDecimal("12.00"), LongitudeDirection.EAST)
         ), fromCoordinateForm
     );
     form.setFromCoordinateForm(fromCoordinateForm);
@@ -234,7 +260,7 @@ public class PipelineHeaderFormValidatorTest {
     var toCoordinateForm = new CoordinateForm();
     CoordinateUtils.mapCoordinatePairToForm(
         new CoordinatePair(
-            new LatitudeCoordinate(46, 46, BigDecimal.valueOf(46), LatitudeDirection.SOUTH),
+            new LatitudeCoordinate(46, 46, new BigDecimal("46.00"), LatitudeDirection.SOUTH),
             new LongitudeCoordinate(6, 6, BigDecimal.valueOf(6.66), LongitudeDirection.WEST)
         ), toCoordinateForm
     );
@@ -251,7 +277,6 @@ public class PipelineHeaderFormValidatorTest {
     form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
     form.setPipelineDesignLife(5);
     form.setPipelineInBundle(false);
-
 
     return form;
 

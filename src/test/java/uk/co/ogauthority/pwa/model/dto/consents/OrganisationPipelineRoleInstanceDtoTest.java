@@ -111,4 +111,9 @@ public class OrganisationPipelineRoleInstanceDtoTest {
     EqualsVerifier.forClass(OrganisationPipelineRoleInstanceDto.class)
         .verify();
   }
+
+
+
+
+
 }

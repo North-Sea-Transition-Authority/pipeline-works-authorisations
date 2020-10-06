@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstanceSe
 @Repository
 public interface DocumentInstanceSectionClauseRepository extends CrudRepository<DocumentInstanceSectionClause, Integer> {
 
-  @EntityGraph(attributePaths = { "documentInstance", "documentTemplateSectionClause" })
+  @EntityGraph(attributePaths = { "documentInstance", "documentTemplateSectionClause", "documentTemplateSection" })
   List<DocumentInstanceSectionClause> findAllByDocumentInstance(DocumentInstance documentInstance);
 
 }

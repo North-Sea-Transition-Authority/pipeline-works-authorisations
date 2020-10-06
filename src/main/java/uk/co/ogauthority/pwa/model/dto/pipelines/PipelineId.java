@@ -6,6 +6,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 /**
  *  Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.
@@ -15,6 +16,10 @@ public final class PipelineId implements PipelineIdentifier, DiffableAsString {
 
   public PipelineId(int id) {
     this.id = id;
+  }
+
+  public static PipelineId from(PipelineOverview pipeline) {
+    return new PipelineId(pipeline.getPipelineId());
   }
 
   public static PipelineId from(Pipeline pipeline) {
