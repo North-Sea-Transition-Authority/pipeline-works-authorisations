@@ -72,12 +72,11 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
             ", pd.maxExternalDiameter " +
             ", pd.pipelineInBundle " +
             ", pd.bundleName " +
-            // TODO PWA-838: These are not yet included in the consented model
-            // ", pd.pipelineFlexibility" +
-            // ", pd.pipelineMaterial " +
-            // ", pd.otherPipelineMaterialUsed " +
-            // ", pd.trenchedBuriedBackfilled " +
-            // ", pd.trenchingMethodsDescription " +
+            ", pd.pipelineFlexibility" +
+            ", pd.pipelineMaterial " +
+            ", pd.otherPipelineMaterialUsed " +
+            ", pd.trenchedBuriedFilledFlag " +
+            ", pd.trenchingMethodsDesc " +
             ", pd.pipelineStatus " +
             ", pd.pipelineStatusReason " +
             ") " +
@@ -118,11 +117,11 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
             ", pd.maxExternalDiameter " +
             ", pd.pipelineInBundle " +
             ", pd.bundleName " +
-            //", pd.pipelineFlexibility " +
-            //", pd.pipelineMaterial " +
-            //", pd.otherPipelineMaterialUsed " +
-            //", pd.trenchedBuriedBackfilled " +
-            //", pd.trenchingMethodsDescription" +
+            ", pd.pipelineFlexibility " +
+            ", pd.pipelineMaterial " +
+            ", pd.otherPipelineMaterialUsed " +
+            ", pd.trenchedBuriedFilledFlag " +
+            ", pd.trenchingMethodsDesc" +
             ", pd.pipelineStatus" +
             ", pd.pipelineStatusReason ",
         PipelineDetailSummaryDto.class)

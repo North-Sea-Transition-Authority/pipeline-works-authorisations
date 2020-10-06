@@ -41,81 +41,6 @@ public class PadPipelineSummaryDto {
   private final PipelineStatus pipelineStatus;
   private final String pipelineStatusReason;
 
-  // TODO PWA-838: remove this constructor and replace any callers the the non-deprecated one
-  //  ( check in dto repository implementations for construction in JPQL)
-  @Deprecated
-  public PadPipelineSummaryDto(Integer padPipelineId,
-                               Integer pipelineId,
-                               PipelineType pipelineType,
-                               String pipelineNumber,
-                               BigDecimal length,
-                               String componentParts,
-                               String productsToBeConveyed,
-                               Long numberOfIdents,
-                               // From info.
-                               String fromLocation,
-                               Integer fromLatitudeDegrees,
-                               Integer fromLatitudeMinutes,
-                               BigDecimal fromLatitudeSeconds,
-                               LatitudeDirection fromLatitudeDirection,
-                               Integer fromLongitudeDegrees,
-                               Integer fromLongitudeMinutes,
-                               BigDecimal fromLongitudeSeconds,
-                               LongitudeDirection fromLongitudeDirection,
-                               // To info.
-                               String toLocation,
-                               Integer toLatitudeDegrees,
-                               Integer toLatitudeMinutes,
-                               BigDecimal toLatitudeSeconds,
-                               LatitudeDirection toLatitudeDirection,
-                               Integer toLongitudeDegrees,
-                               Integer toLongitudeMinutes,
-                               BigDecimal toLongitudeSeconds,
-                               LongitudeDirection toLongitudeDirection,
-                               BigDecimal maxExternalDiameter,
-                               Boolean pipelineInBundle,
-                               String bundleName,
-                               PipelineStatus pipelineStatus,
-                               String pipelineStatusReason) {
-    this(padPipelineId,
-        pipelineId,
-        pipelineType,
-        pipelineNumber,
-        length,
-        componentParts,
-        productsToBeConveyed,
-        numberOfIdents,
-        fromLocation,
-        fromLatitudeDegrees,
-        fromLatitudeMinutes,
-        fromLatitudeSeconds,
-        fromLatitudeDirection,
-        fromLongitudeDegrees,
-        fromLongitudeMinutes,
-        fromLongitudeSeconds,
-        fromLongitudeDirection,
-        toLocation,
-        toLatitudeDegrees,
-        toLatitudeMinutes,
-        toLatitudeSeconds,
-        toLatitudeDirection,
-        toLongitudeDegrees,
-        toLongitudeMinutes,
-        toLongitudeSeconds,
-        toLongitudeDirection,
-        maxExternalDiameter,
-        pipelineInBundle,
-        bundleName,
-        null,
-        null,
-        null,
-        null,
-        null,
-        pipelineStatus,
-        pipelineStatusReason);
-
-  }
-
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
                                PipelineType pipelineType,
@@ -232,9 +157,17 @@ public class PadPipelineSummaryDto {
         pipelineDetail.getToLongitudeMinutes(),
         pipelineDetail.getToLongitudeSeconds(),
         pipelineDetail.getToLongitudeDirection(),
-        //TODO PWA-838 - Add new application pipeline data capture to consented model
-        null, null, null,null, null,
-        null,null, null, null, null
+        // other form data
+        pipelineDetail.getMaxExternalDiameter(),
+        pipelineDetail.getPipelineInBundle(),
+        pipelineDetail.getBundleName(),
+        pipelineDetail.getPipelineFlexibility(),
+        pipelineDetail.getPipelineMaterial(),
+        pipelineDetail.getOtherPipelineMaterialUsed(),
+        pipelineDetail.getTrenchedBuriedFilledFlag(),
+        pipelineDetail.getTrenchingMethodsDesc(),
+        pipelineDetail.getPipelineStatus(),
+        pipelineDetail.getPipelineStatusReason()
     );
   }
 
