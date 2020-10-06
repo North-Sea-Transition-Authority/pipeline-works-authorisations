@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadMedianLineAgreementRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -85,6 +86,16 @@ public class PadMedianLineAgreementService implements ApplicationFormSectionServ
       padMedianLineAgreement.setNegotiatorEmail(null);
     }
     padMedianLineAgreementRepository.save(padMedianLineAgreement);
+  }
+
+  public MedianLineAgreementView getMedianLineCrossingView(PwaApplicationDetail pwaApplicationDetail) {
+
+    var medianLineAgreement = getMedianLineAgreement(pwaApplicationDetail);
+    return new MedianLineAgreementView(
+        medianLineAgreement.getAgreementStatus(),
+        medianLineAgreement.getNegotiatorName(),
+        medianLineAgreement.getNegotiatorEmail()
+    );
   }
 
   @Override
