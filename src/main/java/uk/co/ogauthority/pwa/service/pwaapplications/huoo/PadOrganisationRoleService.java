@@ -598,7 +598,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         () -> padOrganisationRolesRepository.getAllByPwaApplicationDetail(fromDetail),
          toDetail,
         PadOrganisationRole.class
-
     );
 
     var pipelineOrgRolesCopiedEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
@@ -615,7 +614,24 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.OPTIONS_VARIATION);
   }
 
+  @Transactional
+  public void removalPipelineOrgRoleLinks(
+      Collection<PadPipelineOrganisationRoleLink> padPipelineOrganisationRoleLinks) {
+    padPipelineOrganisationRoleLinkRepository.deleteAll(padPipelineOrganisationRoleLinks);
+  }
 
+  @Transactional
+  public void removeOrgRole(PadOrganisationRole padOrganisationRole) {
+    padOrganisationRolesRepository.delete(padOrganisationRole);
+  }
+
+  public List<PadPipelineOrganisationRoleLink> getPipelineOrgRoleLinks(PwaApplicationDetail pwaApplicationDetail,
+                                                                       HuooRole huooRole,
+                                                                       PipelineId pipelineId) {
+    return padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
+        pwaApplicationDetail, huooRole, Set.of(pipelineId.asInt())
+    );
+  }
 
   public List<PipelineNumbersAndSplits> getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
       PwaApplicationDetail pwaApplicationDetail,

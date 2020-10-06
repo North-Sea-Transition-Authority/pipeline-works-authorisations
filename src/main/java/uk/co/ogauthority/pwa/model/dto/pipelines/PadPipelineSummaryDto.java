@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 /**
  * Class designed to be constructed from jpa query to summarise a single PadPipeline.
+ * TODO rename to something more generic once simultaneous work around pipelines is stopped
  **/
 public class PadPipelineSummaryDto {
 
@@ -39,6 +40,81 @@ public class PadPipelineSummaryDto {
   private final String trenchingMethodsDescription;
   private final PipelineStatus pipelineStatus;
   private final String pipelineStatusReason;
+
+  // TODO PWA-838: remove this constructor and replace any callers the the non-deprecated one
+  //  ( check in dto repository implementations for construction in JPQL)
+  @Deprecated
+  public PadPipelineSummaryDto(Integer padPipelineId,
+                               Integer pipelineId,
+                               PipelineType pipelineType,
+                               String pipelineNumber,
+                               BigDecimal length,
+                               String componentParts,
+                               String productsToBeConveyed,
+                               Long numberOfIdents,
+                               // From info.
+                               String fromLocation,
+                               Integer fromLatitudeDegrees,
+                               Integer fromLatitudeMinutes,
+                               BigDecimal fromLatitudeSeconds,
+                               LatitudeDirection fromLatitudeDirection,
+                               Integer fromLongitudeDegrees,
+                               Integer fromLongitudeMinutes,
+                               BigDecimal fromLongitudeSeconds,
+                               LongitudeDirection fromLongitudeDirection,
+                               // To info.
+                               String toLocation,
+                               Integer toLatitudeDegrees,
+                               Integer toLatitudeMinutes,
+                               BigDecimal toLatitudeSeconds,
+                               LatitudeDirection toLatitudeDirection,
+                               Integer toLongitudeDegrees,
+                               Integer toLongitudeMinutes,
+                               BigDecimal toLongitudeSeconds,
+                               LongitudeDirection toLongitudeDirection,
+                               BigDecimal maxExternalDiameter,
+                               Boolean pipelineInBundle,
+                               String bundleName,
+                               PipelineStatus pipelineStatus,
+                               String pipelineStatusReason) {
+    this(padPipelineId,
+        pipelineId,
+        pipelineType,
+        pipelineNumber,
+        length,
+        componentParts,
+        productsToBeConveyed,
+        numberOfIdents,
+        fromLocation,
+        fromLatitudeDegrees,
+        fromLatitudeMinutes,
+        fromLatitudeSeconds,
+        fromLatitudeDirection,
+        fromLongitudeDegrees,
+        fromLongitudeMinutes,
+        fromLongitudeSeconds,
+        fromLongitudeDirection,
+        toLocation,
+        toLatitudeDegrees,
+        toLatitudeMinutes,
+        toLatitudeSeconds,
+        toLatitudeDirection,
+        toLongitudeDegrees,
+        toLongitudeMinutes,
+        toLongitudeSeconds,
+        toLongitudeDirection,
+        maxExternalDiameter,
+        pipelineInBundle,
+        bundleName,
+        null,
+        null,
+        null,
+        null,
+        null,
+        pipelineStatus,
+        pipelineStatusReason);
+
+  }
 
   public PadPipelineSummaryDto(Integer padPipelineId,
                                Integer pipelineId,
@@ -76,7 +152,8 @@ public class PadPipelineSummaryDto {
                                String otherPipelineMaterialUsed,
                                Boolean trenchedBuriedBackfilled,
                                String trenchingMethodsDescription,
-                               PipelineStatus pipelineStatus, String pipelineStatusReason) {
+                               PipelineStatus pipelineStatus,
+                               String pipelineStatusReason) {
     this.padPipelineId = padPipelineId;
     this.pipelineId = pipelineId;
     this.fromLocation = fromLocation;

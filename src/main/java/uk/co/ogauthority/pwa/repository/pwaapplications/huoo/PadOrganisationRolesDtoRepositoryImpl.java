@@ -51,9 +51,8 @@ public class PadOrganisationRolesDtoRepositoryImpl implements PadOrganisationRol
             "  pporl.toLocation, " +
             "  pporl.toLocationIdentInclusionMode " +
             ") " +
-            "FROM PadPipelineOrganisationRoleLink pporl " +
-            //performing a RIGHT join here in order to get the orgs regardless of whether there is a pipeline link
-            "RIGHT JOIN PadOrganisationRole por ON pporl.padOrgRole = por " +
+            "FROM PadOrganisationRole por " +
+            "LEFT JOIN PadPipelineOrganisationRoleLink pporl ON pporl.padOrgRole = por " +
             "WHERE por.pwaApplicationDetail  = :pwaApplicationDetail ",
         OrganisationPipelineRoleInstanceDto.class)
         .setParameter("pwaApplicationDetail", pwaApplicationDetail);

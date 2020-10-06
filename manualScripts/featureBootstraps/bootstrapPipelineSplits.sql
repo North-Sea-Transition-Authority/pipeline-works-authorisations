@@ -9,12 +9,11 @@ DECLARE
   l_pad_id            NUMBER ;
 
   l_pipeline_id       NUMBER         := :p_pipeline_id;
-  l_huuo_role         VARCHAR2(4000) := :p_huoo_role; -- [HOLDER, USER, OPERATOR, OWNER]
+  l_huoo_role         VARCHAR2(4000) := :p_huoo_role; -- [HOLDER, USER, OPERATOR, OWNER]
   l_create_split_role VARCHAR2(4000) := COALESCE(:p_create_split_role, 'false');
   l_split_pad_ord_role_id   NUMBER;
   l_start_idents      NUMBER;
 BEGIN
-
   SELECT count(*)
   INTO l_start_idents
   FROM ${datasource.user}.pad_pipeline_idents ppi
@@ -40,7 +39,7 @@ BEGIN
     SELECT por.id
     FROM ${datasource.user}.pad_organisation_roles por
     JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
-    WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huuo_role
+    WHERE pad.pwa_application_id = l_application_id AND pad.tip_flag = 1 AND por.role = l_huoo_role
   );
 
   if(l_create_split_role = 'true') THEN
@@ -51,7 +50,7 @@ BEGIN
       JOIN ${datasource.user}.pwa_application_details pad ON por2.application_detail_id = pad.id
       WHERE pad.pwa_application_id = l_application_id
       AND pad.tip_flag = 1
-      AND por.role = l_huuo_role
+      AND por.role = l_huoo_role
       AND por.type = g_split_huoo_type
     );
 
@@ -84,7 +83,7 @@ BEGIN
                     JOIN ${datasource.user}.pwa_application_details pad ON por.application_detail_id = pad.id
                WHERE pad.pwa_application_id = l_application_id 
                AND pad.tip_flag = 1 
-               AND por.role = l_huuo_role
+               AND por.role = l_huoo_role
                AND (por.id =  l_split_pad_ord_role_id OR l_split_pad_ord_role_id IS NULL)
                ORDER BY dbms_random.random
              )

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
@@ -11,13 +12,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /*
- * Simple dto for PadPipelines objects which obeys the PipelineOverview interface
+ * Simple dto for Pipeline objects which obeys the PipelineOverview interface.
  * */
 public class PadPipelineOverview implements PipelineOverview {
 
-  // to be more generic, this should be a composite key of type and id, e.g "PAD_PIPELINE_ID++1" or "PIPELINE_ID++1"
-  // best to have the interface handle this kind of thing for us imo.
-  // e.g Optional<Integer> getPadPipelineId(); Optional<Integer> getMasterPipelineId(); or similar
   private Integer padPipelineId;
 
   private Integer pipelineId;
@@ -130,6 +128,33 @@ public class PadPipelineOverview implements PipelineOverview {
     this.length = padPipeline.getLength();
   }
 
+  public static PadPipelineOverview from(PipelineDetailSummaryDto padPipelineSummaryDto) {
+    return new PadPipelineOverview(
+        null,
+        padPipelineSummaryDto.getPipelineId().asInt(),
+        padPipelineSummaryDto.getFromLocation(),
+        padPipelineSummaryDto.getFromCoordinates(),
+        padPipelineSummaryDto.getToLocation(),
+        padPipelineSummaryDto.getToCoordinates(),
+        padPipelineSummaryDto.getPipelineNumber(),
+        padPipelineSummaryDto.getPipelineType(),
+        padPipelineSummaryDto.getComponentParts(),
+        padPipelineSummaryDto.getLength(),
+        padPipelineSummaryDto.getProductsToBeConveyed(),
+        padPipelineSummaryDto.getNumberOfIdents(),
+        padPipelineSummaryDto.getMaxExternalDiameter(),
+        padPipelineSummaryDto.getPipelineInBundle(),
+        padPipelineSummaryDto.getBundleName(),
+        padPipelineSummaryDto.getPipelineFlexibility(),
+        padPipelineSummaryDto.getPipelineMaterial(),
+        padPipelineSummaryDto.getOtherPipelineMaterialUsed(),
+        padPipelineSummaryDto.getTrenchedBuriedBackfilled(),
+        padPipelineSummaryDto.getTrenchingMethodsDescription(),
+        padPipelineSummaryDto.getPipelineStatus(),
+        padPipelineSummaryDto.getPipelineStatusReason(),
+        false
+    );
+  }
 
   public static PadPipelineOverview from(PadPipelineSummaryDto padPipelineSummaryDto, Boolean hasTasks) {
 

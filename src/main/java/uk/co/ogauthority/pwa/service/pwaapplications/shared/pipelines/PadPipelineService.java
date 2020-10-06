@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -59,7 +60,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption;
 import uk.co.ogauthority.pwa.service.pwaconsents.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
@@ -597,6 +597,43 @@ public class PadPipelineService implements ApplicationFormSectionService {
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
     padPipelineDataCopierService.copyAllPadPipelineData(fromDetail, toDetail, () -> getPipelines(fromDetail));
+  }
+
+
+  /**
+   * <p>Pipelines from both the application and PWA as a whole. If an application updates a consented PWA
+   * pipeline, we want the detail to show the application details and not the consented details.</p>
+   *
+   * <p>The returned map will have not have any pipeline splits represented as they only exist in the
+   * context of an applications HUOO roles.</p>
+   */
+  public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsFromAppAndMasterPwa(
+      PwaApplicationDetail pwaApplicationDetail) {
+    // 1. get pipeline overviews from pipelines represented within the application
+    // 2. get pipeline overviews from consented model
+    // 3. add consented pipelines to return map where the same pipeline does not exist in application
+    // 4. add all application pipelines to return map
+
+    Map<PipelineId, PipelineOverview> applicationPipelineIds = getApplicationPipelineOverviews(pwaApplicationDetail)
+        .stream()
+        .collect(toMap(PipelineId::from, pipelineOverview -> pipelineOverview));
+
+    Map<PipelineId, PipelineOverview> consentedPipelineIdentifiers = pipelineDetailService
+        .getAllPipelineOverviewsForMasterPwa(pwaApplicationDetail.getPwaApplication().getMasterPwa())
+        .stream()
+        .collect(toUnmodifiableMap(PipelineId::from, pipelineOverview -> pipelineOverview));
+
+    Map<PipelineId, PipelineOverview> pipelineOverviewSummary = new HashMap<>();
+
+    consentedPipelineIdentifiers.forEach((key, value) -> {
+      if (!applicationPipelineIds.containsKey(key)) {
+        pipelineOverviewSummary.put(key, value);
+      }
+    });
+
+    pipelineOverviewSummary.putAll(applicationPipelineIds);
+
+    return pipelineOverviewSummary;
   }
 
 }

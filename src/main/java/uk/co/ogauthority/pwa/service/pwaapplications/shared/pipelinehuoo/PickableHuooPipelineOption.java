@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /**
@@ -91,6 +92,20 @@ public class PickableHuooPipelineOption {
         padPipelineSummaryDto.getToLocation(),
         padPipelineSummaryDto.getToCoordinates(),
         createLengthDisplayString(padPipelineSummaryDto.getLength())
+    );
+  }
+
+  public static PickableHuooPipelineOption from(PipelineOverview pipelineOverview) {
+    return new PickableHuooPipelineOption(
+        PickableHuooPipelineType.createPickableStringFrom(PipelineId.from(pipelineOverview)),
+        pipelineOverview.getPipelineNumber(),
+        null, // no split info for whole pipelines
+        createPipelineTypeDisplayName(pipelineOverview.getPipelineType()),
+        pipelineOverview.getFromLocation(),
+        pipelineOverview.getFromCoordinates(),
+        pipelineOverview.getToLocation(),
+        pipelineOverview.getToCoordinates(),
+        createLengthDisplayString(pipelineOverview.getLength())
     );
   }
 

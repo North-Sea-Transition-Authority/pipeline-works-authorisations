@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 
@@ -26,6 +27,10 @@ public class PipelineDetailService {
 
   public List<PipelineBundlePairDto> getSimilarPipelineBundleNamesByDetail(PwaApplicationDetail detail) {
     return pipelineDetailRepository.getBundleNamesByPwaApplicationDetail(detail);
+  }
+
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa) {
+    return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa);
   }
 
   public PipelineDetail getLatestByPipelineId(Integer id) {

@@ -47,6 +47,7 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
@@ -65,6 +66,22 @@ public class PadPipelineServiceTest {
 
   private static final int PIPELINE_ID = 100;
 
+  private final int CONSENTED_PIPELINE_ID = 1;
+  private final String CONSENTED_PIPELINE_NUMBER = "CONSENTED_PIPELINE";
+  private final int APPLICATION_NEW_PIPELINE_ID = 2;
+  private final String APPLICATION_NEW_PIPELINE_NUMBER = "NEW_PIPELINE";
+
+  private PipelineType CONSENTED_PIPELINE_TYPE = PipelineType.PRODUCTION_FLOWLINE;
+  private PipelineType APPLICATION_NEW_PIPELINE_TYPE = PipelineType.GAS_LIFT_JUMPER;
+  // used to check pickable option has the correct details.
+  private PipelineType IMPORTED_CONSENTED_PIPELINE_TYPE = PipelineType.CONTROL_JUMPER;
+
+  @Mock
+  private PadPipelineSummaryDto applicationNewPipelineSummary;
+
+  @Mock
+  private PadPipelineSummaryDto importedConsentedPipelineSummary;
+
   @Mock
   private PadPipelineRepository padPipelineRepository;
 
@@ -82,6 +99,9 @@ public class PadPipelineServiceTest {
 
   @Mock
   private PipelineHeaderFormValidator pipelineHeaderFormValidator;
+
+  @Mock
+  private PipelineOverview consentedPipelineOverview;
 
   private PadPipelineService padPipelineService;
 
@@ -857,6 +877,82 @@ public class PadPipelineServiceTest {
 
 
 
+  private void setupConsentedPipeline() {
+    when(consentedPipelineOverview.getPipelineId()).thenReturn(CONSENTED_PIPELINE_ID);
+    when(consentedPipelineOverview.getPipelineType()).thenReturn(CONSENTED_PIPELINE_TYPE);
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwa(detail.getPwaApplication().getMasterPwa()))
+        .thenReturn(List.of(consentedPipelineOverview));
+
+  }
+
+  private void setupApplicationPipelines(boolean includeImportedPipeline) {
+    when(applicationNewPipelineSummary.getPipelineId()).thenReturn(new PipelineId(APPLICATION_NEW_PIPELINE_ID));
+    when(applicationNewPipelineSummary.getPipelineType()).thenReturn(APPLICATION_NEW_PIPELINE_TYPE);
+    when(applicationNewPipelineSummary.getPipelineStatus()).thenReturn(PipelineStatus.IN_SERVICE);
+    when(applicationNewPipelineSummary.getPipelineNumber()).thenReturn(APPLICATION_NEW_PIPELINE_NUMBER);
+
+    // same pipeline as consented pipeline but within the application with a different type
+    when(importedConsentedPipelineSummary.getPipelineId()).thenReturn(new PipelineId(CONSENTED_PIPELINE_ID));
+    when(importedConsentedPipelineSummary.getPipelineType()).thenReturn(IMPORTED_CONSENTED_PIPELINE_TYPE);
+    when(importedConsentedPipelineSummary.getPipelineStatus()).thenReturn(PipelineStatus.IN_SERVICE);
+    when(importedConsentedPipelineSummary.getPipelineNumber()).thenReturn(CONSENTED_PIPELINE_NUMBER);
+
+    if(includeImportedPipeline) {
+      when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail))
+          .thenReturn(List.of(importedConsentedPipelineSummary, applicationNewPipelineSummary));
+    } else {
+      when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail))
+          .thenReturn(List.of(applicationNewPipelineSummary));
+    }
+  }
+
+  @Test
+  public void getAllPipelineOverviewsFromAppAndMasterPwa_returnsApplicationVersionOfImportedPipeline() {
+    setupApplicationPipelines(true);
+    setupConsentedPipeline();
+
+    var allPipelinesMap = padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(detail);
+
+    assertThat(allPipelinesMap).hasSize(2);
+
+    // check that the type is the changed pipeline type
+    assertThat(allPipelinesMap.get(new PipelineId(CONSENTED_PIPELINE_ID)).getPipelineType())
+        .isEqualTo(IMPORTED_CONSENTED_PIPELINE_TYPE);
+
+    assertThat(allPipelinesMap.get(new PipelineId(APPLICATION_NEW_PIPELINE_ID)).getPipelineType())
+        .isEqualTo(APPLICATION_NEW_PIPELINE_TYPE);
+
+  }
+
+  @Test
+  public void getAllPipelineOverviewsFromAppAndMasterPwa_containsConsentedPipelineDetails_whenNoAppPipeline_andNoImportedPipeline() {
+
+    setupConsentedPipeline();
+
+    var allPipelinesMap = padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(detail);
+
+    assertThat(allPipelinesMap).hasSize(1);
+
+    // check that the type is the changed pipeline type
+    assertThat(allPipelinesMap.get(new PipelineId(CONSENTED_PIPELINE_ID)).getPipelineType())
+        .isEqualTo(CONSENTED_PIPELINE_TYPE);
+
+  }
+
+  @Test
+  public void getAllPipelineOverviewsFromAppAndMasterPwa_containsAppPipelineDetails_whenNoConsentedPipeline() {
+
+    setupApplicationPipelines(false);
+
+    var allPipelinesMap = padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(detail);
+
+    assertThat(allPipelinesMap).hasSize(1);
+
+    // check that the type is the changed pipeline type
+    assertThat(allPipelinesMap.get(new PipelineId(APPLICATION_NEW_PIPELINE_ID)).getPipelineType())
+        .isEqualTo(APPLICATION_NEW_PIPELINE_TYPE);
+
+  }
 
   private PadPipelineSummaryDto generateFrom(PadPipeline padPipeline) {
 
@@ -898,8 +994,6 @@ public class PadPipelineServiceTest {
         padPipeline.getPipelineStatus(),
         padPipeline.getPipelineStatusReason());
 
-
   }
-
 
 }
