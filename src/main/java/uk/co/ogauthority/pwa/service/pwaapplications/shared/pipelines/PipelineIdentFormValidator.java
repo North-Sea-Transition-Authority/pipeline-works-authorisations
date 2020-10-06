@@ -54,6 +54,10 @@ public class PipelineIdentFormValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "length", "length" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "Enter the ident's length");
 
+    if (form.getLength() != null) {
+      PipelineValidationUtils.validateLength(form.getLength(), errors, "length", "Ident length");
+    }
+
     ValidationUtils.invokeValidator(dataFormValidator, form.getDataForm(), errors, "dataForm", coreType);
 
   }

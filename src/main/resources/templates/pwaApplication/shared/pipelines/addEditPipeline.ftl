@@ -69,7 +69,7 @@
 
             <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength="4000"/>
 
-            <@fdsRadio.radioGroup path="form.trenchedBuriedBackfilled" labelText="Will the proposed pipeline be trenched and/or buried and/or backfilled?" hiddenContent=true>
+            <@fdsRadio.radioGroup path="form.trenchedBuriedBackfilled" labelText="Will the pipeline be trenched and/or buried and/or backfilled?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.trenchedBuriedBackfilled">
                     <@fdsTextarea.textarea path="form.trenchingMethods" labelText="Describe the methods to be deployed to execute the trenching and the target depth of trench" nestingPath="form.trenchedBuriedBackfilled" characterCount=true maxCharacterLength="4000"/>
                 </@fdsRadio.radioYes>

@@ -37,6 +37,34 @@ public class CoordinateFormValidatorTest {
   }
 
   @Test
+  public void failed_mandatory_secondsUnder2Dp() {
+
+    var form = buildForm();
+    form.setLongitudeSeconds(BigDecimal.valueOf(1.1));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY, "Start point");
+
+    assertThat(result).containsOnly(
+        entry("longitudeSeconds", Set.of("longitudeSeconds.invalid"))
+    );
+
+  }
+
+  @Test
+  public void failed_mandatory_secondsOver2Dp() {
+
+    var form = buildForm();
+    form.setLongitudeSeconds(BigDecimal.valueOf(1.111));
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY, "Start point");
+
+    assertThat(result).containsOnly(
+        entry("longitudeSeconds", Set.of("longitudeSeconds.invalid"))
+    );
+
+  }
+
+  @Test
   public void failed_mandatory_dataNotPresent() {
 
     var form = new CoordinateForm();
@@ -89,12 +117,12 @@ public class CoordinateFormValidatorTest {
 
     form.setLatitudeDegrees(50);
     form.setLatitudeMinutes(40);
-    form.setLatitudeSeconds(BigDecimal.valueOf(30.3));
+    form.setLatitudeSeconds(BigDecimal.valueOf(30.33));
     form.setLatitudeDirection(LatitudeDirection.NORTH);
 
     form.setLongitudeDegrees(12);
     form.setLongitudeMinutes(13);
-    form.setLongitudeSeconds(BigDecimal.valueOf(14));
+    form.setLongitudeSeconds(new BigDecimal("14.00"));
     form.setLongitudeDirection(LongitudeDirection.EAST);
 
     return form;
