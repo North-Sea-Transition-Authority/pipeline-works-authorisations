@@ -25,13 +25,15 @@
             ${medianLineAgreementView.agreementStatus.getDisplayText()!}
         </@fdsCheckAnswers.checkAnswersRow>        
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Name of negotiator" actionUrl="" screenReaderActionText="" actionText="">
-            ${medianLineAgreementView.negotiatorName!}
-        </@fdsCheckAnswers.checkAnswersRow>    
+        <#if medianLineAgreementView.agreementStatus != "NOT_CROSSED">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Name of negotiator" actionUrl="" screenReaderActionText="" actionText="">
+                ${medianLineAgreementView.negotiatorName!}
+            </@fdsCheckAnswers.checkAnswersRow>    
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Contact email for negotiator" actionUrl="" screenReaderActionText="" actionText="">
-            ${medianLineAgreementView.negotiatorEmail!}
-        </@fdsCheckAnswers.checkAnswersRow>     
+            <@fdsCheckAnswers.checkAnswersRow keyText="Contact email for negotiator" actionUrl="" screenReaderActionText="" actionText="">
+                ${medianLineAgreementView.negotiatorEmail!}
+            </@fdsCheckAnswers.checkAnswersRow>     
+        </#if>
         
     </@fdsCheckAnswers.checkAnswers>
 
