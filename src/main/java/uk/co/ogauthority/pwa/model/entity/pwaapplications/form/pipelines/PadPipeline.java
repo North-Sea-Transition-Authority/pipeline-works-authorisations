@@ -24,16 +24,16 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.model.location.CoordinatePairEntity;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Entity
 @Table(name = "pad_pipelines")
-public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplicationDetail> {
+public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplicationDetail>, CoordinatePairEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -367,6 +367,86 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
     this.temporaryRef = temporaryRef;
   }
 
+  @Override
+  public Integer getFromLatDeg() {
+    return this.fromLatitudeDegrees;
+  }
+
+  @Override
+  public Integer getFromLatMin() {
+    return this.fromLatitudeMinutes;
+  }
+
+  @Override
+  public BigDecimal getFromLatSec() {
+    return this.fromLatitudeSeconds;
+  }
+
+  @Override
+  public LatitudeDirection getFromLatDir() {
+    return this.fromLatitudeDirection;
+  }
+
+  @Override
+  public Integer getFromLongDeg() {
+    return this.fromLongitudeDegrees;
+  }
+
+  @Override
+  public Integer getFromLongMin() {
+    return this.fromLongitudeMinutes;
+  }
+
+  @Override
+  public BigDecimal getFromLongSec() {
+    return this.fromLongitudeSeconds;
+  }
+
+  @Override
+  public LongitudeDirection getFromLongDir() {
+    return this.fromLongitudeDirection;
+  }
+
+  @Override
+  public Integer getToLatDeg() {
+    return this.toLatitudeDegrees;
+  }
+
+  @Override
+  public Integer getToLatMin() {
+    return this.toLatitudeMinutes;
+  }
+
+  @Override
+  public BigDecimal getToLatSec() {
+    return this.toLatitudeSeconds;
+  }
+
+  @Override
+  public LatitudeDirection getToLatDir() {
+    return this.toLatitudeDirection;
+  }
+
+  @Override
+  public Integer getToLongDeg() {
+    return this.toLongitudeDegrees;
+  }
+
+  @Override
+  public Integer getToLongMin() {
+    return this.toLongitudeMinutes;
+  }
+
+  @Override
+  public BigDecimal getToLongSec() {
+    return this.toLongitudeSeconds;
+  }
+
+  @Override
+  public LongitudeDirection getToLongDir() {
+    return this.toLongitudeDirection;
+  }
+
   private void updateFromCoordinateValues() {
     this.fromLatitudeDegrees = this.fromCoordinates.getLatitude().getDegrees();
     this.fromLatitudeMinutes = this.fromCoordinates.getLatitude().getMinutes();
@@ -393,21 +473,8 @@ public class PadPipeline implements ParentEntity, ChildEntity<Integer, PwaApplic
 
   @PostLoad
   public void postLoad() {
-
-    this.fromCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(this.fromLatitudeDegrees, this.fromLatitudeMinutes, this.fromLatitudeSeconds, this.fromLatitudeDirection),
-        new LongitudeCoordinate(
-            this.fromLongitudeDegrees,
-            this.fromLongitudeMinutes,
-            this.fromLongitudeSeconds,
-            this.fromLongitudeDirection)
-    );
-
-    this.toCoordinates = new CoordinatePair(
-        new LatitudeCoordinate(this.toLatitudeDegrees, this.toLatitudeMinutes, this.toLatitudeSeconds, this.toLatitudeDirection),
-        new LongitudeCoordinate(this.toLongitudeDegrees, this.toLongitudeMinutes, this.toLongitudeSeconds, this.toLongitudeDirection)
-    );
-
+    this.fromCoordinates = CoordinateUtils.buildFromCoordinatePair(this);
+    this.toCoordinates = CoordinateUtils.buildToCoordinatePair(this);
   }
 
   public Integer getTemporaryNumber() {
