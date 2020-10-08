@@ -35,7 +35,6 @@ import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipeline
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryAndSplit;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
@@ -59,7 +58,6 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 
@@ -72,6 +70,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PadPipelineService padPipelineService;
+  private final PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
   private final EntityManager entityManager;
   private final EntityCopyingService entityCopyingService;
 
@@ -81,12 +80,14 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       PadPipelineService padPipelineService,
+      PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       EntityManager entityManager,
       EntityCopyingService entityCopyingService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.padPipelineService = padPipelineService;
+    this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.entityManager = entityManager;
     this.entityCopyingService = entityCopyingService;
   }
@@ -633,47 +634,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     );
   }
 
-  public List<PipelineNumbersAndSplits> getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
-      PwaApplicationDetail pwaApplicationDetail,
-      HuooRole huooRole, Set<PipelineIdentifier> pipelineIdentifiers) {
-
-    Map<PipelineIdentifier, PadPipelineSummaryAndSplit> pipelineIdentifierAndSummarySplitMap = new HashMap<>();
-    padPipelineService.getWholePadPipelineSummaryDtoForApp(pwaApplicationDetail)
-        .forEach((identifier, summaryDto) -> pipelineIdentifierAndSummarySplitMap.put(
-            identifier, new PadPipelineSummaryAndSplit(summaryDto, null, null)));
-
-    Set<PipelineIdentifier> splitPipelinesForRole = getPipelineSplitsForRole(
-        pwaApplicationDetail,
-        huooRole
-    );
-
-    // replace entries for whole pipelines where a pipeline has been split
-    Set<PipelineId> splitPipelines = new HashSet<>();
-    splitPipelinesForRole.forEach(splitPipelineIdentifier -> {
-      var splitPipelineOption = PadPipelineSummaryAndSplit.duplicateOptionForPipelineIdentifier(
-          splitPipelineIdentifier,
-          huooRole,
-          pipelineIdentifierAndSummarySplitMap.get(splitPipelineIdentifier.getPipelineId()).getPadPipelineSummaryDto());
-      splitPipelines.add(splitPipelineIdentifier.getPipelineId());
-      pipelineIdentifierAndSummarySplitMap.put(splitPipelineIdentifier, splitPipelineOption);
-    });
-
-    // remove records for whole pipelines where splits are now within the map
-    splitPipelines.forEach(pipelineIdentifierAndSummarySplitMap::remove);
-    List<PipelineNumbersAndSplits> pipelineNumbersAndSplits = new ArrayList<>();
-    pipelineIdentifiers.stream().sorted();
-    pipelineIdentifiers.forEach((identifier) -> {
-      if (identifier != null) {
-        pipelineNumbersAndSplits.add(PipelineNumbersAndSplits.from(
-            identifier, pipelineIdentifierAndSummarySplitMap.get(identifier.getPipelineId())));
-      }
-    });
-
-
-
-    return pipelineNumbersAndSplits;
-  }
-
   private OrganisationRolePipelineGroupView getOrgRolePipelineGroupView(
       PwaApplicationDetail pwaApplicationDetail,
       OrganisationRolePipelineGroupDto orgRolePipelineGroup,
@@ -686,9 +646,14 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         orgRolePipelineGroup.getOrganisationRoleInstanceDto().getManualOrganisationName().orElse(null),
         orgRolePipelineGroup.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto().getTreatyAgreement(),
         orgRolePipelineGroup.getOrganisationRoleInstanceDto().getOrganisationRoleOwnerDto(),
-        getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
-            pwaApplicationDetail, orgRolePipelineGroup.getHuooRole(), orgRolePipelineGroup.getPipelineIdentifiers())
-        );
+        pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
+            orgRolePipelineGroup.getHuooRole(),
+            () -> padPipelineService.getAllPipelineOverviewsFromAppAndMasterPwa(pwaApplicationDetail),
+            () -> getPipelineSplitsForRole(pwaApplicationDetail, orgRolePipelineGroup.getHuooRole()),
+            orgRolePipelineGroup.getPipelineIdentifiers()
+        )
+      );
+
 
     return orgRolePipelineGroups;
   }

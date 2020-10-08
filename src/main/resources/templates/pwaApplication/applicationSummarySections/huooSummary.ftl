@@ -1,16 +1,16 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="huooRolePipelineGroupsView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView>" -->
+<#-- @ftlvariable name="huooRolePipelineGroupsPadView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView>" -->
 
 
 <div class="pwa-application-summary-section">
     <h2 class="govuk-heading-l" id="huooDetails">${sectionDisplayText}</h2>
 
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.holderOrgRolePipelineGroups  role="Holders" />
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.userOrgRolePipelineGroups  role="Users" />
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.operatorOrgRolePipelineGroups  role="Operators" />
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsView.ownerOrgRolePipelineGroups  role="Owners" />
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.holderOrgRolePipelineGroups  role="Holders" />
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.userOrgRolePipelineGroups  role="Users" />
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.operatorOrgRolePipelineGroups  role="Operators" />
+    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.ownerOrgRolePipelineGroups  role="Owners" />
 </div>
 
 

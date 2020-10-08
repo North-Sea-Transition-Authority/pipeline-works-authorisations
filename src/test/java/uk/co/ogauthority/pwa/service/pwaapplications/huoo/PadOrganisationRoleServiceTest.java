@@ -3,15 +3,14 @@ package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,10 +34,8 @@ import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipeline
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
@@ -50,12 +47,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadP
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -80,6 +77,9 @@ public class PadOrganisationRoleServiceTest {
 
   @Mock
   private EntityCopyingService entityCopyingService;
+
+  @Mock
+  private PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
 
   private PadOrganisationRoleService padOrganisationRoleService;
 
@@ -117,7 +117,7 @@ public class PadOrganisationRoleServiceTest {
         padOrganisationRolesRepository,
         padPipelineOrganisationRoleLinkRepository,
         portalOrganisationsAccessor,
-        padPipelineService, entityManager,
+        padPipelineService, pipelineNumberAndSplitsService, entityManager,
         entityCopyingService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -871,61 +871,6 @@ public class PadOrganisationRoleServiceTest {
 
   }
 
-
-
-
-  @Test
-  public void getAllPipelineNumbersAndSplitsForApplicationDetailAndRole_withSplits() {
-
-    Set<PipelineIdentifier> pipelineIdentifiers = Set.of(new PipelineId(1));
-    Map<PipelineIdentifier, PadPipelineSummaryDto> pipelineIdAndSummaryMap = new HashMap<>();
-    var padPipeline = new PadPipeline();
-    padPipeline.setId(1);
-    Pipeline pipeline = new Pipeline();
-    pipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
-    pipelineIdAndSummaryMap.put(new PipelineId(1), generateFrom(padPipeline));
-    when(padPipelineService.getWholePadPipelineSummaryDtoForApp(detail)).thenReturn(pipelineIdAndSummaryMap);
-
-
-    var padPipelineOrganisationRoleLink = new PadPipelineOrganisationRoleLink();
-    padPipelineOrganisationRoleLink.setPipeline(pipeline);
-    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
-        detail, HuooRole.HOLDER)).thenReturn(List.of(padPipelineOrganisationRoleLink));
-
-    var pipelineNumbersAndSplits = padOrganisationRoleService.getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
-        detail, HuooRole.HOLDER, pipelineIdentifiers);
-
-    assertThat(pipelineNumbersAndSplits).hasSize(1);
-    assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
-        .isEqualTo(1);
-  }
-
-  @Test
-  public void getAllPipelineNumbersAndSplitsForApplicationDetailAndRole_noSplits() {
-
-    Set<PipelineIdentifier> pipelineIdentifiers = Set.of(new PipelineId(1));
-    Map<PipelineIdentifier, PadPipelineSummaryDto> pipelineIdAndSummaryMap = new HashMap<>();
-    var padPipeline = new PadPipeline();
-    padPipeline.setId(1);
-    Pipeline pipeline = new Pipeline();
-    pipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
-    pipelineIdAndSummaryMap.put(new PipelineId(1), generateFrom(padPipeline));
-    when(padPipelineService.getWholePadPipelineSummaryDtoForApp(detail)).thenReturn(pipelineIdAndSummaryMap);
-
-    when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
-        detail, HuooRole.HOLDER)).thenReturn(List.of());
-
-    var pipelineNumbersAndSplits = padOrganisationRoleService.getAllPipelineNumbersAndSplitsForApplicationDetailAndRole(
-        detail, HuooRole.HOLDER, pipelineIdentifiers);
-
-    assertThat(pipelineNumbersAndSplits).hasSize(1);
-    assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
-        .isEqualTo(1);
-  }
-
-
   @Test
   public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
 
@@ -983,14 +928,16 @@ public class PadOrganisationRoleServiceTest {
         .thenReturn(List.of(organisationUnitDetailDto1, organisationUnitDetailDto3, organisationUnitDetailDto4));
 
     //Pipeline numbers and splits
-    Map<PipelineIdentifier, PadPipelineSummaryDto> pipelineIdAndSummaryMap = new HashMap<>();
     var padPipeline = new PadPipeline();
     padPipeline.setId(1);
     Pipeline pipeline = new Pipeline();
     pipeline.setId(1);
     padPipeline.setPipeline(pipeline);
-    pipelineIdAndSummaryMap.put(new PipelineId(1), generateFrom(padPipeline));
-    when(padPipelineService.getWholePadPipelineSummaryDtoForApp(detail)).thenReturn(pipelineIdAndSummaryMap);
+    var pipelineOverview = new PadPipelineOverview(padPipeline);
+    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
+        any(HuooRole.class), any(), any(), anySet()))
+      .thenReturn(List.of(
+        new PipelineNumbersAndSplits(new PipelineId(1), pipelineOverview.getPipelineNumber(), null)));
 
 
     //asserts
@@ -1036,50 +983,5 @@ public class PadOrganisationRoleServiceTest {
   }
 
 
-
-
-
-  private PadPipelineSummaryDto generateFrom(PadPipeline padPipeline) {
-
-    return new PadPipelineSummaryDto(
-        padPipeline.getId(),
-        padPipeline.getPipeline().getId(),
-        padPipeline.getPipelineType(),
-        padPipeline.toString(),
-        BigDecimal.TEN,
-        "OIL",
-        "PRODUCTS",
-        1L,
-        "STRUCT_A",
-        45,
-        45,
-        BigDecimal.valueOf(45),
-        LatitudeDirection.NORTH,
-        1,
-        1,
-        BigDecimal.ONE,
-        LongitudeDirection.EAST,
-        "STRUCT_B",
-        46,
-        46,
-        BigDecimal.valueOf(46),
-        LatitudeDirection.NORTH,
-        2,
-        2,
-        BigDecimal.valueOf(2),
-        LongitudeDirection.EAST,
-        padPipeline.getMaxExternalDiameter(),
-        padPipeline.getPipelineInBundle(),
-        padPipeline.getBundleName(),
-        padPipeline.getPipelineFlexibility(),
-        padPipeline.getPipelineMaterial(),
-        padPipeline.getOtherPipelineMaterialUsed(),
-        padPipeline.getTrenchedBuriedBackfilled(),
-        padPipeline.getTrenchingMethodsDescription(),
-        padPipeline.getPipelineStatus(),
-        padPipeline.getPipelineStatusReason());
-
-
-  }
 
 }

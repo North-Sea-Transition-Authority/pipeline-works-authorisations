@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 
 /**
  * Construct summary of HUOO information for a given application.
@@ -22,13 +23,16 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
 
   private final TaskListService taskListService;
   private final PadOrganisationRoleService padOrganisationRoleService;
+  private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
 
   @Autowired
   public HuooSummaryService(
       TaskListService taskListService,
-      PadOrganisationRoleService padOrganisationRoleService) {
+      PadOrganisationRoleService padOrganisationRoleService,
+      PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService) {
     this.taskListService = taskListService;
     this.padOrganisationRoleService = padOrganisationRoleService;
+    this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
   }
 
   @Override
@@ -49,8 +53,10 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
     var sectionDisplayText = ApplicationTask.HUOO.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("huooRolePipelineGroupsView",
+    summaryModel.put("huooRolePipelineGroupsPadView",
         padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
+    summaryModel.put("huooRolePipelineGroupsConsentedView",
+        pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
 
 
     return new ApplicationSectionSummary(

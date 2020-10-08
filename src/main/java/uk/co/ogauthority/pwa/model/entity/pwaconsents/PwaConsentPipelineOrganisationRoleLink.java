@@ -11,7 +11,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 
 @Entity
@@ -144,4 +148,31 @@ public class PwaConsentPipelineOrganisationRoleLink {
       IdentLocationInclusionMode toLocationIdentInclusionMode) {
     this.toLocationIdentInclusionMode = toLocationIdentInclusionMode;
   }
+
+  public OrgRoleInstanceType getOrgRoleInstanceType() {
+    if (ObjectUtils.allNotNull(
+        this.fromLocation, this.fromLocationIdentInclusionMode, this.toLocation, this.toLocationIdentInclusionMode)
+    ) {
+      return OrgRoleInstanceType.SPLIT_PIPELINE;
+    }
+
+    return OrgRoleInstanceType.FULL_PIPELINE;
+  }
+
+  public PipelineIdentifier getPipelineIdentifier() {
+    if (this.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE)) {
+
+      return PipelineSegment.from(
+          this.pipeline.getId(),
+          this.fromLocation,
+          this.fromLocationIdentInclusionMode,
+          this.toLocation,
+          this.toLocationIdentInclusionMode
+      );
+
+    }
+
+    return this.pipeline.getPipelineId();
+  }
+
 }
