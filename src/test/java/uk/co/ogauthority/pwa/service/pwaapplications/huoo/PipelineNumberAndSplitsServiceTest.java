@@ -40,27 +40,7 @@ public class PipelineNumberAndSplitsServiceTest {
     Pipeline pipeline = new Pipeline();
     pipeline.setId(1);
     padPipeline.setPipeline(pipeline);
-    var pipelineOverview = new PadPipelineOverview(padPipeline);
-    pipelineIdAndSummaryMap.put(new PipelineId(1), pipelineOverview);
-
-    var pipelineNumbersAndSplits = pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        HuooRole.HOLDER, () -> pipelineIdAndSummaryMap, () -> Set.of(new PipelineId(1)), pipelineIdentifiers);
-
-    assertThat(pipelineNumbersAndSplits).hasSize(1);
-    assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
-        .isEqualTo(1);
-  }
-
-  @Test
-  public void getAllPipelineNumbersAndSplitsRole_noSplits() {
-
-    Set<PipelineIdentifier> pipelineIdentifiers = Set.of(new PipelineId(1));
-    Map<PipelineId, PipelineOverview> pipelineIdAndSummaryMap = new HashMap<>();
-    var padPipeline = new PadPipeline();
-    padPipeline.setId(1);
-    Pipeline pipeline = new Pipeline();
-    pipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
+    padPipeline.setPipelineRef("1");
     var pipelineOverview = new PadPipelineOverview(padPipeline);
     pipelineIdAndSummaryMap.put(new PipelineId(1), pipelineOverview);
 
@@ -70,7 +50,6 @@ public class PipelineNumberAndSplitsServiceTest {
     assertThat(pipelineNumbersAndSplits).hasSize(1);
     assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
         .isEqualTo(1);
-    assertThat(pipelineNumbersAndSplits.get(0).getSplitInfo()).isNull();
   }
 
 
