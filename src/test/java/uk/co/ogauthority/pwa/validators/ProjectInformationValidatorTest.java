@@ -182,13 +182,13 @@ public class ProjectInformationValidatorTest {
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, projectInformationFormValidationHints);
 
     assertThat(errors).contains(
-        entry("commercialAgreementDay", Set.of("commercialAgreementDay.invalid")),
-        entry("commercialAgreementMonth", Set.of("commercialAgreementMonth.invalid")),
-        entry("commercialAgreementYear", Set.of("commercialAgreementYear.invalid")),
+        entry("commercialAgreementDay", Set.of("commercialAgreementDay.required")),
+        entry("commercialAgreementMonth", Set.of("commercialAgreementMonth.required")),
+        entry("commercialAgreementYear", Set.of("commercialAgreementYear.required")),
 
-        entry("licenceTransferDay", Set.of("licenceTransferDay.invalid")),
-        entry("licenceTransferMonth", Set.of("licenceTransferMonth.invalid")),
-        entry("licenceTransferYear", Set.of("licenceTransferYear.invalid"))
+        entry("licenceTransferDay", Set.of("licenceTransferDay.required")),
+        entry("licenceTransferMonth", Set.of("licenceTransferMonth.required")),
+        entry("licenceTransferYear", Set.of("licenceTransferYear.required"))
     );
 
   }
@@ -301,8 +301,8 @@ public class ProjectInformationValidatorTest {
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(true, true,
         false));
     assertThat(errorsMap).contains(
-        entry("futureSubmissionDate.month", Set.of("month.invalid")),
-        entry("futureSubmissionDate.year", Set.of("year.invalid"))
+        entry("futureSubmissionDate.month", Set.of("month.required")),
+        entry("futureSubmissionDate.year", Set.of("year.required"))
     );
   }
 

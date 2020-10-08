@@ -15,7 +15,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -65,8 +64,8 @@ public class PermanentDepositsValidator implements SmartValidator {
           "depositReference", "Deposit reference must be unique, enter a different reference");
     }
 
-    validateDateIsFutureDate(errors, "Start date", "fromDate", form.getFromDate());
-    validateDateIsFutureDate(errors, "End date", "toDate", form.getToDate());
+    validateDateIsFutureDate(errors, "deposit start date", "fromDate", form.getFromDate());
+    validateDateIsFutureDate(errors, "deposit end date", "toDate", form.getToDate());
     validateDateIsWithinRange(errors, "toDate", form.getFromDate(), form.getToDate());
 
     if (form.getMaterialType() == null) {
@@ -166,10 +165,7 @@ public class PermanentDepositsValidator implements SmartValidator {
           toTwoFieldDate,
           dateHints.toArray());
 
-    } else {
-      errors.rejectValue("toDate.month", "month" + FieldValidationErrorCodes.INVALID.getCode(), "");
     }
   }
-
 
 }
