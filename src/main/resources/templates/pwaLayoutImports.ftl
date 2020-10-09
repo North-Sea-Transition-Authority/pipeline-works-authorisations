@@ -18,6 +18,7 @@
 <#import 'components/utils/multiLineText.ftl' as multiLineText>
 <#import 'components/caseSummary/caseSummary.ftl' as pwaCaseSummary>
 <#import 'components/clauseList/clauseList.ftl' as pwaClauseList>
+<#import 'components/appUpdateRequest/updateRequestView.ftl' as pwaUpdateRequestView/>
 
 <#function springUrl url>
     <#local springUrl>

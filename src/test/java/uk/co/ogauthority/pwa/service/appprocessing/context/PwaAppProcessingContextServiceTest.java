@@ -69,7 +69,7 @@ public class PwaAppProcessingContextServiceTest {
 
     when(detailService.getLastSubmittedApplicationDetail(detail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(detail));
-    when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
     var searchItem = new ApplicationDetailSearchItem();
     startInstant = Instant.now();
@@ -105,7 +105,7 @@ public class PwaAppProcessingContextServiceTest {
 
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_noChecks_userHasNoProcessingPermissions() {
-    when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of());
+    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of());
     var contextBuilder = new PwaAppProcessingContextParams(1, user);
     contextService.validateAndCreate(contextBuilder);
   }
@@ -143,7 +143,7 @@ public class PwaAppProcessingContextServiceTest {
 
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_permissionsCheck_invalid() {
-    when(appProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
+    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
     contextService.validateAndCreate(builder);

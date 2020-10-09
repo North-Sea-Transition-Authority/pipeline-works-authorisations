@@ -4,14 +4,18 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
@@ -19,15 +23,42 @@ public class PwaAppProcessingPermissionService {
 
   private final TeamService teamService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
+  private final PwaContactService pwaContactService;
 
   @Autowired
   public PwaAppProcessingPermissionService(TeamService teamService,
-                                           ConsulteeGroupTeamService consulteeGroupTeamService) {
+                                           ConsulteeGroupTeamService consulteeGroupTeamService,
+                                           PwaContactService pwaContactService) {
     this.teamService = teamService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
+    this.pwaContactService = pwaContactService;
   }
 
-  public Set<PwaAppProcessingPermission> getProcessingPermissions(WebUserAccount user) {
+  public Set<PwaAppProcessingPermission> getProcessingPermissions(PwaApplication application,
+                                                                  WebUserAccount user) {
+
+    var genericPermissions = getGenericProcessingPermissions(user);
+
+    var appContactMembership = pwaContactService.getContactRoles(application, user.getLinkedPerson());
+
+    var appPermissions = PwaAppProcessingPermission.streamAppPermissions()
+        .filter(permission -> {
+
+          switch (permission) {
+            case UPDATE_APPLICATION:
+              return appContactMembership.contains(PwaContactRole.PREPARER);
+            default:
+              return false;
+          }
+
+        })
+        .collect(Collectors.toSet());
+
+    return SetUtils.union(genericPermissions, appPermissions);
+
+  }
+
+  public Set<PwaAppProcessingPermission> getGenericProcessingPermissions(WebUserAccount user) {
 
     Optional<PwaTeamMember> userRegTeamMembershipOpt = teamService
         .getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson());
@@ -44,7 +75,7 @@ public class PwaAppProcessingPermissionService {
 
     var orgTeams = teamService.getOrganisationTeamsPersonIsMemberOf(user.getLinkedPerson());
 
-    return PwaAppProcessingPermission.stream()
+    return PwaAppProcessingPermission.streamGenericPermissions()
         .filter(permission -> {
 
           switch (permission) {

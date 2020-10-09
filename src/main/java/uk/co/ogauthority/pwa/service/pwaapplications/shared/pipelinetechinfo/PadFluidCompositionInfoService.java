@@ -124,11 +124,6 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
   }
 
   @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
-  }
-
-  @Override
   public void cleanupData(PwaApplicationDetail detail) {
 
     // null out mole value for all non-higher amount entries

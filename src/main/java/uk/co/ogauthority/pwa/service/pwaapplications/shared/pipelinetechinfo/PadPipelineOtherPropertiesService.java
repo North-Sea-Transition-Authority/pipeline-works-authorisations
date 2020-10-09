@@ -168,11 +168,6 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   }
 
   @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
-  }
-
-  @Override
   public void cleanupData(PwaApplicationDetail detail) {
 
     // null out min/max values of any properties that aren't present/available

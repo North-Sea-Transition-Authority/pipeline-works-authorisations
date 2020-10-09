@@ -19,6 +19,8 @@ import uk.co.ogauthority.pwa.util.WorkAreaUtils;
  */
 public abstract class ApplicationWorkAreaItem {
 
+  public static final String STATUS_LABEL = "Status";
+
   public static final String DEFAULT_APP_STATUS_SET_LABEL = "Status set";
 
   public static final String CASE_OFFICER_DISPLAY_LABEL = "Case officer";
@@ -54,6 +56,8 @@ public abstract class ApplicationWorkAreaItem {
   private PersonId caseOfficerPersonId;
   private String caseOfficerName;
 
+  private final boolean openUpdateRequestFlag;
+
   private final String accessUrl;
 
   public ApplicationWorkAreaItem(ApplicationDetailSearchItem applicationDetailSearchItem,
@@ -87,6 +91,8 @@ public abstract class ApplicationWorkAreaItem {
       this.caseOfficerPersonId = new PersonId(applicationDetailSearchItem.getCaseOfficerPersonId());
       this.caseOfficerName = applicationDetailSearchItem.getCaseOfficerName();
     }
+
+    this.openUpdateRequestFlag = applicationDetailSearchItem.getOpenUpdateRequestFlag();
 
   }
 
@@ -166,7 +172,6 @@ public abstract class ApplicationWorkAreaItem {
     return caseOfficerName;
   }
 
-
   /**
    * Provide a default implementation for the application column that can be overridden if required.
    */
@@ -190,6 +195,10 @@ public abstract class ApplicationWorkAreaItem {
       columnItemList.add(
           WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, this.masterPwaReference)
       );
+    }
+
+    if (this.openUpdateRequestFlag) {
+      columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE REQUESTED"));
     }
 
     return columnItemList;
@@ -259,7 +268,7 @@ public abstract class ApplicationWorkAreaItem {
   }
 
   /**
-   * Appliction status column must be implemented by each ApplicationWorkAreaItem class. Contains details
+   * Application status column must be implemented by each ApplicationWorkAreaItem class. Contains details
    * which is suitable for the type in which the ApplicationWorkAreItem is being used.
    */
   public abstract List<WorkAreaColumnItemView> getApplicationStatusColumn();

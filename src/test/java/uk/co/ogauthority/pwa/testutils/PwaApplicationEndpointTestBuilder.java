@@ -273,7 +273,7 @@ public class PwaApplicationEndpointTestBuilder {
 
     var defaultPermissions = EnumSet.allOf(PwaAppProcessingPermission.class);
     if (pwaAppProcessingPermissionService != null) {
-      when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(defaultPermissions);
+      when(pwaAppProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), user)).thenReturn(defaultPermissions);
     }
 
   }
@@ -367,7 +367,7 @@ public class PwaApplicationEndpointTestBuilder {
       try {
         var userPermissions = Set.of(permission);
         preTestSetup.accept(detail);
-        when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(userPermissions);
+        when(pwaAppProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), user)).thenReturn(userPermissions);
         // Based on required permission for endpoint, if role under test grants required permission
         var expected = this.allowedProcessingPermissions.contains(permission);
 
@@ -382,7 +382,7 @@ public class PwaApplicationEndpointTestBuilder {
     }
     // try when zero permissions
     try {
-      when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(Set.of());
+      when(pwaAppProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), user)).thenReturn(Set.of());
       performRequest(
           this.endpointUrlProducer.apply(detail, detail.getPwaApplicationType()),
           otherTypeResultMatcher
