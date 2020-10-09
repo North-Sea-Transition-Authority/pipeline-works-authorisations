@@ -11,12 +11,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 public class ValidatorUtilsTest {
@@ -34,9 +36,9 @@ public class ValidatorUtilsTest {
     var validationNoErrors = ValidatorUtils.validateDate("proposedStart", "proposed start", null, null, null, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactlyInAnyOrder(
-            "proposedStartDay.invalid",
-            "proposedStartMonth.invalid",
-            "proposedStartYear.invalid"
+            "proposedStartDay.required",
+            "proposedStartMonth.required",
+            "proposedStartYear.required"
         );
     assertThat(validationNoErrors).isFalse();
   }
@@ -47,6 +49,79 @@ public class ValidatorUtilsTest {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDate("proposedStart", "proposed start",
         date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
+    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
+        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
+    assertThat(validationNoErrors).isTrue();
+  }
+
+  @Test
+  public void validateDate_yearHas1Digit() {
+    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var isValid = ValidatorUtils.validateDate(
+        "proposedStart", "proposed start",
+        1, 1, 1,
+        errors
+    );
+
+    var errorMap = ValidatorTestUtils.extractErrors(errors);
+
+    assertThat(errorMap).contains(
+        entry("proposedStartDay", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartDay"))),
+        entry("proposedStartMonth", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartMonth"))),
+        entry("proposedStartYear", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartYear")))
+    );
+
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  public void validateDate_yearHas2DigitS() {
+    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var isValid = ValidatorUtils.validateDate(
+        "proposedStart", "proposed start",
+        1, 1, 10,
+        errors
+    );
+
+    var errorMap = ValidatorTestUtils.extractErrors(errors);
+
+    assertThat(errorMap).contains(
+        entry("proposedStartDay", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartDay"))),
+        entry("proposedStartMonth", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartMonth"))),
+        entry("proposedStartYear", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartYear")))
+    );
+
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  public void validateDate_yearHas3DigitS() {
+    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var isValid = ValidatorUtils.validateDate(
+        "proposedStart", "proposed start",
+        1, 1, 100,
+        errors
+    );
+
+    var errorMap = ValidatorTestUtils.extractErrors(errors);
+
+    assertThat(errorMap).contains(
+        entry("proposedStartDay", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartDay"))),
+        entry("proposedStartMonth", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartMonth"))),
+        entry("proposedStartYear", Set.of(FieldValidationErrorCodes.INVALID.errorCode("proposedStartYear")))
+    );
+
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  public void validateDate_yearHas4DigitS() {
+    BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
+    var validationNoErrors = ValidatorUtils.validateDate(
+        "proposedStart", "proposed start",
+        1, 1, 1000,
+        errors
+    );
     assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
     assertThat(validationNoErrors).isTrue();
@@ -86,74 +161,6 @@ public class ValidatorUtilsTest {
         date.getDayOfMonth(), date.getMonthValue(), date.getYear(), errors);
     assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
         .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
-    assertThat(validationNoErrors).isTrue();
-  }
-
-
-  @Test
-  public void validateDateIsPresentOrFutureOfTarget_Present() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFutureOfTarget("proposedStart", "proposed start",
-        3, 2020, 3, 2020, "proposed start date", errors);
-    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
-        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
-    assertThat(validationNoErrors).isTrue();
-  }
-
-  @Test
-  public void validateDateIsPresentOrFutureOfTarget_future() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFutureOfTarget("proposedStart", "proposed start",
-        4, 2020, 3, 2020, "proposed start date", errors);
-    assertThat(errors.getAllErrors()).extracting(ObjectError::getObjectName)
-        .doesNotContain("proposedStartDay", "proposedStartMonth", "proposedStartYear");
-    assertThat(validationNoErrors).isTrue();
-  }
-
-  @Test
-  public void validateDateIsPresentOrFutureOfTarget_past() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFutureOfTarget("proposedStart", "proposed start",
-        2, 2020, 3, 2020, "proposed start date", errors);
-    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .containsExactlyInAnyOrder(
-            "proposedStartMonth.beforeTarget",
-            "proposedStartYear.beforeTarget"
-        );
-    assertThat(validationNoErrors).isFalse();
-  }
-
-  @Test
-  public void validateDateIsWithinRangeOfTarget_before() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStartMonth", "proposed start",
-        2, 2020, 3, 2020, 5, errors);
-    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .containsExactlyInAnyOrder(
-            "proposedStartMonth.outOfTargetRange"
-        );
-    assertThat(validationNoErrors).isFalse();
-  }
-
-  @Test
-  public void validateDateIsWithinRangeOfTarget_after() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStartMonth", "proposed start",
-        9, 2020, 3, 2020, 5, errors);
-    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .containsExactlyInAnyOrder(
-            "proposedStartMonth.outOfTargetRange"
-        );
-    assertThat(validationNoErrors).isFalse();
-  }
-
-  @Test
-  public void validateDateIsWithinRangeOfTarget_within() {
-    Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
-    var validationNoErrors = ValidatorUtils.validateDateIsWithinRangeOfTarget("proposedStartDay", "proposed start",
-        7, 2020, 3, 2020, 5, errors);
-    assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .doesNotContain("proposedStartDay", "proposedStartMonth");
     assertThat(validationNoErrors).isTrue();
   }
 

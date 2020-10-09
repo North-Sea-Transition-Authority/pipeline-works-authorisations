@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem.STATUS_LABEL;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -187,8 +188,8 @@ public class ConsultationRequestWorkAreaItemTest {
     var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
-        WorkAreaColumnItemView.createTagItem(
-            WorkAreaColumnItemView.TagType.INFO,
+        WorkAreaColumnItemView.createLabelledItem(
+            STATUS_LABEL,
             consultationRequestSearchItem.getConsultationRequestStatus().getDisplayName()),
         WorkAreaColumnItemView.createLabelledItem(
             "Due date",
@@ -215,8 +216,8 @@ public class ConsultationRequestWorkAreaItemTest {
     var workAreItem = new ConsultationRequestWorkAreaItem(consultationRequestSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
-        WorkAreaColumnItemView.createTagItem(
-            WorkAreaColumnItemView.TagType.INFO,
+        WorkAreaColumnItemView.createLabelledItem(
+            STATUS_LABEL,
             consultationRequestSearchItem.getConsultationRequestStatus().getDisplayName()),
         WorkAreaColumnItemView.createLabelledItem(
             "Due date",
@@ -274,6 +275,13 @@ public class ConsultationRequestWorkAreaItemTest {
   @Test
   public void getApplicationColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenNotInitialType(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+  }
+
+  @Test
+  public void getApplicationColumn_whenUpdate() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
         applicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }

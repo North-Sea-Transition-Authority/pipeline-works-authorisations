@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -11,10 +12,13 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 
 public interface PadPipelineIdentDataRepository extends CrudRepository<PadPipelineIdentData, Integer> {
 
+  @EntityGraph(attributePaths = { "padPipelineIdent" })
   List<PadPipelineIdentData> getAllByPadPipelineIdentIn(List<PadPipelineIdent> idents);
 
+  @EntityGraph(attributePaths = { "padPipelineIdent" })
   Optional<PadPipelineIdentData> getByPadPipelineIdent(PadPipelineIdent ident);
 
+  @EntityGraph(attributePaths = { "padPipelineIdent" })
   List<PadPipelineIdentData> getAllByPadPipelineIdent_PadPipeline(PadPipeline padPipeline);
 
   @Query("" +

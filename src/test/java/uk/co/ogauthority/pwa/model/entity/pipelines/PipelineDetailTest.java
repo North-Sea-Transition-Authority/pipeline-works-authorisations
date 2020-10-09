@@ -61,16 +61,16 @@ public class PipelineDetailTest {
 
     FieldUtils.setProtectedFieldValue("fromLatitudeDegrees", pipeline, 49);
     FieldUtils.setProtectedFieldValue("fromLatitudeMinutes", pipeline, 4);
-    FieldUtils.setProtectedFieldValue("fromLatitudeSeconds", pipeline, BigDecimal.valueOf(2));
+    FieldUtils.setProtectedFieldValue("fromLatitudeSeconds", pipeline, new BigDecimal("2.00"));
     FieldUtils.setProtectedFieldValue("fromLatitudeDirection", pipeline, LatitudeDirection.NORTH);
     FieldUtils.setProtectedFieldValue("fromLongitudeDegrees", pipeline, 7);
     FieldUtils.setProtectedFieldValue("fromLongitudeMinutes", pipeline, 6);
-    FieldUtils.setProtectedFieldValue("fromLongitudeSeconds", pipeline, BigDecimal.valueOf(5.5));
+    FieldUtils.setProtectedFieldValue("fromLongitudeSeconds", pipeline, new BigDecimal("5.50"));
     FieldUtils.setProtectedFieldValue("fromLongitudeDirection", pipeline, LongitudeDirection.EAST);
 
     FieldUtils.setProtectedFieldValue("toLatitudeDegrees", pipeline, 44);
     FieldUtils.setProtectedFieldValue("toLatitudeMinutes", pipeline, 8);
-    FieldUtils.setProtectedFieldValue("toLatitudeSeconds", pipeline, BigDecimal.valueOf(9));
+    FieldUtils.setProtectedFieldValue("toLatitudeSeconds", pipeline, new BigDecimal("9.00"));
     FieldUtils.setProtectedFieldValue("toLatitudeDirection", pipeline, LatitudeDirection.SOUTH);
     FieldUtils.setProtectedFieldValue("toLongitudeDegrees", pipeline, 19);
     FieldUtils.setProtectedFieldValue("toLongitudeMinutes", pipeline, 3);

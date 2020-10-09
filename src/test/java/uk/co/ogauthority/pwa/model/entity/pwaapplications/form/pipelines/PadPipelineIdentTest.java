@@ -20,12 +20,12 @@ public class PadPipelineIdentTest {
 
     ident.setFromCoordinates(new CoordinatePair(
         new LatitudeCoordinate(50, 30, BigDecimal.valueOf(20.02), LatitudeDirection.NORTH),
-        new LongitudeCoordinate(20, 20, BigDecimal.valueOf(1), LongitudeDirection.EAST)
+        new LongitudeCoordinate(20, 20, new BigDecimal("1.00"), LongitudeDirection.EAST)
     ));
 
     ident.setToCoordinates(new CoordinatePair(
-        new LatitudeCoordinate(47, 47, BigDecimal.valueOf(20), LatitudeDirection.SOUTH),
-        new LongitudeCoordinate(12, 15, BigDecimal.valueOf(45.5), LongitudeDirection.WEST)
+        new LatitudeCoordinate(47, 47, new BigDecimal("20.00"), LatitudeDirection.SOUTH),
+        new LongitudeCoordinate(12, 15, new BigDecimal("45.50"), LongitudeDirection.WEST)
     ));
 
     assertThat(FieldUtils.getFieldValue(ident, "fromLatitudeDegrees")).isEqualTo(50);
@@ -35,17 +35,17 @@ public class PadPipelineIdentTest {
 
     assertThat(FieldUtils.getFieldValue(ident, "fromLongitudeDegrees")).isEqualTo(20);
     assertThat(FieldUtils.getFieldValue(ident, "fromLongitudeMinutes")).isEqualTo(20);
-    assertThat(FieldUtils.getFieldValue(ident, "fromLongitudeSeconds")).isEqualTo(BigDecimal.valueOf(1));
+    assertThat(FieldUtils.getFieldValue(ident, "fromLongitudeSeconds")).isEqualTo(new BigDecimal("1.00"));
     assertThat(FieldUtils.getFieldValue(ident, "fromLongitudeDirection")).isEqualTo(LongitudeDirection.EAST);
 
     assertThat(FieldUtils.getFieldValue(ident, "toLatitudeDegrees")).isEqualTo(47);
     assertThat(FieldUtils.getFieldValue(ident, "toLatitudeMinutes")).isEqualTo(47);
-    assertThat(FieldUtils.getFieldValue(ident, "toLatitudeSeconds")).isEqualTo(BigDecimal.valueOf(20));
+    assertThat(FieldUtils.getFieldValue(ident, "toLatitudeSeconds")).isEqualTo(new BigDecimal("20.00"));
     assertThat(FieldUtils.getFieldValue(ident, "toLatitudeDirection")).isEqualTo(LatitudeDirection.SOUTH);
 
     assertThat(FieldUtils.getFieldValue(ident, "toLongitudeDegrees")).isEqualTo(12);
     assertThat(FieldUtils.getFieldValue(ident, "toLongitudeMinutes")).isEqualTo(15);
-    assertThat(FieldUtils.getFieldValue(ident, "toLongitudeSeconds")).isEqualTo(BigDecimal.valueOf(45.5));
+    assertThat(FieldUtils.getFieldValue(ident, "toLongitudeSeconds")).isEqualTo(new BigDecimal("45.50"));
     assertThat(FieldUtils.getFieldValue(ident, "toLongitudeDirection")).isEqualTo(LongitudeDirection.WEST);
 
   }
@@ -57,16 +57,16 @@ public class PadPipelineIdentTest {
 
     FieldUtils.setProtectedFieldValue("fromLatitudeDegrees", ident, 49);
     FieldUtils.setProtectedFieldValue("fromLatitudeMinutes", ident, 4);
-    FieldUtils.setProtectedFieldValue("fromLatitudeSeconds", ident, BigDecimal.valueOf(2));
+    FieldUtils.setProtectedFieldValue("fromLatitudeSeconds", ident, new BigDecimal("2.00"));
     FieldUtils.setProtectedFieldValue("fromLatitudeDirection", ident, LatitudeDirection.NORTH);
     FieldUtils.setProtectedFieldValue("fromLongitudeDegrees", ident, 7);
     FieldUtils.setProtectedFieldValue("fromLongitudeMinutes", ident, 6);
-    FieldUtils.setProtectedFieldValue("fromLongitudeSeconds", ident, BigDecimal.valueOf(5.5));
+    FieldUtils.setProtectedFieldValue("fromLongitudeSeconds", ident, new BigDecimal("5.50"));
     FieldUtils.setProtectedFieldValue("fromLongitudeDirection", ident, LongitudeDirection.EAST);
 
     FieldUtils.setProtectedFieldValue("toLatitudeDegrees", ident, 44);
     FieldUtils.setProtectedFieldValue("toLatitudeMinutes", ident, 8);
-    FieldUtils.setProtectedFieldValue("toLatitudeSeconds", ident, BigDecimal.valueOf(9));
+    FieldUtils.setProtectedFieldValue("toLatitudeSeconds", ident, new BigDecimal("9.00"));
     FieldUtils.setProtectedFieldValue("toLatitudeDirection", ident, LatitudeDirection.SOUTH);
     FieldUtils.setProtectedFieldValue("toLongitudeDegrees", ident, 19);
     FieldUtils.setProtectedFieldValue("toLongitudeMinutes", ident, 3);

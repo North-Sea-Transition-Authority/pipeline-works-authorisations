@@ -100,10 +100,6 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
 
   }
 
-
-
-
-
   @Test
   public void postAssignCaseOfficer_appStatusSmokeTest() {
 
@@ -137,7 +133,7 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
 
     when(assignCaseOfficerService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new AssignCaseOfficerForm(), "form"));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignCaseOfficerController.class)
         .postAssignCaseOfficer(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
@@ -156,7 +152,7 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(assignCaseOfficerService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignCaseOfficerController.class)
         .postAssignCaseOfficer(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))

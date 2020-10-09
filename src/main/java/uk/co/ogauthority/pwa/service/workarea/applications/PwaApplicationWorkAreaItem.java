@@ -19,7 +19,7 @@ public class PwaApplicationWorkAreaItem extends ApplicationWorkAreaItem {
   public List<WorkAreaColumnItemView> getApplicationStatusColumn() {
     var columnItemList = new ArrayList<WorkAreaColumnItemView>();
     columnItemList.add(
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.INFO, this.getApplicationStatusDisplay())
+        WorkAreaColumnItemView.createLabelledItem(STATUS_LABEL, this.getApplicationStatusDisplay())
     );
 
     if (!StringUtils.isEmpty(this.getCaseOfficerName())) {

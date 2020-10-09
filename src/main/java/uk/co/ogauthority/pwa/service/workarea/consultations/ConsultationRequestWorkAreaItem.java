@@ -73,7 +73,7 @@ public class ConsultationRequestWorkAreaItem extends ApplicationWorkAreaItem {
   public List<WorkAreaColumnItemView> getApplicationStatusColumn() {
     var columnItemList = new ArrayList<WorkAreaColumnItemView>();
     columnItemList.add(
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.INFO, this.consultationRequestStatus)
+        WorkAreaColumnItemView.createLabelledItem(STATUS_LABEL, this.consultationRequestStatus)
     );
 
     columnItemList.add(

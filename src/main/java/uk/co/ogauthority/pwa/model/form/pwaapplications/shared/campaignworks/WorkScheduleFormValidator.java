@@ -20,6 +20,8 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValid
 
 @Component
 public class WorkScheduleFormValidator implements SmartValidator {
+  private static final String WORK_START_DATE_VALIDATION_LABEL = "work start";
+  private static final String WORK_END_DATE_VALIDATION_LABEL = "work end";
 
   private final TwoFieldDateInputValidator twoFieldDateInputValidator;
   private final PadPipelineService padPipelineService;
@@ -76,10 +78,12 @@ public class WorkScheduleFormValidator implements SmartValidator {
       ValidationUtils.rejectIfEmpty(
           errors,
           "workStart",
-          "workStart" + FieldValidationErrorCodes.REQUIRED.getCode(), "Work start date is required");
+          FieldValidationErrorCodes.REQUIRED.errorCode("workStart"),
+          String.format(ValidatorUtils.DATE_REQUIRED_ERROR_FORMAT, WORK_START_DATE_VALIDATION_LABEL)
+      );
     } else {
       Object[] workStartHints = {
-          new FormInputLabel("Work start date"),
+          new FormInputLabel(WORK_START_DATE_VALIDATION_LABEL),
           campaignWorkScheduleValidationHint.getEarliestWorkStartDateHint()
       };
 
@@ -100,13 +104,15 @@ public class WorkScheduleFormValidator implements SmartValidator {
       ValidationUtils.rejectIfEmpty(
           errors,
           "workEnd",
-          "workEnd" + FieldValidationErrorCodes.REQUIRED.getCode(), "Work end date is required");
+          FieldValidationErrorCodes.REQUIRED.errorCode("workEnd"),
+          String.format(ValidatorUtils.DATE_REQUIRED_ERROR_FORMAT, WORK_END_DATE_VALIDATION_LABEL)
+      );
     } else {
       List<Object> workEndHints = new ArrayList<>();
-      workEndHints.add(new FormInputLabel("Work end date"));
+      workEndHints.add(new FormInputLabel(WORK_END_DATE_VALIDATION_LABEL));
       if (form.getWorkStart() != null && form.getWorkStart().createDate().isPresent()) {
 
-        workEndHints.add(new OnOrAfterDateHint(form.getWorkStart().createDate().get(), "work start date"));
+        workEndHints.add(new OnOrAfterDateHint(form.getWorkStart().createDate().get(), WORK_START_DATE_VALIDATION_LABEL));
 
       }
 

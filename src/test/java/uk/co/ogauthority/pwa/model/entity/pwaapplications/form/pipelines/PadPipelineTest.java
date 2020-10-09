@@ -23,12 +23,12 @@ public class PadPipelineTest {
 
     pipeline.setFromCoordinates(new CoordinatePair(
         new LatitudeCoordinate(50, 30, BigDecimal.valueOf(20.02), LatitudeDirection.NORTH),
-        new LongitudeCoordinate(20, 20, BigDecimal.valueOf(1), LongitudeDirection.EAST)
+        new LongitudeCoordinate(20, 20, new BigDecimal("1.00"), LongitudeDirection.EAST)
     ));
 
     pipeline.setToCoordinates(new CoordinatePair(
-        new LatitudeCoordinate(47, 47, BigDecimal.valueOf(20), LatitudeDirection.SOUTH),
-        new LongitudeCoordinate(12, 15, BigDecimal.valueOf(45.5), LongitudeDirection.WEST)
+        new LatitudeCoordinate(47, 47, new BigDecimal("20.00"), LatitudeDirection.SOUTH),
+        new LongitudeCoordinate(12, 15, new BigDecimal("45.50"), LongitudeDirection.WEST)
     ));
 
     assertThat(FieldUtils.getFieldValue(pipeline, "fromLatitudeDegrees")).isEqualTo(50);
@@ -38,17 +38,17 @@ public class PadPipelineTest {
 
     assertThat(FieldUtils.getFieldValue(pipeline, "fromLongitudeDegrees")).isEqualTo(20);
     assertThat(FieldUtils.getFieldValue(pipeline, "fromLongitudeMinutes")).isEqualTo(20);
-    assertThat(FieldUtils.getFieldValue(pipeline, "fromLongitudeSeconds")).isEqualTo(BigDecimal.valueOf(1));
+    assertThat(FieldUtils.getFieldValue(pipeline, "fromLongitudeSeconds")).isEqualTo(new BigDecimal("1.00"));
     assertThat(FieldUtils.getFieldValue(pipeline, "fromLongitudeDirection")).isEqualTo(LongitudeDirection.EAST);
 
     assertThat(FieldUtils.getFieldValue(pipeline, "toLatitudeDegrees")).isEqualTo(47);
     assertThat(FieldUtils.getFieldValue(pipeline, "toLatitudeMinutes")).isEqualTo(47);
-    assertThat(FieldUtils.getFieldValue(pipeline, "toLatitudeSeconds")).isEqualTo(BigDecimal.valueOf(20));
+    assertThat(FieldUtils.getFieldValue(pipeline, "toLatitudeSeconds")).isEqualTo(new BigDecimal("20.00"));
     assertThat(FieldUtils.getFieldValue(pipeline, "toLatitudeDirection")).isEqualTo(LatitudeDirection.SOUTH);
 
     assertThat(FieldUtils.getFieldValue(pipeline, "toLongitudeDegrees")).isEqualTo(12);
     assertThat(FieldUtils.getFieldValue(pipeline, "toLongitudeMinutes")).isEqualTo(15);
-    assertThat(FieldUtils.getFieldValue(pipeline, "toLongitudeSeconds")).isEqualTo(BigDecimal.valueOf(45.5));
+    assertThat(FieldUtils.getFieldValue(pipeline, "toLongitudeSeconds")).isEqualTo(new BigDecimal("45.50"));
     assertThat(FieldUtils.getFieldValue(pipeline, "toLongitudeDirection")).isEqualTo(LongitudeDirection.WEST);
 
   }
@@ -60,16 +60,16 @@ public class PadPipelineTest {
 
     FieldUtils.setProtectedFieldValue("fromLatitudeDegrees", pipeline, 49);
     FieldUtils.setProtectedFieldValue("fromLatitudeMinutes", pipeline, 4);
-    FieldUtils.setProtectedFieldValue("fromLatitudeSeconds", pipeline, BigDecimal.valueOf(2));
+    FieldUtils.setProtectedFieldValue("fromLatitudeSeconds", pipeline, new BigDecimal("2.00"));
     FieldUtils.setProtectedFieldValue("fromLatitudeDirection", pipeline, LatitudeDirection.NORTH);
     FieldUtils.setProtectedFieldValue("fromLongitudeDegrees", pipeline, 7);
     FieldUtils.setProtectedFieldValue("fromLongitudeMinutes", pipeline, 6);
-    FieldUtils.setProtectedFieldValue("fromLongitudeSeconds", pipeline, BigDecimal.valueOf(5.5));
+    FieldUtils.setProtectedFieldValue("fromLongitudeSeconds", pipeline, new BigDecimal("5.50"));
     FieldUtils.setProtectedFieldValue("fromLongitudeDirection", pipeline, LongitudeDirection.EAST);
 
     FieldUtils.setProtectedFieldValue("toLatitudeDegrees", pipeline, 44);
     FieldUtils.setProtectedFieldValue("toLatitudeMinutes", pipeline, 8);
-    FieldUtils.setProtectedFieldValue("toLatitudeSeconds", pipeline, BigDecimal.valueOf(9));
+    FieldUtils.setProtectedFieldValue("toLatitudeSeconds", pipeline, new BigDecimal("9.00"));
     FieldUtils.setProtectedFieldValue("toLatitudeDirection", pipeline, LatitudeDirection.SOUTH);
     FieldUtils.setProtectedFieldValue("toLongitudeDegrees", pipeline, 19);
     FieldUtils.setProtectedFieldValue("toLongitudeMinutes", pipeline, 3);

@@ -5,6 +5,9 @@
 <#-- @ftlvariable name="taskListGroups" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListGroup>" -->
 <#-- @ftlvariable name="caseHistoryItems" type="java.util.List<uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView>" -->
 <#-- @ftlvariable name="industryFlag" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
+<#-- @ftlvariable name="taskListUrl" type="String" -->
+<#-- @ftlvariable name="processingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission> -->
 
 <#include '../../layout.ftl'>
 <#import 'tabs/tasksTab.ftl' as tasksTab>
@@ -14,6 +17,10 @@
 <@defaultPage htmlTitle="${caseSummaryView.pwaApplicationRef} case management" topNavigation=true fullWidthColumn=true>
 
   <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
+
+  <#if updateRequestView?has_content>
+      <@pwaUpdateRequestView.banner view=updateRequestView canUpdate=processingPermissions?seq_contains("UPDATE_APPLICATION") taskListUrl=taskListUrl />
+  </#if>
 
   <@fdsBackendTabs.tabList>
       <#list availableTabs as tab>

@@ -62,7 +62,7 @@
       ${columnItem.value!""}
   <#else>
       <#local tagClass>
-          <#if columnItem.valueTagType == "DEFAULT"></#if>
+          <#if columnItem.valueTagType == "DEFAULT">govuk-tag--grey</#if>
           <#if columnItem.valueTagType == "INFO">govuk-tag--blue</#if>
           <#if columnItem.valueTagType == "SUCCESS">govuk-tag--green</#if>
           <#if columnItem.valueTagType == "DANGER">govuk-tag--red</#if>

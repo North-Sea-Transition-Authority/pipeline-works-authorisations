@@ -101,8 +101,8 @@ public class WorkScheduleFormValidatorTest {
     );
 
     assertThat(messages).contains(
-        entry("workStart", Set.of("Work start date is required")),
-        entry("workEnd", Set.of("Work end date is required"))
+        entry("workStart", Set.of("Enter a work start date")),
+        entry("workEnd", Set.of("Enter a work end date"))
     );
 
   }
@@ -151,7 +151,7 @@ public class WorkScheduleFormValidatorTest {
 
     assertThat(messages).contains(
         entry("workEnd.month", Set.of("")),
-        entry("workEnd.year", Set.of("Work end date must be the same as or after work start date"))
+        entry("workEnd.year", Set.of("Work end must be the same as or after work start"))
     );
 
   }
@@ -178,7 +178,7 @@ public class WorkScheduleFormValidatorTest {
     );
 
     assertThat(messages.get("workEnd.year"))
-        .contains("Work end date must be the same as or before " + latestValidEndDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
+        .contains("Work end must be the same as or before " + latestValidEndDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
     assertThat(messages.get("workEnd.month")).contains("");
 
   }
@@ -207,7 +207,7 @@ public class WorkScheduleFormValidatorTest {
     assertThat(messages.get("workStart.month")).contains("");
 
     assertThat(messages.get("workStart.year"))
-        .contains("Work start date must be the same as or after Project information proposed start of works date " +
+        .contains("Work start must be the same as or after Project information proposed start of works date " +
             "(" + earliest.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER)+")");
 
   }

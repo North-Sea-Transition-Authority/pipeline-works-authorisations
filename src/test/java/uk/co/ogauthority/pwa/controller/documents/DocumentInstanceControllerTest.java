@@ -123,13 +123,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void postAddClauseAfter_success() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseAfter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -145,13 +146,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void postAddClauseAfter_validationFail() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseAfter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -218,13 +220,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void postAddClauseBefore_success() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseBefore(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -240,13 +243,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void postAddClauseBefore_validationFail() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseBefore(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -313,13 +317,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void postAddSubClauseFor_success() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddSubClauseFor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -335,13 +340,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   @Test
   public void postAddSubClauseFor_validationFail() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddSubClauseFor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(user))

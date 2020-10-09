@@ -49,6 +49,7 @@ SELECT
   WHERE por.application_detail_id = pad.id
   AND por.role = 'HOLDER'
 ) pad_holder_name_list
+, CASE WHEN aur.id IS NOT NULL THEN 1 ELSE 0 END open_update_request_flag
 FROM ${datasource.user}.pwa_application_details pad -- want 1 row per detail for maximum query flexibility. intended to be the only introduced cardinality
 JOIN ${datasource.user}.pwa_applications pa ON pad.pwa_application_id = pa.id
 JOIN ${datasource.user}.pad_status_versions psv ON pa.id = psv.pwa_application_id
@@ -56,6 +57,7 @@ JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
 LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id = pad.pwa_application_id AND paa.assignment = 'CASE_OFFICER'
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
+LEFT JOIN ${datasource.user}.application_update_requests aur ON aur.pad_id = pad.id
 WHERE pd.end_timestamp IS NULL
 AND pad.version_no = CASE
   -- if a submitted version exists, always return the last submitted

@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -22,10 +23,14 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 public class ValidatorUtils {
 
+  public static final String DATE_REQUIRED_ERROR_FORMAT = "Enter a %s date";
+  public static final String MONTH_YEAR_INVALID_ERROR_FORMAT = "Enter a valid %s month (1-12) and year (4 digits)";
+  private static final String DATE_INVALID_ERROR_FORMAT = "Enter a valid %s date using the format day " +
+      "(1-31), month (1-12), year (4 digits)";
+
   public ValidatorUtils() {
     throw new AssertionError();
   }
-
 
   /**
    * invoke validator on a nested object while safely pushing and popping the nested object path.
@@ -45,12 +50,13 @@ public class ValidatorUtils {
 
   /**
    * Provide standardised error messages to ensure consistent date validation.
-   * @param fieldPrefix The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
+   *
+   * @param fieldPrefix   The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
    * @param displayPrefix The grouped name in the error message. EG: "proposed start".
-   * @param day Form field day
-   * @param month Form field month
-   * @param year Form field year
-   * @param errors Errors object to add rejection codes and messages to.
+   * @param day           Form field day
+   * @param month         Form field month
+   * @param year          Form field year
+   * @param errors        Errors object to add rejection codes and messages to.
    * @return True if date is valid with no errors.
    */
   public static boolean validateDate(String fieldPrefix,
@@ -60,64 +66,61 @@ public class ValidatorUtils {
                                      @Nullable Integer year,
                                      Errors errors) {
     var dayValid = Range.between(1, 31).contains(day);
-    var monthValid = Range.between(1, 12).contains(month);
-    var yearValid = year != null && year >= 0;
+    var monthValid = isMonthValid(month);
+    var yearValid = isYearValid(year);
+    var allNull = !ObjectUtils.anyNotNull(day, month, year);
+
+    // when a date has all null inputs, have a single error for the whole date
+    if (allNull) {
+      errors.rejectValue(fieldPrefix + "Day", REQUIRED.errorCode(fieldPrefix + "Day"),
+          String.format(DATE_REQUIRED_ERROR_FORMAT, displayPrefix));
+      errors.rejectValue(fieldPrefix + "Month", FieldValidationErrorCodes.REQUIRED.errorCode(fieldPrefix + "Month"), "");
+      errors.rejectValue(fieldPrefix + "Year", FieldValidationErrorCodes.REQUIRED.errorCode(fieldPrefix + "Year"), "");
+      return false;
+    }
+
+    var dateValid = false;
+    // when date as a whole not valid, mark all fields as invalid
     if (dayValid && monthValid && yearValid) {
       try {
         LocalDate.of(year, month, day);
+        dateValid = true;
       } catch (DateTimeException e) {
-        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-            String.format("Enter a valid %s day", displayPrefix));
-        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
-        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
-        return false;
+        // do nothing, dateValid already false
       }
-      return true;
-    } else {
-      errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-          String.format("Enter a valid %s date", displayPrefix));
-      errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
-      errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()), "");
+    }
+
+    // when date as a whole not valid, mark all fields as invalid
+    if (!dateValid) {
+      errors.rejectValue(fieldPrefix + "Day", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Day"),
+          String.format(DATE_INVALID_ERROR_FORMAT, displayPrefix));
+      errors.rejectValue(fieldPrefix + "Month", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Month"), "");
+      errors.rejectValue(fieldPrefix + "Year", FieldValidationErrorCodes.INVALID.errorCode(fieldPrefix + "Year"), "");
       return false;
     }
+
+    return dateValid;
+
   }
 
-  public static boolean validateDate(String fieldPrefix,
-                                     String displayPrefix,
-                                     @Nullable Integer month,
-                                     @Nullable Integer year,
-                                     Errors errors) {
-    var monthValid = Range.between(1, 12).contains(month);
-    var yearValid = year != null && year >= 0;
-    if (monthValid && yearValid) {
-      try {
-        LocalDate.of(year, month, 1);
-      } catch (DateTimeException e) {
-        errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-            "Enter a valid month 1-12");
-        errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-            "Enter a valid year");
-        return false;
-      }
-      return true;
-    } else {
-      errors.rejectValue(fieldPrefix + "Month", String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-          "Enter a valid month 1-12");
-      errors.rejectValue(fieldPrefix + "Year", String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.INVALID.getCode()),
-          "Enter a valid year");
-      return false;
-    }
+  private static boolean isMonthValid(Integer month) {
+    return Range.between(1, 12).contains(month);
+  }
+
+  public static boolean isYearValid(Integer year) {
+    return year != null && year >= 0 && year >= 1000;
   }
 
   /**
    * Provide standardised error messages to ensure consistent date validation.
    * Ensures that the date is valid, and the date is either the current day, or is in the future.
-   * @param fieldPrefix The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
+   *
+   * @param fieldPrefix   The prefix of the form date fields. EG: proposedStartDay has a prefix of proposedStart.
    * @param displayPrefix The grouped name in the error message. EG: "proposed start".
-   * @param day Form field day
-   * @param month Form field month
-   * @param year Form field year
-   * @param errors Errors object to add rejection codes and messages to.
+   * @param day           Form field day
+   * @param month         Form field month
+   * @param year          Form field year
+   * @param errors        Errors object to add rejection codes and messages to.
    * @return True if date is valid with no errors.
    */
   public static boolean validateDateIsPresentOrFuture(String fieldPrefix,
@@ -129,32 +132,13 @@ public class ValidatorUtils {
     if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
       var date = LocalDate.of(year, month, day);
       if (date.isBefore(LocalDate.now())) {
-        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()),
+        errors.rejectValue(fieldPrefix + "Day",
+            String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()),
             String.format("%s must not be in the past", StringUtils.capitalize(displayPrefix)));
         errors.rejectValue(fieldPrefix + "Month",
             String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
         errors.rejectValue(fieldPrefix + "Year",
             String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "");
-        return false;
-      }
-      return true;
-    }
-    return false;
-  }
-
-  public static boolean validateDateIsPresentOrFuture(String fieldPrefix,
-                                                      String displayPrefix,
-                                                      Integer month,
-                                                      Integer year,
-                                                      Errors errors) {
-    if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
-      var date = LocalDate.of(year, month, 1);
-      if (date.isBefore(LocalDate.now())) {
-        errors.rejectValue(fieldPrefix + "Month",
-            String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode(), "Month must not be in the past"),
-            "Month must not be in the past.");
-        errors.rejectValue(fieldPrefix + "Year",
-            String.format("%sYear%s", fieldPrefix, FieldValidationErrorCodes.BEFORE_TODAY.getCode()), "Year must not be in the past");
         return false;
       }
       return true;
@@ -171,7 +155,8 @@ public class ValidatorUtils {
     if (validateDate(fieldPrefix, displayPrefix, day, month, year, errors)) {
       var date = LocalDate.of(year, month, day);
       if (date.isAfter(LocalDate.now())) {
-        errors.rejectValue(fieldPrefix + "Day", String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()),
+        errors.rejectValue(fieldPrefix + "Day",
+            String.format("%sDay%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()),
             String.format("%s must not be in the future", StringUtils.capitalize(displayPrefix)));
         errors.rejectValue(fieldPrefix + "Month",
             String.format("%sMonth%s", fieldPrefix, FieldValidationErrorCodes.AFTER_TODAY.getCode()), "");
@@ -183,53 +168,6 @@ public class ValidatorUtils {
     }
     return false;
   }
-
-  public static boolean validateDateIsPresentOrFutureOfTarget(String fieldPrefix,
-                                                              String displayPrefix,
-                                                              Integer month,
-                                                              Integer year,
-                                                              Integer targetMonth,
-                                                              Integer targetYear,
-                                                              String transference,
-                                                              Errors errors) {
-    if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
-      var date = LocalDate.of(year, month, 1);
-      var targetDate = LocalDate.of(targetYear, targetMonth, 1);
-      if (date.isBefore(targetDate)) {
-        errors.rejectValue(fieldPrefix + "Month",
-            String.format("%sMonth%s", fieldPrefix, ".beforeTarget"), "Month must be on or after " + transference);
-        errors.rejectValue(fieldPrefix + "Year",
-            String.format("%sYear%s", fieldPrefix, ".beforeTarget"), "Year must be on or after " + transference);
-        return false;
-      }
-      return true;
-    }
-    return false;
-  }
-
-
-  public static boolean validateDateIsWithinRangeOfTarget(String fieldPrefix,
-                                                          String displayPrefix,
-                                                          Integer month,
-                                                          Integer year,
-                                                          Integer targetMonth,
-                                                          Integer targetYear,
-                                                          Integer monthRange,
-                                                          Errors errors) {
-    if (validateDate(fieldPrefix, displayPrefix, month, year, errors)) {
-      var date = LocalDate.of(year, month, 1);
-      var targetDate = LocalDate.of(targetYear, targetMonth, 1);
-      if (date.isBefore(targetDate) || date.isAfter(targetDate.plusMonths(monthRange))) {
-        errors.rejectValue(fieldPrefix,
-            fieldPrefix + FieldValidationErrorCodes.OUT_OF_TARGET_RANGE.getCode(),
-            "Month and year must be after from date and within " + monthRange + " months");
-        return false;
-      }
-      return true;
-    }
-    return false;
-  }
-
 
   public static void validateDefaultStringLength(Errors errors,
                                                  String field,
@@ -254,14 +192,16 @@ public class ValidatorUtils {
   public static void validateEmailIfPresent(Errors errors, String field, Supplier<String> email, String messagePrefix) {
     var emailAddress = email.get();
     if (emailAddress != null && !EmailValidator.getInstance().isValid(emailAddress)) {
-      errors.rejectValue(field, field + FieldValidationErrorCodes.INVALID.getCode(), messagePrefix + " must be a valid email");
+      errors.rejectValue(field, field + FieldValidationErrorCodes.INVALID.getCode(),
+          messagePrefix + " must be a valid email");
     }
   }
 
   /**
    * Ensures that a Boolean object is true.
-   * @param errors Errors object
-   * @param field The field name matching the form's field name.
+   *
+   * @param errors       Errors object
+   * @param field        The field name matching the form's field name.
    * @param errorMessage The message to display if invalid.
    */
   public static void validateBooleanTrue(Errors errors, Boolean bool, String field, String errorMessage) {
@@ -307,14 +247,15 @@ public class ValidatorUtils {
 
   private static void validateSeconds(Errors errors, Pair<String, BigDecimal> seconds, String messagePrefix) {
 
-    if (! ((seconds.getValue().compareTo(BigDecimal.ZERO) >= 0) && (seconds.getValue().compareTo(BigDecimal.valueOf(60)) < 0))) {
+    if (!((seconds.getValue().compareTo(BigDecimal.ZERO) >= 0) && (seconds.getValue().compareTo(
+        BigDecimal.valueOf(60)) < 0))) {
       errors.rejectValue(seconds.getKey(), seconds.getKey() + INVALID.getCode(),
           String.format("%s seconds should be between 0 and 59.99", messagePrefix));
     }
 
-    if (NumberUtils.getNumberOfDp(seconds.getValue()) != 2) {
+    if (NumberUtils.getNumberOfDp(seconds.getValue()) != CoordinateUtils.DECIMAL_SECONDS_DP) {
       errors.rejectValue(seconds.getKey(), seconds.getKey() + INVALID.getCode(),
-          String.format("%s seconds should have exactly 2dp", messagePrefix));
+          String.format("%s seconds should have exactly %sdp", messagePrefix, CoordinateUtils.DECIMAL_SECONDS_DP));
     }
 
   }
