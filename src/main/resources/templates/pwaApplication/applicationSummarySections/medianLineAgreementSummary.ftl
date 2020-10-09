@@ -22,10 +22,12 @@
     <@fdsCheckAnswers.checkAnswers>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionUrl="" screenReaderActionText="" actionText="">
-            ${medianLineAgreementView.agreementStatus.getDisplayText()!}
+            <#if medianLineAgreementView.agreementStatus?has_content>
+                ${medianLineAgreementView.agreementStatus.getDisplayText()!}
+            </#if>
         </@fdsCheckAnswers.checkAnswersRow>        
 
-        <#if medianLineAgreementView.agreementStatus != "NOT_CROSSED">
+        <#if medianLineAgreementView.agreementStatus?has_content && medianLineAgreementView.agreementStatus != "NOT_CROSSED">
             <@fdsCheckAnswers.checkAnswersRow keyText="Name of negotiator" actionUrl="" screenReaderActionText="" actionText="">
                 ${medianLineAgreementView.negotiatorName!}
             </@fdsCheckAnswers.checkAnswersRow>    
