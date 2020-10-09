@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
 
@@ -19,11 +20,13 @@ public class ApplicationUpdateRequestViewService {
   }
 
   public Optional<ApplicationUpdateRequestView> getOpenRequestView(PwaApplicationDetail pwaApplicationDetail) {
-    return applicationUpdateRequestRepository.findByPwaApplicationDetail(pwaApplicationDetail);
+    return applicationUpdateRequestRepository
+        .findByPwaApplicationDetailAndStatus(pwaApplicationDetail, ApplicationUpdateRequestStatus.OPEN);
   }
 
   public Optional<ApplicationUpdateRequestView> getOpenRequestView(PwaApplication pwaApplication) {
-    return applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplication(pwaApplication);
+    return applicationUpdateRequestRepository
+        .findByPwaApplicationDetail_pwaApplicationAndStatus(pwaApplication, ApplicationUpdateRequestStatus.OPEN);
   }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 
 @Repository
@@ -14,8 +15,10 @@ public interface ApplicationUpdateRequestRepository extends CrudRepository<Appli
 
   boolean existsByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
-  Optional<ApplicationUpdateRequestView> findByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
+  Optional<ApplicationUpdateRequestView> findByPwaApplicationDetailAndStatus(PwaApplicationDetail pwaApplicationDetail,
+                                                                             ApplicationUpdateRequestStatus status);
 
-  Optional<ApplicationUpdateRequestView> findByPwaApplicationDetail_pwaApplication(PwaApplication pwaApplication);
+  Optional<ApplicationUpdateRequestView> findByPwaApplicationDetail_pwaApplicationAndStatus(PwaApplication pwaApplication,
+                                                                                            ApplicationUpdateRequestStatus status);
 
 }

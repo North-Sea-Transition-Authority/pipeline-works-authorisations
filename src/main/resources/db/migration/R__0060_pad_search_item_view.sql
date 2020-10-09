@@ -57,7 +57,7 @@ JOIN ${datasource.user}.pwas p ON pa.pwa_id = p.id
 JOIN ${datasource.user}.pwa_details pd ON pd.pwa_id = p.id
 LEFT JOIN ${datasource.user}.pwa_app_assignments paa ON paa.pwa_application_id = pad.pwa_application_id AND paa.assignment = 'CASE_OFFICER'
 LEFT JOIN ${datasource.user}.pad_project_information ppi ON ppi.application_detail_id = pad.id
-LEFT JOIN ${datasource.user}.application_update_requests aur ON aur.pad_id = pad.id
+LEFT JOIN ${datasource.user}.application_update_requests aur ON aur.pad_id = pad.id AND aur.status = 'OPEN'
 WHERE pd.end_timestamp IS NULL
 AND pad.version_no = CASE
   -- if a submitted version exists, always return the last submitted

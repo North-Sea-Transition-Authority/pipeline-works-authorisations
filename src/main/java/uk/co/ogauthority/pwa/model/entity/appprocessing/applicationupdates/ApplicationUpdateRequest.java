@@ -5,6 +5,8 @@ import java.time.Instant;
 import javax.persistence.Basic;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,6 +17,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 
 @Entity
 @Table(name = "application_update_requests")
@@ -37,6 +40,9 @@ public class ApplicationUpdateRequest {
 
   private String requestReason;
 
+  @Enumerated(EnumType.STRING)
+  private ApplicationUpdateRequestStatus status;
+
   public static ApplicationUpdateRequest createRequest(PwaApplicationDetail pwaApplicationDetail,
                                          Person creatorPerson,
                                          Clock clock,
@@ -46,6 +52,7 @@ public class ApplicationUpdateRequest {
     updateRequest.setRequestedByPersonId(creatorPerson.getId());
     updateRequest.setRequestReason(requestReason);
     updateRequest.setRequestedTimestamp(clock.instant());
+    updateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
     return updateRequest;
   }
 
@@ -88,5 +95,13 @@ public class ApplicationUpdateRequest {
 
   public void setRequestReason(String requestReason) {
     this.requestReason = requestReason;
+  }
+
+  public ApplicationUpdateRequestStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(ApplicationUpdateRequestStatus status) {
+    this.status = status;
   }
 }
