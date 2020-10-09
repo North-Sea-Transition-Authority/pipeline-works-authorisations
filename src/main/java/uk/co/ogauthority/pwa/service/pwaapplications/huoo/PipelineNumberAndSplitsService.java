@@ -1,17 +1,16 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSummaryAndSplit;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 
@@ -20,15 +19,13 @@ public class PipelineNumberAndSplitsService {
 
 
 
-  public List<PipelineNumbersAndSplits> getAllPipelineNumbersAndSplitsRole(
-      HuooRole huooRole,
+  public Map<PipelineIdentifier, PipelineNumbersAndSplits> getAllPipelineNumbersAndSplitsRole(
       Supplier<Map<PipelineId, PipelineOverview>> getSplittablePipelines,
-      Supplier<Set<PipelineIdentifier>> getSplitPipelines,
-      Set<PipelineIdentifier> pipelineIdentifiers) {
+      Supplier<Set<PipelineIdentifier>> getSplitPipelines) {
 
     Map<PipelineIdentifier, PipelineSummaryAndSplit> pipelineIdentifierAndSummarySplitMap = new HashMap<>();
     getSplittablePipelines.get().forEach((identifier, pipelineOverview) -> pipelineIdentifierAndSummarySplitMap.put(
-            identifier, new PipelineSummaryAndSplit(pipelineOverview, null, null)));
+            identifier, new PipelineSummaryAndSplit(pipelineOverview, null)));
 
     Set<PipelineIdentifier> splitPipelinesForRole = getSplitPipelines.get();
 
@@ -37,7 +34,6 @@ public class PipelineNumberAndSplitsService {
     splitPipelinesForRole.forEach(splitPipelineIdentifier -> {
       var splitPipelineOption = PipelineSummaryAndSplit.duplicateOptionForPipelineIdentifier(
           splitPipelineIdentifier,
-          huooRole,
           pipelineIdentifierAndSummarySplitMap.get(splitPipelineIdentifier.getPipelineId()).getPipelineOverview());
       splitPipelines.add(splitPipelineIdentifier.getPipelineId());
       pipelineIdentifierAndSummarySplitMap.put(splitPipelineIdentifier, splitPipelineOption);
@@ -45,18 +41,9 @@ public class PipelineNumberAndSplitsService {
 
     // remove records for whole pipelines where splits are now within the map
     splitPipelines.forEach(pipelineIdentifierAndSummarySplitMap::remove);
-    List<PipelineNumbersAndSplits> pipelineNumbersAndSplits = new ArrayList<>();
-    pipelineIdentifiers.stream().sorted();
-    pipelineIdentifiers.forEach((identifier) -> {
-      if (identifier != null) {
-        pipelineNumbersAndSplits.add(PipelineNumbersAndSplits.from(
-            identifier, pipelineIdentifierAndSummarySplitMap.get(identifier.getPipelineId())));
-      }
-    });
-
-
-
-    return pipelineNumbersAndSplits;
+    return pipelineIdentifierAndSummarySplitMap.entrySet().stream()
+        .map(entry -> PipelineNumbersAndSplits.from(entry.getKey(), entry.getValue()))
+        .collect(Collectors.toMap(PipelineNumbersAndSplits::getPipelineIdentifier, Function.identity()));
   }
 
 

@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -11,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +36,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
@@ -934,10 +935,11 @@ public class PadOrganisationRoleServiceTest {
     pipeline.setId(1);
     padPipeline.setPipeline(pipeline);
     var pipelineOverview = new PadPipelineOverview(padPipeline);
-    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        any(HuooRole.class), any(), any(), anySet()))
-      .thenReturn(List.of(
-        new PipelineNumbersAndSplits(new PipelineId(1), pipelineOverview.getPipelineNumber(), null)));
+    Map<PipelineIdentifier, PipelineNumbersAndSplits> allPipelineNumbersAndSplitsRole = new HashMap<>();
+    allPipelineNumbersAndSplitsRole.put(new PipelineId(1), new PipelineNumbersAndSplits(
+        new PipelineId(1), pipelineOverview.getPipelineNumber(), null));
+    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
+      .thenReturn(allPipelineNumbersAndSplitsRole);
 
 
     //asserts

@@ -3,14 +3,15 @@ package uk.co.ogauthority.pwa.service.pwaconsents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,12 +25,12 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstance
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
@@ -40,7 +41,6 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PipelineNumberAndSplitsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.testutils.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -78,7 +78,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   private PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
 
   @Mock
-  private PadPipelineService padPipelineService;
+  private PipelineDetailService pipelineDetailService;
 
   @Mock
   private PwaConsent pwaConsent;
@@ -105,7 +105,7 @@ public class PwaConsentOrganisationRoleServiceTest {
     pwaConsentOrganisationRoleService = new PwaConsentOrganisationRoleService(
         pwaConsentOrganisationRoleRepository,
         pwaConsentPipelineOrganisationRoleLinkRepository,
-        pipelineNumberAndSplitsService, padPipelineService, pwaConsentRepository,
+        pipelineNumberAndSplitsService, pipelineDetailService, pwaConsentRepository,
         portalOrganisationsAccessor
     );
 
@@ -251,8 +251,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   @Test
   public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
 
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    var masterPwa = detail.getMasterPwaApplication();
+    var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwaApplication();
 
     //Organisation Roles Summary DTO
     var orgPipelineRoleInstanceDto1 = new OrganisationPipelineRoleInstanceDto(
@@ -314,17 +313,15 @@ public class PwaConsentOrganisationRoleServiceTest {
     pipeline.setId(1);
     padPipeline.setPipeline(pipeline);
     var pipelineOverview = new PadPipelineOverview(padPipeline);
-    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        any(HuooRole.class), any(), any(), anySet()))
-        .thenReturn(List.of(
-            new PipelineNumbersAndSplits(new PipelineId(1),
-                pipelineOverview.getPipelineNumber(),
-                null
-            )));
+    Map<PipelineIdentifier, PipelineNumbersAndSplits> allPipelineNumbersAndSplitsRole = new HashMap<>();
+    allPipelineNumbersAndSplitsRole.put(new PipelineId(1), new PipelineNumbersAndSplits(
+        new PipelineId(1), pipelineOverview.getPipelineNumber(), null));
+    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
+        .thenReturn(allPipelineNumbersAndSplitsRole);
 
 
     //asserts
-    var actualView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(detail);
+    var actualView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa);
 
     var holderPortalOrgRolePipelineGroup = actualView.getHolderOrgRolePipelineGroups().get(0);
     assertThat(holderPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);

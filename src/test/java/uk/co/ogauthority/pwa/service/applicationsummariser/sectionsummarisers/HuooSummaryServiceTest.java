@@ -75,7 +75,7 @@ public class HuooSummaryServiceTest {
     when(padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail)).thenReturn(padView);
 
     var consentedView = new AllOrgRolePipelineGroupsView(null, null, null, null);
-    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail)).thenReturn(consentedView);
+    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail.getMasterPwaApplication())).thenReturn(consentedView);
 
     var appSummary = huooSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);

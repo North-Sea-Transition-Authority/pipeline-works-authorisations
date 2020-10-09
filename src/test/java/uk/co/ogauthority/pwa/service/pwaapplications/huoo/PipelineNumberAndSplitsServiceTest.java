@@ -10,8 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
@@ -33,7 +31,6 @@ public class PipelineNumberAndSplitsServiceTest {
   @Test
   public void getAllPipelineNumbersAndSplitsRole() {
 
-    Set<PipelineIdentifier> pipelineIdentifiers = Set.of(new PipelineId(1));
     Map<PipelineId, PipelineOverview> pipelineIdAndSummaryMap = new HashMap<>();
     var padPipeline = new PadPipeline();
     padPipeline.setId(1);
@@ -45,11 +42,12 @@ public class PipelineNumberAndSplitsServiceTest {
     pipelineIdAndSummaryMap.put(new PipelineId(1), pipelineOverview);
 
     var pipelineNumbersAndSplits = pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(
-        HuooRole.HOLDER, () -> pipelineIdAndSummaryMap, () -> Set.of(), pipelineIdentifiers);
+        () -> pipelineIdAndSummaryMap, () -> Set.of());
 
     assertThat(pipelineNumbersAndSplits).hasSize(1);
-    assertThat(pipelineNumbersAndSplits.get(0).getPipelineIdentifier().getPipelineIdAsInt())
+    assertThat(pipelineNumbersAndSplits.get(new PipelineId(1)).getPipelineIdentifier().getPipelineIdAsInt())
         .isEqualTo(1);
+    assertThat(pipelineNumbersAndSplits.get(new PipelineId(1)).getPipelineNumber()).isEqualTo("1");
   }
 
 

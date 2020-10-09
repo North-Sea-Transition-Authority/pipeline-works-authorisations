@@ -4,14 +4,11 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentPipelineOrganisationRoleLink;
 
 @Repository
 public interface PwaConsentOrganisationPipelineRoleDtoRepository {
 
 
   List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByMasterPwa(MasterPwa masterPwa);
-
-  List<PwaConsentPipelineOrganisationRoleLink> findByAddedByPwaConsent_MasterPwaAndEndedByPwaConsentIsNull(MasterPwa masterPwa);
 
 }

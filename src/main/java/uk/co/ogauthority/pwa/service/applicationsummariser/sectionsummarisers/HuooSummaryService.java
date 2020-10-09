@@ -56,7 +56,7 @@ public class HuooSummaryService implements ApplicationSectionSummariser {
     summaryModel.put("huooRolePipelineGroupsPadView",
         padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
     summaryModel.put("huooRolePipelineGroupsConsentedView",
-        pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail));
+        pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail.getMasterPwaApplication()));
 
 
     return new ApplicationSectionSummary(

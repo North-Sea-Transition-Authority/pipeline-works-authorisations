@@ -5,7 +5,6 @@ import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentPipelineOrganisationRoleLink;
 
 public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaConsentOrganisationPipelineRoleDtoRepository {
 
@@ -43,9 +42,4 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
 
   }
 
-  @Override
-  public List<PwaConsentPipelineOrganisationRoleLink> findByAddedByPwaConsent_MasterPwaAndEndedByPwaConsentIsNull(
-      MasterPwa masterPwa) {
-    return null;
-  }
 }
