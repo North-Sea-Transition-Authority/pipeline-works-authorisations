@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.Ge
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LicenceBlockSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.LocationDetailsSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.MedianLineAgreementSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OptionsTemplateSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.OtherPropertiesSummaryService;
 import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PartnerApprovalLettersSummaryService;
@@ -107,6 +108,11 @@ public enum ApplicationSectionSummaryType {
       120,
       "pwaApplication/applicationSummarySections/cableCrossingsSummary.ftl",
       CableCrossingsSummaryService.class),
+
+  MEDIAN_LINE_CROSSING(
+      130,
+      "pwaApplication/applicationSummarySections/medianLineAgreementSummary.ftl",
+      MedianLineAgreementSummaryService.class),
 
   GENERAL_TECH_DETAILS(
       140,

@@ -31,10 +31,9 @@ public class LatitudeCoordinate extends Coordinate {
         CoordinateUtils.FORMAT_STRING,
         StringDisplayUtils.formatInteger2DigitZeroPaddingOrNull(this.getDegrees()),
         StringDisplayUtils.formatInteger2DigitZeroPaddingOrNull(this.getMinutes()),
-        StringDisplayUtils.formatDecimal2DpOrNull(this.getSeconds()),
+        CoordinateUtils.formatSeconds(this.getSeconds()),
         this.getDirection().getDisplayTextShort()
-    )
-        : null;
+    ) : null;
   }
 
   @Override

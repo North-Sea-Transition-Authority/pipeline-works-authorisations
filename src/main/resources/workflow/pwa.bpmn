@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_00r3tcx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.2">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_00r3tcx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
   <bpmn:collaboration id="Collaboration_1xq8xhx">
     <bpmn:participant id="Participant_0pwf8b0" name="PWA application" processRef="pwaApplication" />
   </bpmn:collaboration>
@@ -40,7 +40,7 @@
     <bpmn:userTask id="updateApplication" name="Update application">
       <bpmn:incoming>applicationUpdateRequested</bpmn:incoming>
     </bpmn:userTask>
-    <bpmn:boundaryEvent id="recieveAppUpdateRequestMessage" name="Receive app update request" attachedToRef="awaitFeedback" cancelActivity="false">
+    <bpmn:boundaryEvent id="recieveAppUpdateRequestMessage" name="Receive app update request" cancelActivity="false" attachedToRef="awaitFeedback">
       <bpmn:outgoing>applicationUpdateRequested</bpmn:outgoing>
       <bpmn:messageEventDefinition messageRef="updateApplicationRequest" />
     </bpmn:boundaryEvent>
@@ -54,7 +54,7 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="pwaManagerApproved" name="Approve initial submission" sourceRef="applicationReview" targetRef="caseOfficerReview" />
     <bpmn:textAnnotation id="TextAnnotation_14uzapn">
-      <bpmn:text>Can be active Simulaniously with update application task</bpmn:text>
+      <bpmn:text>Can be active simultaneously with update application task</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:textAnnotation id="TextAnnotation_0x1ys7g">
       <bpmn:text>Triggers app update request</bpmn:text>
@@ -68,32 +68,21 @@
       <bpmndi:BPMNShape id="Participant_0pwf8b0_di" bpmnElement="Participant_0pwf8b0" isHorizontal="true">
         <dc:Bounds x="142" y="80" width="1108" height="770" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_0k9ldl3_di" bpmnElement="Lane_0k9ldl3" isHorizontal="true">
-        <dc:Bounds x="172" y="80" width="1078" height="320" />
+      <bpmndi:BPMNShape id="Lane_0xuhf3w_di" bpmnElement="Lane_0xuhf3w" isHorizontal="true">
+        <dc:Bounds x="172" y="400" width="1078" height="210" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_1owjdyd_di" bpmnElement="Lane_1owjdyd" isHorizontal="true">
         <dc:Bounds x="172" y="610" width="1078" height="240" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_0xuhf3w_di" bpmnElement="Lane_0xuhf3w" isHorizontal="true">
-        <dc:Bounds x="172" y="400" width="1078" height="210" />
+      <bpmndi:BPMNShape id="Lane_0k9ldl3_di" bpmnElement="Lane_0k9ldl3" isHorizontal="true">
+        <dc:Bounds x="172" y="80" width="1078" height="320" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_14uzapn_di" bpmnElement="TextAnnotation_14uzapn">
-        <dc:Bounds x="720" y="140" width="100" height="68" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_00xic4b_di" bpmnElement="applicationUpdateRequested">
-        <di:waypoint x="698" y="240" />
-        <di:waypoint x="900" y="240" />
+      <bpmndi:BPMNEdge id="Flow_0iisx53_di" bpmnElement="pwaManagerApproved">
+        <di:waypoint x="400" y="549" />
+        <di:waypoint x="400" y="690" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="750" y="86" width="86" height="27" />
+          <dc:Bounds x="407" y="620" width="69" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1frd2ro_di" bpmnElement="Flow_1frd2ro">
-        <di:waypoint x="450" y="260" />
-        <di:waypoint x="580" y="260" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0on8ht1_di" bpmnElement="SequenceFlow_0on8ht1">
-        <di:waypoint x="268" y="260" />
-        <di:waypoint x="350" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0f5mnqs_di" bpmnElement="applicantSubmitApplicationToRegulator">
         <di:waypoint x="400" y="300" />
@@ -102,11 +91,19 @@
           <dc:Bounds x="385" y="366" width="90" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0iisx53_di" bpmnElement="pwaManagerApproved">
-        <di:waypoint x="400" y="549" />
-        <di:waypoint x="400" y="690" />
+      <bpmndi:BPMNEdge id="SequenceFlow_0on8ht1_di" bpmnElement="SequenceFlow_0on8ht1">
+        <di:waypoint x="268" y="260" />
+        <di:waypoint x="350" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1frd2ro_di" bpmnElement="Flow_1frd2ro">
+        <di:waypoint x="450" y="260" />
+        <di:waypoint x="580" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00xic4b_di" bpmnElement="applicationUpdateRequested">
+        <di:waypoint x="698" y="240" />
+        <di:waypoint x="900" y="240" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="407" y="620" width="69" height="27" />
+          <dc:Bounds x="750" y="86" width="86" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
@@ -127,19 +124,22 @@
       <bpmndi:BPMNShape id="Activity_1wvluk6_di" bpmnElement="updateApplication">
         <dc:Bounds x="900" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_14uzapn_di" bpmnElement="TextAnnotation_14uzapn">
+        <dc:Bounds x="720" y="140" width="100" height="68" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TextAnnotation_0x1ys7g_di" bpmnElement="TextAnnotation_0x1ys7g">
         <dc:Bounds x="470" y="680" width="113" height="40" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Association_0iekkla_di" bpmnElement="Association_0iekkla">
-        <di:waypoint x="680" y="229" />
-        <di:waypoint x="720" y="205" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1pkmy66_di" bpmnElement="recieveAppUpdateRequestMessage">
         <dc:Bounds x="662" y="222" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="702" y="246" width="75" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0iekkla_di" bpmnElement="Association_0iekkla">
+        <di:waypoint x="680" y="229" />
+        <di:waypoint x="720" y="205" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Association_0j8wzsy_di" bpmnElement="Association_0j8wzsy">
         <di:waypoint x="450" y="718" />
         <di:waypoint x="470" y="713" />

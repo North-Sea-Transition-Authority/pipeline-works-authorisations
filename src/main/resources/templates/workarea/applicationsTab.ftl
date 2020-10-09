@@ -13,10 +13,10 @@
             <table class="govuk-table">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <th class="govuk-table__header" scope="col">Application</th>
+                        <th class="govuk-table__header govuk-!-width-one-third" scope="col">Application</th>
                         <th class="govuk-table__header" scope="col">Holder</th>
-                        <th class="govuk-table__header" scope="col">Summary</th>
-                        <th class="govuk-table__header" scope="col">Application status</th>
+                        <th class="govuk-table__header govuk-!-width-one-third" scope="col">Summary</th>
+                        <th class="govuk-table__header govuk-!-width-one-third" scope="col">Application status</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body">

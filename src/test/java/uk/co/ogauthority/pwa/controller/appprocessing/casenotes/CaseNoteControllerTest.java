@@ -90,12 +90,14 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
   @Test
   public void postAddCaseNote() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(CaseNoteController.class).postAddCaseNote(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -110,12 +112,13 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
   @Test
   public void postAddCaseNote_validationFail() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
-
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
+
     when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(CaseNoteController.class).postAddCaseNote(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))

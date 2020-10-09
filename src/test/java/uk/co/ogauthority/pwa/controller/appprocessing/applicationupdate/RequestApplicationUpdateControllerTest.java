@@ -120,7 +120,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void renderRequestUpdate_modelHasExpectedAttributes() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
         .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
 
     var result = mockMvc.perform(
@@ -143,7 +143,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void renderRequestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
     when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
         .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
 
     var result = mockMvc.perform(
@@ -184,7 +184,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_validationFailsWithNullRequestReason() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
         .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
 
     mockMvc.perform(
@@ -207,7 +207,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_validationFailsWithTooLongRequestReason() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
         .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
 
     mockMvc.perform(
@@ -230,7 +230,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_redirectsWhenFormValid() throws Exception {
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
         .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
 
     mockMvc.perform(
@@ -253,7 +253,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   @Test
   public void requestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
     when(applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user))
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user))
         .thenReturn(Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
 
     mockMvc.perform(

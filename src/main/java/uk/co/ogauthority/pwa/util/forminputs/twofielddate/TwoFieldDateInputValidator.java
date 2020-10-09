@@ -2,10 +2,12 @@ package uk.co.ogauthority.pwa.util.forminputs.twofielddate;
 
 import java.util.Arrays;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 
 @Component
@@ -13,6 +15,9 @@ public class TwoFieldDateInputValidator implements SmartValidator {
 
   private static final String MONTH = "month";
   private static final String YEAR = "year";
+
+  private static final String MONTH_REQUIRED_CODE = MONTH + FieldValidationErrorCodes.REQUIRED.getCode();
+  private static final String YEAR_REQUIRED_CODE = YEAR + FieldValidationErrorCodes.REQUIRED.getCode();
 
   private static final String MONTH_INVALID_CODE = MONTH + FieldValidationErrorCodes.INVALID.getCode();
   private static final String YEAR_INVALID_CODE = YEAR + FieldValidationErrorCodes.INVALID.getCode();
@@ -44,6 +49,7 @@ public class TwoFieldDateInputValidator implements SmartValidator {
         .orElse(new FormInputLabel("Date"));
 
     var twoFieldDateInput = (TwoFieldDateInput) o;
+    var dateOptional = twoFieldDateInput.createDate();
 
     Optional<OnOrBeforeDateHint> onOrBeforeDateHint = Arrays.stream(objects)
         .filter(hint -> hint.getClass().equals(OnOrBeforeDateHint.class))
@@ -70,12 +76,29 @@ public class TwoFieldDateInputValidator implements SmartValidator {
         .map(hint -> ((DateWithinRangeHint) hint))
         .findFirst();
 
-    if (twoFieldDateInput.createDate().isEmpty()) {
-      errors.rejectValue(MONTH, MONTH_INVALID_CODE, "");
+
+    if (dateOptional.isEmpty() && twoFieldDateInput.getMonth() == null && twoFieldDateInput.getYear() == null) {
+      errors.rejectValue(
+          MONTH,
+          MONTH_REQUIRED_CODE,
+          ""
+      );
+      errors.rejectValue(
+          YEAR,
+          YEAR_REQUIRED_CODE,
+          String.format(ValidatorUtils.DATE_REQUIRED_ERROR_FORMAT, inputLabel.getLabel()));
+
+    } else if (dateOptional.isEmpty() || dateOptional.filter(date -> ValidatorUtils.isYearValid(date.getYear())).isEmpty()) {
+      errors.rejectValue(
+          MONTH,
+          MONTH_INVALID_CODE,
+          ""
+      );
       errors.rejectValue(
           YEAR,
           YEAR_INVALID_CODE,
-          inputLabel.getLabel() + " must be a valid date");
+          String.format(ValidatorUtils.MONTH_YEAR_INVALID_ERROR_FORMAT, inputLabel.getLabel()));
+
     } else {
       // only do additional validation when the date is valid
       afterDateHint.ifPresent(hint -> validateAfterDate(errors, twoFieldDateInput, inputLabel, hint));
@@ -106,7 +129,7 @@ public class TwoFieldDateInputValidator implements SmartValidator {
 
       errors.rejectValue(MONTH, MONTH_AFTER_DATE_CODE, "");
       errors.rejectValue(YEAR, YEAR_AFTER_DATE_CODE,
-          inputLabel.getLabel() + " must be the same as or after " + afterDateLabel);
+          StringUtils.capitalize(inputLabel.getLabel()) + " must be the same as or after " + afterDateLabel);
     }
   }
 
@@ -122,7 +145,7 @@ public class TwoFieldDateInputValidator implements SmartValidator {
 
       errors.rejectValue(MONTH, MONTH_BEFORE_DATE_CODE, "");
       errors.rejectValue(YEAR, YEAR_BEFORE_DATE_CODE,
-          inputLabel.getLabel() + " must be the same as or before " + beforeDateLabel);
+          StringUtils.capitalize(inputLabel.getLabel()) + " must be the same as or before " + beforeDateLabel);
     }
   }
 
@@ -134,7 +157,7 @@ public class TwoFieldDateInputValidator implements SmartValidator {
       var afterDateLabel = testAfterDate.getDateLabel();
 
       errors.rejectValue(MONTH, MONTH_AFTER_DATE_CODE, "");
-      errors.rejectValue(YEAR, YEAR_AFTER_DATE_CODE, inputLabel.getLabel() + " must be after " + afterDateLabel);
+      errors.rejectValue(YEAR, YEAR_AFTER_DATE_CODE, StringUtils.capitalize(inputLabel.getLabel()) + " must be after " + afterDateLabel);
     }
   }
 
@@ -146,7 +169,7 @@ public class TwoFieldDateInputValidator implements SmartValidator {
       var beforeDateLabel = beforeDateHint.getDateLabel();
 
       errors.rejectValue(MONTH, MONTH_BEFORE_DATE_CODE, "");
-      errors.rejectValue(YEAR, YEAR_BEFORE_DATE_CODE, inputLabel.getLabel() + " must be before " + beforeDateLabel);
+      errors.rejectValue(YEAR, YEAR_BEFORE_DATE_CODE, StringUtils.capitalize(inputLabel.getLabel()) + " must be before " + beforeDateLabel);
     }
   }
 

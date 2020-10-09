@@ -112,7 +112,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
     when(assignResponderService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new AssignResponderForm(), "form"));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -131,7 +131,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(assignResponderService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -173,7 +173,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
 
     when(assignResponderService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new AssignResponderForm(), "form"));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postReAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -192,7 +192,7 @@ public class AssignResponderControllerTest extends PwaAppProcessingContextAbstra
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(assignResponderService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(AssignResponderController.class).postReAssignResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))

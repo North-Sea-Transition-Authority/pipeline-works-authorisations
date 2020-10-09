@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem.STATUS_LABEL;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -152,8 +153,8 @@ public class PwaApplicationWorkAreaItemTest {
     var workAreItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
-        WorkAreaColumnItemView.createTagItem(
-            WorkAreaColumnItemView.TagType.INFO,
+        WorkAreaColumnItemView.createLabelledItem(
+            STATUS_LABEL,
             PwaApplicationStatus.DRAFT.getDisplayName()),
         WorkAreaColumnItemView.createLabelledItem(
             ApplicationWorkAreaItem.DEFAULT_APP_STATUS_SET_LABEL,
@@ -173,8 +174,8 @@ public class PwaApplicationWorkAreaItemTest {
     var workAreItem = new PwaApplicationWorkAreaItem(applicationDetailSearchItem, searchItem -> VIEW_URL);
 
     assertThat(workAreItem.getApplicationStatusColumn()).containsExactly(
-        WorkAreaColumnItemView.createTagItem(
-            WorkAreaColumnItemView.TagType.INFO,
+        WorkAreaColumnItemView.createLabelledItem(
+            STATUS_LABEL,
             PwaApplicationStatus.DRAFT.getDisplayName()),
         WorkAreaColumnItemView.createLabelledItem(
             ApplicationWorkAreaItem.CASE_OFFICER_DISPLAY_LABEL,
@@ -232,4 +233,12 @@ public class PwaApplicationWorkAreaItemTest {
         applicationDetailSearchItem,
         o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
   }
+
+  @Test
+  public void getApplicationColumn_whenUpdate() {
+    ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenUpdateRequest(
+        applicationDetailSearchItem,
+        o -> new PwaApplicationWorkAreaItem(o, searchItem -> VIEW_URL));
+  }
+
 }

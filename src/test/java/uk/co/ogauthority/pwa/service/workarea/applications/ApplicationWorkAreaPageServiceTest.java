@@ -85,10 +85,10 @@ public class ApplicationWorkAreaPageServiceTest {
         pwaApplicationRedirectService,
         camundaWorkflowService);
 
-    when(appProcessingPermissionService.getProcessingPermissions(pwaManager)).thenReturn(Set.of(
+    when(appProcessingPermissionService.getGenericProcessingPermissions(pwaManager)).thenReturn(Set.of(
         PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
-    when(appProcessingPermissionService.getProcessingPermissions(workAreaUser))
+    when(appProcessingPermissionService.getGenericProcessingPermissions(workAreaUser))
         .thenReturn(Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
 
     when(camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(

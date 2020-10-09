@@ -130,7 +130,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
 
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new ConsultationRequestForm(), "form"));
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
         .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
@@ -151,7 +151,7 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(consultationRequestService.validate(any(), any(), any())).thenReturn(failedBindingResult);
 
-    when(pwaAppProcessingPermissionService.getProcessingPermissions(user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationRequestController.class)
         .postRequestConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))

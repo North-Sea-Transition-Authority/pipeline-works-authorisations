@@ -73,7 +73,8 @@ public class PwaAppProcessingContextService {
     var detail = detailService.getLastSubmittedApplicationDetail(applicationId)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Could not find last submitted version on applicationId:" + applicationId));
-    var processingPermissions = appProcessingPermissionService.getProcessingPermissions(authenticatedUser);
+
+    var processingPermissions = appProcessingPermissionService.getProcessingPermissions(detail.getPwaApplication(), authenticatedUser);
 
     if (processingPermissions.isEmpty()) {
       throw new AccessDeniedException(

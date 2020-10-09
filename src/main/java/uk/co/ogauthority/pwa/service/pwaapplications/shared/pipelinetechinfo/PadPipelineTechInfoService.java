@@ -102,11 +102,6 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
   }
 
   @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
-  }
-
-  @Override
   public void cleanupData(PwaApplicationDetail detail) {
 
     var techInfo = getPipelineTechInfoEntity(detail);

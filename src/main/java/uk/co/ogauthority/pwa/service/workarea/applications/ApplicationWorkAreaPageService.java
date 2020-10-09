@@ -75,7 +75,7 @@ public class ApplicationWorkAreaPageService {
                                                                         Set<Integer> applicationIdList,
                                                                         int pageRequest) {
 
-    var processingPermissions = appProcessingPermissionService.getProcessingPermissions(userAccount);
+    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
 
     if (processingPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)) {
       return getIndustrySearchResults(userAccount, pageRequest);

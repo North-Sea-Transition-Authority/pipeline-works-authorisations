@@ -44,7 +44,6 @@ public class TaskListService {
     this.masterPwaViewService = masterPwaViewService;
   }
 
-
   /**
    * <p>For a given application return true if one or more task in the provided set is shown in the task list.</p>
    */
@@ -128,7 +127,12 @@ public class TaskListService {
           masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
     }
 
-    breadcrumbService.fromWorkArea(modelAndView, "Task list");
+    // if first version, we'll have come from the work area, otherwise can only access via case management screen
+    if (pwaApplicationDetail.getVersionNo() == 1) {
+      breadcrumbService.fromWorkArea(modelAndView, "Task list");
+    } else {
+      breadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView, "Task list");
+    }
 
     return modelAndView;
 

@@ -34,27 +34,27 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_noHints_invalid_date() {
+  public void validate_noHints_emptyDateValues() {
     var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
     ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, new Object[0]);
     var fieldErrors = ValidatorTestUtils.extractErrors(errors);
     var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
 
     assertThat(fieldErrors).containsExactly(
-        entry("month", Set.of("month.invalid")),
-        entry("year", Set.of("year.invalid"))
+        entry("month", Set.of("month.required")),
+        entry("year", Set.of("year.required"))
     );
 
     assertThat(fieldErrorMessages).containsExactly(
         entry("month", Set.of("")),
-        entry("year", Set.of("Date must be a valid date"))
+        entry("year", Set.of("Enter a Date date"))
     );
   }
 
   @Test
   public void validate_inputLabelHint_invalidDate() {
     var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
-    Object[] hints = {new FormInputLabel("Work start date")};
+    Object[] hints = {new FormInputLabel("Work start")};
     ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
 
     var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
@@ -62,12 +62,12 @@ public class TwoFieldDateInputValidatorTest {
 
     assertThat(fieldErrorMessages).containsExactly(
         entry("month", Set.of("")),
-        entry("year", Set.of("Work start date must be a valid date"))
+        entry("year", Set.of("Enter a Work start date"))
     );
   }
 
   @Test
-  public void validate_inputLabelHint_beforeDateHint_afterDateHint_invalidDate() {
+  public void validate_inputLabelHint_beforeDateHint_afterDateHint_emptyDate() {
     var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
     Object[] hints = {
         new FormInputLabel("Some date"),
@@ -82,8 +82,8 @@ public class TwoFieldDateInputValidatorTest {
 
     // as date is invalid do not do additional validation
     assertThat(fieldErrors).containsExactly(
-        entry("month", Set.of("month.invalid")),
-        entry("year", Set.of("year.invalid"))
+        entry("month", Set.of("month.required")),
+        entry("year", Set.of("year.required"))
     );
   }
 

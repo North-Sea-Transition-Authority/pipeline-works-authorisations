@@ -1,16 +1,11 @@
 package uk.co.ogauthority.pwa.service.appprocessing.tabs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,24 +14,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
-import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
-import uk.co.ogauthority.pwa.service.appprocessing.casehistory.CaseHistoryService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppProcessingTabServiceTest {
 
   @Mock
-  private PwaAppProcessingTaskListService taskListService;
+  private TasksTabContentService tasksTabContentService;
 
   @Mock
-  private CaseHistoryService caseHistoryService;
+  private CaseHistoryTabContentService caseHistoryTabContentService;
 
   private AppProcessingTabService tabService;
 
@@ -46,7 +34,7 @@ public class AppProcessingTabServiceTest {
   @Before
   public void setUp() {
 
-    tabService = new AppProcessingTabService(taskListService, caseHistoryService);
+    tabService = new AppProcessingTabService(List.of(tasksTabContentService, caseHistoryTabContentService));
 
     wua = new WebUserAccount(1);
     authenticatedUserAccount = new AuthenticatedUserAccount(wua, EnumSet.allOf(PwaUserPrivilege.class));
@@ -109,80 +97,17 @@ public class AppProcessingTabServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab() {
+  public void getTabContentModelMap_allTabContentRetrieved() {
 
-    var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
+    var context = new PwaAppProcessingContext(null, null, null, null);
 
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+    tabService.getTabContentModelMap(context, AppProcessingTab.TASKS);
 
-    when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
-
-    var modelMap = tabService.getTabContentModelMap(processingContext, AppProcessingTab.TASKS);
-
-    verify(taskListService, times(1)).getTaskListGroups(processingContext);
-    verifyNoInteractions(caseHistoryService);
-
-    assertThat(modelMap)
-        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
-        .contains(
-          tuple("taskListGroups", taskListGroupsList),
-          tuple("caseHistoryItems", List.of()),
-          tuple("industryFlag", true)
-        );
+    verify(tasksTabContentService, times(1)).getTabContent(context, AppProcessingTab.TASKS);
+    verify(caseHistoryTabContentService, times(1)).getTabContent(context, AppProcessingTab.TASKS);
 
   }
 
-  @Test
-  public void getTabContentModelMap_caseHistoryTab() {
 
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT);
-
-    var caseHistoryList = List.of(
-        new CaseHistoryItemView("Test header", Instant.now(), "Person label", new PersonId(1), Map.of())
-    );
-    when(caseHistoryService.getCaseHistory(processingContext.getPwaApplication())).thenReturn(caseHistoryList);
-
-    var modelMap = tabService.getTabContentModelMap(processingContext, AppProcessingTab.CASE_HISTORY);
-
-    verifyNoInteractions(taskListService);
-    verify(caseHistoryService, times(1)).getCaseHistory(processingContext.getPwaApplication());
-
-    assertThat(modelMap)
-        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
-        .contains(
-            tuple("taskListGroups", List.of()),
-            tuple("caseHistoryItems", caseHistoryList),
-            tuple("industryFlag", false)
-        );
-
-  }
-
-  @Test
-  public void getTabContentModelMap_firsTab() {
-
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT);
-
-    var modelMap = tabService.getTabContentModelMap(processingContext, AppProcessingTab.FIRS);
-
-    verify(taskListService, times(0)).getTaskListGroups(processingContext);
-
-    assertThat(modelMap)
-        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
-        .contains(
-            tuple("taskListGroups", List.of()),
-            tuple("caseHistoryItems", List.of()),
-            tuple("industryFlag", false)
-        );
-
-  }
-
-  private PwaAppProcessingContext createContextWithPermissions(PwaAppProcessingPermission... permissions) {
-    return new PwaAppProcessingContext(
-        new PwaApplicationDetail(),
-        wua,
-        Set.of(permissions),
-        null
-    );
-  }
 
 }
