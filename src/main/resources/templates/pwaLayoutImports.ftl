@@ -25,3 +25,9 @@
     </#local>
     <#return springUrl>
 </#function>
+
+<#-- Constructs path of complex form inputs when nested within a list -->
+<#function createNestedFormPath listPath listItemIndex listItemAttribute>
+    <#local combinedPath="${listPath}[${listItemIndex}].${listItemAttribute}"/>
+    <#return combinedPath>
+</#function>

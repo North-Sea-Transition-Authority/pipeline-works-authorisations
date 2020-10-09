@@ -316,6 +316,12 @@ public class PadPipelineService implements ApplicationFormSectionService {
             String.format("Couldn't find PadPipeline with ID: %s", padPipelineId)));
   }
 
+  public Optional<PadPipeline> findByPwaApplicationDetailAndPipelineId(PwaApplicationDetail pwaApplicationDetail,
+                                                                       PipelineId pipelineId) {
+    return padPipelineRepository.findByPwaApplicationDetailAndPipeline_Id(pwaApplicationDetail, pipelineId.asInt());
+  }
+
+
   public List<PadPipeline> getByIdList(PwaApplicationDetail detail, List<Integer> padPipelineIds) {
     var padPipelineIdList = ListUtils.emptyIfNull(padPipelineIds);
     if (padPipelineIdList.size() > 0) {
@@ -371,8 +377,8 @@ public class PadPipelineService implements ApplicationFormSectionService {
 
     Map<PipelineIdentifier, PadPipelineSummaryDto> applicationPipelineIdentifiers =
         getAllPadPipelineSummaryDtosForApplicationDetail(pwaApplicationDetail)
-        .stream()
-        .collect(toMap(PadPipelineSummaryDto::getPipelineId, Function.identity()));
+            .stream()
+            .collect(toMap(PadPipelineSummaryDto::getPipelineId, Function.identity()));
 
     Map<PipelineIdentifier, PadPipelineSummaryDto> consentedPipelineIdentifiers = pipelineDetailService
         .getActivePipelineDetailsForApplicationMasterPwa(pwaApplicationDetail.getPwaApplication())
