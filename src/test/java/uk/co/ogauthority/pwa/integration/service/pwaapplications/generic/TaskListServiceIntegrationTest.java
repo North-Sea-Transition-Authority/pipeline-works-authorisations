@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
@@ -94,6 +95,9 @@ public class TaskListServiceIntegrationTest {
   @MockBean
   private SupplementaryDocumentsService supplementaryDocumentsService;
 
+  @MockBean
+  private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
+
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -107,7 +111,8 @@ public class TaskListServiceIntegrationTest {
         breadcrumbService,
         taskListEntryFactory,
         applicationTaskService,
-        masterPwaViewService
+        masterPwaViewService,
+        applicationUpdateRequestViewService
     );
 
     when(optionsTemplateService.canShowInTaskList(any())).thenReturn(true);
