@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo;
 
+/**
+ * Form filled in when defining how many sections a pipeline with split HUOO roles has.
+ */
 public class PickSplitPipelineForm {
 
   private Integer pipelineId;
 
   private Integer numberOfSections;
-
 
   public Integer getPipelineId() {
     return pipelineId;
