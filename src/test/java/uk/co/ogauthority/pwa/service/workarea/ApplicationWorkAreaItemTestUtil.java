@@ -112,5 +112,25 @@ public class ApplicationWorkAreaItemTestUtil {
 
   }
 
+  public static void test_getApplicationColumn_whenUpdateRequest(ApplicationDetailSearchItem applicationDetailSearchItem,
+                                                                 Function<ApplicationDetailSearchItem, ApplicationWorkAreaItem> workAreaItemFunction) {
+
+    applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
+
+    applicationDetailSearchItem.setPadReference("PAD REFERENCE");
+    applicationDetailSearchItem.setPwaReference("PWA REFERENCE");
+
+    var applicationWorkAreaItem = workAreaItemFunction.apply(applicationDetailSearchItem);
+
+    assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
+        WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE"),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE REQUESTED")
+    );
+
+  }
+
 
 }

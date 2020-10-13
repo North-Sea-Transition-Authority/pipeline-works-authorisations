@@ -74,6 +74,8 @@ public class ApplicationDetailSearchItem {
 
   private String caseOfficerName;
 
+  private boolean openUpdateRequestFlag;
+
   public int getPwaApplicationDetailId() {
     return pwaApplicationDetailId;
   }
@@ -240,5 +242,13 @@ public class ApplicationDetailSearchItem {
 
   public void setPadHolderNameList(List<String> padHolderNameList) {
     this.padHolderNameList = padHolderNameList;
+  }
+
+  public boolean getOpenUpdateRequestFlag() {
+    return openUpdateRequestFlag;
+  }
+
+  public void setOpenUpdateRequestFlag(Boolean openUpdateRequestFlag) {
+    this.openUpdateRequestFlag = openUpdateRequestFlag;
   }
 }

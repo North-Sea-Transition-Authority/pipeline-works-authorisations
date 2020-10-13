@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
@@ -164,6 +166,18 @@ public class ApplicationBreadcrumbService {
   private void addAttrs(ModelAndView modelAndView, Map<String, String> breadcrumbs, String currentPage) {
     modelAndView.addObject("breadcrumbMap", breadcrumbs);
     modelAndView.addObject("currentPage", currentPage);
+  }
+
+  public void fromCaseManagement(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
+    addAttrs(modelAndView, caseManagement(pwaApplication), thisPage);
+  }
+
+  private Map<String, String> caseManagement(PwaApplication application) {
+    Map<String, String> breadcrumbs = new LinkedHashMap<>();
+    breadcrumbs.put(ReverseRouter.route(on(CaseManagementController.class)
+            .renderCaseManagement(application.getId(), application.getApplicationType(), AppProcessingTab.TASKS, null, null)),
+        application.getAppReference());
+    return breadcrumbs;
   }
 
 }

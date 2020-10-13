@@ -66,6 +66,7 @@ public class CaseManagementController {
         .addObject("currentProcessingTab", currentTab)
         .addObject("availableTabs", availableTabs)
         .addObject("tabUrlFactory", new AppProcessingTabUrlFactory(detail))
+        .addObject("processingPermissions", appProcessingContext.getAppProcessingPermissions())
         .addAllObjects(tabContentModelMap);
 
   }

@@ -36,9 +36,7 @@ public class PwaApplicationDetailVersioningService {
         .forEachOrdered(applicationTask -> applicationTaskService.copyApplicationTaskDataToApplicationDetail(
             applicationTask,
             detail,
-            newTipDetail
-            )
-    );
+            newTipDetail));
 
     return newTipDetail;
 

@@ -153,7 +153,9 @@ public class PermanentDepositValidatorTest {
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(
-        entry("toDate.month", Set.of("month" + FieldValidationErrorCodes.INVALID.getCode())));
+        entry("toDate.month", Set.of("month" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("toDate.year", Set.of("year" + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
   }
 
 

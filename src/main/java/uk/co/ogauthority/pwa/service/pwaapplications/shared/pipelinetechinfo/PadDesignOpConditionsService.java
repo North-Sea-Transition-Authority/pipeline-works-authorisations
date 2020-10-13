@@ -84,12 +84,6 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   }
 
   @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return true;
-  }
-
-
-  @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
 
     entityCopyingService.duplicateEntityAndSetParent(
