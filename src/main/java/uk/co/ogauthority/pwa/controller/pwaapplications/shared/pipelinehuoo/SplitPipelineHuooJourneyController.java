@@ -38,6 +38,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.Pickabl
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.validators.pipelinehuoo.DefinePipelineHuooSectionValidationHint;
+import uk.co.ogauthority.pwa.validators.pipelinehuoo.DefinePipelineHuooSectionsFormValidator;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickSplitPipelineFormValidator;
 
 @Controller
@@ -67,16 +69,20 @@ public class SplitPipelineHuooJourneyController {
   private final ControllerHelperService controllerHelperService;
   private final PickSplitPipelineFormValidator pickSplitPipelineFormValidator;
   private final PickableHuooPipelineIdentService pickableHuooPipelineIdentService;
+  private final DefinePipelineHuooSectionsFormValidator definePipelineHuooSectionsFormValidator;
+
 
   @Autowired
   public SplitPipelineHuooJourneyController(PadPipelinesHuooService padPipelinesHuooService,
                                             ControllerHelperService controllerHelperService,
                                             PickSplitPipelineFormValidator pickSplitPipelineFormValidator,
-                                            PickableHuooPipelineIdentService pickableHuooPipelineIdentService) {
+                                            PickableHuooPipelineIdentService pickableHuooPipelineIdentService,
+                                            DefinePipelineHuooSectionsFormValidator definePipelineHuooSectionsFormValidator) {
     this.padPipelinesHuooService = padPipelinesHuooService;
     this.controllerHelperService = controllerHelperService;
     this.pickSplitPipelineFormValidator = pickSplitPipelineFormValidator;
     this.pickableHuooPipelineIdentService = pickableHuooPipelineIdentService;
+    this.definePipelineHuooSectionsFormValidator = definePipelineHuooSectionsFormValidator;
   }
 
   @GetMapping("/select-pipeline")
@@ -203,24 +209,45 @@ public class SplitPipelineHuooJourneyController {
                                      @PathVariable("pipelineId") int pipelineId,
                                      @PathVariable("numberOfSections") int numberOfSections,
                                      PwaApplicationContext applicationContext,
-                                     @ModelAttribute("form") DefinePipelineHuooSectionsForm form) {
+                                     @ModelAttribute("form") DefinePipelineHuooSectionsForm form,
+                                     BindingResult bindingResult) {
 
     return withSplitablePipeline(
         pipelineId,
         numberOfSections,
         applicationContext,
         (splitablePipelineOverview) -> {
+          var pipelineIdObj = PipelineId.from(splitablePipelineOverview);
           var pickableIdentLocationOptions = pickableHuooPipelineIdentService.getSortedPickableIdentLocationOptions(
-              applicationContext.getApplicationDetail(), PipelineId.from(splitablePipelineOverview)
+              applicationContext.getApplicationDetail(), pipelineIdObj
           );
 
-          return getDefineSectionModelAndView(
-              applicationContext,
+          var validationHint = new DefinePipelineHuooSectionValidationHint(
+              applicationContext.getApplicationDetail(),
               huooRole,
-              numberOfSections,
-              splitablePipelineOverview,
-              pickableIdentLocationOptions);
+              pipelineIdObj,
+              numberOfSections
+          );
 
+          definePipelineHuooSectionsFormValidator.validate(form, bindingResult, validationHint);
+
+          return controllerHelperService.checkErrorsAndRedirect(
+              bindingResult,
+              getDefineSectionModelAndView(
+                  applicationContext,
+                  huooRole,
+                  numberOfSections,
+                  splitablePipelineOverview,
+                  pickableIdentLocationOptions),
+              () ->
+                  //  TODO PWA-867: create splits from form
+                  getDefineSectionModelAndView(
+                    applicationContext,
+                    huooRole,
+                    numberOfSections,
+                    splitablePipelineOverview,
+                    pickableIdentLocationOptions)
+              );
         }
     );
 
