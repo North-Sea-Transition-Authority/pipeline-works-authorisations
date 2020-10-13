@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -35,7 +35,7 @@ public class TasksTabContentServiceTest {
   private PwaAppProcessingTaskListService taskListService;
 
   @Mock
-  private ApplicationUpdateRequestService applicationUpdateRequestService;
+  private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
 
   @Mock
   private PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -47,7 +47,7 @@ public class TasksTabContentServiceTest {
   @Before
   public void setUp() {
 
-    taskTabContentService = new TasksTabContentService(taskListService, applicationUpdateRequestService, pwaApplicationRedirectService);
+    taskTabContentService = new TasksTabContentService(taskListService, applicationUpdateRequestViewService, pwaApplicationRedirectService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 
@@ -66,7 +66,7 @@ public class TasksTabContentServiceTest {
 
     var requestView = mock(ApplicationUpdateRequestView.class);
 
-    when(applicationUpdateRequestService.getOpenRequestView(any())).thenReturn(Optional.of(requestView));
+    when(applicationUpdateRequestViewService.getOpenRequestView(any(PwaApplicationDetail.class))).thenReturn(Optional.of(requestView));
 
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
 

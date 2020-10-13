@@ -13,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
@@ -32,16 +33,19 @@ public class TaskListService {
   private final TaskListEntryFactory taskListEntryFactory;
   private final ApplicationTaskService applicationTaskService;
   private final MasterPwaViewService masterPwaViewService;
+  private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
 
   @Autowired
   public TaskListService(ApplicationBreadcrumbService breadcrumbService,
                          TaskListEntryFactory taskListEntryFactory,
                          ApplicationTaskService applicationTaskService,
-                         MasterPwaViewService masterPwaViewService) {
+                         MasterPwaViewService masterPwaViewService,
+                         ApplicationUpdateRequestViewService applicationUpdateRequestViewService) {
     this.applicationTaskService = applicationTaskService;
     this.breadcrumbService = breadcrumbService;
     this.taskListEntryFactory = taskListEntryFactory;
     this.masterPwaViewService = masterPwaViewService;
+    this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
   }
 
   /**
@@ -129,9 +133,18 @@ public class TaskListService {
 
     // if first version, we'll have come from the work area, otherwise can only access via case management screen
     if (pwaApplicationDetail.getVersionNo() == 1) {
+
       breadcrumbService.fromWorkArea(modelAndView, "Task list");
+
     } else {
+
       breadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView, "Task list");
+
+      var updateRequestView = applicationUpdateRequestViewService.getOpenRequestView(pwaApplicationDetail.getPwaApplication())
+          .orElse(null);
+
+      modelAndView.addObject("updateRequestView", updateRequestView);
+
     }
 
     return modelAndView;
