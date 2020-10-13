@@ -218,12 +218,8 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
 
         if (currentSectionInput.getPointIncludedInSection() && sortedValidOptions.get(
             indexOfSelectedOption).compareTo(
-            minimumIncludingIdentLocation) > 0) {
-          // if the start point of section contains point and that point is after the previous minimum, set that to new minimum
-          minimumIncludingIdentLocation = nextIdentOptionOrSelected;
-          minimumNotIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
-        } else if (currentSectionInput.getPointIncludedInSection()) {
-          // else if the start point of section includes ident location, but is not after the minimum, set minimum included to be next point
+            minimumIncludingIdentLocation) >= 0) {
+          // if the start point of section contains point and that point is same or after the previous minimum, set that to new minimum
           minimumIncludingIdentLocation = nextIdentOptionOrSelected;
           minimumNotIncludingIdentLocation = sortedValidOptions.get(indexOfSelectedOption);
         } else if (!currentSectionInput.getPointIncludedInSection()) {
