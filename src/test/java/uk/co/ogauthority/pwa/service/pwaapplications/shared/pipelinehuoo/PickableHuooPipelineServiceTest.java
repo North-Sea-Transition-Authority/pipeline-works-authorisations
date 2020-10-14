@@ -108,11 +108,13 @@ public class PickableHuooPipelineServiceTest {
 
     var appPipelineSplit1 = PipelineSection.from(
         APPLICATION_NEW_PIPELINE_ID,
+        1,
         PipelineIdentPoint.inclusivePoint("START"),
         PipelineIdentPoint.exclusivePoint("MID")
     );
     var appPipelineSplit2 = PipelineSection.from(
         APPLICATION_NEW_PIPELINE_ID,
+        2,
         PipelineIdentPoint.exclusivePoint("MID"),
         PipelineIdentPoint.inclusivePoint("END")
     );

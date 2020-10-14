@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 public enum PickableHuooPipelineType {
 
   FULL("FULL##ID:[0-9]{1,16}"),
-  SPLIT("SPLIT##ID:[0-9]{1,16}##(FROM_INC|FROM_EXC):.{1,200}##(TO_INC|TO_EXC):.{1,200}"),
+  SPLIT("SPLIT##ID:[0-9]{1,16}##(FROM_INC|FROM_EXC):.{1,200}##(TO_INC|TO_EXC):.{1,200}##POSITION:[0-9]{1,16}"),
   // keep unknown as makes processing decisions easy
   UNKNOWN(".*");
 
@@ -31,6 +31,7 @@ public enum PickableHuooPipelineType {
   private static final String FROM_EXC = "FROM_EXC";
   private static final String TO_INC = "TO_INC";
   private static final String TO_EXC = "TO_EXC";
+  private static final String POSITION = "POSITION";
   private static final String ID = "ID";
   private static final String PROPERTY_VALUE_DELIMITER = ":";
 
@@ -71,7 +72,8 @@ public enum PickableHuooPipelineType {
 
     return SPLIT + createPipelineIdProperty(pipelineSection) +
         createStringProperty(fromProperty, pipelineSection.getFromPoint().getLocationName()) +
-        createStringProperty(toProperty, pipelineSection.getToPoint().getLocationName());
+        createStringProperty(toProperty, pipelineSection.getToPoint().getLocationName()) +
+        createStringProperty(POSITION, String.valueOf(pipelineSection.getSectionNumber()));
   }
 
 
@@ -109,10 +111,11 @@ public enum PickableHuooPipelineType {
     // can only be SPLIT pipeline now so can do outside of if-else
     var fromPoint = extractPipelineIdentPoint(tokens, FROM_INC, FROM_EXC);
     var toPoint = extractPipelineIdentPoint(tokens, TO_INC, TO_EXC);
+    var position = extractPosition(tokens);
 
     // not sure this is very good tbh. at least nastiness is contained here, and not exported to calling code?
-    return !(pipelineId.isEmpty() || fromPoint.isEmpty() || toPoint.isEmpty())
-        ? Optional.of(PipelineSection.from(pipelineId.get().getPipelineId(), fromPoint.get(), toPoint.get()))
+    return !(pipelineId.isEmpty() || fromPoint.isEmpty() || toPoint.isEmpty() || position.isEmpty())
+        ? Optional.of(PipelineSection.from(pipelineId.get().getPipelineId(), position.get(), fromPoint.get(), toPoint.get()))
         : Optional.empty();
   }
 
@@ -124,6 +127,15 @@ public enum PickableHuooPipelineType {
         .map(Integer::valueOf)
         // have to make sure the map uses the interface not the implementation class so method signature is a match
         .<PipelineIdentifier>map(PipelineId::new)
+        .findFirst();
+  }
+
+  private static Optional<Integer> extractPosition(List<String> tokens) {
+    var positionProperty = POSITION + PROPERTY_VALUE_DELIMITER;
+    return tokens.stream()
+        .filter(s -> s.startsWith(positionProperty))
+        .map(s -> s.substring(positionProperty.length()))
+        .map(Integer::valueOf)
         .findFirst();
   }
 

@@ -470,9 +470,9 @@ public class PadPipelinesHuooServiceTest {
 
     var tempSplitRole = PadOrganisationRole.forUnassignedSplitPipeline(pwaApplicationDetail, DEFAULT_ROLE);
     var tempSplitRolePipelineLink1 = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        tempSplitRole, pipeline, "A", "B");
+        tempSplitRole, pipeline, "A", "B", 1);
     var tempSplitRolePipelineLink2 = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        tempSplitRole, pipeline, "B", "C");
+        tempSplitRole, pipeline, "B", "C", 2);
 
     when(padPipelineOrganisationRoleLinkRepository
         .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
@@ -506,9 +506,9 @@ public class PadPipelinesHuooServiceTest {
     var treatyOrgRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.NORWAY, DEFAULT_ROLE);
 
     var treatyorgLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        treatyOrgRole, pipeline, "A", "B");
+        treatyOrgRole, pipeline, "A", "B", 1);
     var portalOrgLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        portalOrgRole, pipeline, "B", "C");
+        portalOrgRole, pipeline, "B", "C", 2);
 
     when(padPipelineOrganisationRoleLinkRepository
         .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(

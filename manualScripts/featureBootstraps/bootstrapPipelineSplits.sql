@@ -13,6 +13,7 @@ DECLARE
   l_create_split_role VARCHAR2(4000) := COALESCE(:p_create_split_role, 'false');
   l_split_pad_ord_role_id   NUMBER;
   l_start_idents      NUMBER;
+  l_section_number    NUMBER          := 1;
 BEGIN
   SELECT count(*)
   INTO l_start_idents
@@ -94,14 +95,17 @@ BEGIN
                                                                           from_location,
                                                                           from_location_mode,
                                                                           to_location,
-                                                                          to_location_mode)
+                                                                          to_location_mode,
+                                                                          section_number)
         VALUES (l_pipeline_id,
                 l_role_id,
                 ident.from_location,
                 g_inclusive,
                 ident.to_location,
-                g_inclusive);
+                g_inclusive,
+                l_section_number);
 
+        l_section_number := l_section_number + 1;
 
       END;
 

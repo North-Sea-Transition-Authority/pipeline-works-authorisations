@@ -21,7 +21,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
@@ -254,37 +254,28 @@ public class PwaConsentOrganisationRoleServiceTest {
     var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwaApplication();
 
     //Organisation Roles Summary DTO
-    var orgPipelineRoleInstanceDto1 = new OrganisationPipelineRoleInstanceDto(
-        1,
-        null,
+    var orgPipelineRoleInstanceDto1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.HOLDER,
-        HuooType.PORTAL_ORG,
         1,
-        null, null, null, null);
+        1
+    );
 
-    var orgPipelineRoleInstanceDto2 = new OrganisationPipelineRoleInstanceDto(
-        null,
-        TreatyAgreement.BELGIUM,
+    var orgPipelineRoleInstanceDto2 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
         HuooRole.USER,
-        HuooType.TREATY_AGREEMENT,
-        1,
-        null, null, null, null);
+        TreatyAgreement.BELGIUM,
+        1);
 
-    var orgPipelineRoleInstanceDto3 = new OrganisationPipelineRoleInstanceDto(
-        3,
-        null,
+    var orgPipelineRoleInstanceDto3 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.OPERATOR,
-        HuooType.PORTAL_ORG,
-        1,
-        null, null, null, null);
+        3,
+        1
+    );
 
-    var orgPipelineRoleInstanceDto4 = new OrganisationPipelineRoleInstanceDto(
-        4,
-        null,
+    var orgPipelineRoleInstanceDto4 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.OWNER,
-        HuooType.PORTAL_ORG,
-        1,
-        null, null, null, null);
+        4,
+        1
+    );
 
     when(pwaConsentPipelineOrganisationRoleLinkRepository.findActiveOrganisationPipelineRolesByMasterPwa(masterPwa))
         .thenReturn(List.of(orgPipelineRoleInstanceDto1, orgPipelineRoleInstanceDto2, orgPipelineRoleInstanceDto3, orgPipelineRoleInstanceDto4));

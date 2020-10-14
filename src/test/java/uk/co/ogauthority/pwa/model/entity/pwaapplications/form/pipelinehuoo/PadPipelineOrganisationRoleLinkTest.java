@@ -18,6 +18,7 @@ public class PadPipelineOrganisationRoleLinkTest {
   private final int PIPELINE_ID = 1;
   private final String FROM_LOCATION = "FROM";
   private final String TO_LOCATION = "TO";
+  private final int SECTION_NUMBER = 1;
 
   private PadPipelineOrganisationRoleLink padPipelineOrganisationRoleLink;
 
@@ -41,6 +42,7 @@ public class PadPipelineOrganisationRoleLinkTest {
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     padPipelineOrganisationRoleLink.setToLocation(TO_LOCATION);
     padPipelineOrganisationRoleLink.setToLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
+    padPipelineOrganisationRoleLink.setSectionNumber(SECTION_NUMBER);
 
     assertThat(padPipelineOrganisationRoleLink.getOrgRoleInstanceType()).isEqualTo(OrgRoleInstanceType.SPLIT_PIPELINE);
   }
@@ -51,10 +53,12 @@ public class PadPipelineOrganisationRoleLinkTest {
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     padPipelineOrganisationRoleLink.setToLocation(TO_LOCATION);
     padPipelineOrganisationRoleLink.setToLocationIdentInclusionMode(IdentLocationInclusionMode.EXCLUSIVE);
+    padPipelineOrganisationRoleLink.setSectionNumber(SECTION_NUMBER);
 
     assertThat(padPipelineOrganisationRoleLink.getPipelineIdentifier()).isEqualTo(
         PipelineSection.from(
             new PipelineId(PIPELINE_ID),
+            SECTION_NUMBER,
             PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.exclusivePoint(TO_LOCATION)
         )
@@ -68,6 +72,7 @@ public class PadPipelineOrganisationRoleLinkTest {
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     padPipelineOrganisationRoleLink.setToLocation(TO_LOCATION);
     padPipelineOrganisationRoleLink.setToLocationIdentInclusionMode(IdentLocationInclusionMode.EXCLUSIVE);
+    padPipelineOrganisationRoleLink.setSectionNumber(SECTION_NUMBER);
 
     var newPipelineId = new PipelineId(2);
     newPipelineId.accept(padPipelineOrganisationRoleLink);
@@ -77,6 +82,7 @@ public class PadPipelineOrganisationRoleLinkTest {
     assertThat(padPipelineOrganisationRoleLink.getFromLocationIdentInclusionMode()).isNull();
     assertThat(padPipelineOrganisationRoleLink.getToLocation()).isNull();
     assertThat(padPipelineOrganisationRoleLink.getToLocationIdentInclusionMode()).isNull();
+    assertThat(padPipelineOrganisationRoleLink.getSectionNumber()).isNull();
   }
 
   @Test
@@ -85,9 +91,11 @@ public class PadPipelineOrganisationRoleLinkTest {
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(null);
     padPipelineOrganisationRoleLink.setToLocation(null);
     padPipelineOrganisationRoleLink.setToLocationIdentInclusionMode(null);
+    padPipelineOrganisationRoleLink.setSectionNumber(null);
 
     var newPipelineSection = PipelineSection.from(
         new PipelineId(2),
+        SECTION_NUMBER,
         PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
         PipelineIdentPoint.exclusivePoint(TO_LOCATION)
     );
@@ -98,5 +106,6 @@ public class PadPipelineOrganisationRoleLinkTest {
     assertThat(padPipelineOrganisationRoleLink.getFromLocationIdentInclusionMode()).isEqualTo(IdentLocationInclusionMode.INCLUSIVE);
     assertThat(padPipelineOrganisationRoleLink.getToLocation()).isEqualTo(TO_LOCATION);
     assertThat(padPipelineOrganisationRoleLink.getToLocationIdentInclusionMode()).isEqualTo(IdentLocationInclusionMode.EXCLUSIVE);
+    assertThat(padPipelineOrganisationRoleLink.getSectionNumber()).isEqualTo(SECTION_NUMBER);
   }
 }

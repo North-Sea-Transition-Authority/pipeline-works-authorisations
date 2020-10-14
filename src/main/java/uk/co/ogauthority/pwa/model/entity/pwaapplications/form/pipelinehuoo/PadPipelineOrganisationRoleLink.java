@@ -49,6 +49,8 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
   @Enumerated(EnumType.STRING)
   private IdentLocationInclusionMode toLocationIdentInclusionMode;
 
+  private Integer sectionNumber;
+
   public PadPipelineOrganisationRoleLink() {
   }
 
@@ -132,6 +134,14 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.toLocationIdentInclusionMode = toLocationIdentInclusionMode;
   }
 
+  public Integer getSectionNumber() {
+    return sectionNumber;
+  }
+
+  public void setSectionNumber(Integer sectionNumber) {
+    this.sectionNumber = sectionNumber;
+  }
+
   public OrgRoleInstanceType getOrgRoleInstanceType() {
     if (ObjectUtils.allNotNull(
         this.fromLocation, this.fromLocationIdentInclusionMode, this.toLocation, this.toLocationIdentInclusionMode)
@@ -150,7 +160,8 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
           this.fromLocation,
           this.fromLocationIdentInclusionMode,
           this.toLocation,
-          this.toLocationIdentInclusionMode
+          this.toLocationIdentInclusionMode,
+          this.sectionNumber
       );
 
     }
@@ -167,6 +178,7 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.fromLocationIdentInclusionMode = null;
     this.toLocation = null;
     this.toLocationIdentInclusionMode = null;
+    this.sectionNumber = null;
   }
 
   @Override
@@ -178,5 +190,6 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
     this.fromLocationIdentInclusionMode = pipelineSection.getFromPointMode();
     this.toLocation = pipelineSection.getToPoint().getLocationName();
     this.toLocationIdentInclusionMode = pipelineSection.getToPointMode();
+    this.sectionNumber = pipelineSection.getSectionNumber();
   }
 }

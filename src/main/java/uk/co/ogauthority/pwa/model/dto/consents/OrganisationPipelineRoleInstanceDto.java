@@ -30,7 +30,8 @@ public final class OrganisationPipelineRoleInstanceDto {
                                              String fromLocation,
                                              IdentLocationInclusionMode fromLocationMode,
                                              String toLocation,
-                                             IdentLocationInclusionMode toLocationMode
+                                             IdentLocationInclusionMode toLocationMode,
+                                             Integer sectionNumber
                                              ) {
     this.organisationRoleInstanceDto = new OrganisationRoleInstanceDto(
         organisationUnitId,
@@ -40,8 +41,8 @@ public final class OrganisationPipelineRoleInstanceDto {
         huooType
     );
 
-    if (ObjectUtils.allNotNull(fromLocation, fromLocationMode, toLocation, toLocationMode)) {
-      this.pipelineIdentifier = PipelineSection.from(pipelineId, fromLocation, fromLocationMode, toLocation, toLocationMode);
+    if (ObjectUtils.allNotNull(fromLocation, fromLocationMode, toLocation, toLocationMode, sectionNumber)) {
+      this.pipelineIdentifier = PipelineSection.from(pipelineId, fromLocation, fromLocationMode, toLocation, toLocationMode, sectionNumber);
     } else if (pipelineId != null) {
       this.pipelineIdentifier = new PipelineId(pipelineId);
     } else {
@@ -57,7 +58,8 @@ public final class OrganisationPipelineRoleInstanceDto {
                                              String fromLocation,
                                              IdentLocationInclusionMode fromLocationMode,
                                              String toLocation,
-                                             IdentLocationInclusionMode toLocationMode
+                                             IdentLocationInclusionMode toLocationMode,
+                                             Integer sectionNumber
   ) {
     this(organisationUnitId,
         null, // manual org name always null
@@ -68,8 +70,8 @@ public final class OrganisationPipelineRoleInstanceDto {
         fromLocation,
         fromLocationMode,
         toLocation,
-        toLocationMode
-
+        toLocationMode,
+        sectionNumber
     );
   }
 

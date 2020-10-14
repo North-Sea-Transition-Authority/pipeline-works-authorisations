@@ -42,6 +42,7 @@ public class OrganisationRoleDtoTestUtil {
         null,
         null,
         null,
+        null,
         null
     );
   }
@@ -50,7 +51,8 @@ public class OrganisationRoleDtoTestUtil {
                                                                                              int ouId,
                                                                                              int pipelineId,
                                                                                              String from,
-                                                                                             String to) {
+                                                                                             String to,
+                                                                                             int sectionNumber) {
     return new OrganisationPipelineRoleInstanceDto(
         ouId,
         null,
@@ -61,7 +63,8 @@ public class OrganisationRoleDtoTestUtil {
         from,
         IdentLocationInclusionMode.INCLUSIVE,
         to,
-        IdentLocationInclusionMode.EXCLUSIVE
+        IdentLocationInclusionMode.EXCLUSIVE,
+        sectionNumber
     );
   }
 
@@ -78,7 +81,25 @@ public class OrganisationRoleDtoTestUtil {
         pipelineSection.getFromPoint().getLocationName(),
         pipelineSection.getFromPoint().getIdentLocationInclusionMode(),
         pipelineSection.getToPoint().getLocationName(),
-        pipelineSection.getToPoint().getIdentLocationInclusionMode()
+        pipelineSection.getToPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getSectionNumber()
+    );
+  }
+
+  public static OrganisationPipelineRoleInstanceDto createUnassignedSplitPipelineSectionRoleInstance(HuooRole huooRole,
+                                                                                                     PipelineSection pipelineSection) {
+    return new OrganisationPipelineRoleInstanceDto(
+        null,
+        null,
+        null,
+        huooRole,
+        HuooType.UNASSIGNED_PIPELINE_SPLIT,
+        pipelineSection.getPipelineIdAsInt(),
+        pipelineSection.getFromPoint().getLocationName(),
+        pipelineSection.getFromPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getToPoint().getLocationName(),
+        pipelineSection.getToPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getSectionNumber()
     );
   }
 
@@ -93,7 +114,9 @@ public class OrganisationRoleDtoTestUtil {
         null,
         null,
         null,
+        null,
         null
+
     );
   }
 
@@ -105,6 +128,7 @@ public class OrganisationRoleDtoTestUtil {
         huooRole,
         HuooType.TREATY_AGREEMENT,
         pipelineId,
+        null,
         null,
         null,
         null,

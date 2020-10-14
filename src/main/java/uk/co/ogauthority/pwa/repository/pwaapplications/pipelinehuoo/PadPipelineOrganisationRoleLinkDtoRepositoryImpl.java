@@ -29,7 +29,8 @@ class PadPipelineOrganisationRoleLinkDtoRepositoryImpl implements PadPipelineOrg
             "  pporl.fromLocation, " +
             "  pporl.fromLocationIdentInclusionMode, " +
             "  pporl.toLocation, " +
-            "  pporl.toLocationIdentInclusionMode " +
+            "  pporl.toLocationIdentInclusionMode, " +
+            "  pporl.sectionNumber " +
             ") " +
             "FROM PadPipelineOrganisationRoleLink pporl " +
             "JOIN PadOrganisationRole por ON pporl.padOrgRole = por " +

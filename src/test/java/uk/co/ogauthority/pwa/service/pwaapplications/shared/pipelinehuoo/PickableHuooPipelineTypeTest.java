@@ -15,13 +15,14 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 public class PickableHuooPipelineTypeTest {
   private final String FROM_LOCATION = "Start location";
   private final String TO_LOCATION = "End location";
+  private final int POSITION = 1;
 
   private final String INVALID_LOCATION = StringUtils.repeat("X", 201);
 
   private final String UNKNOWN_FORMAT = "SomeString";
   private final String FULL_VALID = "FULL##ID:1";
-  private final String SPLIT_INC_VALID = "SPLIT##ID:2##FROM_INC:Start location##TO_INC:End location";
-  private final String SPLIT_EXC_VALID = "SPLIT##ID:2##FROM_EXC:Start location##TO_EXC:End location";
+  private final String SPLIT_INC_VALID = "SPLIT##ID:2##FROM_INC:Start location##TO_INC:End location##POSITION:1";
+  private final String SPLIT_EXC_VALID = "SPLIT##ID:2##FROM_EXC:Start location##TO_EXC:End location##POSITION:1";
 
   private final String FULL_INVALID = "FULL##ID:abc";
   private final String SPLIT_INVALID = "SPLIT##ID:abc##FROM_INC:" + INVALID_LOCATION + "##TO_EXC:" + INVALID_LOCATION;
@@ -80,6 +81,7 @@ public class PickableHuooPipelineTypeTest {
   public void decodeString_whenSplitFormatInclusive_andValid() {
     assertThat(PickableHuooPipelineType.decodeString(SPLIT_INC_VALID)).contains(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
+            POSITION,
             PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.inclusivePoint(TO_LOCATION)
         ));
@@ -89,6 +91,7 @@ public class PickableHuooPipelineTypeTest {
   public void decodeString_whenSplitFormatExclusive_andValid() {
     assertThat(PickableHuooPipelineType.decodeString(SPLIT_EXC_VALID)).contains(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
+            POSITION,
             PipelineIdentPoint.exclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.exclusivePoint(TO_LOCATION)
         ));
@@ -96,10 +99,11 @@ public class PickableHuooPipelineTypeTest {
 
   @Test
   public void decodeString_whenSplitFormatFromIncToExc_andValid() {
-    var fromIncToExc = "SPLIT##ID:2##FROM_INC:Start location##TO_EXC:End location";
+    var fromIncToExc = "SPLIT##ID:2##FROM_INC:Start location##TO_EXC:End location##POSITION:1";
 
     assertThat(PickableHuooPipelineType.decodeString(fromIncToExc)).contains(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
+            POSITION,
             PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.exclusivePoint(TO_LOCATION)
         ));
@@ -107,10 +111,11 @@ public class PickableHuooPipelineTypeTest {
 
   @Test
   public void decodeString_whenSplitFormatFromExcToInc_andValid() {
-    var fromIncToExc = "SPLIT##ID:2##FROM_EXC:Start location##TO_INC:End location";
+    var fromIncToExc = "SPLIT##ID:2##FROM_EXC:Start location##TO_INC:End location##POSITION:5";
 
     assertThat(PickableHuooPipelineType.decodeString(fromIncToExc)).contains(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
+            5,
             PipelineIdentPoint.exclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.inclusivePoint(TO_LOCATION)
         ));
@@ -131,27 +136,30 @@ public class PickableHuooPipelineTypeTest {
   public void createPickableString_whenPipelineSection_withMixedPointInclusions(){
     assertThat(PickableHuooPipelineType.createPickableString(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
-        PipelineIdentPoint.exclusivePoint(FROM_LOCATION),
+            POSITION,
+            PipelineIdentPoint.exclusivePoint(FROM_LOCATION),
         PipelineIdentPoint.inclusivePoint(TO_LOCATION)
     ))
-    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_EXC:" + FROM_LOCATION + "##TO_INC:" + TO_LOCATION);
+    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_EXC:" + FROM_LOCATION + "##TO_INC:" + TO_LOCATION + "##POSITION:" + POSITION);
 
     assertThat(PickableHuooPipelineType.createPickableString(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
+            POSITION,
             PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.exclusivePoint(TO_LOCATION)
         ))
-    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_INC:" + FROM_LOCATION + "##TO_EXC:" + TO_LOCATION);
+    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_INC:" + FROM_LOCATION + "##TO_EXC:" + TO_LOCATION + "##POSITION:" + POSITION);
   }
 
   @Test
   public void createPickableString_whenPipelineSection_withOnlyInclusivePoints(){
     assertThat(PickableHuooPipelineType.createPickableString(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
+            POSITION,
             PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.inclusivePoint(TO_LOCATION)
         ))
-    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_INC:" + FROM_LOCATION + "##TO_INC:" + TO_LOCATION);
+    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_INC:" + FROM_LOCATION + "##TO_INC:" + TO_LOCATION + "##POSITION:" + POSITION);
 
   }
 
@@ -159,10 +167,11 @@ public class PickableHuooPipelineTypeTest {
   public void createPickableString_whenPipelineSection_withOnlyExclusivePoints(){
     assertThat(PickableHuooPipelineType.createPickableString(
         PipelineSection.from(new PipelineId(SPLIT_PIPELINE_ID),
+            POSITION,
             PipelineIdentPoint.exclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.exclusivePoint(TO_LOCATION)
         ))
-    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_EXC:" + FROM_LOCATION + "##TO_EXC:" + TO_LOCATION);
+    ).isEqualTo("SPLIT##ID:" + SPLIT_PIPELINE_ID + "##FROM_EXC:" + FROM_LOCATION + "##TO_EXC:" + TO_LOCATION + "##POSITION:" + POSITION);
 
   }
 

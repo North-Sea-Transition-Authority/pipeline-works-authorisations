@@ -8,35 +8,42 @@ import java.util.Objects;
 public class PipelineSection implements PipelineIdentifier {
 
   private final PipelineId pipelineId;
+  private final int sectionNumber;
   private final PipelineIdentPoint fromPoint;
   private final PipelineIdentPoint toPoint;
 
   // private constructor to force static method use on object creation
   private PipelineSection(PipelineId pipelineId,
+                          int sectionNumber,
                           PipelineIdentPoint fromPoint,
                           PipelineIdentPoint toPoint) {
     this.pipelineId = pipelineId;
     this.fromPoint = fromPoint;
     this.toPoint = toPoint;
+    this.sectionNumber = sectionNumber;
   }
 
   public static PipelineSection from(int pipelineId,
                                      String fromPoint,
                                      IdentLocationInclusionMode fromPointInclusionMode,
                                      String toPoint,
-                                     IdentLocationInclusionMode toPointInclusionMode) {
+                                     IdentLocationInclusionMode toPointInclusionMode,
+                                     int sectionNumber) {
     return new PipelineSection(
         new PipelineId(pipelineId),
+        sectionNumber,
         PipelineIdentPoint.from(fromPoint, fromPointInclusionMode),
         PipelineIdentPoint.from(toPoint, toPointInclusionMode)
     );
   }
 
   public static PipelineSection from(PipelineId pipelineId,
+                                     int segmentNumber,
                                      PipelineIdentPoint fromPoint,
                                      PipelineIdentPoint toPoint) {
     return new PipelineSection(
         pipelineId,
+        segmentNumber,
         fromPoint,
         toPoint
     );
@@ -78,6 +85,10 @@ public class PipelineSection implements PipelineIdentifier {
     return toPoint;
   }
 
+  public int getSectionNumber() {
+    return sectionNumber;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -87,13 +98,14 @@ public class PipelineSection implements PipelineIdentifier {
       return false;
     }
     PipelineSection that = (PipelineSection) o;
-    return Objects.equals(pipelineId, that.pipelineId)
+    return sectionNumber == that.sectionNumber
+        && Objects.equals(pipelineId, that.pipelineId)
         && Objects.equals(fromPoint, that.fromPoint)
         && Objects.equals(toPoint, that.toPoint);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineId, fromPoint, toPoint);
+    return Objects.hash(pipelineId, sectionNumber, fromPoint, toPoint);
   }
 }

@@ -35,6 +35,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
             null,
             null,
             null,
+            null,
             null);
 
         assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
@@ -64,7 +65,8 @@ public class OrganisationPipelineRoleInstanceDtoTest {
             "Start",
             IdentLocationInclusionMode.INCLUSIVE,
             "End",
-            IdentLocationInclusionMode.EXCLUSIVE);
+            IdentLocationInclusionMode.EXCLUSIVE,
+            500);
 
         assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
         assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
@@ -73,6 +75,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
           assertThat(pipelineSection.getFromPoint()).isEqualTo(PipelineIdentPoint.inclusivePoint("Start"));
           assertThat(pipelineSection.getToPoint()).isEqualTo(PipelineIdentPoint.exclusivePoint("End"));
           assertThat(pipelineSection.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
+          assertThat(pipelineSection.getSectionNumber()).isEqualTo(500);
         });
         assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));
 
