@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="huooRolePipelineGroupsPadView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView>" -->
+<#-- @ftlvariable name="huooRolePipelineGroupsPadView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView" -->
 
 
 <div class="pwa-application-summary-section">
@@ -46,15 +46,19 @@
             </#if>
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Pipelines" actionUrl="" screenReaderActionText="" actionText="">
-                <#list orgRolePipelineGroup.pipelineNumbersAndSplits as pipeline>
-                    <#assign splitInfo = "" />
-                    <#if pipeline.splitInfo?has_content> 
-                        <#assign splitInfo = '[' + pipeline.splitInfo + ']' />
-                    </#if>
-                    <ul class="govuk-list">
-                        <li> ${pipeline.pipelineNumber!} ${splitInfo} </li>
-                    </ul>
-                </#list>
+                <ul class="govuk-list">
+                    <#list orgRolePipelineGroup.pipelineNumbersAndSplits as pipeline>
+
+                        <#if pipeline?has_content>
+                            <#assign splitInfo = "" />
+                            <#if pipeline.splitInfo?has_content>
+                                <#assign splitInfo = '[' + pipeline.splitInfo + ']' />
+                            </#if>
+                            <li> ${pipeline.pipelineNumber!} ${splitInfo} </li>
+                        </#if>
+                    </#list>
+                </ul>
+
             </@fdsCheckAnswers.checkAnswersRow>
 
             
