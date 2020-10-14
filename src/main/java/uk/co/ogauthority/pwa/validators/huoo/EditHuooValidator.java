@@ -111,9 +111,6 @@ public class EditHuooValidator implements SmartValidator {
         errors.rejectValue("organisationUnitId", "organisationUnitId.required",
             "You must select an organisation");
       }
-    } else if (form.getHuooType() == HuooType.TREATY_AGREEMENT && form.getTreatyAgreement() == null) {
-      errors.rejectValue("treatyAgreement", "treatyAgreement.required",
-          "You must select a treaty agreement");
     }
 
     var holderCount = roles.stream()

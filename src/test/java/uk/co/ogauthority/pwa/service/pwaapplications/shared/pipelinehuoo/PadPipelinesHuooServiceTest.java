@@ -80,7 +80,7 @@ public class PadPipelinesHuooServiceTest {
   private PortalOrganisationUnit organisationUnit1;
   private PortalOrganisationUnit organisationUnit2;
 
-  private TreatyAgreement treatyAgreement = TreatyAgreement.BELGIUM;
+  private TreatyAgreement treatyAgreement = TreatyAgreement.ANY_TREATY_COUNTRY;
 
   private PadPipelinesHuooService padPipelinesHuooService;
 
@@ -291,11 +291,11 @@ public class PadPipelinesHuooServiceTest {
 
   @Test
   public void getAvailableTreatyAgreementsForRole_filtersTreatiesByRole() {
-    var holderRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.BELGIUM,
+    var holderRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.ANY_TREATY_COUNTRY,
         HuooRole.HOLDER);
     var userRole = PadOrganisationRole.fromTreatyAgreement(
         pwaApplicationDetail,
-        TreatyAgreement.IRELAND,
+        TreatyAgreement.ANY_TREATY_COUNTRY,
         HuooRole.USER);
     var orgRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit2, HuooRole.USER);
     when(padOrganisationRoleService.getOrgRolesForDetail(any())).thenReturn(List.of(
@@ -332,12 +332,11 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void reconcileOrganisationRoleOwnersFrom_serviceInteractions_andInvalidOptionsProvided() {
+  public void reconcileOrganisationRoleOwnersFrom_serviceInteractions_andInvalidOrgProvided() {
     var role = HuooRole.HOLDER;
     var validOrgUnitId = 1;
-    var validTreaty = TreatyAgreement.NORWAY;
+    var validTreaty = TreatyAgreement.ANY_TREATY_COUNTRY;
     var invalidOrgUnitId = 2;
-    var invalidTreaty = TreatyAgreement.BELGIUM;
 
     var validOrgRoleInstances = Set.of(
         OrganisationRoleDtoTestUtil.createTreatyOrgRoleInstance(role, validTreaty),
@@ -353,7 +352,7 @@ public class PadPipelinesHuooServiceTest {
         pwaApplicationDetail,
         role,
         Set.of(validOrgUnitId, invalidOrgUnitId),
-        Set.of(validTreaty, invalidTreaty)
+        Set.of(validTreaty)
     );
 
     assertThat(result).containsExactlyInAnyOrder(
@@ -503,7 +502,7 @@ public class PadPipelinesHuooServiceTest {
     pipeline.setId(pipelineId.asInt());
 
     var portalOrgRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit1, DEFAULT_ROLE);
-    var treatyOrgRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.NORWAY, DEFAULT_ROLE);
+    var treatyOrgRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.ANY_TREATY_COUNTRY, DEFAULT_ROLE);
 
     var treatyorgLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
         treatyOrgRole, pipeline, "A", "B");

@@ -9,7 +9,6 @@ public class HuooForm {
 
   private Set<HuooRole> huooRoles;
   private HuooType huooType;
-  private TreatyAgreement treatyAgreement;
   private Integer organisationUnitId;
 
   public Set<HuooRole> getHuooRoles() {
@@ -26,14 +25,6 @@ public class HuooForm {
 
   public void setHuooType(HuooType huooType) {
     this.huooType = huooType;
-  }
-
-  public TreatyAgreement getTreatyAgreement() {
-    return treatyAgreement;
-  }
-
-  public void setTreatyAgreement(TreatyAgreement treatyAgreement) {
-    this.treatyAgreement = treatyAgreement;
   }
 
   public Integer getOrganisationUnitId() {

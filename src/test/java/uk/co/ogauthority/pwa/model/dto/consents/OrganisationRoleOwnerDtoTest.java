@@ -28,12 +28,12 @@ public class OrganisationRoleOwnerDtoTest {
   @Test
   public void  organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenTreatyAgreement() {
 
-    var orgRoleOwner = new OrganisationRoleOwnerDto(HuooType.TREATY_AGREEMENT, null, null, TreatyAgreement.BELGIUM);
+    var orgRoleOwner = new OrganisationRoleOwnerDto(HuooType.TREATY_AGREEMENT, null, null, TreatyAgreement.ANY_TREATY_COUNTRY);
 
     assertThat(orgRoleOwner.getHuooType()).isEqualTo(HuooType.TREATY_AGREEMENT);
     assertThat(orgRoleOwner.getManualOrganisationName()).isNull();
     assertThat(orgRoleOwner.getOrganisationUnitId()).isNull();
-    assertThat(orgRoleOwner.getTreatyAgreement()).isEqualTo(TreatyAgreement.BELGIUM);
+    assertThat(orgRoleOwner.getTreatyAgreement()).isEqualTo(TreatyAgreement.ANY_TREATY_COUNTRY);
   }
 
   @Test
@@ -52,7 +52,6 @@ public class OrganisationRoleOwnerDtoTest {
 
     EqualsVerifier.forClass(OrganisationRoleOwnerDto.class)
         .withPrefabValues(OrganisationUnitId.class, new OrganisationUnitId(1), new OrganisationUnitId(2))
-        .withPrefabValues(TreatyAgreement.class, TreatyAgreement.BELGIUM, TreatyAgreement.IRELAND)
         .withPrefabValues(HuooType.class, HuooType.PORTAL_ORG, HuooType.TREATY_AGREEMENT)
         .withPrefabValues(String.class, "one", "two")
         .withNonnullFields("huooType")
