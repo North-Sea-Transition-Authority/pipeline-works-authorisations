@@ -18,9 +18,9 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -37,13 +37,15 @@ public class ConsultationRequestController {
 
   private final ConsultationRequestService consultationRequestService;
   private final ControllerHelperService controllerHelperService;
+  private final AppProcessingBreadcrumbService breadcrumbService;
 
   @Autowired
-  public ConsultationRequestController(
-      ConsultationRequestService consultationRequestService,
-      ControllerHelperService controllerHelperService) {
+  public ConsultationRequestController(ConsultationRequestService consultationRequestService,
+                                       ControllerHelperService controllerHelperService,
+                                       AppProcessingBreadcrumbService breadcrumbService) {
     this.consultationRequestService = consultationRequestService;
     this.controllerHelperService = controllerHelperService;
+    this.breadcrumbService = breadcrumbService;
   }
 
   @GetMapping
@@ -53,7 +55,7 @@ public class ConsultationRequestController {
                                          PwaAppProcessingContext processingContext,
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          @ModelAttribute("form") ConsultationRequestForm form) {
-    return getRequestConsultationModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount);
+    return getRequestConsultationModelAndView(processingContext, authenticatedUserAccount);
   }
 
   @PostMapping
@@ -70,7 +72,7 @@ public class ConsultationRequestController {
     consultationRequestService.rebindFormCheckboxes(form);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getRequestConsultationModelAndView(processingContext.getApplicationDetail(), authenticatedUserAccount), () -> {
+        getRequestConsultationModelAndView(processingContext, authenticatedUserAccount), () -> {
           consultationRequestService.saveEntitiesAndStartWorkflow(form, appDetail, authenticatedUserAccount);
           return ReverseRouter.redirect(on(ConsultationController.class).renderConsultations(
               appDetail.getMasterPwaApplicationId(), appDetail.getPwaApplicationType(), null, null));
@@ -78,16 +80,24 @@ public class ConsultationRequestController {
 
   }
 
-  private ModelAndView getRequestConsultationModelAndView(
-      PwaApplicationDetail pwaApplicationDetail, AuthenticatedUserAccount authenticatedUserAccount) {
-    return new ModelAndView("consultation/consultationRequest")
+  private ModelAndView getRequestConsultationModelAndView(PwaAppProcessingContext processingContext,
+                                                          AuthenticatedUserAccount authenticatedUserAccount) {
+
+    var pwaApplicationDetail = processingContext.getApplicationDetail();
+
+    var modelAndView = new ModelAndView("consultation/consultationRequest")
         .addObject("errorList", List.of())
-        .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
+        .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("consulteeGroups", consultationRequestService.getConsulteeGroups(authenticatedUserAccount).stream()
           .sorted(Comparator.comparing(ConsulteeGroupDetail::getName))
           .collect(Collectors.toList()))
         .addObject("cancelUrl", ReverseRouter.route(on(ConsultationController.class).renderConsultations(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)));
+
+    breadcrumbService.fromConsultations(pwaApplicationDetail.getPwaApplication(), modelAndView, "Request consultations");
+
+    return modelAndView;
+
   }
 
 }
