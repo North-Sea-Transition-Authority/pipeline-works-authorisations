@@ -44,6 +44,8 @@ public class ConsultationRequest implements WorkflowSubject {
   private Integer endedByPersonId;
   private String endedReason;
 
+  public ConsultationRequest() {
+  }
 
   public Integer getId() {
     return id;

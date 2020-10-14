@@ -1,15 +1,22 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Optional;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.controller.appsummary.ApplicationSummaryController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailSearchItem;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class CaseSummaryView {
 
-  private final String pwaApplicationType;
+  private final Integer pwaApplicationId;
+  private final PwaApplicationType pwaApplicationType;
+  private final String pwaApplicationTypeDisplay;
   private final String pwaApplicationRef;
   private final String holderNames;
   private final String fieldNames;
@@ -17,14 +24,17 @@ public class CaseSummaryView {
   private final boolean fastTrackFlag;
   private final String caseOfficerName;
 
-  public CaseSummaryView(String pwaApplicationType,
+  public CaseSummaryView(Integer pwaApplicationId,
+                         PwaApplicationType pwaApplicationType,
                          String pwaApplicationRef,
                          String holderNames,
                          String fieldNames,
                          String proposedStartDateDisplay,
                          boolean fastTrackFlag,
                          String caseOfficerName) {
+    this.pwaApplicationId = pwaApplicationId;
     this.pwaApplicationType = pwaApplicationType;
+    this.pwaApplicationTypeDisplay = pwaApplicationType.getDisplayName();
     this.pwaApplicationRef = pwaApplicationRef;
     this.holderNames = holderNames;
     this.fieldNames = fieldNames;
@@ -49,8 +59,11 @@ public class CaseSummaryView {
         .map(DateUtils::formatDate)
         .orElse(null);
 
+    var appType = PwaApplicationType.resolveFromDisplayText(appWorkAreaItem.getApplicationTypeDisplay());
+
     return new CaseSummaryView(
-        appWorkAreaItem.getApplicationTypeDisplay(),
+        appWorkAreaItem.getPwaApplicationId(),
+        appType,
         appWorkAreaItem.getApplicationReference(),
         holders,
         fields,
@@ -61,8 +74,16 @@ public class CaseSummaryView {
 
   }
 
-  public String getPwaApplicationType() {
+  public Integer getPwaApplicationId() {
+    return pwaApplicationId;
+  }
+
+  public PwaApplicationType getPwaApplicationType() {
     return pwaApplicationType;
+  }
+
+  public String getPwaApplicationTypeDisplay() {
+    return pwaApplicationTypeDisplay;
   }
 
   public String getPwaApplicationRef() {
@@ -88,4 +109,10 @@ public class CaseSummaryView {
   public String getCaseOfficerName() {
     return caseOfficerName;
   }
+
+  public String getAppSummaryUrl() {
+    return ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(pwaApplicationId,
+        pwaApplicationType, null, null));
+  }
+
 }

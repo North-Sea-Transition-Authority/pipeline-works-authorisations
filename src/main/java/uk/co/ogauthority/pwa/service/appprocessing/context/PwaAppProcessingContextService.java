@@ -90,7 +90,7 @@ public class PwaAppProcessingContextService {
   }
 
   /**
-   * If the user has ALL of the required permissions then pass, otherwise throw a relevant exception.
+   * If the user has ANY of the required permissions then pass, otherwise throw a relevant exception.
    */
   private void performPermissionCheck(Set<PwaAppProcessingPermission> requiredPermissions,
                                       Set<PwaAppProcessingPermission> usersPermissions,
@@ -99,7 +99,13 @@ public class PwaAppProcessingContextService {
 
     if (!requiredPermissions.isEmpty()) {
 
-      boolean userHasRequiredPermissions = usersPermissions.containsAll(requiredPermissions);
+      boolean userHasRequiredPermissions = false;
+      for (PwaAppProcessingPermission permission: requiredPermissions) {
+        if (usersPermissions.contains(permission)) {
+          userHasRequiredPermissions = true;
+          break;
+        }
+      }
 
       if (!userHasRequiredPermissions) {
         throwPermissionException(user.getWuaId(), applicationId, requiredPermissions);

@@ -141,6 +141,24 @@ public class PwaAppProcessingContextServiceTest {
     assertThat(appContext.getAppProcessingPermissions()).containsExactly(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
   }
 
+  @Test
+  public void validateAndCreate_permissionsCheck_atLeastOnePermission_valid() {
+
+    var builder = new PwaAppProcessingContextParams(1, user)
+        .requiredProcessingPermissions(Set.of(
+            PwaAppProcessingPermission.CASE_MANAGEMENT_OGA,
+            PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE,
+            PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
+
+    when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA));
+    var appContext = contextService.validateAndCreate(builder);
+
+    assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
+    assertThat(appContext.getUser()).isEqualTo(user);
+    assertThat(appContext.getAppProcessingPermissions()).containsExactly(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
+
+  }
+
   @Test(expected = AccessDeniedException.class)
   public void validateAndCreate_permissionsCheck_invalid() {
     when(appProcessingPermissionService.getProcessingPermissions(application, user)).thenReturn(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
@@ -188,7 +206,7 @@ public class PwaAppProcessingContextServiceTest {
     assertThat(processingContext.getCaseSummaryView()).isNotNull();
 
     assertThat(processingContext.getCaseSummaryView().getPwaApplicationRef()).isEqualTo("PA/5/6");
-    assertThat(processingContext.getCaseSummaryView().getPwaApplicationType()).isEqualTo(PwaApplicationType.CAT_1_VARIATION.getDisplayName());
+    assertThat(processingContext.getCaseSummaryView().getPwaApplicationTypeDisplay()).isEqualTo(PwaApplicationType.CAT_1_VARIATION.getDisplayName());
     assertThat(processingContext.getCaseSummaryView().getHolderNames()).isEqualTo("ROYAL DUTCH SHELL");
     assertThat(processingContext.getCaseSummaryView().getFieldNames()).isEqualTo("CAPTAIN, PENGUIN");
     assertThat(processingContext.getCaseSummaryView().getCaseOfficerName()).isEqualTo("Case Officer X");

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 import java.time.Period;
 import java.util.Optional;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 
 /**
  * Enumerates all types of application that can be submitted under the PWA process.
@@ -54,6 +55,14 @@ public enum PwaApplicationType {
       }
     }
     return Optional.empty();
+  }
+
+  public static PwaApplicationType resolveFromDisplayText(String applicationTypeDisplay) {
+    return PwaApplicationType.stream()
+        .filter(type -> type.getDisplayName().equals(applicationTypeDisplay))
+        .findFirst()
+        .orElseThrow(() -> new ValueNotFoundException(
+            String.format("Couldn't find PwaApplicationType value for display string: %s", applicationTypeDisplay)));
   }
 
   public String getDisplayName() {
