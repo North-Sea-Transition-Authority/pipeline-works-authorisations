@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -30,6 +31,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
 
   private final PickableHuooPipelineIdentService pickableHuooPipelineIdentService;
 
+  @Autowired
   public DefinePipelineHuooSectionsFormValidator(PickableHuooPipelineIdentService pickableHuooPipelineIdentService) {
     this.pickableHuooPipelineIdentService = pickableHuooPipelineIdentService;
   }
@@ -101,7 +103,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
       errors.rejectValue(
           getSectionPointInputAttributePath(lastSectionIndex, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
           FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
-          String.format("Section %s cannot start at the final ident's 'to' location and not include it", lastSectionIndex + 1)
+          String.format("Section %s cannot start at the final ident's \"to\" location and not include it", lastSectionIndex + 1)
       );
     }
 
@@ -258,7 +260,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
         errors,
         getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
         FieldValidationErrorCodes.REQUIRED.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
-        String.format("Enter No if section %s begins at but does include the selected point.", sectionIndex + 1)
+        String.format("Enter No if section %s begins at but does not include the selected point.", sectionIndex + 1)
     );
 
   }
