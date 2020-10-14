@@ -1,6 +1,8 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="consulteeGroupRequestsViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView>" -->
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
+<#-- @ftlvariable name="requestConsultationsUrl" type="String" -->
+<#-- @ftlvariable name="canEditConsultations" type="java.lang.Boolean" -->
 
 <#include '../layout.ftl'>
 <#include 'consultationRequestView.ftl'>
@@ -36,6 +38,8 @@
 
   </#list>
 
-  <@fdsAction.link linkText="Request consultations" linkUrl=springUrl(requestConsultationsUrl) linkClass="govuk-button"/>
+  <#if canEditConsultations>
+    <@fdsAction.link linkText="Request consultations" linkUrl=springUrl(requestConsultationsUrl) linkClass="govuk-button"/>
+  </#if>
 
 </@defaultPage>

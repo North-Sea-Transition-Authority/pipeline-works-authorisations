@@ -21,7 +21,11 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/case-management/{tab}")
-@PwaAppProcessingPermissionCheck(permissions = PwaAppProcessingPermission.CASE_MANAGEMENT)
+@PwaAppProcessingPermissionCheck(permissions = {
+    PwaAppProcessingPermission.CASE_MANAGEMENT_OGA,
+    PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
+    PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE
+})
 public class CaseManagementController {
 
   private final AppProcessingTabService appProcessingTabService;

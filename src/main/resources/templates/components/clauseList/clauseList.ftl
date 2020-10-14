@@ -2,17 +2,6 @@
 
 <#-- @ftlvariable name="documentView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView" -->
 
-<#macro renderSidebarLink sidebarLink>
-
-    <#local linkUrl = sidebarLink.isAnchorLink?then(sidebarLink.link, springUrl(sidebarLink.link) )>
-
-    <@fdsSubNavigation.subNavigationSectionItem
-    linkName=sidebarLink.displayText
-    currentItemHref="#top"
-    linkAction=linkUrl />
-
-</#macro>
-
 <#macro sidebarSections documentView>
 
   <#list documentView.sections as section>
@@ -20,7 +9,7 @@
       <@fdsSubNavigation.subNavigationSection themeHeading=section.name>
 
           <#list section.sidebarSectionLinks as sidebarLink>
-              <@renderSidebarLink sidebarLink=sidebarLink/>
+              <@pwaSidebarSectionLink.renderSidebarLink sidebarLink=sidebarLink/>
           </#list>
 
       </@fdsSubNavigation.subNavigationSection>

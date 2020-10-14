@@ -145,7 +145,8 @@ public class PwaConsentOrganisationRoleService {
   public Set<PipelineIdentifier> getPipelineSplitsForRole(MasterPwa masterPwa) {
 
     return pwaConsentPipelineOrganisationRoleLinkRepository.findByAddedByPwaConsent_MasterPwaAndEndedByPwaConsentIsNull(
-        masterPwa).stream()
+        masterPwa)
+        .stream()
         .filter(r -> r.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE))
         .map(PwaConsentPipelineOrganisationRoleLink::getPipelineIdentifier)
         .collect(toSet());

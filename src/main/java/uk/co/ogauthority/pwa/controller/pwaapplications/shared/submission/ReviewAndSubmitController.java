@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,16 +12,14 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
-import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -41,24 +37,18 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationStatusCheck(status = PwaApplicationStatus.DRAFT)
 public class ReviewAndSubmitController {
 
-  private static final String PAGE_NAME = "Review and submit";
-
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PwaApplicationSubmissionService pwaApplicationSubmissionService;
-  private final ApplicationSummaryService applicationSummaryService;
-  private final TemplateRenderingService templateRenderer;
+  private final ApplicationSummaryViewService applicationSummaryViewService;
 
   @Autowired
   public ReviewAndSubmitController(PwaApplicationRedirectService pwaApplicationRedirectService,
                                    PwaApplicationSubmissionService pwaApplicationSubmissionService,
-                                   ApplicationSummaryService applicationSummaryService,
-                                   TemplateRenderingService templateRenderer) {
+                                   ApplicationSummaryViewService applicationSummaryViewService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
-    this.applicationSummaryService = applicationSummaryService;
-    this.templateRenderer = templateRenderer;
+    this.applicationSummaryViewService = applicationSummaryViewService;
   }
-
 
   @GetMapping
   public ModelAndView review(
@@ -68,17 +58,10 @@ public class ReviewAndSubmitController {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/submission/reviewAndSubmit");
 
-    var summarisedSections = applicationSummaryService.summarise(applicationContext.getApplicationDetail());
-    String combinedRenderedSummaryHtml = summarisedSections.stream()
-        .map(summary -> templateRenderer.render(summary.getTemplatePath(), summary.getTemplateModel(), true))
-        .collect(Collectors.joining());
+    var appSummaryView = applicationSummaryViewService.getApplicationSummaryView(applicationContext.getApplicationDetail());
 
-    List<SidebarSectionLink> sidebarSectionLinks = summarisedSections.stream()
-        .flatMap(o -> o.getSidebarSectionLinks().stream())
-        .collect(Collectors.toList());
-
-    modelAndView.addObject("combinedSummaryHtml", combinedRenderedSummaryHtml)
-        .addObject("sidebarSectionLinks", sidebarSectionLinks)
+    modelAndView
+        .addObject("appSummaryView", appSummaryView)
         .addObject("taskListUrl", pwaApplicationRedirectService.getTaskListRoute(applicationContext.getPwaApplication()))
         .addObject("applicationReference", applicationContext.getPwaApplication().getAppReference());
 

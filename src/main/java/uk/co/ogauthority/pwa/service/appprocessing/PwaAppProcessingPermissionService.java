@@ -1,52 +1,60 @@
 package uk.co.ogauthority.pwa.service.appprocessing;
 
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
 public class PwaAppProcessingPermissionService {
 
-  private final TeamService teamService;
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
-  private final PwaContactService pwaContactService;
+  private final ApplicationInvolvementService applicationInvolvementService;
 
   @Autowired
-  public PwaAppProcessingPermissionService(TeamService teamService,
-                                           ConsulteeGroupTeamService consulteeGroupTeamService,
-                                           PwaContactService pwaContactService) {
-    this.teamService = teamService;
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
-    this.pwaContactService = pwaContactService;
+  public PwaAppProcessingPermissionService(ApplicationInvolvementService applicationInvolvementService) {
+    this.applicationInvolvementService = applicationInvolvementService;
   }
 
   public Set<PwaAppProcessingPermission> getProcessingPermissions(PwaApplication application,
-                                                                  WebUserAccount user) {
+                                                                  AuthenticatedUserAccount user) {
 
-    var genericPermissions = getGenericProcessingPermissions(user);
+    var appInvolvement = applicationInvolvementService.getApplicationInvolvementDto(application, user);
 
-    var appContactMembership = pwaContactService.getContactRoles(application, user.getLinkedPerson());
+    var userPrivileges = user.getUserPrivileges();
+    var genericPermissions = getGenericProcessingPermissions(userPrivileges);
 
     var appPermissions = PwaAppProcessingPermission.streamAppPermissions()
         .filter(permission -> {
 
           switch (permission) {
             case UPDATE_APPLICATION:
-              return appContactMembership.contains(PwaContactRole.PREPARER);
+              return appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.PREPARER);
+            case CASE_MANAGEMENT_CONSULTEE:
+              return !appInvolvement.getConsulteeRoles().isEmpty();
+            case CASE_MANAGEMENT_INDUSTRY:
+              return !appInvolvement.getContactRoles().isEmpty();
+            case CASE_MANAGEMENT_OGA:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_REGULATOR);
+            case ASSIGN_RESPONDER:
+              // TODO PWA-893 create consultation permissions to ensure can only assign responder for their own consultation
+              return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER);
+            case CONSULTATION_RESPONDER:
+              // TODO PWA-893 create consultation permissions to ensure only assigned responder responds
+              return appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RESPONDER);
+            case CASE_OFFICER_REVIEW:
+            case EDIT_CONSULTATIONS:
+            case WITHDRAW_CONSULTATION:
+            case REQUEST_APPLICATION_UPDATE:
+            case EDIT_CONSENT_DOCUMENT:
+              return userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER) && appInvolvement.isCaseOfficerStageAndUserAssigned();
             default:
               return false;
           }
@@ -54,26 +62,22 @@ public class PwaAppProcessingPermissionService {
         })
         .collect(Collectors.toSet());
 
+    // any user with a case management permission can view the app summary
+    if (appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA)
+        || appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)
+        || appPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE)) {
+      appPermissions.add(PwaAppProcessingPermission.VIEW_APPLICATION_SUMMARY);
+    }
+
     return SetUtils.union(genericPermissions, appPermissions);
 
   }
 
-  public Set<PwaAppProcessingPermission> getGenericProcessingPermissions(WebUserAccount user) {
+  public Set<PwaAppProcessingPermission> getGenericProcessingPermissions(AuthenticatedUserAccount user) {
+    return getGenericProcessingPermissions(user.getUserPrivileges());
+  }
 
-    Optional<PwaTeamMember> userRegTeamMembershipOpt = teamService
-        .getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), user.getLinkedPerson());
-
-    Set<PwaRegulatorRole> roles = userRegTeamMembershipOpt
-        .map(regTeamMembership -> regTeamMembership.getRoleSet().stream()
-            .map(pwaRole -> PwaRegulatorRole.getValueByPortalTeamRoleName(pwaRole.getName()))
-            .collect(Collectors.toSet()))
-        .orElse(Set.of());
-
-    Set<ConsulteeGroupMemberRole> consulteeGroupRoles = new HashSet<>();
-    consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson())
-        .forEach(member -> consulteeGroupRoles.addAll(member.getRoles()));
-
-    var orgTeams = teamService.getOrganisationTeamsPersonIsMemberOf(user.getLinkedPerson());
+  private Set<PwaAppProcessingPermission> getGenericProcessingPermissions(Collection<PwaUserPrivilege> userPrivileges) {
 
     return PwaAppProcessingPermission.streamGenericPermissions()
         .filter(permission -> {
@@ -82,27 +86,11 @@ public class PwaAppProcessingPermissionService {
 
             case ACCEPT_INITIAL_REVIEW:
             case ASSIGN_CASE_OFFICER:
-              return roles.contains(PwaRegulatorRole.PWA_MANAGER);
-            case CASE_OFFICER_REVIEW:
-            case EDIT_CONSULTATIONS:
-            case WITHDRAW_CONSULTATION:
-            case REQUEST_APPLICATION_UPDATE:
-            case EDIT_CONSENT_DOCUMENT:
-              return roles.contains(PwaRegulatorRole.CASE_OFFICER);
+              return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER);
             case VIEW_ALL_CONSULTATIONS:
-              return roles.contains(PwaRegulatorRole.CASE_OFFICER)
-                  || roles.contains(PwaRegulatorRole.PWA_MANAGER);
-            case ASSIGN_RESPONDER:
-              return consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RECIPIENT)
-                  || consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RESPONDER);
-            case CONSULTATION_RESPONDER:
-              return consulteeGroupRoles.contains(ConsulteeGroupMemberRole.RESPONDER);
-            case CASE_MANAGEMENT:
-              return true;
-            case CASE_MANAGEMENT_INDUSTRY:
-              return !orgTeams.isEmpty();
             case ADD_CASE_NOTE:
-              return roles.contains(PwaRegulatorRole.PWA_MANAGER) || roles.contains(PwaRegulatorRole.CASE_OFFICER);
+              return userPrivileges.contains(PwaUserPrivilege.PWA_MANAGER)
+                  || userPrivileges.contains(PwaUserPrivilege.PWA_CASE_OFFICER);
             default:
               return false;
 

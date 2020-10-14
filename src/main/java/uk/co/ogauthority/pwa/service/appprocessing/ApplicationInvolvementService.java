@@ -1,0 +1,104 @@
+package uk.co.ogauthority.pwa.service.appprocessing;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
+import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
+import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
+import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
+
+/**
+ * A service to find out how a user is related to an application, e.g. are they part of the contacts team, a consultee,
+ * the assigned case officer etc?
+ */
+@Service
+public class ApplicationInvolvementService {
+
+  private final ConsulteeGroupTeamService consulteeGroupTeamService;
+  private final PwaContactService pwaContactService;
+  private final ConsultationRequestService consultationRequestService;
+  private final CamundaWorkflowService camundaWorkflowService;
+  private final UserTypeService userTypeService;
+
+  @Autowired
+  public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
+                                       PwaContactService pwaContactService,
+                                       ConsultationRequestService consultationRequestService,
+                                       CamundaWorkflowService camundaWorkflowService,
+                                       UserTypeService userTypeService) {
+    this.consulteeGroupTeamService = consulteeGroupTeamService;
+    this.pwaContactService = pwaContactService;
+    this.consultationRequestService = consultationRequestService;
+    this.camundaWorkflowService = camundaWorkflowService;
+    this.userTypeService = userTypeService;
+  }
+
+  public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplication application, AuthenticatedUserAccount user) {
+
+    var userType = userTypeService.getUserType(user);
+
+    Set<PwaContactRole> appContactRoles = userType == UserType.INDUSTRY
+        ? pwaContactService.getContactRoles(application, user.getLinkedPerson())
+        : Set.of();
+
+    Set<ConsulteeGroupMemberRole> consulteeRoles = userType == UserType.CONSULTEE
+        ? getConsulteeRoles(application, user)
+        : Set.of();
+
+    boolean caseOfficerStageAndUserAssigned = false;
+
+    if (userType == UserType.OGA) {
+      caseOfficerStageAndUserAssigned = camundaWorkflowService
+          .getAssignedPersonId(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))
+          .map(personId -> user.getLinkedPerson().getId().equals(personId))
+          .orElse(false);
+    }
+
+    return new ApplicationInvolvementDto(
+        application,
+        appContactRoles,
+        consulteeRoles,
+        caseOfficerStageAndUserAssigned);
+
+  }
+
+  private Set<ConsulteeGroupMemberRole> getConsulteeRoles(PwaApplication application, AuthenticatedUserAccount user) {
+
+    //TODO PWA-893 restrict consultees to one group only
+    var consulteeGroupTeamMembers = consulteeGroupTeamService.getTeamMembersByPerson(user.getLinkedPerson());
+
+    var consulteeGroups = consulteeGroupTeamMembers.stream()
+        .map(ConsulteeGroupTeamMember::getConsulteeGroup)
+        .collect(Collectors.toList());
+
+    // user has consulted on app if any group they are part of has a consultation request for the application
+    ConsultationRequest consultationRequest = consultationRequestService.getAllRequestsByApplication(application).stream()
+        .filter(r -> consulteeGroups.contains(r.getConsulteeGroup()))
+        .findFirst()
+        .orElse(null);
+
+    if (consultationRequest == null) {
+      return Set.of();
+    }
+
+    return consulteeGroupTeamMembers.stream()
+        .filter(member -> member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup()))
+        .flatMap(member -> member.getRoles().stream())
+        .collect(Collectors.toSet());
+
+  }
+
+}

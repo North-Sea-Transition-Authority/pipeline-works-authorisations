@@ -40,4 +40,10 @@ public class PipelineNumbersAndSplits {
     );
   }
 
+
+  @Override
+  public String toString() {
+    var splitInfoFormatted = splitInfo != null ? "[" +  splitInfo + "]" : "";
+    return pipelineNumber + " " +  splitInfoFormatted;
+  }
 }

@@ -11,14 +11,17 @@
 <#import 'components/taskList/pwaTaskListItem.ftl' as pwaTaskListItem>
 <#import 'components/cartographic/maps.ftl' as maps>
 <#import 'components/utils/string.ftl' as stringUtils>
-<#import 'components/widgets/pipelineTableSelection.ftl' as pwaPipelineTableSelection/>
-<#import 'components/widgets/organisationUnitDetailTableSelection.ftl' as pwaOrgDetailTableSelection/>
-<#import 'components/utils/validationResult.ftl' as validationResult/>
-<#import 'components/diff/diffChanges.ftl' as diffChanges/>
+<#import 'components/widgets/pipelineTableSelection.ftl' as pwaPipelineTableSelection>
+<#import 'components/widgets/organisationUnitDetailTableSelection.ftl' as pwaOrgDetailTableSelection>
+<#import 'components/utils/validationResult.ftl' as validationResult>
+<#import 'components/diff/diffChanges.ftl' as diffChanges>
 <#import 'components/utils/multiLineText.ftl' as multiLineText>
 <#import 'components/caseSummary/caseSummary.ftl' as pwaCaseSummary>
 <#import 'components/clauseList/clauseList.ftl' as pwaClauseList>
 <#import 'components/appUpdateRequest/updateRequestView.ftl' as pwaUpdateRequestView/>
+<#import 'components/hideableCheckAnswersRow/hideableCheckAnswersRow.ftl' as pwaHideableCheckAnswersRow/>
+<#import 'components/appSummary/appSummary.ftl' as pwaAppSummary>
+<#import 'components/sidebarSectionLink/sidebarSectionLink.ftl' as pwaSidebarSectionLink>
 
 <#function springUrl url>
     <#local springUrl>

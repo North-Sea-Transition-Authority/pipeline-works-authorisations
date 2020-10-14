@@ -8,29 +8,33 @@ import java.util.stream.Stream;
 public enum PwaAppProcessingPermission {
 
   // OGA
-  ACCEPT_INITIAL_REVIEW,
+  ACCEPT_INITIAL_REVIEW(ProcessingPermissionType.GENERIC),
   CASE_OFFICER_REVIEW,
-  VIEW_ALL_CONSULTATIONS,
+  VIEW_ALL_CONSULTATIONS(ProcessingPermissionType.GENERIC),
   EDIT_CONSULTATIONS,
   WITHDRAW_CONSULTATION,
-  ASSIGN_CASE_OFFICER,
+  ASSIGN_CASE_OFFICER(ProcessingPermissionType.GENERIC),
   REQUEST_APPLICATION_UPDATE,
-  CASE_MANAGEMENT,
-  ADD_CASE_NOTE,
+  CASE_MANAGEMENT_OGA,
+  ADD_CASE_NOTE(ProcessingPermissionType.GENERIC),
   EDIT_CONSENT_DOCUMENT,
 
   // CONSULTEES
+  CASE_MANAGEMENT_CONSULTEE,
   ASSIGN_RESPONDER,
   CONSULTATION_RESPONDER,
 
   // INDUSTRY
   CASE_MANAGEMENT_INDUSTRY,
-  UPDATE_APPLICATION(ProcessingPermissionType.APP_SPECIFIC);
+  UPDATE_APPLICATION,
+
+  // ALL
+  VIEW_APPLICATION_SUMMARY;
 
   private final ProcessingPermissionType processingPermissionType;
 
   PwaAppProcessingPermission() {
-    this.processingPermissionType = ProcessingPermissionType.GENERIC;
+    this.processingPermissionType = ProcessingPermissionType.APP_SPECIFIC;
   }
 
   PwaAppProcessingPermission(ProcessingPermissionType processingPermissionType) {

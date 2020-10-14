@@ -2,12 +2,18 @@
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 
-<#macro summary caseSummaryView>
+<#macro summary caseSummaryView showAppSummaryLink=true>
 
-  <span class="govuk-caption-l">${caseSummaryView.pwaApplicationType}</span>
+  <span class="govuk-caption-l">${caseSummaryView.pwaApplicationTypeDisplay}</span>
   <h1 class="govuk-heading-xl">${caseSummaryView.pwaApplicationRef}
-    <br/>
-    <@fdsAction.link linkText="View application (in new tab)" linkUrl="#" linkClass="govuk-link govuk-!-font-size-19 govuk-link--no-visited-state govuk-link--case-management-heading" />
+    <#if showAppSummaryLink>
+      <br/>
+      <@fdsAction.link
+        linkText="View application (in new tab)"
+        linkUrl=springUrl(caseSummaryView.getAppSummaryUrl())
+        linkClass="govuk-link govuk-!-font-size-19 govuk-link--no-visited-state govuk-link--case-management-heading"
+        openInNewTab=true />
+    </#if>
   </h1>
 
   <#assign fastTrackText = caseSummaryView.fastTrackFlag?then(" (Fast track)", "") />
