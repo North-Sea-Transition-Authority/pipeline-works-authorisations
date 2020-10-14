@@ -99,7 +99,8 @@ public class AddHuooValidator implements SmartValidator {
 
     for (PadOrganisationRole existingOrgRole: existingOrgRoles) {
       if (existingOrgRole.getRole().equals(HuooRole.USER)
-          && ((existingOrgRole.getType().equals(HuooType.TREATY_AGREEMENT) && userHuooRolesToAdd != null && userHuooRolesToAdd.contains(HuooRole.USER) && userHuooTypeToAdd.equals(HuooType.PORTAL_ORG))
+          && ((existingOrgRole.getType().equals(HuooType.TREATY_AGREEMENT)
+            && userHuooRolesToAdd != null && userHuooRolesToAdd.contains(HuooRole.USER) && userHuooTypeToAdd.equals(HuooType.PORTAL_ORG))
           || (existingOrgRole.getType().equals(HuooType.PORTAL_ORG) && userHuooTypeToAdd.equals(HuooType.TREATY_AGREEMENT)))) {
         return false;
       }
