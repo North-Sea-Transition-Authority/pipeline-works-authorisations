@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
@@ -145,7 +145,7 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
   public PipelineIdentifier getPipelineIdentifier() {
     if (this.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE)) {
 
-      return PipelineSegment.from(
+      return PipelineSection.from(
           this.pipeline.getId(),
           this.fromLocation,
           this.fromLocationIdentInclusionMode,
@@ -170,13 +170,13 @@ public class PadPipelineOrganisationRoleLink implements PipelineIdentifierVisito
   }
 
   @Override
-  public void visit(PipelineSegment pipelineSegment) {
+  public void visit(PipelineSection pipelineSection) {
     // TODO revisit if time, this might be shit.
     this.pipeline = new Pipeline();
-    this.pipeline.setId(pipelineSegment.getPipelineIdAsInt());
-    this.fromLocation = pipelineSegment.getFromPoint().getLocationName();
-    this.fromLocationIdentInclusionMode = pipelineSegment.getFromPointMode();
-    this.toLocation = pipelineSegment.getToPoint().getLocationName();
-    this.toLocationIdentInclusionMode = pipelineSegment.getToPointMode();
+    this.pipeline.setId(pipelineSection.getPipelineIdAsInt());
+    this.fromLocation = pipelineSection.getFromPoint().getLocationName();
+    this.fromLocationIdentInclusionMode = pipelineSection.getFromPointMode();
+    this.toLocation = pipelineSection.getToPoint().getLocationName();
+    this.toLocationIdentInclusionMode = pipelineSection.getToPointMode();
   }
 }

@@ -9,7 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 
@@ -53,7 +53,7 @@ public class PadPipelineOrganisationRoleLinkTest {
     padPipelineOrganisationRoleLink.setToLocationIdentInclusionMode(IdentLocationInclusionMode.EXCLUSIVE);
 
     assertThat(padPipelineOrganisationRoleLink.getPipelineIdentifier()).isEqualTo(
-        PipelineSegment.from(
+        PipelineSection.from(
             new PipelineId(PIPELINE_ID),
             PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
             PipelineIdentPoint.exclusivePoint(TO_LOCATION)
@@ -80,20 +80,20 @@ public class PadPipelineOrganisationRoleLinkTest {
   }
 
   @Test
-  public void visit_whenPipelineSegment(){
+  public void visit_whenPipelineSection(){
     padPipelineOrganisationRoleLink.setFromLocation(null);
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(null);
     padPipelineOrganisationRoleLink.setToLocation(null);
     padPipelineOrganisationRoleLink.setToLocationIdentInclusionMode(null);
 
-    var newPipelineSegment = PipelineSegment.from(
+    var newPipelineSection = PipelineSection.from(
         new PipelineId(2),
         PipelineIdentPoint.inclusivePoint(FROM_LOCATION),
         PipelineIdentPoint.exclusivePoint(TO_LOCATION)
     );
-    newPipelineSegment.accept(padPipelineOrganisationRoleLink);
+    newPipelineSection.accept(padPipelineOrganisationRoleLink);
 
-    assertThat(padPipelineOrganisationRoleLink.getPipelineIdentifier()).isEqualTo( newPipelineSegment);
+    assertThat(padPipelineOrganisationRoleLink.getPipelineIdentifier()).isEqualTo( newPipelineSection);
     assertThat(padPipelineOrganisationRoleLink.getFromLocation()).isEqualTo(FROM_LOCATION);
     assertThat(padPipelineOrganisationRoleLink.getFromLocationIdentInclusionMode()).isEqualTo(IdentLocationInclusionMode.INCLUSIVE);
     assertThat(padPipelineOrganisationRoleLink.getToLocation()).isEqualTo(TO_LOCATION);

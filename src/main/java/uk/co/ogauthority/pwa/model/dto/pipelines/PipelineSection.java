@@ -5,14 +5,14 @@ import java.util.Objects;
 /**
  * Represents a portion of a pipeline between two points on the pipelines path.
  */
-public class PipelineSegment implements PipelineIdentifier {
+public class PipelineSection implements PipelineIdentifier {
 
   private final PipelineId pipelineId;
   private final PipelineIdentPoint fromPoint;
   private final PipelineIdentPoint toPoint;
 
   // private constructor to force static method use on object creation
-  private PipelineSegment(PipelineId pipelineId,
+  private PipelineSection(PipelineId pipelineId,
                           PipelineIdentPoint fromPoint,
                           PipelineIdentPoint toPoint) {
     this.pipelineId = pipelineId;
@@ -20,22 +20,22 @@ public class PipelineSegment implements PipelineIdentifier {
     this.toPoint = toPoint;
   }
 
-  public static PipelineSegment from(int pipelineId,
+  public static PipelineSection from(int pipelineId,
                                      String fromPoint,
                                      IdentLocationInclusionMode fromPointInclusionMode,
                                      String toPoint,
                                      IdentLocationInclusionMode toPointInclusionMode) {
-    return new PipelineSegment(
+    return new PipelineSection(
         new PipelineId(pipelineId),
         PipelineIdentPoint.from(fromPoint, fromPointInclusionMode),
         PipelineIdentPoint.from(toPoint, toPointInclusionMode)
     );
   }
 
-  public static PipelineSegment from(PipelineId pipelineId,
+  public static PipelineSection from(PipelineId pipelineId,
                                      PipelineIdentPoint fromPoint,
                                      PipelineIdentPoint toPoint) {
-    return new PipelineSegment(
+    return new PipelineSection(
         pipelineId,
         fromPoint,
         toPoint
@@ -86,7 +86,7 @@ public class PipelineSegment implements PipelineIdentifier {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PipelineSegment that = (PipelineSegment) o;
+    PipelineSection that = (PipelineSection) o;
     return Objects.equals(pipelineId, that.pipelineId)
         && Objects.equals(fromPoint, that.fromPoint)
         && Objects.equals(toPoint, that.toPoint);

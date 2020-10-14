@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 
 /**
  * <p>Represents the types of pipeline that can be picked when assigning HUOO roles.</p>
@@ -62,16 +62,16 @@ public enum PickableHuooPipelineType {
   /**
    * Intentionally package private so {@link PickableHuooPipelineType#createPickableString} is used instead.
    */
-  static String createPickableStringFrom(PipelineSegment pipelineSegment) {
-    var fromProperty = pipelineSegment.getFromPointMode().equals(IdentLocationInclusionMode.INCLUSIVE)
+  static String createPickableStringFrom(PipelineSection pipelineSection) {
+    var fromProperty = pipelineSection.getFromPointMode().equals(IdentLocationInclusionMode.INCLUSIVE)
         ? FROM_INC : FROM_EXC;
 
-    var toProperty = pipelineSegment.getToPointMode().equals(IdentLocationInclusionMode.INCLUSIVE)
+    var toProperty = pipelineSection.getToPointMode().equals(IdentLocationInclusionMode.INCLUSIVE)
         ? TO_INC : TO_EXC;
 
-    return SPLIT + createPipelineIdProperty(pipelineSegment) +
-        createStringProperty(fromProperty, pipelineSegment.getFromPoint().getLocationName()) +
-        createStringProperty(toProperty, pipelineSegment.getToPoint().getLocationName());
+    return SPLIT + createPipelineIdProperty(pipelineSection) +
+        createStringProperty(fromProperty, pipelineSection.getFromPoint().getLocationName()) +
+        createStringProperty(toProperty, pipelineSection.getToPoint().getLocationName());
   }
 
 
@@ -112,7 +112,7 @@ public enum PickableHuooPipelineType {
 
     // not sure this is very good tbh. at least nastiness is contained here, and not exported to calling code?
     return !(pipelineId.isEmpty() || fromPoint.isEmpty() || toPoint.isEmpty())
-        ? Optional.of(PipelineSegment.from(pipelineId.get().getPipelineId(), fromPoint.get(), toPoint.get()))
+        ? Optional.of(PipelineSection.from(pipelineId.get().getPipelineId(), fromPoint.get(), toPoint.get()))
         : Optional.empty();
   }
 

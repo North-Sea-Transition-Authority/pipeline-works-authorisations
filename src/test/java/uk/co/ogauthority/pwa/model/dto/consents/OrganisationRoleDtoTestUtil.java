@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.dto.consents;
 
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -46,7 +46,7 @@ public class OrganisationRoleDtoTestUtil {
     );
   }
 
-  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSegmentRoleInstance(HuooRole huooRole,
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSectionRoleInstance(HuooRole huooRole,
                                                                                              int ouId,
                                                                                              int pipelineId,
                                                                                              String from,
@@ -65,20 +65,20 @@ public class OrganisationRoleDtoTestUtil {
     );
   }
 
-  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSegmentRoleInstance(HuooRole huooRole,
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSectionRoleInstance(HuooRole huooRole,
                                                                                              int ouId,
-                                                                                             PipelineSegment pipelineSegment) {
+                                                                                             PipelineSection pipelineSection) {
     return new OrganisationPipelineRoleInstanceDto(
         ouId,
         null,
         null,
         huooRole,
         HuooType.PORTAL_ORG,
-        pipelineSegment.getPipelineIdAsInt(),
-        pipelineSegment.getFromPoint().getLocationName(),
-        pipelineSegment.getFromPoint().getIdentLocationInclusionMode(),
-        pipelineSegment.getToPoint().getLocationName(),
-        pipelineSegment.getToPoint().getIdentLocationInclusionMode()
+        pipelineSection.getPipelineIdAsInt(),
+        pipelineSection.getFromPoint().getLocationName(),
+        pipelineSection.getFromPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getToPoint().getLocationName(),
+        pipelineSection.getToPoint().getIdentLocationInclusionMode()
     );
   }
 

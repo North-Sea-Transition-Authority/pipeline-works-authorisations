@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -803,9 +803,9 @@ public class PadOrganisationRoleServiceTest {
 
     var splitPipelines = padOrganisationRoleService.getPipelineSplitsForRole(detail, HuooRole.HOLDER);
     assertThat(splitPipelines).containsExactlyInAnyOrder(
-        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_1"),
+        PipelineSection.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_1"),
             PipelineIdentPoint.inclusivePoint("TO_1")),
-        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_2"),
+        PipelineSection.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_2"),
             PipelineIdentPoint.inclusivePoint("TO_2"))
     );
   }

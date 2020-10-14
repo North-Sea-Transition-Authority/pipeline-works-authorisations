@@ -10,6 +10,6 @@ public interface PipelineIdentifierVisitor {
 
   void visit(PipelineId pipelineId);
 
-  void visit(PipelineSegment pipelineSegment);
+  void visit(PipelineSection pipelineSection);
 
 }

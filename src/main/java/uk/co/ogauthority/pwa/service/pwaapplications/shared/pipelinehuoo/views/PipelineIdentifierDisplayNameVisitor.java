@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 
 /**
  * Visitor to PipelineIdentifiers which can map the pipelineIdentifier to a user displayable reference.
@@ -35,12 +35,12 @@ public class PipelineIdentifierDisplayNameVisitor implements PipelineIdentifierV
   }
 
   @Override
-  public void visit(PipelineSegment pipelineSegment) {
-    pipelineIdentifierStringLookup.put(pipelineSegment,
+  public void visit(PipelineSection pipelineSection) {
+    pipelineIdentifierStringLookup.put(pipelineSection,
         String.format(
             "%s (%s)",
-            pipelineIdStringLookup.get(pipelineSegment.getPipelineId()),
-            pipelineSegment.getDisplayString()
+            pipelineIdStringLookup.get(pipelineSection.getPipelineId()),
+            pipelineSection.getDisplayString()
         )
     );
 
