@@ -41,4 +41,5 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
     return query.getResultList();
 
   }
+
 }
