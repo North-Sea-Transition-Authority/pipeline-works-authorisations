@@ -369,10 +369,10 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
             ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).defineSections(
-                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
             ))));
 
-    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+    endpointTester.performAppContactRoleCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -382,10 +382,10 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
             ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).defineSections(
-                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
             ))));
 
-    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
   }
 
@@ -395,10 +395,10 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
             ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).defineSections(
-                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
             ))));
 
-    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+    endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
   }
 
@@ -406,13 +406,16 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   public void defineSections_modelCheck_andServiceInteractions() throws Exception {
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
-        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
     )
-        .andExpect(status().isOk())
+        .andExpect(status().is3xxRedirection())
         .andReturn().getModelAndView();
+
+    verify(pickableHuooPipelineIdentService, times(1)).generatePipelineSectionsFromForm(any(), any(), any());
+    verify(padPipelinesHuooService, times(1)).replacePipelineSectionsForPipelineAndRole(any(), any(), any(), any());
 
 
   }
@@ -426,7 +429,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     ).thenThrow(new PwaEntityNotFoundException("fake error"));
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
-        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
@@ -444,13 +447,15 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
         .when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any());
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
-        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
     )
         .andExpect(status().isOk());
 
+    verify(pickableHuooPipelineIdentService, times(0)).generatePipelineSectionsFromForm(any(), any(), any());
+    verify(padPipelinesHuooService, times(0)).replacePipelineSectionsForPipelineAndRole(any(), any(), any(), any());
 
   }
 }

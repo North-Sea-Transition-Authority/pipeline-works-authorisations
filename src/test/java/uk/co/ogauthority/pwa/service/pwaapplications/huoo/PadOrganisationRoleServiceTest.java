@@ -155,6 +155,8 @@ public class PadOrganisationRoleServiceTest {
             List.of(orgUnit1, orgUnit2)
         );
 
+    when(padOrganisationRolesRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
   }
 
   @Test
@@ -976,5 +978,36 @@ public class PadOrganisationRoleServiceTest {
   }
 
 
+  @Test
+  public void getOrCreateUnassignedPipelineSplitRole_whenNoUnassignedSplitRoleTypeFound() {
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of());
+    var roleSaveCaptor = ArgumentCaptor.forClass(PadOrganisationRole.class);
+    var role = padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(detail, HuooRole.HOLDER);
 
+    verify(padOrganisationRolesRepository, times(1)).save(roleSaveCaptor.capture());
+
+    assertThat(roleSaveCaptor.getValue().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+    assertThat(role).isEqualTo(roleSaveCaptor.getValue());
+  }
+
+  @Test
+  public void getOrCreateUnassignedPipelineSplitRole_whenUnassignedSplitRoleTypeFound() {
+
+    var unassignedRole = PadOrganisationRole.forUnassignedSplitPipeline(detail, HuooRole.HOLDER);
+    var roleList = List.of(
+        PadOrganisationRole.fromOrganisationUnit(detail, orgUnit1, HuooRole.HOLDER),
+        unassignedRole
+    );
+
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(roleList);
+
+    var foundRole = padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(detail, HuooRole.HOLDER);
+    var roleSaveCaptor = ArgumentCaptor.forClass(PadOrganisationRole.class);
+
+    verify(padOrganisationRolesRepository, times(1)).save(roleSaveCaptor.capture());
+
+    assertThat(roleSaveCaptor.getValue().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+    assertThat(roleSaveCaptor.getValue()).isEqualTo(unassignedRole);
+    assertThat(foundRole).isEqualTo(roleSaveCaptor.getValue());
+  }
 }

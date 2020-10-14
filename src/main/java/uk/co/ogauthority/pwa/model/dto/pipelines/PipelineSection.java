@@ -38,12 +38,12 @@ public class PipelineSection implements PipelineIdentifier {
   }
 
   public static PipelineSection from(PipelineId pipelineId,
-                                     int segmentNumber,
+                                     int sectionNumber,
                                      PipelineIdentPoint fromPoint,
                                      PipelineIdentPoint toPoint) {
     return new PipelineSection(
         pipelineId,
-        segmentNumber,
+        sectionNumber,
         fromPoint,
         toPoint
     );
@@ -107,5 +107,15 @@ public class PipelineSection implements PipelineIdentifier {
   @Override
   public int hashCode() {
     return Objects.hash(pipelineId, sectionNumber, fromPoint, toPoint);
+  }
+
+  @Override
+  public String toString() {
+    return "PipelineSection{" +
+        "pipelineId=" + pipelineId +
+        ", sectionNumber=" + sectionNumber +
+        ", fromPoint=" + fromPoint +
+        ", toPoint=" + toPoint +
+        '}';
   }
 }
