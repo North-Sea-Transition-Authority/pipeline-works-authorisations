@@ -1,73 +1,67 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="huooRolePipelineGroupsPadView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView" -->
+<#-- @ftlvariable name="diffedAllOrgRolePipelineGroups" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups>" -->
 
 
 <div class="pwa-application-summary-section">
     <h2 class="govuk-heading-l" id="huooDetails">${sectionDisplayText}</h2>
 
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.holderOrgRolePipelineGroups  role="Holders" />
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.userOrgRolePipelineGroups  role="Users" />
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.operatorOrgRolePipelineGroups  role="Operators" />
-    <@huooDetails orgRolePipelineGroups=huooRolePipelineGroupsPadView.ownerOrgRolePipelineGroups  role="Owners" />
+    <@huooDetails diffedHuoos=diffedAllOrgRolePipelineGroups.holderOrgRolePipelineGroups  role="Holders" />
+    <@huooDetails diffedHuoos=diffedAllOrgRolePipelineGroups.userOrgRolePipelineGroups  role="Users" />
+    <@huooDetails diffedHuoos=diffedAllOrgRolePipelineGroups.operatorOrgRolePipelineGroups  role="Operators" />
+    <@huooDetails diffedHuoos=diffedAllOrgRolePipelineGroups.ownerOrgRolePipelineGroups  role="Owners" />
+
 </div>
 
 
-<#macro huooDetails orgRolePipelineGroups role>
+<#macro huooDetails diffedHuoos role>
 
     <h3 class="govuk-heading-m"> ${role} </h3>
-    <#list orgRolePipelineGroups as orgRolePipelineGroup>
-        
-        <#if orgRolePipelineGroup.huooType == "PORTAL_ORG">
-            <#if orgRolePipelineGroup.isManuallyEnteredName>
-                <h4 class="govuk-heading-s">  ${orgRolePipelineGroup.manuallyEnteredName!}  </h4>
-            <#else>
-                <h4 class="govuk-heading-s">  ${orgRolePipelineGroup.getCompanyName()!}  </h4>
-            </#if>
-        <#else>
-            <h4 class="govuk-heading-s">  ${orgRolePipelineGroup.treatyAgreement.getCountry()} </h4>
-        </#if>
+    
+    <#list diffedHuoos as diffedHuoo>
+
+        <#assign diffHideGroup = "hide-when-diff-disabled"/>
+        <#assign isRemovedOrg = diffedHuoo.DiffableOrgRolePipelineGroup_roleOwnerName.diffType == "DELETED"/>
+
+        <h4 class="govuk-heading-s ${isRemovedOrg?then(diffHideGroup, '') }">
+            <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_roleOwnerName/>
+        </h4>
         
         <@fdsCheckAnswers.checkAnswers>
+            <#assign hasCompanyData = diffedHuoo.DiffableOrgRolePipelineGroup_hasCompanyData.currentValue?upper_case == "YES"/>
 
-            <#if orgRolePipelineGroup.huooType == "PORTAL_ORG">
-                <@fdsCheckAnswers.checkAnswersRow keyText="Company number" actionUrl="" screenReaderActionText="" actionText="">
-                    ${orgRolePipelineGroup.getRegisteredNumber()!}
-                </@fdsCheckAnswers.checkAnswersRow>
+            <#if hasCompanyData>
+                <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Company number" actionUrl="" screenReaderActionText="" actionText="" rowClass=(hasCompanyData == false)?then(diffHideGroup, "")>
+                    <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_companyNumber/>
+                </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
 
-                <@fdsCheckAnswers.checkAnswersRow keyText="Legal entity address" actionUrl="" screenReaderActionText="" actionText="">
-                    ${orgRolePipelineGroup.getCompanyAddress()!}
-                </@fdsCheckAnswers.checkAnswersRow>
-            <#else>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Treaty agreement text" actionUrl="" screenReaderActionText="" actionText="">
-                    ${orgRolePipelineGroup.treatyAgreement.getAgreementText()!}
-                </@fdsCheckAnswers.checkAnswersRow>
+                <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Legal entity address" actionUrl="" screenReaderActionText="" actionText="" rowClass=(hasCompanyData == false)?then(diffHideGroup, "")>
+                    <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_companyAddress/>
+                </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
+
+            <#elseif diffedHuoo.DiffableOrgRolePipelineGroup_isManuallyEnteredName.currentValue?upper_case == "NO">
+                <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Treaty agreement text" actionUrl="" screenReaderActionText="" actionText="" rowClass=hasCompanyData?then(diffHideGroup, "")>
+                    <@diffChanges.renderDiff diffedField=diffedHuoo.DiffableOrgRolePipelineGroup_treatyAgreementText/>
+                </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
             </#if>
 
-            <@fdsCheckAnswers.checkAnswersRow keyText="Pipelines" actionUrl="" screenReaderActionText="" actionText="">
-                <ul class="govuk-list">
-                    <#list orgRolePipelineGroup.pipelineNumbersAndSplits as pipeline>
 
-                        <#if pipeline?has_content>
-                            <#assign splitInfo = "" />
-                            <#if pipeline.splitInfo?has_content>
-                                <#assign splitInfo = '[' + pipeline.splitInfo + ']' />
-                            </#if>
-                            <li> ${pipeline.pipelineNumber!} ${splitInfo} </li>
-                        </#if>
+            <@pwaHideableCheckAnswersRow.hideableCheckAnswersRow keyText="Pipelines" actionUrl="" screenReaderActionText="" actionText="" rowClass=isRemovedOrg?then(diffHideGroup, "")>
+                <ul class="govuk-list">
+                    <#list diffedHuoo.DiffableOrgRolePipelineGroup_pipelineAndSplitsList as diffedPipelineNumber>
+                        <li><@diffChanges.renderDiff diffedField=diffedPipelineNumber /></li>
                     </#list>
                 </ul>
-
-            </@fdsCheckAnswers.checkAnswersRow>
-
-            
-
+            </@pwaHideableCheckAnswersRow.hideableCheckAnswersRow>
 
         </@fdsCheckAnswers.checkAnswers>
+
     </#list>
 
-    <#if orgRolePipelineGroups?has_content == false>
+
+
+    <#if diffedHuoos?has_content == false>
         <@fdsInsetText.insetText>
             No ${role?lower_case} have been added to this application.
         </@fdsInsetText.insetText>
@@ -77,5 +71,9 @@
 
 
 </#macro>
+
+
+
+
 
 

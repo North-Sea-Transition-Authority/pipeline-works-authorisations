@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.consents;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -9,7 +10,9 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
  * Class which captures an "organisation" role owner. This is the organisation or treaty which owns a particular role instance for a PWA.
  * A role owner is not a instance of a HuooRole, but the concept(org unit or treaty) that could have an instance of the HUOO roles.
  */
-public final class OrganisationRoleOwnerDto {
+//implementing DiffableAsString is currently a workaround for ignoring this class..
+// as a field as part of the DiffableOrgRolePipelineGroup class when used for diffing huoo pipelines
+public final class OrganisationRoleOwnerDto implements DiffableAsString {
 
   private final HuooType huooType;
   private final OrganisationUnitId organisationUnitId;
@@ -69,4 +72,17 @@ public final class OrganisationRoleOwnerDto {
   public int hashCode() {
     return Objects.hash(huooType, organisationUnitId, manualOrganisationName, treatyAgreement);
   }
+
+  @Override
+  public String getDiffableString() {
+    //This is currently just a toString override of the member variables to allow the diffing service to work for huoos
+    // Needs to be improved
+    return "OrganisationRoleOwnerDto{" +
+        "huooType=" + huooType +
+        ", organisationUnitId=" + organisationUnitId +
+        ", manualOrganisationName='" + manualOrganisationName + '\'' +
+        ", treatyAgreement=" + treatyAgreement +
+        '}';
+  }
+
 }
