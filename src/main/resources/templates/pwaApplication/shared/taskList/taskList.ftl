@@ -4,10 +4,15 @@
 <#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
 <#-- @ftlvariable name="applicationType" type="java.lang.String" -->
 <#-- @ftlvariable name="masterPwaReference" type="java.lang.String" -->
+<#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
 
 <#assign pageCaption=masterPwaReference?has_content?then("${masterPwaReference} ${applicationType} application", "${applicationType} application")  />
 
 <@defaultPage htmlTitle="Pipeline Works Authorisation Submission" pageHeading="Submit a Pipeline Works Authorisation" caption=pageCaption breadcrumbs=true>
+
+    <#if updateRequestView?has_content>
+      <@pwaUpdateRequestView.banner view=updateRequestView />
+    </#if>
 
     <@fdsTaskList.taskList>
 

@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.appprocessing.applicationupdates.ApplicationUpdateRequestStatus;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 import uk.co.ogauthority.pwa.repository.appprocessing.applicationupdates.ApplicationUpdateRequestRepository;
@@ -132,6 +133,8 @@ public class ApplicationUpdateRequestServiceTest {
     assertThat(updateRequest.getRequestedByPersonId()).isEqualTo(new PersonId(PERSON_ID));
     assertThat(updateRequest.getRequestedTimestamp()).isEqualTo(clock.instant());
     assertThat(updateRequest.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(updateRequest.getStatus()).isEqualTo(ApplicationUpdateRequestStatus.OPEN);
+
   }
 
   @Test

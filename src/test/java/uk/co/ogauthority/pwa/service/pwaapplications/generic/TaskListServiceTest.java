@@ -5,9 +5,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
@@ -42,6 +46,9 @@ public class TaskListServiceTest {
   @Mock
   private ApplicationTaskService applicationTaskService;
 
+  @Mock
+  private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
+
   private TaskListService taskListService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -54,12 +61,13 @@ public class TaskListServiceTest {
         applicationBreadcrumbService,
         taskListEntryFactory,
         applicationTaskService,
-        masterPwaViewService);
+        masterPwaViewService,
+        applicationUpdateRequestViewService);
   }
 
 
   @Test
-  public void getTaskListModelAndView_generic() {
+  public void getTaskListModelAndView_generic_firstVersion() {
 
     var masterPwaView = mock(MasterPwaView.class);
     when(masterPwaView.getReference()).thenReturn("PWA-Example");
@@ -90,12 +98,14 @@ public class TaskListServiceTest {
 
       verify(applicationBreadcrumbService, times(1)).fromWorkArea(modelAndView, "Task list");
 
+      verifyNoInteractions(applicationUpdateRequestViewService);
+
     });
 
   }
 
   @Test
-  public void getTaskListModelAndView_notFirstDraft() {
+  public void getTaskListModelAndView_notFirstVersion_appUpdateOpen() {
 
     var masterPwaView = mock(MasterPwaView.class);
     when(masterPwaView.getReference()).thenReturn("PWA-Example");
@@ -107,6 +117,9 @@ public class TaskListServiceTest {
     detail.setVersionNo(2);
 
     when(masterPwaViewService.getCurrentMasterPwaView(pwaApplication)).thenReturn(masterPwaView);
+
+    var updateRequestView = mock(ApplicationUpdateRequestView.class);
+    when(applicationUpdateRequestViewService.getOpenRequestView(any(PwaApplication.class))).thenReturn(Optional.of(updateRequestView));
 
     PwaApplicationType.stream().forEach(applicationType -> {
 
@@ -125,6 +138,48 @@ public class TaskListServiceTest {
       }
 
       verify(applicationBreadcrumbService, times(1)).fromCaseManagement(pwaApplication, modelAndView, "Task list");
+
+      assertThat(modelAndView.getModel().get("updateRequestView")).isEqualTo(updateRequestView);
+
+    });
+
+  }
+
+  @Test
+  public void getTaskListModelAndView_notFirstVersion_noAppUpdateOpen() {
+
+    var masterPwaView = mock(MasterPwaView.class);
+    when(masterPwaView.getReference()).thenReturn("PWA-Example");
+
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
+    var detail = new PwaApplicationDetail();
+    detail.setPwaApplication(pwaApplication);
+    detail.setVersionNo(2);
+
+    when(masterPwaViewService.getCurrentMasterPwaView(pwaApplication)).thenReturn(masterPwaView);
+
+    when(applicationUpdateRequestViewService.getOpenRequestView(any(PwaApplication.class))).thenReturn(Optional.empty());
+
+    PwaApplicationType.stream().forEach(applicationType -> {
+
+      pwaApplication.setApplicationType(applicationType);
+
+      var modelAndView = taskListService.getTaskListModelAndView(detail);
+
+      assertThat(modelAndView.getViewName()).isEqualTo(TaskListService.TASK_LIST_TEMPLATE_PATH);
+
+      assertThat(modelAndView.getModel().get("applicationTaskGroups")).isNotNull();
+
+      if (applicationType != PwaApplicationType.INITIAL) {
+        assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example");
+      } else {
+        assertThat(modelAndView.getModel().get("masterPwaReference")).isNull();
+      }
+
+      verify(applicationBreadcrumbService, times(1)).fromCaseManagement(pwaApplication, modelAndView, "Task list");
+
+      assertThat(modelAndView.getModel().get("updateRequestView")).isNull();
 
     });
 

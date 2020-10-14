@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
@@ -61,6 +62,9 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @Mock
   private ApplicationFormSectionService applicationFormSectionService;
 
+  @Mock
+  private ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
+
   @Before
   public void taskListControllerTestSetup() {
     when(masterPwaView.getReference()).thenReturn("EXAMPLE_REFERENCE");
@@ -70,7 +74,8 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
         applicationBreadcrumbService,
         taskListEntryFactory,
         applicationTaskService,
-        masterPwaViewService);
+        masterPwaViewService,
+        applicationUpdateRequestViewService);
 
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));

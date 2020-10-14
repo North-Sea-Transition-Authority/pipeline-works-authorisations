@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
+import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskListService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -18,15 +18,15 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 public class TasksTabContentService implements AppProcessingTabContentService {
 
   private final PwaAppProcessingTaskListService appProcessingTaskListService;
-  private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final ApplicationUpdateRequestViewService applicationUpdateRequestViewService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public TasksTabContentService(PwaAppProcessingTaskListService appProcessingTaskListService,
-                                ApplicationUpdateRequestService applicationUpdateRequestService,
+                                ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
                                 PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.appProcessingTaskListService = appProcessingTaskListService;
-    this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
@@ -44,7 +44,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
       taskListGroups = appProcessingTaskListService.getTaskListGroups(appProcessingContext);
 
-      updateRequestViewOpt = applicationUpdateRequestService.getOpenRequestView(appProcessingContext.getApplicationDetail());
+      updateRequestViewOpt = applicationUpdateRequestViewService.getOpenRequestView(appProcessingContext.getApplicationDetail());
 
       taskListUrl = pwaApplicationRedirectService.getTaskListRoute(appProcessingContext.getPwaApplication());
 
