@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
 
-import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryAndSplit;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSummaryAndSplit;
 
 
 public class PipelineNumbersAndSplits {
@@ -32,11 +32,11 @@ public class PipelineNumbersAndSplits {
 
 
   public static PipelineNumbersAndSplits from(PipelineIdentifier pipelineIdentifier,
-                                              PadPipelineSummaryAndSplit padPipelineSummaryAndSplit) {
+                                              PipelineSummaryAndSplit pipelineSummaryAndSplit) {
     return new PipelineNumbersAndSplits(
         pipelineIdentifier,
-        padPipelineSummaryAndSplit.getPadPipelineSummaryDto().getPipelineNumber(),
-        padPipelineSummaryAndSplit.getSplitInfo() // no split info for whole pipelines
+        pipelineSummaryAndSplit.getPipelineOverview().getPipelineNumber(),
+        pipelineSummaryAndSplit.getSplitInfo() // no split info for whole pipelines
     );
   }
 
