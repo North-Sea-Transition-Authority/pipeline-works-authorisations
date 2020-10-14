@@ -23,12 +23,14 @@ import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
@@ -41,19 +43,22 @@ public class ApplicationWorkAreaPageService {
   private final PwaContactService pwaContactService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final CamundaWorkflowService camundaWorkflowService;
+  private final UserTypeService userTypeService;
 
   @Autowired
   public ApplicationWorkAreaPageService(PwaAppProcessingPermissionService appProcessingPermissionService,
                                         ApplicationDetailSearcher applicationDetailSearcher,
                                         PwaContactService pwaContactService,
                                         PwaApplicationRedirectService pwaApplicationRedirectService,
-                                        CamundaWorkflowService camundaWorkflowService) {
+                                        CamundaWorkflowService camundaWorkflowService,
+                                        UserTypeService userTypeService) {
 
     this.appProcessingPermissionService = appProcessingPermissionService;
     this.applicationDetailSearcher = applicationDetailSearcher;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.camundaWorkflowService = camundaWorkflowService;
+    this.userTypeService = userTypeService;
   }
 
   public PageView<PwaApplicationWorkAreaItem> getPageView(AuthenticatedUserAccount authenticatedUserAccount,
@@ -71,17 +76,19 @@ public class ApplicationWorkAreaPageService {
 
   }
 
-  private Page<ApplicationDetailSearchItem> getApplicationSearchResults(WebUserAccount userAccount,
+  private Page<ApplicationDetailSearchItem> getApplicationSearchResults(AuthenticatedUserAccount userAccount,
                                                                         Set<Integer> applicationIdList,
                                                                         int pageRequest) {
 
-    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
+    var userType = userTypeService.getUserType(userAccount);
 
-    if (processingPermissions.contains(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY)) {
+    if (userType == UserType.INDUSTRY) {
       return getIndustrySearchResults(userAccount, pageRequest);
     }
 
     var searchStatuses = new HashSet<PwaApplicationStatus>();
+
+    var processingPermissions = appProcessingPermissionService.getGenericProcessingPermissions(userAccount);
 
     if (processingPermissions.contains(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW)) {
       searchStatuses.add(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);

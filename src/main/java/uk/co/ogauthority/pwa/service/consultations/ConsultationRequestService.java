@@ -165,11 +165,6 @@ public class ConsultationRequestService {
     }
   }
 
-
-
-
-
-
   public BindingResult validate(ConsultationRequestForm form, BindingResult bindingResult, PwaApplication pwaApplication) {
     consultationRequestValidator.validate(form, bindingResult,
         new ConsultationRequestValidationHints(this, consulteeGroupDetailService, pwaApplication));

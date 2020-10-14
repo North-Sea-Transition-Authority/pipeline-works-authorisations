@@ -104,6 +104,8 @@ public class ConsultationController {
   private ModelAndView getConsultationModelAndView(PwaAppProcessingContext pwaAppProcessingContext) {
 
     var pwaApplicationDetail = pwaAppProcessingContext.getApplicationDetail();
+    boolean canEditConsultations = pwaAppProcessingContext.getAppProcessingPermissions()
+        .contains(PwaAppProcessingPermission.EDIT_CONSULTATIONS);
 
     var modelAndView = new ModelAndView("consultation/consultation")
         .addObject("requestConsultationsUrl",
@@ -114,7 +116,8 @@ public class ConsultationController {
             consultationViewService.getConsultationRequestViews(pwaApplicationDetail.getPwaApplication()))
         .addObject("consultationsUrlFactory", new ConsultationsUrlFactory(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()))
-        .addObject("caseSummaryView", pwaAppProcessingContext.getCaseSummaryView());
+        .addObject("caseSummaryView", pwaAppProcessingContext.getCaseSummaryView())
+        .addObject("canEditConsultations", canEditConsultations);
 
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView,
         PwaAppProcessingTask.CONSULTATIONS.getTaskName());
