@@ -166,6 +166,8 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
 
     ControllerTestUtils.passValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
 
+    when(padOrganisationRoleService.doesApplicationHaveValidUsers(pwaApplicationDetail)).thenReturn(true);
+
     mockMvc.perform(post(ReverseRouter.route(on(HuooController.class)
         .postHuooSummary(
             pwaApplicationDetail.getPwaApplicationType(),

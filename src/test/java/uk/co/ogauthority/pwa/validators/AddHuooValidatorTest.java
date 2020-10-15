@@ -201,64 +201,6 @@ public class AddHuooValidatorTest {
     );
   }
 
-  @Test
-  public void validateIsPermissibleToAddUser_valid_addPortalOrg() {
-    var form = new HuooForm();
-    form.setHuooType(HuooType.PORTAL_ORG);
-    form.setHuooRoles(Set.of(HuooRole.USER));
-
-    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of());
-
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
-    assertThat(result).doesNotContain(
-        entry("huooType", Set.of("huooType" + FieldValidationErrorCodes.INVALID.getCode())));
-  }
-
-  @Test
-  public void validateIsPermissibleToAddUser_valid_addTreaty() {
-    var form = new HuooForm();
-    form.setHuooType(HuooType.TREATY_AGREEMENT);
-    form.setHuooRoles(Set.of(HuooRole.USER));
-
-    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of());
-
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
-    assertThat(result).doesNotContain(
-        entry("huooType", Set.of("huooType" + FieldValidationErrorCodes.INVALID.getCode())));
-  }
-
-  @Test
-  public void validateIsPermissibleToAddUser_invalid_addPortalOrgWhileTreatyExists() {
-    var form = new HuooForm();
-    form.setHuooType(HuooType.PORTAL_ORG);
-    form.setHuooRoles(Set.of(HuooRole.USER));
-
-    var padOrgRole = new PadOrganisationRole();
-    padOrgRole.setRole(HuooRole.USER);
-    padOrgRole.setType(HuooType.TREATY_AGREEMENT);
-    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole));
-
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
-    assertThat(result).contains(
-        entry("huooType", Set.of("huooType" + FieldValidationErrorCodes.INVALID.getCode())));
-  }
-
-  @Test
-  public void validateIsPermissibleToAddUser_invalid_addTreatyWhilePortalOrgExists() {
-    var form = new HuooForm();
-    form.setHuooType(HuooType.TREATY_AGREEMENT);
-    form.setHuooRoles(Set.of(HuooRole.USER));
-
-    var padOrgRole = new PadOrganisationRole();
-    padOrgRole.setRole(HuooRole.USER);
-    padOrgRole.setType(HuooType.PORTAL_ORG);
-    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(padOrgRole));
-
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
-    assertThat(result).contains(
-        entry("huooType", Set.of("huooType" + FieldValidationErrorCodes.INVALID.getCode())));
-  }
-
 
   private HuooForm buildForm() {
 

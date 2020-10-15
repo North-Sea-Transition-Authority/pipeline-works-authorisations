@@ -28,7 +28,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo.AddHuooContr
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
@@ -276,16 +275,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     form.setOrganisationUnitId(role.getOrganisationUnit().getOuId());
   }
 
-  public void mapTreatyAgreementToForm(PwaApplicationDetail pwaApplicationDetail, PadOrganisationRole organisationRole,
-                                       HuooForm form) {
-    if (organisationRole.getAgreement() == null) {
-      throw new ActionNotAllowedException(
-          "Attempting to edit a non-treaty agreement org with ID: " + organisationRole.getId());
-    }
-    form.setHuooType(organisationRole.getType());
-    form.setHuooRoles(Set.of(organisationRole.getRole()));
-  }
-
   /**
    * Removes existing linked entries of the organisationUnit, and creates the entries from the form information.
    *
@@ -339,12 +328,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       rolesToSave.add(padOrganisationRole);
     }
     padOrganisationRolesRepository.saveAll(rolesToSave);
-  }
-
-  @Transactional
-  public void updateEntityUsingForm(PadOrganisationRole organisationRole, HuooForm form) {
-    organisationRole.setAgreement(TreatyAgreement.ANY_TREATY_COUNTRY);
-    padOrganisationRolesRepository.save(organisationRole);
   }
 
   @Transactional
@@ -732,6 +715,21 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         operatorOrgRolePipelineGroups,
         ownerOrgRolePipelineGroups
     );
+  }
+
+
+
+  public boolean doesApplicationHaveValidUsers(PwaApplicationDetail pwaApplicationDetail) {
+
+    var totalUserPortalOrgsOnApp = padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, HuooRole.USER, HuooType.PORTAL_ORG);
+
+    var totalUserTreatiesOnApp = padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        pwaApplicationDetail, HuooRole.USER, HuooType.TREATY_AGREEMENT);
+
+    return totalUserPortalOrgsOnApp > 0 && totalUserTreatiesOnApp > 0 ? false : true;
+
+
   }
 
 }

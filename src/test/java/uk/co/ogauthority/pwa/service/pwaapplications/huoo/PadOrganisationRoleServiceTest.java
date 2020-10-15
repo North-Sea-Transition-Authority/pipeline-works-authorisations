@@ -320,19 +320,6 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
-  public void mapPadOrganisationRoleToForm_treaty() {
-
-    var form = new HuooForm();
-
-    padOrganisationRoleService.mapTreatyAgreementToForm(detail, padAnyTreatyCountryRole, form);
-
-    assertThat(form.getHuooType()).isEqualTo(padAnyTreatyCountryRole.getType());
-    assertThat(form.getHuooRoles()).containsExactlyInAnyOrderElementsOf(Set.of(padAnyTreatyCountryRole.getRole()));
-    assertThat(form.getOrganisationUnitId()).isNull();
-
-  }
-
-  @Test
   public void saveEntityUsingForm_org() {
 
     var form = new HuooForm();
@@ -436,25 +423,7 @@ public class PadOrganisationRoleServiceTest {
         .containsExactly(HuooRole.USER);
   }
 
-  @Test
-  public void updateEntityUsingForm_treaty() {
-    var form = new HuooForm();
-
-    var org = new PadOrganisationRole();
-    org.setType(HuooType.TREATY_AGREEMENT);
-    org.setRole(HuooRole.USER);
-
-    padOrganisationRoleService.updateEntityUsingForm(org, form);
-
-    verify(padOrganisationRolesRepository, times(1)).save(org);
-
-    assertThat(org.getType()).isEqualTo(HuooType.TREATY_AGREEMENT);
-    assertThat(org.getOrganisationUnit()).isNull();
-    assertThat(org.getAgreement()).isEqualTo(TreatyAgreement.ANY_TREATY_COUNTRY);
-    assertThat(org.getRole()).isEqualTo(HuooRole.USER);
-  }
-
-  @Test
+   @Test
   public void addHolder() {
 
     var newOrgUnit = PortalOrganisationTestUtils.getOrganisationUnit();
@@ -963,6 +932,51 @@ public class PadOrganisationRoleServiceTest {
     assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
     assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
 
+  }
+
+  @Test
+  public void doesApplicationHaveValidUsers_invalid() {
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.PORTAL_ORG))
+        .thenReturn(1L);
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
+        .thenReturn(1L);
+
+    var result = padOrganisationRoleService.doesApplicationHaveValidUsers(detail);
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void doesApplicationHaveValidUsers_valid_treatyAndNoOrg() {
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.PORTAL_ORG))
+        .thenReturn(0L);
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
+        .thenReturn(1L);
+
+    var result = padOrganisationRoleService.doesApplicationHaveValidUsers(detail);
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void doesApplicationHaveValidUsers_valid_orgAndNoTreaty() {
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.PORTAL_ORG))
+        .thenReturn(1L);
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
+        .thenReturn(0L);
+
+    var result = padOrganisationRoleService.doesApplicationHaveValidUsers(detail);
+    assertThat(result).isTrue();
   }
 
 

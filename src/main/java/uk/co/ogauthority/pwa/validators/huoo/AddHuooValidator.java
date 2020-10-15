@@ -63,11 +63,6 @@ public class AddHuooValidator implements SmartValidator {
       }
     }
 
-    if (!isPermissibleToAddUser(form.getHuooType(), form.getHuooRoles(), roles)) {
-      errors.rejectValue("huooType", "huooType" + FieldValidationErrorCodes.INVALID.getCode(),
-          "You cannot define both a treaty agreement and legal entities as users");
-    }
-
     var holderCount = roles.stream()
         .filter(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER))
         .count();
@@ -94,20 +89,7 @@ public class AddHuooValidator implements SmartValidator {
     }
   }
 
-  private boolean isPermissibleToAddUser(
-      HuooType userHuooTypeToAdd, Set<HuooRole> userHuooRolesToAdd, List<PadOrganisationRole> existingOrgRoles) {
 
-    for (PadOrganisationRole existingOrgRole: existingOrgRoles) {
-      if (existingOrgRole.getRole().equals(HuooRole.USER)
-          && ((existingOrgRole.getType().equals(HuooType.TREATY_AGREEMENT)
-            && userHuooRolesToAdd != null && userHuooRolesToAdd.contains(HuooRole.USER) && userHuooTypeToAdd.equals(HuooType.PORTAL_ORG))
-          || (existingOrgRole.getType().equals(HuooType.PORTAL_ORG) && userHuooTypeToAdd.equals(HuooType.TREATY_AGREEMENT)))) {
-        return false;
-      }
-    }
-
-    return true;
-  }
 
 
 }

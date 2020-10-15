@@ -264,7 +264,7 @@ public class PwaConsentOrganisationRoleServiceTest {
 
     var orgPipelineRoleInstanceDto2 = new OrganisationPipelineRoleInstanceDto(
         null,
-        TreatyAgreement.BELGIUM,
+        TreatyAgreement.ANY_TREATY_COUNTRY,
         HuooRole.USER,
         HuooType.TREATY_AGREEMENT,
         1,
@@ -335,7 +335,7 @@ public class PwaConsentOrganisationRoleServiceTest {
     var userTreatyOrgRolePipelineGroup = actualView.getUserOrgRolePipelineGroups().get(0);
     assertThat(userTreatyOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.TREATY_AGREEMENT);
     assertThat(userTreatyOrgRolePipelineGroup.getCompanyName()).isNull();
-    assertThat(userTreatyOrgRolePipelineGroup.getTreatyAgreement()).isEqualTo(TreatyAgreement.BELGIUM);
+    assertThat(userTreatyOrgRolePipelineGroup.getTreatyAgreement()).isEqualTo(TreatyAgreement.ANY_TREATY_COUNTRY);
     assertThat(userTreatyOrgRolePipelineGroup.getRegisteredNumber()).isNull();
     assertThat(userTreatyOrgRolePipelineGroup.getCompanyAddress()).isNull();
     assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
