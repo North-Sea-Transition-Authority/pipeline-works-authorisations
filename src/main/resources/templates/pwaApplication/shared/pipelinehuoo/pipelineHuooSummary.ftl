@@ -19,8 +19,8 @@
 
   <@fdsInsetText.insetText>
   <p>Use the change/assign link shown for each group of pipelines to assign or update HUOOs for those pipelines.
-  <p>If the group of pipelines you want to assign HUOOs for is not shown then use the ‘Select pipelines and assign’ button to choose which pipelines to assign.</p>
-  <p>If you have a pipeline that has different HUOOs responsible for different parts of it you can use the ‘Split pipeline’ button to define each section with different HUOOs.</p>
+  <p>If the group of pipelines you want to assign HUOOs for is not shown then use the "Select pipelines and assign" button to choose which pipelines to assign.</p>
+  <p>If you have a pipeline that has different HUOOs responsible for different parts of it you can use the "Define pipeline split" button to define each section with different HUOOs.</p>
   </@fdsInsetText.insetText>
 
   <h2 class="govuk-heading-m">Holders</h2>
