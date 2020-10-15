@@ -42,13 +42,15 @@ public class PadOrganisationRoleTestUtil {
                                                                                         PortalOrganisationUnit portalOrganisationUnit,
                                                                                         Pipeline pipeline,
                                                                                         String fromLocation,
-                                                                                        String toLocation) {
+                                                                                        String toLocation,
+                                                                                        int sectionNumber) {
     var orgRole = createOrgRole(role, portalOrganisationUnit);
     var link = new PadPipelineOrganisationRoleLink(orgRole, pipeline);
     link.setFromLocation(fromLocation);
     link.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     link.setToLocation(toLocation);
     link.setToLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
+    link.setSectionNumber(sectionNumber);
     return link;
   }
 
@@ -56,13 +58,15 @@ public class PadOrganisationRoleTestUtil {
       PadOrganisationRole padOrganisationRole,
       Pipeline pipeline,
       String fromLocation,
-      String toLocation) {
+      String toLocation,
+      int sectionNumber) {
 
     var link = new PadPipelineOrganisationRoleLink(padOrganisationRole, pipeline);
     link.setFromLocation(fromLocation);
     link.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     link.setToLocation(toLocation);
     link.setToLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
+    link.setSectionNumber(sectionNumber);
     return link;
   }
 

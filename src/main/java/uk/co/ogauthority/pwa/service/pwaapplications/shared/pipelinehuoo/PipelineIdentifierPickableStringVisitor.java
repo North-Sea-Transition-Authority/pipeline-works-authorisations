@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 
 /**
 * Create the appropriate pickable string for pipelineIdentifiers base don what is being identified
@@ -19,8 +19,8 @@ class PipelineIdentifierPickableStringVisitor implements PipelineIdentifierVisit
   }
 
   @Override
-  public void visit(PipelineSegment pipelineSegment) {
-    this.pickableString = PickableHuooPipelineType.createPickableStringFrom(pipelineSegment);
+  public void visit(PipelineSection pipelineSection) {
+    this.pickableString = PickableHuooPipelineType.createPickableStringFrom(pipelineSection);
   }
 
   public String getPickableString() {

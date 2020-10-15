@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierTestUtil;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 public class OrganisationRolePipelineGroupDtoTest {
@@ -22,12 +22,12 @@ public class OrganisationRolePipelineGroupDtoTest {
 
   private OrganisationRoleInstanceDto organisationRoleInstanceDto;
   private PipelineId pipelineId;
-  private PipelineSegment pipelineSegment;
+  private PipelineSection pipelineSection;
 
   @Before
   public void setup() {
     pipelineId = new PipelineId(PIPELINE_ID);
-    pipelineSegment = PipelineIdentifierTestUtil.createInclusivePipelineSegment(SPLIT_PIPELINE_ID, "FROM", "TO");
+    pipelineSection = PipelineIdentifierTestUtil.createInclusivePipelineSection(SPLIT_PIPELINE_ID, "FROM", "TO");
 
     organisationRoleInstanceDto = OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(
         HuooRole.HOLDER,
@@ -79,11 +79,11 @@ public class OrganisationRolePipelineGroupDtoTest {
     var organisationRolePipelineGroupDto = new OrganisationRolePipelineGroupDto(organisationRoleInstanceDto,
         Set.of(
             pipelineId,
-            pipelineSegment
+            pipelineSection
         )
     );
     assertThat(organisationRolePipelineGroupDto.getPipelineIdentifiers()).isEqualTo(
-        Set.of(pipelineId, pipelineSegment));
+        Set.of(pipelineId, pipelineSection));
   }
 
   @Test(expected = UnsupportedOperationException.class)

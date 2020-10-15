@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstance
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierTestUtil;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,8 +31,8 @@ public class OrganisationRolesSummaryDtoTest {
 
   private PipelineId pipelineId1;
   private PipelineId pipelineId2;
-  private PipelineSegment pipelineSegment1;
-  private PipelineSegment pipelineSegment2;
+  private PipelineSection pipeline3Section1;
+  private PipelineSection pipeline3Section2;
 
 
   private OrganisationPipelineRoleInstanceDto holderOrg1Pipeline1Role;
@@ -50,8 +50,9 @@ public class OrganisationRolesSummaryDtoTest {
     pipelineId1 = new PipelineId(PIPELINE_ID1);
     pipelineId2 = new PipelineId(PIPELINE_ID2);
 
-    pipelineSegment1 = PipelineIdentifierTestUtil.createInclusivePipelineSegment(PIPELINE_ID3, PIPELINE_POINT_1, PIPELINE_POINT_2);
-    pipelineSegment2 = PipelineIdentifierTestUtil.createInclusivePipelineSegment(PIPELINE_ID3, PIPELINE_POINT_2, PIPELINE_POINT_3);
+    pipeline3Section1 = PipelineIdentifierTestUtil.createInclusivePipelineSection(PIPELINE_ID3, PIPELINE_POINT_1, PIPELINE_POINT_2);
+    pipeline3Section2 = PipelineIdentifierTestUtil.createInclusivePipelineSection(PIPELINE_ID3, PIPELINE_POINT_2, PIPELINE_POINT_3);
+
   }
 
 
@@ -66,6 +67,65 @@ public class OrganisationRolesSummaryDtoTest {
 
   }
 
+  @Test
+  public void getHolderOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+    var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+        HuooRole.HOLDER,
+        pipeline3Section1
+    );
+
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+        Set.of(holderOrg1Pipeline1Role, unassignedSplitPipeline3Section1Instance));
+    assertThat(summary.getHolderOrganisationUnitGroups())
+        .containsExactly(
+            new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)));
+
+  }
+
+  @Test
+  public void getUserOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+    var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+        HuooRole.USER,
+        pipeline3Section1
+    );
+
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+        Set.of(userOrg1Pipeline1Role, unassignedSplitPipeline3Section1Instance));
+    assertThat(summary.getUserOrganisationUnitGroups())
+        .containsExactly(
+            new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)));
+
+  }
+
+  @Test
+  public void getOperatorOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+    var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+        HuooRole.OPERATOR,
+        pipeline3Section1
+    );
+
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+        Set.of(operatorOrg1Pipeline1Role, unassignedSplitPipeline3Section1Instance));
+    assertThat(summary.getOperatorOrganisationUnitGroups())
+        .containsExactly(
+            new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)));
+
+  }
+
+  @Test
+  public void getOwnerOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+    var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+        HuooRole.OWNER,
+        pipeline3Section1
+    );
+
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+        Set.of(ownerOrg1Pipeline1Role, unassignedSplitPipeline3Section1Instance));
+    assertThat(summary.getOwnerOrganisationUnitGroups())
+        .containsExactly(
+            new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of(pipelineId1)));
+
+  }
 
   @Test(expected = UnsupportedOperationException.class)
   public void getHolderOrganisationUnitGroups_cannotModifyPopulatedSet() {
@@ -262,81 +322,89 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getHolderOrganisationUnitGroups_whenMultipleGroups_ofSegmentedPipelines_andWholePipelines() {
-    var ou1HolderSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.HOLDER, OU_ID1, pipelineSegment1);
-    var ou2HolderSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.HOLDER, OU_ID2, pipelineSegment2);
+  public void getHolderOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+    var ou1HolderSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.HOLDER, OU_ID1,
+        pipeline3Section1);
+    var ou2HolderSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.HOLDER, OU_ID2,
+        pipeline3Section2);
 
     var org1HolderOwnerDto = holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto();
-    var org2HolderOwnerDto = ou2HolderSegment.getOrganisationRoleInstanceDto();
+    var org2HolderOwnerDto = ou2HolderSection.getOrganisationRoleInstanceDto();
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(holderOrg1Pipeline1Role, ou1HolderSegment, ou2HolderSegment)
+        Set.of(holderOrg1Pipeline1Role, ou1HolderSection, ou2HolderSection)
     );
 
     assertThat(summary.getHolderOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(org1HolderOwnerDto, Set.of(pipelineId1, pipelineSegment1)),
-            new OrganisationRolePipelineGroupDto(org2HolderOwnerDto, Set.of(pipelineSegment2)
+            new OrganisationRolePipelineGroupDto(org1HolderOwnerDto, Set.of(pipelineId1, pipeline3Section1)),
+            new OrganisationRolePipelineGroupDto(org2HolderOwnerDto, Set.of(pipeline3Section2)
             )
         );
   }
 
   @Test
-  public void getUserOrganisationUnitGroups_whenMultipleGroups_ofSegmentedPipelines_andWholePipelines() {
-    var ou1UserSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.USER, OU_ID1, pipelineSegment1);
-    var ou2UserSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.USER, OU_ID2, pipelineSegment2);
+  public void getUserOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+    var ou1UserSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.USER, OU_ID1,
+        pipeline3Section1);
+    var ou2UserSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.USER, OU_ID2,
+        pipeline3Section2);
 
     var org1UserOwnerDto = userOrg1Pipeline1Role.getOrganisationRoleInstanceDto();
-    var org2UserOwnerDto = ou2UserSegment.getOrganisationRoleInstanceDto();
+    var org2UserOwnerDto = ou2UserSection.getOrganisationRoleInstanceDto();
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(userOrg1Pipeline1Role, ou1UserSegment, ou2UserSegment)
+        Set.of(userOrg1Pipeline1Role, ou1UserSection, ou2UserSection)
     );
 
     assertThat(summary.getUserOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(org1UserOwnerDto, Set.of(pipelineId1, pipelineSegment1)),
-            new OrganisationRolePipelineGroupDto(org2UserOwnerDto, Set.of(pipelineSegment2)
+            new OrganisationRolePipelineGroupDto(org1UserOwnerDto, Set.of(pipelineId1, pipeline3Section1)),
+            new OrganisationRolePipelineGroupDto(org2UserOwnerDto, Set.of(pipeline3Section2)
             )
         );
   }
 
   @Test
-  public void getOperatorOrganisationUnitGroups_whenMultipleGroups_ofSegmentedPipelines_andWholePipelines() {
-    var ou1OperatorSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.OPERATOR, OU_ID1, pipelineSegment1);
-    var ou2OperatorSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.OPERATOR, OU_ID2, pipelineSegment2);
+  public void getOperatorOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+    var ou1OperatorSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OPERATOR, OU_ID1,
+        pipeline3Section1);
+    var ou2OperatorSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OPERATOR, OU_ID2,
+        pipeline3Section2);
 
     var org1OperatorOwnerDto = operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto();
-    var org2OperatorOwnerDto = ou2OperatorSegment.getOrganisationRoleInstanceDto();
+    var org2OperatorOwnerDto = ou2OperatorSection.getOrganisationRoleInstanceDto();
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(operatorOrg1Pipeline1Role, ou1OperatorSegment, ou2OperatorSegment)
+        Set.of(operatorOrg1Pipeline1Role, ou1OperatorSection, ou2OperatorSection)
     );
 
     assertThat(summary.getOperatorOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(org1OperatorOwnerDto, Set.of(pipelineId1, pipelineSegment1)),
-            new OrganisationRolePipelineGroupDto(org2OperatorOwnerDto, Set.of(pipelineSegment2)
+            new OrganisationRolePipelineGroupDto(org1OperatorOwnerDto, Set.of(pipelineId1, pipeline3Section1)),
+            new OrganisationRolePipelineGroupDto(org2OperatorOwnerDto, Set.of(pipeline3Section2)
             )
         );
   }
 
   @Test
-  public void getOwnerOrganisationUnitGroups_whenMultipleGroups_ofSegmentedPipelines_andWholePipelines() {
-    var ou1OwnerSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.OWNER, OU_ID1, pipelineSegment1);
-    var ou2OwnerSegment = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSegmentRoleInstance(HuooRole.OWNER, OU_ID2, pipelineSegment2);
+  public void getOwnerOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+    var ou1OwnerSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OWNER, OU_ID1,
+        pipeline3Section1);
+    var ou2OwnerSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OWNER, OU_ID2,
+        pipeline3Section2);
 
     var org1OwnerOwnerDto = ownerOrg1Pipeline1Role.getOrganisationRoleInstanceDto();
-    var org2OwnerOwnerDto = ou2OwnerSegment.getOrganisationRoleInstanceDto();
+    var org2OwnerOwnerDto = ou2OwnerSection.getOrganisationRoleInstanceDto();
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(ownerOrg1Pipeline1Role, ou1OwnerSegment, ou2OwnerSegment)
+        Set.of(ownerOrg1Pipeline1Role, ou1OwnerSection, ou2OwnerSection)
     );
 
     assertThat(summary.getOwnerOrganisationUnitGroups())
         .containsExactlyInAnyOrder(
-            new OrganisationRolePipelineGroupDto(org1OwnerOwnerDto, Set.of(pipelineId1, pipelineSegment1)),
-            new OrganisationRolePipelineGroupDto(org2OwnerOwnerDto, Set.of(pipelineSegment2)
+            new OrganisationRolePipelineGroupDto(org1OwnerOwnerDto, Set.of(pipelineId1, pipeline3Section1)),
+            new OrganisationRolePipelineGroupDto(org2OwnerOwnerDto, Set.of(pipeline3Section2)
             )
         );
   }

@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
@@ -35,6 +35,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
             null,
             null,
             null,
+            null,
             null);
 
         assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
@@ -50,7 +51,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
   }
 
   @Test
-  public void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenPipelineSegments() {
+  public void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenPipelineSections() {
 
     for (HuooRole role : HuooRole.values()) {
       for (HuooType type : HuooType.values()) {
@@ -64,15 +65,17 @@ public class OrganisationPipelineRoleInstanceDtoTest {
             "Start",
             IdentLocationInclusionMode.INCLUSIVE,
             "End",
-            IdentLocationInclusionMode.EXCLUSIVE);
+            IdentLocationInclusionMode.EXCLUSIVE,
+            500);
 
         assertThat(organisationPipelineRoleDto.getHuooRole()).isEqualTo(role);
         assertThat(organisationPipelineRoleDto.getHuooType()).isEqualTo(type);
         assertThat(organisationPipelineRoleDto.getPipelineIdentifier()).satisfies(pipelineIdentifier -> {
-          var pipelineSegment = (PipelineSegment) pipelineIdentifier;
-          assertThat(pipelineSegment.getFromPoint()).isEqualTo(PipelineIdentPoint.inclusivePoint("Start"));
-          assertThat(pipelineSegment.getToPoint()).isEqualTo(PipelineIdentPoint.exclusivePoint("End"));
-          assertThat(pipelineSegment.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
+          var pipelineSection = (PipelineSection) pipelineIdentifier;
+          assertThat(pipelineSection.getFromPoint()).isEqualTo(PipelineIdentPoint.inclusivePoint("Start"));
+          assertThat(pipelineSection.getToPoint()).isEqualTo(PipelineIdentPoint.exclusivePoint("End"));
+          assertThat(pipelineSection.getPipelineId()).isEqualTo(new PipelineId(PIPELINE_ID));
+          assertThat(pipelineSection.getSectionNumber()).isEqualTo(500);
         });
         assertThat(organisationPipelineRoleDto.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(OU_ID));
 

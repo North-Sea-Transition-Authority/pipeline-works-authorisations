@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
@@ -226,8 +226,8 @@ public class PickableHuooPipelineOption {
     }
 
     @Override
-    public void visit(PipelineSegment pipelineSegment) {
-      this.splitInfoDetails = StringUtils.capitalize(pipelineSegment.getDisplayString());
+    public void visit(PipelineSection pipelineSection) {
+      this.splitInfoDetails = StringUtils.capitalize(pipelineSection.getDisplayString());
     }
 
     public String getSplitInfoDetails() {
