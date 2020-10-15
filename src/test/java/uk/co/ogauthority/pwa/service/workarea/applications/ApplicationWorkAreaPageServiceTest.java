@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
@@ -40,6 +41,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationDetailSearcher;
 import uk.co.ogauthority.pwa.service.pwaapplications.search.ApplicationSearchTestUtil;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
@@ -65,6 +67,9 @@ public class ApplicationWorkAreaPageServiceTest {
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
+  @Mock
+  private UserTypeService userTypeService;
+
   private ApplicationWorkAreaPageService appWorkAreaPageService;
 
   private AuthenticatedUserAccount workAreaUser = new AuthenticatedUserAccount(
@@ -83,13 +88,13 @@ public class ApplicationWorkAreaPageServiceTest {
         applicationDetailSearcher,
         pwaContactService,
         pwaApplicationRedirectService,
-        camundaWorkflowService);
+        camundaWorkflowService,
+        userTypeService);
 
     when(appProcessingPermissionService.getGenericProcessingPermissions(pwaManager)).thenReturn(Set.of(
         PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
 
-    when(appProcessingPermissionService.getGenericProcessingPermissions(workAreaUser))
-        .thenReturn(Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY));
+    when(userTypeService.getUserType(workAreaUser)).thenReturn(UserType.INDUSTRY);
 
     when(camundaWorkflowService.filterBusinessKeysByWorkflowTypeAndActiveTasksContains(
         eq(WorkflowType.PWA_APPLICATION),
@@ -206,6 +211,7 @@ public class ApplicationWorkAreaPageServiceTest {
 
   @Test
   public void getPageView_viewUrlWhenApplicationStatusInitialSubmission_userIsWorkAreaUser() {
+
     var searchItem = ApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
     setupFakeApplicationSearchResultPage(List.of(searchItem), REQUESTED_PAGE);

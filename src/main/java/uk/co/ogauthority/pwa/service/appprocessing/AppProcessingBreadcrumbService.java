@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.controller.appprocessing.decision.AppConsentDocController;
+import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 
 @Service
 public class AppProcessingBreadcrumbService {
@@ -26,6 +28,17 @@ public class AppProcessingBreadcrumbService {
     crumbs.put(ReverseRouter.route(on(AppConsentDocController.class)
         .renderConsentDocEditor(pwaApplication.getId(), pwaApplication.getApplicationType(), null, null)),
         "Consent document");
+
+    addAttrs(modelAndView, crumbs, thisPage);
+
+  }
+
+  public void fromConsultations(PwaApplication application, ModelAndView modelAndView, String thisPage) {
+
+    var crumbs = caseManagement(application);
+
+    crumbs.put(ReverseRouter.route(on(ConsultationController.class).renderConsultations(application.getId(),
+        application.getApplicationType(), null, null)), PwaAppProcessingTask.CONSULTATIONS.getTaskName());
 
     addAttrs(modelAndView, crumbs, thisPage);
 

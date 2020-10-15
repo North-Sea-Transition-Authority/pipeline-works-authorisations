@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
@@ -60,10 +59,7 @@ public class RequestApplicationUpdateController {
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           @ModelAttribute("form") ApplicationUpdateRequestForm form) {
 
-    return whenZeroOpenUpdateRequests(
-        processingContext.getApplicationDetail(),
-        this::getModelAndView
-    );
+    return whenZeroOpenUpdateRequests(processingContext, this::getModelAndView);
   }
 
 
@@ -75,10 +71,8 @@ public class RequestApplicationUpdateController {
                                     AuthenticatedUserAccount authenticatedUserAccount,
                                     @Valid @ModelAttribute("form") ApplicationUpdateRequestForm form,
                                     BindingResult bindingResult) {
-    return whenZeroOpenUpdateRequests(
-        processingContext.getApplicationDetail(),
-        pwaApplicationDetail -> {
-          var modelAndView = getModelAndView(processingContext.getApplicationDetail());
+    return whenZeroOpenUpdateRequests(processingContext, pwaApplicationDetail -> {
+          var modelAndView = getModelAndView(processingContext);
           return controllerHelperService.checkErrorsAndRedirect(
               bindingResult,
               modelAndView,
@@ -98,7 +92,9 @@ public class RequestApplicationUpdateController {
 
   }
 
-  private ModelAndView getModelAndView(PwaApplicationDetail pwaApplicationDetail) {
+  private ModelAndView getModelAndView(PwaAppProcessingContext processingContext) {
+
+    var pwaApplicationDetail = processingContext.getApplicationDetail();
 
     var caseManagementUrl = ReverseRouter.route(on(CaseManagementController.class)
         .renderCaseManagement(
@@ -112,7 +108,8 @@ public class RequestApplicationUpdateController {
     var modelAndView = new ModelAndView("appprocessing/requestApplicationUpdate")
         .addObject("appRef", pwaApplicationDetail.getPwaApplicationRef())
         .addObject("errorList", List.of())
-        .addObject("cancelUrl", caseManagementUrl);
+        .addObject("cancelUrl", caseManagementUrl)
+        .addObject("caseSummaryView", processingContext.getCaseSummaryView());
 
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView, "Request update");
 
@@ -120,13 +117,18 @@ public class RequestApplicationUpdateController {
 
   }
 
-  private ModelAndView whenZeroOpenUpdateRequests(PwaApplicationDetail pwaApplicationDetail,
-                                                  Function<PwaApplicationDetail, ModelAndView> doWhenZeroUpdateRequests) {
+  private ModelAndView whenZeroOpenUpdateRequests(PwaAppProcessingContext processingContext,
+                                                  Function<PwaAppProcessingContext, ModelAndView> doWhenZeroUpdateRequests) {
+
+    var pwaApplicationDetail = processingContext.getApplicationDetail();
+
     if (applicationUpdateRequestService.applicationDetailHasOpenUpdateRequest(pwaApplicationDetail)) {
       throw new AccessDeniedException(
           String.format("Pad_id: %s has open update request", pwaApplicationDetail.getId()));
     }
-    return doWhenZeroUpdateRequests.apply(pwaApplicationDetail);
+
+    return doWhenZeroUpdateRequests.apply(processingContext);
+
   }
 
 

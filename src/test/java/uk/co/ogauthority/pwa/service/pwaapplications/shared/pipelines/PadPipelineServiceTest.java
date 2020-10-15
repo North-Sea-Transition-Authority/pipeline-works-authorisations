@@ -325,41 +325,6 @@ public class PadPipelineServiceTest {
 
   }
 
-  @Test
-  public void getWholePadPipelineSummaryDtoForApp(){
-    var padPipeline = new PadPipeline();
-    padPipeline.setId(1);
-    Pipeline pipeline = new Pipeline();
-    pipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
-    var summaryDto = generateFrom(padPipeline);
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail))
-        .thenReturn(List.of(summaryDto));
-
-    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication())).thenReturn(List.of());
-
-   var wholePadPipelineSummaryDto = padPipelineService.getWholePadPipelineSummaryDtoForApp(detail);
-   assertThat(wholePadPipelineSummaryDto).contains(entry(new PipelineId(1), summaryDto));
-  }
-
-  @Test
-  public void getWholePadPipelineSummaryDtoForApp_withConsentedPipelineIdentifiers(){
-    var padPipeline = new PadPipeline();
-    padPipeline.setId(1);
-    Pipeline pipeline = new Pipeline();
-    pipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
-    var summaryDto = generateFrom(padPipeline);
-    when(padPipelineRepository.findAllPipelinesAsSummaryDtoByPwaApplicationDetail(detail))
-        .thenReturn(List.of(summaryDto));
-
-    var pipelineDetail = new PipelineDetail();
-    pipelineDetail.setPipeline(pipeline);
-    when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication())).thenReturn(List.of(pipelineDetail));
-
-    var wholePadPipelineSummaryDto = padPipelineService.getWholePadPipelineSummaryDtoForApp(detail);
-    assertThat(wholePadPipelineSummaryDto).contains(entry(new PipelineId(1), summaryDto));
-  }
 
   @Test
   public void getPipelines() {

@@ -30,14 +30,14 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryService;
+import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationSubmissionService;
-import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
+import uk.co.ogauthority.pwa.testutils.ApplicationSummaryViewTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -54,10 +54,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   private PwaApplicationSubmissionService pwaApplicationSubmissionService;
 
   @MockBean
-  private ApplicationSummaryService applicationSummaryService;
-
-  @MockBean
-  private TemplateRenderingService templateRenderer;
+  private ApplicationSummaryViewService applicationSummaryViewService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -81,6 +78,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     when(pwaContactService.getContactRoles(eq(detail.getPwaApplication()), any()))
         .thenReturn(EnumSet.allOf(PwaContactRole.class));
+
+    when(applicationSummaryViewService.getApplicationSummaryView(any())).thenReturn(ApplicationSummaryViewTestUtils.getView());
+
   }
 
   private void setupReviewEndpointEndpointTester() {
@@ -197,7 +197,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         .andExpect(result -> result.getModelAndView().getViewName().equals(
             "pwaApplication/shared/submission/submitConfirmation/"));
 
-    verify(applicationSummaryService, times(1)).summarise(detail);
+    verify(applicationSummaryViewService, times(1)).getApplicationSummaryView(detail);
 
   }
 

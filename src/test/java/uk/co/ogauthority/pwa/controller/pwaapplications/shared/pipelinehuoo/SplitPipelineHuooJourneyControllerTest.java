@@ -34,6 +34,8 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -44,8 +46,11 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineIdentService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableIdentLocationOption;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.validators.pipelinehuoo.DefinePipelineHuooSectionsFormValidator;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickSplitPipelineFormValidator;
 
 
@@ -57,14 +62,22 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   private final int APP_ID = 10;
   private final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
 
-  private final int PIPELINE_ID = 1;
+  private final PipelineId PIPELINE_ID = new PipelineId(1);
   private final String PIPELINE_NAME = "PIPELINE";
+
+  private final int NUMBER_OF_SECTIONS = 3;
 
   @MockBean
   private PadPipelinesHuooService padPipelinesHuooService;
 
   @MockBean
   private PickSplitPipelineFormValidator pickSplitPipelineFormValidator;
+
+  @MockBean
+  private PickableHuooPipelineIdentService pickableHuooPipelineIdentService;
+
+  @MockBean
+  private DefinePipelineHuooSectionsFormValidator definePipelineHuooSectionsFormValidator;
 
   @Mock
   private PipelineOverview pipelineOverview;
@@ -77,18 +90,23 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   private WebUserAccount wua = new WebUserAccount(1);
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(wua, EnumSet.allOf(PwaUserPrivilege.class));
 
+  private PickableIdentLocationOption identOption1;
+  private PickableIdentLocationOption identOption2;
+
   @Before
   public void setup() {
     pipeline = new Pipeline();
-    pipeline.setId(PIPELINE_ID);
+    pipeline.setId(PIPELINE_ID.asInt());
 
-    when(pipelineOverview.getPipelineId()).thenReturn(PIPELINE_ID);
+    when(pipelineOverview.getPipelineId()).thenReturn(PIPELINE_ID.asInt());
     when(pipelineOverview.getPipelineName()).thenReturn(PIPELINE_NAME);
 
     when(padPipelinesHuooService.getSplitablePipelinesForAppAndMasterPwa(any()))
         .thenReturn(List.of(pipelineOverview));
     when(padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(any(), eq(pipeline.getPipelineId())))
         .thenReturn(pipelineOverview);
+
+    doAnswer(invocation -> invocation.getArgument(1)).when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any());
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID);
     when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
@@ -104,6 +122,16 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
             PwaApplicationType.DECOMMISSIONING)
         .setAllowedContactRoles(PwaContactRole.PREPARER)
         .setAllowedStatuses(PwaApplicationStatus.DRAFT);
+
+    identOption1 = new PickableIdentLocationOption(1, PickableIdentLocationOption.IdentPoint.FROM_LOCATION, "FROM");
+    identOption2 = new PickableIdentLocationOption(1, PickableIdentLocationOption.IdentPoint.TO_LOCATION, "TO");
+    when(pickableHuooPipelineIdentService.getSortedPickableIdentLocationOptions(any(), eq(PIPELINE_ID)))
+        .thenReturn(List.of(identOption1, identOption2));
+
+    when(padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
+        any(),
+        eq(PIPELINE_ID)
+    )).thenReturn(pipelineOverview);
   }
 
   @Test
@@ -159,7 +187,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
 
     assertThat(modelAndView.getModel()).containsKey("pipelineOptions");
     assertThat(((Map<String, String>)modelAndView.getModel().get("pipelineOptions")))
-        .containsExactly(entry(String.valueOf(PIPELINE_ID), PIPELINE_NAME));
+        .containsExactly(entry(String.valueOf(PIPELINE_ID.asInt()), PIPELINE_NAME));
 
     verify(padPipelinesHuooService, times(1)).getSplitablePipelinesForAppAndMasterPwa(pwaApplicationDetail);
 
@@ -254,4 +282,175 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     }).when(pickSplitPipelineFormValidator).validate(any(), any(), any());
   }
 
+  @Test
+  public void renderDefineSections_smokeCheckRolesAccess() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
+            ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).renderDefineSections(
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
+            ))));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderDefineSections_smokeCheckAppStatus() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
+            ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).renderDefineSections(
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
+            ))));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderDefineSections_smokeCheckAppType() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
+            ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).renderDefineSections(
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
+            ))));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void renderDefineSections_modelCheck_andServiceInteractions() throws Exception {
+
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
+        .renderDefineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+    )
+        .andExpect(status().isOk())
+        .andReturn().getModelAndView();
+
+    assertThat(modelAndView.getModel()).containsKey("pickableIdentOptions");
+    assertThat(((Map<String, String>)modelAndView.getModel().get("pickableIdentOptions")))
+        .containsExactly(
+            entry(String.valueOf(identOption1.getPickableString()), identOption1.getDisplayString()),
+            entry(String.valueOf(identOption2.getPickableString()), identOption2.getDisplayString())
+        );
+
+    verify(pickableHuooPipelineIdentService, times(1))
+        .getSortedPickableIdentLocationOptions(pwaApplicationDetail, PIPELINE_ID);
+
+  }
+
+  @Test
+  public void renderDefineSections_whenPipelineNotSplittable() throws Exception {
+
+    when(padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
+       any(),
+        any())
+    ).thenThrow(new PwaEntityNotFoundException("fake error"));
+
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
+        .renderDefineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+    )
+        .andExpect(status().isNotFound());
+  }
+
+
+  @Test
+  public void defineSections_smokeCheckRolesAccess() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
+            ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).defineSections(
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+            ))));
+
+    endpointTester.performAppContactRoleCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void defineSections_smokeCheckAppStatus() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
+            ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).defineSections(
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+            ))));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void defineSections_smokeCheckAppType() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
+            ReverseRouter.route(on(SplitPipelineHuooJourneyController.class).defineSections(
+                pwaApplicationType, pwaApplicationDetail.getMasterPwaApplicationId(), DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+            ))));
+
+    endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void defineSections_modelCheck_andServiceInteractions() throws Exception {
+
+    var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
+        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+    )
+        .andExpect(status().isOk())
+        .andReturn().getModelAndView();
+
+
+  }
+
+  @Test
+  public void defineSections_whenPipelineNotSplittable() throws Exception {
+
+    when(padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
+        any(),
+        any())
+    ).thenThrow(new PwaEntityNotFoundException("fake error"));
+
+    var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
+        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+    )
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void defineSections_whenValidationFails() throws Exception {
+
+    doAnswer(invocation -> {
+      ((BindingResult) invocation.getArgument(1)).rejectValue("pipelineSectionPoints", "pipelineSectionPoints.fake", "fake msg");
+      return invocation;
+    })
+        .when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any());
+
+    var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
+        .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null
+        )))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+    )
+        .andExpect(status().isOk());
+
+
+  }
 }

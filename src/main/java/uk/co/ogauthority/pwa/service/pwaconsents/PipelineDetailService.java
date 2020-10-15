@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,12 @@ public class PipelineDetailService {
 
   public List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa) {
     return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa);
+  }
+
+  public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsForMasterPwaMap(MasterPwa masterPwa) {
+    return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa)
+        .stream()
+        .collect(toMap(PipelineId::from, pipelineOverview -> pipelineOverview));
   }
 
   public PipelineDetail getLatestByPipelineId(Integer id) {

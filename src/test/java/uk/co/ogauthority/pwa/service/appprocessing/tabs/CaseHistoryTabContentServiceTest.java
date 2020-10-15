@@ -51,7 +51,7 @@ public class CaseHistoryTabContentServiceTest {
   @Test
   public void getTabContentModelMap_caseHistoryTab_populated() {
 
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT);
+    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
 
     var caseHistoryList = List.of(
         new CaseHistoryItemView("Test header", Instant.now(), "Person label", new PersonId(1), Map.of())
@@ -71,7 +71,7 @@ public class CaseHistoryTabContentServiceTest {
   @Test
   public void getTabContentModelMap_differentTab_empty() {
 
-    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT);
+    var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
 
     var modelMap = caseHistoryTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
 
