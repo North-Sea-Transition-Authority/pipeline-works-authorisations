@@ -11,6 +11,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
@@ -358,6 +360,106 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     summary.getOrganisationRoleOwnersWithAssignedRole(HuooRole.HOLDER).add(
         OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID1)
     );
+  }
+
+  @Test
+  public void getGroupsByType_filtersOutRoleInstancesWhichAreNotAssignable() {
+
+    for (HuooRole role : HuooRole.values()) {
+      try {
+        var unassignedPipelineSectionRoleInstance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+            role,
+            PipelineSection.from(
+                new PipelineId(PIPELINE_ID1),
+                1,
+                PipelineIdentPoint.inclusivePoint("A"), PipelineIdentPoint.inclusivePoint("B")
+            ));
+        var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+            Set.of(unassignedPipelineSectionRoleInstance)
+        );
+
+        assertThat(summary.getGroupsByHuooRole(role)).isEmpty();
+
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at HuooRole:" + role + "\n" + e.getMessage(), e);
+
+      }
+    }
+  }
+
+  @Test
+  public void getAllPipelineIdentifiersInSummary_filtersOutRoleInstancesWhichAreNotAssignable() {
+
+    for (HuooRole role : HuooRole.values()) {
+      try {
+        var unassignedPipelineSectionRoleInstance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+            role,
+            PipelineSection.from(
+                new PipelineId(PIPELINE_ID1),
+                1,
+                PipelineIdentPoint.inclusivePoint("A"), PipelineIdentPoint.inclusivePoint("B")
+            ));
+        var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+            Set.of(unassignedPipelineSectionRoleInstance)
+        );
+
+        assertThat(summary.getAllPipelineIdentifiersInSummary()).isEmpty();
+
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at HuooRole:" + role + "\n" + e.getMessage(), e);
+
+      }
+    }
+  }
+
+  @Test
+  public void getOrganisationRoleOwnersWithAssignedRole_filtersOutRoleInstancesWhichAreNotAssignable() {
+
+    for (HuooRole role : HuooRole.values()) {
+      try {
+        var unassignedPipelineSectionRoleInstance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+            role,
+            PipelineSection.from(
+                new PipelineId(PIPELINE_ID1),
+                1,
+                PipelineIdentPoint.inclusivePoint("A"), PipelineIdentPoint.inclusivePoint("B")
+            ));
+        var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+            Set.of(unassignedPipelineSectionRoleInstance)
+        );
+
+        assertThat(summary.getOrganisationRoleOwnersWithAssignedRole(role)).isEmpty();
+
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at HuooRole:" + role + "\n" + e.getMessage(), e);
+
+      }
+    }
+  }
+
+  @Test
+  public void getAllOrganisationRoleOwnersInSummary_filtersOutRoleInstancesWhichAreNotAssignable() {
+
+    for (HuooRole role : HuooRole.values()) {
+      try {
+        var unassignedPipelineSectionRoleInstance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
+            role,
+            PipelineSection.from(
+                new PipelineId(PIPELINE_ID1),
+                1,
+                PipelineIdentPoint.inclusivePoint("A"), PipelineIdentPoint.inclusivePoint("B")
+            ));
+        var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
+            Set.of(unassignedPipelineSectionRoleInstance)
+        );
+
+        assertThat(summary.getAllOrganisationRoleOwnersInSummary()).isEmpty();
+
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed at HuooRole:" + role + "\n" + e.getMessage(), e);
+
+      }
+    }
   }
 
 }

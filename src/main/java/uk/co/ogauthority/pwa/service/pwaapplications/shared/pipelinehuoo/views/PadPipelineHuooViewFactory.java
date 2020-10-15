@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
 @Service
@@ -52,7 +53,7 @@ public class PadPipelineHuooViewFactory {
   private Map<OrganisationRoleOwnerDto, String> createOrganisationNameLookupFromOrgRoles(
       PwaApplicationDetail pwaApplicationDetail) {
 
-    Set<OrganisationRoleOwnerDto> allOrgsWithRole = padOrganisationRoleService.getOrganisationRoleDtos(
+    Set<OrganisationRoleOwnerDto> allOrgsWithRole = padOrganisationRoleService.getAssignableOrganisationRoleDtos(
         pwaApplicationDetail
     ).stream()
         .map(OrganisationRoleInstanceDto::getOrganisationRoleOwnerDto)
@@ -100,20 +101,6 @@ public class PadPipelineHuooViewFactory {
       PwaApplicationDetail pwaApplicationDetail,
       PipelineAndOrganisationRoleGroupSummaryDto pipelineAndOrganisationRoleGroupSummaryDto) {
 
-    Map<PipelineId, String> pipelineNumbers = padPipelineService.getApplicationOrConsentedPipelineNumberLookup(
-        pwaApplicationDetail
-    );
-
-    PipelineIdentifierDisplayNameVisitor pipelineIdentifierNameVisitor = new PipelineIdentifierDisplayNameVisitor(
-        pipelineNumbers);
-
-    // TODO PWA-673 is this overcomplicated? it avoids doing instance of checks and adding specific code for naming to these objects.
-    // visit every pipeline identifier to compute the display string
-    pipelineAndOrganisationRoleGroupSummaryDto.getAllPipelineIdentifiersInSummary()
-        .forEach(pipelineIdentifier -> pipelineIdentifier.accept(pipelineIdentifierNameVisitor));
-
-    Map<PipelineIdentifier, String> pipelineIdentifierStringLookup = pipelineIdentifierNameVisitor.getPipelineIdentifierStringLookup();
-
     Map<OrganisationRoleOwnerDto, String> organisationNameLookup = createOrganisationNameLookupFromOrgRoles(
         pwaApplicationDetail);
 
@@ -125,7 +112,6 @@ public class PadPipelineHuooViewFactory {
           createPipelineHuooRoleSummaryView(
               pwaApplicationDetail,
               role,
-              pipelineIdentifierStringLookup,
               organisationNameLookup,
               pipelineAndOrganisationRoleGroupSummaryDto
           )
@@ -145,7 +131,7 @@ public class PadPipelineHuooViewFactory {
   /**
    * Helper to create name lookup of only pipelines without a given huoo role.
    */
-  private Map<PipelineId, String> getUnassignedPipelineIdLookupForRole(
+  private Map<PipelineIdentifier, String> getUnassignedPipelineIdLookupForRole(
       Map<PipelineIdentifier, String> pipelineNumberLookup,
       Set<PipelineId> pipelineIdsWithOrgRole) {
     // Minus the pipelines attached to a role from the complete pipeline set for the application and PWA
@@ -171,7 +157,7 @@ public class PadPipelineHuooViewFactory {
       Map<OrganisationRoleOwnerDto, String> organisationRoleOwnerNameLookup,
       Set<OrganisationRoleOwnerDto> organisationRoleOwnersWithRole) {
 
-    Set<OrganisationRoleOwnerDto> allOrgRoleOwnersWithRole = padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(
+    Set<OrganisationRoleOwnerDto> allOrgRoleOwnersWithRole = padOrganisationRoleService.getAssignableOrganisationRoleInstanceDtosByRole(
         pwaApplicationDetail,
         huooRole
     ).stream()
@@ -186,18 +172,20 @@ public class PadPipelineHuooViewFactory {
   private PipelineHuooRoleSummaryView createPipelineHuooRoleSummaryView(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole,
-      Map<PipelineIdentifier, String> pipelineNumberLookup,
       Map<OrganisationRoleOwnerDto, String> organisationRoleOwnerNameLookup,
       PipelineAndOrganisationRoleGroupSummaryDto pipelineAndOrganisationRoleGroupSummaryDto) {
 
-    Map<PipelineId, String> unassignedPipelineIdsForRole = getUnassignedPipelineIdLookupForRole(
-        pipelineNumberLookup,
-        // A pipeline is either split, and completely covered, or something changes and the splits are removed so only using
-        // a whole pipeline, represented by the id, is what we want for this param.
-        pipelineAndOrganisationRoleGroupSummaryDto.getPipelineIdsWithAssignedRole(huooRole).stream()
-            .map(PipelineIdentifier::getPipelineId)
-            .collect(Collectors.toSet())
-    );
+    var pipelineNumberLookupForRole = padOrganisationRoleService.getAllPipelineNumbersAndSplitsForRole(
+        pwaApplicationDetail, huooRole);
+
+    var unassignedPipelineIdentifiersForRole = pipelineNumberLookupForRole
+        .entrySet()
+        .stream()
+        .filter(entry -> !pipelineAndOrganisationRoleGroupSummaryDto.getPipelineIdsWithAssignedRole(huooRole).contains(entry.getKey()))
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            numbersAndSplitsEntry -> getPipelineDisplayName(numbersAndSplitsEntry.getValue()))
+        );
 
     Map<OrganisationRoleOwnerDto, String> unassignedOrganisationRoleOwnersForRole = getUnassignedOrganisationRoleOwnerNameLookupForRole(
         pwaApplicationDetail,
@@ -210,18 +198,28 @@ public class PadPipelineHuooViewFactory {
         huooRole,
         createPipelineAndOrgGroupsForRole(
             huooRole,
-            pipelineNumberLookup,
+            pipelineNumberLookupForRole,
             organisationRoleOwnerNameLookup,
             pipelineAndOrganisationRoleGroupSummaryDto
         ),
-        unassignedPipelineIdsForRole,
+        unassignedPipelineIdentifiersForRole,
         unassignedOrganisationRoleOwnersForRole
+    );
+  }
+
+  private String getPipelineDisplayName(PipelineNumbersAndSplits pipelineNumbersAndSplits) {
+    return pipelineNumbersAndSplits.getSplitInfo() == null
+        ? pipelineNumbersAndSplits.getPipelineNumber()
+        : String.format(
+        "%s (%s)",
+        pipelineNumbersAndSplits.getPipelineNumber(),
+        pipelineNumbersAndSplits.getSplitInfo()
     );
   }
 
   private List<PipelinesAndOrgRoleGroupView> createPipelineAndOrgGroupsForRole(
       HuooRole huooRole,
-      Map<PipelineIdentifier, String> pipelineNumberLookup,
+      Map<PipelineIdentifier, PipelineNumbersAndSplits> pipelineNumberLookup,
       Map<OrganisationRoleOwnerDto, String> organisationRoleOwnerNameLookup,
       PipelineAndOrganisationRoleGroupSummaryDto pipelineAndOrganisationRoleGroupSummaryDto) {
 
@@ -231,6 +229,7 @@ public class PadPipelineHuooViewFactory {
         huooRole)) {
       var pipelineNumberList = roleGroup.getPipelineIdentifierSet().stream()
           .map(pipelineNumberLookup::get)
+          .map(this::getPipelineDisplayName)
           .sorted(Comparator.comparing(String::toLowerCase))
           .collect(Collectors.toList());
 

@@ -217,7 +217,7 @@ public class PickHuooPipelinesFormValidatorTest {
   public void validate_whenFullValidationHint_andInvalidTreatyPicked() {
 
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
-    when(padOrganisationRoleService.getOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
+    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
         .thenReturn(
             List.of(
                 PadOrganisationRole.fromTreatyAgreement(
@@ -245,7 +245,7 @@ public class PickHuooPipelinesFormValidatorTest {
   public void validate_whenFullValidationHint_andInvalidTreatyPicked_andValidTreatyAlsoPicked() {
 
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
-    when(padOrganisationRoleService.getOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
+    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
         .thenReturn(
             List.of(
                 PadOrganisationRole.fromTreatyAgreement(
@@ -274,7 +274,7 @@ public class PickHuooPipelinesFormValidatorTest {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
     var validPortalOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(VALID_ORG_UNIT_ID, "name", null);
-    when(padOrganisationRoleService.getOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
+    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(pwaApplicationDetail, HUOO_ROLE))
         .thenReturn(
             List.of(
                 PadOrganisationRole.fromOrganisationUnit(

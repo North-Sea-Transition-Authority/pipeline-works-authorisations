@@ -159,7 +159,7 @@ public class PickHuooPipelinesFormValidator implements SmartValidator {
 
     // do sanity checking of pipeline data and organisation role
     if (!errors.hasErrors()) {
-      var allPadOrgRoles = padOrganisationRoleService.getOrgRolesForDetailByRole(pwaApplicationDetail, huooRole);
+      var allPadOrgRoles = padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(pwaApplicationDetail, huooRole);
       var validOrgUnitIdsForRole = allPadOrgRoles.stream()
           // attempt to obey demeter, probably without merit.
           .filter(o -> o.getType().equals(HuooType.PORTAL_ORG))

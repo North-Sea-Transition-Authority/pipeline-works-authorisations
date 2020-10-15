@@ -171,7 +171,7 @@ public class PadPipelinesHuooServiceTest {
     var org2HolderRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit2,
         HuooRole.HOLDER);
 
-    when(padOrganisationRoleService.getOrgRolesForDetailByRole(any(), any()))
+    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(any(), any()))
         .thenReturn(List.of(org1HolderRole, org2HolderRole));
 
     var foundRoles = padPipelinesHuooService.getAssignablePadOrganisationRolesFrom(
@@ -181,7 +181,7 @@ public class PadPipelinesHuooServiceTest {
         Set.of(treatyAgreement));
 
     assertThat(foundRoles).containsExactlyInAnyOrder(org1HolderRole, org2HolderRole);
-    verify(padOrganisationRoleService, times(1)).getOrgRolesForDetailByRole(
+    verify(padOrganisationRoleService, times(1)).getAssignableOrgRolesForDetailByRole(
         pwaApplicationDetail,
         HuooRole.HOLDER
     );
@@ -193,7 +193,7 @@ public class PadPipelinesHuooServiceTest {
         HuooRole.HOLDER);
 
 
-    when(padOrganisationRoleService.getOrgRolesForDetailByRole(any(), any()))
+    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(any(), any()))
         .thenReturn(List.of(treatyRole));
 
     var foundRoles = padPipelinesHuooService.getAssignablePadOrganisationRolesFrom(
@@ -214,7 +214,7 @@ public class PadPipelinesHuooServiceTest {
     var splitPipelineRole = PadOrganisationRole.forUnassignedSplitPipeline(pwaApplicationDetail, HuooRole.HOLDER);
 
 
-    when(padOrganisationRoleService.getOrgRolesForDetailByRole(any(), any()))
+    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(any(), any()))
         .thenReturn(List.of(treatyRole, splitPipelineRole));
 
     var foundRoles = padPipelinesHuooService.getAssignablePadOrganisationRolesFrom(
@@ -242,7 +242,7 @@ public class PadPipelinesHuooServiceTest {
         treatyAgreement,
         HuooRole.HOLDER);
 
-    when(padOrganisationRoleService.getOrgRolesForDetailByRole(pwaApplicationDetail, HuooRole.HOLDER))
+    when(padOrganisationRoleService.getAssignableOrgRolesForDetailByRole(pwaApplicationDetail, HuooRole.HOLDER))
         .thenReturn(List.of(org1HolderRole, org2HolderRole, orgTreatyHolderRole));
 
     var pipeline1 = new Pipeline();
@@ -348,7 +348,7 @@ public class PadPipelinesHuooServiceTest {
         OrganisationRoleDtoTestUtil.createOrganisationUnitOrgRoleInstance(role, validOrgUnitId)
 
     );
-    when(padOrganisationRoleService.getOrganisationRoleInstanceDtosByRole(
+    when(padOrganisationRoleService.getAssignableOrganisationRoleInstanceDtosByRole(
         pwaApplicationDetail,
         role
     )).thenReturn(validOrgRoleInstances);

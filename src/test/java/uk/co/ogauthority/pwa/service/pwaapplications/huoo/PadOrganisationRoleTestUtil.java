@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -51,6 +52,28 @@ public class PadOrganisationRoleTestUtil {
     link.setToLocation(toLocation);
     link.setToLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     link.setSectionNumber(sectionNumber);
+    return link;
+  }
+
+  public static PadPipelineOrganisationRoleLink createOrgRolePipelineSplitLink(HuooRole role,
+                                                                               PortalOrganisationUnit portalOrganisationUnit,
+                                                                               PipelineSection pipelineSection) {
+    var orgRole = createOrgRole(role, portalOrganisationUnit);
+    var pipeline = new Pipeline();
+    pipeline.setId(pipelineSection.getPipelineIdAsInt());
+    var link = new PadPipelineOrganisationRoleLink(orgRole, pipeline);
+    link.visit(pipelineSection);
+    return link;
+  }
+
+  public static PadPipelineOrganisationRoleLink createUnassignedPipelineSplitLink(HuooRole role,
+                                                                                  PipelineSection pipelineSection) {
+    var orgRole = createOrgRole(role);
+    orgRole.setType(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+    var pipeline = new Pipeline();
+    pipeline.setId(pipelineSection.getPipelineIdAsInt());
+    var link = new PadPipelineOrganisationRoleLink(orgRole, pipeline);
+    link.visit(pipelineSection);
     return link;
   }
 
