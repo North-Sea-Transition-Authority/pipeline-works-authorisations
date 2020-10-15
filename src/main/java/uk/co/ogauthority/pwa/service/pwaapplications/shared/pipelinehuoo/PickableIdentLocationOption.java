@@ -8,14 +8,16 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 /**
  * Defines points that can be selected as start of end points of a HUOO pipeline section.
  */
-public class PickableIdentLocationOption {
+public class PickableIdentLocationOption implements Comparable<PickableIdentLocationOption> {
 
   private final String pickableString;
   private final String displayString;
+  private final String locationName;
 
   public PickableIdentLocationOption(int identNumber, IdentPoint identPoint, String location) {
     this.pickableString = String.format("%s-%s", identNumber, identPoint);
     this.displayString = String.format("Ident %s %s %s", identNumber, identPoint.getMidStringDisplay(), location);
+    this.locationName = location;
   }
 
   static Set<PickableIdentLocationOption> createIdentLocationOptionsFrom(IdentView identView) {
@@ -43,8 +45,17 @@ public class PickableIdentLocationOption {
     return displayString;
   }
 
+  public String getLocationName() {
+    return locationName;
+  }
+
   public IdentPoint getIdentPoint() {
     return IdentPoint.valueOf(pickableString.substring(pickableString.indexOf("-") + 1));
+  }
+
+  @Override
+  public int compareTo(PickableIdentLocationOption pickableIdentLocationOption) {
+    return this.getSortKey().compareTo(pickableIdentLocationOption.getSortKey());
   }
 
   @Override
