@@ -31,6 +31,7 @@ public class SectionClauseCreator {
         clauseVersion.getText(),
         clauseVersion.getLevelOrder(),
         clauseVersion.getStatus(),
+        1,
         creatingPerson);
 
     return newVersion;
@@ -42,13 +43,14 @@ public class SectionClauseCreator {
                             String text,
                             Integer levelOrder,
                             SectionClauseVersionStatus status,
+                            Integer versionNo,
                             Person creatingPerson) {
     version.setName(name);
     version.setText(text);
     version.setLevelOrder(levelOrder);
     version.setStatus(status);
     version.setTipFlag(true);
-    version.setVersionNo(1);
+    version.setVersionNo(versionNo);
     version.setCreatedTimestamp(clock.instant());
     version.setCreatedByPersonId(creatingPerson.getId());
   }

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workflow.assignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +17,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -31,6 +35,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationConsultationWo
 import uk.co.ogauthority.pwa.service.enums.workflow.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -53,6 +58,9 @@ public class WorkflowAssignmentServiceTest {
 
   @Mock
   private ConsulteeGroupTeamService consulteeGroupTeamService;
+
+  @Mock
+  private TeamManagementService teamManagementService;
 
   private WorkflowAssignmentService workflowAssignmentService;
 
@@ -80,7 +88,7 @@ public class WorkflowAssignmentServiceTest {
         List.of(caseOfficerTeamMember, notCaseOfficer));
 
     workflowAssignmentService = new WorkflowAssignmentService(camundaWorkflowService, assignmentAuditService,
-        teamService, consulteeGroupTeamService, consultationRequestService);
+        teamService, consulteeGroupTeamService, consultationRequestService, teamManagementService);
 
     pwaApplicationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     consultationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION_CONSULTATION);
@@ -208,6 +216,48 @@ public class WorkflowAssignmentServiceTest {
 
     var genericMessageEvent = GenericMessageEvent.from(pwaApplicationSubject, testMessageName);
     workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(genericMessageEvent, mockWorkFlowTask);
+
+  }
+
+  @Test
+  public void getAssignee_assigneeExists_personExists_fullOptional() {
+
+    var person = new Person(1, null, null, null, null);
+
+    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
+    when(teamManagementService.getPerson(eq(1))).thenReturn(person);
+
+    var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
+
+    var retrievedPerson = workflowAssignmentService.getAssignee(taskInstance);
+
+    assertThat(retrievedPerson).contains(person);
+
+  }
+
+  @Test(expected = PwaEntityNotFoundException.class)
+  public void getAssignee_assigneeExists_personDoesntExist_error() {
+
+    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
+    when(teamManagementService.getPerson(eq(1))).thenThrow(PwaEntityNotFoundException.class);
+
+    var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
+
+    workflowAssignmentService.getAssignee(taskInstance);
+
+  }
+
+  @Test
+  public void getAssignee_assigneeDoesntExist_emptyOptional() {
+
+
+    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.empty());
+
+    var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
+
+    var retrievedPerson = workflowAssignmentService.getAssignee(taskInstance);
+
+    assertThat(retrievedPerson).isEmpty();
 
   }
 

@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.controller.documents;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
-import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -20,10 +19,12 @@ import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPer
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
+import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.documents.clauses.ClauseFormValidator;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -41,14 +42,17 @@ public class DocumentInstanceController {
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final ControllerHelperService controllerHelperService;
   private final DocumentInstanceService documentInstanceService;
+  private final ClauseFormValidator clauseFormValidator;
 
   @Autowired
   public DocumentInstanceController(AppProcessingBreadcrumbService breadcrumbService,
                                     ControllerHelperService controllerHelperService,
-                                    DocumentInstanceService documentInstanceService) {
+                                    DocumentInstanceService documentInstanceService,
+                                    ClauseFormValidator clauseFormValidator) {
     this.breadcrumbService = breadcrumbService;
     this.controllerHelperService = controllerHelperService;
     this.documentInstanceService = documentInstanceService;
+    this.clauseFormValidator = clauseFormValidator;
   }
 
   @GetMapping("/add-clause-after/{clauseIdToAddAfter}")
@@ -63,23 +67,32 @@ public class DocumentInstanceController {
 
     var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddAfter);
 
-    return getAddClauseModelAndView(processingContext);
+    return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
   }
 
-  private ModelAndView getAddClauseModelAndView(PwaAppProcessingContext processingContext) {
+  private ModelAndView getAddEditClauseModelAndView(PwaAppProcessingContext processingContext, ScreenActionType screenActionType) {
 
     var cancelUrl = ReverseRouter.route(on(AppConsentDocController.class)
         .renderConsentDocEditor(processingContext.getPwaApplication().getId(), processingContext.getApplicationType(), null, null));
 
     var modelAndView = new ModelAndView("documents/clauses/addEditClause")
         .addObject("errorList", List.of())
-        .addObject("cancelUrl", cancelUrl);
+        .addObject("cancelUrl", cancelUrl)
+        .addObject("actionType", screenActionType);
 
-    breadcrumbService.fromConsentDocument(processingContext.getPwaApplication(), modelAndView, "Add clause");
+    String thisPage = screenActionType.getActionText() + " clause";
+    breadcrumbService.fromConsentDocument(processingContext.getPwaApplication(), modelAndView, thisPage);
 
     return modelAndView;
 
+  }
+
+  private ModelAndView getAddEditClauseModelAndView(PwaAppProcessingContext processingContext,
+                                                    ScreenActionType screenActionType,
+                                                    ClauseForm form) {
+    return getAddEditClauseModelAndView(processingContext, screenActionType)
+        .addObject("form", form);
   }
 
   @PostMapping("/add-clause-after/{clauseIdToAddAfter}")
@@ -89,22 +102,25 @@ public class DocumentInstanceController {
                                          PwaAppProcessingContext processingContext,
                                          @PathVariable("documentTemplateMnem") DocumentTemplateMnem documentTemplateMnem,
                                          @PathVariable("clauseIdToAddAfter") Integer clauseIdToAddAfter,
-                                         @Valid @ModelAttribute("form") ClauseForm form,
+                                         @ModelAttribute("form") ClauseForm form,
                                          BindingResult bindingResult,
                                          AuthenticatedUserAccount authenticatedUserAccount,
                                          RedirectAttributes redirectAttributes) {
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddClauseModelAndView(processingContext), () -> {
+    clauseFormValidator.validate(form, bindingResult);
 
-      var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddAfter);
+    return controllerHelperService
+        .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD), () -> {
 
-      documentInstanceService.addClauseAfter(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
+          var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddAfter);
 
-      FlashUtils.success(redirectAttributes, "Clause added");
+          documentInstanceService.addClauseAfter(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
 
-      return DocumentInstanceRedirectUtils.getRedirect(processingContext.getPwaApplication(), documentTemplateMnem);
+          FlashUtils.success(redirectAttributes, "Clause added");
 
-    });
+          return DocumentInstanceRedirectUtils.getRedirect(processingContext.getPwaApplication(), documentTemplateMnem);
+
+        });
 
   }
 
@@ -120,7 +136,7 @@ public class DocumentInstanceController {
 
     var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddBefore);
 
-    return getAddClauseModelAndView(processingContext);
+    return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
   }
 
@@ -131,22 +147,25 @@ public class DocumentInstanceController {
                                           PwaAppProcessingContext processingContext,
                                           @PathVariable("documentTemplateMnem") DocumentTemplateMnem documentTemplateMnem,
                                           @PathVariable("clauseIdToAddBefore") Integer clauseIdToAddBefore,
-                                          @Valid @ModelAttribute("form") ClauseForm form,
+                                          @ModelAttribute("form") ClauseForm form,
                                           BindingResult bindingResult,
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           RedirectAttributes redirectAttributes) {
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddClauseModelAndView(processingContext), () -> {
+    clauseFormValidator.validate(form, bindingResult);
 
-      var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddBefore);
+    return controllerHelperService
+        .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD), () -> {
 
-      documentInstanceService.addClauseBefore(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
+          var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseIdToAddBefore);
 
-      FlashUtils.success(redirectAttributes, "Clause added");
+          documentInstanceService.addClauseBefore(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
 
-      return DocumentInstanceRedirectUtils.getRedirect(processingContext.getPwaApplication(), documentTemplateMnem);
+          FlashUtils.success(redirectAttributes, "Clause added");
 
-    });
+          return DocumentInstanceRedirectUtils.getRedirect(processingContext.getPwaApplication(), documentTemplateMnem);
+
+        });
 
   }
 
@@ -162,7 +181,7 @@ public class DocumentInstanceController {
 
     var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
 
-    return getAddClauseModelAndView(processingContext);
+    return getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD);
 
   }
 
@@ -173,22 +192,72 @@ public class DocumentInstanceController {
                                           PwaAppProcessingContext processingContext,
                                           @PathVariable("documentTemplateMnem") DocumentTemplateMnem documentTemplateMnem,
                                           @PathVariable("clauseId") Integer clauseId,
-                                          @Valid @ModelAttribute("form") ClauseForm form,
+                                          @ModelAttribute("form") ClauseForm form,
                                           BindingResult bindingResult,
                                           AuthenticatedUserAccount authenticatedUserAccount,
                                           RedirectAttributes redirectAttributes) {
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddClauseModelAndView(processingContext), () -> {
+    clauseFormValidator.validate(form, bindingResult);
 
-      var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
+    return controllerHelperService
+        .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.ADD), () -> {
 
-      documentInstanceService.addSubClause(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
+          var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
 
-      FlashUtils.success(redirectAttributes, "Clause added");
+          documentInstanceService.addSubClause(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
 
-      return DocumentInstanceRedirectUtils.getRedirect(processingContext.getPwaApplication(), documentTemplateMnem);
+          FlashUtils.success(redirectAttributes, "Clause added");
 
-    });
+          return DocumentInstanceRedirectUtils.getRedirect(processingContext.getPwaApplication(), documentTemplateMnem);
+
+        });
+
+  }
+
+  @GetMapping("/edit-clause/{clauseId}")
+  public ModelAndView renderEditClause(@PathVariable("applicationId") Integer applicationId,
+                                       @PathVariable("applicationType")
+                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                       PwaAppProcessingContext processingContext,
+                                       @PathVariable("documentTemplateMnem") DocumentTemplateMnem documentTemplateMnem,
+                                       @PathVariable("clauseId") Integer clauseId,
+                                       @ModelAttribute("form") ClauseForm form,
+                                       AuthenticatedUserAccount authenticatedUserAccount) {
+
+    var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
+    form.setName(clauseVersion.getName());
+    form.setText(clauseVersion.getText());
+
+    return getAddEditClauseModelAndView(processingContext, ScreenActionType.EDIT, form);
+
+  }
+
+  @PostMapping("/edit-clause/{clauseId}")
+  public ModelAndView postEditClause(@PathVariable("applicationId") Integer applicationId,
+                                     @PathVariable("applicationType")
+                                     @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                     PwaAppProcessingContext processingContext,
+                                     @PathVariable("documentTemplateMnem") DocumentTemplateMnem documentTemplateMnem,
+                                     @PathVariable("clauseId") Integer clauseId,
+                                     @ModelAttribute("form") ClauseForm form,
+                                     BindingResult bindingResult,
+                                     AuthenticatedUserAccount authenticatedUserAccount,
+                                     RedirectAttributes redirectAttributes) {
+
+    clauseFormValidator.validate(form, bindingResult);
+
+    return controllerHelperService
+        .checkErrorsAndRedirect(bindingResult, getAddEditClauseModelAndView(processingContext, ScreenActionType.EDIT, form), () -> {
+
+          var clauseVersion = documentInstanceService.getInstanceClauseVersionByClauseIdOrThrow(clauseId);
+
+          documentInstanceService.editClause(clauseVersion, form, authenticatedUserAccount.getLinkedPerson());
+
+          FlashUtils.success(redirectAttributes, "Clause updated");
+
+          return DocumentInstanceRedirectUtils.getRedirect(processingContext.getPwaApplication(), documentTemplateMnem);
+
+        });
 
   }
 

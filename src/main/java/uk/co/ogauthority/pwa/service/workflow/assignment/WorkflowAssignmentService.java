@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.workflow.assignment;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -17,6 +18,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowSubject;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
+import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
@@ -29,17 +31,20 @@ public class WorkflowAssignmentService {
   private final TeamService teamService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationRequestService consultationRequestService;
+  private final TeamManagementService teamManagementService;
 
   public WorkflowAssignmentService(CamundaWorkflowService camundaWorkflowService,
                                    AssignmentAuditService assignmentAuditService,
                                    TeamService teamService,
                                    ConsulteeGroupTeamService consulteeGroupTeamService,
-                                   ConsultationRequestService consultationRequestService) {
+                                   ConsultationRequestService consultationRequestService,
+                                   TeamManagementService teamManagementService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.assignmentAuditService = assignmentAuditService;
     this.teamService = teamService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationRequestService = consultationRequestService;
+    this.teamManagementService = teamManagementService;
   }
 
   /**
@@ -123,6 +128,14 @@ public class WorkflowAssignmentService {
               "\n taskName: " + userWorkflowTask.getTaskName()
       );
     }
+  }
+
+  public Optional<Person> getAssignee(WorkflowTaskInstance workflowTaskInstance) {
+
+    return camundaWorkflowService
+        .getAssignedPersonId(workflowTaskInstance)
+        .map(personId -> teamManagementService.getPerson(personId.asInt()));
+
   }
 
 }
