@@ -5,24 +5,39 @@
 <#-- @ftlvariable name="consultationsUrlFactory" type="uk.co.ogauthority.pwa.service.consultations.ConsultationsUrlFactory" -->
 
 
-<#macro consultationRequestView consultationRequestViewData>
+<#macro consultationRequestView consultationRequestViewData displayAsHistoricalRequest=false>
 
-    <h3 class="govuk-heading-m"> ${consultationRequestViewData.consulteeGroupName} </h3>
-    <h4 class="govuk-heading-s"> Requested ${consultationRequestViewData.requestDateDisplay} </h4>
+    <#if displayAsHistoricalRequest>
+        <h3 class="govuk-heading-m"> Requested ${consultationRequestViewData.requestDateDisplay} </h3>
+    <#else>
+        <h3 class="govuk-heading-m"> ${consultationRequestViewData.consulteeGroupName} </h3>
+    </#if>
 
     <@fdsCheckAnswers.checkAnswers summaryListClass="">
         <#nested/>
-        <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
-        ${consultationRequestViewData.status.getDisplayName()}
-        </br>
-        <#if consultationRequestViewData.status == "RESPONDED">
-            ${consultationRequestViewData.responseDateDisplay}
-        <#elseif consultationRequestViewData.status == "WITHDRAWN">
-            Withdrawn by ${consultationRequestViewData.withdrawnByUser} &nbsp; ${consultationRequestViewData.endTimeStamp}
-        <#else>
-            Due: ${consultationRequestViewData.dueDateDisplay}
+        <#if !displayAsHistoricalRequest>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Requested" actionText="" actionUrl="" screenReaderActionText="">
+                ${consultationRequestViewData.requestDateDisplay}
+            </@fdsCheckAnswers.checkAnswersRow>
         </#if>
+
+        <@fdsCheckAnswers.checkAnswersRow keyText="Status" actionText="" actionUrl="" screenReaderActionText="">
+            ${consultationRequestViewData.status.getDisplayName()}
         </@fdsCheckAnswers.checkAnswersRow>
+
+        <#if consultationRequestViewData.status == "RESPONDED">
+            <@fdsCheckAnswers.checkAnswersRow keyText=consultationRequestViewData.status.getDisplayName() actionText="" actionUrl="" screenReaderActionText="">
+                ${consultationRequestViewData.responseDateDisplay}
+            </@fdsCheckAnswers.checkAnswersRow>
+        <#elseif consultationRequestViewData.status == "WITHDRAWN">
+            <@fdsCheckAnswers.checkAnswersRow keyText="Withdrawn by" actionText="" actionUrl="" screenReaderActionText="">
+                ${consultationRequestViewData.withdrawnByUser} &nbsp; ${consultationRequestViewData.endTimeStamp}
+            </@fdsCheckAnswers.checkAnswersRow>
+        <#else>         
+            <@fdsCheckAnswers.checkAnswersRow keyText=consultationRequestViewData.status.getDisplayName() actionText="" actionUrl="" screenReaderActionText="">       
+                Due: ${consultationRequestViewData.dueDateDisplay}
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
 
         <#if consultationRequestViewData.responseType?has_content >

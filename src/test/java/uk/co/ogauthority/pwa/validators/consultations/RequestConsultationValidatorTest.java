@@ -50,7 +50,7 @@ public class RequestConsultationValidatorTest {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
         new ConsultationRequestValidationHints(consultationRequestService, consulteeGroupDetailService, pwaApplicationDetail.getPwaApplication()));
     assertThat(errorsMap).containsOnly(
-        entry("consulteeGroupSelection", Set.of("consulteeGroupSelection.required")),
+        entry("consulteeGroupSelection[1]", Set.of("consulteeGroupSelection.required")),
         entry("daysToRespond", Set.of("daysToRespond.required"))
     );
   }

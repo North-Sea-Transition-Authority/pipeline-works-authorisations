@@ -15,7 +15,7 @@
 
   <@fdsForm.htmlForm>
 
-    <@fdsFieldset.fieldset legendHeading="Who do you want to consult?" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
+    <@fdsFieldset.fieldset legendHeading="Who do you want to consult?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
       <@fdsCheckbox.checkboxGroup path="form.consulteeGroupSelection" hiddenContent=true>
           <#list consulteeGroups as consulteeGroup>
               <#assign abbreviation = "" />
