@@ -1005,4 +1005,63 @@ public class PadOrganisationRoleServiceTest {
     assertThat(roleSaveCaptor.getValue()).isEqualTo(unassignedRole);
     assertThat(foundRole).isEqualTo(roleSaveCaptor.getValue());
   }
+
+  @Test
+  public void isComplete_valid() {
+
+    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER)
+    ));
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.PORTAL_ORG))
+        .thenReturn(0L);
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
+        .thenReturn(1L);
+
+    var result = padOrganisationRoleService.isComplete(detail);
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  public void isComplete_invalid_missingOwner() {
+
+    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR)
+    ));
+
+    var result = padOrganisationRoleService.isComplete(detail);
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void isComplete_invalid_invalidUsers() {
+
+    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER)
+    ));
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.PORTAL_ORG))
+        .thenReturn(1L);
+
+    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
+        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
+        .thenReturn(1L);
+
+    var result = padOrganisationRoleService.isComplete(detail);
+    assertThat(result).isFalse();
+  }
+
+
 }

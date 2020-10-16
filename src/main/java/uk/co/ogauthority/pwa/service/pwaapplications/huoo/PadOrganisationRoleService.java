@@ -381,7 +381,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return roleCountMap.get(HuooRole.HOLDER) > 0
         && roleCountMap.get(HuooRole.USER) > 0
         && roleCountMap.get(HuooRole.OPERATOR) > 0
-        && roleCountMap.get(HuooRole.OWNER) > 0;
+        && roleCountMap.get(HuooRole.OWNER) > 0
+        && doesApplicationHaveValidUsers(detail);
   }
 
   @Override
