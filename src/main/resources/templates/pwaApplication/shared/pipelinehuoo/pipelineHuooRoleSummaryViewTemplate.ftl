@@ -11,7 +11,7 @@
     <#local unassignedPipelineCardId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-UNASSIGNED-PIPELINES")) />
     <#local unassignedRoleCardId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-UNASSIGNED-ROLES")) />
     <#local unassignedRoleErrorMessage = validationResult.errorMessageOrEmptyString(summaryValidationResult!, unassignedRoleCardId) />
-    ${unassignedRoleErrorMessage!   "no role error"}
+
     <#if summaryView.sortedUnassignedPipelineNumbers?has_content>
 
         <#local useAllPipelinesHeader=!summaryView.pipelinesAndOrgRoleGroupViews?has_content />
