@@ -89,7 +89,8 @@ public class ConsultationRequestController {
         .addObject("errorList", List.of())
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("consulteeGroups", consultationRequestService.getConsulteeGroups(authenticatedUserAccount).stream()
-          .sorted(Comparator.comparing(ConsulteeGroupDetail::getName))
+          .sorted(Comparator.comparing(ConsulteeGroupDetail::getDisplayOrder,  Comparator.nullsLast(Comparator.naturalOrder()))
+              .thenComparing(ConsulteeGroupDetail::getName))
           .collect(Collectors.toList()))
         .addObject("cancelUrl", ReverseRouter.route(on(ConsultationController.class).renderConsultations(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)));

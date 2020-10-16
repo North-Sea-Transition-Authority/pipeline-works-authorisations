@@ -34,6 +34,8 @@ public class ConsulteeGroupDetail {
 
   private Instant endTimestamp;
 
+  private Integer displayOrder;
+
   public ConsulteeGroupDetail() {
   }
 
@@ -105,6 +107,13 @@ public class ConsulteeGroupDetail {
     this.endTimestamp = endTimestamp;
   }
 
+  public Integer getDisplayOrder() {
+    return displayOrder;
+  }
+
+  public void setDisplayOrder(Integer displayOrder) {
+    this.displayOrder = displayOrder;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -122,11 +131,12 @@ public class ConsulteeGroupDetail {
         && Objects.equals(tipFlag, that.tipFlag)
         && Objects.equals(versionNo, that.versionNo)
         && Objects.equals(startTimestamp, that.startTimestamp)
-        && Objects.equals(endTimestamp, that.endTimestamp);
+        && Objects.equals(endTimestamp, that.endTimestamp)
+        && Objects.equals(displayOrder, that.displayOrder);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, consulteeGroup, name, abbreviation, tipFlag, versionNo, startTimestamp, endTimestamp);
+    return Objects.hash(id, consulteeGroup, name, abbreviation, tipFlag, versionNo, startTimestamp, endTimestamp, displayOrder);
   }
 }
