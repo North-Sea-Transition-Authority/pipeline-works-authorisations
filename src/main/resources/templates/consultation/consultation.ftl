@@ -41,8 +41,8 @@
 
   </#list>
 
-    <#if canEditConsultations>
-        <@fdsAction.link linkText="Request consultations" linkUrl=springUrl(requestConsultationsUrl) linkClass="govuk-button"/>
-    </#if>
+  <#if canEditConsultations>
+      <@fdsAction.link linkText="Request consultations" linkUrl=springUrl(requestConsultationsUrl) linkClass="govuk-button"/>
+  </#if>
 
 </@defaultPage>
