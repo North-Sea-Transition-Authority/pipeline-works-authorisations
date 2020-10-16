@@ -36,7 +36,6 @@ public class PadPipelineHuooViewFactory {
   private static final String DEFAULT_SPLIT_PIPELINE_DISPLAY_TEXT = "Unassigned";
 
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final PadPipelineService padPipelineService;
   private final PadOrganisationRoleService padOrganisationRoleService;
 
   @Autowired
@@ -45,7 +44,6 @@ public class PadPipelineHuooViewFactory {
       PadPipelineService padPipelineService,
       PadOrganisationRoleService padOrganisationRoleService) {
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.padPipelineService = padPipelineService;
     this.padOrganisationRoleService = padOrganisationRoleService;
   }
 

@@ -9,13 +9,13 @@
 <#-- @ftlvariable name="userSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView" -->
 <#-- @ftlvariable name="operatorSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView" -->
 <#-- @ftlvariable name="ownerSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView" -->
+<#-- @ftlvariable name="summaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
 
 <@defaultPage htmlTitle=pageHeading pageHeading=pageHeading breadcrumbs=true fullWidthColumn=true>
 
-  <#if markCompleteErrorMessage?has_content>
-      <@fdsError.singleErrorSummary errorMessage=markCompleteErrorMessage />
-  </#if>
+    <@validationResult.singleErrorSummary summaryValidationResult=summaryValidationResult! />
+    <@validationResult.errorSummary summaryValidationResult=summaryValidationResult! />
 
   <@fdsInsetText.insetText>
     <p>Use the change/assign link shown for each group of pipelines to assign or update HUOOs for those pipelines.</p>
@@ -24,22 +24,22 @@
   </@fdsInsetText.insetText>
 
   <h2 class="govuk-heading-m">Holders</h2>
-    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=holderSummary urlFactory=urlFactory />
+    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=holderSummary urlFactory=urlFactory errorKeyPrefix="HOLDER" summaryValidationResult=summaryValidationResult!  />
     <@fdsAction.link linkText="Select pipelines and assign holders"  linkUrl=springUrl(urlFactory.getAddHolderPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
     <@fdsAction.link linkText="Define pipeline holder split"  linkUrl=springUrl(urlFactory.getSplitHolderPipelineUrl()) linkClass="govuk-button govuk-button--blue"/>
 
   <h2 class="govuk-heading-m">Users</h2>
-    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=userSummary urlFactory=urlFactory />
+    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=userSummary urlFactory=urlFactory errorKeyPrefix="USER" summaryValidationResult=summaryValidationResult! />
     <@fdsAction.link linkText="Select pipelines and assign users"  linkUrl=springUrl(urlFactory.getAddUserPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
     <@fdsAction.link linkText="Define pipeline user split"  linkUrl=springUrl(urlFactory.getSplitUserPipelineUrl()) linkClass="govuk-button govuk-button--blue"/>
 
   <h2 class="govuk-heading-m">Operators</h2>
-    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=operatorSummary urlFactory=urlFactory />
+    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=operatorSummary urlFactory=urlFactory errorKeyPrefix="OPERATOR" summaryValidationResult=summaryValidationResult! />
     <@fdsAction.link linkText="Select pipelines and assign operators"  linkUrl=springUrl(urlFactory.getAddOperatorPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
     <@fdsAction.link linkText="Define pipeline operator split"  linkUrl=springUrl(urlFactory.getSplitOperatorPipelineUrl()) linkClass="govuk-button govuk-button--blue"/>
 
   <h2 class="govuk-heading-m">Owners</h2>
-    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=ownerSummary urlFactory=urlFactory />
+    <@pwaPipelineHuooSummaryView.pipelineHuooRoleSummary summaryView=ownerSummary urlFactory=urlFactory errorKeyPrefix="OWNER" summaryValidationResult=summaryValidationResult! />
     <@fdsAction.link linkText="Select pipelines and assign owners"  linkUrl=springUrl(urlFactory.getAddOwnerPipelineRoleUrl()) linkClass="govuk-button govuk-button--blue"/>
     <@fdsAction.link linkText="Define pipeline owner split"  linkUrl=springUrl(urlFactory.getSplitOwnerPipelineUrl()) linkClass="govuk-button govuk-button--blue"/>
 

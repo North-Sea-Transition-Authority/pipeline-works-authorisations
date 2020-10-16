@@ -2,38 +2,49 @@
 
 <#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelineHuooUrlFactory" -->
+<#-- @ftlvariable name="summaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
 
-<#macro pipelineHuooRoleSummary summaryView urlFactory>
+<#macro pipelineHuooRoleSummary summaryView errorKeyPrefix summaryValidationResult urlFactory>
     <#local roleSingular=summaryView.getRoleDisplayText() />
 
-    <#if summaryView.sortedUnassignedPipelineNumbers?hasContent>
-        <#local useAllPipelinesHeader=!summaryView.pipelinesAndOrgRoleGroupViews?hasContent />
+    <#local unassignedPipelineCardId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-UNASSIGNED-PIPELINES")) />
+    <#local unassignedRoleCardId = validationResult.constructObjectId(summaryValidationResult!, (errorKeyPrefix + "-UNASSIGNED-ROLES")) />
+    <#local unassignedRoleErrorMessage = validationResult.errorMessageOrEmptyString(summaryValidationResult!, unassignedRoleCardId) />
+    ${unassignedRoleErrorMessage!   "no role error"}
+    <#if summaryView.sortedUnassignedPipelineNumbers?has_content>
+
+        <#local useAllPipelinesHeader=!summaryView.pipelinesAndOrgRoleGroupViews?has_content />
 
         <@pipelineRoleGroup
           pipelineNumberList=useAllPipelinesHeader?then(["All pipelines"], summaryView.sortedUnassignedPipelineNumbers)
-          organisationNameList=["No ${roleSingular?lowerCase}s assigned"]
-          linkText="Assign ${roleSingular?lowerCase}s for these pipelines"
-          linkUrl=urlFactory.assignUnassignedPipelineOwnersUrl(summaryView.huooRole, summaryView)/>
+          organisationNameList=["No ${roleSingular?lower_case}s assigned"]
+          linkText="Assign ${roleSingular?lower_case}s for these pipelines"
+          linkUrl=urlFactory.assignUnassignedPipelineOwnersUrl(summaryView.huooRole, summaryView)
+          cardId=unassignedPipelineCardId
+          summaryValidationResult=summaryValidationResult!
+        />
     </#if>
 
     <!-- use All pipelines when theres on 1 group and no unassigned pipelines -->
-    <#local groupViewUseAllPipelinesHeader=summaryView.pipelinesAndOrgRoleGroupViews?size==1 && !summaryView.sortedUnassignedPipelineNumbers?hasContent/>
+    <#local groupViewUseAllPipelinesHeader=summaryView.pipelinesAndOrgRoleGroupViews?size==1 && !summaryView.sortedUnassignedPipelineNumbers?has_content/>
     <#list summaryView.pipelinesAndOrgRoleGroupViews as groupView >
         <@pipelineRoleGroup
           pipelineNumberList=groupView.pipelineNumbers
           organisationNameList=groupView.organisationNames
-          linkText="Change ${roleSingular?lowerCase}s for these pipelines"
+          linkText="Change ${roleSingular?lower_case}s for these pipelines"
           linkUrl=urlFactory.changeGroupPipelineOwnersUrl(summaryView.huooRole, groupView)
-          headerOverrideText=groupViewUseAllPipelinesHeader?then("All pipelines", "")/>
+          headerOverrideText=groupViewUseAllPipelinesHeader?then("All pipelines", "")
+          cardId="${errorKeyPrefix}-pipeline-group-${groupView?index}"
+          summaryValidationResult=summaryValidationResult!/>
     </#list>
 
-    <#if summaryView.sortedUnassignedOrganisationNames?hasContent>
+    <#if summaryView.sortedUnassignedOrganisationNames?has_content>
         <#local unassignedRoleHeading>
             <@stringUtils.pluraliseWord count=summaryView.sortedUnassignedOrganisationNames?size word=roleSingular />
         </#local>
-        <@fdsCard.card>
-            <@fdsCard.cardHeader cardHeadingText="${unassignedRoleHeading} not assigned to pipelines" cardHeadingSize="h3" cardHeadingClass="govuk-heading-s govuk-!-padding-bottom-3" />
+        <@fdsCard.card cardId=unassignedRoleCardId cardClass=unassignedRoleErrorMessage?has_content?then("fds-card--error", "") >
+            <@fdsCard.cardHeader cardHeadingText="${unassignedRoleHeading} not assigned to pipelines" cardHeadingSize="h3" cardHeadingClass="govuk-heading-s govuk-!-padding-bottom-3" cardErrorMessage=unassignedRoleErrorMessage!"" />
             <ol class="govuk-list">
                 <#list summaryView.sortedUnassignedOrganisationNames as orgName>
                   <li>${orgName}</li>
@@ -45,14 +56,17 @@
 </#macro>
 
 
-<#macro pipelineRoleGroup pipelineNumberList organisationNameList linkText linkUrl headerOverrideText="">
-    <@fdsCard.card>
+<#macro pipelineRoleGroup pipelineNumberList organisationNameList linkText linkUrl summaryValidationResult headerOverrideText="" cardId="">
+
+    <#local errorMessage = validationResult.errorMessageOrEmptyString(summaryValidationResult!, cardId) />
+    <@fdsCard.card cardId=cardId cardClass=errorMessage?has_content?then("fds-card--error", "")>
+
         <#local joinedPipelineNumbers=pipelineNumberList?join(", ")/>
-        <#local header=headerOverrideText?hasContent?then(headerOverrideText, joinedPipelineNumbers) />
-        <@fdsCard.cardHeader cardHeadingText=header cardHeadingSize="h3" cardHeadingClass="govuk-heading-s govuk-!-padding-bottom-3"/>
+        <#local header=headerOverrideText?has_content?then(headerOverrideText, joinedPipelineNumbers) />
+        <@fdsCard.cardHeader cardHeadingText=header cardHeadingSize="h3" cardHeadingClass="govuk-heading-s govuk-!-padding-bottom-3" cardErrorMessage=errorMessage!""/>
         <ol class="govuk-list">
             <#list organisationNameList as orgName>
-              <li>${orgName}</li>
+                <li>${orgName}</li>
             </#list>
         </ol>
         <@fdsForm.htmlForm actionUrl=springUrl(linkUrl) >

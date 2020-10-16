@@ -40,6 +40,9 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipeline
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRole;
+import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelineValidationType;
 import uk.co.ogauthority.pwa.validators.pipelinehuoo.PickHuooPipelinesFormValidator;
@@ -54,6 +57,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   private final PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator;
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
   private final PadPipelineService padPipelineService;
+  private final PadPipelineHuooViewFactory padPipelineHuooViewFactory;
 
   @Autowired
   public PadPipelinesHuooService(PickableHuooPipelineService pickableHuooPipelineService,
@@ -61,13 +65,27 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
                                  PadOrganisationRoleService padOrganisationRoleService,
                                  PickHuooPipelinesFormValidator pickHuooPipelinesFormValidator,
                                  PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository,
-                                 PadPipelineService padPipelineService) {
+                                 PadPipelineService padPipelineService,
+                                 PadPipelineHuooViewFactory padPipelineHuooViewFactory) {
     this.pickableHuooPipelineService = pickableHuooPipelineService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.pickHuooPipelinesFormValidator = pickHuooPipelinesFormValidator;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
     this.padPipelineService = padPipelineService;
+    this.padPipelineHuooViewFactory = padPipelineHuooViewFactory;
+  }
+
+  public PipelineAndOrgRoleGroupViewsByRole getPadPipelinesHuooSummaryView(PwaApplicationDetail pwaApplicationDetail) {
+    var pipelineAndOrgGroupAppSummary = createPipelineAndOrganisationRoleGroupSummary(pwaApplicationDetail);
+    return padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(pwaApplicationDetail, pipelineAndOrgGroupAppSummary);
+  }
+
+  public PipelineHuooValidationResult generatePipelineHuooValidationResult(
+      PwaApplicationDetail pwaApplicationDetail,
+      // TODO PWA-427 use detail later
+      PipelineAndOrgRoleGroupViewsByRole pipelineAndOrgRoleGroupViewsByRole) {
+    return new PipelineHuooValidationResult(pipelineAndOrgRoleGroupViewsByRole);
   }
 
   public Optional<PipelineOverview> getSplitablePipelineOverviewForApplication(
@@ -139,15 +157,17 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
   }
 
   @Override
-  public boolean isComplete(PwaApplicationDetail detail) {
-    LOGGER.info("is complete not implemented");
-    return false;
+  public boolean isComplete(PwaApplicationDetail pwaApplicationDetail) {
+    var pipelineHuooSummary = getPadPipelinesHuooSummaryView(pwaApplicationDetail);
+    var validationResult = generatePipelineHuooValidationResult(pwaApplicationDetail, pipelineHuooSummary);
+
+    return validationResult.isValid();
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    LOGGER.info("validate not implemented");
+    LOGGER.warn("Validate method should not be called");
     return bindingResult;
   }
 

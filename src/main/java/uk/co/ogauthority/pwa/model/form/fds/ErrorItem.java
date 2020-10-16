@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.form.fds;
 
-public class ErrorItem {
+import java.util.Objects;
+
+public final class ErrorItem {
 
   private final int displayOrder;
   private final String fieldName;
@@ -22,5 +24,33 @@ public class ErrorItem {
 
   public String getErrorMessage() {
     return errorMessage;
+  }
+
+  @Override
+  public String toString() {
+    return "ErrorItem{" +
+        "displayOrder=" + displayOrder +
+        ", fieldName='" + fieldName + '\'' +
+        ", errorMessage='" + errorMessage + '\'' +
+        '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ErrorItem errorItem = (ErrorItem) o;
+    return displayOrder == errorItem.displayOrder
+        && Objects.equals(fieldName, errorItem.fieldName)
+        && Objects.equals(errorMessage, errorItem.errorMessage);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(displayOrder, fieldName, errorMessage);
   }
 }

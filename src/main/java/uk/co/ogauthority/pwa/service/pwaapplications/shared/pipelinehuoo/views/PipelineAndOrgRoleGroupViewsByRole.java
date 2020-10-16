@@ -43,7 +43,7 @@ public class PipelineAndOrgRoleGroupViewsByRole {
     return holderRoleSummaryView;
   }
 
-  public PipelineHuooRoleSummaryView getUserRoleSumaryView() {
+  public PipelineHuooRoleSummaryView getUserRoleSummaryView() {
     return userRoleSumaryView;
   }
 
