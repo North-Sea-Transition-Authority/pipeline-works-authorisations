@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.controller.consultations;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -13,7 +14,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,10 +32,13 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
@@ -53,11 +59,15 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
+  private ConsultationRequestController consultationRequestController;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
   @Before
   public void setUp() {
+
+    consultationRequestController = new ConsultationRequestController(consultationRequestService, null, new AppProcessingBreadcrumbService());
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -71,6 +81,32 @@ public class ConsultationRequestControllerTest extends PwaAppProcessingContextAb
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.EDIT_CONSULTATIONS);
+  }
+
+  @Test
+  public void renderRequestConsultation_getConsulteeGroups_sorted() {
+
+    var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null);
+    var consulteeGroupDetail1 = new ConsulteeGroupDetail();
+    consulteeGroupDetail1.setName("second consultee");
+    consulteeGroupDetail1.setDisplayOrder(2);
+    var consulteeGroupDetail2 = new ConsulteeGroupDetail();
+    consulteeGroupDetail2.setName("third consultee");
+    consulteeGroupDetail2.setDisplayOrder(3);
+    var consulteeGroupDetail3 = new ConsulteeGroupDetail();
+    consulteeGroupDetail3.setName("fourth consultee");
+    consulteeGroupDetail3.setDisplayOrder(null);
+    var consulteeGroupDetail4 = new ConsulteeGroupDetail();
+    consulteeGroupDetail4.setName("first consultee");
+    consulteeGroupDetail4.setDisplayOrder(1);
+
+    when(consultationRequestService.getConsulteeGroups(user)).thenReturn(
+        List.of(consulteeGroupDetail1, consulteeGroupDetail2, consulteeGroupDetail3, consulteeGroupDetail4));
+
+    var modelAndView = consultationRequestController.renderRequestConsultation(1, PwaApplicationType.INITIAL, processingContext, user, null);
+
+    var expectedOrderedConsulteeGroups = List.of(consulteeGroupDetail4, consulteeGroupDetail1, consulteeGroupDetail2,  consulteeGroupDetail3);
+    assertThat(modelAndView.getModel().get("consulteeGroups")).isEqualTo(expectedOrderedConsulteeGroups);
   }
 
   @Test

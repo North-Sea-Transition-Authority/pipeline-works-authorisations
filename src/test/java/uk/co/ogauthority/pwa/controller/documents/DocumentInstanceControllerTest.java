@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.service.documents.clauses.ClauseFormValidator;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -47,6 +49,9 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
 
   @MockBean
   private DocumentInstanceService documentInstanceService;
+
+  @SpyBean
+  private ClauseFormValidator clauseFormValidator;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -356,6 +361,103 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
         .andExpect(status().isOk());
 
     verify(documentInstanceService, times(0)).addSubClause(any(), any(), eq(user.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void renderEditClause_statusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(DocumentInstanceController.class)
+                .renderEditClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null)));
+
+    endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+
+  }
+
+  @Test
+  public void renderEditClause_permissionSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.GET)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(DocumentInstanceController.class)
+                .renderEditClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null)));
+
+    endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditClause_permissionSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(DocumentInstanceController.class)
+                .postEditClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .addRequestParam("name", "name")
+        .addRequestParam("text", "text");
+
+    endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
+
+  }
+
+  @Test
+  public void postEditClause_statusSmokeTest() {
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(DocumentInstanceController.class)
+                .postEditClause(applicationDetail.getMasterPwaApplicationId(), type, null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .addRequestParam("name", "name")
+        .addRequestParam("text", "text");
+
+    endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
+
+  }
+
+  @Test
+  public void postEditClause_success() throws Exception {
+
+    var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail.getPwaApplication().setId(1);
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+        .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("name", "name")
+        .param("text", "text"))
+        .andExpect(status().is3xxRedirection());
+
+    verify(documentInstanceService, times(1)).editClause(any(), any(), eq(user.getLinkedPerson()));
+
+  }
+
+  @Test
+  public void postEditClause_validationFail() throws Exception {
+
+    var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail.getPwaApplication().setId(1);
+    pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    when(pwaApplicationDetailService.getLastSubmittedApplicationDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+        .thenReturn(Optional.of(pwaApplicationDetail));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissions(pwaApplicationDetail.getPwaApplication(), user)).thenReturn(EnumSet.allOf(PwaAppProcessingPermission.class));
+
+    mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("name", "name"))
+        .andExpect(status().isOk());
+
+    verify(documentInstanceService, times(0)).editClause(any(), any(), eq(user.getLinkedPerson()));
 
   }
 

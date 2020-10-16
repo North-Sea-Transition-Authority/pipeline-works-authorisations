@@ -1,13 +1,9 @@
 package uk.co.ogauthority.pwa.model.form.documents;
 
-import javax.validation.constraints.NotNull;
-
 public class ClauseForm {
 
-  @NotNull(message = "Enter a clause name")
   private String name;
 
-  @NotNull(message = "Enter some clause text")
   private String text;
 
   public ClauseForm() {

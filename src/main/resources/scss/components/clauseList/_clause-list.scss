@@ -10,6 +10,12 @@
 
   }
 
+  &__text__preserve-whitespace {
+    font-weight: normal;
+    margin-bottom: govuk-spacing(4);
+    display: block;
+  }
+
   .govuk-list {
 
     > li {
