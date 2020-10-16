@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.dto.consents;
 
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -42,15 +42,17 @@ public class OrganisationRoleDtoTestUtil {
         null,
         null,
         null,
+        null,
         null
     );
   }
 
-  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSegmentRoleInstance(HuooRole huooRole,
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSectionRoleInstance(HuooRole huooRole,
                                                                                              int ouId,
                                                                                              int pipelineId,
                                                                                              String from,
-                                                                                             String to) {
+                                                                                             String to,
+                                                                                             int sectionNumber) {
     return new OrganisationPipelineRoleInstanceDto(
         ouId,
         null,
@@ -61,24 +63,43 @@ public class OrganisationRoleDtoTestUtil {
         from,
         IdentLocationInclusionMode.INCLUSIVE,
         to,
-        IdentLocationInclusionMode.EXCLUSIVE
+        IdentLocationInclusionMode.EXCLUSIVE,
+        sectionNumber
     );
   }
 
-  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSegmentRoleInstance(HuooRole huooRole,
+  public static OrganisationPipelineRoleInstanceDto createOrgUnitPipelineSectionRoleInstance(HuooRole huooRole,
                                                                                              int ouId,
-                                                                                             PipelineSegment pipelineSegment) {
+                                                                                             PipelineSection pipelineSection) {
     return new OrganisationPipelineRoleInstanceDto(
         ouId,
         null,
         null,
         huooRole,
         HuooType.PORTAL_ORG,
-        pipelineSegment.getPipelineIdAsInt(),
-        pipelineSegment.getFromPoint().getLocationName(),
-        pipelineSegment.getFromPoint().getIdentLocationInclusionMode(),
-        pipelineSegment.getToPoint().getLocationName(),
-        pipelineSegment.getToPoint().getIdentLocationInclusionMode()
+        pipelineSection.getPipelineIdAsInt(),
+        pipelineSection.getFromPoint().getLocationName(),
+        pipelineSection.getFromPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getToPoint().getLocationName(),
+        pipelineSection.getToPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getSectionNumber()
+    );
+  }
+
+  public static OrganisationPipelineRoleInstanceDto createUnassignedSplitPipelineSectionRoleInstance(HuooRole huooRole,
+                                                                                                     PipelineSection pipelineSection) {
+    return new OrganisationPipelineRoleInstanceDto(
+        null,
+        null,
+        null,
+        huooRole,
+        HuooType.UNASSIGNED_PIPELINE_SPLIT,
+        pipelineSection.getPipelineIdAsInt(),
+        pipelineSection.getFromPoint().getLocationName(),
+        pipelineSection.getFromPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getToPoint().getLocationName(),
+        pipelineSection.getToPoint().getIdentLocationInclusionMode(),
+        pipelineSection.getSectionNumber()
     );
   }
 
@@ -93,7 +114,9 @@ public class OrganisationRoleDtoTestUtil {
         null,
         null,
         null,
+        null,
         null
+
     );
   }
 
@@ -105,6 +128,7 @@ public class OrganisationRoleDtoTestUtil {
         huooRole,
         HuooType.TREATY_AGREEMENT,
         pipelineId,
+        null,
         null,
         null,
         null,

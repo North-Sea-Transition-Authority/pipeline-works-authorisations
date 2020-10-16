@@ -1,9 +1,10 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
+<#-- @ftlvariable name="actionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 
 <#include '../../layout.ftl'>
 
-<@defaultPage htmlTitle="Add clause" pageHeading="Add clause" topNavigation=true twoThirdsColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle="${actionType.actionText} clause" pageHeading="${actionType.actionText} clause" topNavigation=true twoThirdsColumn=true breadcrumbs=true>
 
     <@fdsError.errorSummary errorItems=errorList />
 
@@ -13,7 +14,7 @@
 
         <@fdsTextarea.textarea path="form.text" labelText="Clause text" />
 
-        <@fdsAction.submitButtons primaryButtonText="Add clause" linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} clause" linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
     </@fdsForm.htmlForm>
 

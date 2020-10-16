@@ -13,8 +13,8 @@ public class PipelineIdentifierSplitInfoVisitor implements PipelineIdentifierVis
   }
 
   @Override
-  public void visit(PipelineSegment pipelineSegment) {
-    this.splitInfoDetails = StringUtils.capitalize(pipelineSegment.getDisplayString());
+  public void visit(PipelineSection pipelineSection) {
+    this.splitInfoDetails = StringUtils.capitalize(pipelineSection.getDisplayString());
   }
 
   public String getSplitInfoDetails() {

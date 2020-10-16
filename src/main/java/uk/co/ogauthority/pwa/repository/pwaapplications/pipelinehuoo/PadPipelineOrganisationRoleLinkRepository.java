@@ -29,6 +29,9 @@ public interface PadPipelineOrganisationRoleLinkRepository extends
       Set<Integer> pipelineIds
   );
 
+
+  Long countByPadOrgRole(PadOrganisationRole padOrganisationRole);
+
   @EntityGraph(attributePaths = {"padOrgRole"})
   List<PadPipelineOrganisationRoleLink> findAllByPadOrgRoleInAndPadOrgRole_PwaApplicationDetail(
       Collection<PadOrganisationRole> orgRoles,

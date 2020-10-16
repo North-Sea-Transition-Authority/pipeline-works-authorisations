@@ -22,8 +22,12 @@ import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisati
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -462,16 +466,18 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void removeSplitsForPipeline_removesTemporarySplitRoleIfSomePipelineSectionNotAssigned(){
+  public void removeSplitsForPipeline_removesTemporarySplitRole_whenNoPipelineLinksToRoleRemain(){
     var pipelineId =  new PipelineId(CONSENTED_PIPELINE_ID);
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId.asInt());
 
     var tempSplitRole = PadOrganisationRole.forUnassignedSplitPipeline(pwaApplicationDetail, DEFAULT_ROLE);
     var tempSplitRolePipelineLink1 = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        tempSplitRole, pipeline, "A", "B");
+        tempSplitRole, pipeline, "A", "B", 1);
     var tempSplitRolePipelineLink2 = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        tempSplitRole, pipeline, "B", "C");
+        tempSplitRole, pipeline, "B", "C", 2);
+
+    when(padPipelineOrganisationRoleLinkRepository.countByPadOrgRole(any())).thenReturn(0L);
 
     when(padPipelineOrganisationRoleLinkRepository
         .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
@@ -496,7 +502,43 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void removeSplitsForPipeline_doesNotremovePortalOrgOrTreatyRoles(){
+  public void removeSplitsForPipeline_doesNotremoveTemporarySplitRole_whenPipelineLinksToRoleRemain(){
+    var pipelineId =  new PipelineId(CONSENTED_PIPELINE_ID);
+    var pipeline = new Pipeline();
+    pipeline.setId(pipelineId.asInt());
+
+    var tempSplitRole = PadOrganisationRole.forUnassignedSplitPipeline(pwaApplicationDetail, DEFAULT_ROLE);
+    var tempSplitRolePipelineLink1 = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
+        tempSplitRole, pipeline, "A", "B", 1);
+    var tempSplitRolePipelineLink2 = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
+        tempSplitRole, pipeline, "B", "C", 2);
+
+    when(padPipelineOrganisationRoleLinkRepository.countByPadOrgRole(any())).thenReturn(1L);
+
+    when(padPipelineOrganisationRoleLinkRepository
+        .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
+            pwaApplicationDetail, DEFAULT_ROLE, Set.of(pipelineId.asInt())
+        )
+    ).thenReturn(List.of(
+        tempSplitRolePipelineLink1,
+        tempSplitRolePipelineLink2
+    ));
+
+    padPipelinesHuooService.removeSplitsForPipeline(
+        pwaApplicationDetail,
+        pipelineId,
+        DEFAULT_ROLE
+    );
+
+    verify(padOrganisationRoleService, times(1))
+        .removalPipelineOrgRoleLinks(List.of(tempSplitRolePipelineLink1, tempSplitRolePipelineLink2));
+    verify(padOrganisationRoleService, times(0))
+        .removeOrgRole(tempSplitRole);
+
+  }
+
+  @Test
+  public void removeSplitsForPipeline_doesNotRemovePortalOrgOrTreatyRoles(){
     var pipelineId =  new PipelineId(CONSENTED_PIPELINE_ID);
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId.asInt());
@@ -505,9 +547,9 @@ public class PadPipelinesHuooServiceTest {
     var treatyOrgRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.ANY_TREATY_COUNTRY, DEFAULT_ROLE);
 
     var treatyorgLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        treatyOrgRole, pipeline, "A", "B");
+        treatyOrgRole, pipeline, "A", "B", 1);
     var portalOrgLink = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
-        portalOrgRole, pipeline, "B", "C");
+        portalOrgRole, pipeline, "B", "C", 2);
 
     when(padPipelineOrganisationRoleLinkRepository
         .findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
@@ -531,4 +573,50 @@ public class PadPipelinesHuooServiceTest {
   }
 
 
+  @Test
+  public void replacePipelineSectionsForPipelineAndRole_createsRolesLinksAsExpected() {
+
+    when(padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(pwaApplicationDetail, HuooRole.HOLDER))
+        .thenReturn(PadOrganisationRole.forUnassignedSplitPipeline(pwaApplicationDetail, HuooRole.HOLDER));
+    when(padPipelineOrganisationRoleLinkRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+
+    var pipelineId = new PipelineId(10);
+    var section1 = PipelineSection.from(
+        pipelineId,
+        1,
+        PipelineIdentPoint.from("POINT1", IdentLocationInclusionMode.INCLUSIVE),
+        PipelineIdentPoint.from("POINT2", IdentLocationInclusionMode.INCLUSIVE)
+    );
+    var section2 = PipelineSection.from(
+        pipelineId,
+        2,
+        PipelineIdentPoint.from("POINT2", IdentLocationInclusionMode.EXCLUSIVE),
+        PipelineIdentPoint.from("POINT3", IdentLocationInclusionMode.INCLUSIVE)
+    );
+    var pipelineSections = List.of(section1, section2);
+
+    var newRoles = padPipelinesHuooService.replacePipelineSectionsForPipelineAndRole(
+        pwaApplicationDetail, HuooRole.HOLDER, pipelineId, pipelineSections
+    );
+
+    assertThat(newRoles).hasSize(2);
+    assertThat(newRoles).anySatisfy(section1RoleLink -> {
+      assertThat(section1RoleLink.getPadOrgRole().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+      assertThat(section1RoleLink.getSectionNumber()).isEqualTo(1);
+      assertThat(section1RoleLink.getFromLocation()).isEqualTo("POINT1");
+      assertThat(section1RoleLink.getFromLocationIdentInclusionMode()).isEqualTo(IdentLocationInclusionMode.INCLUSIVE);
+      assertThat(section1RoleLink.getToLocation()).isEqualTo("POINT2");
+      assertThat(section1RoleLink.getToLocationIdentInclusionMode()).isEqualTo(IdentLocationInclusionMode.INCLUSIVE);
+    });
+
+    assertThat(newRoles).anySatisfy(section2RoleLink -> {
+      assertThat(section2RoleLink.getPadOrgRole().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+      assertThat(section2RoleLink.getSectionNumber()).isEqualTo(2);
+      assertThat(section2RoleLink.getFromLocation()).isEqualTo("POINT2");
+      assertThat(section2RoleLink.getFromLocationIdentInclusionMode()).isEqualTo(IdentLocationInclusionMode.EXCLUSIVE);
+      assertThat(section2RoleLink.getToLocation()).isEqualTo("POINT3");
+      assertThat(section2RoleLink.getToLocationIdentInclusionMode()).isEqualTo(IdentLocationInclusionMode.INCLUSIVE);
+    });
+  }
 }

@@ -3,11 +3,13 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -106,7 +109,17 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
         .findFirst();
 
     padOrganisationRoleService.removalPipelineOrgRoleLinks(splitPipelineRoles);
-    temporarySplitRoleOptional.ifPresent(padOrganisationRoleService::removeOrgRole);
+    // remove temporary role if no pipeline links remain after processing
+
+    temporarySplitRoleOptional.ifPresent(role -> {
+      if (!doesRoleHavePipelineLinks(role)) {
+        padOrganisationRoleService.removeOrgRole(role);
+      }
+    });
+  }
+
+  private boolean doesRoleHavePipelineLinks(PadOrganisationRole padOrganisationRole) {
+    return padPipelineOrganisationRoleLinkRepository.countByPadOrgRole(padOrganisationRole) > 0L;
   }
 
   public void validateAddPipelineHuooForm(PwaApplicationDetail pwaApplicationDetail,
@@ -291,6 +304,29 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
     var allPipelineRolesForApp = padPipelineOrganisationRoleLinkRepository.findOrganisationPipelineRoleDtoByPwaApplicationDetail(
         pwaApplicationDetail);
     return PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(allPipelineRolesForApp);
+  }
+
+
+  public List<PadPipelineOrganisationRoleLink> replacePipelineSectionsForPipelineAndRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                                         HuooRole huooRole,
+                                                                                         PipelineId pipelineId,
+                                                                                         List<PipelineSection> pipelineSections) {
+
+    removeSplitsForPipeline(pwaApplicationDetail, pipelineId, huooRole);
+    var unassignedPipelineSplitRole = padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(
+        pwaApplicationDetail,
+        huooRole);
+
+    var unassignedPipelineSplitRoles = new ArrayList<PadPipelineOrganisationRoleLink>();
+    pipelineSections.forEach(pipelineSection -> {
+      var pipelineSectionRoleLink = new PadPipelineOrganisationRoleLink();
+      pipelineSectionRoleLink.setPadOrgRole(unassignedPipelineSplitRole);
+      pipelineSectionRoleLink.visit(pipelineSection);
+      unassignedPipelineSplitRoles.add(pipelineSectionRoleLink);
+    });
+
+    return IterableUtils.toList(padPipelineOrganisationRoleLinkRepository.saveAll(unassignedPipelineSplitRoles));
+
   }
 
   /**

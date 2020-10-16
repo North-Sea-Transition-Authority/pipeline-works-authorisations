@@ -59,4 +59,18 @@ public class ClauseActionsUrlFactory {
 
   }
 
+  public String getEditClauseRoute(Integer editingClauseId) {
+
+    return ReverseRouter.route(on(DocumentInstanceController.class)
+        .renderEditClause(
+            pwaApplication.getId(),
+            pwaApplication.getApplicationType(),
+            null,
+            documentView.getDocumentTemplateMnem(),
+            editingClauseId,
+            null,
+            null));
+
+  }
+
 }

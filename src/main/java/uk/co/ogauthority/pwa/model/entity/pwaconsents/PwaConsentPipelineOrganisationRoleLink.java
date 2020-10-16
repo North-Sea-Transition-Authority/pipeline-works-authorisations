@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 
@@ -53,6 +53,8 @@ public class PwaConsentPipelineOrganisationRoleLink {
   @Column(name = "to_location_mode")
   @Enumerated(EnumType.STRING)
   private IdentLocationInclusionMode toLocationIdentInclusionMode;
+
+  private Integer sectionNumber;
 
   private Instant startTimestamp;
 
@@ -149,6 +151,14 @@ public class PwaConsentPipelineOrganisationRoleLink {
     this.toLocationIdentInclusionMode = toLocationIdentInclusionMode;
   }
 
+  public Integer getSectionNumber() {
+    return sectionNumber;
+  }
+
+  public void setSectionNumber(Integer sectionNumber) {
+    this.sectionNumber = sectionNumber;
+  }
+
   public OrgRoleInstanceType getOrgRoleInstanceType() {
     if (ObjectUtils.allNotNull(
         this.fromLocation, this.fromLocationIdentInclusionMode, this.toLocation, this.toLocationIdentInclusionMode)
@@ -162,12 +172,13 @@ public class PwaConsentPipelineOrganisationRoleLink {
   public PipelineIdentifier getPipelineIdentifier() {
     if (this.getOrgRoleInstanceType().equals(OrgRoleInstanceType.SPLIT_PIPELINE)) {
 
-      return PipelineSegment.from(
+      return PipelineSection.from(
           this.pipeline.getId(),
           this.fromLocation,
           this.fromLocationIdentInclusionMode,
           this.toLocation,
-          this.toLocationIdentInclusionMode
+          this.toLocationIdentInclusionMode,
+          this.sectionNumber
       );
 
     }

@@ -210,7 +210,8 @@ public class SplitPipelineHuooJourneyController {
                                      @PathVariable("numberOfSections") int numberOfSections,
                                      PwaApplicationContext applicationContext,
                                      @ModelAttribute("form") DefinePipelineHuooSectionsForm form,
-                                     BindingResult bindingResult) {
+                                     BindingResult bindingResult,
+                                     RedirectAttributes redirectAttributes) {
 
     return withSplitablePipeline(
         pipelineId,
@@ -239,15 +240,32 @@ public class SplitPipelineHuooJourneyController {
                   numberOfSections,
                   splitablePipelineOverview,
                   pickableIdentLocationOptions),
-              () ->
-                  //  TODO PWA-867: create splits from form
-                  getDefineSectionModelAndView(
-                    applicationContext,
+              () -> {
+                var pipelineSections = pickableHuooPipelineIdentService.generatePipelineSectionsFromForm(
+                    applicationContext.getApplicationDetail(),
+                    pipelineIdObj,
+                    form
+                );
+
+                padPipelinesHuooService.replacePipelineSectionsForPipelineAndRole(
+                    applicationContext.getApplicationDetail(),
                     huooRole,
-                    numberOfSections,
-                    splitablePipelineOverview,
-                    pickableIdentLocationOptions)
-              );
+                    pipelineIdObj,
+                    pipelineSections
+                );
+
+                FlashUtils.success(
+                    redirectAttributes,
+                    String.format("%s %s sections defined for pipeline %s",
+                        numberOfSections,
+                        huooRole.getDisplayText(),
+                        splitablePipelineOverview.getPipelineName()
+                    )
+                );
+                return ReverseRouter.redirect(on(PipelinesHuooController.class).renderSummary(
+                    pwaApplicationType, applicationId, null));
+
+              });
         }
     );
 

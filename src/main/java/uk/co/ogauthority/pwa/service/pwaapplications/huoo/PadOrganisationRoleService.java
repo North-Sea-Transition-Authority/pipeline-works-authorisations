@@ -602,6 +602,19 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     padOrganisationRolesRepository.delete(padOrganisationRole);
   }
 
+  @Transactional
+  public PadOrganisationRole getOrCreateUnassignedPipelineSplitRole(PwaApplicationDetail pwaApplicationDetail,
+                                                                     HuooRole huooRole) {
+    var unassignedPipelineSplitRole =  getOrgRolesForDetailByRole(pwaApplicationDetail, huooRole)
+        .stream()
+        .filter(role -> HuooType.UNASSIGNED_PIPELINE_SPLIT.equals(role.getType()))
+        .findFirst()
+        .orElse(PadOrganisationRole.forUnassignedSplitPipeline(pwaApplicationDetail, huooRole));
+
+    return padOrganisationRolesRepository.save(unassignedPipelineSplitRole);
+
+  }
+
   public List<PadPipelineOrganisationRoleLink> getPipelineOrgRoleLinks(PwaApplicationDetail pwaApplicationDetail,
                                                                        HuooRole huooRole,
                                                                        PipelineId pipelineId) {

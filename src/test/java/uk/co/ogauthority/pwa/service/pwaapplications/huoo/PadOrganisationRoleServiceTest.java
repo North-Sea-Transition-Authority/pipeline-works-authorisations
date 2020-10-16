@@ -27,7 +27,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
@@ -37,7 +36,7 @@ import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSegment;
+import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
@@ -149,6 +148,8 @@ public class PadOrganisationRoleServiceTest {
         .thenReturn(
             List.of(orgUnit1, orgUnit2)
         );
+
+    when(padOrganisationRolesRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
   }
 
@@ -678,13 +679,11 @@ public class PadOrganisationRoleServiceTest {
 
   @Test
   public void getOrganisationRoleSummary() {
-    var orgPipelineRoleInstanceDto = new OrganisationPipelineRoleInstanceDto(
-        1,
-        null,
+    var orgPipelineRoleInstanceDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.HOLDER,
-        HuooType.PORTAL_ORG,
         1,
-        null, null, null, null);
+        1
+    );
 
     when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
         .thenReturn(List.of(orgPipelineRoleInstanceDto));
@@ -739,14 +738,16 @@ public class PadOrganisationRoleServiceTest {
         orgUnit1,
         pipeline1,
         "FROM_1",
-        "TO_1");
+        "TO_1",
+        1);
 
     var split2Link = PadOrganisationRoleTestUtil.createOrgRoleInclusivePipelineSplitLink(
         HuooRole.HOLDER,
         orgUnit1,
         pipeline1,
         "FROM_2",
-        "TO_2");
+        "TO_2",
+        2);
     when(padPipelineOrganisationRoleLinkRepository.findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
         detail,
         HuooRole.HOLDER)
@@ -754,9 +755,9 @@ public class PadOrganisationRoleServiceTest {
 
     var splitPipelines = padOrganisationRoleService.getPipelineSplitsForRole(detail, HuooRole.HOLDER);
     assertThat(splitPipelines).containsExactlyInAnyOrder(
-        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_1"),
+        PipelineSection.from(pipelineId1, 1, PipelineIdentPoint.inclusivePoint("FROM_1"),
             PipelineIdentPoint.inclusivePoint("TO_1")),
-        PipelineSegment.from(pipelineId1, PipelineIdentPoint.inclusivePoint("FROM_2"),
+        PipelineSection.from(pipelineId1, 2, PipelineIdentPoint.inclusivePoint("FROM_2"),
             PipelineIdentPoint.inclusivePoint("TO_2"))
     );
   }
@@ -826,37 +827,29 @@ public class PadOrganisationRoleServiceTest {
   public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
 
     //Organisation Roles Summary DTO
-    var orgPipelineRoleInstanceDto1 = new OrganisationPipelineRoleInstanceDto(
-        1,
-        null,
+    var orgPipelineRoleInstanceDto1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.HOLDER,
-        HuooType.PORTAL_ORG,
         1,
-        null, null, null, null);
+        1
+    );
 
-    var orgPipelineRoleInstanceDto2 = new OrganisationPipelineRoleInstanceDto(
-        null,
-        TreatyAgreement.ANY_TREATY_COUNTRY,
+    var orgPipelineRoleInstanceDto2 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
         HuooRole.USER,
-        HuooType.TREATY_AGREEMENT,
-        1,
-        null, null, null, null);
+        TreatyAgreement.ANY_TREATY_COUNTRY,
+        1
+    );
 
-    var orgPipelineRoleInstanceDto3 = new OrganisationPipelineRoleInstanceDto(
-        3,
-        null,
+    var orgPipelineRoleInstanceDto3 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.OPERATOR,
-        HuooType.PORTAL_ORG,
-        1,
-        null, null, null, null);
+        3,
+        1
+    );
 
-    var orgPipelineRoleInstanceDto4 = new OrganisationPipelineRoleInstanceDto(
-        4,
-        null,
+    var orgPipelineRoleInstanceDto4 =  OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.OWNER,
-        HuooType.PORTAL_ORG,
-        1,
-        null, null, null, null);
+        4,
+        1
+    );
 
     when(padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail))
         .thenReturn(List.of(orgPipelineRoleInstanceDto1, orgPipelineRoleInstanceDto2, orgPipelineRoleInstanceDto3, orgPipelineRoleInstanceDto4));
@@ -980,5 +973,36 @@ public class PadOrganisationRoleServiceTest {
   }
 
 
+  @Test
+  public void getOrCreateUnassignedPipelineSplitRole_whenNoUnassignedSplitRoleTypeFound() {
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of());
+    var roleSaveCaptor = ArgumentCaptor.forClass(PadOrganisationRole.class);
+    var role = padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(detail, HuooRole.HOLDER);
 
+    verify(padOrganisationRolesRepository, times(1)).save(roleSaveCaptor.capture());
+
+    assertThat(roleSaveCaptor.getValue().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+    assertThat(role).isEqualTo(roleSaveCaptor.getValue());
+  }
+
+  @Test
+  public void getOrCreateUnassignedPipelineSplitRole_whenUnassignedSplitRoleTypeFound() {
+
+    var unassignedRole = PadOrganisationRole.forUnassignedSplitPipeline(detail, HuooRole.HOLDER);
+    var roleList = List.of(
+        PadOrganisationRole.fromOrganisationUnit(detail, orgUnit1, HuooRole.HOLDER),
+        unassignedRole
+    );
+
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(roleList);
+
+    var foundRole = padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(detail, HuooRole.HOLDER);
+    var roleSaveCaptor = ArgumentCaptor.forClass(PadOrganisationRole.class);
+
+    verify(padOrganisationRolesRepository, times(1)).save(roleSaveCaptor.capture());
+
+    assertThat(roleSaveCaptor.getValue().getType()).isEqualTo(HuooType.UNASSIGNED_PIPELINE_SPLIT);
+    assertThat(roleSaveCaptor.getValue()).isEqualTo(unassignedRole);
+    assertThat(foundRole).isEqualTo(roleSaveCaptor.getValue());
+  }
 }

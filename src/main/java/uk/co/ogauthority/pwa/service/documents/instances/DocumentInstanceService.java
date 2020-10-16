@@ -303,6 +303,7 @@ public class DocumentInstanceService {
         form.getText(),
         levelOrder,
         SectionClauseVersionStatus.ACTIVE,
+        1,
         creatingPerson);
 
     instanceSectionClauseRepository.save(newClause);
@@ -373,6 +374,32 @@ public class DocumentInstanceService {
         1,
         form,
         creatingPerson);
+
+  }
+
+  @Transactional
+  public void editClause(DocumentInstanceSectionClauseVersion clauseBeingEdited, ClauseForm form, Person editingPerson) {
+
+    var newClauseVersion = new DocumentInstanceSectionClauseVersion();
+
+    newClauseVersion.setDocumentInstanceSectionClause(clauseBeingEdited.getDocumentInstanceSectionClause());
+    newClauseVersion.setParentDocumentInstanceSectionClause(clauseBeingEdited.getParentDocumentInstanceSectionClause());
+
+    sectionClauseCreator.setCommonData(
+        newClauseVersion,
+        form.getName(),
+        form.getText(),
+        clauseBeingEdited.getLevelOrder(),
+        SectionClauseVersionStatus.ACTIVE,
+        clauseBeingEdited.getVersionNo() + 1,
+        editingPerson);
+
+    clauseBeingEdited.setTipFlag(false);
+    clauseBeingEdited.setEndedTimestamp(clock.instant());
+    clauseBeingEdited.setEndedByPersonId(editingPerson.getId());
+    clauseBeingEdited.setStatus(SectionClauseVersionStatus.ENDED);
+
+    instanceSectionClauseVersionRepository.saveAll(List.of(clauseBeingEdited, newClauseVersion));
 
   }
 

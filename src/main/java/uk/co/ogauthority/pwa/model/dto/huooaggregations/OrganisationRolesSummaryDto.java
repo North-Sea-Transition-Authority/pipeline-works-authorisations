@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 /**
  *  Summarises all the organisation roles for a pwa and gives access by huoo type or organisation unit.
@@ -35,6 +36,7 @@ public class OrganisationRolesSummaryDto {
     Set<OrganisationRolePipelineGroupDto> allGroups = portalOrganisationPipelineRoleInstanceDtos
         // group pipeline org role instances by the overall org role
         .stream()
+        .filter(o -> HuooType.getSelectable().contains(o.getHuooType()))
         .collect(groupingBy(
             OrganisationPipelineRoleInstanceDto::getOrganisationRoleInstanceDto,
             Collectors.mapping(OrganisationPipelineRoleInstanceDto::getPipelineIdentifier, Collectors.toSet())
