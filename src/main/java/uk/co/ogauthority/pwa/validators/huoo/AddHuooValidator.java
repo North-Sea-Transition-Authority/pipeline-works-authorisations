@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.validators.huoo;
 
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
@@ -58,10 +61,8 @@ public class AddHuooValidator implements SmartValidator {
         errors.rejectValue("organisationUnitId", "organisationUnitId.required",
             "You must select an organisation");
       }
-    } else if (form.getHuooType() == HuooType.TREATY_AGREEMENT && form.getTreatyAgreement() == null) {
-      errors.rejectValue("treatyAgreement", "treatyAgreement.required",
-          "You must select a treaty agreement");
     }
+
     var holderCount = roles.stream()
         .filter(padOrgRole -> padOrgRole.getRole().equals(HuooRole.HOLDER))
         .count();
@@ -82,9 +83,13 @@ public class AddHuooValidator implements SmartValidator {
           .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
           .count();
       if (treatyCount > 0) {
-        errors.rejectValue("treatyAgreement", "treatyAgreement" + FieldValidationErrorCodes.TOO_MANY.getCode(),
+        errors.rejectValue("huooType", "huooType" + FieldValidationErrorCodes.TOO_MANY.getCode(),
             "You may only have one treaty agreement on an application");
       }
     }
   }
+
+
+
+
 }

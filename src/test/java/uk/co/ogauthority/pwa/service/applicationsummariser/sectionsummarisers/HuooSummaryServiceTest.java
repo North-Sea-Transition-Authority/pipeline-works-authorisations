@@ -207,7 +207,7 @@ public class HuooSummaryServiceTest {
   @Test
   public void createDiffableView_orgRoleViewHasTreaty() {
 
-    var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromTreaty(TreatyAgreement.BELGIUM);
+    var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromTreaty(TreatyAgreement.ANY_TREATY_COUNTRY);
     var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));
 
     var orgGroupView = new OrganisationRolePipelineGroupView(
@@ -215,7 +215,7 @@ public class HuooSummaryServiceTest {
         null,
         false,
         null,
-        TreatyAgreement.BELGIUM,
+        TreatyAgreement.ANY_TREATY_COUNTRY,
         organisationRoleOwnerDto1,
         pipelineNumbersAndSplits
     );

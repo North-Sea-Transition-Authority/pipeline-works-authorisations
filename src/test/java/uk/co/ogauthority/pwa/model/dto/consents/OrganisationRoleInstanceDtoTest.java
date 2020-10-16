@@ -16,7 +16,7 @@ public class OrganisationRoleInstanceDtoTest {
 
   @Test
   public void getOrganisationRoleOwnerDto_whenTreatyParamsGiven() {
-    var orgRole = new OrganisationRoleInstanceDto(null, null, TreatyAgreement.BELGIUM, HuooRole.HOLDER,
+    var orgRole = new OrganisationRoleInstanceDto(null, null, TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.HOLDER,
         HuooType.TREATY_AGREEMENT);
     assertThat(orgRole.getOrganisationRoleOwnerDto()).extracting(
         OrganisationRoleOwnerDto::getHuooType,
@@ -27,7 +27,7 @@ public class OrganisationRoleInstanceDtoTest {
         HuooType.TREATY_AGREEMENT,
         null,
         null,
-        TreatyAgreement.BELGIUM
+        TreatyAgreement.ANY_TREATY_COUNTRY
     );
   }
 
